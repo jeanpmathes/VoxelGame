@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -134,7 +135,7 @@ public static class Operations
 
         public void Cleanup()
         {
-            ApplicationInformation.ThrowIfNotOnMainThread(this);
+            Application.ThrowIfNotOnMainThread(this);
 
             cancellation?.Dispose();
             cancellation = null;
@@ -142,7 +143,7 @@ public static class Operations
 
         public void Cancel()
         {
-            ApplicationInformation.ThrowIfNotOnMainThread(this);
+            Application.ThrowIfNotOnMainThread(this);
 
             cancelled = true;
             cancellation?.Cancel();

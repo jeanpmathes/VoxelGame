@@ -88,7 +88,7 @@ public sealed class VisualInterface : IDisposable
         {
             Boolean visualized = !block.IsReplaceable;
 
-            if (Program.IsDebug)
+            if (Core.App.Application.Instance.IsDebug)
                 visualized |= block != Blocks.Instance.Air;
 
             collider = visualized ? block.GetCollider(world, position.Value) : null;

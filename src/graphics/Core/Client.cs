@@ -12,6 +12,8 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.App;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Definition;
@@ -20,6 +22,7 @@ using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
 using Image = VoxelGame.Core.Visuals.Image;
+using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.Graphics.Core;
 
@@ -27,20 +30,18 @@ namespace VoxelGame.Graphics.Core;
 ///     A proxy class for the native client.
 /// </summary>
 [NativeMarshalling(typeof(ClientMarshaller))]
-public partial class Client : IDisposable
+public partial class Client : Application
 {
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
 #pragma warning restore S1450 // Keep the callback functions alive.
-
-    private Thread mainThread = null!;
 
     private Cycle? cycle = new();
 
     /// <summary>
     ///     Creates a new native client and initializes it.
     /// </summary>
-    protected Client(WindowSettings windowSettings)
+    protected Client(WindowSettings windowSettings, Version version) : base(version)
     {
         Debug.Assert(windowSettings.Size.X > 0);
         Debug.Assert(windowSettings.Size.Y > 0);
@@ -53,39 +54,50 @@ public partial class Client : IDisposable
         {
             onInitialization = () =>
             {
-                mainThread = Thread.CurrentThread;
+                using Timer? timer = logger.BeginTimedScoped("Client Initialization");
 
-                OnInitialization();
+                ThrowIfNotOnMainThread(this);
+
+                DoInitialization(timer);
             },
             onLogicUpdate = delta =>
             {
+                using Timer? timer = logger.BeginTimedScoped("Client Logic Update");
+
                 cycle = Cycle.Update;
 
                 Time += delta;
 
                 Input.PreLogicUpdate();
 
-                OnLogicUpdate(delta);
+                DoLogicUpdate(delta, timer);
 
                 Sync.LogicUpdate();
 
                 Input.PostLogicUpdate();
 
                 cycle = null;
+
             },
             onRenderUpdate = delta =>
             {
+                using Timer? timer = logger.BeginTimedScoped("Client Render Update");
+
                 cycle = Cycle.Render;
 
-                OnRenderUpdate(delta);
+                DoRenderUpdate(delta, timer);
 
                 cycle = null;
+
             },
             onDestroy = () =>
             {
+                using Timer? timer = logger.BeginTimedScoped("Client Destroy");
+
                 LogClosingWindow(logger);
 
-                OnDestroy();
+                DoDestroy(timer);
+
             },
             canClose = CanClose,
             onKeyDown = Input.OnKeyDown,
@@ -128,6 +140,9 @@ public partial class Client : IDisposable
         Space = new Space(this);
     }
 
+    /// <inheritdoc />
+    protected override Client Self => this;
+
     /// <summary>
     ///     Get the input system of the client.
     /// </summary>
@@ -136,17 +151,17 @@ public partial class Client : IDisposable
     /// <summary>
     ///     Whether the client is currently in the logic update cycle.
     /// </summary>
-    internal Boolean IsInLogicUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
+    internal Boolean IsInLogicUpdate => cycle == Cycle.Update && IsOnMainThread;
 
     /// <summary>
     ///     Whether the client is currently in the render update cycle.
     /// </summary>
-    internal Boolean IsInRenderUpdate => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
+    internal Boolean IsInRenderUpdate => cycle == Cycle.Render && IsOnMainThread;
 
     /// <summary>
     ///     Whether the client is currently outside any cycle but still on the main thread.
     /// </summary>
-    internal Boolean IsOutOfCycle => cycle == null && Thread.CurrentThread == mainThread;
+    internal Boolean IsOutOfCycle => cycle == null && IsOnMainThread;
 
     internal Synchronizer Sync { get; } = new();
 
@@ -252,28 +267,6 @@ public partial class Client : IDisposable
     {
         return true;
     }
-
-    /// <summary>
-    ///     Called on initialization of the client.
-    /// </summary>
-    protected virtual void OnInitialization() {}
-
-    /// <summary>
-    ///     Called for each fixed update step.
-    /// </summary>
-    /// <param name="delta">The time since the last update in seconds.</param>
-    protected virtual void OnLogicUpdate(Double delta) {}
-
-    /// <summary>
-    ///     Called for each render update step.
-    /// </summary>
-    /// <param name="delta">The time since the last render in seconds.</param>
-    protected virtual void OnRenderUpdate(Double delta) {}
-
-    /// <summary>
-    ///     Called when the client is destroyed.
-    /// </summary>
-    protected virtual void OnDestroy() {}
 
     /// <summary>
     ///     Create a raster pipeline.
@@ -444,12 +437,11 @@ public partial class Client : IDisposable
 
     private Boolean disposed;
 
-    /// <summary>
-    ///     Dispose the client.
-    /// </summary>
-    /// <param name="disposing">Whether the method was called by the user.</param>
-    protected virtual void Dispose(Boolean disposing)
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
     {
+        base.Dispose(disposing);
+
         if (disposed) return;
 
         if (disposing)
@@ -466,23 +458,6 @@ public partial class Client : IDisposable
         }
 
         disposed = true;
-    }
-
-    /// <summary>
-    ///     Dispose the client.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~Client()
-    {
-        Dispose(disposing: false);
     }
 
     #endregion

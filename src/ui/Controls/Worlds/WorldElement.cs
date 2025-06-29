@@ -9,7 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
-using VoxelGame.Core;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Controls.Common;
@@ -119,7 +119,7 @@ public sealed class WorldElement : VerticalLayout
         {
             Text = world.Version,
             Font = context.Fonts.Small,
-            TextColor = ApplicationInformation.Instance.Version == world.Version ? Colors.Good : Colors.Bad
+            TextColor = Application.Instance.Version.ToString() == world.Version ? Colors.Good : Colors.Bad
         };
 
         Control.Used(version);

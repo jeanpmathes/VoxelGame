@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -57,7 +58,7 @@ public abstract class Operation
 
     internal void Start()
     {
-        ApplicationInformation.ThrowIfNotOnMainThread(this);
+        Application.ThrowIfNotOnMainThread(this);
 
         Debug.Assert(Status == Status.Created);
 

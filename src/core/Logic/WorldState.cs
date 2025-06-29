@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
@@ -164,7 +165,7 @@ public abstract partial class WorldState
 
             if (saving == null)
             {
-                world.Data.Information.Version = ApplicationInformation.Instance.Version;
+                world.Data.Information.Version = Application.Instance.Version.ToString();
 
                 saving = Operations.Launch(async token =>
                 {
@@ -212,7 +213,7 @@ public abstract partial class WorldState
             {
                 LogSavingWorld(logger);
 
-                world.Data.Information.Version = ApplicationInformation.Instance.Version;
+                world.Data.Information.Version = Application.Instance.Version.ToString();
 
                 saving = Operations.Launch(async token =>
                 {

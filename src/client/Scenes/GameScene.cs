@@ -12,6 +12,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Client.Actors;
 using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Application;
+using VoxelGame.Client.Application.Components;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Visuals;
@@ -234,7 +235,7 @@ public sealed partial class GameScene : IScene
 
         ui.SetSettingsProviders(settingsProviders);
         ui.SetConsoleProvider(console);
-        ui.SetPerformanceProvider(Client);
+        ui.SetPerformanceProvider(Client.GetRequiredComponent<CycleTracker>());
 
         ui.WorldSave += (_, _) =>
         {
@@ -290,7 +291,7 @@ public sealed partial class GameScene : IScene
 
     #endregion LOGGING
 
-    #region IDisposable Graphics.
+    #region DISPOSING
 
     private Boolean disposed;
 
@@ -320,5 +321,5 @@ public sealed partial class GameScene : IScene
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Graphics.
+    #endregion DISPOSING
 }

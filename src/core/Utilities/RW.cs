@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using VoxelGame.Core.App;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -118,7 +119,7 @@ public sealed class RW
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
     private Guard? TryAcquireReader(String source)
     {
-        ApplicationInformation.ThrowIfNotOnMainThread(this);
+        Application.ThrowIfNotOnMainThread(this);
 
         if (!CanRead) return null;
 
@@ -134,7 +135,7 @@ public sealed class RW
     /// <returns>The guard that releases the resource when disposed, or null if the resource is not available.</returns>
     private Guard? TryAcquireWriter(String source)
     {
-        ApplicationInformation.ThrowIfNotOnMainThread(this);
+        Application.ThrowIfNotOnMainThread(this);
 
         if (!CanWrite) return null;
 

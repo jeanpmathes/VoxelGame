@@ -12,6 +12,8 @@ using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Tests.Utilities.Resources;
 
+#pragma warning disable CS0067 // Is for mock purposes only, so unused events do not matter.
+
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 internal sealed class MockResourceContext : IResourceContext
 {

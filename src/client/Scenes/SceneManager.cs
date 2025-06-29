@@ -5,27 +5,39 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Application.Components;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Scenes;
 
 /// <summary>
 ///     Manages scenes, switching between them.
 /// </summary>
-/// <param name="dispatch">On scene change, all operations on this dispatch will be cancelled or completed.</param>
-public partial class SceneManager(OperationUpdateDispatch? dispatch = null)
+public partial class SceneManager(Core.App.Application application) : ApplicationComponent(application), IConstructible<Core.App.Application, SceneManager>
 {
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly SceneOperationDispatch? dispatch = application.GetComponent<SceneOperationDispatch>();
+
     private IScene? current;
 
     /// <summary>
     ///     Whether a scene is currently loaded.
     /// </summary>
     public Boolean IsInScene => current != null;
+
+    /// <inheritdoc />
+    public static SceneManager Construct(Core.App.Application input)
+    {
+        return new SceneManager(input);
+    }
 
     /// <summary>
     ///     Load a scene.

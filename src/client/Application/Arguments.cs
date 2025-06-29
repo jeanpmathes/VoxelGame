@@ -21,14 +21,14 @@ public static partial class Arguments
     /// <summary>
     ///     Handles the command line arguments.
     /// </summary>
-    public static Int32 Handle(String[] args, SetUpLogging setUpLogging, RunGame runGame)
+    public static Int32 Handle(String[] args, Boolean isDebug, SetUpLogging setUpLogging, RunGame runGame)
     {
         RootCommand command = new("Run VoxelGame.");
 
         var logDebugOption = new Option<Boolean>(
             "--log-debug",
             description: "Whether to log debug messages. Is enabled by default in DEBUG builds.",
-            getDefaultValue: () => Program.IsDebug
+            getDefaultValue: () => isDebug
         );
 
         logDebugOption.AddAlias("-dbg");
@@ -68,7 +68,7 @@ public static partial class Arguments
         var enableProfilingOption = new Option<ProfilerConfiguration>(
             "--profile",
             description: "The profiler configuration to use. In DEBUG builds, basic profiling is used by default. Otherwise, no profiling is done.",
-            getDefaultValue: () => Program.IsDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled
+            getDefaultValue: () => isDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled
         );
 
         enableProfilingOption.AddAlias("-p");

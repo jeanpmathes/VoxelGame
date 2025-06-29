@@ -13,6 +13,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
@@ -58,7 +59,7 @@ public abstract partial class World : IDisposable, IGrid
                     UpperSeed = seed.upper,
                     LowerSeed = seed.lower,
                     Creation = DateTime.UtcNow,
-                    Version = ApplicationInformation.Instance.Version
+                    Version = Application.Instance.Version.ToString()
                 },
                 path),
             isNew: true)

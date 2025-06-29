@@ -114,7 +114,7 @@ public class World : Core.Logic.World
 
         Frustum frustum = player!.View.Frustum;
 
-        if (Program.IsDebug) Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
+        if (Core.App.Application.Instance.IsDebug) Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
         else
             // Rendering chunks even if they are used by an off-thread operation is safe.
             // The rendering resources are only modified on the main thread anyway.

@@ -5,8 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Application.Components;
 using VoxelGame.Client.Application.Settings;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
@@ -16,11 +18,9 @@ using VoxelGame.Client.Visuals;
 using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
-using VoxelGame.UI.Providers;
 using VoxelGame.UI.Resources;
 
 namespace VoxelGame.Client.Application;
@@ -28,16 +28,14 @@ namespace VoxelGame.Client.Application;
 /// <summary>
 ///     The game window and also the class that represents the running game instance.
 /// </summary>
-internal partial class Client : Graphics.Core.Client, IPerformanceProvider
+public sealed partial class Client : Graphics.Core.Client
 {
     private readonly GameParameters parameters;
 
-    private readonly SceneFactory sceneFactory;
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly SceneManager sceneManager;
 
-    private readonly OperationUpdateDispatch sceneOperations = new(singleton: true);
-
-    private WindowBehaviour windowBehaviour = null!;
+    private readonly SceneFactory sceneFactory;
 
     private Boolean isExitingToOS;
 
@@ -47,7 +45,8 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     /// <param name="windowSettings">The window settings.</param>
     /// <param name="graphicsSettings">The graphics settings.</param>
     /// <param name="parameters">The parameters, passed from the command line.</param>
-    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters) : base(windowSettings)
+    /// <param name="version">The version of the game.</param>
+    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters, Version version) : base(windowSettings, version)
     {
         this.parameters = parameters;
 
@@ -56,7 +55,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
 
         Graphics.CreateSettings(this);
 
-        sceneManager = new SceneManager(sceneOperations);
+        sceneManager = AddComponent<SceneManager>();
         sceneFactory = new SceneFactory(this);
 
         Keybinds = new KeybindManager(Settings, Input);
@@ -72,101 +71,71 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     internal GeneralSettings Settings { get; }
     internal GraphicsSettings Graphics { get; }
 
-    private Double FPS => windowBehaviour.FPS;
-    private Double UPS => windowBehaviour.UPS;
-
     private IResourceContext? UIResources { get; set; }
     private IResourceContext? MainResources { get; set; }
 
-    /// <summary>
-    ///     Get an update dispatch which does not cancel and complete operations on scene change.
-    ///     Using this dispatch is necessary when operations should continue even when the scene changes.
-    ///     Otherwise, using the default dispatch is recommended.
-    /// </summary>
-    internal OperationUpdateDispatch ClientUpdateDispatch { get; } = new();
-
-    Double IPerformanceProvider.FPS => FPS;
-    Double IPerformanceProvider.UPS => UPS;
-
-    protected override void OnInitialization()
+    /// <inheritdoc />
+    protected override void OnInitialization(Timer? timer)
     {
-        using (Timer? timer = logger.BeginTimedScoped("Client Load", TimingStyle.Once))
+        AddComponent<FullscreenToggle, Client>();
+        AddComponent<CycleTracker>();
+
+        AddComponent<SceneOperationDispatch>();
+        AddComponent<GlobalOperationDispatch>();
+
+        ResourceCatalogLoader loader = new();
+
+        loader.AddToEnvironment(this);
+        loader.AddToEnvironment(Graphics.VisualConfiguration);
+
+        (UIResources, ResourceLoadingIssueReport? uiIssues) = loader.Load(new UserInterfaceRequirements(), timer);
+
+        if (uiIssues is {AnyErrors: true})
         {
-            windowBehaviour = new WindowBehaviour(this);
+            LogFailedToLoadUIResources(logger);
 
-            ResourceCatalogLoader loader = new();
-
-            loader.AddToEnvironment(this);
-            loader.AddToEnvironment(Graphics.VisualConfiguration);
-
-            (UIResources, ResourceLoadingIssueReport? uiIssues) = loader.Load(new UserInterfaceRequirements(), timer);
-
-            if (uiIssues is {AnyErrors: true})
-            {
-                LogFailedToLoadUIResources(logger);
-
-                ExitToOS();
-
-                return;
-            }
-
-            loader.AddToEnvironment(UIResources);
-
-            (MainResources, ResourceLoadingIssueReport? mainIssues) = loader.Load(new ClientContent(), timer);
-            ResourceLoadingIssueReport? issueReport = ResourceLoadingIssueReport.Merge("Resources", uiIssues, mainIssues);
-
-            sceneFactory.InitializeResources(MainResources);
-
-            if (MainResources.Get<TextureBundle>(Textures.BlockID) is {} blockTextures)
-                LogTextureBlockRatio(logger, blockTextures.Count / (Double) Blocks.Instance.Count);
-
-            IScene? startScene = sceneFactory.CreateStartScene(issueReport, parameters.DirectlyLoadedWorldIndex);
-
-            if (startScene != null)
-            {
-                if (MainResources.Get<Engine>() is {} engine)
-                    Visuals.Graphics.Initialize(engine);
-
-                sceneManager.Load(startScene);
-            }
-
-            LogFinishedOnLoad(logger);
-        }
-
-        // Optional generation of manual.
-        ManualBuilder.EmitManual(this);
-    }
-
-    protected override void OnRenderUpdate(Double delta)
-    {
-        using Timer? timer = logger.BeginTimedScoped("Client Render Update");
-
-        sceneManager.RenderUpdate(delta, timer);
-        windowBehaviour.RenderUpdate(delta);
-    }
-
-    protected override void OnLogicUpdate(Double delta)
-    {
-        using Timer? timer = logger.BeginTimedScoped("Client Update");
-
-        if (!sceneManager.IsInScene)
-        {
             ExitToOS();
 
             return;
         }
 
-        using (logger.BeginTimedSubScoped("Client Operations", timer))
+        loader.AddToEnvironment(UIResources);
+
+        (MainResources, ResourceLoadingIssueReport? mainIssues) = loader.Load(new ClientContent(), timer);
+        ResourceLoadingIssueReport? issueReport = ResourceLoadingIssueReport.Merge("Resources", uiIssues, mainIssues);
+
+        sceneFactory.InitializeResources(MainResources);
+
+        if (MainResources.Get<TextureBundle>(Textures.BlockID) is {} blockTextures)
+            LogTextureBlockRatio(logger, blockTextures.Count / (Double) Blocks.Instance.Count);
+
+        IScene? startScene = sceneFactory.CreateStartScene(issueReport, parameters.DirectlyLoadedWorldIndex);
+
+        if (startScene != null)
         {
-            sceneOperations.LogicUpdate();
-            ClientUpdateDispatch.LogicUpdate();
+            if (MainResources.Get<Engine>() is {} engine)
+                Visuals.Graphics.Initialize(engine);
+
+            sceneManager.Load(startScene);
         }
 
-        sceneManager.LogicUpdate(delta, timer);
-        windowBehaviour.LogicUpdate(delta);
+        LogFinishedOnLoad(logger);
+
+        // Optional generation of manual.
+        ManualBuilder.EmitManual(this);
     }
 
-    protected override void OnDestroy()
+    /// <inheritdoc />
+    protected override void OnLogicUpdate(Double delta, Timer? timer)
+    {
+        if (sceneManager.IsInScene)
+            return;
+
+        ExitToOS();
+    }
+
+    /// <inheritdoc />
+    protected override void OnDestroy(Timer? timer)
     {
         sceneManager.Unload();
 
@@ -174,13 +143,14 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         MainResources?.Dispose();
     }
 
+    /// <inheritdoc />
     protected override Boolean CanClose()
     {
         return sceneManager.CanCloseWindow();
     }
 
     /// <summary>
-    ///     Start a game in a world. A game can only be started when no other game is running.
+    ///     Start a game in the given world. A game can only be started when no other game is running.
     /// </summary>
     /// <param name="world">The world to start the game in.</param>
     internal void StartGame(World world)
@@ -246,7 +216,7 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
     [LoggerMessage(EventId = LogID.Client + 4, Level = LogLevel.Critical, Message = "Failed to load required UI resources, exiting")]
     private static partial void LogFailedToLoadUIResources(ILogger logger);
 
-    #endregion
+    #endregion LOGGING
 
     #region DISPOSABLE
 
@@ -260,8 +230,6 @@ internal partial class Client : Graphics.Core.Client, IPerformanceProvider
         if (disposing)
         {
             SizeChanged -= OnSizeChanged;
-
-            ClientUpdateDispatch.CompleteAll();
         }
 
         base.Dispose(disposing);

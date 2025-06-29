@@ -11,7 +11,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
-using VoxelGame.Core;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -179,7 +179,7 @@ internal class GameUI : ControlBase
 
         Label info = new(layout)
         {
-            Text = $"{Language.VoxelGame} - {ApplicationInformation.Instance.Version}",
+            Text = $"{Language.VoxelGame} - {Application.Instance.Version}",
             Font = parent.Context.Fonts.Subtitle,
             HorizontalAlignment = HorizontalAlignment.Center
         };

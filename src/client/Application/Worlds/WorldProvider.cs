@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Application.Components;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
@@ -285,7 +286,7 @@ public partial class WorldProvider : IWorldProvider
             {
                 await metadata.SaveAsync(metadataFile, token).InAnyContext();
             },
-            client.ClientUpdateDispatch);
+            client.GetRequiredComponent<GlobalOperationDispatch>());
     }
 
     /// <summary>

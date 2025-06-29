@@ -7,7 +7,6 @@
 using System;
 using System.IO;
 using OpenTK.Mathematics;
-using VoxelGame.Core;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -171,7 +170,7 @@ public sealed class SectionVFX : VFX
     public void SetData(SectionMeshData meshData)
     {
         Throw.IfDisposed(disposed);
-        ApplicationInformation.ThrowIfNotOnMainThread(this);
+        Core.App.Application.ThrowIfNotOnMainThread(this);
 
         if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
         {

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
@@ -635,7 +636,7 @@ public abstract class ChunkState
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static Guard? TryStealAccess(ref ChunkState state)
     {
-        ApplicationInformation.ThrowIfNotOnMainThread(state.Chunk);
+        Application.ThrowIfNotOnMainThread(state.Chunk);
 
         if (!state.CanStealAccess) return null;
 

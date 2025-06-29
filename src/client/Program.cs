@@ -13,7 +13,6 @@ using Microsoft.Extensions.Logging;
 using Properties;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Application.Settings;
-using VoxelGame.Core;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -32,7 +31,12 @@ internal static partial class Program
     /// <summary>
     ///     Get the version of the program.
     /// </summary>
-    private static String Version { get; set; } = null!;
+    private static Version Version { get; set; } = null!;
+
+    /// <summary>
+    ///     Get whether the program is running with code that was compiled in debug mode.
+    /// </summary>
+    private static Boolean IsDebug { get; set; }
 
     /// <summary>
     ///     Get the app data directory.
@@ -54,11 +58,6 @@ internal static partial class Program
     /// </summary>
     internal static DirectoryInfo WorldsDirectory { get; private set; } = null!;
 
-    /// <summary>
-    ///     Get whether the program is running with code that was compiled in debug mode.
-    /// </summary>
-    internal static Boolean IsDebug { get; private set; }
-
     [STAThread]
     private static Int32 Main(String[] commandLineArguments)
     {
@@ -74,6 +73,7 @@ internal static partial class Program
         WorldsDirectory = AppDataDirectory.CreateSubdirectory("Worlds");
 
         return Arguments.Handle(commandLineArguments,
+            IsDebug,
             logging =>
             {
                 ILogger logger = LoggingHelper.SetUpLogging(nameof(Program), logging.LogDebug, AppDataDirectory);
@@ -81,8 +81,7 @@ internal static partial class Program
                 if (logging.LogDebug) LogDebugMessages(logger);
                 else LogDebugMessagesNotLogged(logger);
 
-                Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
-                ApplicationInformation.Initialize(Version);
+                Version = typeof(Program).Assembly.GetName().Version ?? new Version("0.0.0.1");
                 System.Console.Title = Language.VoxelGame + @" " + Version;
 
                 LogStartingGame(logger, Version);
@@ -109,7 +108,7 @@ internal static partial class Program
 
                     Int32 result;
 
-                    using (Application.Client client = new(windowSettings, graphicsSettings, args))
+                    using (Application.Client client = new(windowSettings, graphicsSettings, args, Version))
                     {
                         result = client.Run();
                     }
@@ -154,7 +153,7 @@ internal static partial class Program
     private static partial void LogDebugMessagesNotLogged(ILogger logger);
 
     [LoggerMessage(EventId = LogID.Program + 2, Level = LogLevel.Information, Message = "Starting game on version: {Version}")]
-    private static partial void LogStartingGame(ILogger logger, String version);
+    private static partial void LogStartingGame(ILogger logger, Version version);
 
     [LoggerMessage(EventId = LogID.Program + 3, Level = LogLevel.Debug, Message = "Opening window")]
     private static partial void LogOpeningWindow(ILogger logger);

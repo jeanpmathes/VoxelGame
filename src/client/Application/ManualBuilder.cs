@@ -9,7 +9,6 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Core;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
@@ -42,7 +41,7 @@ public static partial class ManualBuilder
 
         LogGeneratingManual(logger);
 
-        Documentation documentation = new(typeof(ApplicationInformation).Assembly);
+        Documentation documentation = new(typeof(Core.App.Application).Assembly);
 
         Includable controls = new("controls", directory);
 
