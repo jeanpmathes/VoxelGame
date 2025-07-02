@@ -101,24 +101,16 @@ public partial class SceneManager(Core.App.Application application) : Applicatio
         #pragma warning restore S1215 // When unloading, many objects have just died.
     }
 
-    /// <summary>
-    ///     Render the current scene.
-    /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    /// <param name="timer">A timer for profiling.</param>
-    public void RenderUpdate(Double deltaTime, Timer? timer)
+    /// <inheritdoc />
+    public override void OnLogicUpdate(Double delta, Timer? timer)
     {
-        current?.RenderUpdate(deltaTime, timer);
+        current?.LogicUpdate(delta, timer);
     }
 
-    /// <summary>
-    ///     Update the current scene.
-    /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    /// <param name="timer">A timer for profiling.</param>
-    public void LogicUpdate(Double deltaTime, Timer? timer)
+    /// <inheritdoc />
+    public override void OnRenderUpdate(Double delta, Timer? timer)
     {
-        current?.LogicUpdate(deltaTime, timer);
+        current?.RenderUpdate(delta, timer);
     }
 
     /// <summary>

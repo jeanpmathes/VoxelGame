@@ -49,6 +49,9 @@ public sealed partial class Client : Graphics.Core.Client
     internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters, Version version) : base(windowSettings, version)
     {
         this.parameters = parameters;
+        
+        AddComponent<SceneOperationDispatch>();
+        AddComponent<GlobalOperationDispatch>();
 
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;
@@ -79,9 +82,6 @@ public sealed partial class Client : Graphics.Core.Client
     {
         AddComponent<FullscreenToggle, Client>();
         AddComponent<CycleTracker>();
-
-        AddComponent<SceneOperationDispatch>();
-        AddComponent<GlobalOperationDispatch>();
 
         ResourceCatalogLoader loader = new();
 

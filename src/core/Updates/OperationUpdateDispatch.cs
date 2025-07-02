@@ -50,6 +50,16 @@ public class OperationUpdateDispatch : ApplicationComponent
     ///     The singleton instance of the operation update dispatch.
     /// </summary>
     public static OperationUpdateDispatch? Instance { get; private set; }
+    
+    private void Update()
+    {
+        operations.Apply(operation =>
+        {
+            operation.Update();
+
+            return operation.IsRunning;
+        });
+    }
 
     /// <summary>
     /// Set up a mock instance for testing.
@@ -58,22 +68,6 @@ public class OperationUpdateDispatch : ApplicationComponent
     public static void SetUpMockInstance()
     {
         Instance = new OperationUpdateDispatch(singleton: true, Application.Instance);
-    }
-
-    /// <summary>
-    ///     Perform an update.
-    /// </summary>
-    public void Update(Timer? timer)
-    {
-        using (logger.BeginTimedSubScoped(Name, timer))
-        {
-            operations.Apply(operation =>
-            {
-                operation.Update();
-
-                return operation.IsRunning;
-            });
-        }
     }
 
     /// <summary>
@@ -100,7 +94,7 @@ public class OperationUpdateDispatch : ApplicationComponent
         Application.ThrowIfNotOnMainThread(this);
 
         while (operations.Count > 0)
-            Update(timer: null);
+            Update();
     }
 
     /// <summary>
@@ -112,6 +106,15 @@ public class OperationUpdateDispatch : ApplicationComponent
         operation.Start();
 
         operations.Add(operation);
+    }
+    
+    /// <inheritdoc />
+    public override void OnLogicUpdate(Double delta, Timer? timer)
+    {
+        using (logger.BeginTimedSubScoped(Name, timer))
+        {
+            Update();
+        }
     }
 
     #region DISPOSING
