@@ -26,6 +26,6 @@ public class GetSeed : Command
     public void Invoke()
     {
         (Int32 upper, Int32 lower) = Context.Player.World.Seed;
-        Context.Console.WriteResponse($"({upper}, {lower})");
+        Context.Output.WriteResponse($"({upper}, {lower})");
     }
 }

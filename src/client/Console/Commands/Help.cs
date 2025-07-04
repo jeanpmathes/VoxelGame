@@ -83,9 +83,9 @@ public class Help : Command
     /// <exclude />
     public void Invoke()
     {
-        Context.Console.WriteResponse("Use 'help' to get information on available commands.");
-        Context.Console.WriteResponse("Use 'help <page : Int32>' to get a specific command list page.");
-        Context.Console.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
+        Context.Output.WriteResponse("Use 'help' to get information on available commands.");
+        Context.Output.WriteResponse("Use 'help <page : Int32>' to get a specific command list page.");
+        Context.Output.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
     }
 
     /// <exclude />
@@ -93,17 +93,17 @@ public class Help : Command
     {
         if (page > commandPages.Count || page <= 0)
         {
-            Context.Console.WriteError($"There are only {commandPages.Count} pages of commands.");
+            Context.Output.WriteError($"There are only {commandPages.Count} pages of commands.");
         }
         else
         {
-            Context.Console.WriteResponse($"Page {page} of {commandPages.Count}:",
+            Context.Output.WriteResponse($"Page {page} of {commandPages.Count}:",
             [
                 new FollowUp("Show next page", () => { Invoke(page + 1); }),
                 new FollowUp("Show previous page", () => { Invoke(page - 1); })
             ]);
 
-            commandPages[page - 1].ForEach(entry => Context.Console.WriteResponse(entry.Text, entry.FollowUp));
+            commandPages[page - 1].ForEach(entry => Context.Output.WriteResponse(entry.Text, entry.FollowUp));
         }
     }
 
@@ -111,8 +111,8 @@ public class Help : Command
     public void Invoke(String command)
     {
         if (commandDescriptions.TryGetValue(command, out List<Entry>? description))
-            description.ForEach(entry => Context.Console.WriteResponse(entry.Text, entry.FollowUp));
-        else Context.Console.WriteError($"Command '{command}' not found.");
+            description.ForEach(entry => Context.Output.WriteResponse(entry.Text, entry.FollowUp));
+        else Context.Output.WriteError($"Command '{command}' not found.");
     }
 
     private sealed record Entry(String Text, FollowUp[] FollowUp);

@@ -1,4 +1,4 @@
-﻿// <copyright file="AppComponent.cs" company="VoxelGame">
+﻿// <copyright file="ApplicationComponent.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,7 +11,7 @@ using VoxelGame.Toolkit.Components;
 namespace VoxelGame.Core.App;
 
 /// <summary>
-///     Base class for all components used in the application class.
+///     Base class for all components used in the <see cref="Application"/> class.
 /// </summary>
 public class ApplicationComponent(Application application) : Component<Application>(application)
 {

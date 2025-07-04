@@ -34,7 +34,7 @@ public class GetDistance : Command
     public void Invoke(String target)
     {
         if (GetNamedPosition(target) is {} position) DetermineDistance(position);
-        else Context.Console.WriteError($"Unknown target: {target}");
+        else Context.Output.WriteError($"Unknown target: {target}");
     }
 
     private void DetermineDistance(Vector3d position)
@@ -44,6 +44,6 @@ public class GetDistance : Command
             Meters = (position - Context.Player.Position).Length
         };
 
-        Context.Console.WriteResponse($"Distance: {distance}");
+        Context.Output.WriteResponse($"Distance: {distance}");
     }
 }

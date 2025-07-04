@@ -33,7 +33,7 @@ public class Teleport : Command
     public void Invoke(String target)
     {
         if (GetNamedPosition(target) is {} position) Do(Context, position);
-        else Context.Console.WriteError($"Unknown target: {target}");
+        else Context.Output.WriteError($"Unknown target: {target}");
     }
 
     /// <summary>

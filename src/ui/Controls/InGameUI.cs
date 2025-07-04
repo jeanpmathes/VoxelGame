@@ -1,4 +1,4 @@
-﻿// <copyright file="GameUI.cs" company="VoxelGame">
+﻿// <copyright file="InGameUI.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -24,7 +24,7 @@ namespace VoxelGame.UI.Controls;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class GameUI : ControlBase
+internal class InGameUI : ControlBase
 {
     private readonly InGameDisplay hud;
     private readonly GameUserInterface parent;
@@ -36,7 +36,7 @@ internal class GameUI : ControlBase
     private Window? gameMenu;
     private Boolean isSettingsMenuOpen;
 
-    internal GameUI(GameUserInterface parent, ICollection<SettingsProvider> settingsProviders,
+    internal InGameUI(GameUserInterface parent, ICollection<SettingsProvider> settingsProviders,
         IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
         IPerformanceProvider performanceProvider) : base(parent.Root)
     {

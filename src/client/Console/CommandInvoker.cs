@@ -126,13 +126,13 @@ public sealed partial class CommandInvoker : IResource
             }
             else
             {
-                context.Console.WriteError($"No overload found, use 'help {commandName}' for more info.");
+                context.Output.WriteError($"No overload found, use 'help {commandName}' for more info.");
                 LogNoOverloadFound(logger, commandName);
             }
         }
         else
         {
-            context.Console.WriteError($"No command '{commandName}' found, use 'help' for more info.");
+            context.Output.WriteError($"No command '{commandName}' found, use 'help' for more info.");
             LogCommandNotFound(logger, commandName);
         }
     }

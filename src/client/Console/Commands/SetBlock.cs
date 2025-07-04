@@ -35,7 +35,7 @@ public class SetBlock : Command
     public void Invoke(String namedID, Int32 data)
     {
         if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, data, targetPosition);
-        else Context.Console.WriteError("No position targeted.");
+        else Context.Output.WriteError("No position targeted.");
     }
 
     private void Set(String namedID, Int32 data, Vector3i position)
@@ -44,14 +44,14 @@ public class SetBlock : Command
 
         if (block == null)
         {
-            Context.Console.WriteError("Cannot find block.");
+            Context.Output.WriteError("Cannot find block.");
 
             return;
         }
 
         if (data is < 0 or > 0b11_1111)
         {
-            Context.Console.WriteError("Invalid data value.");
+            Context.Output.WriteError("Invalid data value.");
 
             return;
         }

@@ -122,7 +122,7 @@ public partial class Chunk : IDisposable, IEntity
     private readonly RW rw = new(nameof(Chunk));
 
     /// <summary>
-    ///     Using a local counter allows to use the update managers after normalization without having to revert that.
+    ///     Using a local counter allows to use the update managers after normalization without having to revert normalization.
     /// </summary>
     private readonly UpdateCounter localLogicUpdateCounter = new();
 

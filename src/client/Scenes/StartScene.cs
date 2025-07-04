@@ -44,7 +44,7 @@ public sealed partial class StartScene : IScene
         this.loadWorldDirectly = loadWorldDirectly;
 
         worldProvider = new WorldProvider(client, Program.WorldsDirectory);
-        worldProvider.WorldActivation += (_, world) => client.StartGame(world);
+        worldProvider.WorldActivation += (_, world) => client.StartSession(world);
 
         List<SettingsProvider> settingsProviders =
         [

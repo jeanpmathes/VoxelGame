@@ -27,7 +27,7 @@ public class DoUpdate : Command
     public void Invoke()
     {
         if (Context.Player.TargetPosition is {} targetPosition) Update(targetPosition);
-        else Context.Console.WriteError("No position targeted.");
+        else Context.Output.WriteError("No position targeted.");
     }
 
     /// <exclude />
@@ -39,6 +39,6 @@ public class DoUpdate : Command
     private void Update(Vector3i position)
     {
         Boolean success = Context.Player.World.DoRandomUpdate(position);
-        if (!success) Context.Console.WriteError("Cannot update at this position.");
+        if (!success) Context.Output.WriteError("Cannot update at this position.");
     }
 }

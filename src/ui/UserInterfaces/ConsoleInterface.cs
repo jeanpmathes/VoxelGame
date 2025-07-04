@@ -30,14 +30,17 @@ public class ConsoleInterface
     private const Int32 MaxConsoleLogLength = 200;
     private const String DefaultMarker = "[ ]";
     private const String FollowUpMarker = "[a]";
+    
     private static readonly Color echoColor = Colors.Secondary;
     private static readonly Color responseColor = Colors.Primary;
     private static readonly Color errorColor = Colors.Error;
+    
     private readonly IConsoleProvider console;
-    private readonly LinkedList<Entry> consoleLog = new();
-    private readonly LinkedList<String> consoleMemory = new();
+    private readonly LinkedList<Entry> consoleLog = [];
+    private readonly LinkedList<String> consoleMemory = [];
     private readonly Context context;
     private readonly ControlBase root;
+    
     private MemorizingTextBox? consoleInput;
     private ListBox? consoleOutput;
     private Window? consoleWindow;
@@ -48,11 +51,21 @@ public class ConsoleInterface
         this.root = root;
         this.console = console;
         this.context = context;
+        
+        console.MessageAdded += (_, args) =>
+        {
+            Write(
+                args.Message, 
+                args.IsError ? EntryType.Error : EntryType.Response, 
+                args.FollowUp);
+        };
 
+        console.Cleared += (_, _) => Clear();
+        
         consoleLog.AddLast(new Entry(
             $"Welcome! Enter your commands below, and note that entries with {FollowUpMarker} offer follow-up actions in their right-click menu.",
             EntryType.Echo,
-            Array.Empty<FollowUp>()));
+            []));
     }
 
     internal Boolean IsOpen => consoleWindow != null;
@@ -132,7 +145,7 @@ public class ConsoleInterface
 
             if (input.Length == 0) return;
 
-            Write(input, EntryType.Echo, Array.Empty<FollowUp>());
+            Write(input, EntryType.Echo, []);
             console.ProcessInput(input);
         }
     }
@@ -205,26 +218,6 @@ public class ConsoleInterface
         };
     }
 
-    /// <summary>
-    ///     Write a response message to the console.
-    /// </summary>
-    /// <param name="message">The message text.</param>
-    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    public void WriteResponse(String message, FollowUp[] followUp)
-    {
-        Write(message, EntryType.Response, followUp);
-    }
-
-    /// <summary>
-    ///     Write an error message to the console.
-    /// </summary>
-    /// <param name="message">The message text.</param>
-    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    public void WriteError(String message, FollowUp[] followUp)
-    {
-        Write(message, EntryType.Error, followUp);
-    }
-
     internal void CloseWindow()
     {
         Debug.Assert(consoleWindow != null);
@@ -246,11 +239,8 @@ public class ConsoleInterface
 
         WindowClosed?.Invoke(this, EventArgs.Empty);
     }
-
-    /// <summary>
-    ///     Clear all console messages.
-    /// </summary>
-    public void Clear()
+    
+    private void Clear()
     {
         consoleOutput?.Clear();
         consoleLog.Clear();

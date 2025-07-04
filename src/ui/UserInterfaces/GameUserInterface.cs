@@ -18,7 +18,7 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 public class GameUserInterface : UserInterface
 {
-    private GameUI? control;
+    private InGameUI? control;
 
     private IConsoleProvider? consoleProvider;
     private IPerformanceProvider? performanceProvider;
@@ -117,7 +117,7 @@ public class GameUserInterface : UserInterface
         Debug.Assert(playerDataProvider != null);
         Debug.Assert(performanceProvider != null);
 
-        control = new GameUI(this, settingsProviders, consoleProvider, playerDataProvider, performanceProvider);
+        control = new InGameUI(this, settingsProviders, consoleProvider, playerDataProvider, performanceProvider);
 
         UpdateControlVisibility();
     }

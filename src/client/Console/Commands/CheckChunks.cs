@@ -36,7 +36,7 @@ public class CheckChunks : Command
 
             if (chunk is not null) continue;
 
-            Context.Console.WriteError($"Chunk at {position} in range of player is missing.");
+            Context.Output.WriteError($"Chunk at {position} in range of player is missing.");
 
             found = true;
         }
@@ -57,11 +57,11 @@ public class CheckChunks : Command
         }
 
         if (!found)
-            Context.Console.WriteResponse("Chunks seem OK.");
+            Context.Output.WriteResponse("Chunks seem OK.");
 
         void ReportFoundChunk(Chunk chunk, String message)
         {
-            Context.Console.WriteError(message,
+            Context.Output.WriteError(message,
             [
                 new FollowUp("Break",
                     () =>

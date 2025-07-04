@@ -40,12 +40,12 @@ public sealed partial class Client : Graphics.Core.Client
     private Boolean isExitingToOS;
 
     /// <summary>
-    ///     Create a new game instance.
+    ///     Create a new client instance.
     /// </summary>
     /// <param name="windowSettings">The window settings.</param>
     /// <param name="graphicsSettings">The graphics settings.</param>
     /// <param name="parameters">The parameters, passed from the command line.</param>
-    /// <param name="version">The version of the game.</param>
+    /// <param name="version">The version of the client.</param>
     internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters, Version version) : base(windowSettings, version)
     {
         this.parameters = parameters;
@@ -150,19 +150,19 @@ public sealed partial class Client : Graphics.Core.Client
     }
 
     /// <summary>
-    ///     Start a game in the given world. A game can only be started when no other game is running.
+    ///     Start a session in the given world. A session can only be started when no other session is running.
     /// </summary>
-    /// <param name="world">The world to start the game in.</param>
-    internal void StartGame(World world)
+    /// <param name="world">The world to start the session in.</param>
+    internal void StartSession(World world)
     {
-        IScene? gameScene = sceneFactory.CreateGameScene(world);
+        IScene? gameScene = sceneFactory.CreateSessionScene(world);
 
         if (gameScene != null)
             sceneManager.Load(gameScene);
     }
 
     /// <summary>
-    ///     Exit the current game.
+    ///     Exit the current session.
     /// </summary>
     /// <param name="exitToOS">Whether to exit the complete application or just to the start scene.</param>
     internal void ExitGame(Boolean exitToOS)

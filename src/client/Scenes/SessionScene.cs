@@ -1,4 +1,4 @@
-﻿// <copyright file="GameScene.cs" company="VoxelGame">
+﻿// <copyright file="SessionScene.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,10 +11,10 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors;
 using VoxelGame.Client.Actors.Players;
-using VoxelGame.Client.Application;
 using VoxelGame.Client.Application.Components;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
+using VoxelGame.Client.Sessions;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Profiling;
@@ -30,9 +30,9 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Scenes;
 
 /// <summary>
-///     The scene that is active when the game is played.
+///     The scene that is active when a session is played.
 /// </summary>
-public sealed partial class GameScene : IScene
+public sealed partial class SessionScene : IScene
 {
     private readonly ToggleButton consoleToggle;
     private readonly PushButton escapeButton;
@@ -44,14 +44,14 @@ public sealed partial class GameScene : IScene
 
     private Boolean isMouseUnlockedByUserRequest;
 
-    internal GameScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine)
+    internal SessionScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine)
     {
         Client = client;
 
         ui = CreateUI(client, uiResources);
-        Game = CreateGame(client.Space.Camera, world, engine);
+        Session = CreateSession(client.Space.Camera, world, engine);
 
-        GameConsole console = new(Game, commands);
+        SessionConsole console = new(Session, commands);
 
         world.State.Activated += (_, _) =>
         {
@@ -79,9 +79,9 @@ public sealed partial class GameScene : IScene
     public Boolean IsWindowFocused => Client.IsFocused;
 
     /// <summary>
-    ///     Get the game played in this scene.
+    ///     Get the session played in this scene.
     /// </summary>
-    public Game Game { get; private set; }
+    public Session Session { get; private set; }
 
     /// <summary>
     ///     Get the client that this scene is part of.
@@ -93,17 +93,14 @@ public sealed partial class GameScene : IScene
     {
         Throw.IfDisposed(disposed);
 
-        Debug.Assert(Game != null);
+        Debug.Assert(Session != null);
 
-        ui.SetPlayerDataProvider(Game.Player);
+        ui.SetPlayerDataProvider(Session.Player);
 
         ui.Load();
         ui.Resize(Client.Size);
 
         ui.CreateControl();
-
-        if (ui.Console != null)
-            Game.Initialize(new ConsoleWrapper(ui.Console));
 
         Client.FocusChanged += OnFocusChanged;
 
@@ -123,14 +120,14 @@ public sealed partial class GameScene : IScene
     {
         Throw.IfDisposed(disposed);
 
-        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene RenderUpdate", timer);
+        using Timer? subTimer = logger.BeginTimedSubScoped("SessionScene RenderUpdate", timer);
 
-        using (logger.BeginTimedSubScoped("GameScene RenderUpdate Game", subTimer))
+        using (logger.BeginTimedSubScoped("SessionScene RenderUpdate Session", subTimer))
         {
-            Game.RenderUpdate();
+            Session.RenderUpdate(deltaTime, subTimer);
         }
 
-        using (logger.BeginTimedSubScoped("GameScene RenderUpdate UI", subTimer))
+        using (logger.BeginTimedSubScoped("SessionScene RenderUpdate UI", subTimer))
         {
             RenderUpdateUI();
         }
@@ -141,16 +138,16 @@ public sealed partial class GameScene : IScene
     {
         Throw.IfDisposed(disposed);
 
-        using Timer? subTimer = logger.BeginTimedSubScoped("GameScene LogicUpdate", timer);
+        using Timer? subTimer = logger.BeginTimedSubScoped("SessionScene LogicUpdate", timer);
 
-        using (logger.BeginTimedSubScoped("GameScene LogicUpdate UI", subTimer))
+        using (logger.BeginTimedSubScoped("SessionScene LogicUpdate UI", subTimer))
         {
             ui.LogicUpdate();
         }
 
-        using (Timer? gameTimer = logger.BeginTimedSubScoped("GameScene LogicUpdate Game", subTimer))
+        using (Timer? gameTimer = logger.BeginTimedSubScoped("SessionScene LogicUpdate Session", subTimer))
         {
-            Game.LogicUpdate(deltaTime, gameTimer);
+            Session.LogicUpdate(deltaTime, gameTimer);
         }
 
         if (!Client.IsFocused)
@@ -190,8 +187,8 @@ public sealed partial class GameScene : IScene
 
         Client.FocusChanged -= OnFocusChanged;
 
-        Game.Dispose();
-        Game = null!;
+        Session.Dispose();
+        Session = null!;
     }
 
     /// <inheritdoc />
@@ -209,7 +206,7 @@ public sealed partial class GameScene : IScene
             drawBackground: false);
     }
 
-    private Game CreateGame(Camera camera, World world, Engine engine)
+    private Session CreateSession(Camera camera, World world, Engine engine)
     {
         Player player = new(
             mass: 70f,
@@ -220,7 +217,7 @@ public sealed partial class GameScene : IScene
 
         world.AddPlayer(player);
 
-        return new Game(world, player);
+        return new Session(world, player);
     }
 
     private void SetUpUI(Core.Logic.World world, IConsoleProvider console)
@@ -284,9 +281,9 @@ public sealed partial class GameScene : IScene
 
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<GameScene>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<SessionScene>();
 
-    [LoggerMessage(EventId = LogID.GameScene + 0, Level = LogLevel.Information, Message = "Loaded the game scene")]
+    [LoggerMessage(EventId = LogID.GameScene + 0, Level = LogLevel.Information, Message = "Loaded the session scene")]
     private static partial void LogLoadedGameScene(ILogger logger);
 
     #endregion LOGGING
@@ -316,7 +313,7 @@ public sealed partial class GameScene : IScene
     /// <summary>
     ///     Finalizer.
     /// </summary>
-    ~GameScene()
+    ~SessionScene()
     {
         Dispose(disposing: false);
     }

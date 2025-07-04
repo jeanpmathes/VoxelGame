@@ -25,6 +25,6 @@ public class Clear : Command
     /// <exclude />
     public void Invoke()
     {
-        Context.Console.Clear();
+        Context.Output.Clear();
     }
 }

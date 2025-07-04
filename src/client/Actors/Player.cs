@@ -36,7 +36,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
     private readonly VisualInterface visualInterface;
 
-    private readonly GameScene scene;
+    private readonly SessionScene scene;
 
     private Vector3d movement;
     private MovementStrategy movementStrategy;
@@ -50,7 +50,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="visualInterface">The visual interface to use for this player.</param>
     /// <param name="scene">The scene in which the player is placed.</param>
     public Player(Single mass, Camera camera, BoundingVolume boundingVolume,
-        VisualInterface visualInterface, GameScene scene) : base(mass, boundingVolume)
+        VisualInterface visualInterface, SessionScene scene) : base(mass, boundingVolume)
     {
         this.camera = camera;
         camera.Position = Position;

@@ -53,7 +53,7 @@ public class ImportStructure : Command
     private void ImportAtTarget(String name, Orientation orientation)
     {
         if (Context.Player.TargetPosition is {} targetPosition) Import(targetPosition, name, orientation);
-        else Context.Console.WriteError("No position targeted.");
+        else Context.Output.WriteError("No position targeted.");
     }
 
     private void Import(Vector3i position, String name, Orientation orientation)

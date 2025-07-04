@@ -1,4 +1,4 @@
-﻿// <copyright file="ConsoleWrapper.cs" company="VoxelGame">
+﻿// <copyright file="ConsoleOutput.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -13,21 +13,21 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Console;
 
 /// <summary>
-///     A wrapper around the console interface provided by the UI.
+///     Receives output from the console commands and scripts and routes it back to the console implementation.
 /// </summary>
-public class ConsoleWrapper
+public class ConsoleOutput
 {
     private readonly Channel<(String message, Boolean error, FollowUp[] followUp)> responses = Channel.CreateUnbounded<(String message, Boolean error, FollowUp[] followUp)>();
-
-    private readonly ConsoleInterface consoleInterface;
-
+    
+    private readonly SessionConsole console;
+    
     /// <summary>
-    ///     Create a new console wrapper.
+    ///     Create a new console output.
     /// </summary>
-    /// <param name="consoleInterface">The interface to wrap.</param>
-    public ConsoleWrapper(ConsoleInterface consoleInterface)
+    /// <param name="console">The console to route the output to.</param>
+    public ConsoleOutput(SessionConsole console)
     {
-        this.consoleInterface = consoleInterface;
+        this.console = console;
     }
 
     /// <summary>
@@ -39,8 +39,8 @@ public class ConsoleWrapper
     public void WriteResponse(String response, FollowUp[]? followUp = null)
     {
         Core.App.Application.ThrowIfNotOnMainThread(this);
-
-        consoleInterface.WriteResponse(response, followUp ?? []);
+        
+        console.AddMessage(response, followUp ?? [], isError: false);
     }
 
     /// <summary>
@@ -65,7 +65,7 @@ public class ConsoleWrapper
     {
         Core.App.Application.ThrowIfNotOnMainThread(this);
 
-        consoleInterface.WriteError(error, followUp ?? []);
+        console.AddMessage(error, followUp ?? [], isError: true);
     }
 
     /// <summary>
@@ -75,7 +75,7 @@ public class ConsoleWrapper
     /// <param name="error">The error to write.</param>
     /// <param name="followUp">A group of follow-up actions.</param>
     /// <param name="token">A token to cancel the operation.</param>
-    public async Task WriteErrorAsync(String error, FollowUp[]? followUp = null, CancellationToken token = default)
+    public async ValueTask WriteErrorAsync(String error, FollowUp[]? followUp = null, CancellationToken token = default)
     {
         await responses.Writer.WriteAsync((error, error: true, followUp ?? []), token);
     }
@@ -87,11 +87,8 @@ public class ConsoleWrapper
     {
         Core.App.Application.ThrowIfNotOnMainThread(this);
 
-        while (responses.Reader.TryRead(out (String message, Boolean error, FollowUp[] followUp) response))
-            if (response.error)
-                consoleInterface.WriteError(response.message, response.followUp);
-            else
-                consoleInterface.WriteResponse(response.message, response.followUp);
+        while (responses.Reader.TryRead(out (String message, Boolean error, FollowUp[] followUp) response)) 
+            console.AddMessage(response.message, response.followUp, response.error);
     }
 
     /// <summary>
@@ -101,7 +98,9 @@ public class ConsoleWrapper
     public void Clear()
     {
         Core.App.Application.ThrowIfNotOnMainThread(this);
+        
+        Flush();
 
-        consoleInterface.Clear();
+        console.Clear();
     }
 }

@@ -33,7 +33,7 @@ public class EmitWorldInfo : Command
 
         Context.Player.World.EmitWorldInfo(path).OnSuccessfulSync(() =>
         {
-            Context.Console.WriteResponse($"Emitted world info to: {path}",
+            Context.Output.WriteResponse($"Emitted world info to: {path}",
                 [new FollowUp("Open folder", () => OS.Start(path))]);
         });
     }

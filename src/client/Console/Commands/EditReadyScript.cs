@@ -25,6 +25,6 @@ public class EditReadyScript : Command
     /// <exclude />
     public void Invoke()
     {
-        EditScript.Do(Context, GameConsole.WorldReadyScript);
+        EditScript.Do(Context, SessionConsole.WorldReadyScript);
     }
 }
