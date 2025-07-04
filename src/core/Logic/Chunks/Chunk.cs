@@ -790,10 +790,10 @@ public partial class Chunk : IDisposable, IEntity
         activeIndex = World.Chunks.RegisterActive(this);
         completeIndex ??= World.Chunks.RegisterComplete(this);
 
-        OnActivation();
+        OnActivate();
 
         foreach (Side side in Side.All.Sides())
-            World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivation();
+            World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivate();
     }
 
     /// <summary>
@@ -806,7 +806,7 @@ public partial class Chunk : IDisposable, IEntity
         World.Chunks.UnregisterActive(activeIndex.Value);
         activeIndex = null;
 
-        OnDeactivation();
+        OnDeactivate();
     }
 
     /// <summary>
@@ -823,18 +823,18 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Called after the inactive state was entered.
     /// </summary>
-    protected virtual void OnActivation() {}
+    protected virtual void OnActivate() {}
 
     /// <summary>
     ///     Called before the inactive state is left.
     /// </summary>
-    protected virtual void OnDeactivation() {}
+    protected virtual void OnDeactivate() {}
 
     /// <summary>
     ///     Called when a neighbor chunk was activated.
     ///     Note that this method is called only on the six direct neighbors and not on the diagonal neighbors.
     /// </summary>
-    protected virtual void OnNeighborActivation() {}
+    protected virtual void OnNeighborActivate() {}
 
     /// <summary>
     ///     Get a section by index.

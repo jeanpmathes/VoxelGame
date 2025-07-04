@@ -132,19 +132,19 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     }
 
     /// <inheritdoc />
-    protected override void OnActivation()
+    protected override void OnActivate()
     {
         RecreateIncompleteSectionMeshes();
     }
 
     /// <inheritdoc />
-    protected override void OnDeactivation()
+    protected override void OnDeactivate()
     {
         DisableAllVfx();
     }
 
     /// <inheritdoc />
-    protected override void OnNeighborActivation()
+    protected override void OnNeighborActivate()
     {
         RecreateIncompleteSectionMeshes();
     }

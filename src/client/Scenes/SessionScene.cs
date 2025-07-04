@@ -215,7 +215,7 @@ public sealed partial class SessionScene : IScene
             new VisualInterface(Client.Keybinds, ui, engine),
             this);
 
-        world.AddPlayer(player);
+        world.AddComponent<LocalPlayerHook, Player>(player);
 
         return new Session(world, player);
     }

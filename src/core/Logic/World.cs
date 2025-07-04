@@ -21,6 +21,7 @@ using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
 using Generator = VoxelGame.Core.Generation.Worlds.Testing.Generator;
@@ -30,7 +31,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Represents the world. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
-public abstract partial class World : IDisposable, IGrid
+public abstract partial class World : Composed<World, WorldComponent>, IGrid
 {
     /// <summary>
     ///     The largest absolute value of a block position coordinate component.
@@ -39,12 +40,10 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     public const UInt32 BlockLimit = 100_000;
 
+    private const UInt32 SectionLimit = BlockLimit / Section.Size;
     private const UInt32 ChunkLimit = BlockLimit / Chunk.BlockSize;
 
-    /// <summary>
-    ///     The limit of the world extents, in sections.
-    /// </summary>
-    public const UInt32 SectionLimit = BlockLimit / Section.Size;
+    private readonly SectionChangedEventArgs pooledSectionChangedEventArgs = new(null!, Vector3i.Zero);
 
     private readonly WorldStateMachine state;
 
@@ -84,10 +83,9 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Set up of readonly fields and non-optional steps.
     /// </summary>
-    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, Boolean isNew)
     {
-        Timer? timer = Timer.Start("World Setup", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
+        Timer? timer = Timer.Start(isNew ? "World Setup (new)" : "World Setup (existing)", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
 
         state = new WorldStateMachine(this, timer);
 
@@ -102,7 +100,16 @@ public abstract partial class World : IDisposable, IGrid
         Chunks = new ChunkSet(this, ChunkContext);
 
         state.Initialize();
+
+        state.Activated += OnActivate;
+        state.Deactivated += OnDeactivate;
+        state.Terminated += OnTerminate;
+
+        AddComponent<ChunkSimulator>();
     }
+
+    /// <inheritdoc />
+    protected override World Self => this;
 
     /// <summary>
     ///     Access to the world state.
@@ -202,12 +209,27 @@ public abstract partial class World : IDisposable, IGrid
         SetContent(content, position, updateFluid: true);
     }
 
+    private void OnActivate(Object? sender, EventArgs e)
+    {
+        foreach (WorldComponent component in Components) component.OnActivate();
+    }
+
+    private void OnDeactivate(Object? sender, EventArgs e)
+    {
+        foreach (WorldComponent component in Components) component.OnDeactivate();
+    }
+
+    private void OnTerminate(Object? sender, EventArgs e)
+    {
+        foreach (WorldComponent component in Components) component.OnTerminate();
+    }
+
     private void UnloadChunk(Chunk chunk)
     {
         Chunks.Unload(chunk);
     }
 
-    private static IWorldGenerator? GetAndInitializeGenerator(World world, Timer? timer)
+    private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
     {
         return Generator.Create(new WorldGeneratorContext(world, timer));
     }
@@ -373,15 +395,16 @@ public abstract partial class World : IDisposable, IGrid
             fluidNeighbor.Fluid.UpdateSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 
-        ProcessChangedSection(chunk, position);
+        HandleChangedSection(chunk, position);
     }
 
-    /// <summary>
-    ///     Process that a section was changed.
-    /// </summary>
-    /// <param name="chunk">The chunk containing the section.</param>
-    /// <param name="position">The position of the block that caused the section change.</param>
-    protected abstract void ProcessChangedSection(Chunk chunk, Vector3i position);
+    private void HandleChangedSection(Chunk chunk, Vector3i position)
+    {
+        pooledSectionChangedEventArgs.Chunk = chunk;
+        pooledSectionChangedEventArgs.Position = position;
+
+        SectionChanged?.Invoke(this, pooledSectionChangedEventArgs);
+    }
 
     /// <summary>
     ///     Modify the data of a position, without causing any updates.
@@ -400,8 +423,13 @@ public abstract partial class World : IDisposable, IGrid
 
         chunk.GetSection(position).SetContent(position, val);
 
-        ProcessChangedSection(chunk, position);
+        HandleChangedSection(chunk, position);
     }
+
+    /// <summary>
+    ///     Invoked whenever the content of a section has changed.
+    /// </summary>
+    public event EventHandler<SectionChangedEventArgs>? SectionChanged;
 
     /// <summary>
     ///     Set a position to the default block.
@@ -602,7 +630,30 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public virtual void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer) {}
+    public void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    {
+        foreach (WorldComponent component in Components) 
+            component.OnLogicUpdateInActiveState(deltaTime, updateTimer);
+    }
+
+    /// <summary>
+    ///     Event arguments for the <see cref="SectionChanged" /> event.
+    ///     Note that this event is pooled and as such should not be kept after the event has been handled.
+    /// </summary>
+    /// <param name="chunk">The chunk in which the section was changed.</param>
+    /// <param name="position">The position of the block that caused the section change.</param>
+    public class SectionChangedEventArgs(Chunk chunk, Vector3i position) : EventArgs
+    {
+        /// <summary>
+        ///     The chunk in which the section was changed.
+        /// </summary>
+        public Chunk Chunk { get; set; } = chunk;
+
+        /// <summary>
+        ///     The position of the block that caused the section change.
+        /// </summary>
+        public Vector3i Position { get; set; } = position;
+    }
 
     #region LOGGING
 
@@ -635,12 +686,11 @@ public abstract partial class World : IDisposable, IGrid
 
     private Boolean disposed;
 
-    /// <summary>
-    ///     Dispose of the world.
-    /// </summary>
-    /// <param name="disposing">True when disposing intentionally.</param>
-    protected virtual void Dispose(Boolean disposing)
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
     {
+        base.Dispose(disposing);
+
         if (disposed) return;
 
         if (disposing)
@@ -650,23 +700,6 @@ public abstract partial class World : IDisposable, IGrid
         }
 
         disposed = true;
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~World()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Dispose of the world.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion DISPOSABLE
