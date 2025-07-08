@@ -41,7 +41,7 @@ public class ConnectingBlock<TConnectable> : Block, IFillable where TConnectable
             boundingVolume) {}
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         world.SetBlock(this.AsInstance(IConnectable.GetConnectionData<TConnectable>(world, position)), position);
     }

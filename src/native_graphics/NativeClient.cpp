@@ -188,13 +188,13 @@ void NativeClient::LoadDevice()
     TryDo(
         dxgiFactory->CreateSwapChainForHwnd(
             m_commandQueue.Get(),
-            Win32Application::GetHwnd(),
+            Win32Application::GetWindowHandle(),
             &swapChainDesc,
             nullptr,
             nullptr,
             &swapChain));
 
-    TryDo(dxgiFactory->MakeWindowAssociation(Win32Application::GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
+    TryDo(dxgiFactory->MakeWindowAssociation(Win32Application::GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER));
 
     TryDo(swapChain.As(&m_swapChain));
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();

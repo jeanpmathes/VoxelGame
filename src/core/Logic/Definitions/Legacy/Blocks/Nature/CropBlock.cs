@@ -129,13 +129,13 @@ public class CropBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         return world.GetBlock(position.Below())?.Block is IPlantable;
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         Boolean isLowered = world.IsLowered(position);
 

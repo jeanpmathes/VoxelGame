@@ -1454,7 +1454,7 @@
         <None Include="Resources\Shaders\Custom.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Include="Resources\Shaders\Selection.hlsl">
+        <None Include="Resources\Shaders\Targeting.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Resources\Shaders\ScreenElement.hlsl">

@@ -8,28 +8,27 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 
-namespace VoxelGame.Client.Actors.Players;
+namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
 ///     Movement strategy that moves only the camera, keeping the player in place.
 /// </summary>
-/// <param name="actor">The actor to move.</param>
-/// <param name="input">The input to use for movement.</param>
+/// <param name="player">The player to which this movement strategy belongs.</param>
 /// <param name="flyingSpeed">The initial flying speed.</param>
-internal class FreecamMovement(PhysicsActor actor, Input input, Double flyingSpeed) : MovementStrategy(flyingSpeed)
+internal class FreecamMovement(Player player, Double flyingSpeed) : MovementStrategy(flyingSpeed)
 {
-    private Vector3d cameraPosition = actor.Head.Position;
+    private Vector3d cameraPosition = player.Head.Position;
 
     /// <inheritdoc />
-    internal override Vector3d GetCameraPosition(IOrientable head)
+    internal override Vector3d GetCameraPosition()
     {
         return cameraPosition;
     }
 
     /// <inheritdoc />
-    internal override Vector3d ApplyMovement(PhysicsActor actor, Double deltaTime)
+    internal override Vector3d ApplyMovement(Double deltaTime)
     {
-        cameraPosition += GetFlyingMovement(input, actor.Head) * deltaTime;
+        cameraPosition += GetFlyingMovement(player.Input, player.Head) * deltaTime;
 
         return Vector3d.Zero;
     }

@@ -12,22 +12,20 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
-using VoxelGame.Toolkit.Utilities;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101 // Naming.
-
 /// <summary>
-///     Renders textures on the screen.
+///     Renders a texture on the screen.
 /// </summary>
-public sealed class ScreenElementVFX : VFX
+public sealed class ScreenElementPipeline : IDisposable
 {
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
     private readonly Vector2d relativeScreenPosition;
     private readonly Texture placeholder;
+    
     private Texture? texture;
     private Single scaling = 1.0f;
     private ColorS color = ColorS.White;
@@ -36,7 +34,7 @@ public sealed class ScreenElementVFX : VFX
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
     private IDisposable? disposable;
 
-    private ScreenElementVFX(VoxelGame.Graphics.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
+    private ScreenElementPipeline(VoxelGame.Graphics.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
     {
         this.client = client;
         this.relativeScreenPosition = relativeScreenPosition;
@@ -45,39 +43,29 @@ public sealed class ScreenElementVFX : VFX
         placeholder = client.LoadTexture(Image.CreateFallback(size: 1));
     }
 
-    /// <inheritdoc />
-    public override Boolean IsEnabled { get; set; }
+    /// <summary>
+    /// Whether the pipeline is enabled.
+    /// </summary>
+    public Boolean IsEnabled { get; set; }
 
     /// <summary>
-    ///     Create a new <see cref="ScreenElementVFX" />.
+    ///     Create a new <see cref="ScreenElementPipeline" />.
     /// </summary>
     /// <param name="client">The client instance.</param>
     /// <param name="factory">The factory creating the pipeline.</param>
     /// <param name="relativeScreenPosition">The position of the element on the screen, relative to the bottom left corner.</param>
-    internal static ScreenElementVFX? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory, Vector2d relativeScreenPosition)
+    internal static ScreenElementPipeline? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory, Vector2d relativeScreenPosition)
     {
-        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
+        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? loaded
             = factory.LoadPipelineWithBuffer<Data>("ScreenElement", new ShaderPresets.Draw2D(Filter.Closest));
 
-        if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
+        if (loaded is not {pipeline: var pipeline, buffer: var buffer}) return null;
 
-        ScreenElementVFX vfx = new(client, relativeScreenPosition, buffer);
+        ScreenElementPipeline created = new(client, relativeScreenPosition, buffer);
 
-        vfx.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, vfx.Draw);
+        created.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, created.Draw);
 
-        return vfx;
-    }
-
-    /// <inheritdoc />
-    protected override void OnSetUp()
-    {
-        // Intentionally left empty.
-    }
-
-    /// <inheritdoc />
-    protected override void OnTearDown()
-    {
-        // Intentionally left empty.
+        return created;
     }
 
     private void Draw(Draw2D drawer)
@@ -127,8 +115,10 @@ public sealed class ScreenElementVFX : VFX
         isTextureInitialized = false;
     }
 
-    /// <inheritdoc />
-    protected override void OnLogicUpdate()
+    /// <summary>
+    /// Call each logic update.
+    /// </summary>
+    public void LogicUpdate()
     {
         var screenSize = client.Size.ToVector2();
 
@@ -214,17 +204,28 @@ public sealed class ScreenElementVFX : VFX
 
     private Boolean disposed;
 
-    /// <inheritdoc />
-    protected override void Dispose(Boolean disposing)
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 
         if (disposing) disposable?.Dispose();
-        else Throw.ForMissedDispose(this);
-
-        base.Dispose(disposing);
 
         disposed = true;
+    }
+    
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+    
+    /// <summary>
+    /// Finalizer.
+    /// </summary>
+    ~ScreenElementPipeline()
+    {
+        Dispose(disposing: false);
     }
 
     #endregion DISPOSABLE

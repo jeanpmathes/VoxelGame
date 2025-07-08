@@ -12,6 +12,7 @@ using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
@@ -51,7 +52,7 @@ public sealed partial class Generator : IWorldGenerator
     private static List<SubBiomeDefinition> loadedSubBiomes = [];
     private static List<BiomeDefinition> loadedBiomes = [];
 
-    private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(MathTools.Square((Player.LoadDistance + 1) * 2 + 1));
+    private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(MathTools.Square((ChunkLoader.LoadDistance + 1) * 2 + 1));
 
     private readonly Palette palette;
 

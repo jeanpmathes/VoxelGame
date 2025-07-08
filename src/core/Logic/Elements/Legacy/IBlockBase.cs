@@ -78,20 +78,20 @@ public interface IBlockBase : IContent
     /// <summary>
     ///     Tries to place a block in the world.
     /// </summary>
-    /// <param name="world"></param>
-    /// <param name="position"></param>
-    /// <param name="actor"></param>
+    /// <param name="world">The world in which the block should be placed.</param>
+    /// <param name="position">The position in the world where the block should be placed.</param>
+    /// <param name="actor">The actor which caused the placement, or null if no actor caused it.</param>
     /// <returns>Returns true if placing the block was successful.</returns>
-    public Boolean Place(World world, Vector3i position, PhysicsActor? actor = null);
+    public Boolean Place(World world, Vector3i position, Actor? actor = null);
 
     /// <summary>
     ///     Destroys a block in the world if it is the same type as this block.
     /// </summary>
-    /// <param name="world"></param>
-    /// <param name="position"></param>
+    /// <param name="world">The world in which the block should be destroyed.</param>
+    /// <param name="position">The position in the world where the block should be destroyed.</param>
     /// <param name="actor">The actor which caused the destruction, or null if no actor caused it.</param>
     /// <returns>Returns true if the block has been destroyed.</returns>
-    public Boolean Destroy(World world, Vector3i position, PhysicsActor? actor = null);
+    public Boolean Destroy(World world, Vector3i position, Actor? actor = null);
 
     /// <summary>
     ///     Get whether a side of the block is completely full, which means it covers the entire side of the unit block.

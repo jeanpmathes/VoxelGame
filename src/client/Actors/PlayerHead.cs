@@ -1,4 +1,4 @@
-﻿// <copyright file="Head.cs" company="VoxelGame">
+﻿// <copyright file="PlayerHead.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -7,12 +7,12 @@
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 
-namespace VoxelGame.Client.Actors.Players;
+namespace VoxelGame.Client.Actors;
 
 /// <summary>
 ///     The head of a player. Has the same orientation as the camera, but can have a different position.
 /// </summary>
-public class Head(IOrientable camera, IOrientable player) : IOrientable
+public class PlayerHead(IOrientable camera, IOrientable body) : IOrientable
 {
     private readonly Vector3d headOffset = new(x: 0f, y: 0.65f, z: 0f);
 
@@ -23,5 +23,5 @@ public class Head(IOrientable camera, IOrientable player) : IOrientable
     public Vector3d Right => camera.Right;
 
     /// <inheritdoc />
-    public Vector3d Position => player.Position + headOffset;
+    public Vector3d Position => body.Position + headOffset;
 }

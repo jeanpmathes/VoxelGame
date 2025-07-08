@@ -71,7 +71,7 @@ public sealed class Generator : IWorldGenerator
         #pragma warning restore S1168
     }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public void Dispose()
@@ -79,7 +79,7 @@ public sealed class Generator : IWorldGenerator
         // Nothing to dispose of.
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 
     /// <inheritdoc cref="IGenerationContext.GenerateColumn" />
     public IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)

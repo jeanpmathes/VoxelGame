@@ -5,15 +5,20 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
+using VoxelGame.Toolkit.Components;
 
 namespace VoxelGame.Core.Actors;
 
 /// <summary>
 ///     An actor is anything that can be added to a world, but is not the world itself.
 /// </summary>
-public abstract class Actor : IDisposable
+public abstract class Actor : Composed<Actor, ActorComponent>
 {
+    /// <inheritdoc />
+    protected override Actor Self => this;
+
     /// <summary>
     ///     Gets the world in which this actor is located.
     ///     Using an actor without a world is not valid.
@@ -28,66 +33,70 @@ public abstract class Actor : IDisposable
     {
         World = world;
 
-        AddedToWorld?.Invoke(this, EventArgs.Empty);
+        foreach (ActorComponent component in Components)
+        {
+            component.OnAdd();
+        }
     }
-
-    /// <summary>
-    ///     Invoked when this actor is added to a world.
-    /// </summary>
-    protected event EventHandler? AddedToWorld;
 
     /// <summary>
     ///     Called when this actor is removed from a world.
     /// </summary>
     public void OnRemove()
     {
-        RemovedFromWorld?.Invoke(this, EventArgs.Empty);
+        foreach (ActorComponent component in Components)
+        {
+            component.OnRemove();
+        }
 
         World = null!;
     }
 
     /// <summary>
-    ///     Invoked when this actor is removed from a world.
+    /// Call to activate this actor.
     /// </summary>
-    protected event EventHandler? RemovedFromWorld;
+    public void Activate()
+    {
+        foreach (ActorComponent component in Components)
+        {
+            component.OnActivate();
+        }
+    }
+
+    /// <summary>
+    /// Call to deactivate this actor.
+    /// </summary>
+    public void Deactivate()
+    {
+        foreach (ActorComponent component in Components)
+        {
+            component.OnDeactivate();
+        }
+    }
 
     /// <summary>
     ///     Update this actor.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    public virtual void LogicUpdate(Double deltaTime) {}
-
-    #region DISPOSABLE
-
-    private Boolean disposed;
-
-    /// <summary>
-    ///     Disposes this actor.
-    /// </summary>
-    public void Dispose()
+    public void LogicUpdate(Double deltaTime)
     {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
+        OnLogicUpdate(deltaTime);
 
+        foreach (ActorComponent component in Components)
+        {
+            component.OnLogicUpdate(deltaTime);
+        }
+    }
+    
     /// <summary>
-    ///     Finalizer.
+    /// Called when the actor receives a logic update.
     /// </summary>
-    ~Actor()
-    {
-        Dispose(disposing: false);
-    }
-
+    /// <param name="deltaTime">The time since the last update.</param>
+    protected virtual void OnLogicUpdate(Double deltaTime) { }
+    
     /// <summary>
-    ///     Disposes this actor.
+    ///     The head of the actor, which allows to determine where the actor is looking at.
+    ///     If an actor has no head or the concept of looking does not make sense, this will try to return the transform of the actor itself.
     /// </summary>
-    /// <param name="disposing">True if called by code.</param>
-    protected virtual void Dispose(Boolean disposing)
-    {
-        if (disposed) return;
-
-        disposed = true;
-    }
-
-    #endregion DISPOSABLE
+    public virtual IOrientable? Head => GetComponent<Transform>();
 }

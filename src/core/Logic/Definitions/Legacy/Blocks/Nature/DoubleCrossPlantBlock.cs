@@ -77,14 +77,14 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                (world.GetBlock(position.Below())?.Block ?? Elements.Legacy.Blocks.Instance.Air) is IPlantable;
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         Boolean isLowered = world.IsLowered(position);
 
@@ -95,7 +95,7 @@ public class DoubleCrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
+    protected override void DoDestroy(World world, Vector3i position, UInt32 data, Actor? actor)
     {
         Boolean isBase = (data & 0b1) == 0;
 

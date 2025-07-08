@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Actors.Players;
 /// <summary>
 ///     Contains all player input.
 /// </summary>
-internal sealed class Input
+internal sealed class Input // todo: move up in namespace
 {
     private const Single InteractionCooldown = 0.25f;
 

@@ -33,6 +33,6 @@ public class SetPhysics : Command
     /// </summary>
     public static void Do(Context context, Boolean enabled)
     {
-        context.Player.DoPhysics = enabled;
+        context.Player.Body.IsEnabled = enabled;
     }
 }

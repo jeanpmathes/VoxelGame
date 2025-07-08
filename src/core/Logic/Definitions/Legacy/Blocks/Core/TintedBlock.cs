@@ -51,7 +51,7 @@ public class TintedBlock : BasicBlock, IWideConnectable
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         actor.World.SetBlock(this.AsInstance((data + 1) & 0b01_1111), position);
     }

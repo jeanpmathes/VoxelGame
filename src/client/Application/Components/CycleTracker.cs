@@ -16,12 +16,16 @@ namespace VoxelGame.Client.Application.Components;
 /// <summary>
 ///     Tracks the update and render cycles to calculate FPS and UPS.
 /// </summary>
-public sealed class CycleTracker(Core.App.Application application) : ApplicationComponent(application), IConstructible<Core.App.Application, CycleTracker>, IPerformanceProvider
+public sealed class CycleTracker : ApplicationComponent, IConstructible<Core.App.Application, CycleTracker>, IPerformanceProvider
 {
     private const Int32 DeltaBufferCapacity = 50;
 
     private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
     private readonly CircularTimeBuffer logicDeltaBuffer = new(DeltaBufferCapacity);
+    
+    private CycleTracker(Core.App.Application application) : base(application) 
+    {
+    }
 
     /// <inheritdoc />
     public static CycleTracker Construct(Core.App.Application input)

@@ -10,7 +10,6 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors;
-using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Application.Components;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
@@ -51,9 +50,9 @@ public sealed partial class SessionScene : IScene
         ui = CreateUI(client, uiResources);
         Session = CreateSession(client.Space.Camera, world, engine);
 
-        SessionConsole console = new(Session, commands);
+        SessionConsole console = Session.AddComponent<SessionConsole, CommandInvoker>(commands);
 
-        world.State.Activated += (_, _) =>
+        world.State.Activating += (_, _) =>
         {
             console.OnWorldReady();
         };
@@ -69,14 +68,22 @@ public sealed partial class SessionScene : IScene
     }
 
     /// <summary>
-    ///     Get whether any overlay is open. If this is the case, game input should be disabled.
+    ///     Get whether the actual game content is currently sidelined, meaning it is not the main focus of the user.
+    ///     One reason for this could be that meta UI is shown on top of the game.
+    ///     Note that this does not relate to whether the window is focused or not.
+    ///     If sidelined, in-game input should not be handled.
     /// </summary>
-    public Boolean IsOverlayOpen { get; private set; }
-
+    public Boolean IsSidelined { get; private set; }
+    
     /// <summary>
-    ///     Get whether the game window is focused.
+    /// Whether it is OK to handle game input currently.
     /// </summary>
-    public Boolean IsWindowFocused => Client.IsFocused;
+    public Boolean CanHandleGameInput => !IsSidelined && Client.IsFocused;
+    
+    /// <summary>
+    /// Whether it is OK to handle meta input currently.
+    /// </summary>
+    public Boolean CanHandleMetaInput => Client.IsFocused;
 
     /// <summary>
     ///     Get the session played in this scene.
@@ -153,7 +160,7 @@ public sealed partial class SessionScene : IScene
         if (!Client.IsFocused)
             return;
 
-        if (!IsOverlayOpen)
+        if (!IsSidelined)
         {
             if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
 
@@ -164,11 +171,11 @@ public sealed partial class SessionScene : IScene
         {
             if (isMouseUnlockedByUserRequest)
             {
-                OnOverlayClose();
+                OnSideliningEnd();
             }
-            else if (!IsOverlayOpen)
+            else if (!IsSidelined)
             {
-                OnOverlayOpen();
+                OnSideliningStart();
                 isMouseUnlockedByUserRequest = true;
             }
         }
@@ -209,10 +216,11 @@ public sealed partial class SessionScene : IScene
     private Session CreateSession(Camera camera, World world, Engine engine)
     {
         Player player = new(
-            mass: 70f,
-            camera,
+            mass: 70.0,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
-            new VisualInterface(Client.Keybinds, ui, engine),
+            camera: camera,
+            ui, 
+            engine,
             this);
 
         world.AddComponent<LocalPlayerHook, Player>(player);
@@ -222,7 +230,7 @@ public sealed partial class SessionScene : IScene
 
     private void SetUpUI(Core.Logic.World world, IConsoleProvider console)
     {
-        OnOverlayClose();
+        OnSideliningEnd();
 
         List<SettingsProvider> settingsProviders =
         [
@@ -246,26 +254,29 @@ public sealed partial class SessionScene : IScene
             if (!world.State.IsActive) return;
 
             world.State.BeginTerminating()?.Then(() => Client.ExitGame(args.ExitToOS));
+
+            world.State.Terminating += (_, _) => world.RemoveComponent<LocalPlayerHook>();
         };
 
-        ui.AnyOverlayOpened += (_, _) => OnOverlayOpen();
-        ui.AnyOverlayClosed += (_, _) => OnOverlayClose();
+        ui.AnyMetaControlOpened += (_, _) => OnSideliningStart();
+        ui.AnyMetaControlClosed += (_, _) => OnSideliningEnd();
     }
 
-    private void OnOverlayClose()
+    private void OnSideliningEnd()
     {
-        IsOverlayOpen = false;
+        IsSidelined = false;
         Client.Input.Mouse.SetCursorLock(locked: true);
 
         isMouseUnlockedByUserRequest = false;
     }
 
-    private void OnOverlayOpen()
+    private void OnSideliningStart()
     {
-        IsOverlayOpen = true;
+        IsSidelined = true;
         Client.Input.Mouse.SetCursorLock(locked: false);
 
-        // The mouse was unlocked, but the user did not explicitly request it.
+        // The mouse was unlocked, but the user did not necessarily explicitly request it.
+        isMouseUnlockedByUserRequest = false;
     }
 
     private void OnFocusChanged(Object? sender, FocusChangeEventArgs e)
@@ -288,7 +299,7 @@ public sealed partial class SessionScene : IScene
 
     #endregion LOGGING
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -318,5 +329,5 @@ public sealed partial class SessionScene : IScene
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

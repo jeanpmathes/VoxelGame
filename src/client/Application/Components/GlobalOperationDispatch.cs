@@ -16,8 +16,11 @@ namespace VoxelGame.Client.Application.Components;
 ///     Using this dispatch is necessary when operations should continue even when the scene changes.
 ///     Otherwise, using the default dispatch is recommended.
 /// </summary>
-public class GlobalOperationDispatch(Core.App.Application application) : OperationUpdateDispatch(singleton: false, application), IConstructible<Core.App.Application, GlobalOperationDispatch>
+public class GlobalOperationDispatch : OperationUpdateDispatch, IConstructible<Core.App.Application, GlobalOperationDispatch>
 {
+    private GlobalOperationDispatch(Core.App.Application application) : base(singleton: false, application) {
+    }
+
     /// <inheritdoc />
     public override String Name => "Global Operations";
 

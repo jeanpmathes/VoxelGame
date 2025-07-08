@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Interfaces;
@@ -161,17 +162,17 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         return world.GetBlock(position.Above())?.Block.IsReplaceable == true &&
                world.HasFullAndSolidGround(position, solidify: true);
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
-        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
-        Side side = actor?.TargetSide ?? Side.Top;
+        Orientation orientation = actor?.Head?.Forward.ToOrientation() ?? Orientation.North;
+        Side side = actor?.GetTargetedSide() ?? Side.Top;
 
         Boolean isLeftSided = ChooseIfLeftSided(world, position, side, orientation);
 
@@ -205,7 +206,7 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
+    protected override void DoDestroy(World world, Vector3i position, UInt32 data, Actor? actor)
     {
         Boolean isBase = (data & 0b00_0100) == 0;
 
@@ -214,12 +215,12 @@ public class DoorBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         Boolean isBase = (data & 0b00_0100) == 0;
         Vector3i otherPosition = position + (isBase ? Vector3i.UnitY : -Vector3i.UnitY);
 
-        if (actor.Collider.Intersects(doorVolume.GetColliderAt(otherPosition))) return;
+        if (actor.GetComponent<Body>() is {} body && body.Collider.Intersects(doorVolume.GetColliderAt(otherPosition))) return;
 
         actor.World.SetBlock(this.AsInstance(data ^ 0b1_0000), position);
         actor.World.SetBlock(this.AsInstance(data ^ 0b1_0100), otherPosition);

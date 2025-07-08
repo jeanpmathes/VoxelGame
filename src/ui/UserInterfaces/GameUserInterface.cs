@@ -133,14 +133,14 @@ public class GameUserInterface : UserInterface
     public event EventHandler<EventArgs>? WorldSave;
 
     /// <summary>
-    ///     Invoked when any overlay is opened.
+    ///     Invoked when any meta, thus not in-game, control is opened.
     /// </summary>
-    public event EventHandler? AnyOverlayOpened;
+    public event EventHandler? AnyMetaControlOpened;
 
     /// <summary>
-    ///     Invoked when any overlay is closed.
+    ///     Invoked when any meta, thus not in-game, control is closed.
     /// </summary>
-    public event EventHandler? AnyOverlayClosed;
+    public event EventHandler? AnyMetaControlClosed;
 
     /// <summary>
     ///     Update the displayed performance data.
@@ -208,14 +208,14 @@ public class GameUserInterface : UserInterface
         WorldSave?.Invoke(this, EventArgs.Empty);
     }
 
-    internal void DoOverlayOpen()
+    internal void DoMetaControlOpen()
     {
-        AnyOverlayOpened?.Invoke(this, EventArgs.Empty);
+        AnyMetaControlOpened?.Invoke(this, EventArgs.Empty);
     }
 
-    internal void DoOverlayClose()
+    internal void DoMetaControlClose()
     {
-        AnyOverlayClosed?.Invoke(this, EventArgs.Empty);
+        AnyMetaControlClosed?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>

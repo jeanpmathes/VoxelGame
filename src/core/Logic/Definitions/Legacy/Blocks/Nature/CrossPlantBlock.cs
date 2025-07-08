@@ -73,13 +73,13 @@ public class CrossPlantBlock : Block, ICombustible, IFillable, IFoliage
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         return PlantBehaviour.CanPlace(world, position);
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         PlantBehaviour.DoPlace(this, world, position);
     }

@@ -37,7 +37,7 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
     where TSelf : Composed<TSelf, TComponent>
     where TComponent : Component<TSelf>
 {
-    private readonly Dictionary<Type, TComponent> components = [];
+    private readonly OrderedDictionary<Type, TComponent> components = new();
 
     /// <summary>
     ///     Get the container itself.
@@ -47,13 +47,16 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
     /// <summary>
     ///     Get all components attached to this container.
     /// </summary>
-    public IEnumerable<TComponent> Components => components.Values;
+    protected IEnumerable<TComponent> Components => components.Values;
 
     /// <summary>
     ///     Add a component of the given type.
+    ///     If there already exists a component of the same type, the existing component is returned.
     /// </summary>
     public TConcrete AddComponent<TConcrete>() where TConcrete : TComponent, IConstructible<TSelf, TConcrete>
     {
+        if (GetComponent<TConcrete>() is {} existing) return existing;
+        
         var component = TConcrete.Construct(Self);
 
         components.Add(typeof(TConcrete), component);
@@ -63,9 +66,12 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
 
     /// <summary>
     ///     Add a component of the given type.
+    ///     If there already exists a component of the same type, the existing component is returned.
     /// </summary>
     public TConcrete AddComponent<TConcrete, TConcreteSelf>() where TConcrete : TComponent, IConstructible<TConcreteSelf, TConcrete> where TConcreteSelf : TSelf
     {
+        if (GetComponent<TConcrete>() is {} existing) return existing;
+        
         var component = TConcrete.Construct((TConcreteSelf) Self);
 
         components.Add(typeof(TConcrete), component);
@@ -75,10 +81,28 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
 
     /// <summary>
     ///     Add a component of the given type.
+    ///     If there already exists a component of the same type, the existing component is returned.
     /// </summary>
     public TConcrete AddComponent<TConcrete, TArgument>(TArgument argument) where TConcrete : TComponent, IConstructible<TSelf, TArgument, TConcrete>
     {
+        if (GetComponent<TConcrete>() is {} existing) return existing;
+        
         var component = TConcrete.Construct(Self, argument);
+
+        components.Add(typeof(TConcrete), component);
+
+        return component;
+    }
+    
+    /// <summary>
+    ///     Add a component of the given type.
+    ///     If there already exists a component of the same type, the existing component is returned.
+    /// </summary>
+    public TConcrete AddComponent<TConcrete, TArgument, TConcreteSelf>(TArgument argument) where TConcrete : TComponent, IConstructible<TConcreteSelf, TArgument, TConcrete> where TConcreteSelf : TSelf
+    {
+        if (GetComponent<TConcrete>() is {} existing) return existing;
+        
+        var component = TConcrete.Construct((TConcreteSelf) Self, argument);
 
         components.Add(typeof(TConcrete), component);
 
@@ -115,13 +139,32 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
     /// <summary>
     ///     Get the component of the specified type or add it if it does not exist.
     /// </summary>
-    /// <typeparam name="TConcrete">The type of the component to get or add.</typeparam>
-    /// <returns>The component of the specified type.</returns>
     public TConcrete GetRequiredComponent<TConcrete>() where TConcrete : TComponent, IConstructible<TSelf, TConcrete>
     {
         if (GetComponent<TConcrete>() is {} component) return component;
 
         return AddComponent<TConcrete>();
+    }
+    
+    /// <summary>
+    ///     Get the component of the specified type or add it if it does not exist.
+    /// </summary>
+    public TConcrete GetRequiredComponent<TConcrete, TConcreteSelf>() where TConcrete : TComponent, IConstructible<TConcreteSelf, TConcrete> where TConcreteSelf : TSelf
+    {
+        if (GetComponent<TConcrete>() is {} component) return component;
+
+        return AddComponent<TConcrete, TConcreteSelf>();
+    }
+    
+    /// <summary>
+    /// Get the component of the specified type or throw an exception if it does not exist.
+    /// This is useful for components that take parameters in their constructor and can thus not be added on demand.
+    /// </summary>
+    public TConcrete GetComponentOrThrow<TConcrete>() where TConcrete : TComponent
+    {
+        if (GetComponent<TConcrete>() is {} component) return component;
+
+        throw Exceptions.InvalidOperation($"Component of type {typeof(TConcrete).Name} does not exist on {Self}.");
     }
 
     /// <summary>
@@ -132,7 +175,7 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
         return components.ContainsKey(typeof(TConcrete));
     }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <summary>
     ///     Called by the finalizer or Dispose method.
@@ -163,5 +206,5 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

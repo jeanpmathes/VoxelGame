@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -38,7 +39,7 @@ public class ExportStructure : Command
     /// <exclude />
     public void Invoke(Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name);
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name);
         else Context.Output.WriteError("No position targeted.");
     }
 

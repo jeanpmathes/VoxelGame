@@ -57,7 +57,7 @@ public class FindNamed : Command
         }
 
         IEnumerable<Vector3i>? positions = Context.Player.World
-            .SearchNamedGeneratedElements(Context.Player.Position.Floor(), name, maxDistance);
+            .SearchNamedGeneratedElements(Context.Player.Body.Transform.Position.Floor(), name, maxDistance);
 
         if (positions == null)
         {
@@ -72,7 +72,7 @@ public class FindNamed : Command
         {
             foreach (Vector3i position in positions.Take(count))
                 await Context.Output.WriteResponseAsync($"Found {name} at {position}.",
-                    [new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, position))],
+                    [new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, this, position))],
                     token).InAnyContext();
 
             await Context.Output.WriteResponseAsync($"Search for {name} finished.", [], token).InAnyContext();

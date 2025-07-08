@@ -18,6 +18,7 @@ using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Toolkit.Utilities;
+using Body = VoxelGame.Core.Actors.Components.Body;
 
 namespace VoxelGame.Core.Logic.Elements;
 
@@ -308,21 +309,20 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <summary>
     ///     Notify this fluid that an actor has come in contact with it.
     /// </summary>
-    /// <param name="actor">The actor that contacts the fluid.</param>
+    /// <param name="body">The body of the actor that has come in contact with this fluid.</param>
     /// <param name="position">The position of the fluid.</param>
-    public void EntityContact(PhysicsActor actor, Vector3i position)
+    public void ActorContact(Body body, Vector3i position)
     {
-        FluidInstance? potentialFluid = actor.World.GetFluid(position);
+        FluidInstance? potentialFluid = body.Subject.World.GetFluid(position);
 
         if (potentialFluid is {} fluid && fluid.Fluid == this)
-            EntityContact(actor, position, fluid.Level, fluid.IsStatic);
+            ActorContact(body, position, fluid.Level, fluid.IsStatic);
     }
 
     /// <summary>
     ///     Override to provide custom contact handling.
     /// </summary>
-    protected virtual void EntityContact(PhysicsActor actor, Vector3i position, FluidLevel level,
-        Boolean isStatic) {}
+    protected virtual void ActorContact(Body body, Vector3i position, FluidLevel level, Boolean isStatic) {}
 
     /// <summary>
     ///     Tries to fill a position with the specified amount of fluid. The remaining fluid is specified, it can be

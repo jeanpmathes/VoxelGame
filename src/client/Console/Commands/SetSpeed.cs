@@ -6,6 +6,7 @@
 
 using System;
 using JetBrains.Annotations;
+using VoxelGame.Client.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
 #pragma warning disable CA1822
@@ -38,7 +39,8 @@ public class SetSpeed : Command
                 return;
 
             default:
-                Context.Player.SetFlyingSpeed(speed);
+                if (Context.Player.GetComponent<PlayerMovement>() is { } movement)
+                    movement.SetFlyingSpeed(speed);
 
                 break;
         }

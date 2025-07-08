@@ -13,6 +13,7 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Utilities;
+using Body = VoxelGame.Core.Actors.Components.Body;
 
 namespace VoxelGame.Core.Logic.Elements.Legacy;
 
@@ -102,7 +103,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <param name="position">The position at which to place the block.</param>
     /// <param name="actor"></param>
     /// <returns>True if placement was successful.</returns>
-    public Boolean Place(World world, Vector3i position, PhysicsActor? actor = null)
+    public Boolean Place(World world, Vector3i position, Actor? actor = null)
     {
         Content? content = world.GetContent(position);
 
@@ -128,7 +129,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <param name="actor">The actor destroying the block.</param>
     /// 1
     /// <returns>True if destruction was successful.</returns>
-    public Boolean Destroy(World world, Vector3i position, PhysicsActor? actor = null)
+    public Boolean Destroy(World world, Vector3i position, Actor? actor = null)
     {
         BlockInstance? potentialBlock = world.GetBlock(position);
 
@@ -205,7 +206,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <param name="position">The position at which the placement is requested.</param>
     /// <param name="actor">The actor that performs placement.</param>
     /// <returns>True if placement is possible.</returns>
-    public virtual Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public virtual Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         return true;
     }
@@ -217,7 +218,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <param name="world">The world in which the placement occurs.</param>
     /// <param name="position">The position at which the placement is requested.</param>
     /// <param name="actor">The actor that performs placement.</param>
-    protected virtual void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected virtual void DoPlace(World world, Vector3i position, Actor? actor)
     {
         world.SetBlock(this.AsInstance(), position);
     }
@@ -230,7 +231,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <param name="data">The block data.</param>
     /// <param name="actor">The actor that performs placement.</param>
     /// <returns></returns>
-    protected virtual Boolean CanDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
+    protected virtual Boolean CanDestroy(World world, Vector3i position, UInt32 data, Actor? actor)
     {
         return true;
     }
@@ -243,7 +244,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <param name="position">The position at which the placement is requested.</param>
     /// <param name="data">The block data.</param>
     /// <param name="actor">The actor that performs placement.</param>
-    protected virtual void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
+    protected virtual void DoDestroy(World world, Vector3i position, UInt32 data, Actor? actor)
     {
         world.SetDefaultBlock(position);
     }
@@ -251,28 +252,28 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <summary>
     ///     This method is called when an actor collides with this block.
     /// </summary>
-    /// <param name="actor">The actor that caused the collision.</param>
+    /// <param name="body">The body of the actor.</param>
     /// <param name="position">The block position.</param>
-    public void ActorCollision(PhysicsActor actor, Vector3i position)
+    public void ActorCollision(Body body, Vector3i position)
     {
-        BlockInstance? potentialBlock = actor.World.GetBlock(position);
-        if (potentialBlock?.Block == this) ActorCollision(actor, position, potentialBlock.Value.Data);
+        BlockInstance? potentialBlock = body.Subject.World.GetBlock(position);
+        if (potentialBlock?.Block == this) ActorCollision(body, position, potentialBlock.Value.Data);
     }
 
     /// <summary>
     ///     Override to provide custom actor collision logic.
     /// </summary>
-    /// <param name="actor">The actor that collided with this block.</param>
+    /// <param name="body">The body of the actor that collided with this block.</param>
     /// <param name="position">The position of the block.</param>
     /// <param name="data">The block data of this block.</param>
-    protected virtual void ActorCollision(PhysicsActor actor, Vector3i position, UInt32 data) {}
+    protected virtual void ActorCollision(Body body, Vector3i position, UInt32 data) {}
 
     /// <summary>
-    ///     Called when a block and an actor collide.
+    ///     Called when a block and an actor interact.
     /// </summary>
-    /// <param name="actor">The actor that collided with the block.</param>
+    /// <param name="actor">The actor that interacts with the block.</param>
     /// <param name="position">The block position.</param>
-    public void ActorInteract(PhysicsActor actor, Vector3i position)
+    public void ActorInteract(Actor actor, Vector3i position)
     {
         BlockInstance? potentialBlock = actor.World.GetBlock(position);
         if (potentialBlock?.Block == this) ActorInteract(actor, position, potentialBlock.Value.Data);
@@ -284,7 +285,7 @@ public partial class Block : IBlockMeshable, IIdentifiable<UInt32>, IIdentifiabl
     /// <param name="actor">The actor that interacted with this block.</param>
     /// <param name="position">The position of the block.</param>
     /// <param name="data">The block data of this block.</param>
-    protected virtual void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data) {}
+    protected virtual void ActorInteract(Actor actor, Vector3i position, UInt32 data) {}
 
     /// <summary>
     ///     Called when the content at a position changes. This is called on the new block at that position.

@@ -10,6 +10,7 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using Body = VoxelGame.Core.Actors.Components.Body;
 
 namespace VoxelGame.Core.Logic.Definitions.Legacy.Blocks;
 
@@ -26,11 +27,11 @@ public class LooseSnowBlock : SnowBlock
     }
 
     /// <inheritdoc />
-    protected override void ActorCollision(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorCollision(Body body, Vector3i position, UInt32 data)
     {
-        Vector3d clamped = MathTools.Clamp(actor.Velocity, min: -1f, maxVelocity);
+        Vector3d clamped = MathTools.Clamp(body.Velocity, min: -1f, maxVelocity);
         Double height = GetHeight(data) / (Double) IHeightVariable.MaximumHeight;
 
-        actor.Velocity = Vector3d.Lerp(actor.Velocity, clamped, height);
+        body.Velocity = Vector3d.Lerp(body.Velocity, clamped, height);
     }
 }

@@ -50,7 +50,7 @@ public class GrowingBlock : BasicBlock, ICombustible
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         Block down = world.GetBlock(position.Below())?.Block ?? Elements.Legacy.Blocks.Instance.Air;
 

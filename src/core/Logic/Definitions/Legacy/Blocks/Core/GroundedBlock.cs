@@ -30,7 +30,7 @@ public class GroundedBlock : BasicBlock, ICombustible
             layout) {}
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         return world.HasFullAndSolidGround(position, solidify: true);
     }

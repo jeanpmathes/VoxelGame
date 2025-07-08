@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using JetBrains.Annotations;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.UI.UserInterfaces;
 
@@ -30,7 +31,7 @@ public class CheckChunks : Command
     {
         var found = false;
 
-        foreach (ChunkPosition position in RequestAlgorithm.GetPositionsInManhattanRange(Context.Player.Chunk, RequestLevel.Range))
+        foreach (ChunkPosition position in RequestAlgorithm.GetPositionsInManhattanRange(Context.Player.GetComponentOrThrow<ChunkLoader>().Chunk, RequestLevel.Range))
         {
             Chunk? chunk = Context.Player.World.Chunks.GetAny(position);
 

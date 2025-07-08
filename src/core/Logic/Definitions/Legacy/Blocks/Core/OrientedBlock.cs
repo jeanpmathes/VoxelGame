@@ -30,10 +30,10 @@ public class OrientedBlock : BasicBlock
             layout) {}
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         world.SetBlock(
-            this.AsInstance((UInt32) (actor?.Head.Forward.ToOrientation() ?? Orientation.North)),
+            this.AsInstance((UInt32) (actor?.Head?.Forward.ToOrientation() ?? Orientation.North)),
             position);
     }
 

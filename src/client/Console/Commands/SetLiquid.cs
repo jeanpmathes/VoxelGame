@@ -7,6 +7,7 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -33,7 +34,7 @@ public class SetFluid : Command
     /// <exclude />
     public void Invoke(String namedID, Int32 level)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, level, targetPosition);
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(namedID, level, targetPosition);
         else Context.Output.WriteError("No position targeted.");
     }
 

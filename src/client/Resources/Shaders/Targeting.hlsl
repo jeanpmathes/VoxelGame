@@ -59,5 +59,5 @@ float4 PSMain(PSInput const input, out float depth : SV_DEPTH) : SV_TARGET
     float const  luminance = native::GetLuminance(background);
     float3 const color     = luminance > 0.2f ? cb.darkColor : cb.brightColor;
 
-    return float4(color, 1.0);
+    return float4(cb.brightColor, 1.0);
 }

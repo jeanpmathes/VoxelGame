@@ -101,9 +101,9 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         state.Initialize();
 
-        state.Activated += OnActivate;
-        state.Deactivated += OnDeactivate;
-        state.Terminated += OnTerminate;
+        state.Activating += OnActivate;
+        state.Deactivating += OnDeactivate;
+        state.Terminating += OnTerminate;
 
         AddComponent<ChunkSimulator>();
     }

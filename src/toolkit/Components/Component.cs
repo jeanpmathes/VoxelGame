@@ -19,7 +19,7 @@ public abstract class Component<TSubject>(TSubject subject) : IDisposable
     /// </summary>
     public TSubject Subject { get; } = subject;
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     /// <summary>
     ///     Override this method to dispose of resources.
@@ -42,5 +42,5 @@ public abstract class Component<TSubject>(TSubject subject) : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

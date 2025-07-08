@@ -154,7 +154,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         UInt32 data = GetConnectionData(world, position);
 

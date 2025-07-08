@@ -39,15 +39,15 @@ public interface IWorldStates
     /// <summary>
     ///     Fired when the world enters an active state.
     /// </summary>
-    public event EventHandler<EventArgs>? Activated;
+    public event EventHandler<EventArgs>? Activating;
 
     /// <summary>
     ///     Fired when the world leaves an active state.
     /// </summary>
-    public event EventHandler<EventArgs>? Deactivated;
+    public event EventHandler<EventArgs>? Deactivating;
 
     /// <summary>
     ///     Fired when the world enters a terminating state.
     /// </summary>
-    public event EventHandler<EventArgs>? Terminated;
+    public event EventHandler<EventArgs>? Terminating;
 }

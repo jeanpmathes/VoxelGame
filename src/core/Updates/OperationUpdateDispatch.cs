@@ -117,7 +117,7 @@ public class OperationUpdateDispatch : ApplicationComponent
         }
     }
 
-    #region DISPOSING
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -134,5 +134,5 @@ public class OperationUpdateDispatch : ApplicationComponent
         disposed = true;
     }
 
-    #endregion DISPOSING
+    #endregion DISPOSABLE
 }

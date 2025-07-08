@@ -55,7 +55,7 @@ public class FluidBarrierBlock : BasicBlock, IFillable, ICombustible
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         actor.World.SetBlock(this.AsInstance(data ^ 0b00_0001), position);
     }

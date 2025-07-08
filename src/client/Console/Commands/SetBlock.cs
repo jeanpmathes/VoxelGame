@@ -7,6 +7,7 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Legacy;
 
@@ -34,7 +35,7 @@ public class SetBlock : Command
     /// <exclude />
     public void Invoke(String namedID, Int32 data)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, data, targetPosition);
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(namedID, data, targetPosition);
         else Context.Output.WriteError("No position targeted.");
     }
 

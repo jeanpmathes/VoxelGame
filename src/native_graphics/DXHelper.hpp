@@ -87,26 +87,28 @@ inline std::string GetTryDoMessage(std::source_location const& location)
 /**
  * \brief Try to do something, e.g. a Win32 API call, and throw an exception if it fails.
  */
-inline void TryDo(BOOL const b, std::source_location const& location = std::source_location::current())
+inline void TryDo(BOOL const b, bool const breakpoint = true, std::source_location const& location = std::source_location::current())
 {
     if (b) return;
 
     std::string const message = GetTryDoMessage(location);
 
-    if (IsDebuggerPresent()) DebugBreak();
+    if (breakpoint && IsDebuggerPresent()) DebugBreak();
+    
     throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
 }
 
 /**
  * \brief Try to do something, e.g. a DirectX API call, and throw an exception if it fails.
  */
-inline void TryDo(HRESULT const hr, std::source_location const& location = std::source_location::current())
+inline void TryDo(HRESULT const hr, bool const breakpoint = true, std::source_location const& location = std::source_location::current())
 {
     if (SUCCEEDED(hr)) return;
 
     std::string const message = GetTryDoMessage(location);
 
-    if (IsDebuggerPresent()) DebugBreak();
+    if (breakpoint && IsDebuggerPresent()) DebugBreak();
+    
     throw HResultException(hr, message);
 }
 
@@ -114,7 +116,7 @@ inline void TryDo(HRESULT const hr, std::source_location const& location = std::
  * \brief Check that the return value of a function is not NULL, and throw an exception based on GetLastError if it is.
  */
 template <typename T>
-constexpr T const& CheckReturn(T const& value, std::source_location const& location = std::source_location::current())
+constexpr T const& CheckReturn(T const& value, bool const breakpoint = true, std::source_location const& location = std::source_location::current())
 {
     if (value != NULL) return value;
 
@@ -126,7 +128,9 @@ constexpr T const& CheckReturn(T const& value, std::source_location const& locat
         location.line(),
         location.column());
 
-    if (IsDebuggerPresent()) DebugBreak();
+    
+    if (breakpoint && IsDebuggerPresent()) DebugBreak();
+    
     throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
 }
 

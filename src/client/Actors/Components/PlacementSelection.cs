@@ -5,36 +5,44 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
+using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.Client.Actors.Players;
+namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-///     The selector used to decide which block or fluid to player is placing.
+/// Decides which block or fluid the player is placing.
 /// </summary>
-internal class PlacementSelection
+public class PlacementSelection : ActorComponent, IConstructible<Player, PlacementSelection>
 {
-    private readonly Func<Block?> getTargetBlock;
-    private readonly Input input;
-
-    /// <summary>
-    ///     Creates a new placement selection.
-    /// </summary>
-    /// <param name="input">The player input.</param>
-    /// <param name="getTargetBlock">A function to get the targeted block.</param>
-    internal PlacementSelection(Input input, Func<Block?> getTargetBlock)
+    private readonly Player player;
+    
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly Targeting targeting;
+    
+    private PlacementSelection(Player player) : base(player) 
     {
-        this.input = input;
-        this.getTargetBlock = getTargetBlock;
-
+        this.player = player;
+        
+        targeting = player.GetRequiredComponent<Targeting>();
+        
         // The initially selected block and fluid have to be set as block 0 and fluid 0 are not valid in this context.
         ActiveBlock = Blocks.Instance.Grass;
         ActiveFluid = Fluids.Instance.FreshWater;
     }
-
+    
+    /// <inheritdoc />
+    public static PlacementSelection Construct(Player input)
+    {
+        return new PlacementSelection(input);
+    }
+    
     /// <summary>
     ///     Get the name of the current selection.
     /// </summary>
@@ -60,24 +68,30 @@ internal class PlacementSelection
     /// </summary>
     internal Boolean IsBlockMode { get; private set; } = true;
 
-    /// <summary>
-    ///     Perform the selection based on current input.
-    /// </summary>
-    /// <returns>Whether the selection changed.</returns>
-    internal Boolean DoBlockFluidSelection()
+    /// <inheritdoc />
+    public override void OnLogicUpdate(Double deltaTime)
     {
-        var updateData = false;
+        if (!player.Scene.CanHandleGameInput)
+            return;
+        
+        var changed = false;
 
-        updateData |= SelectMode();
-        updateData |= SelectFromList();
-        updateData |= SelectTargeted();
+        changed |= SelectMode();
+        changed |= SelectFromList();
+        changed |= SelectTargeted();
 
-        return updateData;
+        if (changed)
+            SelectionChanged?.Invoke(this, EventArgs.Empty);
     }
 
+    /// <summary>
+    /// Invoked if the selection has changed in any way, e.g. the block or fluid was changed or the mode was switched.
+    /// </summary>
+    public event EventHandler? SelectionChanged;
+    
     private Boolean SelectMode()
     {
-        if (!input.ShouldChangePlacementMode) return false;
+        if (!player.Input.ShouldChangePlacementMode) return false;
 
         IsBlockMode = !IsBlockMode;
 
@@ -86,7 +100,7 @@ internal class PlacementSelection
 
     private Boolean SelectFromList()
     {
-        Int32 change = input.GetSelectionChange();
+        Int32 change = player.Input.GetSelectionChange();
 
         if (change == 0) return false;
 
@@ -108,9 +122,9 @@ internal class PlacementSelection
 
     private Boolean SelectTargeted()
     {
-        if (!input.ShouldSelectTargeted) return false;
+        if (!player.Input.ShouldSelectTargeted) return false;
 
-        ActiveBlock = getTargetBlock() ?? ActiveBlock;
+        ActiveBlock = targeting.Block?.Block ?? ActiveBlock;
         IsBlockMode = true;
 
         return true;

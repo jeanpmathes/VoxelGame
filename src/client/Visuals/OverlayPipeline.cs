@@ -17,21 +17,19 @@ using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101 // Naming.
-
 /// <summary>
-///     A VFX for overlay textures. Any block or fluid texture can be used as an overlay.
+///     A pipeline for rendering overlay textures. Any block or fluid texture can be used as an overlay.
+///     This is a direct pipeline, meaning no instance objects are created and only a single overlay can be rendered at a time.
 /// </summary>
-public sealed class OverlayVFX : VFX
+public sealed class OverlayPipeline : IDisposable
 {
     private const Int32 BlockMode = 0;
     private const Int32 FluidMode = 1;
+    
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
     private readonly (TextureArray block, TextureArray fluid) textures;
-    private IDisposable? disposable;
-    private Int32 mode = BlockMode;
-    private ColorS tint = ColorS.None;
+    
     private Boolean isAnimated;
     private Single lowerBound;
     private Single upperBound;
@@ -40,48 +38,43 @@ public sealed class OverlayVFX : VFX
     private Boolean isTextureInitialized;
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
+    
+    private Int32 mode = BlockMode;
+    private ColorS tint = ColorS.None;
+    
+    private IDisposable? disposable;
 
-    private OverlayVFX(VoxelGame.Graphics.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
+    private OverlayPipeline(VoxelGame.Graphics.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
     {
         this.client = client;
         this.data = data;
         this.textures = textures;
     }
 
-    /// <inheritdoc />
-    public override Boolean IsEnabled { get; set; }
+    /// <summary>
+    /// Whether rendering of the overlay is enabled.
+    /// </summary>
+    public Boolean IsEnabled { get; set; }
 
     /// <summary>
-    ///     Create a new <see cref="OverlayVFX" />.
+    ///     Create a new <see cref="OverlayPipeline" />.
     /// </summary>
     /// <param name="client">The client instance.</param>
     /// <param name="factory">The factory to create the pipeline.</param>
     /// <param name="textures">The texture arrays, containing block and fluid textures.</param>
     /// <returns>The new VFX.</returns>
-    internal static OverlayVFX? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory, (TextureArray, TextureArray) textures)
+    internal static OverlayPipeline? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory, (TextureArray, TextureArray) textures)
     {
-        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
+        (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? loaded
             = factory.LoadPipelineWithBuffer<Data>("Overlay", new ShaderPresets.Draw2D(Filter.Closest));
 
-        if (result is not {pipeline: var pipeline, buffer: var buffer}) return null;
+        if (loaded is not {pipeline: var pipeline, buffer: var buffer}) return null;
 
-        OverlayVFX vfx = new(client, buffer, textures);
+        OverlayPipeline created = new(client, buffer, textures);
 
-        vfx.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, vfx.Draw);
+        created.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, created.Draw);
 
-        return vfx;
-    }
-
-    /// <inheritdoc />
-    protected override void OnSetUp()
-    {
-        // Intentionally left empty.
-    }
-
-    /// <inheritdoc />
-    protected override void OnTearDown()
-    {
-        // Intentionally left empty.
+        return created;
     }
 
     /// <summary>
@@ -132,8 +125,10 @@ public sealed class OverlayVFX : VFX
         isAnimated = overlay.IsAnimated;
     }
 
-    /// <inheritdoc />
-    protected override void OnLogicUpdate()
+    /// <summary>
+    /// Perform the logic update for the overlay pipeline.
+    /// </summary>
+    public void LogicUpdate()
     {
         Matrix4d model = Matrix4d.Identity;
         Matrix4d view = Matrix4d.Identity;
@@ -273,18 +268,30 @@ public sealed class OverlayVFX : VFX
     #region DISPOSABLE
 
     private Boolean disposed;
-
-    /// <inheritdoc />
-    protected override void Dispose(Boolean disposing)
+    
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 
-        if (disposing) disposable?.Dispose();
-        else Throw.ForMissedDispose(nameof(OverlayVFX));
-
-        base.Dispose(disposing);
+        if (disposing) 
+            disposable?.Dispose();
 
         disposed = true;
+    }
+    
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+    
+    /// <summary>
+    /// Finalizer.
+    /// </summary>
+    ~OverlayPipeline()
+    {
+        Dispose(disposing: false);
     }
 
     #endregion DISPOSABLE

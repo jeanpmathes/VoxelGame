@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Interfaces;
@@ -114,13 +115,13 @@ public class SteelPipeValveBlock : Block, IFillable, IIndustrialPipeConnectable,
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
-        world.SetBlock(this.AsInstance((UInt32) (actor?.TargetSide ?? Side.Front).Axis()), position);
+        world.SetBlock(this.AsInstance((UInt32) (actor?.GetTargetedSide() ?? Side.Front).Axis()), position);
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         actor.World.SetBlock(this.AsInstance(data ^ 0b00_0100), position);
     }

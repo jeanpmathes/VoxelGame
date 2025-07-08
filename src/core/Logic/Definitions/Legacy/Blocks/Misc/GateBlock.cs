@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Interfaces;
@@ -229,7 +230,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         Boolean connectX = CheckOrientation(world, position, Orientation.East) ||
                            CheckOrientation(world, position, Orientation.West);
@@ -241,9 +242,9 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
-        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.Head?.Forward.ToOrientation() ?? Orientation.North;
 
         Boolean connectX = CheckOrientation(world, position, Orientation.East) ||
                            CheckOrientation(world, position, Orientation.West);
@@ -266,16 +267,16 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         var orientation = (Orientation) (data & 0b00_0011);
         Boolean isClosed = (data & 0b00_0100) == 0;
 
         // Check if orientation has to be inverted.
-        if (isClosed &&
+        if (isClosed && actor.GetComponent<Transform>() is { } transform &&
             Vector2d.Dot(
                 orientation.ToVector3().Xz,
-                actor.Position.Xz - new Vector2(position.X + 0.5f, position.Z + 0.5f)) < 0)
+                transform.Position.Xz - new Vector2(position.X + 0.5f, position.Z + 0.5f)) < 0)
             orientation = orientation.Opposite();
 
         Vector3d center = isClosed
@@ -290,7 +291,7 @@ public class GateBlock : Block, IWideConnectable, ICombustible, IFillable, IComp
 
         BoundingVolume volume = new(center, extents);
 
-        if (actor.Collider.Intersects(volume.GetColliderAt(position))) return;
+        if (actor.GetComponent<Body>() is {} body && body.Collider.Intersects(volume.GetColliderAt(position))) return;
 
         actor.World.SetBlock(
             this.AsInstance((UInt32) ((isClosed ? 0b00_0100 : 0b00_0000) | (Int32) orientation.Opposite())),

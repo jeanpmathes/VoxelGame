@@ -28,7 +28,7 @@ public class ModifiableHeightBlock : VaryingHeightBlock
             layout) {}
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         UInt32 height = data & 0b00_1111;
         height++;

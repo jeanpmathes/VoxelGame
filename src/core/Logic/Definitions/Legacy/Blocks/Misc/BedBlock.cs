@@ -171,11 +171,11 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         if (!world.HasFullAndSolidGround(position, solidify: true)) return false;
 
-        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.Head?.Forward.ToOrientation() ?? Orientation.North;
         Vector3i otherPosition = orientation.Offset(position);
 
         return world.GetBlock(otherPosition)?.Block.IsReplaceable == true &&
@@ -183,9 +183,9 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
-        Orientation orientation = actor?.Head.Forward.ToOrientation() ?? Orientation.North;
+        Orientation orientation = actor?.Head?.Forward.ToOrientation() ?? Orientation.North;
         Vector3i otherPosition = orientation.Offset(position);
 
         world.SetBlock(this.AsInstance((UInt32) orientation << 1), position);
@@ -195,7 +195,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
+    protected override void DoDestroy(World world, Vector3i position, UInt32 data, Actor? actor)
     {
         Boolean isHead = (data & 0b1) == 1;
         var orientation = (Orientation) ((data & 0b00_0110) >> 1);
@@ -206,7 +206,7 @@ public class BedBlock : Block, ICombustible, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         Boolean isHead = (data & 0b1) == 1;
 

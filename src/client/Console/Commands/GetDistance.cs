@@ -41,7 +41,7 @@ public class GetDistance : Command
     {
         Length distance = new()
         {
-            Meters = (position - Context.Player.Position).Length
+            Meters = (position - Context.Player.Body.Transform.Position).Length
         };
 
         Context.Output.WriteResponse($"Distance: {distance}");

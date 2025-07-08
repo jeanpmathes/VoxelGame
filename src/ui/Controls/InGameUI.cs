@@ -48,7 +48,7 @@ internal class InGameUI : ControlBase
         Console = new ConsoleInterface(this, consoleProvider, parent.Context);
         hud = new InGameDisplay(this);
 
-        Console.WindowClosed += (_, _) => parent.DoOverlayClose();
+        Console.WindowClosed += (_, _) => parent.DoMetaControlClose();
     }
 
     internal ConsoleInterface Console { get; }
@@ -186,7 +186,7 @@ internal class InGameUI : ControlBase
 
         Control.Used(info);
 
-        parent.DoOverlayOpen();
+        parent.DoMetaControlOpen();
     }
 
     private void OpenSettings()
@@ -225,7 +225,7 @@ internal class InGameUI : ControlBase
         hud.Show();
         gameMenu = null;
 
-        parent.DoOverlayClose();
+        parent.DoMetaControlClose();
     }
 
     private void OpenConsole()
@@ -233,7 +233,7 @@ internal class InGameUI : ControlBase
         if (Console.IsOpen) return;
 
         Console.OpenWindow();
-        parent.DoOverlayOpen();
+        parent.DoMetaControlOpen();
     }
 
     private void CloseConsole()

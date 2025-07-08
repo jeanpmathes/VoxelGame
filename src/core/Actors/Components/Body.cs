@@ -1,4 +1,4 @@
-﻿// <copyright file="PhysicsActor.cs" company="VoxelGame">
+﻿// <copyright file="Body.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -15,15 +15,15 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.Core.Actors;
+namespace VoxelGame.Core.Actors.Components;
 
 /// <summary>
-///     An actor which is affected by gravity and forces.
+/// Adds physics capabilities to an <see cref="Actor"/>.
 /// </summary>
-public abstract partial class PhysicsActor : Actor, IOrientable
+public partial class Body : ActorComponent, IConstructible<Actor, Body.Characteristics, Body>
 {
     /// <summary>
-    ///     The gravitational constant which accelerates all physics actors.
+    ///     The gravitational constant which accelerates all bodies.
     /// </summary>
     private const Double Gravity = -9.81;
 
@@ -32,123 +32,81 @@ public abstract partial class PhysicsActor : Actor, IOrientable
 
     private const Int32 PhysicsIterations = 10;
 
+    private readonly Double mass;
     private readonly BoundingVolume boundingVolume;
 
-    private Vector3d actualPosition;
     private Vector3d force;
 
-    private Boolean doPhysics = true;
-
-    /// <summary>
-    ///     Create a new physics-actor.
-    /// </summary>
-    /// <param name="mass">The mass of the actor.</param>
-    /// <param name="boundingVolume">The bounding box of the actor.</param>
-    protected PhysicsActor(Double mass, BoundingVolume boundingVolume)
+    private Boolean isEnabled = true;
+    
+    private Body(Actor subject, Double mass, BoundingVolume boundingVolume) : base(subject)
     {
-        Mass = mass;
+        this.mass = mass;
         this.boundingVolume = boundingVolume;
+
+        Transform = subject.GetRequiredComponent<Transform>();
+    }
+    
+    /// <inheritdoc />
+    public static Body Construct(Actor input1, Characteristics input2)
+    {
+        return new Body(input1, input2.Mass, input2.BoundingVolume);
     }
 
     /// <summary>
-    ///     Gets the mass of this physics actor.
+    /// Get the transform of the body, which contains the position and orientation in the world.
     /// </summary>
-    private Double Mass { get; }
+    public Transform Transform { get; }
 
     /// <summary>
-    ///     Gets or sets the velocity of the physics actor.
+    ///     Gets or sets the velocity of the body.
     /// </summary>
     public Vector3d Velocity { get; set; }
 
     /// <summary>
-    ///     Get the rotation of the physics actor.
+    ///     Get the target movement of the body.
     /// </summary>
-    protected Quaterniond Rotation { get; set; } = Quaterniond.Identity;
-
+    public Vector3d Movement { get; set; }
+    
     /// <summary>
-    ///     Get whether the physics actor touches the ground.
+    ///     Get whether the body touches the ground.
     /// </summary>
     public Boolean IsGrounded { get; private set; }
 
     /// <summary>
-    ///     Get whether the physics actor is in a fluid.
+    ///     Get whether the body is in a fluid.
     /// </summary>
     public Boolean IsSwimming { get; private set; }
-
+    
     /// <summary>
-    ///     Get the target movement of the physics actor.
+    ///     Get the collider of this body.
     /// </summary>
-    public abstract Vector3d Movement { get; }
+    public BoxCollider Collider => boundingVolume.GetColliderAt(Transform.Position);
 
     /// <summary>
-    ///     The head of the physics actor, which allows to determine where the actor is looking at.
-    ///     If an actor has no head or the concept of looking does not make sense, this will return the actor itself.
-    /// </summary>
-    public virtual IOrientable Head => this;
-
-    /// <summary>
-    ///     Get the block side targeted by the physics actor.
-    /// </summary>
-    public abstract Side TargetSide { get; }
-
-    /// <summary>
-    ///     Get the block position targeted by the physics actor.
-    ///     If the actor is not targeting a block, this will be null.
-    /// </summary>
-    public abstract Vector3i? TargetPosition { get; }
-
-    /// <summary>
-    ///     Get the collider of this physics actor.
-    /// </summary>
-    public BoxCollider Collider => boundingVolume.GetColliderAt(Position);
-
-    /// <summary>
-    ///     Whether the physics actor should perform physics calculations.
+    ///     Whether the body should perform physics calculations.
     ///     If no physics calculations are performed, methods such as <see cref="Move" /> will have no effect.
     /// </summary>
-    public Boolean DoPhysics
+    public Boolean IsEnabled
     {
-        get => doPhysics;
+        get => isEnabled;
         set
         {
-            Throw.IfDisposed(disposed);
-
-            Boolean oldValue = doPhysics;
-            doPhysics = value;
+            Boolean oldValue = isEnabled;
+            isEnabled = value;
 
             if (oldValue == value) return;
 
-            LogSetActorPhysics(logger, doPhysics);
+            LogSetActorPhysics(logger, isEnabled);
         }
     }
-
-    /// <summary>
-    ///     Get the position of the physics actor.
-    /// </summary>
-    public Vector3d Position
-    {
-        get => actualPosition;
-        set => actualPosition = MathTools.ClampComponents(value, -World.Extents, World.Extents);
-    }
-
-    /// <summary>
-    ///     Get the forward vector of the physics actor.
-    /// </summary>
-    public Vector3d Forward => Rotation * Vector3d.UnitX;
-
-    /// <summary>
-    ///     Get the right vector of the physics actor.
-    /// </summary>
-    public Vector3d Right => Rotation * Vector3d.UnitZ;
-
+    
     /// <summary>
     ///     Applies force to this actor.
     /// </summary>
     /// <param name="additionalForce">The force to apply.</param>
     public void AddForce(Vector3d additionalForce)
     {
-        Throw.IfDisposed(disposed);
-
         force += additionalForce;
     }
 
@@ -159,21 +117,17 @@ public abstract partial class PhysicsActor : Actor, IOrientable
     /// <param name="maxForce">The maximum allowed force to use.</param>
     public void Move(Vector3d movement, Vector3d maxForce)
     {
-        Throw.IfDisposed(disposed);
-
         maxForce = maxForce.Absolute();
 
-        Vector3d requiredForce = (movement - Velocity) * Mass;
+        Vector3d requiredForce = (movement - Velocity) * mass;
         requiredForce -= force;
         AddForce(MathTools.ClampComponents(requiredForce, -maxForce, maxForce));
     }
 
     /// <inheritdoc />
-    public override void LogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Double deltaTime)
     {
-        Throw.IfDisposed(disposed);
-
-        if (DoPhysics)
+        if (IsEnabled)
         {
             CalculatePhysics(deltaTime);
         }
@@ -185,8 +139,6 @@ public abstract partial class PhysicsActor : Actor, IOrientable
             IsGrounded = false;
             IsSwimming = false;
         }
-
-        OnLogicUpdate(deltaTime);
     }
 
     private void CalculatePhysics(Double deltaTime)
@@ -194,7 +146,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
         IsGrounded = false;
         IsSwimming = false;
 
-        Velocity += force / Mass * deltaTime;
+        Velocity += force / mass * deltaTime;
 
         BoxCollider collider = Collider;
 
@@ -221,7 +173,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
 
             foreach ((Vector3i position, Fluid fluid, FluidLevel level) in fluidIntersections)
             {
-                if (fluid.ReceiveContact) fluid.EntityContact(this, position);
+                if (fluid.ReceiveContact) fluid.ActorContact(this, position);
 
                 useFluidDrag |= fluid.IsFluid;
                 noGas = fluid.IsFluid;
@@ -235,7 +187,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
 #pragma warning restore S2589
         }
 
-        force = new Vector3d(x: 0, Gravity * Mass, z: 0);
+        force = new Vector3d(x: 0, Gravity * mass, z: 0);
         force -= (Vector3d) Velocity.Sign() * drag * Velocity.LengthSquared;
     }
 
@@ -246,7 +198,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
         collider.Position += movement;
 
         if (collider.IntersectsTerrain(
-                World,
+                Subject.World,
                 out Boolean xCollision,
                 out Boolean yCollision,
                 out Boolean zCollision,
@@ -257,7 +209,7 @@ public abstract partial class PhysicsActor : Actor, IOrientable
             {
                 Vector3i boundingBoxCenter = collider.Center.Floor();
 
-                IsGrounded = !World.GetBlock(
+                IsGrounded = !Subject.World.GetBlock(
                         boundingBoxCenter + (0, (Int32) Math.Round(collider.Volume.Extents.Y), 0))
                     ?.Block.IsSolid ?? true;
             }
@@ -273,38 +225,22 @@ public abstract partial class PhysicsActor : Actor, IOrientable
                 zCollision ? 0 : Velocity.Z);
         }
 
-        Position += movement;
+        Transform.Position += movement;
     }
-
+    
     /// <summary>
-    ///     Called in each logic update to update the physics actor.
+    /// Describes the important characteristics of a body required on creation.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    protected abstract void OnLogicUpdate(Double deltaTime);
-
+    /// <param name="Mass">The mass of the body, in kilograms.</param>
+    /// <param name="BoundingVolume">The bounding volume of the body, which is used for collision detection.</param>
+    public record Characteristics(Double Mass, BoundingVolume BoundingVolume);
+    
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<PhysicsActor>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Body>();
 
     [LoggerMessage(EventId = LogID.PhysicsActor + 0, Level = LogLevel.Information, Message = "Set actor physics to {State} (enabled/disabled)")]
     private static partial void LogSetActorPhysics(ILogger logger, Boolean state);
 
     #endregion LOGGING
-
-    #region DISPOSABLE
-
-    private Boolean disposed;
-
-    /// <inheritdoc />
-    protected override void Dispose(Boolean disposing)
-    {
-        base.Dispose(disposing);
-
-        if (disposed)
-            return;
-
-        disposed = true;
-    }
-
-    #endregion DISPOSABLE
 }

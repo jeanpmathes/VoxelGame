@@ -7,6 +7,7 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -26,7 +27,7 @@ public class DoUpdate : Command
     /// <exclude />
     public void Invoke()
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Update(targetPosition);
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Update(targetPosition);
         else Context.Output.WriteError("No position targeted.");
     }
 

@@ -92,7 +92,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         world.SetBlock(this.AsInstance(Encode(NamedColor.Default, IHeightVariable.MaximumHeight)), position);
     }
@@ -111,7 +111,7 @@ public class ConcreteBlock : Block, IVaryingHeight, IWideConnectable, IThinConne
     }
 
     /// <inheritdoc />
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         Decode(data, out NamedColor color, out Int32 height);
         var next = (NamedColor) ((Int32) color + 1);

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Legacy;
@@ -95,15 +96,15 @@ public class LichenBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
-        Side side = actor?.TargetSide ?? Side.Front;
+        Side side = actor?.GetTargetedSide() ?? Side.Front;
 
         return world.GetBlock(side.Opposite().Offset(position))?.IsSolidAndFull ?? false;
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         var sides = Sides.None;
 

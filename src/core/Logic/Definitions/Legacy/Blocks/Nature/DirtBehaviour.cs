@@ -21,7 +21,7 @@ public static class DirtBehaviour
     /// <summary>
     ///     Return true if a covered block can be placed at the given position.
     /// </summary>
-    public static Boolean CanPlaceCovered(World world, Vector3i position, PhysicsActor? actor)
+    public static Boolean CanPlaceCovered(World world, Vector3i position, Actor? actor)
     {
         return world.HasOpaqueTop(position) == false || Elements.Legacy.Blocks.Instance.Dirt.CanPlace(world, position, actor);
     }
@@ -29,7 +29,7 @@ public static class DirtBehaviour
     /// <summary>
     ///     Place a covered block at the given position. This is only allowed if the checks pass.
     /// </summary>
-    public static void DoPlaceCovered(Block self, World world, Vector3i position, PhysicsActor? actor)
+    public static void DoPlaceCovered(Block self, World world, Vector3i position, Actor? actor)
     {
         if (world.HasOpaqueTop(position) == false) world.SetBlock(self.AsInstance(), position);
         else Elements.Legacy.Blocks.Instance.Dirt.Place(world, position, actor);

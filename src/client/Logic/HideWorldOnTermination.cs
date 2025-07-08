@@ -13,11 +13,22 @@ namespace VoxelGame.Client.Logic;
 /// Hides all sections in the world when the world is terminated.
 /// This prevents rendering of the no longer needed sections.
 /// </summary>
-public class HideWorldOnTermination(Core.Logic.World subject) : WorldComponent(subject), IConstructible<Core.Logic.World, HideWorldOnTermination>
+public class HideWorldOnTermination : WorldComponent, IConstructible<Core.Logic.World, HideWorldOnTermination>
 {
+    private HideWorldOnTermination(Core.Logic.World subject) : base(subject) 
+    {
+    }
+
     /// <inheritdoc />
     public static HideWorldOnTermination Construct(Core.Logic.World input)
     {
         return new HideWorldOnTermination(input);
+    }
+
+    /// <inheritdoc />
+    public override void OnTerminate()
+    {
+        foreach (Core.Logic.Chunks.Chunk chunk in Subject.Chunks.All)
+            chunk.Cast().HideAllSections();
     }
 }

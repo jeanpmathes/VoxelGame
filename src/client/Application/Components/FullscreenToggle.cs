@@ -20,11 +20,8 @@ public class FullscreenToggle : ApplicationComponent, IConstructible<Client, Ful
     private readonly Client client;
 
     private readonly ToggleButton button;
-
-    /// <summary>
-    ///     Create a new fullscreen toggle component for the client.
-    /// </summary>
-    public FullscreenToggle(Client client) : base(client)
+    
+    private FullscreenToggle(Client client) : base(client)
     {
         this.client = client;
 

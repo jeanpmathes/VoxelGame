@@ -156,7 +156,7 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         if (world.HasFullAndSolidGround(position)) return true;
 
@@ -164,7 +164,7 @@ public class FireBlock : Block, IFillable, IComplex
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         world.SetBlock(this.AsInstance(world.HasFullAndSolidGround(position) ? 0 : GetData(world, position)), position);
         ScheduleUpdate(world, position, GetDelay(position));

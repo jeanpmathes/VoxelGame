@@ -42,7 +42,7 @@ internal class PumpBlock : BasicBlock, IIndustrialPipeConnectable, IFillable
         return side == Side.Top;
     }
 
-    protected override void ActorInteract(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorInteract(Actor actor, Vector3i position, UInt32 data)
     {
         Fluid.Elevate(actor.World, position, pumpDistance);
     }

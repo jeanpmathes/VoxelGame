@@ -21,23 +21,28 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     Manages scenes, switching between them.
 /// </summary>
-public partial class SceneManager(Core.App.Application application) : ApplicationComponent(application), IConstructible<Core.App.Application, SceneManager>
+public partial class SceneManager : ApplicationComponent, IConstructible<Core.App.Application, SceneManager>
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
-    private readonly SceneOperationDispatch? dispatch = application.GetComponent<SceneOperationDispatch>();
+    private readonly SceneOperationDispatch? dispatch;
 
     private IScene? current;
-
-    /// <summary>
-    ///     Whether a scene is currently loaded.
-    /// </summary>
-    public Boolean IsInScene => current != null;
+    
+    private SceneManager(Core.App.Application application) : base(application)
+    {
+        dispatch = application.GetComponent<SceneOperationDispatch>();
+    }
 
     /// <inheritdoc />
     public static SceneManager Construct(Core.App.Application input)
     {
         return new SceneManager(input);
     }
+    
+    /// <summary>
+    ///     Whether a scene is currently loaded.
+    /// </summary>
+    public Boolean IsInScene => current != null;
 
     /// <summary>
     ///     Load a scene.

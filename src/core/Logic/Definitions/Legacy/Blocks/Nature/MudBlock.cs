@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using Body = VoxelGame.Core.Actors.Components.Body;
 
 namespace VoxelGame.Core.Logic.Definitions.Legacy.Blocks;
 
@@ -49,8 +50,8 @@ public class MudBlock : BasicBlock, IPlantable
     }
 
     /// <inheritdoc />
-    protected override void ActorCollision(PhysicsActor actor, Vector3i position, UInt32 data)
+    protected override void ActorCollision(Body body, Vector3i position, UInt32 data)
     {
-        actor.Velocity = MathTools.Clamp(actor.Velocity, min: -1f, maxVelocity);
+        body.Velocity = MathTools.Clamp(body.Velocity, min: -1f, maxVelocity);
     }
 }

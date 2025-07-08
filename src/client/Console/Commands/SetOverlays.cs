@@ -6,6 +6,7 @@
 
 using System;
 using JetBrains.Annotations;
+using VoxelGame.Client.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
     #pragma warning disable CA1822
@@ -33,6 +34,7 @@ public class SetOverlays : Command
     /// </summary>
     public static void Do(Context context, Boolean enabled)
     {
-        context.Player.SetOverlayAllowed(enabled);
+        if (context.Player.GetComponent<OverlayDisplay>() is {} overlay)
+            overlay.IsEnabled = enabled;
     }
 }

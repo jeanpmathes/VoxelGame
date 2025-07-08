@@ -47,8 +47,8 @@ public sealed class EngineLoader : IResourceLoader
         PipelineFactory factory = new(client, errors);
 
         RasterPipeline? postProcessingPipeline = factory.LoadPipeline("PostProcessing", new ShaderPresets.PostProcessing());
-        var crosshairVFX = ScreenElementVFX.Create(client, factory, (0.5f, 0.5f));
-        var overlayVFX = OverlayVFX.Create(client, factory, textureSlots);
+        var crosshairVFX = ScreenElementPipeline.Create(client, factory, (0.5f, 0.5f));
+        var overlayVFX = OverlayPipeline.Create(client, factory, textureSlots);
 
         if (postProcessingPipeline == null || crosshairVFX == null || overlayVFX == null)
             return errors;
@@ -58,7 +58,7 @@ public sealed class EngineLoader : IResourceLoader
         if (rtData == null)
             return errors;
 
-        var selectionBoxVFX = SelectionBoxVFX.Create(client, factory);
+        var selectionBoxVFX = TargetingBoxPipeline.Create(client, factory);
 
         if (selectionBoxVFX == null)
             return errors;
@@ -77,7 +77,7 @@ public sealed class EngineLoader : IResourceLoader
         builder.AddShaderFile(Engine.ShaderDirectory.GetFile("Miss.hlsl"), names: ["Miss"]);
         builder.AddShaderFile(Engine.ShaderDirectory.GetFile("Shadow.hlsl"), names: ["ShadowMiss"]);
 
-        SectionVFX.InitializeRequiredResources(Engine.ShaderDirectory, visuals, builder);
+        SectionRenderer.InitializeRequiredResources(Engine.ShaderDirectory, visuals, builder);
 
         builder.SetFirstTextureSlot(textureSlots.Item1);
         builder.SetSecondTextureSlot(textureSlots.Item2);

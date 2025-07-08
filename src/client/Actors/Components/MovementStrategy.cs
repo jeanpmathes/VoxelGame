@@ -6,9 +6,10 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Actors.Players;
 using VoxelGame.Core.Actors;
 
-namespace VoxelGame.Client.Actors.Players;
+namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
 ///     The strategy to use for moving the player and camera.
@@ -39,19 +40,18 @@ internal abstract class MovementStrategy(Double flyingSpeed)
     /// <summary>
     ///     Determine the camera position based on the player head.
     /// </summary>
-    /// <param name="head">The head of the player.</param>
     /// <returns>The new camera position.</returns>
-    internal abstract Vector3d GetCameraPosition(IOrientable head);
+    internal abstract Vector3d GetCameraPosition();
 
     /// <summary>
-    ///     Apply the calculated movement to a physics actor.
+    ///     Apply the calculated movement to the player or camera.
+    ///     This method is allowed to directly modify positions, but to use physics it should return a vector.
     ///     Should be called once (or less) per update cycle.
     /// </summary>
-    /// <param name="actor">The actor to apply the movement to, e.g. the player.</param>
     /// <param name="deltaTime">The time since the last update cycle.</param>
     /// <returns>
     ///     The target movement that is attempted to achieve using physics.
     ///     If no physics are used, this will be zero.
     /// </returns>
-    internal abstract Vector3d ApplyMovement(PhysicsActor actor, Double deltaTime);
+    internal abstract Vector3d ApplyMovement(Double deltaTime);
 }

@@ -37,7 +37,7 @@ public class Section : Core.Logic.Sections.Section
     private Boolean hasMesh;
     private Sides missing;
 
-    private SectionVFX? vfx;
+    private SectionRenderer? vfx;
     private Boolean vfxEnabled;
 
     /// <inheritdoc />
@@ -57,7 +57,6 @@ public class Section : Core.Logic.Sections.Section
             return;
 
 #pragma warning disable S2952 // Object is diposed in Dispose() too, but is set to null here and thus must be disposed here.
-        vfx.TearDown();
         vfx.Dispose();
 #pragma warning restore S2952
 
@@ -214,13 +213,10 @@ public class Section : Core.Logic.Sections.Section
 
         Debug.Assert(hasMesh == meshData.IsFilled);
 
-        if (vfx == null)
+        vfx ??= new SectionRenderer(world.Space, Position.FirstBlock)
         {
-            vfx = new SectionVFX(world.Space, Position.FirstBlock);
-            vfx.SetUp();
-
-            vfx.IsEnabled = vfxEnabled;
-        }
+            IsEnabled = vfxEnabled
+        };
 
         vfx.SetData(meshData);
     }
@@ -236,7 +232,6 @@ public class Section : Core.Logic.Sections.Section
 
         if (disposing)
         {
-            vfx?.TearDown();
             vfx?.Dispose();
         }
 

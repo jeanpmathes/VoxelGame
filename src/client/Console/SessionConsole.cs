@@ -29,13 +29,8 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider, IConst
     private readonly Session session;
     private readonly CommandInvoker commandInvoker;
     private readonly ConsoleOutput output;
-
-    /// <summary>
-    ///     Create a new session console.
-    /// </summary>
-    /// <param name="session">The session that this console is for.</param>
-    /// <param name="commandInvoker">The invoker that will invoke all commands for this session console.</param>
-    public SessionConsole(Session session, CommandInvoker commandInvoker) : base(session)
+    
+    private SessionConsole(Session session, CommandInvoker commandInvoker) : base(session)
     {
         this.session = session;
         this.commandInvoker = commandInvoker;

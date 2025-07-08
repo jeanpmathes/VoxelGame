@@ -81,13 +81,13 @@ public class CoveredDirtBlock : BasicBlock, IFillable, IPlantable
     }
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         return DirtBehaviour.CanPlaceCovered(world, position, actor);
     }
 
     /// <inheritdoc />
-    protected override void DoPlace(World world, Vector3i position, PhysicsActor? actor)
+    protected override void DoPlace(World world, Vector3i position, Actor? actor)
     {
         DirtBehaviour.DoPlaceCovered(this, world, position, actor);
     }

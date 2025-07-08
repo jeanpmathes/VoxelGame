@@ -7,6 +7,7 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Definitions.Structures;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -52,7 +53,7 @@ public class ImportStructure : Command
 
     private void ImportAtTarget(String name, Orientation orientation)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Import(targetPosition, name, orientation);
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Import(targetPosition, name, orientation);
         else Context.Output.WriteError("No position targeted.");
     }
 

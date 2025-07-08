@@ -28,35 +28,35 @@ public sealed class Engine : IResource
     private readonly List<IDisposable> bindings = [];
     private readonly ShaderBuffer<RaytracingData>? raytracingDataBuffer;
 
-    internal Engine(Application.Client client, ScreenElementVFX crosshairVFX, OverlayVFX overlayVFX, SelectionBoxVFX selectionBoxVFX, ShaderBuffer<RaytracingData>? rtData)
+    internal Engine(Application.Client client, ScreenElementPipeline crosshairPipeline, OverlayPipeline overlayPipeline, TargetingBoxPipeline targetingBoxPipeline, ShaderBuffer<RaytracingData>? rtData)
     {
-        CrosshairVFX = crosshairVFX;
-        OverlayVFX = overlayVFX;
-        SelectionBoxVFX = selectionBoxVFX;
+        CrosshairPipeline = crosshairPipeline;
+        OverlayPipeline = overlayPipeline;
+        TargetingBoxPipeline = targetingBoxPipeline;
 
         raytracingDataBuffer = rtData;
 
-        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairVFX.SetColor(args.NewValue)));
-        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairVFX.SetScale(args.NewValue)));
+        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairPipeline.SetColor(args.NewValue)));
+        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairPipeline.SetScale(args.NewValue)));
 
-        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => SelectionBoxVFX.SetDarkColor(args.NewValue)));
-        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => SelectionBoxVFX.SetBrightColor(args.NewValue)));
+        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
+        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
     }
 
     /// <summary>
-    ///     Get the selection box renderer, which is used to draw selection boxes around blocks.
+    ///     Get the targeting box pipeline, which is used to draw selection boxes around blocks.
     /// </summary>
-    public SelectionBoxVFX SelectionBoxVFX { get; }
+    public TargetingBoxPipeline TargetingBoxPipeline { get; }
 
     /// <summary>
-    ///     Get the crosshair renderer, which is used to draw the crosshair.
+    ///     Get the crosshair pipeline, which is used to draw the crosshair.
     /// </summary>
-    public ScreenElementVFX CrosshairVFX { get; }
+    public ScreenElementPipeline CrosshairPipeline { get; }
 
     /// <summary>
-    ///     Get the overlay renderer, which is used to draw overlays, e.g. when stuck in a block.
+    ///     Get the overlay pipeline, which is used to draw overlays, e.g. when stuck in a block.
     /// </summary>
-    public OverlayVFX OverlayVFX { get; }
+    public OverlayPipeline OverlayPipeline { get; }
 
     /// <summary>
     ///     Get the raytracing data buffer.
@@ -145,8 +145,8 @@ public sealed class Engine : IResource
         foreach (IDisposable binding in bindings)
             binding.Dispose();
 
-        CrosshairVFX.Dispose();
-        OverlayVFX.Dispose();
+        CrosshairPipeline.Dispose();
+        OverlayPipeline.Dispose();
 
         disposed = true;
     }

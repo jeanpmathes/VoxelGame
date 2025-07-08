@@ -18,12 +18,10 @@ using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
-#pragma warning disable S101 // Naming.
-
 /// <summary>
-///     A VFX for <see cref="Section" />.
+///     Renders a <see cref="Section" />.
 /// </summary>
-public sealed class SectionVFX : VFX
+public sealed class SectionRenderer : IDisposable
 {
     /// <summary>
     ///     The basic raytracing material for opaque section parts.
@@ -53,16 +51,18 @@ public sealed class SectionVFX : VFX
     private Mesh? fluid;
 
     /// <summary>
-    ///     Creates a new <see cref="SectionVFX" />.
+    ///     Creates a new <see cref="SectionRenderer" />.
     /// </summary>
-    public SectionVFX(Space space, Vector3d position)
+    public SectionRenderer(Space space, Vector3d position)
     {
         this.space = space;
         this.position = position;
     }
 
-    /// <inheritdoc />
-    public override Boolean IsEnabled
+    /// <summary>
+    /// Get or set whether the section renderer is enabled.
+    /// </summary>
+    public Boolean IsEnabled
     {
         get => enabled;
         set
@@ -73,7 +73,7 @@ public sealed class SectionVFX : VFX
     }
 
     /// <summary>
-    ///     Initialize the required resources for the <see cref="SectionVFX" />.
+    ///     Initialize the required resources for the <see cref="SectionRenderer" />.
     /// </summary>
     /// <param name="directory">The directory in which shader files are located.</param>
     /// <param name="visuals">The visual configuration of the game.</param>
@@ -142,18 +142,6 @@ public sealed class SectionVFX : VFX
             fluid.IsEnabled = enabled;
     }
 
-    /// <inheritdoc />
-    protected override void OnSetUp()
-    {
-        // Intentionally left empty.
-    }
-
-    /// <inheritdoc />
-    protected override void OnTearDown()
-    {
-        // Intentionally left empty.
-    }
-
     private Mesh CreateMesh(Material material)
     {
         Mesh mesh = space.CreateMesh(material, position);
@@ -200,9 +188,8 @@ public sealed class SectionVFX : VFX
     #region DISPOSABLE
 
     private Boolean disposed;
-
-    /// <inheritdoc />
-    protected override void Dispose(Boolean disposing)
+    
+    private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 
@@ -216,12 +203,25 @@ public sealed class SectionVFX : VFX
         }
         else
         {
-            Throw.ForMissedDispose(nameof(SectionVFX));
+            Throw.ForMissedDispose(nameof(SectionRenderer));
         }
 
-        base.Dispose(disposing);
-
         disposed = true;
+    }
+    
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+    
+    /// <summary>
+    /// Finalizer.
+    /// </summary>
+    ~SectionRenderer()
+    {
+        Dispose(disposing: false);
     }
 
     #endregion DISPOSABLE

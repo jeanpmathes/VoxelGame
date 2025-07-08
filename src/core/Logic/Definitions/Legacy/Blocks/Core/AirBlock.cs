@@ -33,13 +33,13 @@ public class AirBlock : Block, IFillable
             BoundingVolume.Block) {}
 
     /// <inheritdoc />
-    public override Boolean CanPlace(World world, Vector3i position, PhysicsActor? actor)
+    public override Boolean CanPlace(World world, Vector3i position, Actor? actor)
     {
         return false;
     }
 
     /// <inheritdoc />
-    protected override Boolean CanDestroy(World world, Vector3i position, UInt32 data, PhysicsActor? actor)
+    protected override Boolean CanDestroy(World world, Vector3i position, UInt32 data, Actor? actor)
     {
         return false;
     }

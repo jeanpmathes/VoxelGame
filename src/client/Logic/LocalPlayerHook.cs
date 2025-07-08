@@ -35,20 +35,18 @@ public class LocalPlayerHook : WorldComponent, IConstructible<Core.Logic.World, 
     /// <inheritdoc />
     public override void OnActivate()
     {
-        Player.OnActivate();
+        Player.Activate();
     }
 
     /// <inheritdoc />
     public override void OnDeactivate()
     {
-        Player.OnDeactivate();
+        Player.Deactivate();
     }
 
     /// <inheritdoc />
     public override void OnTerminate()
     {
         Player.OnRemove();
-        
-        Subject.RemoveComponent<LocalPlayerHook>();
     }
 }

@@ -15,7 +15,6 @@ namespace VoxelGame.Client.Sessions;
 /// </summary>
 public class SessionComponent(Session subject) : Component<Session>(subject)
 {
-    
     /// <inheritdoc cref="Session.LogicUpdate"/>
     public virtual void OnLogicUpdate(Double deltaTime, Timer? timer)
     {
