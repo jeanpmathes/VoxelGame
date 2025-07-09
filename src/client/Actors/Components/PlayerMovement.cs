@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Toolkit.Utilities;
@@ -17,6 +18,9 @@ namespace VoxelGame.Client.Actors.Components;
 public class PlayerMovement : ActorComponent, IConstructible<Player, PlayerMovement>
 {
     private readonly Player player;
+    
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly PlayerInput input;
 
     private MovementStrategy strategy;
 
@@ -26,7 +30,9 @@ public class PlayerMovement : ActorComponent, IConstructible<Player, PlayerMovem
     {
         this.player = player;
         
-        strategy = new DefaultMovement(player, flyingSpeed: 1.0);
+        input = player.GetRequiredComponent<PlayerInput, Player>();
+        
+        strategy = new DefaultMovement(player, input, flyingSpeed: 1.0);
     }
 
     /// <inheritdoc />
@@ -50,8 +56,8 @@ public class PlayerMovement : ActorComponent, IConstructible<Player, PlayerMovem
     public void SetFreecamMode(Boolean enabled)
     {
         strategy = enabled 
-            ? new FreecamMovement(player, strategy.FlyingSpeed) 
-            : new DefaultMovement(player, strategy.FlyingSpeed);
+            ? new FreecamMovement(player, input, strategy.FlyingSpeed) 
+            : new DefaultMovement(player, input, strategy.FlyingSpeed);
     }
 
     /// <inheritdoc />

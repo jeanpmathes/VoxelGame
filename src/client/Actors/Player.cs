@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Actors.Components;
-using VoxelGame.Client.Actors.Players;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
@@ -48,7 +47,8 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         camera.Position = Head.Position;
 
         Scene = scene;
-        
+
+        AddComponent<PlayerInput, Player>();
         AddComponent<PlayerMovement, Player>(); // Also updates the targeter.
         AddComponent<PlayerRotator, Player>();
         selector = AddComponent<PlacementSelection, Player>();
@@ -59,8 +59,6 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         AddComponent<TargetingDisplay, Engine, Player>(engine);
         AddComponent<CrosshairDisplay, Engine, Player>(engine);
         
-        Input = new Input(scene.Client.Keybinds); // todo: check if this can be a component instead of having a property
-
         LogCreatedNewPlayer(logger);
     }
 
@@ -80,25 +78,14 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     String IPlayerDataProvider.Mode => selector.ModeName;
 
     /// <summary>
-    /// Get access to the input system of the player.
-    /// </summary>
-    internal Input Input { get; }
-
-    /// <summary>
     /// Get access to the camera of the player.
     /// </summary>
-    internal Camera Camera { get; } // todo: maybe attach camera using component instead of using a property?
+    internal Camera Camera { get; }
 
     /// <summary>
     /// Get access to the current scene in which the player is placed.
     /// </summary>
     internal SessionScene Scene { get; }
-
-    /// <inheritdoc />
-    protected override void OnLogicUpdate(Double deltaTime)
-    {
-        Input.LogicUpdate(deltaTime);
-    }
 
     #region LOGGING
 

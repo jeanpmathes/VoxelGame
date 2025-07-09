@@ -6,7 +6,6 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Actors.Players;
 using VoxelGame.Core.Actors.Components;
 
 namespace VoxelGame.Client.Actors.Components;
@@ -15,8 +14,9 @@ namespace VoxelGame.Client.Actors.Components;
 ///     Default player movement, using physics.
 /// </summary>
 /// <param name="player">The player to move.</param>
+/// <param name="input">The player input to use for movement.</param>
 /// <param name="flyingSpeed">The initial flying speed.</param>
-internal class DefaultMovement(Player player, Double flyingSpeed) : MovementStrategy(flyingSpeed)
+internal class DefaultMovement(Player player, PlayerInput input, Double flyingSpeed) : MovementStrategy(flyingSpeed)
 {
     private const Single DiveSpeed = 8f;
     private const Single JumpForce = 25000f;
@@ -38,14 +38,13 @@ internal class DefaultMovement(Player player, Double flyingSpeed) : MovementStra
         Vector3d movement = Vector3d.Zero;
 
         if (player.Body.IsEnabled) movement = GetPhysicsBasedMovement();
-        else player.Body.Transform.Position += GetFlyingMovement(player.Input, player.Head) * deltaTime;
+        else player.Body.Transform.Position += GetFlyingMovement(input, player.Head) * deltaTime;
 
         return movement;
     }
 
     private Vector3d GetPhysicsBasedMovement()
     {
-        Input input = player.Input;
         Body body = player.Body;
         
         Vector3d movement = input.GetMovement(player.Body.Transform, Speed, SprintSpeed, allowFlying: false);

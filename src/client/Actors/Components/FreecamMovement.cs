@@ -14,8 +14,9 @@ namespace VoxelGame.Client.Actors.Components;
 ///     Movement strategy that moves only the camera, keeping the player in place.
 /// </summary>
 /// <param name="player">The player to which this movement strategy belongs.</param>
+/// <param name="input">The player input to use for movement.</param>
 /// <param name="flyingSpeed">The initial flying speed.</param>
-internal class FreecamMovement(Player player, Double flyingSpeed) : MovementStrategy(flyingSpeed)
+internal class FreecamMovement(Player player, PlayerInput input, Double flyingSpeed) : MovementStrategy(flyingSpeed)
 {
     private Vector3d cameraPosition = player.Head.Position;
 
@@ -28,7 +29,7 @@ internal class FreecamMovement(Player player, Double flyingSpeed) : MovementStra
     /// <inheritdoc />
     internal override Vector3d ApplyMovement(Double deltaTime)
     {
-        cameraPosition += GetFlyingMovement(player.Input, player.Head) * deltaTime;
+        cameraPosition += GetFlyingMovement(input, player.Head) * deltaTime;
 
         return Vector3d.Zero;
     }

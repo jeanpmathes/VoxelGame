@@ -26,11 +26,15 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
     
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly PlayerInput input;
+    
     private PlacementSelection(Player player) : base(player) 
     {
         this.player = player;
         
         targeting = player.GetRequiredComponent<Targeting>();
+        input = player.GetRequiredComponent<PlayerInput, Player>();
         
         // The initially selected block and fluid have to be set as block 0 and fluid 0 are not valid in this context.
         ActiveBlock = Blocks.Instance.Grass;
@@ -91,7 +95,7 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
     
     private Boolean SelectMode()
     {
-        if (!player.Input.ShouldChangePlacementMode) return false;
+        if (!input.ShouldChangePlacementMode) return false;
 
         IsBlockMode = !IsBlockMode;
 
@@ -100,7 +104,7 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
 
     private Boolean SelectFromList()
     {
-        Int32 change = player.Input.GetSelectionChange();
+        Int32 change = input.GetSelectionChange();
 
         if (change == 0) return false;
 
@@ -122,7 +126,7 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
 
     private Boolean SelectTargeted()
     {
-        if (!player.Input.ShouldSelectTargeted) return false;
+        if (!input.ShouldSelectTargeted) return false;
 
         ActiveBlock = targeting.Block?.Block ?? ActiveBlock;
         IsBlockMode = true;

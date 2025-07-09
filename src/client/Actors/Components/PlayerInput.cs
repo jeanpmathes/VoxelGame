@@ -11,13 +11,14 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Input.Composite;
 using VoxelGame.Toolkit;
+using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.Client.Actors.Players;
+namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-///     Contains all player input.
+///     Defines all player input actions and provides methods to easily retrieve information about the player's input.
 /// </summary>
-internal sealed class Input // todo: move up in namespace
+public sealed class PlayerInput : ActorComponent, IConstructible<Player, PlayerInput>
 {
     private const Single InteractionCooldown = 0.25f;
 
@@ -37,8 +38,10 @@ internal sealed class Input // todo: move up in namespace
 
     private Double timer;
 
-    internal Input(KeybindManager keybinds)
+    private PlayerInput(Player player) : base(player)
     {
+        KeybindManager keybinds = player.Scene.Client.Keybinds;
+        
         Button forwardsButton = keybinds.GetButton(keybinds.Forwards);
         Button backwardsButton = keybinds.GetButton(keybinds.Backwards);
         Button strafeRightButton = keybinds.GetButton(keybinds.StrafeRight);
@@ -64,6 +67,12 @@ internal sealed class Input // todo: move up in namespace
         Button nextButton = keybinds.GetPushButton(keybinds.NextPlacement);
         Button previousButton = keybinds.GetPushButton(keybinds.PreviousPlacement);
         selectionAxis = new InputAxis(nextButton, previousButton);
+    }
+    
+    /// <inheritdoc />
+    public static PlayerInput Construct(Player input)
+    {
+        return new PlayerInput(input);
     }
 
     internal Boolean ShouldJump => jumpButton.IsDown;
@@ -105,7 +114,8 @@ internal sealed class Input // todo: move up in namespace
         return movement;
     }
 
-    internal void LogicUpdate(Double deltaTime)
+    /// <inheritdoc />
+    public override void OnLogicUpdate(Double deltaTime)
     {
         timer += deltaTime;
     }

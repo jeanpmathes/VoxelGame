@@ -6,7 +6,6 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Client.Actors.Players;
 using VoxelGame.Core.Actors;
 
 namespace VoxelGame.Client.Actors.Components;
@@ -28,7 +27,7 @@ internal abstract class MovementStrategy(Double flyingSpeed)
     /// <summary>
     ///     Get the flying movement for a given orientable.
     /// </summary>
-    protected Vector3d GetFlyingMovement(Input input, IOrientable orientable)
+    protected Vector3d GetFlyingMovement(PlayerInput input, IOrientable orientable)
     {
         return input.GetMovement(
             orientable,

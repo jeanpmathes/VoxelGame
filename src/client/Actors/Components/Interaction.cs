@@ -25,6 +25,9 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
     private readonly Targeting targeting;
     
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly PlayerInput input;
+    
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlacementSelection selection;
     
     private Interaction(Player player) : base(player) 
@@ -32,6 +35,7 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
         this.player = player;
         
         targeting = player.GetRequiredComponent<Targeting>();
+        input = player.GetRequiredComponent<PlayerInput, Player>();
         selection = player.GetRequiredComponent<PlacementSelection, Player>();
     }
 
@@ -55,11 +59,11 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
     
     private void PlaceInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
     {
-        if (!player.Input.ShouldInteract) return;
+        if (!input.ShouldInteract) return;
 
         Vector3i placePosition = targetedPosition;
 
-        if (player.Input.IsInteractionBlocked || !targetedBlock.Block.IsInteractable)
+        if (input.IsInteractionBlocked || !targetedBlock.Block.IsInteractable)
         {
             if (!targetedBlock.Block.IsReplaceable) placePosition = targeting.Side.Offset(placePosition);
 
@@ -70,24 +74,24 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
             if (selection.IsBlockMode) selection.ActiveBlock.Place(player.World, placePosition, player);
             else selection.ActiveFluid.Fill(player.World, placePosition, FluidLevel.One, Side.Top, out _);
 
-            player.Input.RegisterInteraction();
+            input.RegisterInteraction();
         }
         else if (targetedBlock.Block.IsInteractable)
         {
             targetedBlock.Block.ActorInteract(player, targetedPosition);
 
-            player.Input.RegisterInteraction();
+            input.RegisterInteraction();
         }
     }
 
     private void DestroyInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
     {
-        if (player.Input.ShouldDestroy)
+        if (input.ShouldDestroy)
         {
             if (selection.IsBlockMode) targetedBlock.Block.Destroy(player.World, targetedPosition, player);
             else TakeFluid(targetedPosition);
 
-            player.Input.RegisterInteraction();
+            input.RegisterInteraction();
         }
 
         void TakeFluid(Vector3i position)
