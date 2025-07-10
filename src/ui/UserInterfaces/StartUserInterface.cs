@@ -66,7 +66,7 @@ public class StartUserInterface : UserInterface
     /// </summary>
     /// <param name="resources">The resources that are missing.</param>
     /// <param name="isCriticalMissing">Whether a critical resource is missing, preventing the game from starting.</param>
-    public void PresentResourceLoadingFailure(Property resources, Boolean isCriticalMissing)
+    public void PresentResourceLoadingIssueReport(Property resources, Boolean isCriticalMissing)
     {
         Debug.Assert(control != null);
 

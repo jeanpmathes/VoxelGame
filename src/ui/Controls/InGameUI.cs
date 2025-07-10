@@ -27,7 +27,7 @@ namespace VoxelGame.UI.Controls;
 internal class InGameUI : ControlBase
 {
     private readonly InGameDisplay hud;
-    private readonly GameUserInterface parent;
+    private readonly InGameUserInterface parent;
 
     private readonly IPerformanceProvider performanceProvider;
     private readonly IPlayerDataProvider playerDataProvider;
@@ -36,7 +36,7 @@ internal class InGameUI : ControlBase
     private Window? gameMenu;
     private Boolean isSettingsMenuOpen;
 
-    internal InGameUI(GameUserInterface parent, ICollection<SettingsProvider> settingsProviders,
+    internal InGameUI(InGameUserInterface parent, ICollection<SettingsProvider> settingsProviders,
         IConsoleProvider consoleProvider, IPlayerDataProvider playerDataProvider,
         IPerformanceProvider performanceProvider) : base(parent.Root)
     {

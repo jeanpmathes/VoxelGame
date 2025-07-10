@@ -50,6 +50,9 @@ public sealed partial class Client : Graphics.Core.Client
     {
         this.parameters = parameters;
         
+        sceneManager = AddComponent<SceneManager>();
+        sceneFactory = new SceneFactory(this);
+        
         AddComponent<SceneOperationDispatch>();
         AddComponent<GlobalOperationDispatch>();
 
@@ -57,9 +60,6 @@ public sealed partial class Client : Graphics.Core.Client
         Graphics = graphicsSettings;
 
         Graphics.CreateSettings(this);
-
-        sceneManager = AddComponent<SceneManager>();
-        sceneFactory = new SceneFactory(this);
 
         Keybinds = new KeybindManager(Settings, Input);
 
@@ -109,14 +109,14 @@ public sealed partial class Client : Graphics.Core.Client
         if (MainResources.Get<TextureBundle>(Textures.BlockID) is {} blockTextures)
             LogTextureBlockRatio(logger, blockTextures.Count / (Double) Blocks.Instance.Count);
 
-        IScene? startScene = sceneFactory.CreateStartScene(issueReport, parameters.DirectlyLoadedWorldIndex);
+        Scene? startScene = sceneFactory.CreateStartScene(issueReport, parameters.DirectlyLoadedWorldIndex);
 
         if (startScene != null)
         {
             if (MainResources.Get<Engine>() is {} engine)
                 Visuals.Graphics.Instance.Initialize(engine);
 
-            sceneManager.Load(startScene);
+            sceneManager.BeginLoad(startScene);
         }
 
         LogFinishedOnLoad(logger);
@@ -128,7 +128,7 @@ public sealed partial class Client : Graphics.Core.Client
     /// <inheritdoc />
     protected override void OnLogicUpdate(Double delta, Timer? timer)
     {
-        if (sceneManager.IsInScene)
+        if (sceneManager.IsActive)
             return;
 
         ExitToOS();
@@ -137,7 +137,7 @@ public sealed partial class Client : Graphics.Core.Client
     /// <inheritdoc />
     protected override void OnDestroy(Timer? timer)
     {
-        sceneManager.Unload();
+        sceneManager.UnloadImmediately();
 
         UIResources?.Dispose();
         MainResources?.Dispose();
@@ -155,10 +155,10 @@ public sealed partial class Client : Graphics.Core.Client
     /// <param name="world">The world to start the session in.</param>
     internal void StartSession(World world)
     {
-        IScene? gameScene = sceneFactory.CreateSessionScene(world);
+        Scene? gameScene = sceneFactory.CreateSessionScene(world);
 
         if (gameScene != null)
-            sceneManager.Load(gameScene);
+            sceneManager.BeginLoad(gameScene);
     }
 
     /// <summary>
@@ -167,15 +167,15 @@ public sealed partial class Client : Graphics.Core.Client
     /// <param name="exitToOS">Whether to exit the complete application or just to the start scene.</param>
     internal void ExitGame(Boolean exitToOS)
     {
-        IScene? scene = null;
+        Scene? scene = null;
 
         if (!exitToOS)
             scene = sceneFactory.CreateStartScene(resourceLoadingIssueReport: null, loadWorldDirectly: null);
 
         if (scene != null)
-            sceneManager.Load(scene);
+            sceneManager.BeginLoad(scene);
         else
-            sceneManager.Unload();
+            sceneManager.BeginUnload();
     }
 
     private void ExitToOS()

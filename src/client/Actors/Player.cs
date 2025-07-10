@@ -39,7 +39,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="engine">The graphics engine to use for rendering.</param>
     /// <param name="scene">The scene in which the player is placed.</param>
     public Player(Double mass, BoundingVolume boundingVolume, Camera camera,
-        GameUserInterface ui, Engine engine, SessionScene scene) : base(mass, boundingVolume)
+        InGameUserInterface ui, Engine engine, SessionScene scene) : base(mass, boundingVolume)
     {
         Camera = camera;
         
@@ -55,7 +55,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         AddComponent<Interaction, Player>();
         AddComponent<OverlayDisplay, Engine, Player>(engine);
         AddComponent<Targeter>();
-        AddComponent<PlayerUI, GameUserInterface, Player>(ui);
+        AddComponent<PlayerUI, InGameUserInterface, Player>(ui);
         AddComponent<TargetingDisplay, Engine, Player>(engine);
         AddComponent<CrosshairDisplay, Engine, Player>(engine);
         

@@ -52,7 +52,7 @@ public partial class SceneFactory
     /// </summary>
     /// <param name="world">The world in which the session takes place.</param>
     /// <returns>The created session scene, or <c>null</c> if required resources are not loaded.</returns>
-    public IScene? CreateSessionScene(World world)
+    public Scene? CreateSessionScene(World world)
     {
         if (engine == null || commands == null || uiResources == null)
         {
@@ -72,7 +72,7 @@ public partial class SceneFactory
     /// <param name="resourceLoadingIssueReport">A report of loading issues that occurred when loading the resources.</param>
     /// <param name="loadWorldDirectly">The index of the world to load directly, if any.</param>
     /// <returns>The created scene, or <c>null</c> if required resources are not loaded.</returns>
-    public IScene? CreateStartScene(ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly)
+    public Scene? CreateStartScene(ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly)
     {
         if (uiResources == null)
         {

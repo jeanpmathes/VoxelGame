@@ -36,15 +36,15 @@ public static partial class Arguments
 
         var loadWorldDirectlyOption = new Option<Int32>(
             "--load-world-directly",
-            description: "Select the number of a world to load directly, skipping the main menu. Use 0 to disable.",
-            getDefaultValue: () => 0
+            description: "Select the index of a world to load directly, skipping the main menu. Use -1 to disable.",
+            getDefaultValue: () => -1
         );
 
         loadWorldDirectlyOption.AddAlias("-l");
 
         loadWorldDirectlyOption.AddValidator(result =>
         {
-            if (result.GetValueForOption(loadWorldDirectlyOption) < 0) result.ErrorMessage = "The value must be greater than or equal to 0.";
+            if (result.GetValueForOption(loadWorldDirectlyOption) < -1) result.ErrorMessage = "The value must be greater than or equal to -1.";
         });
 
         command.AddOption(loadWorldDirectlyOption);
@@ -138,5 +138,5 @@ public record GameParameters(Int32 LoadWorldDirectly, ProfilerConfiguration Prof
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.
     /// </summary>
-    public Int32? DirectlyLoadedWorldIndex => LoadWorldDirectly == 0 ? null : LoadWorldDirectly - 1;
+    public Int32? DirectlyLoadedWorldIndex => LoadWorldDirectly < 0 ? null : LoadWorldDirectly;
 }

@@ -6,22 +6,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors;
 using VoxelGame.Client.Application.Components;
 using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
+using VoxelGame.Client.Scenes.Components;
 using VoxelGame.Client.Sessions;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Core;
-using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Objects;
-using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -31,189 +27,86 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     The scene that is active when a session is played.
 /// </summary>
-public sealed partial class SessionScene : IScene
+public sealed class SessionScene : Scene
 {
-    private readonly ToggleButton consoleToggle;
-    private readonly PushButton escapeButton;
-    private readonly PushButton unlockMouse;
-    private readonly PushButton screenshotButton;
+    private readonly EventHandler<FocusChangeEventArgs> onFocusChange;
+    
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly MetaController meta;
+    
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Disposed in OnUnload")] 
+    private Session session;
 
-    private readonly GameUserInterface ui;
-    private readonly ToggleButton uiToggle;
-
-    private Boolean isMouseUnlockedByUserRequest;
-
-    internal SessionScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine)
+    internal SessionScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine) : base(client)
     {
-        Client = client;
+        InGameUserInterface ui = CreateUI(client, uiResources);
+        session = CreateSession(client.Space.Camera, world, ui, engine);
 
-        ui = CreateUI(client, uiResources);
-        Session = CreateSession(client.Space.Camera, world, engine);
-
-        SessionConsole console = Session.AddComponent<SessionConsole, CommandInvoker>(commands);
+        SessionConsole console = session.AddComponent<SessionConsole, CommandInvoker>(commands);
 
         world.State.Activating += (_, _) =>
         {
             console.OnWorldReady();
         };
+        
+        AddComponent<SessionHook, Session>(session);
+        AddComponent<UpdateInGamePerformanceData, InGameUserInterface>(ui);
+        AddComponent<UserInterfaceHook, UserInterface>(ui);
 
-        SetUpUI(world, console);
-
-        uiToggle = client.Keybinds.GetToggle(client.Keybinds.UI);
-
-        screenshotButton = client.Keybinds.GetPushButton(client.Keybinds.Screenshot);
-        consoleToggle = client.Keybinds.GetToggle(client.Keybinds.Console);
-        escapeButton = client.Keybinds.GetPushButton(client.Keybinds.Escape);
-        unlockMouse = client.Keybinds.GetPushButton(client.Keybinds.UnlockMouse);
+        AddComponent<ScreenshotController, SessionScene>();
+        AddComponent<UserInterfaceHide, InGameUserInterface, SessionScene>(ui);
+        
+        meta = AddComponent<MetaController, InGameUserInterface, SessionScene>(ui);
+        
+        SetUpUI(ui, world, console);
+        
+        onFocusChange = (_, _) =>
+        {
+            if (!Client.IsFocused) ui.HandleLossOfFocus();
+        };
     }
-
-    /// <summary>
-    ///     Get whether the actual game content is currently sidelined, meaning it is not the main focus of the user.
-    ///     One reason for this could be that meta UI is shown on top of the game.
-    ///     Note that this does not relate to whether the window is focused or not.
-    ///     If sidelined, in-game input should not be handled.
-    /// </summary>
-    public Boolean IsSidelined { get; private set; }
     
     /// <summary>
     /// Whether it is OK to handle game input currently.
     /// </summary>
-    public Boolean CanHandleGameInput => !IsSidelined && Client.IsFocused;
+    public Boolean CanHandleGameInput => !meta.IsSidelined && Client.IsFocused;
     
     /// <summary>
     /// Whether it is OK to handle meta input currently.
     /// </summary>
     public Boolean CanHandleMetaInput => Client.IsFocused;
 
-    /// <summary>
-    ///     Get the session played in this scene.
-    /// </summary>
-    public Session Session { get; private set; }
-
-    /// <summary>
-    ///     Get the client that this scene is part of.
-    /// </summary>
-    internal Application.Client Client { get; }
-
     /// <inheritdoc />
-    public void Load()
+    protected override void OnLoad()
     {
-        Throw.IfDisposed(disposed);
-
-        Debug.Assert(Session != null);
-
-        ui.SetPlayerDataProvider(Session.Player);
-
-        ui.Load();
-        ui.Resize(Client.Size);
-
-        ui.CreateControl();
-
-        Client.FocusChanged += OnFocusChanged;
-
-        LogLoadedGameScene(logger);
+        Client.FocusChanged += onFocusChange;
     }
 
     /// <inheritdoc />
-    public void OnResize(Vector2i size)
+    protected override void OnUnload()
     {
-        Throw.IfDisposed(disposed);
+        Client.FocusChanged -= onFocusChange;
 
-        ui.Resize(size);
+        session.Dispose();
+        session = null!;
     }
 
     /// <inheritdoc />
-    public void RenderUpdate(Double deltaTime, Timer? timer)
-    {
-        Throw.IfDisposed(disposed);
-
-        using Timer? subTimer = logger.BeginTimedSubScoped("SessionScene RenderUpdate", timer);
-
-        using (logger.BeginTimedSubScoped("SessionScene RenderUpdate Session", subTimer))
-        {
-            Session.RenderUpdate(deltaTime, subTimer);
-        }
-
-        using (logger.BeginTimedSubScoped("SessionScene RenderUpdate UI", subTimer))
-        {
-            RenderUpdateUI();
-        }
-    }
-
-    /// <inheritdoc />
-    public void LogicUpdate(Double deltaTime, Timer? timer)
-    {
-        Throw.IfDisposed(disposed);
-
-        using Timer? subTimer = logger.BeginTimedSubScoped("SessionScene LogicUpdate", timer);
-
-        using (logger.BeginTimedSubScoped("SessionScene LogicUpdate UI", subTimer))
-        {
-            ui.LogicUpdate();
-        }
-
-        using (Timer? gameTimer = logger.BeginTimedSubScoped("SessionScene LogicUpdate Session", subTimer))
-        {
-            Session.LogicUpdate(deltaTime, gameTimer);
-        }
-
-        if (!Client.IsFocused)
-            return;
-
-        if (!IsSidelined)
-        {
-            if (screenshotButton.Pushed) Client.TakeScreenshot(Program.ScreenshotDirectory);
-
-            if (uiToggle.Changed) ui.ToggleHidden();
-        }
-
-        if (unlockMouse.Pushed)
-        {
-            if (isMouseUnlockedByUserRequest)
-            {
-                OnSideliningEnd();
-            }
-            else if (!IsSidelined)
-            {
-                OnSideliningStart();
-                isMouseUnlockedByUserRequest = true;
-            }
-        }
-
-        if (escapeButton.Pushed)
-            ui.HandleEscape();
-
-        if (consoleToggle.Changed)
-            ui.ToggleConsole();
-    }
-
-    /// <inheritdoc />
-    public void Unload()
-    {
-        Throw.IfDisposed(disposed);
-
-        Client.FocusChanged -= OnFocusChanged;
-
-        Session.Dispose();
-        Session = null!;
-    }
-
-    /// <inheritdoc />
-    public Boolean CanCloseWindow()
+    public override Boolean CanCloseWindow()
     {
         return false;
     }
 
-    private static GameUserInterface CreateUI(Application.Client client, UserInterfaceResources uiResources)
+    private static InGameUserInterface CreateUI(Application.Client client, UserInterfaceResources uiResources)
     {
-        return new GameUserInterface(
+        return new InGameUserInterface(
             client.Input,
             client.Settings,
             uiResources,
             drawBackground: false);
     }
 
-    private Session CreateSession(Camera camera, World world, Engine engine)
+    private Session CreateSession(Camera camera, World world, InGameUserInterface ui, Engine engine)
     {
         Player player = new(
             mass: 70.0,
@@ -228,10 +121,8 @@ public sealed partial class SessionScene : IScene
         return new Session(world, player);
     }
 
-    private void SetUpUI(Core.Logic.World world, IConsoleProvider console)
+    private void SetUpUI(InGameUserInterface ui, Core.Logic.World world, IConsoleProvider console)
     {
-        OnSideliningEnd();
-
         List<SettingsProvider> settingsProviders =
         [
             SettingsProvider.Wrap(Client.Settings),
@@ -241,6 +132,7 @@ public sealed partial class SessionScene : IScene
         ui.SetSettingsProviders(settingsProviders);
         ui.SetConsoleProvider(console);
         ui.SetPerformanceProvider(Client.GetRequiredComponent<CycleTracker>());
+        ui.SetPlayerDataProvider(session.Player);
 
         ui.WorldSave += (_, _) =>
         {
@@ -257,77 +149,5 @@ public sealed partial class SessionScene : IScene
 
             world.State.Terminating += (_, _) => world.RemoveComponent<LocalPlayerHook>();
         };
-
-        ui.AnyMetaControlOpened += (_, _) => OnSideliningStart();
-        ui.AnyMetaControlClosed += (_, _) => OnSideliningEnd();
     }
-
-    private void OnSideliningEnd()
-    {
-        IsSidelined = false;
-        Client.Input.Mouse.SetCursorLock(locked: true);
-
-        isMouseUnlockedByUserRequest = false;
-    }
-
-    private void OnSideliningStart()
-    {
-        IsSidelined = true;
-        Client.Input.Mouse.SetCursorLock(locked: false);
-
-        // The mouse was unlocked, but the user did not necessarily explicitly request it.
-        isMouseUnlockedByUserRequest = false;
-    }
-
-    private void OnFocusChanged(Object? sender, FocusChangeEventArgs e)
-    {
-        if (!Client.IsFocused) ui.HandleLossOfFocus();
-    }
-
-    private void RenderUpdateUI()
-    {
-        ui.UpdatePerformanceData();
-        ui.RenderUpdate();
-    }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<SessionScene>();
-
-    [LoggerMessage(EventId = LogID.GameScene + 0, Level = LogLevel.Information, Message = "Loaded the session scene")]
-    private static partial void LogLoadedGameScene(ILogger logger);
-
-    #endregion LOGGING
-
-    #region DISPOSABLE
-
-    private Boolean disposed;
-
-    private void Dispose(Boolean disposing)
-    {
-        if (disposed) return;
-
-        if (disposing) ui.Dispose();
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     Dispose of the scene.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~SessionScene()
-    {
-        Dispose(disposing: false);
-    }
-
-    #endregion DISPOSABLE
 }

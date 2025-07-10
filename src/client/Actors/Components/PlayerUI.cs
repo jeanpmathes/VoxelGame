@@ -16,17 +16,17 @@ namespace VoxelGame.Client.Actors.Components;
 /// <summary>
 /// Controls the user interface for the player, such as HUD and other UI elements.
 /// </summary>
-public class PlayerUI : ActorComponent, IConstructible<Player, GameUserInterface, PlayerUI>
+public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterface, PlayerUI>
 {
     private readonly Player player;
-    private readonly GameUserInterface ui;
+    private readonly InGameUserInterface ui;
     
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlacementSelection? placement;
 
     private readonly Button debugViewButton;
     
-    private PlayerUI(Player player, GameUserInterface ui) : base(player) 
+    private PlayerUI(Player player, InGameUserInterface ui) : base(player) 
     {
         this.player = player;
         this.ui = ui;
@@ -41,7 +41,7 @@ public class PlayerUI : ActorComponent, IConstructible<Player, GameUserInterface
     }
 
     /// <inheritdoc />
-    public static PlayerUI Construct(Player input1, GameUserInterface input2)
+    public static PlayerUI Construct(Player input1, InGameUserInterface input2)
     {
         return new PlayerUI(input1, input2);
     }
