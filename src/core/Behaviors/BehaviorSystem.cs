@@ -62,7 +62,7 @@ public static class BehaviorSystem<TSubject, TBehavior>
     /// <summary>
     ///     Bake the entire system. This may only be called once.
     /// </summary>
-    /// <returns></returns>
+    /// <returns>The number of unique behavior types registered in the system.</returns>
     public static Int32 Bake()
     {
         EnsureNotBaked();
@@ -83,6 +83,7 @@ public static class BehaviorSystem<TSubject, TBehavior>
             }
 
             SetupEvents(subject);
+            Validate(subject);
 
             subject.Bake(array.Take(maxID + 1).ToArray());
         }
@@ -103,6 +104,14 @@ public static class BehaviorSystem<TSubject, TBehavior>
 
         foreach (TBehavior behavior in subject.Behaviors)
             behavior.SubscribeToEvents(eventSystem);
+    }
+
+    private static void Validate(TSubject subject)
+    {
+        subject.Validate();
+        
+        foreach (TBehavior behavior in subject.Behaviors)
+            behavior.Validate();
     }
 
     private static void EnsureNotBaked()

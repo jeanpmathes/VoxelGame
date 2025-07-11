@@ -49,7 +49,7 @@ public interface IBehavior<out TSubject> : IBehavior, IEventSubject
 /// <typeparam name="TBase">The base behavior type of the behavior hierarchy.</typeparam>
 /// <typeparam name="TSubject">The subject type that the behavior applies to.</typeparam>
 [SuppressMessage("ReSharper", "StaticMemberInGenericType", Justification = "Intentionally used.")]
-public interface IBehavior<out TSelf, TBase, TSubject> : IBehavior<TSubject>
+public interface IBehavior<out TSelf, TBase, TSubject> : IBehavior<TSubject>, IConstructible<TSubject, TSelf>
     where TSelf : class, TBase, IBehavior<TSelf, TBase, TSubject>
     where TBase : class, IBehavior<TSubject>
     where TSubject : class, IHasBehaviors<TSubject, TBase>
@@ -76,16 +76,10 @@ public interface IBehavior<out TSelf, TBase, TSubject> : IBehavior<TSubject>
     /// </summary>
     internal static TSelf Create(TSubject subject)
     {
-        var behavior = TSelf.New(subject);
+        var behavior = TSelf.Construct(subject);
+        
         BehaviorSystem<TSubject, TBase>.Register(behavior);
 
         return behavior;
     }
-
-    /// <summary>
-    ///     Creates a new instance of the behavior for the given subject.
-    /// </summary>
-    /// <param name="subject"></param>
-    /// <returns></returns>
-    protected static abstract TSelf New(TSubject subject);
 }
