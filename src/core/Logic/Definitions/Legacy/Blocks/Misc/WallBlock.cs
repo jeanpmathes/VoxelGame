@@ -87,7 +87,7 @@ public class WallBlock : WideConnectingBlock
                 new Vector3d(x: 0.5f, y: 0.46875f, z: 0.5f),
                 new Vector3d(x: 0.5f, y: 0.46875f, z: 0.1875f));
 
-        Int32 extensions = BitHelper.CountSetBits(data & 0b1111);
+        Int32 extensions = BitTools.CountSetBits(data & 0b1111);
 
         var children = new BoundingVolume[extensions];
         extensions = 0;

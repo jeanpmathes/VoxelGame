@@ -42,6 +42,8 @@ public class Icons(Registry<String> icons, Registry<String> images)
     internal String Duplicate { get; } = icons.Register("duplicate");
     internal String StarFilled { get; } = icons.Register("star_filled");
     internal String StarEmpty { get; } = icons.Register("star_empty");
+    internal String Close { get; } = icons.Register("close");
+    internal String Check { get; } = icons.Register("check");
 
     internal String StartImage { get; } = images.Register("start");
 }

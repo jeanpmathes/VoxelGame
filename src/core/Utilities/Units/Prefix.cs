@@ -234,7 +234,7 @@ public record Prefix(String Symbol, Double Factor)
 
         while (mask != 0)
         {
-            Int32 index = BitHelper.LeastSignificantBit(mask);
+            Int32 index = BitTools.LeastSignificantBit(mask);
             Prefix prefix = prefixes[index];
 
             if (prefix.Factor <= value)
@@ -247,7 +247,7 @@ public record Prefix(String Symbol, Double Factor)
 
         mask = (UInt32) allowed;
 
-        Int32 last = BitHelper.MostSignificantBit(mask);
+        Int32 last = BitTools.MostSignificantBit(mask);
 
         return prefixes[last];
     }

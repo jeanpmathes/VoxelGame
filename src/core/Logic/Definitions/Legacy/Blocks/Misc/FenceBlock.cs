@@ -58,7 +58,7 @@ public class FenceBlock : WideConnectingBlock, ICombustible
         Boolean south = (data & 0b00_0010) != 0;
         Boolean west = (data & 0b00_0001) != 0;
 
-        Int32 extensions = BitHelper.CountSetBooleans(north, east, south, west);
+        Int32 extensions = BitTools.CountSetBooleans(north, east, south, west);
 
         var children = new BoundingVolume[2 * extensions];
         extensions = 0;

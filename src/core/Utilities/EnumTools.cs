@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using VoxelGame.Toolkit.Utilities;
@@ -27,7 +28,7 @@ public static class EnumTools
     }
 
     /// <summary>
-    ///     Get the number of distinct values in the given flags type.
+    ///     Get the number of distinct positions in the given flags type.
     ///     This is also the number of bits required to represent the flags values.
     /// </summary>
     /// <typeparam name="TEnum">The flags enum type.</typeparam>
@@ -44,7 +45,43 @@ public static class EnumTools
             max = Math.Max(max, value);
         }
 
-        return BitHelper.MostSignificantBit(max) + 1;
+        return BitTools.MostSignificantBit(max) + 1;
+    }
+    
+    /// <summary>
+    /// Get a list of all named positions in the given flags enum type.
+    /// A named position is a defined value in the enum that has exactly one bit set.
+    /// </summary>
+    /// <typeparam name="TEnum">The flags enum type.</typeparam>
+    /// <returns>The list of named positions in the flags enum.</returns>
+    public static IEnumerable<(String name, TEnum value)> GetPositions<TEnum>() where TEnum : struct, Enum
+    {
+        Debug.Assert(IsFlagsEnum<TEnum>());
+
+        return PositionCache<TEnum>.Value;
+    }
+    
+    private static class PositionCache<TEnum> where TEnum : struct, Enum
+    {
+        public static IEnumerable<(String name, TEnum value)> Value { get; } = GetPositions();
+
+        private static List<(String name, TEnum value)> GetPositions()
+        {
+            List<(String name, TEnum value)> positions = [];
+            
+            foreach (TEnum flag in Enum.GetValues<TEnum>())
+            {
+                UInt64 value = GetUnsignedValue(flag);
+
+                if (BitTools.CountSetBits(value) != 1) 
+                    continue;
+
+                String name = Enum.GetName(flag) ?? "Unknown";
+                positions.Add((name, flag));
+            }
+            
+            return positions;
+        }
     }
 
     /// <summary>

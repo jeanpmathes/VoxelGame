@@ -25,6 +25,6 @@ internal class BooleanAttribute : Attribute<Boolean>
 
     public override Property RetrieveRepresentation(Int32 index)
     {
-        return new Message(Name, index == 0 ? "false" : "true"); // todo: boolean property
+        return new Truth(Name, Retrieve(index));
     }
 }

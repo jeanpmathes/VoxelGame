@@ -174,6 +174,12 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
         return new ColorS(vector.X, vector.Y, vector.Z, vector.W);
     }
 
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return IsNeutral ? "Neutral" : $"ColorS(R: {R:P}, G: {G:P}, B: {B:P}, A: {A:P})";
+    }
+
     #region OPERATIONS
 
     /// <summary>

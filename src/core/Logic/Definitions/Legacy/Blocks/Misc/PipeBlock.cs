@@ -125,7 +125,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
     private BoundingVolume CreateVolume(UInt32 data)
     {
-        List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
+        List<BoundingVolume> connectors = new(BitTools.CountSetBits(data));
 
         Double connectorWidth = (0.5 - diameter) / 2.0;
 
@@ -190,7 +190,7 @@ public class PipeBlock<TConnect> : Block, IFillable, IComplex where TConnect : I
 
     private static void OpenOpposingSide(ref UInt32 data)
     {
-        if (BitHelper.CountSetBits(data) != 1) return;
+        if (BitTools.CountSetBits(data) != 1) return;
 
         if ((data & 0b11_0000) != 0) data = 0b11_0000;
 

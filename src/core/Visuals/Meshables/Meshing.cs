@@ -77,9 +77,9 @@ public static class Meshing
     /// </summary>
     public const Int32 MaxFluidTextureCount = 1 << BitsPerFluidTextureIndex;
 
-    private static readonly UInt32 uvMask = BitHelper.GetMask(32 - UVShift) << UVShift;
+    private static readonly UInt32 uvMask = BitTools.GetMask(32 - UVShift) << UVShift;
 
-    private static readonly UInt32 textureIndexMask = BitHelper.GetMask(Math.Max(BitsPerTextureIndex, BitsPerFluidTextureIndex));
+    private static readonly UInt32 textureIndexMask = BitTools.GetMask(Math.Max(BitsPerTextureIndex, BitsPerFluidTextureIndex));
 
     /// <summary>
     ///     Encode a vector in base 17, assuming all components are in the range [0, 1].

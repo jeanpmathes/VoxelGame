@@ -5,6 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
 using Xunit;
@@ -30,6 +32,17 @@ public class EnumToolsTests
     public void EnumTools_CountFlags_ShouldReturnCorrectCountForFlagsEnum()
     {
         Assert.Equal(expected: 3, EnumTools.CountFlags<Values>());
+    }
+    
+    [Fact]
+    public void EnumTools_GetPositions_ShouldReturnCorrectPositionsForFlagsEnum()
+    {
+        IEnumerable<(String name, Values value)> positions = EnumTools.GetPositions<Values>().ToList();
+        
+        Assert.Equal(expected: 3, positions.Count());
+        Assert.Contains((nameof(Values.Option1), Values.Option1), positions);
+        Assert.Contains((nameof(Values.Option2), Values.Option2), positions);
+        Assert.Contains((nameof(Values.Option3), Values.Option3), positions);
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]

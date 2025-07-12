@@ -181,7 +181,7 @@ public static class SideExtensions
     /// </summary>
     public static Int32 Count(this Sides side)
     {
-        return BitHelper.CountSetBits((UInt32) side);
+        return BitTools.CountSetBits((UInt32) side);
     }
 
     /// <summary>

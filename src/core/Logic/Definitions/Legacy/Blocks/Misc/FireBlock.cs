@@ -116,7 +116,7 @@ public class FireBlock : Block, IFillable, IComplex
     {
         if (data == 0) return BoundingVolume.Block;
 
-        Int32 count = BitHelper.CountSetBits(data);
+        Int32 count = BitTools.CountSetBits(data);
         Debug.Assert(count > 0);
 
         BoundingVolume? parent = null;

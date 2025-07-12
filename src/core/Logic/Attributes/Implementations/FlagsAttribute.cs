@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Utilities;
 
@@ -26,6 +27,15 @@ internal class FlagsAttribute<TFlags> : Attribute<TFlags> where TFlags : struct,
 
     public override Property RetrieveRepresentation(Int32 index)
     {
-        return new Message(Name, $"{Retrieve(index)}"); // todo: think about a flags property
+        TFlags value = Retrieve(index);
+        
+        List<Property> flags = new(capacity: EnumTools.CountFlags<TFlags>());
+        
+        foreach ((String name, TFlags flag) in EnumTools.GetPositions<TFlags>())
+        {
+            flags.Add(new Truth(name, value.HasFlag(flag)));
+        }
+
+        return new Group(Name, flags);
     }
 }

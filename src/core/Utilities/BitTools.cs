@@ -1,4 +1,4 @@
-﻿// <copyright file="BitHelper.cs" company="VoxelGame">
+﻿// <copyright file="BitTools.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     A utility class for bit manipulation.
 /// </summary>
-public static class BitHelper
+public static class BitTools
 {
     /// <summary>
     ///     Counts how many bits are set in an unsigned integer.
@@ -23,6 +23,16 @@ public static class BitHelper
     /// <param name="n">The unsigned integer in which to count the set bits.</param>
     /// <returns>The number of set bits.</returns>
     public static Int32 CountSetBits(UInt32 n)
+    {
+        return BitOperations.PopCount(n);
+    }
+
+    /// <summary>
+    ///     Counts how many bits are set in an unsigned long integer.
+    /// </summary>
+    /// <param name="n">The unsigned long integer in which to count the set bits.</param>
+    /// <returns>The number of set bits.</returns>
+    public static Int32 CountSetBits(UInt64 n)
     {
         return BitOperations.PopCount(n);
     }

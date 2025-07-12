@@ -94,7 +94,7 @@ public class ThinConnectingBlock : ConnectingBlock<IThinConnectable>, IThinConne
 
     private static BoundingVolume CreateVolume(UInt32 data)
     {
-        List<BoundingVolume> connectors = new(BitHelper.CountSetBits(data));
+        List<BoundingVolume> connectors = new(BitTools.CountSetBits(data));
 
         if ((data & 0b00_1000) != 0)
             connectors.Add(
