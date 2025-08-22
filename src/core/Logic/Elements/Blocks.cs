@@ -91,7 +91,7 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
 
         foreach (Block block in builder.BlocksByID)
         {
-            offset = block.Initialize(offset, context);
+            offset += block.Initialize(offset, context);
             
             states.AddRange(block.States.GetAllStates());
         }

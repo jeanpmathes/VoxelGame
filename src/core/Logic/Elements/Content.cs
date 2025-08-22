@@ -70,8 +70,12 @@ public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, Boole
 /// </summary>
 /// <param name="Block">The block instance.</param>
 /// <param name="Fluid">The fluid instance.</param>
-public record struct Content(BlockInstance Block, FluidInstance Fluid) // todo: add to note about fluid rework that the content class should be removed, only state will be used then
+public record struct Content(BlockInstance Block, FluidInstance Fluid) 
 {
+    // todo: add to note about fluid rework that the content class should be removed, only state will be used then
+    
+    // todo: add better ToString for this struct and State
+    
     /// <summary>
     ///     Create a new content instance.
     /// </summary>
@@ -101,7 +105,7 @@ public record struct Content(BlockInstance Block, FluidInstance Fluid) // todo: 
 /// <summary>
 ///     Extends the <see cref="BlockInstance" /> and <see cref="FluidInstance" /> classes.
 /// </summary>
-public static class ContentExtensions // todo: think about removing these two extensions
+public static class ContentExtensions // todo: remove these two extensions
 {
     #pragma warning disable S4226 // Extensions can handle null references in their first argument
     /// <summary>

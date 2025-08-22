@@ -301,10 +301,10 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt32 Encode(State state, Fluid fluid, FluidLevel level, Boolean isStatic)
     {
-        return (UInt32) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
-                         | (((UInt32) level << LevelShift) & LevelMask)
-                         | ((fluid.ID << FluidShift) & FluidMask)
-                         | (state.ID & BlockMask));
+        return (UInt32) ((isStatic ? 1 : 0) << StaticShift & StaticMask
+                         | (UInt32) level << LevelShift & LevelMask
+                         | fluid.ID << FluidShift & FluidMask
+                         | state.ID & BlockMask);
     }
 
     /// <summary>

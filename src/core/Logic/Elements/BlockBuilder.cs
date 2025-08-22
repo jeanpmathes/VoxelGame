@@ -22,11 +22,24 @@ namespace VoxelGame.Core.Logic.Elements;
 /// </summary>
 public class BlockBuilder
 {
+    // todo: make sure there are ZERO compiler warnings
+    
     private readonly ContentRegistry registry;
     private readonly BlockFactory factory;
     
+    /// <summary>
+    /// Get a list mapping the (numerical) block IDs to the blocks.
+    /// </summary>
     public IReadOnlyList<Block> BlocksByID => factory.BlocksByID;
+    
+    /// <summary>
+    /// Get a dictionary mapping the named block IDs to the blocks.
+    /// </summary>
     public IReadOnlyDictionary<String, Block> BlocksByNamedID => factory.BlocksByNamedID;
+    
+    /// <summary>
+    /// Get the registry in which all content is registered, which is mainly the blocks but also conventions and other content.
+    /// </summary>
     public ContentRegistry Registry => registry;
     
     /// <summary>
@@ -249,8 +262,7 @@ public class BlockBuilder
         /// <param name="textureLayout">The texture layout to set.</param>
         public SimpleBlockDefinition WithTextureLayout(TextureLayout textureLayout)
         {
-            if (block.Get<CubeTextured>() is {} texture)
-                texture.DefaultTextureInitializer.ContributeConstant(textureLayout);
+            block.Require<CubeTextured>().DefaultTextureInitializer.ContributeConstant(textureLayout);
 
             return this;
         }
