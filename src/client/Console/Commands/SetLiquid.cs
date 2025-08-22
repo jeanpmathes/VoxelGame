@@ -11,7 +11,6 @@ using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the fluid at the target position. Can cause invalid fluid state.

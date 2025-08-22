@@ -12,7 +12,6 @@ using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Physics;
 using VoxelGame.Toolkit.Utilities;
 
@@ -71,10 +70,10 @@ public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, T
 
         if (world != null && instance is {Block: {} block} && position != null)
         {
-            Boolean visualized = !block.IsReplaceable;
+            Boolean visualized = !instance.Value.IsReplaceable;
 
             if (Core.App.Application.Instance.IsDebug)
-                visualized |= block != Blocks.Instance.Air;
+                visualized |= block != Blocks.Instance.Core.Air;
 
             collider = visualized ? block.GetCollider(world, position.Value) : null;
         }

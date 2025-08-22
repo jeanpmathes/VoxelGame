@@ -109,19 +109,19 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     public Int32 ChildCount => children.Length;
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Elements.Legacy.Block" />.
+    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Elements.Block" />.
     /// </summary>
     public static BoundingVolume Block =>
         new(new Vector3d(x: 0.5, y: 0.5, z: 0.5), new Vector3d(x: 0.5, y: 0.5, z: 0.5));
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the given height.
+    ///     Gets a <see cref="BoundingVolume" /> with the given height and width.
     /// </summary>
-    public static BoundingVolume CrossBlock(Double height = 1.0)
+    public static BoundingVolume CrossBlock(Double height, Double width)
     {
         return new BoundingVolume(
             new Vector3d(x: 0.5, height / 2.0, z: 0.5),
-            new Vector3d(x: 0.355, height / 2.0, z: 0.355));
+            new Vector3d(width / 2.0, height / 2.0, width / 2.0));
     }
 
     /// <summary>

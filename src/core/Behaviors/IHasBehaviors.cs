@@ -6,7 +6,9 @@
 
 using System;
 using System.Collections.Generic;
+using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Behaviors;
 
@@ -16,7 +18,7 @@ namespace VoxelGame.Core.Behaviors;
 /// </summary>
 /// <typeparam name="TSubject">The subject type that holds behaviors.</typeparam>
 /// <typeparam name="TBehavior">The behavior base class type that this subject holds.</typeparam>
-public interface IHasBehaviors<TSubject, TBehavior> : IEventSubject
+public interface IHasBehaviors<TSubject, TBehavior> : IEventSubject, IAspectable
     where TSubject : class, IHasBehaviors<TSubject, TBehavior>
     where TBehavior : class, IBehavior<TSubject>
 {
@@ -48,6 +50,18 @@ public interface IHasBehaviors<TSubject, TBehavior> : IEventSubject
     public TConcreteBehavior Require<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
 
     /// <summary>
+    /// Require a certain behavior under the condition that another behavior is present.
+    /// This means that as soon as the other behavior is present, this behavior will be created and the initializer will be called.
+    /// If the other behavior is already present, the initializer will be called immediately.
+    /// </summary>
+    /// <param name="initializer">The optional initializer to call when the condition is met.</param>
+    /// <typeparam name="TConditionalConcreteBehavior">The type of the behavior to add if the other behavior is present.</typeparam>
+    /// <typeparam name="TConditionConcreteBehavior">The type of the behavior that must be present for the conditional behavior to be added.</typeparam>
+    public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null)
+        where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSubject>
+        where TConditionConcreteBehavior : class, TBehavior, IBehavior<TConditionConcreteBehavior, TBehavior, TSubject>;
+    
+    /// <summary>
     ///     Bakes the behaviors of this subject into an array.
     ///     After baking, the subject's behaviors are immutable and cannot be modified.
     /// </summary>
@@ -57,5 +71,5 @@ public interface IHasBehaviors<TSubject, TBehavior> : IEventSubject
     /// <summary>
     ///     Validates the behaviors of this subject.
     /// </summary>
-    public void Validate();
+    public void Validate(IResourceContext context);
 }

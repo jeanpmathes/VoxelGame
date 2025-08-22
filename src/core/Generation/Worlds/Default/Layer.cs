@@ -7,12 +7,9 @@
 using System;
 using System.Diagnostics;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
-using VoxelGame.Core.Logic.Definitions.Legacy.Blocks;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Utilities.Units;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
@@ -99,7 +96,7 @@ public abstract class Layer
     /// </summary>
     public static Layer CreateSimple(Block block, Int32 width, Boolean isSolid)
     {
-        if (isSolid) Debug.Assert(block is not IFillable);
+        if (isSolid) Debug.Assert(!block.Has<Fillable>());
 
         return new Simple(block, width, isSolid);
     }
@@ -267,11 +264,13 @@ public abstract class Layer
         {
             Width = width;
 
-            SnowBlock snowBlock = loose
-                ? Blocks.Instance.Specials.LooseSnow
-                : Blocks.Instance.Specials.Snow;
+            Block block = loose
+                ? Blocks.Instance.Environment.LooseSnow
+                : Blocks.Instance.Environment.Snow;
+            
+            // todo: see Cover for the same issue with height
 
-            snow = new Content(snowBlock.FullHeightInstance, FluidInstance.Default);
+            snow = new Content(new BlockInstance(block.States.Default), FluidInstance.Default);
             filled = Content.Default;
         }
 
@@ -351,8 +350,8 @@ public abstract class Layer
         {
             Width = width;
 
-            dirt = new Content(Blocks.Instance.Dirt);
-            grass = new Content(Blocks.Instance.Grass);
+            dirt = new Content(Blocks.Instance.Environment.Dirt);
+            grass = new Content(Blocks.Instance.Environment.Grass);
 
             this.amplitude = amplitude;
         }
@@ -381,8 +380,8 @@ public abstract class Layer
         {
             Width = width;
 
-            mud = new Content(Blocks.Instance.Mud);
-            permafrost = new Content(Blocks.Instance.Permafrost);
+            mud = new Content(Blocks.Instance.Environment.Mud);
+            permafrost = new Content(Blocks.Instance.Environment.Permafrost);
         }
 
         public override Content GetContent(Int32 depth, Int32 offset, Int32 y, Map.StoneType stoneType, Boolean isFilled, Temperature temperature)
@@ -393,8 +392,8 @@ public abstract class Layer
 
     private sealed class OasisTop : Layer
     {
-        private readonly Content sandstone = new(Blocks.Instance.Sandstone);
-        private readonly Content sand = new(Blocks.Instance.Sand);
+        private readonly Content sandstone = new(Blocks.Instance.Stones.Sandstone.Base);
+        private readonly Content sand = new(Blocks.Instance.Environment.Sand);
 
         private readonly Int32 subBiomeOffset;
 
@@ -421,7 +420,7 @@ public abstract class Layer
             IsDampen = isDampen;
             IsSolid = true;
 
-            ice = new Content(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
+            ice = new Content(new BlockInstance(Blocks.Instance.Environment.Ice.States.GenerationDefault), FluidInstance.Default); // todo: the generation height problem
         }
 
         public override Content GetContent(Int32 depth, Int32 offset, Int32 y, Map.StoneType stoneType, Boolean isFilled, Temperature temperature)

@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Behaviors.Events;
 
@@ -18,7 +17,6 @@ public interface IEventBus
     ///     Subscribe to an event with a handler.
     /// </summary>
     /// <param name="handler">The event handler.</param>
-    /// <param name="context">The resource context in which the event is subscribed.</param>
     /// <typeparam name="TEventMessage">The type of event message to subscribe to.</typeparam>
-    public void Subscribe<TEventMessage>(Action<TEventMessage> handler, IResourceContext context) where TEventMessage : IEventMessage;
+    public void Subscribe<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : IEventMessage;
 }

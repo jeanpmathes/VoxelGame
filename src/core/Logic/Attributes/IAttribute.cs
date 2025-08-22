@@ -19,12 +19,12 @@ public interface IAttribute : IScoped
     /// <summary>
     ///     The divisor of the attribute, which is used to calculate the value index from the state ID.
     /// </summary>
-    internal UInt64 Divisor { get; }
+    internal Int32 Divisor { get; }
 
     /// <summary>
     ///     How many different values this attribute can take.
     /// </summary>
-    internal UInt64 Multiplicity { get; }
+    internal Int32 Multiplicity { get; }
 
     Property IScoped.GetRepresentation(State state)
     {
@@ -45,9 +45,9 @@ public interface IAttribute : IScoped
     /// </summary>
     /// <param name="index">The state index to get the value index for.</param>
     /// <returns>The attribute value index for the given state, which will be in the range [0, <see cref="Multiplicity"/>).</returns>
-    internal Int32 GetValueIndex(UInt64 index)
+    internal Int32 GetValueIndex(Int32 index)
     {
-        return (Int32) (index / Divisor % Multiplicity);
+        return index / Divisor % Multiplicity;
     }
 
     /// <summary>
@@ -55,9 +55,9 @@ public interface IAttribute : IScoped
     /// </summary>
     /// <param name="index">The value index, which will be in the range [0, <see cref="Multiplicity"/>).</param>
     /// <returns>The state index for the given value index.</returns>
-    internal UInt64 GetStateIndex(Int32 index)
+    internal Int32 GetStateIndex(Int32 index)
     {
-        return (UInt64) index * Divisor;
+        return index * Divisor;
     }
 }
 
@@ -80,9 +80,14 @@ public interface IAttribute<TValue> : IAttribute
     /// </summary>
     /// <param name="index">The state index of the state to get the value for.</param>
     /// <returns>The value of the attribute for the given state.</returns>
-    internal TValue Get(UInt64 index)
+    internal TValue Get(Int32 index)
     {
-        return Divisor == 0 ? default! : Retrieve(GetValueIndex(index));
+        if (Divisor == 0) 
+            return default!;
+        
+        return Multiplicity == 1 
+            ? Retrieve(0) 
+            : Retrieve(GetValueIndex(index));
     }
 
     /// <summary>
@@ -93,13 +98,15 @@ public interface IAttribute<TValue> : IAttribute
     Int32 Provide(TValue value);
 
     /// <summary>
-    ///     Set the value of the attribute for a given <see cref="State" />.
-    ///     The passed state will not be modified.
+    ///     Set the value of the attribute within an otherwise zero state.
     /// </summary>
     /// <param name="value">The value to set for the attribute.</param>
     /// <returns>The state index for the new value.</returns>
-    internal UInt64 Set(TValue value)
+    internal Int32 Set(TValue value)
     {
+        if (Divisor == 0 || Multiplicity == 1)
+            return 0;
+        
         return GetStateIndex(Provide(value));
     }
 }
@@ -108,7 +115,7 @@ public interface IAttribute<TValue> : IAttribute
 ///     Abstract base class for attributes.
 /// </summary>
 /// <typeparam name="TValue">The type of the value.</typeparam>
-public abstract class Attribute<TValue> : IAttribute<TValue>
+public abstract class AttributeImplementation<TValue> : IAttribute<TValue>
 {
     /// <summary>
     ///     The description of the attribute, which is used for documentation.
@@ -119,10 +126,10 @@ public abstract class Attribute<TValue> : IAttribute<TValue>
     public String Name { get; private set; } = null!;
 
     /// <inheritdoc />
-    public UInt64 Divisor { get; private set; }
+    public Int32 Divisor { get; private set; }
 
     /// <inheritdoc />
-    public abstract UInt64 Multiplicity { get; }
+    public abstract Int32 Multiplicity { get; }
 
     /// <inheritdoc />
     public abstract TValue Retrieve(Int32 index);
@@ -133,7 +140,7 @@ public abstract class Attribute<TValue> : IAttribute<TValue>
     /// <inheritdoc />
     public abstract Property RetrieveRepresentation(Int32 index);
 
-    internal void Initialize(String name, String? description, UInt64 divisor)
+    internal void Initialize(String name, String? description, Int32 divisor)
     {
         Debug.Assert(Divisor == 0);
         Debug.Assert(divisor != 0);

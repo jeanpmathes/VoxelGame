@@ -8,8 +8,7 @@ using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Logic.Elements.Legacy;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -91,10 +90,10 @@ public class FluidContactManager
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation coolant);
 
-        Block lavaBlock = world.GetBlock(lava.position)?.Block ?? Blocks.Instance.Air;
+        BlockInstance lavaBlock = world.GetBlock(lava.position) ?? BlockInstance.Default;
 
-        if (lavaBlock.IsReplaceable || lavaBlock.Destroy(world, lava.position))
-            world.SetContent(new Content(Blocks.Instance.Pumice), lava.position);
+        if (lavaBlock.IsReplaceable || lavaBlock.Block.Destroy(world, lava.position))
+            world.SetContent(new Content(Blocks.Instance.Stones.Pumice.Base), lava.position);
 
         SetFluid(world, coolant.position, Fluids.Instance.Steam, coolant.level);
 
@@ -111,7 +110,7 @@ public class FluidContactManager
         lava.fluid.UpdateSoon(world, lava.position, lava.isStatic);
 
         world.SetDefaultFluid(burned.position);
-        Blocks.Instance.Fire.Place(world, burned.position);
+        Blocks.Instance.Environment.Fire.Place(world, burned.position);
 
         return true;
     }
@@ -149,8 +148,9 @@ public class FluidContactManager
 
         Content? content = world.GetContent(
             light.position - light.fluid.FlowDirection);
-
-        if (content is not ({Block: IFillable}, var aboveLightFluid)) return false;
+        
+        if (content?.Block.Block.Has<Fillable>() != true) return false;
+        if (content is not {Fluid: var aboveLightFluid}) return false;
         if (!IsFlowAllowed(world, light.position, aboveLightPosition) || !aboveLightFluid.IsEmpty) return false;
 
         SetFluid(world, aboveLightPosition, light.fluid, light.level);
@@ -214,13 +214,15 @@ public class FluidContactManager
     {
         Content? fromContent = world.GetContent(from);
         Content? toContent = world.GetContent(to);
-
-        if (fromContent is not {Block.Block: IFillable source, Fluid.Fluid: {} fluid}) return false;
-        if (toContent is not {Block.Block: IFillable target}) return false;
+        
+        if (fromContent?.Block.Block.Get<Fillable>() is not {} source) return false;
+        if (toContent?.Block.Block.Get<Fillable>() is not {} target) return false;
+        
+        if (fromContent is not {Fluid.Fluid: {} fluid}) return false;
 
         var side = (to - from).ToSide();
 
-        return source.IsOutflowAllowed(world, from, side) && target.IsInflowAllowed(world, to, side.Opposite(), fluid);
+        return source.CanOutflow(world, from, side, fluid) && target.CanInflow(world, to, side.Opposite(), fluid);
     }
 
     private enum ContactAction
@@ -232,21 +234,12 @@ public class FluidContactManager
         MixWater
     }
 
-    private readonly struct ContactInformation : IEquatable<ContactInformation>
+    private readonly struct ContactInformation(FluidInstance fluid, Vector3i position) : IEquatable<ContactInformation>
     {
-        public readonly Fluid fluid;
-        public readonly Vector3i position;
-        public readonly FluidLevel level;
-        public readonly Boolean isStatic;
-
-        public ContactInformation(FluidInstance fluid, Vector3i position)
-        {
-            this.fluid = fluid.Fluid;
-            this.position = position;
-
-            level = fluid.Level;
-            isStatic = fluid.IsStatic;
-        }
+        public readonly Fluid fluid = fluid.Fluid;
+        public readonly Vector3i position = position;
+        public readonly FluidLevel level = fluid.Level;
+        public readonly Boolean isStatic = fluid.IsStatic;
 
         public Boolean Equals(ContactInformation other)
         {

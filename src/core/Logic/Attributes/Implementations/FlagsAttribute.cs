@@ -11,9 +11,9 @@ using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class FlagsAttribute<TFlags> : Attribute<TFlags> where TFlags : struct, Enum
+internal class FlagsAttribute<TFlags> : AttributeImplementation<TFlags> where TFlags : struct, Enum
 {
-    public override UInt64 Multiplicity { get; } = 1u << EnumTools.CountFlags<TFlags>();
+    public override Int32 Multiplicity { get; } = 1 << EnumTools.CountFlags<TFlags>();
 
     public override TFlags Retrieve(Int32 index)
     {

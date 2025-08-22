@@ -10,7 +10,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Get the distance to a specified point or target.

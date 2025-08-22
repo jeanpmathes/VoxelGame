@@ -7,7 +7,7 @@
 using System;
 using JetBrains.Annotations;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements.New;
+using VoxelGame.Core.Tests.Logic.Elements;
 using VoxelGame.Core.Tests.Utilities.Resources;
 using Xunit;
 
@@ -23,7 +23,7 @@ public class StateSetTests
         IAttribute<Boolean> boolAttribute = builder.Define("bool").Boolean().Attribute(generationDefault: true);
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute(TestState.C);
 
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State generationDefault = set.GenerationDefault;
 

@@ -5,33 +5,40 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Logic.Elements.Legacy;
+using VoxelGame.Core.Logic.Attributes;
 
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
 ///     A specific instance of a block.
 /// </summary>
-/// <param name="Block">The block.</param>
-/// <param name="Data">The data of the block.</param>
-public readonly record struct BlockInstance(Block Block, UInt32 Data)
+/// <param name="State">The state of the block, which includes the block and its data.</param>
+public readonly record struct BlockInstance(State State) // todo: remove this and use state directly, also transfer all the methods and properties
 {
     /// <summary>
     ///     Get the default block instance.
     /// </summary>
-    public static BlockInstance Default => new(Blocks.Instance.Air, Data: 0);
+    public static BlockInstance Default => new(Blocks.Instance.Core.Air.States.Default);
 
-    /// <inheritdoc cref="IBlockBase.IsSolidAndFull(uint)" />
-    public Boolean IsSolidAndFull => Block.Base.IsSolidAndFull(Data);
+    /// <summary>
+    /// Get the block of this instance.
+    /// </summary>
+    public Block Block => State.Owner.Block;
 
-    /// <inheritdoc cref="IBlockBase.IsOpaqueAndFull(uint)" />
-    public Boolean IsOpaqueAndFull => Block.Base.IsOpaqueAndFull(Data);
+    /// <inheritdoc cref="Block.IsFullySolid" />
+    public Boolean IsFullySolid => Block.IsFullySolid(State);
 
-    /// <inheritdoc cref="IBlockBase.IsSideFull" />
+    /// <inheritdoc cref="Block.IsFullyOpaque" />
+    public Boolean IsFullyOpaque => Block.IsFullyOpaque(State);
+
+    /// <inheritdoc cref="Block.IsSideFull" />
     public Boolean IsSideFull(Side side)
     {
-        return Block.Base.IsSideFull(side, Data);
+        return Block.IsSideFull(side, State);
     }
+    
+    /// <inheritdoc cref="Block.IsReplaceable" />
+    public Boolean IsReplaceable => Block.IsReplaceable(State);
 }
 
 /// <summary>
@@ -63,7 +70,7 @@ public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, Boole
 /// </summary>
 /// <param name="Block">The block instance.</param>
 /// <param name="Fluid">The fluid instance.</param>
-public record struct Content(BlockInstance Block, FluidInstance Fluid)
+public record struct Content(BlockInstance Block, FluidInstance Fluid) // todo: add to note about fluid rework that the content class should be removed, only state will be used then
 {
     /// <summary>
     ///     Create a new content instance.
@@ -86,21 +93,23 @@ public record struct Content(BlockInstance Block, FluidInstance Fluid)
     ///     Whether the block is replaceable and the fluid is empty,
     ///     allowing to set the block to a new value without any problems.
     /// </summary>
-    public Boolean IsSettable => Block.Block.IsReplaceable && Fluid.IsEmpty;
+    public Boolean IsSettable => Block.IsReplaceable && Fluid.IsEmpty;
+    
+    // todo: the multi block behavior should set IsReplaceable to false even though that would be the default anyways, setting itself as exclusive contributor
 }
 
 /// <summary>
 ///     Extends the <see cref="BlockInstance" /> and <see cref="FluidInstance" /> classes.
 /// </summary>
-public static class ContentExtensions
+public static class ContentExtensions // todo: think about removing these two extensions
 {
     #pragma warning disable S4226 // Extensions can handle null references in their first argument
     /// <summary>
     ///     Get a block as instance.
     /// </summary>
-    public static BlockInstance AsInstance(this Block? block, UInt32 data = 0)
+    public static BlockInstance AsInstance(this Block? block, State? state = null)
     {
-        return block is null ? BlockInstance.Default : new BlockInstance(block, data);
+        return block is null ? BlockInstance.Default : new BlockInstance(state ?? block.States.Default);
     }
 
     /// <summary>

@@ -7,7 +7,6 @@
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Palettes;
 
@@ -16,16 +15,16 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Palettes;
 /// </summary>
 public sealed class Palette : IResource
 {
-    private readonly Content granite = new(Blocks.Instance.Granite);
-    private readonly Content limestone = new(Blocks.Instance.Limestone);
-    private readonly Content marble = new(Blocks.Instance.Marble);
-    private readonly Content sandstone = new(Blocks.Instance.Sandstone);
+    private readonly Content granite = new(Blocks.Instance.Stones.Granite.Base);
+    private readonly Content limestone = new(Blocks.Instance.Stones.Limestone.Base);
+    private readonly Content marble = new(Blocks.Instance.Stones.Marble.Base);
+    private readonly Content sandstone = new(Blocks.Instance.Stones.Sandstone.Base);
 
-    private readonly Content sand = new(Blocks.Instance.Sand);
-    private readonly Content sandGroundwater = new(Blocks.Instance.Sand, Fluids.Instance.FreshWater);
+    private readonly Content sand = new(Blocks.Instance.Environment.Sand);
+    private readonly Content sandGroundwater = new(Blocks.Instance.Environment.Sand, Fluids.Instance.FreshWater);
 
-    private readonly Content gravel = new(Blocks.Instance.Gravel);
-    private readonly Content gravelGroundwater = new(Blocks.Instance.Gravel, Fluids.Instance.FreshWater);
+    private readonly Content gravel = new(Blocks.Instance.Environment.Gravel);
+    private readonly Content gravelGroundwater = new(Blocks.Instance.Environment.Gravel, Fluids.Instance.FreshWater);
 
     /// <inheritdoc />
     public RID Identifier { get; } = RID.Named<Palette>("Default");

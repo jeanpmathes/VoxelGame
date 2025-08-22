@@ -7,8 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
@@ -44,9 +43,7 @@ public class PlantableDecorator : SurfaceDecorator
         position += offset;
 
         if (!base.CanPlace(position, context, grid)) return false;
-
-        Content below = grid.GetContent(position.Below()) ?? Content.Default;
-
-        return below.Block.Block is IPlantable;
+        
+        return grid.GetContent(position.Below())?.Block.Block.Get<Plantable>() != null;
     }
 }

@@ -8,7 +8,6 @@ using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Clears the console.

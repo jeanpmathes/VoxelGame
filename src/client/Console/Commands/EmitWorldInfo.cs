@@ -12,8 +12,6 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
 
-#pragma warning disable CA1822
-
 /// <summary>
 ///     Emit information about the generated world for debugging.
 /// </summary>

@@ -17,7 +17,6 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Serialization;

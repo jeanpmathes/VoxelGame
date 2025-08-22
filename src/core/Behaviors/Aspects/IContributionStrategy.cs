@@ -8,9 +8,6 @@ using System;
 
 namespace VoxelGame.Core.Behaviors.Aspects;
 
-#pragma warning disable S2743 // Intentionally used.
-#pragma warning disable S4017 // Intentionally used.
-
 /// <summary>
 ///     Defines how multiple contributions from contributors should be combined.
 /// </summary>

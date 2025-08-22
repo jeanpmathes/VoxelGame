@@ -9,7 +9,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 
@@ -49,9 +48,9 @@ public class RootDecoration : Decoration
 
             if (!shape.Contains(offset - extents)) continue;
 
-            if (grid.GetContent(current)?.Block.Block != Blocks.Instance.Dirt) continue;
+            if (grid.GetContent(current)?.Block.Block != Blocks.Instance.Environment.Dirt) continue;
 
-            grid.SetContent(new Content(Blocks.Instance.Roots), current);
+            grid.SetContent(new Content(Blocks.Instance.Environment.Roots), current);
         }
     }
 }

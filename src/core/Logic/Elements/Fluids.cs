@@ -24,7 +24,7 @@ namespace VoxelGame.Core.Logic.Elements;
 public sealed partial class Fluids(Registry<Fluid> registry)
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    private const Int32 mPas = 15;
+    private const Int32 mPas = 15; // todo: use measure class for viscosity and density
 
     private static FluidContactManager? contactManager;
 

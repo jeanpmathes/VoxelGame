@@ -98,11 +98,16 @@ public enum Sides
     ///     The top side.
     /// </summary>
     Top = 1 << 5,
+    
+    /// <summary>
+    ///     The lateral sides, meaning the front, back, left, and right sides.
+    /// </summary>
+    Lateral = Front | Back | Left | Right,
 
     /// <summary>
     ///     All sides.
     /// </summary>
-    All = Front | Back | Left | Right | Bottom | Top
+    All = Front | Back | Left | Right | Bottom | Top,
 }
 
 /// <summary>

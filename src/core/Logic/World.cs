@@ -367,18 +367,22 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(in Content content, Vector3i position, Boolean updateFluid)
+    private void SetContent(in Content newContent, Vector3i position, Boolean updateFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
+        
+        Section section = chunk.GetSection(position);
 
-        UInt32 val = Section.Encode(content);
-
-        chunk.GetSection(position).SetContent(position, val);
-
-        content.Block.Block.ContentUpdate(this, position, content);
-        if (updateFluid) content.Fluid.Fluid.UpdateNow(this, position, content.Fluid);
+        UInt32 oldValue = section.GetContent(position);
+        UInt32 newValue = Section.Encode(newContent);
+        Section.Decode(oldValue, out Content oldContent);
+        
+        section.SetContent(position, newValue);
+        
+        newContent.Block.Block.DoContentUpdate(this, position, oldContent, newContent);
+        if (updateFluid) newContent.Fluid.Fluid.UpdateNow(this, position, newContent.Fluid);
 
         foreach (Side side in Side.All.Sides())
         {
@@ -391,7 +395,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
             (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
 
             // Side is passed out of the perspective of the block receiving the block update.
-            blockNeighbor.Block.NeighborUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
+            blockNeighbor.Block.DoNeighborUpdate(this, neighborPosition, blockNeighbor.State, side.Opposite());
             fluidNeighbor.Fluid.UpdateSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 
@@ -466,8 +470,8 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         (BlockInstance block, FluidInstance fluid) = content.Value;
 
-        block.Block.RandomUpdate(this, position, block.Data);
-        fluid.Fluid.RandomUpdate(this, position, fluid.Level, fluid.IsStatic);
+        block.Block.DoRandomUpdate(this, position, block.State);
+        fluid.Fluid.DoRandomUpdate(this, position, fluid.Level, fluid.IsStatic);
 
         return true;
     }

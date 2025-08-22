@@ -7,14 +7,13 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 using VoxelGame.Core.Visuals;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Fluids;
 
 /// <summary>
-///     A fluid that can burn it's surroundings.
+///     A fluid that can burn its surroundings.
 /// </summary>
 public class HotFluid : BasicFluid
 {
@@ -35,7 +34,7 @@ public class HotFluid : BasicFluid
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidInstance instance)
     {
-        if (world.GetBlock(position)?.Block is ICombustible block) block.Burn(world, position, Blocks.Instance.Fire);
+        if (world.GetBlock(position)?.Block.Get<Combustible>() is {} combustible) combustible.DoBurn(world, position, Blocks.Instance.Environment.Fire);
 
         BurnAround(world, position);
 
@@ -43,7 +42,7 @@ public class HotFluid : BasicFluid
     }
 
     /// <inheritdoc />
-    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
+    internal override void DoRandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
     {
         BurnAround(world, position);
     }
@@ -54,9 +53,9 @@ public class HotFluid : BasicFluid
         {
             Vector3i offsetPosition = side.Offset(position);
 
-            if (world.GetBlock(offsetPosition)?.Block is ICombustible block &&
-                block.Burn(world, offsetPosition, Blocks.Instance.Fire))
-                Blocks.Instance.Fire.Place(world, offsetPosition);
+            if (world.GetBlock(offsetPosition)?.Block.Get<Combustible>() is {} combustible &&
+                combustible.DoBurn(world, offsetPosition, Blocks.Instance.Environment.Fire))
+                Blocks.Instance.Environment.Fire.Place(world, offsetPosition);
 
         }
     }

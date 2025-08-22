@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -63,15 +64,15 @@ public sealed class SectionMeshData : IDisposable
 
     /// <summary>
     ///     The basic mesh data.
-    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.ISimple" />,
-    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IComplex" />, and
-    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IVaryingHeight" /> meshables.
+    ///     It is created by the <see cref="SimpleBlock" />,
+    ///     <see cref="ComplexBlock" />, and
+    ///     <see cref="PartialHeightBlock" /> meshables.
     /// </summary>
     public required (IMeshing opaque, IMeshing transparent) BasicMeshing { get; init; }
 
     /// <summary>
     ///     The foliage mesh data.
-    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.IFoliage" /> meshable.
+    ///     It is created by the <see cref="FoliageBlock" /> meshable.
     /// </summary>
     public required IMeshing FoliageMeshing { get; init; }
 

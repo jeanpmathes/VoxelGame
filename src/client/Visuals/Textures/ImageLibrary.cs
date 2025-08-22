@@ -116,6 +116,7 @@ public class ImageLibrary
 
     /// <summary>
     ///     Bundle all images in the library that should be available in the game as textures.
+    ///     Will ensure that <see cref="ITextureIndexProvider.MissingTextureIndex"/> is available in the bundle.
     /// </summary>
     /// <param name="resolution">The resolution of the textures in this library.</param>
     /// <returns>The intermediate bundle containing all require images.</returns>

@@ -7,11 +7,8 @@
 using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Legacy.Blocks;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
@@ -47,9 +44,9 @@ public class Tree : DynamicStructure
 
         trunk = new Content(log);
         leaf = new Content(leaves);
-        roots = new Content(Blocks.Instance.Roots);
-
-        if (log is RotatedBlock rotatedBlock) trunk = new Content(rotatedBlock.GetInstance(Axis.Y), FluidInstance.Default);
+        roots = new Content(Blocks.Instance.Environment.Roots);
+        
+        // todo: find a way to rotate the log block to align with Y axis
 
         Box3d box = crownShape.BoundingBox;
         Vector3i min = box.Min.Floor();

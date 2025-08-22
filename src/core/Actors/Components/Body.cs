@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
@@ -160,8 +159,8 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
             DoPhysicsStep(ref collider, ref movement, blockIntersections, fluidIntersections);
 
         foreach ((Vector3i position, Block block) in blockIntersections)
-            if (block.ReceiveCollisions)
-                block.ActorCollision(this, position);
+            if (block.IsCollider || block.IsTrigger)
+                block.OnActorCollision(this, position);
 
         Double drag = AirDrag;
 
@@ -175,8 +174,8 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
             {
                 if (fluid.ReceiveContact) fluid.ActorContact(this, position);
 
-                useFluidDrag |= fluid.IsFluid;
-                noGas = fluid.IsFluid;
+                useFluidDrag |= fluid.IsLiquid;
+                noGas = fluid.IsLiquid;
                 maxLevel = Math.Max(maxLevel, (Int32) level);
             }
 

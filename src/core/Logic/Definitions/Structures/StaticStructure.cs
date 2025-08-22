@@ -12,15 +12,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
@@ -168,7 +167,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
     public static StaticStructure CreateFallback()
     {
         var fallback = new Content?[1, 1, 1];
-        fallback[0, 0, 0] = new Content(Blocks.Instance.Error);
+        fallback[0, 0, 0] = new Content(Blocks.Instance.Core.Error);
 
         return new StaticStructure(fallback, Vector3i.One);
     }
@@ -192,10 +191,16 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
             if (context != null) context.ReportWarning(this, $"Unknown block '{placement.Block}' in structure '{name}'");
             else LogUnknownBlockInStructure(logger, placement.Block, name);
 
-            block = Blocks.Instance.Air;
+            block = Blocks.Instance.Core.Air;
         }
+        
+        // todo: check if index is valid
+        
+        // todo: instead of storing state index, why not store serialized attributes?
 
-        content.Block = new BlockInstance(block, (((UInt32) placement.Data << Section.DataShift) & Section.DataMask) >> Section.DataShift);
+        State state = block.States.GetStateByIndex(placement.StateIndex);
+
+        content.Block = new BlockInstance(state);
 
         Fluid? fluid = Elements.Fluids.Instance.TranslateNamedID(placement.Fluid);
 
@@ -261,7 +266,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
             {
                 Position = new Vector {Values = [x, y, z]},
                 Block = content.Value.Block.Block.NamedID,
-                Data = (Int32) content.Value.Block.Data,
+                StateIndex = content.Value.Block.State.Index,
                 Fluid = content.Value.Fluid.Fluid.NamedID,
                 Level = (Int32) content.Value.Fluid.Level,
                 IsStatic = content.Value.Fluid.IsStatic

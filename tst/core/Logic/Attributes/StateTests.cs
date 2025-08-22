@@ -7,7 +7,7 @@
 using System;
 using JetBrains.Annotations;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements.New;
+using VoxelGame.Core.Tests.Logic.Elements;
 using VoxelGame.Core.Tests.Utilities.Resources;
 using Xunit;
 
@@ -21,7 +21,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<Boolean> booleanAttribute = builder.Define("bool").Boolean().Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
         state.Set(booleanAttribute, value: true);
@@ -34,7 +34,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<Boolean> booleanAttribute = builder.Define("bool").Boolean().Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
 
@@ -48,7 +48,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<Int32> intAttribute = builder.Define("int").Int32(min: 0, max: 4).Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
         state.Set(intAttribute, value: 2);
@@ -61,7 +61,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<Int32> intAttribute = builder.Define("int").Int32(min: 0, max: 4).Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
 
@@ -75,7 +75,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
         state.Set(enumAttribute, TestState.B);
@@ -88,7 +88,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
 
@@ -102,7 +102,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<TestStates> flagsAttribute = builder.Define("flags").Flags<TestStates>().Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
         state.Set(flagsAttribute, TestStates.A | TestStates.B);
@@ -115,7 +115,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<TestStates> flagsAttribute = builder.Define("flags").Flags<TestStates>().Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
 
@@ -129,7 +129,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<TestStruct> listAttribute = builder.Define("list").List([new TestStruct("a"), new TestStruct("b")]).Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
         state.Set(listAttribute, new TestStruct("b"));
@@ -142,7 +142,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<TestStruct> listAttribute = builder.Define("list").List([new TestStruct("a"), new TestStruct("b")]).Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
 
@@ -156,7 +156,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<Int32?> nullableAttribute = builder.Define("nullable").Int32(min: 0, max: 2).NullableAttribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
         state.Set(nullableAttribute, value: 1);
@@ -171,7 +171,7 @@ public class StateTests
     {
         StateBuilder builder = new(new MockResourceContext());
         IAttribute<Int32?> nullableAttribute = builder.Define("nullable").Int32(min: 0, max: 2).NullableAttribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
 
@@ -187,7 +187,7 @@ public class StateTests
         IAttribute<Boolean> boolAttribute = builder.Define("bool").Boolean().Attribute();
         IAttribute<Int32> intAttribute = builder.Define("int").Int32(min: 0, max: 2).Attribute();
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
         state.Set(enumAttribute, TestState.B);
@@ -206,7 +206,7 @@ public class StateTests
         IAttribute<Boolean> boolAttribute = builder.Define("bool").Boolean().Attribute();
         IAttribute<Int32> intAttribute = builder.Define("int").Int32(min: 0, max: 2).Attribute();
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute();
-        StateSet set = builder.Build(new Block(), setOffset: 0);
+        StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State state = set.Default;
 

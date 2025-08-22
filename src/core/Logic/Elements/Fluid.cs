@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Actors;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
+using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -68,12 +68,12 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
         if (Direction == VerticalFlow.Static)
         {
-            IsFluid = false;
+            IsLiquid = false;
             IsGas = false;
         }
         else
         {
-            IsFluid = density > GasFluidThreshold;
+            IsLiquid = density > GasFluidThreshold;
             IsGas = density <= GasFluidThreshold;
         }
 
@@ -132,9 +132,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     private RenderType RenderType { get; }
 
     /// <summary>
-    ///     Get whether this fluids is a fluid.
+    ///     Get whether this fluid is a liquid.
     /// </summary>
-    public Boolean IsFluid { get; }
+    public Boolean IsLiquid { get; }
 
     /// <summary>
     ///     Get whether this fluid is a gas.
@@ -214,8 +214,11 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <param name="context">The context of the meshing operation.</param>
     public void CreateMesh(Vector3i position, FluidMeshInfo info, MeshingContext context)
     {
-        if (RenderType == RenderType.NotRendered || (info.Block.Block is not IFillable {IsFluidRendered: true} &&
-                                                     (info.Block.Block is IFillable || info.Block.IsSolidAndFull))) return;
+        if (RenderType == RenderType.NotRendered) return;
+        
+        var fillable = info.Block.Block.Get<Fillable>();
+        
+        if (fillable is not {IsFluidRendered: true} || info.Block.IsFullySolid) return;
 
         SideArray<MeshFaceHolder> fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
 
@@ -237,8 +240,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             Boolean atVerticalEnd = side is Side.Top or Side.Bottom;
 
-            Boolean isNeighborFluidMeshed =
-                blockToCheck.Block is IFillable {IsFluidRendered: true};
+            Boolean isNeighborFluidMeshed = blockToCheck.Block.Get<Fillable>()?.IsFluidRendered == true;
 
             var sideHeight = (Int32) fluidToCheck.Level;
 
@@ -248,10 +250,10 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
                 ? Direction == VerticalFlow.Upwards
                 : Direction == VerticalFlow.Downwards;
 
-            Boolean meshAtSide = (Int32) info.Level > sideHeight && !blockToCheck.IsOpaqueAndFull;
+            Boolean meshAtSide = (Int32) info.Level > sideHeight && !blockToCheck.IsFullyOpaque;
 
-            Boolean meshAtDrainEnd = sideHeight != 7 && !blockToCheck.IsOpaqueAndFull;
-            Boolean meshAtSourceEnd = info.Level != FluidLevel.Eight || (fluidToCheck.Fluid != this && !blockToCheck.IsOpaqueAndFull);
+            Boolean meshAtDrainEnd = sideHeight != 7 && !blockToCheck.IsFullyOpaque;
+            Boolean meshAtSourceEnd = info.Level != FluidLevel.Eight || (fluidToCheck.Fluid != this && !blockToCheck.IsFullyOpaque);
 
             Boolean meshAtEnd = flowsTowardsFace ? meshAtDrainEnd : meshAtSourceEnd;
 
@@ -259,7 +261,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             FluidMeshData mesh = GetMeshData(info with {Side = side});
 
-            Boolean singleSided = blockToCheck is {IsSolidAndFull: true, IsOpaqueAndFull: true};
+            Boolean singleSided = blockToCheck is {IsFullySolid: true, IsFullyOpaque: true};
 
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
@@ -282,7 +284,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             fluidMeshFaceHolders[side].AddFace(
                 position,
                 info.Level.GetBlockHeight(),
-                IHeightVariable.GetBlockHeightFromFluidHeight(sideHeight),
+                PartialHeight.GetBlockHeightFromFluidHeight(sideHeight),
                 Direction != VerticalFlow.Upwards,
                 data,
                 singleSided,
@@ -332,8 +334,8 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     {
         Content? content = world.GetContent(position);
 
-        if (content is ({Block: IFillable fillable}, var target)
-            && fillable.IsInflowAllowed(world, position, entrySide, this))
+        if (content?.Block.Block.Get<Fillable>() is {} fillable && content is { Fluid: var target }
+            && fillable.CanInflow(world, position, entrySide, this))
         {
             if (target.Fluid == this && target.Level != FluidLevel.Eight)
             {
@@ -429,7 +431,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     {
         if ((Int32) level == -1) return false;
 
-        if (world.GetBlock(position)?.Block is not IFillable currentFillable) return false;
+        if (world.GetBlock(position)?.Block.Get<Fillable>() is not {} currentFillable) return false;
 
         foreach (Orientation orientation in Orientations.All)
         {
@@ -443,9 +445,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             if (!isNeighborThisFluid) continue;
 
-            if (neighborBlock.Block is IFillable neighborFillable
-                && neighborFillable.IsInflowAllowed(world, neighborPosition, orientation.Opposite().ToSide(), this)
-                && currentFillable.IsOutflowAllowed(world, position, orientation.ToSide())) return true;
+            if (neighborBlock.Block.Get<Fillable>() is {} neighborFillable
+                && neighborFillable.CanInflow(world, neighborPosition, orientation.Opposite().ToSide(), this)
+                && currentFillable.CanOutflow(world, position, orientation.ToSide(), this)) return true;
         }
 
         return false;
@@ -459,7 +461,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <returns>True if there is a neighboring position.</returns>
     protected Boolean HasNeighborWithEmpty(World world, Vector3i position)
     {
-        if (world.GetBlock(position)?.Block is not IFillable currentFillable) return false;
+        if (world.GetBlock(position)?.Block.Get<Fillable>() is not {} currentFillable) return false;
 
         foreach (Orientation orientation in Orientations.All)
         {
@@ -469,16 +471,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             if (content is not var (neighborBlock, neighborFluid)) continue;
 
-            if (neighborFluid.IsEmpty && neighborBlock.Block is IFillable neighborFillable
-                                      && neighborFillable.IsInflowAllowed(
-                                          world,
-                                          neighborPosition,
-                                          orientation.Opposite().ToSide(),
-                                          this)
-                                      && currentFillable.IsOutflowAllowed(
-                                          world,
-                                          position,
-                                          orientation.ToSide()))
+            if (neighborFluid.IsEmpty && neighborBlock.Block.Get<Fillable>() is {} neighborFillable
+                                      && neighborFillable.CanInflow(world, neighborPosition, orientation.Opposite().ToSide(), this)
+                                      && currentFillable.CanOutflow(world, position, orientation.ToSide(), this))
                 return true;
         }
 
@@ -494,7 +489,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <param name="maximumLevel">The maximum level of a potential position.</param>
     /// <param name="range">The search range.</param>
     /// <returns>A potential target, if there is any.</returns>
-    protected (Vector3i position, FluidInstance fluid, IFillable fillable)? SearchFlowTarget(
+    protected (Vector3i position, FluidInstance fluid, Fillable fillable)? SearchFlowTarget(
         World world, Vector3i position, FluidLevel maximumLevel, Int32 range)
     {
         Int32 extendedRange = range + 1;
@@ -505,20 +500,20 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         var mark = new Boolean[extents, extents];
 #pragma warning restore CA1814
 
-        Queue<(Vector3i position, IFillable fillable)> queue = new();
-        Queue<(Vector3i position, IFillable fillable)> nextQueue = new();
+        Queue<(Vector3i position, Fillable fillable)> queue = new();
+        Queue<(Vector3i position, Fillable fillable)> nextQueue = new();
 
         Content? startContent = world.GetContent(position);
 
         if (startContent is not var (startBlock, startFluid)) return null;
-        if (startBlock.Block is not IFillable startFillable || startFluid.Fluid != this) return null;
+        if (startBlock.Block.Get<Fillable>() is not {} startFillable || startFluid.Fluid != this) return null;
 
         queue.Enqueue((position, startFillable));
         Mark(position);
 
         for (var depth = 0; queue.Count > 0 && depth <= range; depth++)
         {
-            foreach ((Vector3i position, IFillable fillable) e in queue)
+            foreach ((Vector3i position, Fillable fillable) e in queue)
             foreach (Orientation orientation in Orientations.All)
             {
                 Vector3i nextPosition = orientation.Offset(e.position);
@@ -528,14 +523,10 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
                 Content? nextContent = world.GetContent(nextPosition);
 
                 if (nextContent is not var (nextBlock, nextFluid)) continue;
-                if (nextBlock.Block is not IFillable nextFillable || nextFluid.Fluid != this) continue;
+                if (nextBlock.Block.Get<Fillable>() is not {} nextFillable || nextFluid.Fluid != this) continue;
 
-                Boolean canFlow = e.fillable.IsOutflowAllowed(world, e.position, orientation.ToSide()) &&
-                                  nextFillable.IsInflowAllowed(
-                                      world,
-                                      nextPosition,
-                                      orientation.Opposite().ToSide(),
-                                      this);
+                Boolean canFlow = e.fillable.CanOutflow(world, e.position, orientation.ToSide(), this)
+                                  && nextFillable.CanInflow(world, nextPosition, orientation.Opposite().ToSide(), this);
 
                 if (!canFlow) continue;
 
@@ -545,7 +536,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
                 nextQueue.Enqueue((nextPosition, nextFillable));
             }
 
-            (queue, nextQueue) = (nextQueue, new Queue<(Vector3i position, IFillable fillable)>());
+            (queue, nextQueue) = (nextQueue, new Queue<(Vector3i position, Fillable fillable)>());
         }
 
         return null;
@@ -572,8 +563,8 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// </summary>
     /// <param name="world">The world.</param>
     /// <param name="position">The position of the fluid.</param>
-    /// <param name="pumpDistance">The maximum amount of elevation.</param>
-    public static void Elevate(World world, Vector3i position, Int32 pumpDistance)
+    /// <param name="distance">The maximum amount of elevation.</param>
+    public static void Elevate(World world, Vector3i position, Int32 distance)
     {
         Content? content = world.GetContent(position);
 
@@ -582,14 +573,14 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
         var currentLevel = (Int32) toElevate.Level;
 
-        if (start.Block is not IFillable startFillable ||
-            !startFillable.IsOutflowAllowed(world, position, Side.Top)) return;
+        if (start.Block.Get<Fillable>() is not {} startFillable ||
+            !startFillable.CanOutflow(world, position, Side.Top, toElevate.Fluid)) return;
 
-        for (var offset = 1; offset <= pumpDistance && currentLevel > -1; offset++)
+        for (var offset = 1; offset <= distance && currentLevel > -1; offset++)
         {
             Vector3i elevatedPosition = position + (0, offset, 0);
 
-            var currentBlock = world.GetBlock(elevatedPosition)?.Block as IFillable;
+            var currentBlock = world.GetBlock(elevatedPosition)?.Block.Get<Fillable>();
 
             if (currentBlock == null) break;
 
@@ -600,7 +591,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
                 Side.Bottom,
                 out currentLevel);
 
-            if (!currentBlock.IsOutflowAllowed(world, elevatedPosition, Side.Top)) break;
+            if (!currentBlock.CanOutflow(world, elevatedPosition, Side.Top, toElevate.Fluid)) break;
         }
 
         FluidLevel elevated = toElevate.Level - (currentLevel + 1);
@@ -618,7 +609,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         return world.GetFluid(position - FlowDirection)?.Fluid != this;
     }
 
-    internal virtual void RandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic) {}
+    internal virtual void DoRandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic) {}
 
     /// <inheritdoc />
     public sealed override String ToString()

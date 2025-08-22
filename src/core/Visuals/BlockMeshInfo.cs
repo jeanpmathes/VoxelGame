@@ -12,7 +12,7 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     Provides information required to create a block mesh.
 /// </summary>
-public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo>
+public readonly struct BlockMeshInfo : IEquatable<BlockMeshInfo> // todo: check if this can be deleted
 {
     /// <summary>
     ///     Create a new block mesh info.

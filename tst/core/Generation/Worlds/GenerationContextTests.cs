@@ -12,10 +12,9 @@ using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Definitions.Fluids;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Sections;
-using VoxelGame.Core.Physics;
 using VoxelGame.Core.Tests.Logic.Chunks;
+using VoxelGame.Core.Tests.Logic.Elements;
 using VoxelGame.Core.Visuals;
 using Xunit;
 
@@ -76,8 +75,6 @@ public class GenerationContextTests : ContextTestBase
             // Nothing to dispose.
         }
     }
-
-    private sealed class MockBlock() : Block("Mock Block", nameof(MockBlock), new BlockFlags(), BoundingVolume.Block);
 
     private sealed class MockFluid() : BasicFluid("Mock Fluid",
         nameof(MockFluid),

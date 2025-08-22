@@ -11,7 +11,6 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
@@ -23,7 +22,7 @@ using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
@@ -33,7 +32,6 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Collections;
 using VoxelGame.Toolkit.Noise;
 using VoxelGame.Toolkit.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
@@ -473,7 +471,7 @@ public sealed partial class Generator : IWorldGenerator
 
     private Content GenerateContent(Vector3i position, in Context context)
     {
-        if (position.Y == -World.BlockLimit) return new Content(Blocks.Instance.Core);
+        if (position.Y == -World.BlockLimit) return new Content(Blocks.Instance.Core.CoreBlock);
 
         Int32 groundDepth = context.Ground.Height - position.Y;
         Boolean isFilled = position.Y <= SeaLevel;
@@ -534,7 +532,7 @@ public sealed partial class Generator : IWorldGenerator
     private static Content FillContent(Content content)
     {
         if (!content.Fluid.IsEmpty) return content;
-        if (content.Block.Block is not IFillable) return content;
+        if (!content.Block.Block.Has<Fillable>()) return content;
 
         return content with {Fluid = Fluids.Instance.SeaWater.AsInstance()};
     }

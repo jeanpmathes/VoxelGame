@@ -14,7 +14,6 @@ using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Water;
 
@@ -23,7 +22,7 @@ namespace VoxelGame.Core.Generation.Worlds.Water;
 /// </summary>
 public sealed class Generator : IWorldGenerator
 {
-    private readonly Content core = new(Blocks.Instance.Core);
+    private readonly Content core = new(Blocks.Instance.Core.CoreBlock);
     private readonly Content empty = Content.Default;
     private readonly Content water = new(fluid: Fluids.Instance.SeaWater);
 

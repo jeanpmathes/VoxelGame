@@ -10,9 +10,9 @@ using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class Int32Attribute(Int32 min, Int32 max) : Attribute<Int32>
+internal class Int32Attribute(Int32 min, Int32 max) : AttributeImplementation<Int32>
 {
-    public override UInt64 Multiplicity { get; } = (UInt64) (max - min);
+    public override Int32 Multiplicity { get; } = max - min;
 
     public override Int32 Retrieve(Int32 index)
     {

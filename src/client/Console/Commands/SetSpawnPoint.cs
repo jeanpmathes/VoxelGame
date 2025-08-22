@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the spawn position for the current world.

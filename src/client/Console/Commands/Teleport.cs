@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Teleport to a specified position or target.

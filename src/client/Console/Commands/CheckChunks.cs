@@ -12,7 +12,6 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Gets the world seed.

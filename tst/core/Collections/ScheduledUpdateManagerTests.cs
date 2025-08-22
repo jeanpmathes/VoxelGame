@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Serialization;
-using VoxelGame.Core.Tests.Updates;
 using VoxelGame.Core.Updates;
 using VoxelGame.Toolkit.Utilities.Constants;
 using Xunit;

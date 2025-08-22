@@ -12,9 +12,6 @@ using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds;
 
-#pragma warning disable S4017
-#pragma warning disable S3956
-
 /// <summary>
 ///     Some helpful and simple algorithms that are used in world generation.
 /// </summary>

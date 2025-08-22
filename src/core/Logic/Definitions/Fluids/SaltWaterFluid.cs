@@ -7,9 +7,9 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Behaviors;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Fluids;
 
@@ -32,12 +32,13 @@ public class SaltWaterFluid : BasicFluid
             RenderType.Transparent) {}
 
     /// <inheritdoc />
-    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
+    internal override void DoRandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
     {
         if (!isStatic || level != FluidLevel.One) return;
-        if (!world.HasFullAndSolidGround(position)) return;
+        if (world.GetBlock(position.Below())?.IsFullySolid != true) return;
 
         world.SetDefaultFluid(position);
-        Blocks.Instance.Specials.Salt.Place(world, level, position);
+        
+        Blocks.Instance.Environment.Salt.Place(world, position); // todo: find a way to set the level of the concrete on placement, similar problem as with world gen and snow and such
     }
 }

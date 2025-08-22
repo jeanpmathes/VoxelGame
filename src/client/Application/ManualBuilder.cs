@@ -10,7 +10,6 @@ using System.Globalization;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Manual;
@@ -52,6 +51,12 @@ public static partial class ManualBuilder
         controls.Generate();
 
         Includable blocks = new("blocks", directory);
+        
+        // todo: adapt the manual generation to the new block system
+        // todo: it should display all the block properties
+        // todo: it should display all block behaviors, with the associated attributes
+        // todo: it should display the total number of block states
+        // todo: it should do grouping by convention
 
         blocks.CreateSections(
             Blocks.Instance.GetDocumentedValues<Block>(documentation),
@@ -62,8 +67,7 @@ public static partial class ManualBuilder
                             .List(list => list
                                 .Item("ID:").Text(s.block.NamedID, TextStyle.Monospace)
                                 .Item("Solid:").Boolean(s.block.IsSolid)
-                                .Item("Interactions:").Boolean(s.block.IsInteractable)
-                                .Item("Replaceable:").Boolean(s.block.IsReplaceable))));
+                                .Item("Interactions:").Boolean(s.block.IsInteractable))));
 
         blocks.Generate();
 

@@ -63,4 +63,17 @@ public class Registry<T> where T : class
 
         return value;
     }
+
+    /// <summary>
+    ///     Register a new instance and return it as a specific type.
+    /// </summary>
+    /// <param name="value">The instance to register.</param>
+    /// <typeparam name="TS">The specific type of the instance.</typeparam>
+    /// <returns>The registered instance as the specific type.</returns>
+    public TS Register<TS>(TS value) where TS : T
+    {
+        Register((T) value);
+
+        return value;
+    }
 }

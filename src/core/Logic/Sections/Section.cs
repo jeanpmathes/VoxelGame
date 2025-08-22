@@ -9,12 +9,12 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
+using Blocks = VoxelGame.Core.Logic.Elements.Blocks;
 
 namespace VoxelGame.Core.Logic.Sections;
 
@@ -35,11 +35,6 @@ public class Section : IDisposable
     public const Int32 Count = Size * Size * Size;
 
     /// <summary>
-    ///     The shift to get the data.
-    /// </summary>
-    public const Int32 DataShift = 12;
-
-    /// <summary>
     ///     The shift to get the fluid.
     /// </summary>
     public const Int32 FluidShift = 18;
@@ -53,16 +48,14 @@ public class Section : IDisposable
     ///     The shift to get the isStatic value.
     /// </summary>
     public const Int32 StaticShift = 26;
-
+    
     /// <summary>
     ///     Mask to get only the block.
     /// </summary>
-    public const UInt32 BlockMask = 0b0000_0000_0000_0000_0000_1111_1111_1111;
-
-    /// <summary>
-    ///     Mask to get only the data.
-    /// </summary>
-    public const UInt32 DataMask = 0b0000_0000_0000_0011_1111_0000_0000_0000;
+    public const UInt32 BlockMask = 0b0000_0000_0000_0011_1111_1111_1111_1111;
+    
+    // todo: use the masks or associated constants to determine the max number of block states and use in validation
+    // todo: also make sure that the limit calculations have overflow checks or work in a much larger range than (U)Int32
 
     /// <summary>
     ///     Mask to get only the fluid.
@@ -243,20 +236,19 @@ public class Section : IDisposable
         UInt32 content = GetRandomPositionContent(out Vector3i localPosition);
 
         Decode(content,
-            out Block block,
-            out UInt32 data,
+            out State state,
             out Fluid fluid,
             out FluidLevel level,
             out Boolean isStatic);
 
         Vector3i globalPosition = localPosition + position.FirstBlock;
 
-        block.RandomUpdate(
+        state.Owner.Block.DoRandomUpdate(
             world,
             globalPosition,
-            data);
+            state);
 
-        fluid.RandomUpdate(
+        fluid.DoRandomUpdate(
             world,
             globalPosition,
             level,
@@ -282,11 +274,11 @@ public class Section : IDisposable
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Decode(UInt32 value,
-        out Block block, out UInt32 data,
+        out State state,
         out Fluid fluid, out FluidLevel level, out Boolean isStatic)
     {
-        block = Blocks.Instance.TranslateID(value & BlockMask);
-        data = (value & DataMask) >> DataShift;
+        state = Blocks.Instance.TranslateStateID(value & BlockMask);
+        
         fluid = Fluids.Instance.TranslateID((value & FluidMask) >> FluidShift);
         level = (FluidLevel) ((value & LevelMask) >> LevelShift);
         isStatic = (value & StaticMask) != 0;
@@ -298,22 +290,21 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Decode(UInt32 value, out Content content)
     {
-        Decode(value, out Block block, out UInt32 data, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
+        Decode(value, out State state, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
 
-        content = new Content(block.AsInstance(data), fluid.AsInstance(level, isStatic));
+        content = new Content(new BlockInstance(state), fluid.AsInstance(level, isStatic));
     }
 
     /// <summary>
     ///     Encode block and fluid information into section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt32 Encode(IBlockBase block, UInt32 data, Fluid fluid, FluidLevel level, Boolean isStatic)
+    public static UInt32 Encode(State state, Fluid fluid, FluidLevel level, Boolean isStatic)
     {
         return (UInt32) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
                          | (((UInt32) level << LevelShift) & LevelMask)
                          | ((fluid.ID << FluidShift) & FluidMask)
-                         | ((data << DataShift) & DataMask)
-                         | (block.ID & BlockMask));
+                         | (state.ID & BlockMask));
     }
 
     /// <summary>
@@ -322,7 +313,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt32 Encode(in Content content)
     {
-        return Encode(content.Block.Block, content.Block.Data, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
+        return Encode(content.Block.State, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
     }
 
     /// <summary>
@@ -335,11 +326,9 @@ public class Section : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
+        UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z) & BlockMask;
 
-        UInt32 data = (val & DataMask) >> DataShift;
-
-        return Blocks.Instance.TranslateID(val & BlockMask).AsInstance(data);
+        return new BlockInstance(Blocks.Instance.TranslateStateID(val & BlockMask));
     }
 
     /// <summary>

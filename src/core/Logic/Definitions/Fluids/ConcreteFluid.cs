@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Visuals;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Fluids;
 
@@ -35,11 +34,12 @@ public class ConcreteFluid : BasicFluid
             texture) {}
 
     /// <inheritdoc />
-    internal override void RandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
+    internal override void DoRandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
     {
         if (!isStatic) return;
 
         world.SetDefaultFluid(position);
-        Blocks.Instance.Specials.Concrete.Place(world, level, position);
+        
+        Blocks.Instance.Construction.Concrete.Place(world, position); // todo: find a way to set the level of the concrete on placement, similar problem as with world gen and snow and such
     }
 }

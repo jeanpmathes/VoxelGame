@@ -10,7 +10,7 @@ using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -94,7 +94,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
     {
         var height = 15;
 
-        if (block.Block is IHeightVariable heightVariable) height = heightVariable.GetHeight(block.Data);
+        if (block.Block.Get<PartialHeight>() is {} partialHeight) height = partialHeight.GetHeight(block.State);
 
         return GetOverlayBounds(height, position, inverted: false, frustum);
     }

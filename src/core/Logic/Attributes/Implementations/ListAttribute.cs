@@ -10,11 +10,11 @@ using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class ListAttribute<TElement>(IEnumerable<TElement> elements) : Attribute<TElement> where TElement : struct
+internal class ListAttribute<TElement>(IEnumerable<TElement> elements) : AttributeImplementation<TElement> where TElement : struct
 {
     private readonly TElement[] elements = [..elements];
 
-    public override UInt64 Multiplicity => (UInt64) elements.Length;
+    public override Int32 Multiplicity => elements.Length;
 
     public override TElement Retrieve(Int32 index)
     {

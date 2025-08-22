@@ -10,9 +10,9 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Visuals;
@@ -148,18 +148,16 @@ public class Section : Core.Logic.Sections.Section
 
                 Decode(
                     content,
-                    out Block currentBlock,
-                    out UInt32 data,
+                    out State state,
                     out Fluid currentFluid,
                     out FluidLevel level,
                     out Boolean isStatic);
 
-                IBlockMeshable meshable = currentBlock;
-                meshable.CreateMesh((x, y, z), new BlockMeshInfo(Side.All, data, currentFluid), context);
+                state.Block.Mesh((x, y, z), state, context);
 
                 currentFluid.CreateMesh(
                     (x, y, z),
-                    FluidMeshInfo.Fluid(currentBlock.AsInstance(data), level, Side.All, isStatic),
+                    FluidMeshInfo.Fluid(new BlockInstance(state), level, Side.All, isStatic),
                     context);
             }
         }

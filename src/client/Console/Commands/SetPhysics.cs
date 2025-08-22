@@ -8,7 +8,6 @@ using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Allows to enable or disable physics for the player.

@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Definitions;
@@ -24,13 +23,7 @@ public class ContentRegistry
     {
         this.parent = parent;
     }
-
-    /// <summary>
-    ///     The blocks that are registered.
-    ///     Ugly fix until the block states are added.
-    /// </summary>
-    public Registry<Block> Blocks { get; } = new(i => i.NamedID);
-
+    
     /// <summary>
     ///     Create a new content registry.
     /// </summary>
@@ -38,22 +31,6 @@ public class ContentRegistry
     public static ContentRegistry Create()
     {
         return new ContentRegistry();
-    }
-
-    /// <summary>
-    ///     Register a block.
-    /// </summary>
-    /// <param name="block">The block to register.</param>
-    /// <returns>The registered block.</returns>
-    public Block Register(Block block)
-    {
-        Blocks.Register(block);
-        parent?.Blocks.Register(block);
-
-        RegisterContent(block);
-        parent?.RegisterContent(block);
-
-        return block;
     }
 
     /// <summary>
@@ -65,6 +42,7 @@ public class ContentRegistry
     public T RegisterContent<T>(T content) where T : IContent
     {
         registry.Register(content);
+        parent?.RegisterContent(content);
 
         return content;
     }

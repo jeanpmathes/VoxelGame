@@ -9,7 +9,6 @@ using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -37,7 +36,7 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
         input = player.GetRequiredComponent<PlayerInput, Player>();
         
         // The initially selected block and fluid have to be set as block 0 and fluid 0 are not valid in this context.
-        ActiveBlock = Blocks.Instance.Grass;
+        ActiveBlock = Blocks.Instance.Environment.Grass;
         ActiveFluid = Fluids.Instance.FreshWater;
     }
     
@@ -112,7 +111,7 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
         {
             Int64 nextBlockId = ActiveBlock.ID + change;
             nextBlockId = MathTools.ClampRotating(nextBlockId, min: 1, Blocks.Instance.Count);
-            ActiveBlock = Blocks.Instance.TranslateID((UInt32) nextBlockId);
+            ActiveBlock = Blocks.Instance.TranslateBlockID((UInt32) nextBlockId);
         }
         else
         {

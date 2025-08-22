@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic.Elements;
@@ -29,8 +30,8 @@ public class PlayerDebugProperties : Group
         new Message("Position (Target)", FormatObject(player.GetComponent<Targeting>()?.Position)),
         new Message("Position (Chunk)", FormatObject(player.GetComponent<ChunkLoader>()?.Chunk)),
         new Message("Position (Section)", FormatObject(SectionPosition.From(player.Body.Transform.Position.Floor()))),
-        new Message("Target Block", FormatBlockTarget(player.GetComponent<Targeting>()?.Block ?? BlockInstance.Default)),
-        new Message("Target Fluid", FormatFluidTarget(player.GetComponent<Targeting>()?.Fluid ?? FluidInstance.Default)),
+        new Group("Target Block", CreateBlockTargetProperties(player.GetComponent<Targeting>()?.Block ?? BlockInstance.Default)),
+        new Group("Target Fluid", CreateFluidTargetProperties(player.GetComponent<Targeting>()?.Fluid ?? FluidInstance.Default)),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Body.Transform.Position)),
         new Group("World",
         [
@@ -42,15 +43,20 @@ public class PlayerDebugProperties : Group
             new Message("Disabled", "Use application arguments to enable integrated profiling.")
         ])
     ]) {}
-
-    private static String FormatBlockTarget(BlockInstance instance)
+    
+    private static IEnumerable<Property> CreateBlockTargetProperties(BlockInstance instance)
     {
-        return $"{instance.Block.NamedID}[{instance.Block.ID}], {instance.Data:B}";
+        yield return new Message("Block ID", $"{instance.Block.NamedID}[{instance.Block.ID}]");
+        yield return new Message("State ID", $"{instance.State.ID}");
+        yield return new Message("State Index", $"{instance.Block.ID}/{instance.State.Index}");
+        yield return new Group("Attributes", instance.State.CreateProperties());
     }
-
-    private static String FormatFluidTarget(FluidInstance instance)
+    
+    private static IEnumerable<Property> CreateFluidTargetProperties(FluidInstance instance)
     {
-        return $"{instance.Fluid.NamedID}[{instance.Fluid.ID}], {instance.Level}, {instance.IsStatic}";
+        yield return new Message("ID", $"{instance.Fluid.NamedID}[{instance.Fluid.ID}]");
+        yield return new Message("level", instance.Level.ToString());
+        yield return new Message("isStatic", instance.IsStatic.ToString());
     }
     
     private static String FormatObject(Object? obj)

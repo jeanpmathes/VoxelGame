@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.Core.Behaviors.Events;
 
 /// <summary>
@@ -17,4 +19,9 @@ public interface IEvent<in TEventMessage> where TEventMessage : IEventMessage
     /// </summary>
     /// <param name="message">The event message to publish.</param>
     public void Publish(TEventMessage message);
+
+    /// <summary>
+    /// Get whether this event has any subscribers.
+    /// </summary>
+    Boolean HasSubscribers { get; }
 }

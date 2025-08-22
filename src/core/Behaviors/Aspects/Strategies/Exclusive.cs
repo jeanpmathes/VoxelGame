@@ -8,8 +8,6 @@ using System;
 
 namespace VoxelGame.Core.Behaviors.Aspects.Strategies;
 
-#pragma warning disable S4017 // Intentionally used.
-
 /// <summary>
 ///     Allows only one contributor to contribute to the value.
 /// </summary>

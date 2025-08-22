@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A block model for complex blocks, can be loaded from disk.
 /// </summary>
-public sealed partial class BlockModel : IResource, ILocated
+public sealed partial class BlockModel : IResource, ILocated // todo: rename to Model, check all usages of the word block in here
 {
     private const String BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
 
@@ -228,6 +228,8 @@ public sealed partial class BlockModel : IResource, ILocated
 
         return result;
     }
+    
+    // todo: unify the orientation based and the side based rotations, sided might be better overall but needs param whether to rotate textures too
 
     /// <summary>
     ///     Create models for each orientation.
@@ -235,7 +237,9 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom textures should be rotated.</param>
     /// <returns>All model versions.</returns>
     public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllOrientations(
-        Boolean rotateTopAndBottomTexture)
+        Boolean rotateTopAndBottomTexture) 
+        // todo: find out when and why this parameter is used, maybe an abstraction is possible
+        // todo: probably for all blocks that use Modelled it can be true and for all that combine meshes on their own it can be false
     {
         BlockModel north = this;
 
@@ -372,7 +376,7 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <summary>
     ///     Lock the model. This will prevent modifications to the model, but combining with other models will be faster.
     /// </summary>
-    public void Lock(ITextureIndexProvider textureIndexProvider)
+    public void Lock(ITextureIndexProvider textureIndexProvider) // todo: remove this whole thing
     {
         if (lockedQuads != null)
             throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
@@ -435,7 +439,7 @@ public sealed partial class BlockModel : IResource, ILocated
     /// <param name="models">The models to combine.</param>
     /// <param name="textureIndexProvider">The texture index provider.</param>
     /// <returns>The combined mesh.</returns>
-    public static BlockMesh GetCombinedMesh(ITextureIndexProvider textureIndexProvider, params BlockModel[] models)
+    public static BlockMesh GetCombinedMesh(ITextureIndexProvider textureIndexProvider, params BlockModel[] models) // todo: should return model and not mesh
     {
         Int32 totalQuadCount = models.Sum(model => model.Quads.Length);
         Boolean locked = models.Aggregate(seed: true, (current, model) => current && model.lockedQuads != null);
@@ -483,9 +487,6 @@ public sealed partial class BlockModel : IResource, ILocated
 
     [LoggerMessage(EventId = LogID.BlockModel + 0, Level = LogLevel.Warning, Message = "Failed to save block model")]
     private static partial void LogFailedToSaveBlockModel(ILogger logger, Exception exception);
-
-    [LoggerMessage(EventId = LogID.BlockModel + 1, Level = LogLevel.Warning, Message = "Loading of models is currently disabled, fallback will be used instead")]
-    private static partial void LogLoadingModelsDisabled(ILogger logger);
 
     #endregion LOGGING
 }

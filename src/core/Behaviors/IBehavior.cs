@@ -6,7 +6,9 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Behaviors;
@@ -27,14 +29,14 @@ public interface IBehavior
     /// <summary>
     ///     Validates the behavior.
     /// </summary>
-    public void Validate();
+    public void Validate(IResourceContext context);
 }
 
 /// <summary>
 ///     Specializations of <see cref="IBehavior" /> that include a subject.
 /// </summary>
 /// <typeparam name="TSubject">The subject type that the behavior applies to.</typeparam>
-public interface IBehavior<out TSubject> : IBehavior, IEventSubject
+public interface IBehavior<out TSubject> : IBehavior, IEventSubject, IAspectable
 {
     /// <summary>
     ///     Get the subject that this behavior applies to.

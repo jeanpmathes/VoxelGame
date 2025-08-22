@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Visuals;
 ///     A mesh for a complex block, capable of defining more complex shapes than just a cube.
 ///     The mesh is defined by a set of quads.
 /// </summary>
-public class BlockMesh
+public class BlockMesh // todo: rename to mesh
 {
     private readonly Quad[] quads;
 
@@ -140,21 +140,6 @@ public class BlockMesh
         foreach (BlockMesh mesh in meshes) quads.AddRange(mesh.quads);
 
         return new BlockMesh(quads.ToArray());
-    }
-
-    /// <summary>
-    ///     Get the mesh as mesh data for complex meshing.
-    /// </summary>
-    /// <param name="tint">An optional tint.</param>
-    /// <param name="isAnimated">Whether the model is animated.</param>
-    /// <returns>The mesh data.</returns>
-    public IComplex.MeshData GetMeshData(ColorS? tint = null, Boolean isAnimated = false)
-    {
-        return new IComplex.MeshData(quads)
-        {
-            Tint = tint ?? ColorS.None,
-            IsAnimated = isAnimated
-        };
     }
 
     /// <summary>

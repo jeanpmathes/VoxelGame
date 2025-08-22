@@ -1,0 +1,230 @@
+﻿// <copyright file="Composite.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
+using OpenTK.Mathematics;
+using VoxelGame.Core.Actors;
+using VoxelGame.Core.Behaviors;
+using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Behaviors.Aspects.Strategies;
+using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Toolkit.Utilities;
+
+namespace VoxelGame.Core.Logic.Elements.Behaviors;
+
+/// <summary>
+/// A block that is a composite of multiple parts, occupying multiple block positions.
+/// </summary>
+public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Block>
+{
+    private IAttribute<Vector3i> Part => part ?? throw Exceptions.NotInitialized(nameof(part));
+    private IAttribute<Vector3i>? part;
+    
+    private Composite(Block subject) : base(subject)
+    {
+        MaximumSizeInitializer = Aspect<Vector3i, Block>.New<Exclusive<Vector3i, Block>>(nameof(MaximumSizeInitializer), this);
+
+        Size = Aspect<Vector3i, State>.New<Exclusive<Vector3i, State>>(nameof(Size), this);
+        
+        subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
+    }
+
+    /// <inheritdoc />
+    public static Composite Construct(Block input)
+    {
+        return new Composite(input);
+    }
+    
+    /// <summary>
+    /// Maximum size of the composite block in block positions.
+    /// Individual states can occupy a smaller size than this, but not larger.
+    /// </summary>
+    public Vector3i MaximumSize { get; private set; } = Vector3i.One;
+    
+    /// <summary>
+    /// Aspect used to initialize the <see cref="MaximumSize"/> property.
+    /// </summary>
+    public Aspect<Vector3i, Block> MaximumSizeInitializer { get; }
+    
+    /// <summary>
+    /// The actual size of a given state of the block.
+    /// </summary>
+    public Aspect<Vector3i, State> Size { get; }
+
+    /// <inheritdoc />
+    public override void OnInitialize(BlockProperties properties)
+    {
+        MaximumSize = MaximumSizeInitializer.GetValue(Vector3i.One, Subject);
+        
+        properties.IsReplaceable.ContributeConstant(value: false, exclusive: true);
+    }
+
+    /// <inheritdoc />
+    protected override void OnValidate(IResourceContext context)
+    {
+        if (MaximumSize.X <= 0 || MaximumSize.Y <= 0 || MaximumSize.Z <= 0)
+        {
+            context.ReportWarning(this, "Composite block size must be greater than zero in every dimension");
+        }
+        
+        if (MaximumSize.X > Section.Size || MaximumSize.Y > Section.Size || MaximumSize.Z > Section.Size)
+        {
+            context.ReportWarning(this, "Composite block size must not exceed section size in any dimension");
+        }
+        
+        MaximumSize = Vector3i.Clamp(MaximumSize, Vector3i.One, new Vector3i(Section.Size));
+        
+        if (MaximumSize == Vector3i.One)
+        {
+            context.ReportWarning(this, "Composite block size is set to one, which is equivalent to a normal block");
+        }
+    }
+
+    /// <inheritdoc />
+    public override void DefineState(IStateBuilder builder)
+    {
+        part = builder.Define(nameof(part)).Vector3i(MaximumSize).Attribute();
+    }
+
+    /// <inheritdoc />
+    public override void SubscribeToEvents(IEventBus bus)
+    {
+        bus.Subscribe<Block.PlacementMessage>(OnPlacement);
+        bus.Subscribe<Block.DestructionMessage>(OnDestruction);
+        bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
+    }
+
+    private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
+    {
+        (World world, Vector3i position, Actor? _) = context;
+        
+        Vector3i size = Size.GetValue(MaximumSize, Subject.GetPlacementState(world, position, context.actor));
+        
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            BlockInstance? block = world.GetBlock(position + (x, y, z));
+
+            if (block?.IsReplaceable != true)
+                return false;
+            
+            // todo: add an aspect similar to IsPlacementAllowed on block but specially for composite blocks
+            // todo: it should also receive the part position in the context
+            // todo: ----> use the conditional require on behaviors to conditionally enable functionality
+            // todo: use this in Plant behavior to check all Y = 0 blocks whether ground is plantable [also have a isComposite field to skip non-composite checks/events then]
+            // todo: use this in Grounded behavior to check all Y = 0 blocks whether ground is OK (also find a way to perform completion for each position - have a new composite placement complete event that also contains the part position) [also have a isComposite field to skip non-composite checks/events then]
+            // todo: go through all other placement aspects and event subscriptions and see if they need to be adapted for composite blocks
+        }
+
+        return true;
+    }
+    
+    private void OnPlacement(Block.PlacementMessage message)
+    {
+        State state = Subject.GetPlacementState(message.World, message.Position, message.Actor);
+        Vector3i size = Size.GetValue(MaximumSize, state);
+        
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            Vector3i position = message.Position + (x, y, z);
+            
+            state = Subject.GetPlacementState(message.World, position, message.Actor);
+            state.Set(Part, (x, y, z));
+            
+            message.World.SetBlock(new BlockInstance(state), position);
+        }
+    }
+    
+    private void OnDestruction(Block.DestructionMessage message)
+    {
+        Vector3i size = Size.GetValue(MaximumSize, message.State);
+        
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            Vector3i position = message.Position + (x, y, z);
+            message.World.SetDefaultBlock(position);
+        }
+    }
+    
+    private void OnContentUpdate(Block.ContentUpdateMessage message)
+    {
+        State oldState = message.OldContent.Block.State;
+        State newState = message.NewContent.Block.State;
+        
+        Vector3i oldSize = Size.GetValue(MaximumSize, oldState);
+        Vector3i newSize = Size.GetValue(MaximumSize, newState);
+
+        if (oldSize != newSize)
+            ResizeComposite(message.World, message.Position - GetPartPosition(oldState), oldSize, newSize, newState);
+        else if (message.OldContent.Block.State != message.NewContent.Block.State)
+            SetStateOnAllParts(message.World, message.NewContent.Block.State, newSize, message.Position - GetPartPosition(oldState));
+    }
+
+    private void ResizeComposite(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, State state)
+    {
+        Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
+        
+        // todo: check if growing larger in at least one dimension, if so check if new positions can be replaced
+        // todo: if not, restore the old state and then destroy the composite block
+        
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            Vector3i current = position + (x, y, z);
+            
+            Boolean inOld = x < oldSize.X && y < oldSize.Y && z < oldSize.Z;
+            Boolean inNew = x < newSize.X && y < newSize.Y && z < newSize.Z;
+            
+            if (inOld && inNew)
+            {
+                state.Set(Part, (x, y, z));
+                world.SetBlock(new BlockInstance(state), current);
+            }
+            else if (inOld && !inNew)
+            {
+                world.SetDefaultBlock(current);
+            }
+            else if (!inOld && inNew)
+            {
+                state.Set(Part, (x, y, z));
+                world.SetBlock(new BlockInstance(state), current);
+            }
+        }
+    }
+    
+    private void SetStateOnAllParts(World world, State state, Vector3i size, Vector3i root)
+    {
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            Vector3i current = root + (x, y, z);
+            
+            state.Set(Part, (x, y, z));
+            
+            world.SetBlock(new BlockInstance(state), current);
+        }
+    }
+    
+    /// <summary>
+    /// Get which part the block state is in the composite block.
+    /// </summary>
+    /// <param name="state">The state of the block to get the part position for.</param>
+    /// <returns>The part position of the block in the composite block.</returns>
+    public Vector3i GetPartPosition(State state)
+    {
+        return state.Get(Part);
+    }
+}

@@ -9,11 +9,9 @@ using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Fluids;
 
@@ -64,7 +62,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         return new OverlayTexture
         {
-            TextureIdentifier = mainTexture,
+            TextureIndex = mainTexture,
             Tint = hasNeutralTint ? ColorS.Neutral : ColorS.None,
             IsAnimated = true
         };
@@ -102,9 +100,9 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <inheritdoc />
     protected override void ScheduledUpdate(World world, Vector3i position, FluidInstance instance)
     {
-        Block block = world.GetBlock(position)?.Block ?? Blocks.Instance.Air;
+        Block block = world.GetBlock(position)?.Block ?? Blocks.Instance.Core.Air;
 
-        if (block is IFillable fillable) ValidLocationFlow(world, position, instance.Level, fillable);
+        if (block.Get<Fillable>() is {} fillable) ValidLocationFlow(world, position, instance.Level, fillable);
         else InvalidLocationFlow(world, position, instance.Level);
     }
 
@@ -131,7 +129,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         SpreadOrDestroyFluid(world, position, (FluidLevel) remaining);
     }
 
-    private void ValidLocationFlow(World world, Vector3i position, FluidLevel level, IFillable current)
+    private void ValidLocationFlow(World world, Vector3i position, FluidLevel level, Fillable current)
     {
         if (FlowVertical(
                 world,
@@ -150,19 +148,15 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         world.ModifyFluid(isStatic: true, position);
     }
 
-    private Boolean FlowVertical(World world, Vector3i position, IFillable? currentFillable, FluidLevel level,
+    private Boolean FlowVertical(World world, Vector3i position, Fillable? currentFillable, FluidLevel level,
         VerticalFlow flow, Boolean handleContact, out Int32 remaining)
     {
         Content? content = world.GetContent(
             position + flow.Direction());
-
-        if (content is not ({Block: IFillable verticalFillable}, var fluidVertical)
-            || !verticalFillable.IsInflowAllowed(
-                world,
-                position + flow.Direction(),
-                flow.EntrySide(),
-                this)
-            || !(currentFillable?.IsOutflowAllowed(world, position, flow.ExitSide()) ?? true))
+        
+        if (content?.Block.Block.Get<Fillable>() is not {} verticalFillable || content is not { Fluid: var fluidVertical }
+                                                                            || !verticalFillable.CanInflow(world, position + flow.Direction(), flow.EntrySide(), this)
+                                                                            || !(currentFillable?.CanOutflow(world, position, flow.ExitSide(), this) ?? true))
         {
             remaining = (Int32) level;
 
@@ -198,7 +192,6 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 Vector3i position1 = position + flow.Direction();
 
                 world.SetFluid(this.AsInstance(fluidVertical.Level + (Int32) level + 1, isStatic: false), position1);
-
                 world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
 
                 remaining = -1;
@@ -208,7 +201,6 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 Vector3i position1 = position + flow.Direction();
 
                 world.SetFluid(this.AsInstance(isStatic: false), position1);
-
                 world.SetFluid(this.AsInstance(level - volume - 1, isStatic: false), position);
 
                 remaining = (Int32) (level - volume - 1);
@@ -238,27 +230,22 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         return false;
     }
 
-    private Boolean TryPuddleFlow(World world, Vector3i position, IFillable currentFillable)
+    private Boolean TryPuddleFlow(World world, Vector3i position, Fillable currentFillable)
     {
         Boolean fluidBelowIsNone = world.GetFluid(position + FlowDirection)?.Fluid == Elements.Fluids.Instance.None;
 
         foreach (Orientation orientation in Orientations.All)
         {
-            if (!currentFillable.IsOutflowAllowed(world, position, orientation.ToSide())) continue;
+            if (!currentFillable.CanOutflow(world, position, orientation.ToSide(), this)) continue;
 
             Vector3i neighborPosition = orientation.Offset(position);
 
             Content? content = world.GetContent(neighborPosition);
 
-            if (content is not ({Block: IFillable neighborFillable}, var neighborFluid)
-                || !AllowsFlowTrough(
-                    neighborFillable,
-                    world,
-                    neighborPosition,
-                    orientation.Opposite().ToSide(),
-                    Direction.ExitSide())
-                || neighborFluid.Fluid != Elements.Fluids.Instance.None
-                || !CheckLowerPosition(neighborPosition + FlowDirection)) continue;
+            if (content?.Block.Block.Get<Fillable>() is not {} neighborFillable || content is not {Fluid: var neighborFluid}
+                                                                                || !AllowsFlowTrough(neighborFillable, world, neighborPosition, orientation.Opposite().ToSide(), Direction.ExitSide())
+                                                                                || neighborFluid.Fluid != Elements.Fluids.Instance.None
+                                                                                || !CheckLowerPosition(neighborPosition + FlowDirection)) continue;
 
             world.SetFluid(this.AsInstance(FluidLevel.One, isStatic: false), neighborPosition);
             world.SetFluid(Elements.Fluids.Instance.None.AsInstance(), position);
@@ -274,20 +261,16 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         {
             Content? lowerContent = world.GetContent(lowerPosition);
 
-            if (lowerContent is not ({Block: IFillable fillable}, var lowerFluid)) return false;
+            if (lowerContent?.Block.Block.Get<Fillable>() is not {} fillable || lowerContent is not {Fluid: var lowerFluid}) return false;
 
             Boolean canFlowWithoutCapacity = fluidBelowIsNone && lowerFluid.Fluid != this;
 
-            return fillable.IsInflowAllowed(
-                       world,
-                       lowerPosition,
-                       Direction.EntrySide(),
-                       this)
+            return fillable.CanInflow(world, lowerPosition, Direction.EntrySide(), this)
                    && (HasCapacity(lowerFluid) || canFlowWithoutCapacity);
         }
     }
 
-    private Boolean FlowHorizontal(World world, Vector3i position, FluidLevel level, IFillable currentFillable)
+    private Boolean FlowHorizontal(World world, Vector3i position, FluidLevel level, Fillable currentFillable)
     {
         Vector3i horizontalPosition = position;
         var isHorStatic = false;
@@ -295,7 +278,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         if (Orientations.ShuffledStart(position)
             .Any(orientation => CheckNeighbor(
-                currentFillable.IsOutflowAllowed(world, position, orientation.ToSide()),
+                currentFillable.CanOutflow(world, position, orientation.ToSide(), this),
                 orientation.Offset(position),
                 orientation.Opposite().ToSide()))) return true;
 
@@ -320,28 +303,29 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             Content? neighborContent = world.GetContent(neighborPosition);
 
             if (!outflowAllowed ||
-                neighborContent is not ({Block: IFillable neighborFillable}, var fluidNeighbor) ||
-                !neighborFillable.IsInflowAllowed(world, neighborPosition, side, this)) return false;
+                neighborContent?.Block.Block.Get<Fillable>() is not {} neighborFillable || neighborContent is not {Fluid: var neighborFluid} ||
+                !neighborFillable.CanInflow(world, neighborPosition, side, this)) return false;
 
-            Boolean isStatic = fluidNeighbor.IsStatic;
+            Boolean isStatic = neighborFluid.IsStatic;
 
-            if (fluidNeighbor.Fluid == Elements.Fluids.Instance.None)
+            if (neighborFluid.Fluid == Elements.Fluids.Instance.None)
             {
                 Vector3i belowNeighborPosition = neighborPosition + FlowDirection;
 
                 Content? belowNeighborContent = world.GetContent(belowNeighborPosition);
 
-                if (belowNeighborContent is ({Block: IFillable belowNeighborFillable}, var belowNeighborFluid)
+                if (belowNeighborContent?.Block.Block.Get<Fillable>() is {} belowNeighborFillable && belowNeighborContent is {Fluid: var belowNeighborFluid}
                     && belowNeighborFluid.Fluid == Elements.Fluids.Instance.None
-                    && belowNeighborFillable.IsInflowAllowed(
+                    && belowNeighborFillable.CanInflow(
                         world,
                         belowNeighborPosition,
                         Direction.EntrySide(),
                         this)
-                    && neighborFillable.IsOutflowAllowed(
+                    && neighborFillable.CanOutflow(
                         world,
                         neighborPosition,
-                        Direction.ExitSide()))
+                        Direction.ExitSide(),
+                        this))
                 {
                     world.SetFluid(this.AsInstance(level, isStatic: false), belowNeighborPosition);
 
@@ -367,19 +351,19 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 return true;
             }
 
-            if (fluidNeighbor.Fluid != this)
+            if (neighborFluid.Fluid != this)
             {
                 if (Elements.Fluids.ContactManager.HandleContact(
                         world,
                         this.AsInstance(level),
                         position,
-                        fluidNeighbor,
+                        neighborFluid,
                         neighborPosition)) return true;
             }
-            else if (fluidNeighbor.Fluid == this && level > fluidNeighbor.Level &&
-                     fluidNeighbor.Level < levelHorizontal)
+            else if (neighborFluid.Fluid == this && level > neighborFluid.Level &&
+                     neighborFluid.Level < levelHorizontal)
             {
-                Boolean neighborHasSignificantlyLowerLevel = fluidNeighbor.Level != level - 1;
+                Boolean neighborHasSignificantlyLowerLevel = neighborFluid.Level != level - 1;
 
                 Boolean neighborHasLessPressure = level == FluidLevel.Eight && !IsAtSurface(world, position) &&
                                                   IsAtSurface(world, neighborPosition);
@@ -392,7 +376,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                 if (!allowsFlow) return false;
 
-                levelHorizontal = fluidNeighbor.Level;
+                levelHorizontal = neighborFluid.Level;
                 horizontalPosition = neighborPosition;
                 isHorStatic = isStatic;
 
@@ -406,12 +390,12 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         if (level < FluidLevel.Three) return false;
 
-        (Vector3i position, FluidInstance fluid, IFillable fillable)? potentialTarget =
+        (Vector3i position, FluidInstance fluid, Fillable fillable)? potentialTarget =
             SearchFlowTarget(world, position, level - 2, range: 4);
 
         if (potentialTarget == null) return false;
 
-        var target = ((Vector3i position, FluidInstance fluid, IFillable fillable)) potentialTarget;
+        var target = ((Vector3i position, FluidInstance fluid, Fillable fillable)) potentialTarget;
 
         world.SetFluid(this.AsInstance(target.fluid.Level + 1, isStatic: false), target.position);
         if (target.fluid.IsStatic) ScheduleUpdate(world, target.position);
@@ -440,8 +424,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         Content? neighborContent = world.GetContent(neighborPosition);
 
-        if (neighborContent is not ({Block: IFillable neighborFillable}, var neighborFluid) ||
-            !neighborFillable.IsInflowAllowed(world, neighborPosition, side.Opposite(), this)) return;
+        if (neighborContent?.Block.Block.Get<Fillable>() is not {} neighborFillable || neighborContent is not {Fluid: var neighborFluid} ||
+            !neighborFillable.CanInflow(world, neighborPosition, side.Opposite(), this)) return;
 
         Boolean isStatic = neighborFluid.IsStatic;
 
@@ -474,18 +458,11 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         }
     }
 
-    private Boolean AllowsFlowTrough(IFillable fillable, World world, Vector3i position, Side incomingSide,
+    private Boolean AllowsFlowTrough(Fillable fillable, World world, Vector3i position, Side incomingSide,
         Side outgoingSide)
     {
-        return fillable.IsInflowAllowed(
-                   world,
-                   position,
-                   incomingSide,
-                   this)
-               && fillable.IsOutflowAllowed(
-                   world,
-                   position,
-                   outgoingSide);
+        return fillable.CanInflow(world, position, incomingSide, this)
+               && fillable.CanOutflow(world, position, outgoingSide, this);
     }
 
     private Boolean HasCapacity(FluidInstance fluid)

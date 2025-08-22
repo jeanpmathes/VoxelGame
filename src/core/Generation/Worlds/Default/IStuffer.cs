@@ -6,7 +6,6 @@
 
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities.Units;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
@@ -28,7 +27,7 @@ public interface IStuffer
     /// </summary>
     public sealed class Ice : IStuffer
     {
-        private readonly Content content = new(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
+        private readonly Content content = new(new BlockInstance(Blocks.Instance.Environment.Ice.States.GenerationDefault), FluidInstance.Default); // todo: check that state is with correct height or find a way to pass it to there, similar problem as with snow in cover
 
         /// <inheritdoc />
         public Content GetContent(Temperature temperature)
@@ -43,7 +42,7 @@ public interface IStuffer
     public sealed class Water : IStuffer
     {
         private readonly Content water = new(BlockInstance.Default, Fluids.Instance.FreshWater.AsInstance());
-        private readonly Content ice = new(Blocks.Instance.Specials.Ice.FullHeightInstance, FluidInstance.Default);
+        private readonly Content ice = new(new BlockInstance(Blocks.Instance.Environment.Ice.States.GenerationDefault), FluidInstance.Default); // todo: check that state is with correct height or find a way to pass it to there, similar problem as with snow in cover
 
         /// <inheritdoc />
         public Content GetContent(Temperature temperature)

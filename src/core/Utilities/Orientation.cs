@@ -152,7 +152,7 @@ public static class OrientationExtensions
     /// <summary>
     ///     Offset a vector along an orientation.
     /// </summary>
-    public static Vector3i Offset(this Orientation orientation, Vector3i vector)
+    public static Vector3i Offset(this Orientation orientation, Vector3i vector) // todo: maybe flip parameter order, same for side
     {
         return vector + orientation.ToVector3i();
     }

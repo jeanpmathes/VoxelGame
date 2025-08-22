@@ -13,20 +13,21 @@ namespace VoxelGame.Core.Behaviors.Events;
 /// <summary>
 ///     The event system is responsible for managing events and their handlers.
 /// </summary>
-public class EventSystem : IEventRegistry, IEventBus
+public class EventSystem(IResourceContext context) : IEventRegistry, IEventBus
 {
     private readonly Dictionary<Type, Event> events = new();
-
+ 
     /// <inheritdoc />
-    public void Subscribe<TEventMessage>(Action<TEventMessage> handler, IResourceContext context) where TEventMessage : IEventMessage
+    public void Subscribe<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : IEventMessage
     {
         if (events.TryGetValue(typeof(TEventMessage), out Event? @event) && @event is Event<TEventMessage> specific) specific.Subscribe(handler, context);
 
         // If the event is not defined, just ignore the subscription.
     }
 
+
     /// <inheritdoc />
-    public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single, IResourceContext context) where TEventMessage : IEventMessage
+    public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single) where TEventMessage : IEventMessage
     {
         if (events.TryGetValue(typeof(TEventMessage), out Event? existingEvent))
         {
@@ -61,5 +62,7 @@ public class EventSystem : IEventRegistry, IEventBus
             else
                 handlers.Add(handler);
         }
+        
+        public Boolean HasSubscribers => handlers.Count > 0;
     }
 }

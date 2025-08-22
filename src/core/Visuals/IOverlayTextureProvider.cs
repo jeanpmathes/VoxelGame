@@ -12,10 +12,10 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     Describes an overlay texture.
 /// </summary>
-/// <param name="TextureIdentifier">The texture identifier, in the texture space of the content type.</param>
+/// <param name="TextureIndex">The texture index, in the texture space of the content type.</param>
 /// <param name="Tint">The tint color.</param>
 /// <param name="IsAnimated">Whether the texture is animated.</param>
-public record struct OverlayTexture(Int32 TextureIdentifier, ColorS Tint, Boolean IsAnimated);
+public record struct OverlayTexture(Int32 TextureIndex, ColorS Tint, Boolean IsAnimated);
 
 /// <summary>
 ///     Provides an overlay texture index.

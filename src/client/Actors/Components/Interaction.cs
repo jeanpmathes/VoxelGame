@@ -65,7 +65,7 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
 
         if (input.IsInteractionBlocked || !targetedBlock.Block.IsInteractable)
         {
-            if (!targetedBlock.Block.IsReplaceable) placePosition = targeting.Side.Offset(placePosition);
+            if (!targetedBlock.IsReplaceable) placePosition = targeting.Side.Offset(placePosition);
 
             // Prevent block placement if the block would intersect the player.
             if (selection is {IsBlockMode: true, ActiveBlock.IsSolid: true} && player.Body.Collider.Intersects(
@@ -78,7 +78,7 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
         }
         else if (targetedBlock.Block.IsInteractable)
         {
-            targetedBlock.Block.ActorInteract(player, targetedPosition);
+            targetedBlock.Block.OnActorInteract(player, targetedPosition);
 
             input.RegisterInteraction();
         }
@@ -98,7 +98,7 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
         {
             var level = FluidLevel.One;
 
-            if (!targetedBlock.Block.IsReplaceable)
+            if (!targetedBlock.IsReplaceable)
                 position = targeting.Side.Offset(position);
 
             player.World.GetFluid(position)?.Fluid.Take(player.World, position, ref level);

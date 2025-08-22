@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Behaviors;
@@ -62,11 +63,18 @@ public static class BehaviorSystem<TSubject, TBehavior>
     /// <summary>
     ///     Bake the entire system. This may only be called once.
     /// </summary>
+    /// <param name="context">The resource context in which the baking occurs.</param>
     /// <returns>The number of unique behavior types registered in the system.</returns>
-    public static Int32 Bake()
+    public static Int32 Bake(IResourceContext context)
     {
         EnsureNotBaked();
         isBaked = true;
+
+        foreach ((TSubject subject, _) in subjects)
+        {
+            SetupEvents(subject, context);
+            Validate(subject, context);
+        }
 
         Int32 knownCount = knownTypes.Count;
         var array = new TBehavior?[knownCount];
@@ -81,19 +89,16 @@ public static class BehaviorSystem<TSubject, TBehavior>
                 array[id] = behavior;
                 maxID = Math.Max(maxID, id);
             }
-
-            SetupEvents(subject);
-            Validate(subject);
-
+            
             subject.Bake(array.Take(maxID + 1).ToArray());
         }
 
         return knownCount;
     }
 
-    private static void SetupEvents(TSubject subject)
+    private static void SetupEvents(TSubject subject, IResourceContext context)
     {
-        EventSystem eventSystem = new();
+        EventSystem eventSystem = new(context);
 
         subject.DefineEvents(eventSystem);
 
@@ -106,12 +111,12 @@ public static class BehaviorSystem<TSubject, TBehavior>
             behavior.SubscribeToEvents(eventSystem);
     }
 
-    private static void Validate(TSubject subject)
+    private static void Validate(TSubject subject, IResourceContext context)
     {
-        subject.Validate();
+        subject.Validate(context);
         
         foreach (TBehavior behavior in subject.Behaviors)
-            behavior.Validate();
+            behavior.Validate(context);
     }
 
     private static void EnsureNotBaked()

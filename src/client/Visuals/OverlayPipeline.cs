@@ -120,7 +120,7 @@ public sealed class OverlayPipeline : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        textureID = overlay.TextureIdentifier;
+        textureID = overlay.TextureIndex;
         tint = overlay.Tint;
         isAnimated = overlay.IsAnimated;
     }

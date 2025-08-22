@@ -16,7 +16,6 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-#pragma warning disable CA1822
 
 /// <summary>
 ///     Export a structure to a file.

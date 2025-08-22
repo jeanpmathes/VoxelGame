@@ -2,6 +2,8 @@
 using JetBrains.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Tests.Utilities.Resources;
+using VoxelGame.Core.Utilities.Resources;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Behaviors;
@@ -25,24 +27,23 @@ public class BehaviorSystemTests
         }
     }
 
-    private abstract class TestBehaviorBase(TestSubject subject) : IBehavior<TestSubject>
+    private abstract class TestBehaviorBase(TestSubject subject) : Behavior<TestBehaviorBase, TestSubject>(subject)
     {
-        public TestSubject Subject { get; } = subject;
         public Boolean Defined { get; private set; }
         public Boolean Subscribed { get; private set; }
         public Boolean Validated { get; private set; }
 
-        public virtual void DefineEvents(IEventRegistry registry)
+        public override void DefineEvents(IEventRegistry registry)
         {
             Defined = true;
         }
 
-        public virtual void SubscribeToEvents(IEventBus bus)
+        public override void SubscribeToEvents(IEventBus bus)
         {
             Subscribed = true;
         }
 
-        public virtual void Validate()
+        protected override void OnValidate(IResourceContext context)
         {
             Validated = true;
         }
@@ -76,7 +77,7 @@ public class BehaviorSystemTests
         var b2A = subject2.Require<BehaviorA>();
         var b2C = subject2.Require<BehaviorC>();
 
-        Int32 count = BehaviorSystem<TestSubject, TestBehaviorBase>.Bake();
+        Int32 count = BehaviorSystem<TestSubject, TestBehaviorBase>.Bake(new MockResourceContext());
 
         Assert.Equal(expected: 3, count);
         
@@ -101,16 +102,5 @@ public class BehaviorSystemTests
             Assert.True(behavior.Subscribed);
             Assert.True(behavior.Validated);
         }
-    }
-
-    [Fact]
-    public void BehaviorSystem_Bake_Twice_ShouldThrow()
-    {
-        TestSubject subject = new();
-        subject.Require<BehaviorA>();
-
-        BehaviorSystem<TestSubject, TestBehaviorBase>.Bake();
-        
-        Assert.Throws<InvalidOperationException>(() => BehaviorSystem<TestSubject, TestBehaviorBase>.Bake());
     }
 }

@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using VoxelGame.Client.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
-#pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the player flying speed.

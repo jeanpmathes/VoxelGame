@@ -9,9 +9,9 @@ using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class BooleanAttribute : Attribute<Boolean>
+internal class BooleanAttribute : AttributeImplementation<Boolean>
 {
-    public override UInt64 Multiplicity => 2;
+    public override Int32 Multiplicity => 2;
 
     public override Boolean Retrieve(Int32 index)
     {

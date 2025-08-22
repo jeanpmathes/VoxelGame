@@ -6,7 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Core.Logic.Elements.New;
+using System.Diagnostics;
+using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Logic.Attributes;
 
@@ -15,8 +16,9 @@ namespace VoxelGame.Core.Logic.Attributes;
 /// </summary>
 public class StateSet
 {
-    private readonly UInt64 setOffset;
-    private readonly UInt64 generationDefault;
+    private readonly UInt32 setOffset;
+    private readonly Int32 placementDefault;
+    private readonly Int32 generationDefault; // todo: use this in world generation
     private readonly IReadOnlyList<IScoped> entries;
 
     /// <summary>
@@ -25,12 +27,16 @@ public class StateSet
     /// <param name="block">The block that this state set belongs to.</param>
     /// <param name="setOffset">The offset of the state IDs in this set within the global state ID space.</param>
     /// <param name="stateCount">The number of states in this set.</param>
+    /// <param name="placementDefault">The default state ID to use when the block is placed by the player.</param>
     /// <param name="generationDefault">The default state ID to use when the block is placed by world generation.</param>
     /// <param name="entries">The entries in this state set, which can be either attributes or nested scopes.</param>
-    public StateSet(Block block, UInt64 setOffset, UInt64 stateCount, UInt64 generationDefault, IReadOnlyList<IScoped> entries)
+    public StateSet(Block block, UInt32 setOffset, UInt32 stateCount, Int32 placementDefault, Int32 generationDefault, IReadOnlyList<IScoped> entries)
     {
+        Debug.Assert(stateCount <= Int32.MaxValue);
+        
         this.setOffset = setOffset;
         this.entries = entries;
+        this.placementDefault = placementDefault;
         this.generationDefault = generationDefault;
 
         Count = stateCount;
@@ -40,7 +46,7 @@ public class StateSet
     /// <summary>
     /// The number of states in the set.
     /// </summary>
-    public UInt64 Count { get; }
+    public UInt32 Count { get; }
 
     /// <summary>
     ///     The block that this state set belongs to.
@@ -57,6 +63,11 @@ public class StateSet
     ///     The default state is not necessarily the best state to place blocks in.
     /// </summary>
     public State Default => new(this, Index: 0);
+    
+    /// <summary>
+    ///     Get the default state for placement.
+    /// </summary>
+    public State PlacementDefault => new(this, placementDefault);
 
     /// <summary>
     ///     Get the default state for world generation.
@@ -68,10 +79,43 @@ public class StateSet
     /// </summary>
     /// <param name="id">The state ID, which is a number across all blocks.</param>
     /// <returns>The state corresponding to the ID.</returns>
-    public State GetState(UInt64 id)
+    public State GetStateByID(UInt32 id)
     {
-        // todo: when calling, do not forget to mask out fluid info 
+        return new State(this, (Int32)(id - setOffset));
+    }
+    
+    /// <summary>
+    /// Get the state for a given index.
+    /// </summary>
+    /// <param name="index">The state index, which is a number greater or equal to 0 and less than <see cref="Count"/>.</param>
+    /// <returns>The state corresponding to the index.</returns>
+    public State GetStateByIndex(Int32 index) // todo: go through usages, replace with GetAllStates() if in a loop
+    {
+        Debug.Assert(index >= 0 && index < Count);
+        
+        return new State(this, index);
+    }
+    
+    /// <summary>
+    /// Get the state ID for a given state.
+    /// </summary>
+    /// <param name="state">The state to get the ID for.</param>
+    /// <returns>The state ID, which is a number across all blocks.</returns>
+    public static UInt32 GetStateID(State state)
+    {
+        return state.Owner.setOffset + (UInt32) state.Index;
+    }
 
-        return new State(this, id - setOffset);
+    /// <summary>
+    /// Get all states in this set.
+    /// Note that this will generate the states on the fly, so do not use this after loading.
+    /// </summary>
+    /// <returns>An enumerable of all states in this set.</returns>
+    public IEnumerable<State> GetAllStates()
+    {
+        for (var index = 0; index < Count; index++)
+        {
+            yield return GetStateByIndex(index);
+        }
     }
 }

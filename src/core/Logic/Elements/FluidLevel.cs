@@ -6,7 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
 namespace VoxelGame.Core.Logic.Elements;
 
@@ -77,7 +77,7 @@ public static class FluidLevelExtensions
     /// </summary>
     public static Int32 GetBlockHeight(this FluidLevel level)
     {
-        return IHeightVariable.GetBlockHeightFromFluidHeight((Int32) level);
+        return PartialHeight.GetBlockHeightFromFluidHeight((Int32) level);
     }
 
     /// <summary>
@@ -89,8 +89,8 @@ public static class FluidLevelExtensions
     /// <returns>The texture coordinates.</returns>
     public static (Vector2 min, Vector2 max) GetUVs(this FluidLevel level, Int32 skip, VerticalFlow flow)
     {
-        Single size = IHeightVariable.GetSize(level.GetBlockHeight());
-        Single skipped = IHeightVariable.GetSize(skip);
+        Single size = Behaviors.Meshables.PartialHeight.GetSize(level.GetBlockHeight());
+        Single skipped = Behaviors.Meshables.PartialHeight.GetSize(skip);
 
         return flow != VerticalFlow.Upwards
             ? (new Vector2(x: 0, skipped), new Vector2(x: 1, size))

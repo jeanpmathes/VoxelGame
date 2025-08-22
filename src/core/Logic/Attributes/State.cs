@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
 namespace VoxelGame.Core.Logic.Attributes;
 
@@ -14,20 +16,33 @@ namespace VoxelGame.Core.Logic.Attributes;
 /// Refers to the state of a block.
 /// </summary>
 /// <param name="Owner">The set of all states of the block.</param>
-/// <param name="Index">The index of the state in the set.</param>
-public record struct State(StateSet Owner, UInt64 Index)
+/// <param name="Index">The index of the state in the set of the owning block.</param>
+public record struct State(StateSet Owner, Int32 Index)
 {
+    /// <summary>
+    /// Get the state ID of this state.
+    /// It identifies this state uniquely across all states of all blocks.
+    /// </summary>
+    public UInt32 ID => StateSet.GetStateID(this);
+    
+    /// <summary>
+    /// Get the block that this state belongs to.
+    /// </summary>
+    public Block Block => Owner.Block;
+
+    /// <summary>
+    /// Ugly fix to pretend that some states can have a fluid associated with them.
+    /// </summary>
+    public Fluid? Fluid => Owner.Block.Has<Fillable>() && Index % 2 == 0 ? Fluids.Instance.FreshWater : null;
+
     /// <summary>
     ///     Get the properties of this state, which are the attributes and their values for this state.
     /// </summary>
     /// <returns>The properties of this state, containing the attributes and their values.</returns>
-    public Property CreateProperties()
+    public IEnumerable<Property> CreateProperties()
     {
-        List<Property> attributes = [];
-
-        foreach (IScoped entry in Owner.Entries) attributes.Add(entry.GetRepresentation(this));
-
-        return new Group($"State {Index} of {Owner.Block}", attributes);
+        foreach (IScoped entry in Owner.Entries) 
+            yield return entry.GetRepresentation(this);
     }
 
     /// <summary>
@@ -48,12 +63,33 @@ public record struct State(StateSet Owner, UInt64 Index)
     /// <param name="attribute">The attribute to set the value for.</param>
     /// <param name="value">The value to set for the attribute.</param>
     /// <typeparam name="TValue">The value type of the attribute.</typeparam>
-    public void Set<TValue>(IAttribute<TValue> attribute, TValue value)
+    public void Set<TValue>(IAttribute<TValue> attribute, TValue value) // todo: go through all State::Set and check if With would be better
     {
-        UInt64 oldIndex = attribute.GetStateIndex(attribute.GetValueIndex(Index));
-        Index -= oldIndex;
+        if (attribute.Multiplicity == 1)
+            return;
+        
+        Int32 oldIndex = Index;
+        
+        Int32 oldStateIndex = attribute.GetStateIndex(attribute.GetValueIndex(Index));
+        oldIndex -= oldStateIndex;
 
-        UInt64 newIndex = attribute.Set(value);
-        Index += newIndex;
+        Int32 newStateIndex = attribute.Set(value);
+        oldIndex += newStateIndex;
+        
+        Index = oldIndex;
+    }
+    
+    /// <summary>
+    /// Create a new state with the given attribute set to the given value.
+    /// </summary>
+    /// <param name="attribute">The attribute to set the value for.</param>
+    /// <param name="value">The value to set for the attribute.</param>
+    /// <typeparam name="TValue">The value type of the attribute.</typeparam>
+    /// <returns>A new state with the attribute set to the given value.</returns>
+    public State With<TValue>(IAttribute<TValue> attribute, TValue value) 
+    {
+        State newState = this;
+        newState.Set(attribute, value);
+        return newState;
     }
 }

@@ -11,7 +11,6 @@ using JetBrains.Annotations;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Provides help with using the commands.

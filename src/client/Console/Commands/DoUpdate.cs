@@ -10,7 +10,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Cause a random update to occur for a targeted position.

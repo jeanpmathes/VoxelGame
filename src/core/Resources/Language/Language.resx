@@ -666,14 +666,14 @@
     <data name="LimestoneWorked" xml:space="preserve">
         <value>Worked Limestone</value>
     </data>
-    <data name="GraniteWorked" xml:space="preserve">
-        <value>Worked Granite</value>
+    <data name="WorkedStone" xml:space="preserve">
+        <value>Worked Stone</value>
     </data>
     <data name="SandstoneWorked" xml:space="preserve">
         <value>Worked Sandstone</value>
     </data>
-    <data name="GraniteDecorated" xml:space="preserve">
-        <value>Decorated Granite</value>
+    <data name="DecoratedStone" xml:space="preserve">
+        <value>Decorated Stone</value>
     </data>
     <data name="LimestoneDecorated" xml:space="preserve">
         <value>Decorated Limestone</value>
@@ -684,11 +684,11 @@
     <data name="MarbleDecorated" xml:space="preserve">
         <value>Decorated Marble</value>
     </data>
-    <data name="GraniteCobbles" xml:space="preserve">
-        <value>Granite Cobbles</value>
+    <data name="Cobbles" xml:space="preserve">
+        <value>Cobbles</value>
     </data>
-    <data name="GranitePaving" xml:space="preserve">
-        <value>Granite Paving</value>
+    <data name="Paving" xml:space="preserve">
+        <value>Paving</value>
     </data>
     <data name="LimestonePaving" xml:space="preserve">
         <value>Limestone Paving</value>
@@ -708,11 +708,11 @@
     <data name="SandstonePaving" xml:space="preserve">
         <value>Sandstone Paving</value>
     </data>
-    <data name="GraniteRubble" xml:space="preserve">
-        <value>Granite Rubble</value>
+    <data name="Rubble" xml:space="preserve">
+        <value>Rubble</value>
     </data>
-    <data name="GraniteWall" xml:space="preserve">
-        <value>Granite Wall</value>
+    <data name="Wall" xml:space="preserve">
+        <value>Wall</value>
     </data>
     <data name="SandstoneRubble" xml:space="preserve">
         <value>Sandstone Rubble</value>
@@ -732,8 +732,8 @@
     <data name="MarbleWall" xml:space="preserve">
         <value>Marble Wall</value>
     </data>
-    <data name="GraniteBricks" xml:space="preserve">
-        <value>Granite Bricks</value>
+    <data name="Bricks" xml:space="preserve">
+        <value>Bricks</value>
     </data>
     <data name="SandstoneBricks" xml:space="preserve">
         <value>Sandstone Bricks</value>
@@ -744,8 +744,8 @@
     <data name="LimestoneBricks" xml:space="preserve">
         <value>Limestone Bricks</value>
     </data>
-    <data name="GraniteBrickWall" xml:space="preserve">
-        <value>Granite Brick Wall</value>
+    <data name="BrickWall" xml:space="preserve">
+        <value>Brick Wall</value>
     </data>
     <data name="LimestoneBrickWall" xml:space="preserve">
         <value>Limestone Brick Wall</value>
@@ -1119,17 +1119,11 @@
     <data name="Moss" xml:space="preserve">
         <value>Moss</value>
     </data>
-    <data name="RedFlower" xml:space="preserve">
+    <data name="FlowerRed" xml:space="preserve">
         <value>Red Flower</value>
     </data>
-    <data name="RedTallFlower" xml:space="preserve">
-        <value>Red Tall Flower</value>
-    </data>
-    <data name="YellowFlower" xml:space="preserve">
+    <data name="FlowerYellow" xml:space="preserve">
         <value>Yellow Flower</value>
-    </data>
-    <data name="YellowTallFlower" xml:space="preserve">
-        <value>Yellow Tall Flower</value>
     </data>
     <data name="Fern" xml:space="preserve">
         <value>Fern</value>
@@ -1151,5 +1145,8 @@
     </data>
     <data name="DevBlock" xml:space="preserve">
         <value>Developer Block</value>
+    </data>
+    <data name="Tall" xml:space="preserve">
+        <value>Tall</value>
     </data>
 </root>

@@ -58,6 +58,6 @@ public class SurfaceDecorator : Decorator
 
         Content below = grid.GetContent(position.Below()) ?? Content.Default;
 
-        return below.Block.IsSolidAndFull;
+        return below.Block.IsFullySolid;
     }
 }

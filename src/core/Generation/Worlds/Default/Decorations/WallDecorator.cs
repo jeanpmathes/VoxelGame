@@ -28,7 +28,7 @@ public class WallDecorator : Decorator
         {
             Content? neighbor = grid.GetContent(orientation.Offset(position));
 
-            if (neighbor?.Block.IsSolidAndFull == true) return true;
+            if (neighbor?.Block.IsFullySolid == true) return true;
         }
 
         return false;

@@ -10,10 +10,10 @@ using JetBrains.Annotations;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
-using VoxelGame.Core.Logic.Definitions.Legacy.Blocks.Conventions;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Conventions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 
@@ -58,10 +58,10 @@ public class SubBiomeLoader : IResourceLoader
 
         private static IEnumerable<Layer> Permafrost =>
         [
-            Layer.CreateSimple(Blocks.Instance.Permafrost, width: 27, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Environment.Permafrost, width: 27, isSolid: true),
             Layer.CreateLoose(width: 27),
             Layer.CreateGroundwater(width: 8),
-            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
         ];
 
         private static IEnumerable<Layer> SingleGroundwaterStone =>
@@ -76,10 +76,10 @@ public class SubBiomeLoader : IResourceLoader
         [
             Layer.CreateLoose(width: 3),
             Layer.CreateGroundwater(width: 6),
-            Layer.CreateSimple(Blocks.Instance.Clay, width: 3, isSolid: true),
+            Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 3, isSolid: true),
             Layer.CreateLoose(width: 33),
             Layer.CreateGroundwater(width: 18),
-            Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+            Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
         ];
 
         private static IEnumerable<Layer> DoubleGroundwaterStone =>
@@ -111,12 +111,12 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Stones.Limestone.Base, width: 26, isSolid: true),
                 Layer.CreateLoose(width: 37),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Stones.Limestone.Base, width: 21, isSolid: true)
             ]
         });
 
@@ -144,12 +144,12 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Stones.Limestone.Base, width: 26, isSolid: true),
                 Layer.CreateLoose(width: 37),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Stones.Limestone.Base, width: 21, isSolid: true)
             ]
         });
 
@@ -257,12 +257,12 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 26, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Stones.Limestone.Base, width: 26, isSolid: true),
                 Layer.CreateLoose(width: 37),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Stones.Limestone.Base, width: 21, isSolid: true)
             ]
         });
 
@@ -318,8 +318,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: false),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 4),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 5, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 4),
                 .. Permafrost
             ]
         });
@@ -335,8 +335,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: true),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 5, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 9),
                 .. Permafrost
             ]
         });
@@ -352,8 +352,8 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: false),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 4),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 5, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 4),
                 .. Permafrost
             ]
         });
@@ -406,9 +406,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
@@ -416,10 +416,10 @@ public class SubBiomeLoader : IResourceLoader
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mahogany)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Ebony)), 30.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Mahogany)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Teak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Ebony)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.RubberTree)), 30.0f),
                 (decorations.GetDecoration(roots), 1000.0f),
                 (decorations.GetDecoration(vines), 1.0f)
             ],
@@ -436,9 +436,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
@@ -446,10 +446,10 @@ public class SubBiomeLoader : IResourceLoader
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mahogany)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Ebony)), 30.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Mahogany)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Teak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Ebony)), 30.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.RubberTree)), 30.0f),
                 (decorations.GetDecoration(roots), 1000.0f),
                 (decorations.GetDecoration(vines), 1.0f)
             ],
@@ -466,9 +466,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
@@ -476,7 +476,7 @@ public class SubBiomeLoader : IResourceLoader
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.RubberTree)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.RubberTree)), 3.0f),
                 (decorations.GetDecoration(roots), 1000.0f),
                 (decorations.GetDecoration(vines), 1.0f)
             ]
@@ -492,9 +492,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(isBlooming: true),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
@@ -519,7 +519,7 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateMud(width: 6),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 24),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 24),
                 .. Clay
             ]
         });
@@ -538,17 +538,17 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Fern(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Oak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Maple)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Cherry)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Walnut)), 3.0f),
                 (decorations.GetDecoration(roots), 1000.0f)
             ]
         });
@@ -563,17 +563,17 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Fern(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Oak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Maple)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Cherry)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Walnut)), 3.0f),
                 (decorations.GetDecoration(roots), 1000.0f)
             ]
         });
@@ -588,14 +588,14 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Fern(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 2.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Cherry)), 2.0f),
                 (decorations.GetDecoration(roots), 1000.0f)
             ]
         });
@@ -613,7 +613,7 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateMud(width: 4),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ]
         });
@@ -629,7 +629,7 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateStonyTop(width: 4),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ]
         });
@@ -648,16 +648,16 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Moss(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 6),
                 ..Permafrost
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Pine)), 8.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 8.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Fir)), 8.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Pine)), 8.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Spruce)), 8.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Fir)), 8.0f)
             ]
         });
 
@@ -671,14 +671,14 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Moss(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 6),
                 ..Permafrost
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Pine)), 40.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Pine)), 40.0f)
             ]
         });
 
@@ -692,14 +692,14 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Moss(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 6),
                 ..Permafrost
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 40.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Spruce)), 40.0f)
             ]
         });
 
@@ -713,14 +713,14 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Moss(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 6),
                 ..Permafrost
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Fir)), 40.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Fir)), 40.0f)
             ]
         });
 
@@ -737,12 +737,12 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateMud(width: 5),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 9),
                 .. Permafrost
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Spruce)), 40.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Spruce)), 40.0f)
             ]
         });
 
@@ -756,14 +756,14 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Moss(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 6),
                 ..Permafrost
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 100.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Juniper)), 100.0f)
             ]
         });
 
@@ -781,14 +781,14 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Lichen(Cover.Lichen.Density.Low),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 6),
                 .. Permafrost
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 500.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Juniper)), 500.0f)
             ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("BuriedTower"))
         });
@@ -803,9 +803,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Lichen(Cover.Lichen.Density.Low),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 6),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 6),
                 .. Permafrost
             ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("BuriedTower"))
@@ -837,8 +837,8 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Permafrost, width: 8, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Permafrost, maxWidth: 6),
+                Layer.CreateSimple(Blocks.Instance.Environment.Permafrost, width: 8, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Permafrost, maxWidth: 6),
                 .. Permafrost
             ]
         });
@@ -856,7 +856,7 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateMud(width: 5),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 9),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 9),
                 .. Permafrost
             ]
         });
@@ -891,15 +891,15 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 2),
                 ..Clay
             ],
             Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 50.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Acacia)), 50.0f),
                 (decorations.GetDecoration(termiteMound), 500.0f)
             ]
         });
@@ -914,18 +914,18 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 2),
                 ..Clay
             ],
             Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 40.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Baobab)), 40.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 40.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 40.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Acacia)), 40.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Baobab)), 40.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.ShepherdsTree)), 40.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Mesquite)), 40.0f),
                 (decorations.GetDecoration(termiteMound), 200.0f)
             ]
         });
@@ -940,16 +940,16 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 2),
                 ..Clay
             ],
             Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 100.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.ShepherdsTree)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Mesquite)), 100.0f),
                 (decorations.GetDecoration(termiteMound), 500.0f)
             ]
         });
@@ -964,9 +964,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 2),
                 ..Clay
             ],
             Decorations =
@@ -989,7 +989,7 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateMud(width: 4),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 20),
                 .. Clay
             ]
         });
@@ -1008,9 +1008,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(mushrooms: true),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 5, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 20),
                 .. Clay
             ],
             Decorations =
@@ -1018,12 +1018,12 @@ public class SubBiomeLoader : IResourceLoader
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Birch)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 10.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Cherry)), 3.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Oak)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Maple)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Birch)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Walnut)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Cherry)), 3.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.AshTree)), 3.0f),
                 (decorations.GetDecoration(roots), 1000.0f)
             ]
         });
@@ -1038,9 +1038,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 5, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 20),
                 .. Clay
             ],
             Decorations =
@@ -1048,7 +1048,7 @@ public class SubBiomeLoader : IResourceLoader
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(tallRedFlower), 8.0f),
                 (decorations.GetDecoration(tallYellowFlower), 8.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Birch)), 1.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Birch)), 1.0f),
                 (decorations.GetDecoration(roots), 1000.0f)
             ]
         });
@@ -1063,9 +1063,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 5, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 5, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 20),
                 .. Clay
             ],
             Decorations =
@@ -1090,7 +1090,7 @@ public class SubBiomeLoader : IResourceLoader
             Layers =
             [
                 Layer.CreateMud(width: 4),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 20),
                 .. Clay
             ]
         });
@@ -1109,18 +1109,18 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Teak)), 10.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Acacia)), 10.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 10.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Walnut)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Teak)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Acacia)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Mesquite)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Walnut)), 10.0f),
                 (decorations.GetDecoration(roots), 1000.0f)
             ]
         });
@@ -1135,15 +1135,15 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 30.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Mesquite)), 30.0f)
             ]
         });
 
@@ -1157,9 +1157,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 26),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 26),
                 .. Clay
             ],
             Decorations = [(decorations.GetDecoration(tallGrass), 1.0f)]
@@ -1193,8 +1193,8 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.CrackedDriedMud, Blocks.Instance.CrackedDriedMud, width: 4),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 20),
+                Layer.CreateTop(Blocks.Instance.Environment.CrackedDriedMud, Blocks.Instance.Environment.CrackedDriedMud, width: 4),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 20),
                 .. Clay
             ]
         });
@@ -1213,18 +1213,18 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 2),
                 .. Clay
             ],
             Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(boulder), 2000.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 100.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 100.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 1000.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Juniper)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Mesquite)), 100.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.ShepherdsTree)), 1000.0f)
             ]
         });
 
@@ -1238,18 +1238,18 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(hasSucculents: true),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 2),
                 .. Clay
             ],
             Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
                 (decorations.GetDecoration(boulder), 2000.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Juniper)), 10.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Mesquite)), 10.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.ShepherdsTree)), 100.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Juniper)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Mesquite)), 10.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.ShepherdsTree)), 100.0f)
             ]
         });
 
@@ -1263,9 +1263,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 2),
                 .. Clay
             ],
             Decorations =
@@ -1285,9 +1285,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(isBlooming: true),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 2),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 2),
                 .. Clay
             ],
             Decorations =
@@ -1328,13 +1328,13 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
-                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 9, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 4, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 8),
+                Layer.CreateSimple(Blocks.Instance.Stones.Sandstone.Base, width: 18, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
             ],
             Decorations =
             [
@@ -1353,13 +1353,13 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
-                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 9, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 4, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 8),
+                Layer.CreateSimple(Blocks.Instance.Stones.Sandstone.Base, width: 18, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
             ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
         });
@@ -1375,12 +1375,12 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 13, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Stones.Sandstone.Base, width: 13, isSolid: false),
                 Layer.CreateStonyDampen(maxWidth: 8),
-                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Stones.Sandstone.Base, width: 18, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
             ]
         });
 
@@ -1398,14 +1398,14 @@ public class SubBiomeLoader : IResourceLoader
             [
                 Layer.CreateOasisTop(width: 13, subBiomeOffset: 3),
                 Layer.CreateStonyDampen(maxWidth: 8),
-                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Stones.Sandstone.Base, width: 18, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.DatePalm)), 10.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.DatePalm)), 10.0f)
             ]
         });
 
@@ -1419,13 +1419,13 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Salt(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 9, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 4, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
-                Layer.CreateSimple(Blocks.Instance.Sandstone, width: 18, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 9, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 4, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 8),
+                Layer.CreateSimple(Blocks.Instance.Stones.Sandstone.Base, width: 18, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
             ],
             Structure = structures.GetStructure(RID.Named<StructureGeneratorDefinition>("SmallPyramid"))
         });
@@ -1444,9 +1444,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 8),
                 ..Clay
             ],
             Decorations =
@@ -1467,9 +1467,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 8),
                 ..Clay
             ],
             Decorations =
@@ -1489,9 +1489,9 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(isBlooming: true),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 8),
                 ..Clay
             ],
             Decorations =
@@ -1512,17 +1512,17 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 7, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 8),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 7, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 8),
                 ..Clay
             ],
             Decorations =
             [
                 (decorations.GetDecoration(tallGrass), 1.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Oak)), 50.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.Maple)), 50.0f),
-                (decorations.GetDecoration(Get(Blocks.Instance.AshTree)), 50.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Oak)), 50.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.Maple)), 50.0f),
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.AshTree)), 50.0f)
             ]
         });
 
@@ -1555,9 +1555,9 @@ public class SubBiomeLoader : IResourceLoader
             Stuffer = new IStuffer.Water(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Peat, width: 6, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Mud, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Dirt, maxWidth: 7),
+                Layer.CreateSimple(Blocks.Instance.Environment.Peat, width: 6, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Mud, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Dirt, maxWidth: 7),
                 ..Clay
             ]
         });
@@ -1581,7 +1581,7 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateStone(width: 31),
                 Layer.CreateLoose(width: 9),
                 Layer.CreateGroundwater(width: 1),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 9, isSolid: true)
             ]
         });
 
@@ -1595,14 +1595,14 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.Grass(),
             Layers =
             [
-                Layer.CreateTop(Blocks.Instance.Grass, Blocks.Instance.Dirt, width: 1),
-                Layer.CreateSimple(Blocks.Instance.Dirt, width: 3, isSolid: false),
+                Layer.CreateTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Dirt, width: 1),
+                Layer.CreateSimple(Blocks.Instance.Environment.Dirt, width: 3, isSolid: false),
                 Layer.CreateStone(width: 5),
                 Layer.CreateStonyDampen(maxWidth: 31),
                 Layer.CreateStone(width: 31),
                 Layer.CreateLoose(width: 9),
                 Layer.CreateGroundwater(width: 1),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 9, isSolid: true)
             ]
         });
 
@@ -1621,7 +1621,7 @@ public class SubBiomeLoader : IResourceLoader
                 Layer.CreateStone(width: 31),
                 Layer.CreateLoose(width: 9),
                 Layer.CreateGroundwater(width: 1),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 9, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 9, isSolid: true)
             ]
         });
 
@@ -1639,13 +1639,13 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 13, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Stones.Limestone.Base, width: 13, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
             ]
         });
 
@@ -1659,17 +1659,17 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 5, isSolid: false),
-                Layer.CreateSimple(Blocks.Instance.Gravel, width: 3, isSolid: false),
-                Layer.CreateDampen(Blocks.Instance.Gravel, maxWidth: 10),
-                Layer.CreateSimple(Blocks.Instance.Limestone, width: 13, isSolid: true),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 5, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Gravel, width: 3, isSolid: false),
+                Layer.CreateDampen(Blocks.Instance.Environment.Gravel, maxWidth: 10),
+                Layer.CreateSimple(Blocks.Instance.Stones.Limestone.Base, width: 13, isSolid: true),
                 Layer.CreateLoose(width: 22),
                 Layer.CreateGroundwater(width: 18),
-                Layer.CreateSimple(Blocks.Instance.Clay, width: 21, isSolid: true)
+                Layer.CreateSimple(Blocks.Instance.Environment.Clay, width: 21, isSolid: true)
             ],
             Decorations =
             [
-                (decorations.GetDecoration(Get(Blocks.Instance.CoconutPalm)), 25.0f)
+                (decorations.GetDecoration(Get(Blocks.Instance.Woods.CoconutPalm)), 25.0f)
             ]
         });
 
@@ -1687,7 +1687,7 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.GrassAndFlowers(),
             Layers =
             [
-                Layer.CreateCoastlineTop(Blocks.Instance.Grass, Blocks.Instance.Gravel, width: 1),
+                Layer.CreateCoastlineTop(Blocks.Instance.Environment.Grass, Blocks.Instance.Environment.Gravel, width: 1),
                 Layer.CreateStone(width: 53),
                 Layer.CreateStonyDampen(maxWidth: 28),
                 Layer.CreateStone(width: 39)
@@ -1704,7 +1704,7 @@ public class SubBiomeLoader : IResourceLoader
             Cover = new Cover.NoVegetation(),
             Layers =
             [
-                Layer.CreateSimple(Blocks.Instance.Sand, width: 1, isSolid: false),
+                Layer.CreateSimple(Blocks.Instance.Environment.Sand, width: 1, isSolid: false),
                 Layer.CreateStone(width: 53),
                 Layer.CreateStonyDampen(maxWidth: 28),
                 Layer.CreateStone(width: 39)

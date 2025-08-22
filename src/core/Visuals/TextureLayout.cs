@@ -7,6 +7,7 @@
 using System;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -82,21 +83,42 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     /// <summary>
     ///     Get the texture indices that correspond to the textures used by the sides of a block or fluid.
     /// </summary>
-    /// <param name="indexProvider">The texture index provider to use.</param>
+    /// <param name="textureIndexProvider">The texture index provider to use.</param>
     /// <param name="isBlock">Whether the texture indices are for a block or a fluid.</param>
     /// <returns>
     ///     The texture indices for the front, back, left, right, bottom, and top sides of a block or fluid.
     /// </returns>
-    public SideArray<Int32> GetTextureIndices(ITextureIndexProvider indexProvider, Boolean isBlock)
+    public SideArray<Int32> GetTextureIndices(ITextureIndexProvider textureIndexProvider, Boolean isBlock)
     {
-        return new SideArray<Int32>
+        SideArray<Int32> sides = new();
+
+        foreach (Side side in Side.All.Sides())
         {
-            [Side.Front] = indexProvider.GetTextureIndex(front),
-            [Side.Back] = indexProvider.GetTextureIndex(back),
-            [Side.Left] = indexProvider.GetTextureIndex(left),
-            [Side.Right] = indexProvider.GetTextureIndex(right),
-            [Side.Bottom] = indexProvider.GetTextureIndex(bottom),
-            [Side.Top] = indexProvider.GetTextureIndex(top)
+            sides[side] = GetTextureIndex(side, textureIndexProvider, isBlock);
+        }
+        
+        return sides;
+    }
+    
+    /// <summary>
+    /// Get the texture index for a specific side of a block or fluid.
+    /// </summary>
+    /// <param name="side">The side of the block or fluid to get the texture index for, must not be <see cref="Side.All"/>.</param>
+    /// <param name="textureIndexProvider">The texture index provider to use.</param>
+    /// <param name="isBlock">Whether the texture index is for a block or a fluid.</param>
+    /// <returns>The texture index for the specified side.</returns>
+    public Int32 GetTextureIndex(Side side, ITextureIndexProvider textureIndexProvider, Boolean isBlock)
+    {
+        return side switch
+        {
+            Side.Front => textureIndexProvider.GetTextureIndex(front),
+            Side.Back => textureIndexProvider.GetTextureIndex(back),
+            Side.Left => textureIndexProvider.GetTextureIndex(left),
+            Side.Right => textureIndexProvider.GetTextureIndex(right),
+            Side.Bottom => textureIndexProvider.GetTextureIndex(bottom),
+            Side.Top => textureIndexProvider.GetTextureIndex(top),
+            Side.All => throw Exceptions.InvalidOperation("Cannot get texture index for all sides."),
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 }

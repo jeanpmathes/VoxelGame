@@ -13,7 +13,6 @@ using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
-#pragma warning disable CA1822
 
 /// <summary>
 ///     Import a structure from a file.

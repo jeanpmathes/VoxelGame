@@ -7,13 +7,12 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Legacy.Blocks.Conventions;
 using VoxelGame.Core.Logic.Definitions.Structures;
-using VoxelGame.Core.Logic.Elements.Legacy;
+using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Conventions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 
@@ -46,13 +45,13 @@ public sealed class DecorationLoader : IResourceLoader
             new StructureDecoration("TallGrass", structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new PlantableDecorator()),
             new StructureDecoration("TallRedFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_red")), new PlantableDecorator()),
             new StructureDecoration("TallYellowFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_yellow")), new PlantableDecorator()),
-            new StructureDecoration("Cactus", new Cactus(), new CoverDecorator(Blocks.Instance.Sand, Vector3i.Zero, width: 3)),
+            new StructureDecoration("Cactus", new Cactus(), new CoverDecorator(Blocks.Instance.Environment.Sand, Vector3i.Zero, width: 3)),
             new RootDecoration("Roots", new DepthDecorator(minDepth: 5, maxDepth: 15)),
             new FlatBlockDecoration("Vines",
-                Blocks.Instance.Specials.Vines,
+                Blocks.Instance.Organic.Vines,
                 new HashSet<Block>
                 {
-                    Blocks.Instance.Mahogany.Log, Blocks.Instance.Mahogany.Leaves, Blocks.Instance.Teak.Log, Blocks.Instance.Teak.Leaves
+                    Blocks.Instance.Woods.Mahogany.Log, Blocks.Instance.Woods.Mahogany.Leaves, Blocks.Instance.Woods.Teak.Log, Blocks.Instance.Woods.Teak.Leaves
                 })
         ];
     }
@@ -74,7 +73,7 @@ public sealed class DecorationLoader : IResourceLoader
             Decorator decorator = treeDefinition.Soil switch
             {
                 Wood.Tree.SoilType.Dirt => new PlantableDecorator(Vector3i.UnitY, width: 3),
-                Wood.Tree.SoilType.Sand => new CoverDecorator(Blocks.Instance.Sand, Vector3i.UnitY, width: 3),
+                Wood.Tree.SoilType.Sand => new CoverDecorator(Blocks.Instance.Environment.Sand, Vector3i.UnitY, width: 3),
                 _ => throw Exceptions.UnsupportedEnumValue(treeDefinition.Soil)
             };
 

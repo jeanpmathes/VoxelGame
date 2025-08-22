@@ -10,7 +10,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Physics;
 
@@ -151,7 +150,7 @@ public static class Raycast
         if (potentialBlock is not {} block) return false;
 
         // Check if the ray intersects the bounding box of the block.
-        return block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(ray);
+        return block.Block != Blocks.Instance.Core.Air && block.Block.GetCollider(world, position).Intersects(ray);
     }
 
     private static Boolean FluidIntersectionCheck(World world, Ray ray, Vector3i position)
@@ -187,7 +186,7 @@ public static class Raycast
 
             if (content is not var (block, fluid)) continue;
 
-            if (block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(frustum)) positions.Add((content.Value, position));
+            if (block.Block != Blocks.Instance.Core.Air && block.Block.GetCollider(world, position).Intersects(frustum)) positions.Add((content.Value, position));
             else if (fluid.Fluid != Fluids.Instance.None && Fluid.GetCollider(position, fluid.Level).Intersects(frustum)) positions.Add((content.Value, position));
         }
 

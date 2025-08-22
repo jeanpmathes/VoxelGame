@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
@@ -51,9 +52,24 @@ public static class AxisExtensions
     }
 
     /// <summary>
+    /// Get the sides associated with the given axis.
+    /// These are the sides the axis passes through.
+    /// </summary>
+    public static Sides Sides(this Axis axis)
+    {
+        return axis switch
+        {
+            Axis.X => Logic.Elements.Sides.Left | Logic.Elements.Sides.Right,
+            Axis.Y => Logic.Elements.Sides.Top | Logic.Elements.Sides.Bottom,
+            Axis.Z => Logic.Elements.Sides.Front | Logic.Elements.Sides.Back,
+            _ => throw Exceptions.UnsupportedEnumValue(axis)
+        };
+    }
+
+    /// <summary>
     ///     Get the axis as a <see cref="Vector3" />.
     /// </summary>
-    public static Vector3d Vector3(this Axis axis, Single onAxis, Single other)
+    public static Vector3d Vector3(this Axis axis, Double onAxis, Double other)
     {
         return axis switch
         {

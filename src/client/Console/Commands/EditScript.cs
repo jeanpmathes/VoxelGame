@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Open a script for editing.

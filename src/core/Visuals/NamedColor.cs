@@ -9,7 +9,7 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A set of colors that can be stored in up to four bits, fewer bits are supported too.
 /// </summary>
-public enum NamedColor
+public enum NamedColor // todo: replace with a static ColorS list of main colors, remove this enum, but also find a way to preserve naming for attributes or at least visualize it there - use a color attribute
 {
     /// <summary>
     ///     The default color.

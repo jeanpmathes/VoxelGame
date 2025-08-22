@@ -7,10 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text.RegularExpressions;
+using JetBrains.Annotations;
+using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Attributes.Implementations;
-using VoxelGame.Core.Logic.Elements.New;
+using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 
@@ -20,7 +23,7 @@ namespace VoxelGame.Core.Logic.Attributes;
 /// Used to define the <see cref="StateSet"/> of a block by defining the attributes of a block.
 /// </summary>
 /// <param name="context">The context in which the state set is defined.</param>
-public partial class StateBuilder(IResourceContext context)
+public partial class StateBuilder(IResourceContext context) : IStateBuilder
 {
     private const String Root = "Root";
     private const String Separator = "/";
@@ -31,6 +34,7 @@ public partial class StateBuilder(IResourceContext context)
     private UInt64 stateCount = 1;
     private List<IScoped> entries = [];
 
+    private UInt64 placementDefaultState;
     private UInt64 generationDefaultState;
 
     private String CheckName(String name)
@@ -90,12 +94,8 @@ public partial class StateBuilder(IResourceContext context)
         entries.Add(entry);
         names.Add($"{path}{Separator}{entry.Name}");
     }
-
-    /// <summary>
-    /// Begin defining a new attribute with the given name.
-    /// </summary>
-    /// <param name="name">The name of the attribute, which must be unique within the current scope and alphanumeric.</param>
-    /// <returns>The next step of the builder.</returns>
+    
+    /// <inheritdoc />
     public AttributeDefinition Define(String name)
     {
         name = CheckName(name);
@@ -103,30 +103,37 @@ public partial class StateBuilder(IResourceContext context)
         return new AttributeDefinition(name, this);
     }
 
-    private void AddAttribute<TValue>(Attribute<TValue> attribute, String name, String? description, TValue generationDefault)
+    private void AddAttribute<TValue>(AttributeImplementation<TValue> attribute, String name, String? description, TValue placementDefault, TValue generationDefault)
     {
-        if (stateCount * attribute.Multiplicity > Int32.MaxValue)
+        if (stateCount * (UInt64) attribute.Multiplicity > Int32.MaxValue)
         {
-            context.ReportWarning(this, $"Attribute '{name}' would cause {stateCount * attribute.Multiplicity} states which is more than allowed");
+            context.ReportWarning(this, $"Attribute '{name}' would cause {stateCount * (UInt64) attribute.Multiplicity} states which is more than allowed");
 
             return;
         }
 
         if (description == null) context.ReportWarning(this, $"Attribute '{name}' has no description");
 
-        attribute.Initialize(name, description, stateCount);
+        attribute.Initialize(name, description, (Int32) stateCount);
 
-        stateCount *= attribute.Multiplicity;
+        stateCount *= (UInt64) attribute.Multiplicity;
 
         AddEntry(attribute);
 
+        UpdatePlacementDefaultState(attribute, placementDefault);
         UpdateGenerationDefaultState(attribute, generationDefault);
+    }
+    
+    private void UpdatePlacementDefaultState<TValue>(IAttribute<TValue> attribute, TValue placementDefault)
+    {
+        Int32 index = attribute.Provide(placementDefault);
+        placementDefaultState += (UInt64) attribute.GetStateIndex(index);
     }
 
     private void UpdateGenerationDefaultState<TValue>(IAttribute<TValue> attribute, TValue generationDefault)
     {
         Int32 index = attribute.Provide(generationDefault);
-        generationDefaultState += attribute.GetStateIndex(index);
+        generationDefaultState += (UInt64) attribute.GetStateIndex(index);
     }
 
     /// <summary>
@@ -135,9 +142,13 @@ public partial class StateBuilder(IResourceContext context)
     /// <param name="block">The block that this state set belongs to.</param>
     /// <param name="setOffset">The offset of the state set within the global state space.</param>
     /// <returns>The state set.</returns>
-    public StateSet Build(Block block, UInt64 setOffset)
+    public StateSet Build(Block block, UInt32 setOffset)
     {
-        return new StateSet(block, setOffset, stateCount, generationDefaultState, entries);
+        Debug.Assert(stateCount <= UInt32.MaxValue);
+        Debug.Assert(placementDefaultState <= Int32.MaxValue);
+        Debug.Assert(generationDefaultState <= Int32.MaxValue);
+        
+        return new StateSet(block, setOffset, (UInt32) stateCount, (Int32) placementDefaultState, (Int32) generationDefaultState, entries);
     }
 
     [GeneratedRegex("^[a-zA-Z0-9]+$")]
@@ -158,7 +169,7 @@ public partial class StateBuilder(IResourceContext context)
         public AttributeDefinition Described(String description)
         {
             if (desc == null) desc = description;
-            else desc += Environment.NewLine + description;
+            else desc += System.Environment.NewLine + description;
 
             return this;
         }
@@ -177,12 +188,24 @@ public partial class StateBuilder(IResourceContext context)
         /// </summary>
         /// <param name="min">The minimum value.</param>
         /// <param name="max">The maximum value, which must be greater than the minimum value.</param>
-        /// <returns></returns>
-        public AttributeDefinition<Int32> Int32(Int32 min, Int32 max)
+        public AttributeDefinition<Int32> Int32(Int32 min, Int32 max) // todo: change to be inclusive for both bounds
         {
             Debug.Assert(min < max);
 
             return new AttributeDefinition<Int32>(new Int32Attribute(min, max), name, desc, builder);
+        }
+        
+        /// <summary>
+        /// Defines the attribute as an <see cref="Vector3i"/> attribute with the given maximum values.
+        /// The lower bound is always (0, 0, 0) and the upper bound is exclusive.
+        /// </summary>
+        /// <param name="max">The maximum value for each component of the vector, which must be greater than 0.</param>
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Naming must match the type name.")]
+        public AttributeDefinition<Vector3i> Vector3i(Vector3i max)
+        {
+            Debug.Assert(max is {X: > 0, Y: > 0, Z: > 0});
+
+            return new AttributeDefinition<Vector3i>(new Vector3iAttribute(max), name, desc, builder);
         }
 
         /// <summary>
@@ -227,16 +250,20 @@ public partial class StateBuilder(IResourceContext context)
     /// <summary>
     ///     Last step of the builder to define an attribute.
     /// </summary>
-    public sealed class AttributeDefinition<TValue>(Attribute<TValue> attribute, String name, String? description, StateBuilder builder) where TValue : struct
+    public sealed class AttributeDefinition<TValue>(AttributeImplementation<TValue> attribute, String name, String? description, StateBuilder builder) where TValue : struct
     {
         /// <summary>
         ///     Complete the definition of the attribute.
         /// </summary>
+        /// <param name="placementDefault">The value this attribute should have by default for placed blocks.</param>
         /// <param name="generationDefault">The value this attribute should have by default for generated blocks.</param>
         /// <returns>The attribute that was defined.</returns>
-        public IAttribute<TValue> Attribute(TValue? generationDefault = null)
+        [MustUseReturnValue]
+        public IAttribute<TValue> Attribute(TValue? placementDefault = null, TValue? generationDefault = null)
         {
-            builder.AddAttribute(attribute, name, description, generationDefault ?? attribute.Retrieve(index: 0));
+            builder.AddAttribute(attribute, name, description, 
+                placementDefault ?? attribute.Retrieve(index: 0), 
+                generationDefault ?? attribute.Retrieve(index: 0));
 
             return attribute;
         }
@@ -244,15 +271,30 @@ public partial class StateBuilder(IResourceContext context)
         /// <summary>
         ///     Complete the definition of the attribute as a nullable attribute.
         /// </summary>
+        /// <param name="placementDefault">The value this attribute should have by default for placed blocks.</param>
         /// <param name="generationDefault">The value this attribute should have by default for generated blocks.</param>
         /// <returns>The nullable attribute that was defined.</returns>
-        public IAttribute<TValue?> NullableAttribute(TValue? generationDefault = null)
+        [MustUseReturnValue]
+        public IAttribute<TValue?> NullableAttribute(TValue? placementDefault = null, TValue? generationDefault = null)
         {
-            Attribute<TValue?> nullableAttribute = new NullableAttribute<TValue>(attribute);
+            AttributeImplementation<TValue?> nullableAttribute = new NullableAttribute<TValue>(attribute);
 
-            builder.AddAttribute(nullableAttribute, name, description, generationDefault);
+            builder.AddAttribute(nullableAttribute, name, description, placementDefault, generationDefault);
 
             return nullableAttribute;
         }
     }
+}
+
+/// <summary>
+/// Limited interface for the <see cref="StateBuilder"/> to allow defining attributes.
+/// </summary>
+public interface IStateBuilder
+{
+    /// <summary>
+    /// Begin defining a new attribute with the given name.
+    /// </summary>
+    /// <param name="name">The name of the attribute, which must be unique within the current scope and alphanumeric.</param>
+    /// <returns>The next step of the builder.</returns>
+    StateBuilder.AttributeDefinition Define(String name);
 }

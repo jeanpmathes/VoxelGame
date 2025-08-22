@@ -6,7 +6,6 @@
 
 using System;
 using VoxelGame.Core.Logic.Elements;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Logic.Definitions.Structures;
 
@@ -21,8 +20,8 @@ public partial class StaticStructure
     public class Placement
     {
         public Vector Position { get; set; } = new();
-        public String Block { get; set; } = nameof(Blocks.Instance.Air);
-        public Int32 Data { get; set; }
+        public String Block { get; set; } = nameof(Blocks.Instance.Core.Air);
+        public Int32 StateIndex { get; set; } = 0;
         public String Fluid { get; set; } = nameof(Elements.Fluids.Instance.None);
         public Int32 Level { get; set; } = (Int32) FluidLevel.Eight;
         public Boolean IsStatic { get; set; } = true;

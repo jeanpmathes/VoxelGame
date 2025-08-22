@@ -8,9 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Definitions.Legacy.Blocks;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Legacy;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
@@ -18,9 +16,9 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 /// <summary>
 ///     Places flat blocks at walls.
 /// </summary>
-public class FlatBlockDecoration : Decoration
+public class FlatBlockDecoration : Decoration // todo: rename to attached block decoration or so
 {
-    private readonly FlatBlock block;
+    private readonly Block block;
     private readonly ISet<Block> filter;
 
     /// <summary>
@@ -29,7 +27,7 @@ public class FlatBlockDecoration : Decoration
     /// <param name="name">The name of the decoration. </param>
     /// <param name="block">The block to place.</param>
     /// <param name="filter">The blocks to place on.</param>
-    public FlatBlockDecoration(String name, FlatBlock block, ISet<Block> filter) : base(name, new WallDecorator())
+    public FlatBlockDecoration(String name, Block block, ISet<Block> filter) : base(name, new WallDecorator())
     {
         this.block = block;
         this.filter = filter;
@@ -45,10 +43,13 @@ public class FlatBlockDecoration : Decoration
         {
             Content? neighbor = grid.GetContent(orientation.Offset(position));
 
-            if (neighbor is not {Block: {IsSolidAndFull: true} neighborBlock}) continue;
+            if (neighbor is not {Block: {IsFullySolid: true} neighborBlock}) continue;
             if (!filter.Contains(neighborBlock.Block)) continue;
+            
+            // todo: think of a way to get orientation.Opposite() to the block, similar issue as in the cover placement with snow
+            // todo: also probably start of with the GenerationState instead of States.Default
 
-            grid.SetContent(new Content(block.GetInstance(orientation.Opposite()), FluidInstance.Default), position);
+            grid.SetContent(new Content(new BlockInstance(block.States.Default), FluidInstance.Default), position);
 
             break;
         }

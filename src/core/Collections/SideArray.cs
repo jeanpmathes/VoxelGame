@@ -1,4 +1,4 @@
-﻿// <copyright file="Sides.cs" company="VoxelGame">
+﻿// <copyright file="SideArray.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

@@ -5,32 +5,37 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Behaviors.Aspects.Strategies;
 
-#pragma warning disable S4017 // Intentionally used.
-
 /// <summary>
 ///     Mixes multiple contributions of all contributors.
-///     This strategy can only be used when the value type is <see cref="Color" />.
+///     This strategy can only be used when the value type is <see cref="ColorS" />.
+///     This performs special handling of <see cref="ColorS.Neutral"/> contributions.
 /// </summary>
-public class Mix<TContext> : IContributionStrategy<Color, TContext>
+public class Mix<TContext> : IContributionStrategy<ColorS, TContext>
 {
     /// <inheritdoc />
     public static Int32 MaxContributorCount => Int32.MaxValue;
 
     /// <inheritdoc />
-    public Color CombineContributions(Color original, TContext context, Span<IContributor<Color, TContext>> contributors)
+    public ColorS CombineContributions(ColorS original, TContext context, Span<IContributor<ColorS, TContext>> contributors)
     {
-        UInt64 r = 0;
-        UInt64 g = 0;
-        UInt64 b = 0;
-        UInt64 a = 0;
+        if (contributors.Length == 0)
+            return original;
+        
+        var r = 0.0;
+        var g = 0.0;
+        var b = 0.0;
+        var a = 0.0;
 
-        foreach (IContributor<Color, TContext> contributor in contributors)
+        foreach (IContributor<ColorS, TContext> contributor in contributors)
         {
-            Color contribution = contributor.Contribute(original, context);
+            ColorS contribution = contributor.Contribute(original, context);
+
+            if (contribution.IsNeutral)
+                return contribution;
 
             r += contribution.R;
             g += contribution.G;
@@ -38,13 +43,12 @@ public class Mix<TContext> : IContributionStrategy<Color, TContext>
             a += contribution.A;
         }
 
-        var count = (UInt64) contributors.Length;
-
-        return Color.FromArgb(
-            (Int32) (r / count),
-            (Int32) (g / count),
-            (Int32) (b / count),
-            (Int32) (a / count)
-        );
+        Single count = contributors.Length;
+        
+        return ColorS.FromRGBA(
+            (Single)(r / count),
+            (Single)(g / count),
+            (Single)(b / count),
+            (Single)(a / count));
     }
 }

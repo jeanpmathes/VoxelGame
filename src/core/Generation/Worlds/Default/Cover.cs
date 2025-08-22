@@ -6,12 +6,10 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Legacy.Blocks;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
-using Blocks = VoxelGame.Core.Logic.Elements.Legacy.Blocks;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;
 
@@ -61,7 +59,7 @@ public abstract class Cover
 
         if (climate.Temperature.IsFreezing && snowMode != Snow.None)
         {
-            Int32 height = MathTools.RoundedToInt(IHeightVariable.MaximumHeight * heightFraction * 0.75);
+            Int32 height = MathTools.RoundedToInt(PartialHeight.MaximumHeight * heightFraction * 0.75);
 
             height += BlockUtilities.GetPositionDependentNumber(position, mod: 5) switch
             {
@@ -70,13 +68,16 @@ public abstract class Cover
                 _ => 0
             };
 
-            height = Math.Clamp(height, min: 0, IHeightVariable.MaximumHeight);
+            height = Math.Clamp(height, min: 0, PartialHeight.MaximumHeight);
+            
+            Block snow = snowMode == Snow.Loose
+                ? Blocks.Instance.Environment.LooseSnow
+                : Blocks.Instance.Environment.Snow;
+            
+            // todo: think about a way to get the height to the block, maybe through an event or a utility function and an aspect on PartialHeight
+            // todo: also probably use the GenerationState by default instead of the default state
 
-            SnowBlock snow = snowMode == Snow.Loose
-                ? Blocks.Instance.Specials.LooseSnow
-                : Blocks.Instance.Specials.Snow;
-
-            return new Content(snow.GetInstance(height), FluidInstance.Default);
+            return new Content(new BlockInstance(snow.States.Default), FluidInstance.Default);
         }
 
         return GetCover(position, climate);
@@ -128,17 +129,17 @@ public abstract class Cover
             Double flowerFactor = isBlooming ? 0.10 : 0.05;
 
             if (value >= humidity * flowerFactor)
-                return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
+                return value % 2 == 0 ? new Content(Blocks.Instance.Environment.TallGrass) : new Content(Blocks.Instance.Environment.TallerGrass);
 
             if (mushrooms)
                 return (value % 3) switch
                 {
-                    0 => new Content(Blocks.Instance.RedFlower),
-                    1 => new Content(Blocks.Instance.YellowFlower),
-                    _ => new Content(Blocks.Instance.Chanterelle)
+                    0 => new Content(Blocks.Instance.Flowers.FlowerRed.Short),
+                    1 => new Content(Blocks.Instance.Flowers.FlowerYellow.Short),
+                    _ => new Content(Blocks.Instance.Organic.Chanterelle)
                 };
 
-            return new Content(value % 2 == 0 ? Blocks.Instance.RedFlower : Blocks.Instance.YellowFlower);
+            return new Content(value % 2 == 0 ? Blocks.Instance.Flowers.FlowerRed.Short : Blocks.Instance.Flowers.FlowerYellow.Short);
         }
     }
 
@@ -159,12 +160,12 @@ public abstract class Cover
             if (hasSucculents)
                 return (value % 3) switch
                 {
-                    0 => new Content(Blocks.Instance.AloeVera),
-                    1 => new Content(Blocks.Instance.TallGrass),
-                    _ => new Content(Blocks.Instance.TallerGrass)
+                    0 => new Content(Blocks.Instance.Organic.AloeVera),
+                    1 => new Content(Blocks.Instance.Environment.TallGrass),
+                    _ => new Content(Blocks.Instance.Environment.TallerGrass)
                 };
 
-            return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
+            return value % 2 == 0 ? new Content(Blocks.Instance.Environment.TallGrass) : new Content(Blocks.Instance.Environment.TallerGrass);
         }
     }
 
@@ -200,7 +201,7 @@ public abstract class Cover
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             return BlockUtilities.GetPositionDependentNumber(position, draw.mod) > draw.threshold
-                ? new Content(Blocks.Instance.Lichen)
+                ? new Content(Blocks.Instance.Organic.Lichen)
                 : Content.Default;
         }
     }
@@ -217,8 +218,8 @@ public abstract class Cover
 
             return value switch
             {
-                0 => new Content(Blocks.Instance.Lichen),
-                < 7 => new Content(Blocks.Instance.Moss),
+                0 => new Content(Blocks.Instance.Organic.Lichen),
+                < 7 => new Content(Blocks.Instance.Organic.Moss),
                 _ => Content.Default
             };
         }
@@ -234,7 +235,7 @@ public abstract class Cover
         {
             Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
 
-            return value < 6 ? new Content(Blocks.Instance.Salt) : Content.Default;
+            return value < 6 ? new Content(Blocks.Instance.Environment.Salt) : Content.Default;
         }
     }
 
@@ -250,8 +251,8 @@ public abstract class Cover
 
             return value switch
             {
-                < 2 => new Content(Blocks.Instance.Moss),
-                < 7 => new Content(Blocks.Instance.Fern),
+                < 2 => new Content(Blocks.Instance.Organic.Moss),
+                < 7 => new Content(Blocks.Instance.Organic.Fern),
                 _ => Content.Default
             };
         }

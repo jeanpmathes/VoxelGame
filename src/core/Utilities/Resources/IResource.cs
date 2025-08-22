@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Utilities.Resources;
 public interface IResource : IDisposable
 {
     /// <summary>
-    ///     A justification string to supress <c>CA2213</c> warnings.
+    ///     A justification string to suppress <c>CA2213</c> warnings.
     /// </summary>
     public const String ResourcesOwnedByContext = "Resources are owned by the context and should not be disposed manually.";
 

@@ -9,9 +9,9 @@ using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class NullableAttribute<TValue>(IAttribute<TValue> valueAttribute) : Attribute<TValue?> where TValue : struct
+internal class NullableAttribute<TValue>(IAttribute<TValue> valueAttribute) : AttributeImplementation<TValue?> where TValue : struct
 {
-    public override UInt64 Multiplicity { get; } = valueAttribute.Multiplicity + 1;
+    public override Int32 Multiplicity { get; } = valueAttribute.Multiplicity + 1;
 
     public override TValue? Retrieve(Int32 index)
     {
