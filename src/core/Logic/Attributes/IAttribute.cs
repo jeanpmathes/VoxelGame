@@ -117,11 +117,6 @@ public interface IAttribute<TValue> : IAttribute
 /// <typeparam name="TValue">The type of the value.</typeparam>
 public abstract class AttributeImplementation<TValue> : IAttribute<TValue>
 {
-    /// <summary>
-    ///     The description of the attribute, which is used for documentation.
-    /// </summary>
-    public String Description { get; private set; } = null!;
-
     /// <inheritdoc />
     public String Name { get; private set; } = null!;
 
@@ -140,13 +135,12 @@ public abstract class AttributeImplementation<TValue> : IAttribute<TValue>
     /// <inheritdoc />
     public abstract Property RetrieveRepresentation(Int32 index);
 
-    internal void Initialize(String name, String? description, Int32 divisor)
+    internal void Initialize(String name, Int32 divisor)
     {
         Debug.Assert(Divisor == 0);
         Debug.Assert(divisor != 0);
 
         Name = name;
-        Description = description ?? String.Empty;
 
         Divisor = divisor;
     }

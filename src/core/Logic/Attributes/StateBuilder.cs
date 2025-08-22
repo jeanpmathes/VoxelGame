@@ -37,11 +37,16 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
     private UInt64 placementDefaultState;
     private UInt64 generationDefaultState;
 
-    private String CheckName(String name)
+    private String CheckName(String name, Boolean isAttribute)
     {
-        if (!NameRegex().IsMatch(name))
+        if (isAttribute && !AttributeNameRegex().IsMatch(name))
         {
-            context.ReportWarning(this, $"Attribute and scope names must be alphanumeric, but '{name}' is not");
+            context.ReportWarning(this, $"Attribute names must be alphanumeric and start with a lowercase letter, '{name}' is not valid");
+            name = "!unnamed";
+        }
+        else if (!isAttribute && !ScopeNameRegex().IsMatch(name))
+        {
+            context.ReportWarning(this, $"Scope names must be alphanumeric (with dots), '{name}' is not valid");
             name = "!unnamed";
         }
         else if (names.Contains(GetPath(name)))
@@ -68,10 +73,9 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
     /// </summary>
     /// <param name="name">The name of the scope, which must be unique within the current scope and alphanumeric.</param>
     /// <param name="scoped">A builder function, all attributes defined within this function will be part of the scope.</param>
-    /// <returns>The builder itself, allowing for chaining.</returns>
-    public StateBuilder Enclose(String name, Action<StateBuilder> scoped)
+    public void Enclose(String name, Action<StateBuilder> scoped)
     {
-        name = CheckName(name);
+        name = CheckName(name, isAttribute: false);
 
         List<IScoped> outerEntries = entries;
         String outerPath = path;
@@ -85,8 +89,6 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
 
         entries = outerEntries;
         path = outerPath;
-
-        return this;
     }
 
     private void AddEntry(IScoped entry)
@@ -98,12 +100,12 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
     /// <inheritdoc />
     public AttributeDefinition Define(String name)
     {
-        name = CheckName(name);
+        name = CheckName(name, isAttribute: true);
 
         return new AttributeDefinition(name, this);
     }
 
-    private void AddAttribute<TValue>(AttributeImplementation<TValue> attribute, String name, String? description, TValue placementDefault, TValue generationDefault)
+    private void AddAttribute<TValue>(AttributeImplementation<TValue> attribute, String name, TValue placementDefault, TValue generationDefault)
     {
         if (stateCount * (UInt64) attribute.Multiplicity > Int32.MaxValue)
         {
@@ -112,9 +114,7 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
             return;
         }
 
-        if (description == null) context.ReportWarning(this, $"Attribute '{name}' has no description");
-
-        attribute.Initialize(name, description, (Int32) stateCount);
+        attribute.Initialize(name, (Int32) stateCount);
 
         stateCount *= (UInt64) attribute.Multiplicity;
 
@@ -151,35 +151,23 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
         return new StateSet(block, setOffset, (UInt32) stateCount, (Int32) placementDefaultState, (Int32) generationDefaultState, entries);
     }
 
-    [GeneratedRegex("^[a-zA-Z0-9]+$")]
-    private static partial Regex NameRegex();
+    [GeneratedRegex("^[a-z][a-zA-Z0-9]*$")]
+    private static partial Regex AttributeNameRegex();
+    
+    [GeneratedRegex("^[a-zA-Z0-9.]+$")]
+    private static partial Regex ScopeNameRegex();
 
     /// <summary>
     ///     Intermediate definition of an attribute.
     /// </summary>
     public sealed class AttributeDefinition(String name, StateBuilder builder)
     {
-        private String? desc;
-
-        /// <summary>
-        ///     Set the description of the attribute.
-        ///     Calling this method multiple times will append the descriptions.
-        /// </summary>
-        /// <param name="description">The description of the attribute.</param>
-        public AttributeDefinition Described(String description)
-        {
-            if (desc == null) desc = description;
-            else desc += System.Environment.NewLine + description;
-
-            return this;
-        }
-
         /// <summary>
         ///     Define the attribute as a boolean attribute.
         /// </summary>
         public AttributeDefinition<Boolean> Boolean()
         {
-            return new AttributeDefinition<Boolean>(new BooleanAttribute(), name, desc, builder);
+            return new AttributeDefinition<Boolean>(new BooleanAttribute(), name, builder);
         }
 
         /// <summary>
@@ -192,7 +180,7 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
         {
             Debug.Assert(min < max);
 
-            return new AttributeDefinition<Int32>(new Int32Attribute(min, max), name, desc, builder);
+            return new AttributeDefinition<Int32>(new Int32Attribute(min, max), name, builder);
         }
         
         /// <summary>
@@ -205,7 +193,7 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
         {
             Debug.Assert(max is {X: > 0, Y: > 0, Z: > 0});
 
-            return new AttributeDefinition<Vector3i>(new Vector3iAttribute(max), name, desc, builder);
+            return new AttributeDefinition<Vector3i>(new Vector3iAttribute(max), name, builder);
         }
 
         /// <summary>
@@ -219,7 +207,7 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
 
             Debug.Assert(list.Count > 0);
 
-            return new AttributeDefinition<TElement>(new ListAttribute<TElement>(list), name, desc, builder);
+            return new AttributeDefinition<TElement>(new ListAttribute<TElement>(list), name, builder);
         }
 
         /// <summary>
@@ -231,7 +219,7 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
         {
             Debug.Assert(!EnumTools.IsFlagsEnum<TEnum>());
 
-            return new AttributeDefinition<TEnum>(new EnumAttribute<TEnum>(), name, desc, builder);
+            return new AttributeDefinition<TEnum>(new EnumAttribute<TEnum>(), name, builder);
         }
 
         /// <summary>
@@ -243,14 +231,14 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
         {
             Debug.Assert(EnumTools.IsFlagsEnum<TEnum>());
 
-            return new AttributeDefinition<TEnum>(new FlagsAttribute<TEnum>(), name, desc, builder);
+            return new AttributeDefinition<TEnum>(new FlagsAttribute<TEnum>(), name, builder);
         }
     }
 
     /// <summary>
     ///     Last step of the builder to define an attribute.
     /// </summary>
-    public sealed class AttributeDefinition<TValue>(AttributeImplementation<TValue> attribute, String name, String? description, StateBuilder builder) where TValue : struct
+    public sealed class AttributeDefinition<TValue>(AttributeImplementation<TValue> attribute, String name, StateBuilder builder) where TValue : struct
     {
         /// <summary>
         ///     Complete the definition of the attribute.
@@ -261,7 +249,7 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
         [MustUseReturnValue]
         public IAttribute<TValue> Attribute(TValue? placementDefault = null, TValue? generationDefault = null)
         {
-            builder.AddAttribute(attribute, name, description, 
+            builder.AddAttribute(attribute, name, 
                 placementDefault ?? attribute.Retrieve(index: 0), 
                 generationDefault ?? attribute.Retrieve(index: 0));
 
@@ -279,7 +267,7 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
         {
             AttributeImplementation<TValue?> nullableAttribute = new NullableAttribute<TValue>(attribute);
 
-            builder.AddAttribute(nullableAttribute, name, description, placementDefault, generationDefault);
+            builder.AddAttribute(nullableAttribute, name, placementDefault, generationDefault);
 
             return nullableAttribute;
         }
