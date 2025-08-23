@@ -84,11 +84,13 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
         path = GetPath(name);
 
         scoped(this);
-
-        AddEntry(new Scope(name, entries));
-
+        
+        List<IScoped> innerEntries = entries;
+        
         entries = outerEntries;
         path = outerPath;
+
+        AddEntry(new Scope(name, innerEntries));
     }
 
     private void AddEntry(IScoped entry)

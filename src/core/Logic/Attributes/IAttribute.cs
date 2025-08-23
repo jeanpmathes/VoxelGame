@@ -28,7 +28,7 @@ public interface IAttribute : IScoped
 
     Property IScoped.GetRepresentation(State state)
     {
-        Debug.Assert(Divisor == 0);
+        Debug.Assert(Divisor != 0);
 
         return RetrieveRepresentation(GetValueIndex(state.Index));
     }
