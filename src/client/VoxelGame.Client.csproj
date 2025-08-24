@@ -386,7 +386,7 @@
         <None Update="Resources\Textures\Blocks\coal_anthracite.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\coal_bituminous.png">
+        <None Update="Resources\Textures\Blocks\coal_bituminous_coal.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\ore_aluminium_bauxite.png">

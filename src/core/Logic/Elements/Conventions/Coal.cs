@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
@@ -43,7 +44,8 @@ public static class CoalConvention
             {
                 Block = builder
                     .BuildSimpleBlock(name, namedID)
-                    .WithTextureLayout(TextureLayout.Uniform(TID.Block(texture)))
+                    .WithTextureLayout(TextureLayout.Uniform(TID.Block($"coal_{texture}")))
+                    .WithBehavior<Combustible>()
                     .Complete()
             };
         });
