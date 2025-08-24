@@ -14,7 +14,7 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
-///     Gets the world seed.
+///     Checks for stale or missing chunks.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class CheckChunks : Command

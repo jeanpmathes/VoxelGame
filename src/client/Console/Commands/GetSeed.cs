@@ -1,4 +1,4 @@
-﻿// <copyright file="Clear.cs" company="VoxelGame">
+﻿// <copyright file="GetSeed.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
