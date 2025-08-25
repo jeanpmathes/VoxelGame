@@ -9,6 +9,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -55,6 +56,61 @@ public class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Bl
         south = builder.Define(nameof(south)).Boolean().Attribute();
         west = builder.Define(nameof(west)).Boolean().Attribute();
     }
+
+    /// <inheritdoc/>
+    public override void SubscribeToEvents(IEventBus bus)
+    {
+        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+    }
+    
+    private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
+    {
+        (World world, Vector3i position, Actor? _) = context;
+        
+        State state = original;
+        
+        foreach (Orientation orientation in Orientations.All)
+        {
+            Vector3i neighborPosition = orientation.Offset(position);
+
+            if (CanConnectTo(world, neighborPosition)) 
+                state.Set(GetDirection(orientation), value: true);
+        }
+
+        return state;
+    }
+    
+    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    {
+        if (!message.Side.IsLateral()) return;
+        
+        IAttribute<Boolean> side = GetDirection(message.Side.ToOrientation());
+        Boolean canConnect = CanConnectTo(message.World, message.Side.Offset(message.Position));
+        
+        if (message.State.Get(side) == canConnect) return;
+
+        State newState = message.State;
+        newState.Set(side, canConnect);
+        message.World.SetBlock(new BlockInstance(newState), message.Position);
+    }
+    
+    private Boolean CanConnectTo(World world, Vector3i position)
+    {
+        return world.GetBlock(position)?.Block.Get<Connectable>() is {} otherConnectable &&
+               Connectable.CanConnect(connectable.Strength, otherConnectable.Strength);
+    }
+    
+    private IAttribute<Boolean> GetDirection(Orientation orientation)
+    {
+        return orientation switch
+        {
+            Orientation.North => North,
+            Orientation.East => East,
+            Orientation.South => South,
+            Orientation.West => West,
+            _ => throw Exceptions.NotInitialized(nameof(orientation))
+        };
+    }
     
     /// <summary>
     /// Get the connections of the block given its state.
@@ -64,38 +120,8 @@ public class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Bl
     public (Boolean north, Boolean east, Boolean south, Boolean west) GetConnections(State state)
     {
         return (state.Get(North), 
-                state.Get(East), 
-                state.Get(South), 
-                state.Get(West));
-    }
-    
-    private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
-    {
-        (World world, Vector3i position, Actor? _) = context;
-        
-        State state = original;
-        
-        foreach (Utilities.Orientation orientation in Orientations.All)
-        {
-            Vector3i neighborPosition = orientation.Offset(position);
-
-            if (world.GetBlock(neighborPosition)?.Block.Get<Connectable>() is {} otherConnectable &&
-                Connectable.CanConnect(connectable.Strength, otherConnectable.Strength)) 
-                state.Set(GetDirection(orientation), value: true);
-        }
-
-        return state;
-    }
-    
-    private IAttribute<Boolean> GetDirection(Utilities.Orientation orientation)
-    {
-        return orientation switch
-        {
-            Utilities.Orientation.North => North,
-            Utilities.Orientation.East => East,
-            Utilities.Orientation.South => South,
-            Utilities.Orientation.West => West,
-            _ => throw Exceptions.NotInitialized(nameof(orientation))
-        };
+            state.Get(East), 
+            state.Get(South), 
+            state.Get(West));
     }
 }
