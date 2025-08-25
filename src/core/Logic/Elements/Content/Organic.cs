@@ -61,13 +61,10 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<FourWayRotatable>()
         .WithBehavior<Attached, SingleSided>((attached, siding) =>
         { 
-            // todo: would be cool if four way rotatable could supply this through some glue behavior, conditionally
-            // todo: or at least a helper on attached to bind to a Sided behavior
-            
             attached.AttachmentSidesInitializer.ContributeConstant(Sides.Lateral);
             
-            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).ToFlag());
-            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single())); // todo: handling if not single as this allows null, maybe a new extension for sides
+            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).Opposite().ToFlag());
+            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single().Opposite())); // todo: handling if not single as this allows null, maybe a new extension for sides
         }) 
         .WithBehavior<Vine>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))

@@ -603,8 +603,6 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
     public Boolean IsFull(State state)
     {
         if (IsAlwaysFull) return true;
-
-        Require<PartialHeight>();
         
         if (Get<PartialHeight>() is {} height)
             return height.GetHeight(state) == PartialHeight.MaximumHeight;

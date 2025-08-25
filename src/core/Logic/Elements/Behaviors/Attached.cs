@@ -91,7 +91,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     {
         (World world, Vector3i position, Actor? actor) = context;
         
-        Side? side = actor?.GetTargetedSide();
+        Side? side = actor?.GetTargetedSide()?.Opposite();
         
         if (side == null)
             return false;
@@ -99,14 +99,14 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
         if (!AttachmentSides.HasFlag(side.Value.ToFlag()))
             return false;
         
-        return world.GetBlock(side.Value.ToOrientation().Opposite().Offset(position))?.IsFullySolid == true;
+        return world.GetBlock(side.Value.Offset(position))?.IsFullySolid == true;
     }
     
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
     {
         (World _, Vector3i _, Actor? actor) = context;
         
-        Side? side = actor?.GetTargetedSide();
+        Side? side = actor?.GetTargetedSide()?.Opposite();
         
         if (side == null || !AttachmentSides.HasFlag(side.Value.ToFlag()))
             return original;
@@ -117,6 +117,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
     {
         Sides sides = AttachedSides.GetValue(Sides.None, message.State);
+        Side updatedSide = message.Side;
 
         if (!sides.HasFlag(message.Side.ToFlag()) ||
             message.World.GetBlock(message.Side.Offset(message.Position))?.IsFullySolid == true) 

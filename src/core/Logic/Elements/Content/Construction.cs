@@ -108,7 +108,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Concrete is a versatile construction material that can have different heights and colors.
     ///     It can be build using fluid concrete.
     /// </summary>
-    public Block Concrete { get; } = builder
+    public Block Concrete { get; } = builder // todo: check why debug view shows hight on placement as zero
         .BuildSimpleBlock(Language.Concrete, nameof(Concrete))
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("concrete")))
         .WithBehavior<StoredHeight8>(height => height.PlacementHeightInitializer.ContributeConstant(StoredHeight8.MaximumHeight))
@@ -120,20 +120,17 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     A ladder allows climbing up and down.
     /// </summary>
     public Block Ladder { get; } = builder
-        .BuildComplexBlock(Language.Vines, nameof(Ladder))
+        .BuildComplexBlock(Language.Ladder, nameof(Ladder))
         .WithBehavior<FlatModel>()
         .WithBehavior<SingleTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TID.Block("ladder")))
         .WithBehavior<Climbable>(climbable => climbable.ClimbingVelocityInitializer.ContributeConstant(value: 3.0))
         .WithBehavior<FourWayRotatable>()
         .WithBehavior<Attached, SingleSided>((attached, siding) =>
         { 
-            // todo: would be cool if four way rotatable could supply this through some glue behavior, e.g. SidedAndAttached, with a limit aspect on the SingleSided that gives lateral
-            // todo: or at least a helper on attached to bind to a Sided behavior
-            
             attached.AttachmentSidesInitializer.ContributeConstant(Sides.Lateral);
             
-            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).ToFlag());
-            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single())); // todo: handling if not single as this allows null, maybe a new extension for sides
+            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).Opposite().ToFlag());
+            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single().Opposite())); // todo: handling if not single as this allows null, maybe a new extension for sides
         }) 
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
@@ -147,6 +144,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
         .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("vase")]))
         .WithBoundingVolume(new BoundingVolume(new Vector3d(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.375f, z: 0.25f)))
         .WithBehavior<Fillable>()
+        .WithBehavior<Grounded>()
         .Complete();
     
     /// <summary>
