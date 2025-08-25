@@ -1,10 +1,10 @@
 <Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../texture.xsd">
-    <Layers>
+    <Layers mode="replace">
+        <Layer source="p:checkerboard_tiles:1,0"/>
         <Layer source="p:checkerboard_tiles:0,0">
             <Modifier type="no-tint"/>
         </Layer>
-        <Layer source="p:checkerboard_tiles:1,0"/>
     </Layers>
     <Modifiers/>
 </Texture>
