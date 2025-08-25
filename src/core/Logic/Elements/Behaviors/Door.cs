@@ -48,23 +48,23 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
-        Utilities.Orientation orientation = rotatable.GetOrientation(state);
+        Orientation orientation = rotatable.GetOrientation(state);
         
         if (state.Get(IsOpen))
             orientation = state.Get(IsLeftSided) ? orientation.Rotate().Opposite() : orientation.Rotate();
 
         return orientation switch
         {
-            Utilities.Orientation.North => new BoundingVolume(
+            Orientation.North => new BoundingVolume(
                 new Vector3d(x: 0.5f, y: 0.5f, z: 0.9375f),
                 new Vector3d(x: 0.5f, y: 0.5f, z: 0.0625f)),
-            Utilities.Orientation.East => new BoundingVolume(
+            Orientation.East => new BoundingVolume(
                 new Vector3d(x: 0.0625f, y: 0.5f, z: 0.5f),
                 new Vector3d(x: 0.0625f, y: 0.5f, z: 0.5f)),
-            Utilities.Orientation.South => new BoundingVolume(
+            Orientation.South => new BoundingVolume(
                 new Vector3d(x: 0.5f, y: 0.5f, z: 0.0625f),
                 new Vector3d(x: 0.5f, y: 0.5f, z: 0.0625f)),
-            Utilities.Orientation.West => new BoundingVolume(
+            Orientation.West => new BoundingVolume(
                 new Vector3d(x: 0.9375f, y: 0.5f, z: 0.5f),
                 new Vector3d(x: 0.0625f, y: 0.5f, z: 0.5f)),
             _ => new BoundingVolume(new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.5f, z: 0.5f))
@@ -90,12 +90,12 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteract);
     }
 
-    private Vector4i GetSelector(Vector4i original, State state)
+    private Selector GetSelector(Selector original, State state)
     {
-        return state.Get(IsOpen) ? (0, 0, 0, 1) : (0, 0, 0, 0);
+        return original.WithLayer(state.Get(IsOpen) ? 1 : 0);
     }
     
-    private Utilities.Orientation GetOrientationOverride(Utilities.Orientation original, State state)
+    private Orientation GetOrientationOverride(Orientation original, State state)
     {
         if (!state.Get(IsOpen)) return original;
         
@@ -106,7 +106,7 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
     {
         (World world, Vector3i position, Actor? actor) = context;
 
-        Utilities.Orientation orientation = actor?.Head?.Forward.ToOrientation() ?? Utilities.Orientation.North;
+        Orientation orientation = actor?.Head?.Forward.ToOrientation() ?? Orientation.North;
         Side side = actor?.GetTargetedSide() ?? Side.Top;
 
         Boolean leftSided = GetLeftSided(world, position, side, orientation);
@@ -114,7 +114,7 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         return rotatable.SetOrientation(original.With(IsLeftSided, leftSided), orientation);
     }
 
-    private Boolean GetLeftSided(World world, Vector3i position, Side side, Utilities.Orientation orientation)
+    private Boolean GetLeftSided(World world, Vector3i position, Side side, Orientation orientation)
     {
         Boolean leftSided;
 
@@ -143,7 +143,7 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         Boolean leftSided = message.State.Get(IsLeftSided);
         Boolean wasOpen = message.State.Get(IsOpen);
 
-        Utilities.Orientation orientation = rotatable.GetOrientation(message.State);
+        Orientation orientation = rotatable.GetOrientation(message.State);
         orientation = leftSided ? orientation.Opposite() : orientation;
         
         ToggleNeighbor(orientation.Rotate().Opposite().Offset(message.Position));

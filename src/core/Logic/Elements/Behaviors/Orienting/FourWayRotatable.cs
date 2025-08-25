@@ -18,8 +18,8 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 /// </summary>
 public class FourWayRotatable : BlockBehavior, IBehavior<FourWayRotatable, BlockBehavior, Block>
 {
-    private IAttribute<Utilities.Orientation> Orientation => orientation ?? throw Exceptions.NotInitialized(nameof(orientation));
-    private IAttribute<Utilities.Orientation>? orientation;
+    private IAttribute<Orientation> Orientation => orientation ?? throw Exceptions.NotInitialized(nameof(orientation));
+    private IAttribute<Orientation>? orientation;
     
     private FourWayRotatable(Block subject) : base(subject)
     {
@@ -39,7 +39,7 @@ public class FourWayRotatable : BlockBehavior, IBehavior<FourWayRotatable, Block
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        orientation = builder.Define(nameof(orientation)).Enum<Utilities.Orientation>()
+        orientation = builder.Define(nameof(orientation)).Enum<Orientation>()
             .Attribute(placementDefault: Utilities.Orientation.South, generationDefault: Utilities.Orientation.South);
     }
     
@@ -63,12 +63,12 @@ public class FourWayRotatable : BlockBehavior, IBehavior<FourWayRotatable, Block
         return SetOrientation(state, side.ToOrientation());
     }
     
-    public Utilities.Orientation GetOrientation(State state) // todo: remove
+    public Orientation GetOrientation(State state) // todo: remove
     {
         return state.Get(Orientation);
     }
 
-    public State SetOrientation(State state, Utilities.Orientation newOrientation) // todo: remove
+    public State SetOrientation(State state, Orientation newOrientation) // todo: remove
     {
         return state.With(Orientation, newOrientation);
     }

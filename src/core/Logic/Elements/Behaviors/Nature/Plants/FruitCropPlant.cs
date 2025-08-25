@@ -116,7 +116,7 @@ public class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, BlockBeha
                     Elements.Fluids.Instance.FreshWater,
                     FluidLevel.Two))
             {
-                foreach (Utilities.Orientation orientation in Orientations.ShuffledStart(message.Position))
+                foreach (Orientation orientation in Orientations.ShuffledStart(message.Position))
                 {
                     if (!fruit.Place(message.World, orientation.Offset(message.Position))) 
                         continue;

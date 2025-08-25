@@ -53,11 +53,9 @@ public class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Block>
         bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteraction);
     }
     
-    private Vector4i GetSelector(Vector4i original, State state)
+    private Selector GetSelector(Selector original, State state)
     {
-        Vector4i result = original;
-        result.W = state.Get(IsOpen) ? 0 : 1;
-        return result;
+        return original.WithLayer(state.Get(IsOpen) ? 0 : 1);
     }
     
     private Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)

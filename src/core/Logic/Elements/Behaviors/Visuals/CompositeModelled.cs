@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -30,8 +29,8 @@ public class CompositeModelled : BlockBehavior, IBehavior<CompositeModelled, Blo
         return new CompositeModelled(input);
     }
     
-    private Vector4i GetSelector(Vector4i original, State state)
+    private Selector GetSelector(Selector original, State state)
     {
-        return new Vector4i(composite.GetPartPosition(state), w: 0);
+        return original.WithPart(composite.GetPartPosition(state));
     }
 }

@@ -4,7 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -25,8 +27,8 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     private Modelled(Block subject) : base(subject)
     {
         LayersInitializer = Aspect<IReadOnlyList<RID>, Block>.New<Exclusive<IReadOnlyList<RID>, Block>>(nameof(LayersInitializer), this);
-        
-        Selector = Aspect<Vector4i, State>.New<Exclusive<Vector4i, State>>(nameof(Selector), this); // todo: maybe do not use Vector4i but a custom struct and a custom strategy that allows to combine compatible selectors
+
+        Selector = Aspect<Selector, State>.New<Chaining<Selector, State>>(nameof(Selector), this);
         Model = Aspect<BlockModel, State>.New<Exclusive<BlockModel, State>>(nameof(Model), this);
         
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
@@ -57,10 +59,22 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
         Layers = LayersInitializer.GetValue(new List<RID>(), Subject);
     }
 
+    /// <inheritdoc />
+    protected override void OnValidate(IResourceContext context)
+    {
+        if (Layers.Count == 0)
+            context.ReportWarning(this, "No layers defined for modelled block");
+        
+        if (Layers.Count > Visuals.Selector.MaxLayerCount)
+            context.ReportWarning(this, $"Too many layers defined for modelled block (max {Visuals.Selector.MaxLayerCount}, got {Layers.Count})");
+        
+        Layers = Layers.Take(Visuals.Selector.MaxLayerCount).ToArray();
+    }
+
     /// <summary>
     /// Selector to choose which layer and model part is used for a specific state of the block.
     /// </summary>
-    public Aspect<Vector4i, State> Selector { get; }
+    public Aspect<Selector, State> Selector { get; }
     
     /// <summary>
     /// The actually used block model used for a given state of the block.
@@ -71,18 +85,51 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     {
         (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration _) = context;
 
-        Vector4i selector = Selector.GetValue(Vector4i.Zero, state);
-        // todo: create selector type with four bytes
+        Selector selector = Selector.GetValue(original: default, state);
         
-        RID layer = Layers[selector.W]; // todo: handle out of bounds access
+        RID layer = Layers[selector.Layer]; // todo: handle out of bounds access
         
-        // todo: add a new MID struct similar to TID, contains a RID and additional optional part selection
-        // todo: the block model loader should go through all models and split them if needed, store all parts - so each model is split once and not on every call here
-
-        BlockModel model = blockModelProvider.GetModel(layer); // todo: adapt to also take selector.Xyz
+        BlockModel model = blockModelProvider.GetModel(layer, selector.Part);
 
         model = Model.GetValue(model, state);
         
-        return model.CreateMesh(textureIndexProvider); // todo: the block model loader should by default always split models greater then 1x1x1 into parts, for all models so the block specific model processing code should not be needed anymore
+        return model.CreateMesh(textureIndexProvider);
     }
+}
+
+/// <summary>
+/// Serves to select a specific part of a model and the layer to use.
+/// </summary>
+public readonly struct Selector(Byte x, Byte y, Byte z, Byte layer)
+{
+    /// <summary>
+    /// The maximum number of layers that can be used.
+    /// </summary>
+    public const Int32 MaxLayerCount = Byte.MaxValue;
+
+    /// <summary>
+    /// Get the selected layer.
+    /// </summary>
+    public Int32 Layer => layer;
+    
+    /// <summary>
+    /// Get the selected part coordinates.
+    /// </summary>
+    public Vector3i Part => new(x, y, z);
+    
+    /// <summary>
+    /// Get a modified copy of this selector with the given layer.
+    /// </summary>
+    public Selector WithLayer(Byte newLayer) => new(x, y, z, newLayer);
+    
+    /// <inheritdoc cref="WithLayer(Byte)"/>
+    public Selector WithLayer(Int32 newLayer)
+    {
+        return new Selector(x, y, z, (Byte) newLayer);
+    }
+
+    /// <summary>
+    /// Get a modified copy of this selector with the given part.
+    /// </summary>
+    public Selector WithPart(Vector3i newPart) => new((Byte) newPart.X, (Byte) newPart.Y, (Byte) newPart.Z, layer);
 }

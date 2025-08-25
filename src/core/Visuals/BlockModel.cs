@@ -101,50 +101,92 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
 
         return new BlockMesh(quads);
     }
-
+    
     /// <summary>
-    ///     Splits the BlockModel into two parts, using a given plane to sort all faces.
+    /// Get the axis-aligned bounding box of this model.
     /// </summary>
-    /// <param name="position">Position of the plane.</param>
-    /// <param name="normal">Normal of the plane.</param>
-    /// <param name="a">The first model.</param>
-    /// <param name="b">The second model.</param>
-    public void PlaneSplit(Vector3d position, Vector3d normal, out BlockModel a, out BlockModel b)
+    /// <returns>The bounding box.</returns>
+    public Box3d GetBounds()
     {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+        if (Quads.Length == 0)
+            return new Box3d();
 
-        normal = normal.Normalized();
-        List<Quad> quadsA = [];
-        List<Quad> quadsB = [];
+        Vector3d min = Quads[0].Vert0.Position;
+        Vector3d max = Quads[0].Vert0.Position;
 
         foreach (Quad quad in Quads)
-            if (Vector3d.Dot(quad.Center - position, normal) > 0) quadsA.Add(quad);
-            else quadsB.Add(quad);
+        {
+            foreach (Vertex vert in (Vertex[]) [quad.Vert0, quad.Vert1, quad.Vert2, quad.Vert3])
+            {
+                min = Vector3d.ComponentMin(min, vert.Position);
+                max = Vector3d.ComponentMax(max, vert.Position);
+            }
+        }
 
-        a = new BlockModel {TextureNames = TextureNames};
-        b = new BlockModel {TextureNames = TextureNames};
-
-        a.Quads = quadsA.ToArray();
-        b.Quads = quadsB.ToArray();
+        return new Box3d(min, max);
     }
 
     /// <summary>
-    ///     Moves all vertices of this model.
+    /// Partitions the model into block-sized parts.
+    /// This method does not cut individual quads, it only sorts them into the parts they fully belong to.
+    /// Quads are also moved so that the part they belong to has its origin at (0,0,0).
     /// </summary>
-    /// <param name="movement"></param>
-    public void Move(Vector3d movement)
+    /// <returns>The parts of the model.</returns>
+    public BlockModel[,,] PartitionByBlocks()
     {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+        // todo: this is a bit ugly and could maybe sometimes put quads into the wrong part
+        // todo: so add to the note for the custom editor that models should already define the separation in the format
+        // todo: so the format would be changed and the editor would help with displaying and configuring that
+        
+        Box3d bounds = GetBounds();
+        
+        var sizeX = (Int32) Math.Ceiling(bounds.Size.X);
+        var sizeY = (Int32) Math.Ceiling(bounds.Size.Y);
+        var sizeZ = (Int32) Math.Ceiling(bounds.Size.Z);
+        
+        var partQuads = new List<Quad>[sizeX, sizeY, sizeZ];
+        for (var x = 0; x < sizeX; x++)
+        for (var y = 0; y < sizeY; y++)
+        for (var z = 0; z < sizeZ; z++)
+            partQuads[x, y, z] = [];
 
-        var xyz = Matrix4.CreateTranslation((Vector3) movement);
-
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
+        foreach (Quad quad in Quads)
+        {
+            Vector3i target = quad.Center.Floor();
+            
+            Int32 x = Math.Clamp(target.X, min: 0, sizeX - 1);
+            Int32 y = Math.Clamp(target.Y, min: 0, sizeY - 1);
+            Int32 z = Math.Clamp(target.Z, min: 0, sizeZ - 1);
+            
+            partQuads[x, y, z].Add(quad);
+        }
+        
+        var parts = new BlockModel[sizeX, sizeY, sizeZ];
+        
+        for (var x = 0; x < sizeX; x++)
+        for (var y = 0; y < sizeY; y++)
+        for (var z = 0; z < sizeZ; z++)
+        {
+            List<Quad> quads = partQuads[x, y, z];
+            
+            var translation = Matrix4.CreateTranslation(x: -x, y: -y, z: -z);
+            for (var index = 0; index < quads.Count; index++)
+            {
+                quads[index] = quads[index].ApplyMatrix(translation);
+            }
+            
+            parts[x, y, z] = new BlockModel
+            {
+                TextureNames = TextureNames.ToArray(),
+                Quads = quads.ToArray()
+            };
+        }
+        
+        return parts;
     }
 
     /// <summary>
-    ///     Rotates the model on the y axis in steps of ninety degrees.
+    ///     Rotates the model on the y-axis in steps of ninety degrees.
     /// </summary>
     /// <param name="rotations">Number of rotations.</param>
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>

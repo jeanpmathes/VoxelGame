@@ -16,7 +16,6 @@ namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 #pragma warning disable CA1001 // SubBiomeDefinitionProvider is safe to not dispose.
 #pragma warning disable S2931 // SubBiomeDefinition is safe to not dispose.
 public class SubBiomeDefinitionProvider : ResourceProvider<SubBiomeDefinition>, ISubBiomeDefinitionProvider
-
 {
     private SubBiomeDefinition? fallback;
 
