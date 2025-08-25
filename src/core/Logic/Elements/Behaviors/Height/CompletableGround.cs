@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -18,9 +19,11 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 /// </summary>
 public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, BlockBehavior, Block>
 {
+    private Block replacement = null!;
+    
     private CompletableGround(Block subject) : base(subject)
     {
-        ReplacementInitializer = Aspect<Block, Block>.New<Exclusive<Block, Block>>(nameof(ReplacementInitializer), this);
+        ReplacementInitializer = Aspect<String?, Block>.New<Exclusive<String?, Block>>(nameof(ReplacementInitializer), this);
     }
     
     /// <inheritdoc/>
@@ -32,26 +35,34 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
     /// <summary>
     /// The block that will replace this block to complete it.
     /// </summary>
-    public Block Replacement { get; private set; } = Blocks.Instance.Core.Error;
+    public String? Replacement { get; private set; }
     
     /// <summary>
     /// Aspect used to initialize the <see cref="Replacement"/> property.
     /// </summary>
-    public Aspect<Block, Block> ReplacementInitializer { get; }
+    public Aspect<String?, Block> ReplacementInitializer { get; }
 
     /// <inheritdoc/>
     public override void OnInitialize(BlockProperties properties)
     {
-        Replacement = ReplacementInitializer.GetValue(original: Blocks.Instance.Core.Error, Subject);
+        Replacement = ReplacementInitializer.GetValue(original: null, Subject);
     }
 
     /// <inheritdoc/>
     protected override void OnValidate(IResourceContext context)
     {
-        if (Replacement == Blocks.Instance.Core.Error)
+        if (Replacement == null)
             context.ReportWarning(this, "Replacement block is not set");
+        
+        if (Replacement == Subject.NamedID)
+            context.ReportWarning(this, "Replacement block cannot be the same as the block itself");
+        
+        replacement = Blocks.Instance.SafelyTranslateNamedID(Replacement);
+        
+        if (replacement == Blocks.Instance.Core.Error && Replacement != Blocks.Instance.Core.Error.NamedID)
+            context.ReportWarning(this, $"The replacement block '{Replacement}' could not be found");
 
-        if (!Replacement.IsFullySolid(Replacement.States.Default))
+        if (!replacement.IsFullySolid(replacement.States.Default))
             context.ReportWarning(this, "Replacement block is not fully solid");
     }
 
@@ -62,9 +73,9 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
     /// <param name="position">The position of the block.</param>
     public void BecomeComplete(World world, Vector3i position)
     {
-        if (Replacement == Blocks.Instance.Core.Error)
+        if (replacement == Blocks.Instance.Core.Error)
             return;
 
-        world.SetBlock(new BlockInstance(Replacement.States.Default), position);
+        world.SetBlock(new BlockInstance(replacement.States.Default), position);
     }
 }
