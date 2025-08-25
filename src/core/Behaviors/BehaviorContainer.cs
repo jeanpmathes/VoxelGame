@@ -50,6 +50,9 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
         Int32 id = IBehavior<TConcreteBehavior, TBehavior, TSelf>.ID;
 
+        if (id == IBehavior.UnknownID)
+            return null; // No block is actually using this behavior.
+
         return id < baked.Length ? (TConcreteBehavior?) baked[id] : null;
     }
 
