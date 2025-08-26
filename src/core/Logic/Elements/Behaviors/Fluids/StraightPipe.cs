@@ -33,6 +33,8 @@ public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior
         rotation = subject.Require<AxisRotatable>();
         piped = subject.Require<Piped>();
         
+        piped.IsConnectionAllowed.ContributeFunction(GetIsConnectionAllowed);
+        
         subject.Require<Pipe>().OpenSides.ContributeFunction(GetOpenSides);
         
         subject.Require<Modelled>().Model.ContributeFunction(GetModel);
@@ -45,6 +47,13 @@ public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior
     public static StraightPipe Construct(Block input)
     {
         return new StraightPipe(input);
+    }
+    
+    private Boolean GetIsConnectionAllowed(Boolean original, (State state, Side side) context)
+    {
+        (State state, Side side) = context;
+        
+        return rotation.GetAxis(state) == side.Axis();
     }
     
     private Sides GetOpenSides(Sides original, State state)

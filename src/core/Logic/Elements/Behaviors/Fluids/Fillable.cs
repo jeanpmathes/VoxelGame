@@ -91,6 +91,6 @@ public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
         if (block is not { State: var state }) return false;
         if (state.Block != Subject) return false;
         
-        return IsInflowAllowed.GetValue(original: true, (world, position, state, side, fluid));
+        return IsOutflowAllowed.GetValue(original: true, (world, position, state, side, fluid));
     }
 }
