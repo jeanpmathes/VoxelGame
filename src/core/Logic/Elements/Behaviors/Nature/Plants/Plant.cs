@@ -28,12 +28,16 @@ public class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Block>
 {
     private IAttribute<Boolean> IsLowered => isLowered ?? throw Exceptions.NotInitialized(nameof(isLowered));
     private IAttribute<Boolean>? isLowered;
+
+    private Boolean isComposite;
     
     private Plant(Block subject) : base(subject)
     {
         subject.Require<Combustible>();
         subject.Require<Fillable>();
         subject.Require<Foliage>().IsLowered.ContributeFunction((_, state) => state.Get(IsLowered));
+        
+        subject.RequireIfPresent<CompositePlant, Composite>(_ => isComposite = true);
         
         subject.PlacementState.ContributeFunction(GetPlacementState);
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
@@ -60,11 +64,14 @@ public class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+        if (!isComposite)
+            bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
 
-    private static Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
+    private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
+        if (isComposite) return true;
+        
         (World world, Vector3i position, Actor? _) = context;
         
         BlockInstance? ground = world.GetBlock(position.Below());
