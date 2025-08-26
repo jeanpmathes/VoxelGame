@@ -20,8 +20,12 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors;
 /// </summary>
 public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
 {
+    private Boolean isComposite;
+
     private Grounded(Block subject) : base(subject)
     {
+        subject.RequireIfPresent<CompositeGrounded, Composite>(_ => isComposite = true);
+        
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
     }
 
@@ -34,23 +38,19 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
     /// <inheritdoc/>
     public override void SubscribeToEvents(IEventBus bus)
     {
+        if (isComposite) return;
+
         bus.Subscribe<Block.PlacementCompletedMessage>(OnPlacementCompleted);
         bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
 
-    private static Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
+    private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
+        if (isComposite) return true;
+        
         (World world, Vector3i position, Actor? _) = context;
-
+        
         return IsGrounded(world, position);
-    }
-
-    private static Boolean IsGrounded(World world, Vector3i position)
-    {
-        Vector3i positionBelow = position.Below();
-        BlockInstance blockBelow = world.GetBlock(positionBelow) ?? BlockInstance.Default;
-
-        return blockBelow.IsFullySolid || blockBelow.Block.Has<CompletableGround>();
     }
     
     private static void OnPlacementCompleted(Block.PlacementCompletedMessage message)
@@ -70,5 +70,16 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
         if (message.Side != Side.Bottom || IsGrounded(message.World, message.Position)) return;
 
         Subject.ScheduleDestroy(message.World, message.Position);
+    }
+    
+    /// <summary>
+    /// Check if a position is grounded.
+    /// </summary>
+    internal static Boolean IsGrounded(World world, Vector3i position)
+    {
+        Vector3i positionBelow = position.Below();
+        BlockInstance blockBelow = world.GetBlock(positionBelow) ?? BlockInstance.Default;
+
+        return blockBelow.IsFullySolid || blockBelow.Block.Has<CompletableGround>();
     }
 }

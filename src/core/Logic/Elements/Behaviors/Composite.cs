@@ -31,6 +31,7 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
         MaximumSizeInitializer = Aspect<Vector3i, Block>.New<Exclusive<Vector3i, Block>>(nameof(MaximumSizeInitializer), this);
 
         Size = Aspect<Vector3i, State>.New<Exclusive<Vector3i, State>>(nameof(Size), this);
+        IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Vector3i, Actor?)>.New<ANDing<(World, Vector3i, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
         
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
     }
@@ -56,6 +57,11 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     /// The actual size of a given state of the block.
     /// </summary>
     public Aspect<Vector3i, State> Size { get; }
+    
+    /// <summary>
+    /// Aspect to check whether the block can be placed at a given position in the world.
+    /// </summary>
+    public Aspect<Boolean, (World world, Vector3i position, Vector3i part, Actor? actor)> IsPlacementAllowed { get; }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
@@ -93,18 +99,26 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     }
 
     /// <inheritdoc />
+    public override void DefineEvents(IEventRegistry registry)
+    {
+        NeighborUpdate = registry.RegisterEvent<NeighborUpdateMessage>();
+        PlacementCompleted = registry.RegisterEvent<PlacementCompletedMessage>();
+    }
+
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.PlacementMessage>(OnPlacement);
         bus.Subscribe<Block.DestructionMessage>(OnDestruction);
         bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
+        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
-        (World world, Vector3i position, Actor? _) = context;
+        (World world, Vector3i position, Actor? actor) = context;
         
-        Vector3i size = Size.GetValue(MaximumSize, Subject.GetPlacementState(world, position, context.actor));
+        Vector3i size = Size.GetValue(MaximumSize, Subject.GetPlacementState(world, position, actor));
         
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
@@ -115,12 +129,8 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
             if (block?.IsReplaceable != true)
                 return false;
             
-            // todo: add an aspect similar to IsPlacementAllowed on block but specially for composite blocks
-            // todo: it should also receive the part position in the context
-            // todo: ----> use the conditional require on behaviors to conditionally enable functionality
-            // todo: use this in Plant behavior to check all Y = 0 blocks whether ground is plantable [also have a isComposite field to skip non-composite checks/events then]
-            // todo: use this in Grounded behavior to check all Y = 0 blocks whether ground is OK (also find a way to perform completion for each position - have a new composite placement complete event that also contains the part position) [also have a isComposite field to skip non-composite checks/events then]
-            // todo: go through all other placement aspects and event subscriptions and see if they need to be adapted for composite blocks
+            if (!IsPlacementAllowed.GetValue(original: true, (world, position + (x, y, z), (x, y, z), actor)))
+                return false;
         }
 
         return true;
@@ -130,29 +140,38 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     {
         State state = Subject.GetPlacementState(message.World, message.Position, message.Actor);
         Vector3i size = Size.GetValue(MaximumSize, state);
-        
+
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
         for (var z = 0; z < size.Z; z++)
         {
             Vector3i position = message.Position + (x, y, z);
-            
+
             state = Subject.GetPlacementState(message.World, position, message.Actor);
             state.Set(Part, (x, y, z));
-            
+
             message.World.SetBlock(new BlockInstance(state), position);
+
+            PlacementCompleted.Publish(new PlacementCompletedMessage(Subject)
+            {
+                World = message.World,
+                Position = position,
+                Part = (x, y, z),
+                Actor = message.Actor
+            });
         }
     }
     
     private void OnDestruction(Block.DestructionMessage message)
     {
         Vector3i size = Size.GetValue(MaximumSize, message.State);
+        Vector3i root = message.Position - GetPartPosition(message.State);
         
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
         for (var z = 0; z < size.Z; z++)
         {
-            Vector3i position = message.Position + (x, y, z);
+            Vector3i position = root + (x, y, z);
             message.World.SetDefaultBlock(position);
         }
     }
@@ -169,6 +188,28 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
             ResizeComposite(message.World, message.Position - GetPartPosition(oldState), oldSize, newSize, newState);
         else if (message.OldContent.Block.State != message.NewContent.Block.State)
             SetStateOnAllParts(message.World, message.NewContent.Block.State, newSize, message.Position - GetPartPosition(oldState));
+    }
+    
+    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    {
+        Vector3i size = Size.GetValue(MaximumSize, message.State);
+        
+        Vector3i currentPart = GetPartPosition(message.State);
+        Vector3i updatedPart = message.Side.Offset(currentPart);
+        
+        Boolean isPartOfComposite = updatedPart is {X: >= 0, Y: >= 0, Z: >= 0}
+                                    && updatedPart.X < size.X && updatedPart.Y < size.Y && updatedPart.Z < size.Z;
+        
+        if (isPartOfComposite) return;
+        
+        NeighborUpdate.Publish(new NeighborUpdateMessage(Subject)
+        {
+            World = message.World,
+            Position = message.Position,
+            Part = currentPart,
+            State = message.State,
+            Side = message.Side
+        });
     }
 
     private void ResizeComposite(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, State state)
@@ -227,4 +268,73 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     {
         return state.Get(Part);
     }
+    
+    /// <summary>
+    /// Sent when a neighboring position with a different block is updated.
+    /// This is essentially a filtered version of <see cref="Block.NeighborUpdateMessage"/> adapted to composite blocks.
+    /// </summary>
+    /// <param name="Sender">The block that sent the message.</param>
+    public record NeighborUpdateMessage(Object Sender) : IEventMessage
+    {
+        /// <summary>
+        /// The world in which the neighbor update occurs.
+        /// </summary>
+        public World World { get; set; } = null!;
+
+        /// <summary>
+        /// The position of the block.
+        /// </summary>
+        public Vector3i Position { get; set; }
+
+        /// <summary>
+        /// The part of the block that is affected.
+        /// </summary>
+        public Vector3i Part { get; set; }
+        
+        /// <summary>
+        /// The state of this, unchanged, block at the position.
+        /// </summary>
+        public State State { get; set; }
+
+        /// <summary>
+        /// The side of the block where the change happened.
+        /// </summary>
+        public Side Side { get; set; }
+    }
+    
+    /// <summary>
+    /// Called when a neighboring position with a different block is updated.
+    /// </summary>
+    public IEvent<NeighborUpdateMessage> NeighborUpdate { get; private set; } = null!;
+
+    /// <summary>
+    /// Sent after the composite block was placed in the world successfully.
+    /// </summary>
+    public record PlacementCompletedMessage(Object Sender) : IEventMessage
+    {
+        /// <summary>
+        /// The world in which the placement was completed.
+        /// </summary>
+        public World World { get; set; } = null!;
+
+        /// <summary>
+        /// The position at which the composite block was placed.
+        /// </summary>
+        public Vector3i Position { get; set; }
+
+        /// <summary>
+        /// The part of the composite block that was placed.
+        /// </summary>
+        public Vector3i Part { get; set; }
+
+        /// <summary>
+        /// The actor that placed the block.
+        /// </summary>
+        public Actor? Actor { get; set; }
+    }
+
+    /// <summary>
+    /// Called after the composite block was placed in the world successfully.
+    /// </summary>
+    public IEvent<PlacementCompletedMessage> PlacementCompleted { get; private set; } = null!;
 }

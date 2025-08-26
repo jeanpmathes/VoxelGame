@@ -51,7 +51,7 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         Orientation orientation = rotatable.GetOrientation(state);
         
         if (state.Get(IsOpen))
-            orientation = state.Get(IsLeftSided) ? orientation.Rotate().Opposite() : orientation.Rotate();
+            orientation = state.Get(IsLeftSided) ? orientation.Rotate() : orientation.Rotate().Opposite();
 
         return orientation switch
         {
@@ -144,9 +144,8 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         Boolean wasOpen = message.State.Get(IsOpen);
 
         Orientation orientation = rotatable.GetOrientation(message.State);
-        orientation = leftSided ? orientation.Opposite() : orientation;
-        
-        ToggleNeighbor(orientation.Rotate().Opposite().Offset(message.Position));
+
+        ToggleNeighbor((leftSided ? orientation : orientation.Opposite()).Rotate().Offset(message.Position));
 
         void ToggleNeighbor(Vector3i neighborPosition)
         {
