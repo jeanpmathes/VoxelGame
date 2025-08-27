@@ -7,6 +7,7 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Definitions;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Conventions;
@@ -34,7 +35,11 @@ public class ShowcaseConvention : Command
             case nameof(Coal):
                 ShowcaseCoal();
                 break;
-            
+
+            case nameof(Crop):
+                ShowcaseCrops();
+                break;
+
             default:
                 Context.Output.WriteError($"No known convention '{convention}'.");
                 return;
@@ -52,6 +57,41 @@ public class ShowcaseConvention : Command
             position += Vector3i.UnitX;
 
             coal.Block.Place(Context.Player.World, position);
+        }
+    }
+
+    private void ShowcaseCrops()
+    {
+        Vector3i position = Context.Player.Body.Transform.Position.Floor();
+        World world = Context.Player.World;
+
+        foreach (IContent content in Blocks.Instance.Crops.Contents)
+        {
+            if (content is not Crop crop) continue;
+
+            position += Vector3i.UnitX * 3;
+
+            Vector3i farmland = position;
+            
+            Blocks.Instance.Core.Dev.Place(world, farmland.Below());
+            Blocks.Instance.Environment.Farmland.Place(world, farmland);
+            
+            crop.Plant.Place(world, farmland.Above());
+            
+            for (Int32 x = -1; x <= 1; x++)
+            for (Int32 z = -1; z <= 1; z++)
+            {
+                if (x == 0 && z == 0) continue;
+
+                Blocks.Instance.Core.Dev.Place(world, farmland + new Vector3i(x, y: +0, z));
+                Blocks.Instance.Core.Dev.Place(world, farmland + new Vector3i(x, y: -1, z));
+            }
+
+            if (crop.Fruit == null) continue;
+
+            Vector3i fruit = position + Vector3i.UnitZ * 2;
+            Blocks.Instance.Core.Dev.Place(world, fruit.Below());
+            crop.Fruit.Place(world, fruit);
         }
     }
 }
