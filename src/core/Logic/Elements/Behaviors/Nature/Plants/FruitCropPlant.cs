@@ -41,7 +41,7 @@ public class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, BlockBeha
         plant.StageCountInitializer.ContributeConstant(value: 2);
         
         var foliage = subject.Require<Foliage>();
-        foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Crop, exclusive: true);
+        foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
         foliage.Part.ContributeConstant(Foliage.PartType.Single);
         
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);

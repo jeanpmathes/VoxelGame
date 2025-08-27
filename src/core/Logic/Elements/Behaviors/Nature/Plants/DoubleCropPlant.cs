@@ -35,7 +35,7 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
         composite.Size.ContributeFunction(GetSize);
         
         var foliage = subject.Require<Foliage>();
-        foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
+        foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Crop, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
         
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
