@@ -26,6 +26,12 @@ public class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     }
 
     /// <inheritdoc/>
+    public override void DefineEvents(IEventRegistry registry)
+    {
+        BecomeWet = registry.RegisterEvent<BecomeWetMessage>();
+    }
+
+    /// <inheritdoc/>
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
