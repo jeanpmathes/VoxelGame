@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
@@ -16,6 +17,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Definitions;
+using VoxelGame.Core.Logic.Elements.Behaviors;
 using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Serialization;
@@ -1020,10 +1022,14 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
         
         placementBoundingVolume = BoundingVolume.GetValue(Physics.BoundingVolume.Block, States.PlacementDefault);
         
-        for (var index = 0; index < States.Count; index++)
+        foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
         {
-            State state = States.GetStateByIndex(index);
-
+            if (!Constraint.IsStateValid(state))
+            {
+                stateBoundingVolumes[index] = Physics.BoundingVolume.Block;
+                continue;
+            }
+            
             BoundingVolume boundingVolume = BoundingVolume.GetValue(Physics.BoundingVolume.Block, state);
             stateBoundingVolumes[index] = boundingVolume;
             

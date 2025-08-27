@@ -197,6 +197,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated
         // todo: check if index is valid
         
         // todo: instead of storing state index, why not store serialized attributes?
+        // todo: also, add a way to get the attribute representation of a state as a string, the property system might be able to do that but add a utility to get it to the state itself
 
         State state = block.States.GetStateByIndex(placement.StateIndex);
 

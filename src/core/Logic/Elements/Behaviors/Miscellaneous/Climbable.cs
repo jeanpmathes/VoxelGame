@@ -11,7 +11,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 
-namespace VoxelGame.Core.Logic.Elements.Behaviors;
+namespace VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 
 /// <summary>
 /// Allows an actor to climb up and down on this block.

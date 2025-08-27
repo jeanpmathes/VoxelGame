@@ -89,7 +89,7 @@ public class StateSet
     /// </summary>
     /// <param name="index">The state index, which is a number greater or equal to 0 and less than <see cref="Count"/>.</param>
     /// <returns>The state corresponding to the index.</returns>
-    public State GetStateByIndex(Int32 index) // todo: go through usages, replace with GetAllStates() if in a loop
+    public State GetStateByIndex(Int32 index)
     {
         Debug.Assert(index >= 0 && index < Count);
         
@@ -109,6 +109,7 @@ public class StateSet
     /// <summary>
     /// Get all states in this set.
     /// Note that this will generate the states on the fly, so do not use this after loading.
+    /// The order of states is guaranteed to be the same as the order of state indices.
     /// </summary>
     /// <returns>An enumerable of all states in this set.</returns>
     public IEnumerable<State> GetAllStates()
@@ -116,6 +117,20 @@ public class StateSet
         for (var index = 0; index < Count; index++)
         {
             yield return GetStateByIndex(index);
+        }
+    }
+    
+    /// <summary>
+    /// Get all states in this set along with their indices.
+    /// Note that this will generate the states on the fly, so do not use this after
+    /// The order of states is guaranteed to be the same as the order of state indices.
+    /// </summary>
+    /// <returns>An enumerable of all states in this set along with their indices.</returns>
+    public IEnumerable<(State, Int32)> GetAllStatesWithIndex()
+    {
+        for (var index = 0; index < Count; index++)
+        {
+            yield return (GetStateByIndex(index), index);
         }
     }
 }

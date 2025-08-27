@@ -34,6 +34,8 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
         IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Vector3i, Actor?)>.New<ANDing<(World, Vector3i, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
         
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
+        
+        subject.Require<Constraint>().IsValid.ContributeFunction(GetIsValid);
     }
 
     /// <inheritdoc />
@@ -134,6 +136,15 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
         }
 
         return true;
+    }
+    
+    private Boolean GetIsValid(Boolean original, State state)
+    {
+        Vector3i currentSize = Size.GetValue(MaximumSize, state);
+        Vector3i currentPart = GetPartPosition(state);
+        
+        return currentPart is {X: >= 0, Y: >= 0, Z: >= 0}
+               && currentPart.X < currentSize.X && currentPart.Y < currentSize.Y && currentPart.Z < currentSize.Z;
     }
     
     private void OnPlacement(Block.PlacementMessage message)

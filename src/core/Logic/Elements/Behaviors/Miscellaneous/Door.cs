@@ -18,7 +18,7 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.Core.Logic.Elements.Behaviors;
+namespace VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 
 /// <summary>
 /// Can be opened and closed, allowing bodies to pass through.

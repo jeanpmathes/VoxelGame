@@ -11,7 +11,7 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Core.Logic.Elements.Behaviors;
+namespace VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 
 /// <summary>
 /// Slows down all entities that come into contact with the block.

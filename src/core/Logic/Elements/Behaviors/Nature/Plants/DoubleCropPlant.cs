@@ -76,7 +76,7 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
     {
         // todo: aspect with number of textures which is then used to determine the number of stages (subtract one because of dead stage)
         
-        return original.Offset((Byte) (plant.GetStage(state) + 1 ?? 0));
+        return original.Offset((Byte) (plant.GetStage(state) + 1 ?? 0), (Byte)(composite.GetPartPosition(state).Y == 0 ? 0 : 1));
     }
     
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

@@ -8,6 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Behaviors;
 using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
 
 namespace VoxelGame.Core.Visuals.Meshables;
@@ -41,9 +42,15 @@ public class ComplexBlock : Block
     {
         meshData = new Complex.MeshData[States.Count];
         
-        for (var index = 0; index < States.Count; index++)
+        foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
         {
-            State state = States.GetStateByIndex(index);
+            if (!Constraint.IsStateValid(state))
+            {
+                BlockMesh.Quad[] quads = BlockModels.CreateFallback().CreateMesh(textureIndexProvider).GetMeshData(out UInt32 count); // todo: create a method to get fallback model easier and without texture provider, do it in static constructor instead of in loop
+                
+                meshData[index] = new Complex.MeshData(quads, count, ColorS.None, IsAnimated: false);
+                continue;
+            }
 
             Complex.MeshData mesh = complex.GetMeshData(state, textureIndexProvider, blockModelProvider, visuals);
             BuildMeshData(mesh);

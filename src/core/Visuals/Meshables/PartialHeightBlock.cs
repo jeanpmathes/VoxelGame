@@ -12,6 +12,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Behaviors;
 using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
@@ -52,9 +53,14 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         {
             meshData[side] = new PartialHeight.MeshData[States.Count];
             
-            for (var index = 0; index < States.Count; index++)
+            foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
             {
-                State state = States.GetStateByIndex(index);
+                if (!Constraint.IsStateValid(state))
+                {
+                    meshData[side][index] = new PartialHeight.MeshData(ITextureIndexProvider.MissingTextureIndex, ColorS.None, IsAnimated: false);
+                    continue;
+                }
+                
                 meshData[side][index] = partialHeightMeshable.GetMeshData(state, side, textureIndexProvider);
             }
         }

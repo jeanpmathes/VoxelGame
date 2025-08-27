@@ -23,6 +23,7 @@ public class Dirt : BlockBehavior, IBehavior<Dirt, BlockBehavior, Block>
     {
         subject.Require<Plantable>();
         subject.Require<Membrane>().MaxViscosityInitializer.ContributeConstant(value: 100);
+        subject.Require<Fillable>().IsFluidRenderedInitializer.ContributeConstant(value: false);
     }
     
     /// <inheritdoc/>

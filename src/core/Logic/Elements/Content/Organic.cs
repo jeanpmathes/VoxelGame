@@ -9,6 +9,7 @@ using VoxelGame.Core.Logic.Elements.Behaviors;
 using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Elements.Behaviors.Height;
+using VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 using VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 using VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
@@ -74,7 +75,9 @@ public class Organic(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     Lichen is a plant that grows on rocks and trees.
     /// </summary>
-    public Block Lichen { get; } = builder // todo: find a way to unify that at with the flat model which currently expects it to be FourWayRotatable - use glue behavior FourWay and SixWay to side flags, using the Sided behavior
+    public Block Lichen { get; } = builder 
+        // todo: find a way to unify that at with the flat model which currently expects it to be FourWayRotatable - use glue behavior FourWay and SixWay to side flags, using the Sided behavior
+        // todo: use the constraint behavior for the state that no side is set
         .BuildComplexBlock(Language.Lichen, nameof(Lichen))
         .WithBehavior<FlatModel>()
         .WithBehavior<SingleTextured>(textured => textured.DefaultTextureInitializer.ContributeConstant(TID.Block("lichen")))
