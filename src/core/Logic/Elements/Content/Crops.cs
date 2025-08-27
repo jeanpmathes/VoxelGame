@@ -25,12 +25,12 @@ public class Crops(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     Potatoes are a crop plant that grows on farmland. They require water to fully grow.
     /// </summary>
-    public Crop Potatoes { get; } = builder.BuildDenseCrop(Language.Potatoes, nameof(Potatoes));
+    public Crop Potato { get; } = builder.BuildDenseCrop(Language.Potato, nameof(Potato));
     
     /// <summary>
     ///     Onions are a crop plant that grows on farmland. They require water to fully grow.
     /// </summary>
-    public Crop Onions { get; } = builder.BuildDenseCrop(Language.Onions, nameof(Onions));
+    public Crop Onion { get; } = builder.BuildDenseCrop(Language.Onion, nameof(Onion));
     
     /// <summary>
     ///     Wheat is a crop plant that grows on farmland. It requires water to fully grow.

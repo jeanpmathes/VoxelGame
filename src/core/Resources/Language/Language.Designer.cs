@@ -1806,11 +1806,11 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Onions.
+        ///   Looks up a localized string similar to Onion.
         /// </summary>
-        public static string Onions {
+        public static string Onion {
             get {
-                return ResourceManager.GetString("Onions", resourceCulture);
+                return ResourceManager.GetString("Onion", resourceCulture);
             }
         }
         
@@ -2220,11 +2220,11 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Potatoes.
+        ///   Looks up a localized string similar to Potato.
         /// </summary>
-        public static string Potatoes {
+        public static string Potato {
             get {
-                return ResourceManager.GetString("Potatoes", resourceCulture);
+                return ResourceManager.GetString("Potato", resourceCulture);
             }
         }
         

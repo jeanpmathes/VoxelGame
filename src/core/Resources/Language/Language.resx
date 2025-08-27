@@ -249,18 +249,18 @@
     <data name="Obsidian" xml:space="preserve">
     <value>Obsidian</value>
   </data>
-    <data name="Onions" xml:space="preserve">
-    <value>Onions</value>
-  </data>
+    <data name="Onion" xml:space="preserve">
+        <value>Onion</value>
+    </data>
     <data name="Path" xml:space="preserve">
     <value>Path</value>
   </data>
     <data name="Petrol" xml:space="preserve">
     <value>Petrol</value>
   </data>
-    <data name="Potatoes" xml:space="preserve">
-    <value>Potatoes</value>
-  </data>
+    <data name="Potato" xml:space="preserve">
+        <value>Potato</value>
+    </data>
     <data name="PulsatingBlock" xml:space="preserve">
     <value>Pulsating Block</value>
   </data>
