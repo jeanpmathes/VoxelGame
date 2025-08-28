@@ -18,6 +18,14 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// </summary>
 public class FoliageBlock : Block
 {
+    private static readonly BlockMesh.Quad[] errorQuads;
+    private static readonly UInt32 errorQuadCount;
+
+    static FoliageBlock()
+    {
+        errorQuads = BlockMeshes.CreateCrossMesh(ITextureIndexProvider.MissingTextureIndex).GetMeshData(out errorQuadCount);
+    }
+    
     private readonly Foliage foliage;
 
     private Foliage.MeshData[] meshData = null!;
@@ -46,9 +54,7 @@ public class FoliageBlock : Block
         {
             if (!Constraint.IsStateValid(state))
             {
-                BlockMesh.Quad[] quads = BlockModels.CreateFallback().CreateMesh(textureIndexProvider).GetMeshData(out UInt32 count); // todo: create a method to get fallback model easier and without texture provider, do it in static constructor instead of in loop
-                
-                meshData[index] = new Foliage.MeshData(quads, count, ColorS.None, Foliage.PartType.Single, IsAnimated: false);
+                meshData[index] = new Foliage.MeshData(errorQuads, errorQuadCount, ColorS.None, Foliage.PartType.Single, IsAnimated: false);
                 continue;
             }
 

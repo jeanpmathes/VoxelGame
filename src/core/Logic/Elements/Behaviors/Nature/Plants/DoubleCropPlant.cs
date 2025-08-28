@@ -69,13 +69,11 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
 
     private Boolean IsDouble(State state)
     {
-        return plant.GetStage(state) > 3;
+        return plant.GetStage(state) > 1;
     }
     
     private TID GetActiveTexture(TID original, State state)
     {
-        // todo: aspect with number of textures which is then used to determine the number of stages (subtract one because of dead stage)
-        
         return original.Offset((Byte) (plant.GetStage(state) + 1 ?? 0), (Byte)(composite.GetPartPosition(state).Y == 0 ? 0 : 1));
     }
     

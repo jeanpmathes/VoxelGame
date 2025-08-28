@@ -192,13 +192,17 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
         State oldState = message.OldContent.Block.State;
         State newState = message.NewContent.Block.State;
         
+        if (oldState == newState) return;
+        
         Vector3i oldSize = Size.GetValue(MaximumSize, oldState);
         Vector3i newSize = Size.GetValue(MaximumSize, newState);
+        
+        Vector3i currentPart = GetPartPosition(oldState);
 
         if (oldSize != newSize)
-            ResizeComposite(message.World, message.Position - GetPartPosition(oldState), oldSize, newSize, newState);
+            ResizeComposite(message.World, message.Position - currentPart, oldSize, newSize, newState);
         else if (message.OldContent.Block.State != message.NewContent.Block.State)
-            SetStateOnAllParts(message.World, message.NewContent.Block.State, newSize, message.Position - GetPartPosition(oldState));
+            SetStateOnAllParts(message.World, message.NewContent.Block.State, newSize, message.Position - currentPart, currentPart);
     }
     
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
@@ -256,12 +260,14 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
         }
     }
     
-    private void SetStateOnAllParts(World world, State state, Vector3i size, Vector3i root)
+    private void SetStateOnAllParts(World world, State state, Vector3i size, Vector3i root, Vector3i exclude)
     {
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
         for (var z = 0; z < size.Z; z++)
         {
+            if ((x, y, z) == exclude) continue;
+            
             Vector3i current = root + (x, y, z);
             
             state.Set(Part, (x, y, z));

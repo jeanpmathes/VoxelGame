@@ -10,13 +10,10 @@ using VoxelGame.Core.Resources.Language;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// 
+/// Crops grow on farmland and can be harvested for food or other resources.
 /// </summary>
-/// <param name="builder"></param>
 public class Crops(BlockBuilder builder) : Category(builder)
 {
-    // todo: go through crop textures, remove duplicated stages and adapt code so it takes number of stages as parameter
-
     /// <summary>
     ///     Flax is a crop plant that grows on farmland. It requires water to fully grow.
     /// </summary>
