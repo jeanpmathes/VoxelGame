@@ -70,7 +70,7 @@ public class FoliageBlock : Block
         
         for (var index = 0; index < mesh.QuadCount; index++)
         {
-            BlockMesh.Quad quad = quads[index];
+            ref BlockMesh.Quad quad = ref quads[index];
             
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsUnshaded, IsUnshaded);
