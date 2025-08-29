@@ -14,6 +14,7 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
+using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -47,6 +48,8 @@ public class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     
     private Fire(Block subject) : base(subject)
     {
+        subject.Require<Meshed>().IsAnimated.ContributeConstant(value: true);
+        
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
         
@@ -77,6 +80,7 @@ public class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     {
         properties.IsReplaceable.ContributeConstant(value: true);
         properties.IsUnshaded.ContributeConstant(value: true);
+        properties.IsOpaque.ContributeConstant(value: false);
 
         Models = ModelsInitializer.GetValue(original: default, Subject);
     }
@@ -294,6 +298,8 @@ public class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     private static Sides GetPlacementSides(World world, Vector3i position)
     {
         var sides = Sides.None;
+
+        if (CheckSide(Side.Bottom)) return Sides.None;
         
         if (CheckSide(Side.Front)) sides |= Sides.Front;
         if (CheckSide(Side.Back)) sides |= Sides.Back;

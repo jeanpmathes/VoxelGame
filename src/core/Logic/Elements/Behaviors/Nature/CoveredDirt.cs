@@ -72,6 +72,8 @@ public class CoveredDirt : BlockBehavior, IBehavior<CoveredDirt, BlockBehavior, 
         BlockInstance? top = world.GetBlock(position.Above());
 
         if (top is null) return null;
+        
+        // todo: add a new behavior for blocks that do not destroy cover despite being solid and opaque, e.g. snow
 
         return top.Value.Block is {IsOpaque: true, IsSolid: true} && top.Value.IsSideFull(Side.Bottom);
     }

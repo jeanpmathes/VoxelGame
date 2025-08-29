@@ -257,7 +257,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Salt is contained in seawater, it becomes usable after the water evaporates.
     /// </summary>
     public Block Salt { get; } = builder
-        .BuildSimpleBlock(Language.Salt, nameof(Salt))
+        .BuildPartialHeightBlock(Language.Salt, nameof(Salt))
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("salt")))
         .WithBehavior<StoredHeight16>()
         .WithBehavior<Modifiable>()
