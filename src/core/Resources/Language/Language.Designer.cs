@@ -681,6 +681,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Electrum.
+        /// </summary>
+        public static string Electrum {
+            get {
+                return ResourceManager.GetString("Electrum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Enter a world name.
         /// </summary>
         public static string EnterWorldName {
@@ -1653,6 +1662,42 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Native Copper.
+        /// </summary>
+        public static string NativeCopper {
+            get {
+                return ResourceManager.GetString("NativeCopper", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native Gold.
+        /// </summary>
+        public static string NativeGold {
+            get {
+                return ResourceManager.GetString("NativeGold", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native Platinum.
+        /// </summary>
+        public static string NativePlatinum {
+            get {
+                return ResourceManager.GetString("NativePlatinum", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Native Silver.
+        /// </summary>
+        public static string NativeSilver {
+            get {
+                return ResourceManager.GetString("NativeSilver", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Natural Gas.
         /// </summary>
         public static string NaturalGas {
@@ -1950,15 +1995,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Electrum.
-        /// </summary>
-        public static string OreElectrum {
-            get {
-                return ResourceManager.GetString("OreElectrum", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Galena.
         /// </summary>
         public static string OreGalena {
@@ -2009,42 +2045,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string OreMolybdenite {
             get {
                 return ResourceManager.GetString("OreMolybdenite", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Native Copper.
-        /// </summary>
-        public static string OreNativeCopper {
-            get {
-                return ResourceManager.GetString("OreNativeCopper", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Native Gold.
-        /// </summary>
-        public static string OreNativeGold {
-            get {
-                return ResourceManager.GetString("OreNativeGold", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Native Platinum.
-        /// </summary>
-        public static string OreNativePlatinum {
-            get {
-                return ResourceManager.GetString("OreNativePlatinum", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Native Silver.
-        /// </summary>
-        public static string OreNativeSilver {
-            get {
-                return ResourceManager.GetString("OreNativeSilver", resourceCulture);
             }
         }
         

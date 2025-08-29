@@ -1283,7 +1283,7 @@
         <None Update="Resources\Textures\Blocks\walnut_bed.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\aluminium_ore_bauxite.png">
+        <None Update="Resources\Textures\Blocks\aluminum_ore_bauxite.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\beryllium_ore_beryl.png">
@@ -1307,13 +1307,13 @@
         <None Update="Resources\Textures\Blocks\copper_ore_malachite.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\copper_ore_native.png">
+        <None Update="Resources\Textures\Blocks\copper_native_copper.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\electrum_ore_native.png">
+        <None Update="Resources\Textures\Blocks\gold_electrum.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\gold_ore_native.png">
+        <None Update="Resources\Textures\Blocks\gold_native_gold.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\iron_ore_hematite.png">
@@ -1343,10 +1343,10 @@
         <None Update="Resources\Textures\Blocks\nickel_ore_pentlandite.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\platinum_ore_native.png">
+        <None Update="Resources\Textures\Blocks\platinum_native_platinum.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\silver_ore_native.png">
+        <None Update="Resources\Textures\Blocks\silver_native_silver.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\strontium_ore_celestine.png">

@@ -819,16 +819,16 @@
     <data name="OreHematite" xml:space="preserve">
         <value>Hematite</value>
     </data>
-    <data name="OreNativeGold" xml:space="preserve">
+    <data name="NativeGold" xml:space="preserve">
         <value>Native Gold</value>
     </data>
-    <data name="OreNativeSilver" xml:space="preserve">
+    <data name="NativeSilver" xml:space="preserve">
         <value>Native Silver</value>
     </data>
-    <data name="OreNativePlatinum" xml:space="preserve">
+    <data name="NativePlatinum" xml:space="preserve">
         <value>Native Platinum</value>
     </data>
-    <data name="OreNativeCopper" xml:space="preserve">
+    <data name="NativeCopper" xml:space="preserve">
         <value>Native Copper</value>
     </data>
     <data name="OreChalcopyrite" xml:space="preserve">
@@ -837,7 +837,7 @@
     <data name="OreMalachite" xml:space="preserve">
         <value>Malachite</value>
     </data>
-    <data name="OreElectrum" xml:space="preserve">
+    <data name="Electrum" xml:space="preserve">
         <value>Electrum</value>
     </data>
     <data name="OreBauxite" xml:space="preserve">

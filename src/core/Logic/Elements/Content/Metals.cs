@@ -28,22 +28,22 @@ public class Metals(BlockBuilder builder) : Category(builder)
     /// Gold is the metal with the elemental symbol Au.
     /// </summary>
     public Metal Gold { get; } = builder.BuildMetal(nameof(Gold), [], [
-            (Language.OreNativeGold, nameof(Language.OreNativeGold)), // todo: remove Ore from name and texture name
-            (Language.OreElectrum, nameof(Language.OreElectrum)) // todo: rename the texture of electrum and the name to not include ore
+            (Language.NativeGold, nameof(Language.NativeGold)),
+            (Language.Electrum, nameof(Language.Electrum))
         ]);
     
     /// <summary>
     /// Silver is the metal with the elemental symbol Ag.
     /// </summary>
     public Metal Silver { get; } = builder.BuildMetal(nameof(Silver), [], [
-            (Language.OreNativeSilver, nameof(Language.OreNativeSilver)), // todo: remove Ore from name and texture name
+            (Language.NativeSilver, nameof(Language.NativeSilver))
         ]);
     
     /// <summary>
     /// Platinum is the metal with the elemental symbol Pt.
     /// </summary>
     public Metal Platinum { get; } = builder.BuildMetal(nameof(Platinum), [], [
-            (Language.OreNativePlatinum, nameof(Language.OreNativePlatinum)), // todo: remove Ore from name and texture name
+            (Language.NativePlatinum, nameof(Language.NativePlatinum)),
         ]);
     
     /// <summary>
@@ -53,7 +53,7 @@ public class Metals(BlockBuilder builder) : Category(builder)
             (Language.OreChalcopyrite, nameof(Language.OreChalcopyrite)),
             (Language.OreMalachite, nameof(Language.OreMalachite)),
         ], [
-            (Language.OreNativeCopper, nameof(Language.OreNativeCopper)), // todo: remove Ore from name and texture name
+            (Language.NativeCopper, nameof(Language.NativeCopper)), 
         ]);
     
     /// <summary>
