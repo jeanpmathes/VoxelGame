@@ -10,7 +10,9 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
+using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
@@ -25,6 +27,8 @@ public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, Block
     {
         subject.Require<Plant>();
         
+        subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
+        
         composite = subject.Require<Composite>();
         composite.MaximumSizeInitializer.ContributeConstant((1, 2, 1));
         
@@ -36,7 +40,7 @@ public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, Block
         
         WidthInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(WidthInitializer), this);
     }
-    
+
     /// <summary>
     /// The width of the plant, used for the bounding volume.
     /// </summary>
@@ -57,6 +61,11 @@ public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, Block
     public override void OnInitialize(BlockProperties properties)
     {
         Width = WidthInitializer.GetValue(original: 0.71, Subject);
+    }
+    
+    private TID GetActiveTexture(TID original, State state)
+    {
+        return original.Offset(y: (Byte)(composite.GetPartPosition(state).Y == 0 ? 0 : 1));
     }
 
     private Foliage.PartType GetPart(Foliage.PartType original, State state)

@@ -133,7 +133,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     Sand naturally forms and allows water to flow through it.
     /// </summary>
-    public Block Sand { get; } = builder
+    public Block Sand { get; } = builder  
         .BuildSimpleBlock(Language.Sand, nameof(Sand))
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("sand")))
         .WithWetTint()

@@ -114,7 +114,7 @@ public class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, BlockBehavior
         {
             FluidInstance? fluid = message.World.GetFluid(message.Position.Below());
             
-            if (fluid?.Fluid == Elements.Fluids.Instance.SeaWater) // todo: generalize this in some way
+            if (fluid?.Fluid == Elements.Fluids.Instance.SeaWater) // todo: generalize this in some way, also, always die on sea water and not just when taller
             {
                 newState.Set(Stage, value: null);
             }

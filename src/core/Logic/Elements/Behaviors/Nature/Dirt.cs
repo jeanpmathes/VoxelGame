@@ -46,7 +46,7 @@ public class Dirt : BlockBehavior, IBehavior<Dirt, BlockBehavior, Block>
         FluidInstance? fluid = message.World.GetFluid(message.Position);
 
         if (fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
-            message.World.SetBlock(Blocks.Instance.Environment.Mud.AsInstance(), message.Position);
+            message.World.SetContent(new Content(Blocks.Instance.Environment.Mud, Elements.Fluids.Instance.None), message.Position);
     }
     
     private static void OnGeneratorUpdate(Block.GeneratorUpdateMessage message)
