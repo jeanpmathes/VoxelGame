@@ -216,5 +216,5 @@ public enum VirtualKeys : Byte
     Noname = 0xFC,
     PA1 = 0xFD,
     OEMClear = 0xFE,
-    LastKey = OEMClear
+    LastKey = OEMClear // todo: check if this has changed
 }

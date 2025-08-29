@@ -49,11 +49,20 @@ public class DestroyOnLiquid  : BlockBehavior, IBehavior<DestroyOnLiquid, BlockB
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
+        bus.Subscribe<Block.PlacementCompletedMessage>(OnPlacementCompleted);
     }
 
     private void OnContentUpdate(Block.ContentUpdateMessage message)
     {
         if (message.NewContent.Fluid.Fluid.IsLiquid && message.NewContent.Fluid.Level > Threshold)
+            Subject.ScheduleDestroy(message.World, message.Position);
+    }
+    
+    private void OnPlacementCompleted(Block.PlacementCompletedMessage message)
+    {
+        Content? content = message.World.GetContent(message.Position);
+        
+        if (content is {Fluid.Fluid.IsLiquid: true} && content.Value.Fluid.Level > Threshold)
             Subject.ScheduleDestroy(message.World, message.Position);
     }
 }
