@@ -710,7 +710,7 @@
         <None Update="Resources\Textures\Blocks\Parts\flower_tall_stalk.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\flower_tall_red.xml">
+        <None Update="Resources\Textures\Blocks\flower_red_tall.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\wool_decorated.xml">
@@ -1385,7 +1385,7 @@
         <None Update="Resources\Textures\Blocks\flower_yellow.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\flower_tall_yellow.xml">
+        <None Update="Resources\Textures\Blocks\flower_yellow_tall.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\Parts\flower_petal_yellow.png">
