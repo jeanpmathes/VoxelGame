@@ -39,6 +39,10 @@ public class ShowcaseConvention : Command
             case nameof(Crop):
                 ShowcaseCrops();
                 break;
+            
+            case nameof(Flower):
+                ShowcaseFlowers();
+                break;
 
             default:
                 Context.Output.WriteError($"No known convention '{convention}'.");
@@ -92,6 +96,25 @@ public class ShowcaseConvention : Command
             Vector3i fruit = position + Vector3i.UnitZ * 2;
             Blocks.Instance.Core.Dev.Place(world, fruit.Below());
             crop.Fruit.Place(world, fruit);
+        }
+    }
+    
+    private void ShowcaseFlowers()
+    {
+        Vector3i position = Context.Player.Body.Transform.Position.Floor();
+        World world = Context.Player.World;
+
+        foreach (IContent content in Blocks.Instance.Flowers.Contents)
+        {
+            if (content is not Flower flower) continue;
+
+            position += Vector3i.UnitX;
+
+            Blocks.Instance.Environment.Grass.Place(world, position.Below());
+            flower.Short.Place(world, position);
+            
+            Blocks.Instance.Environment.Grass.Place(world, position.Below() + Vector3i.UnitZ);
+            flower.Tall.Place(world, position + Vector3i.UnitZ);
         }
     }
 }
