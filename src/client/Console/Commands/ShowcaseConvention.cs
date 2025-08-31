@@ -48,6 +48,10 @@ public class ShowcaseConvention : Command
                 ShowcaseMetals();
                 break;
 
+            case nameof(Stone):
+                ShowcaseStones();
+                break;
+
             default:
                 Context.Output.WriteError($"No known convention '{convention}'.");
                 return;
@@ -147,6 +151,29 @@ public class ShowcaseConvention : Command
                 native.Place(world, nativePosition);
                 nativePosition += Vector3i.UnitY;
             }
+        }
+    }
+
+    private void ShowcaseStones()
+    {
+        Vector3i position = Context.Player.Body.Transform.Position.Floor();
+        World world = Context.Player.World;
+
+        foreach (IContent content in Blocks.Instance.Stones.Contents)
+        {
+            if (content is not Stone stone) continue;
+
+            position += Vector3i.UnitX;
+
+            stone.Base.Place(world, position);
+            stone.Rubble.Place(world, position + Vector3i.UnitY);
+            stone.Worked.Place(world, position + Vector3i.UnitY * 2);
+            stone.Decorated.Place(world, position + Vector3i.UnitY * 3);
+            stone.Cobblestone.Place(world, position + Vector3i.UnitY * 4);
+            stone.Paving.Place(world, position + Vector3i.UnitY * 5);
+            stone.Bricks.Place(world, position + Vector3i.UnitY * 6);
+            stone.Wall.Place(world, position + Vector3i.UnitY * 7);
+            stone.BrickWall.Place(world, position + Vector3i.UnitY * 8);
         }
     }
 }
