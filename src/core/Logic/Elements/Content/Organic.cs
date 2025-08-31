@@ -110,7 +110,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .BuildFoliageBlock(Language.Fern, nameof(Fern))
         .WithTexture(TID.Block("fern"))
         .WithBehavior<NeutralTint>()
-        .WithBehavior<CrossPlant>()
+        .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.6))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
         .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
         .Complete();
@@ -121,7 +121,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block Chanterelle { get; } = builder
         .BuildFoliageBlock(Language.Chanterelle, nameof(Chanterelle))
         .WithTexture(TID.Block("chanterelle"))
-        .WithBehavior<CrossPlant>()
+        .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.25))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
         .Complete();
     
@@ -131,7 +131,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block AloeVera { get; } = builder
         .BuildFoliageBlock(Language.AloeVera, nameof(AloeVera))
         .WithTexture(TID.Block("aloe_vera"))
-        .WithBehavior<CrossPlant>()
+        .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.5))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
         .Complete();
     
