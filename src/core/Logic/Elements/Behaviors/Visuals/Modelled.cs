@@ -34,7 +34,7 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
         
         subject.RequireIfPresent<CompositeModelled, Composite>();
-        subject.RequireIfPresent<FourWayRotatableModelled, FourWayRotatable>();
+        subject.RequireIfPresent<FourWayRotatableModelled, LateralRotatable>();
     }
 
     /// <inheritdoc />

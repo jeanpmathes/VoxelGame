@@ -54,18 +54,18 @@ public class Organic(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block Vines { get; } = builder
         .BuildComplexBlock(Language.Vines, nameof(Vines))
-        .WithBehavior<FlatModel>()
+        .WithBehavior<FlatModel>(model => model.WidthInitializer.ContributeConstant(value: 0.9))
         .WithBehavior<SingleTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TID.Block("vines")))
         .WithBehavior<NeutralTint>()
         .WithBehavior<DestroyOnLiquid>(destroy => destroy.ThresholdInitializer.ContributeConstant(FluidLevel.Two))
         .WithBehavior<Climbable>(climbable => climbable.ClimbingVelocityInitializer.ContributeConstant(value: 2.0))
-        .WithBehavior<FourWayRotatable>()
+        .WithBehavior<LateralRotatable>()
         .WithBehavior<Attached, SingleSided>((attached, siding) =>
         { 
             attached.AttachmentSidesInitializer.ContributeConstant(Sides.Lateral);
             
-            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).Opposite().ToFlag());
-            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single().Opposite())); // todo: handling if not single as this allows null, maybe a new extension for sides
+            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).ToFlag());
+            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single())); // todo: handling if not single as this allows null, maybe a new extension for sides
         }) 
         .WithBehavior<Vine>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
@@ -76,14 +76,20 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     Lichen is a plant that grows on rocks and trees.
     /// </summary>
     public Block Lichen { get; } = builder 
-        // todo: find a way to unify that at with the flat model which currently expects it to be FourWayRotatable - use glue behavior FourWay and SixWay to side flags, using the Sided behavior
-        // todo: use the constraint behavior for the state that no side is set
         .BuildComplexBlock(Language.Lichen, nameof(Lichen))
         .WithBehavior<FlatModel>()
         .WithBehavior<SingleTextured>(textured => textured.DefaultTextureInitializer.ContributeConstant(TID.Block("lichen")))
-        // todo: use attached behavior or similar to update the sides when neighbors are updated
-        // todo: also do the placement that selects all sides, could be in attached to with boolean flag to enable
-        // todo: do the generator update to select the bottom side if no side is set
+        .WithBehavior<Attached, StoredMultiSided>((attached, siding) =>
+        { 
+            attached.AttachmentSidesInitializer.ContributeConstant(Sides.All);
+            attached.ModeInitializer.ContributeConstant(Attached.AttachmentMode.Multi);
+            
+            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSides(state));
+            attached.AttachedState.ContributeFunction((_, context) => siding.SetSides(context.state, context.sides));
+        }) 
+        .WithBehavior<StoredMultiSided, Constraint>((siding, constraint) => constraint.IsValid.ContributeFunction((_, state) => siding.GetSides(state) != Sides.None))
+        .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
+        .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
         .Complete();
     
     /// <summary>

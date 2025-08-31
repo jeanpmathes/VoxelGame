@@ -28,14 +28,16 @@ public class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
     private IAttribute<Int32>? age;
 
     private readonly SingleSided siding;
+    private readonly Attached attached;
 
     private Vine(Block subject) : base(subject)
     {
         subject.Require<Combustible>();
         
-        subject.Require<Attached>().IsOtherwiseAttached.ContributeFunction(GetIsOtherwiseAttached);
-        
         siding = subject.Require<SingleSided>();
+        
+        attached = subject.Require<Attached>();
+        attached.IsOtherwiseAttached.ContributeFunction(GetIsOtherwiseAttached);
     }
 
     /// <inheritdoc />
@@ -54,6 +56,7 @@ public class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.RandomUpdateMessage>(OnRandomUpdate);
+        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     private Boolean GetIsOtherwiseAttached(Boolean original, (World world, Vector3i position, State state) context)
@@ -84,5 +87,13 @@ public class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
             message.World.SetBlock(new BlockInstance(message.State.With(Age, value: 0)), message.Position.Below());
             message.World.SetBlock(new BlockInstance(message.State.With(Age, value: 0)), message.Position);
         }
+    }
+    
+    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    {
+        if (message.Side != Side.Top)
+            return;
+        
+        attached.CheckAttachment(message.World, message.Position, message.State);
     }
 }

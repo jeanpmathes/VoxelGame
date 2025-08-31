@@ -122,16 +122,16 @@ public class Construction(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block Ladder { get; } = builder
         .BuildComplexBlock(Language.Ladder, nameof(Ladder))
-        .WithBehavior<FlatModel>()
+        .WithBehavior<FlatModel>(model => model.WidthInitializer.ContributeConstant(value: 0.9))
         .WithBehavior<SingleTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TID.Block("ladder")))
         .WithBehavior<Climbable>(climbable => climbable.ClimbingVelocityInitializer.ContributeConstant(value: 3.0))
-        .WithBehavior<FourWayRotatable>()
+        .WithBehavior<LateralRotatable>()
         .WithBehavior<Attached, SingleSided>((attached, siding) =>
         { 
             attached.AttachmentSidesInitializer.ContributeConstant(Sides.Lateral);
             
-            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).Opposite().ToFlag());
-            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single().Opposite())); // todo: handling if not single as this allows null, maybe a new extension for sides
+            attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).ToFlag());
+            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single())); // todo: handling if not single as this allows null, maybe a new extension for sides
         }) 
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))

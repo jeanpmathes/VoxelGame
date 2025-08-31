@@ -20,13 +20,13 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 public class FourWayRotatableModelled : BlockBehavior, IBehavior<FourWayRotatableModelled, BlockBehavior, Block>
 // todo: make this class just RotatableModelled when the new API on BlockModel to get sided models is done
 {
-    private readonly FourWayRotatable rotatable;
+    private readonly LateralRotatable rotatable;
     
     private FourWayRotatableModelled(Block subject) : base(subject)
     {
         OrientationOverride = Aspect<Utilities.Orientation, State>.New<Exclusive<Utilities.Orientation, State>>(nameof(OrientationOverride), this);
         
-        rotatable = subject.Require<FourWayRotatable>();
+        rotatable = subject.Require<LateralRotatable>();
         
         subject.Require<Modelled>().Model.ContributeFunction(GetModel);
     }
@@ -38,7 +38,7 @@ public class FourWayRotatableModelled : BlockBehavior, IBehavior<FourWayRotatabl
     }
     
     /// <summary>
-    /// Used to override the orientation as provided by the <see cref="FourWayRotatable"/> behavior.
+    /// Used to override the orientation as provided by the <see cref="LateralRotatable"/> behavior.
     /// </summary>
     public Aspect<Utilities.Orientation, State> OrientationOverride { get; }
     

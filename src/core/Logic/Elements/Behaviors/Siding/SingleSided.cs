@@ -29,24 +29,49 @@ public class SingleSided : BlockBehavior, IBehavior<SingleSided, BlockBehavior, 
     
     private SingleSided(Block subject) : base(subject)
     {
+        var sided = subject.Require<Sided>();
+        sided.Sides.ContributeFunction(GetSides);
+        sided.SidedState.ContributeFunction(GetSidedState);
+        
         Side = Aspect<Side, State>.New<Exclusive<Side, State>>(nameof(Side), this);
         SidedState = Aspect<State?, (State state, Side side)>.New<Exclusive<State?, (State state, Side side)>>(nameof(SidedState), this);
-        
-        // todo: require Sided behavior
     }
-    
+
     /// <inheritdoc />
     public static SingleSided Construct(Block input)
     {
         return new SingleSided(input);
     }
     
-    public Side GetSide(State state)// todo: remove this i think
+    private Sides GetSides(Sides original, State state)
+    {
+        return GetSide(state).ToFlag();
+    }
+    
+    private State? GetSidedState(State? original, (State state, Sides sides) context)
+    {
+        (State state, Sides sides) = context;
+        
+        return sides.Count() == 1 ? SetSide(state, sides.Single()) : null;
+    }
+    
+    /// <summary>
+    /// Get the current main or front side of the block in the given state.
+    /// </summary>
+    /// <param name="state">The state to get the side from.</param>
+    /// <returns>The main or front side of the block in the given state.</returns>
+    public Side GetSide(State state)
     {
         return Side.GetValue(Elements.Side.Front, state);
     }
     
-    public State? SetSide(State state, Side side) // todo: remove this i think or rename or so
+    /// <summary>
+    /// Set the main or front side of the block in the given state.
+    /// </summary>
+    /// <param name="state">The state to set the side in.</param>
+    /// <param name="side">The side to set.</param>
+    /// <returns>The state with the updated side, or <c>null</c> if the side is not supported.</returns>
+    public State? SetSide(State state, Side side)
     { 
         return SidedState.GetValue(state, (state, side));
     }

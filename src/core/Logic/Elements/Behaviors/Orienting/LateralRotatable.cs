@@ -1,4 +1,4 @@
-﻿// <copyright file="FourWayRotatable.cs" company="VoxelGame">
+﻿// <copyright file="LateralRotatable.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -16,12 +16,12 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 /// <summary>
 /// Allows a block to be rotated in the four cardinal directions.
 /// </summary>
-public class FourWayRotatable : BlockBehavior, IBehavior<FourWayRotatable, BlockBehavior, Block>
+public class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, BlockBehavior, Block>
 {
     private IAttribute<Orientation> Orientation => orientation ?? throw Exceptions.NotInitialized(nameof(orientation));
     private IAttribute<Orientation>? orientation;
     
-    private FourWayRotatable(Block subject) : base(subject)
+    private LateralRotatable(Block subject) : base(subject)
     {
         subject.Require<Rotatable>().Rotation.ContributeFunction(GetRotation);
 
@@ -31,9 +31,9 @@ public class FourWayRotatable : BlockBehavior, IBehavior<FourWayRotatable, Block
     }
 
     /// <inheritdoc />
-    public static FourWayRotatable Construct(Block input)
+    public static LateralRotatable Construct(Block input)
     {
-        return new FourWayRotatable(input);
+        return new LateralRotatable(input);
     }
 
     /// <inheritdoc />

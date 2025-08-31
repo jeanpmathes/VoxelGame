@@ -25,7 +25,7 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 /// </summary>
 public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 {
-    private readonly FourWayRotatable rotatable;
+    private readonly LateralRotatable rotatable;
     
     private IAttribute<Boolean> IsOpen => isOpen ?? throw Exceptions.NotInitialized(nameof(isOpen));
     private IAttribute<Boolean>? isOpen;
@@ -39,7 +39,7 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         subject.Require<Composite>().MaximumSizeInitializer.ContributeConstant((1, 2, 1));
         subject.Require<Grounded>();
 
-        rotatable = subject.Require<FourWayRotatable>();
+        rotatable = subject.Require<LateralRotatable>();
         subject.Require<FourWayRotatableModelled>().OrientationOverride.ContributeFunction(GetOrientationOverride);
         
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);

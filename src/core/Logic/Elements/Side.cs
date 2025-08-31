@@ -211,6 +211,31 @@ public static class SideExtensions
     }
 
     /// <summary>
+    ///     Get the opposite sides of the given sides.
+    ///     Note that this is not simply a bitwise negation, as <c>None</c> and <c>All</c> remain unchanged.
+    ///     Additionally, if two opposite sides are set, they remain set.
+    /// </summary>
+    /// <param name="side">The sides to get the opposite of.</param>
+    /// <returns>The opposite sides.</returns>
+    public static Sides Opposite(this Sides side)
+    {
+        if (side is Elements.Sides.None or Elements.Sides.All) return side;
+        
+        var result = Elements.Sides.None;
+        
+        if (side.HasFlag(Elements.Sides.Front)) result |= Elements.Sides.Back;
+        if (side.HasFlag(Elements.Sides.Back)) result |= Elements.Sides.Front;
+        
+        if (side.HasFlag(Elements.Sides.Left)) result |= Elements.Sides.Right;
+        if (side.HasFlag(Elements.Sides.Right)) result |= Elements.Sides.Left;
+        
+        if (side.HasFlag(Elements.Sides.Bottom)) result |= Elements.Sides.Top;
+        if (side.HasFlag(Elements.Sides.Top)) result |= Elements.Sides.Bottom;
+        
+        return result;
+    }
+
+    /// <summary>
     ///     Get the flag for a side.
     /// </summary>
     public static Sides ToFlag(this Side side)

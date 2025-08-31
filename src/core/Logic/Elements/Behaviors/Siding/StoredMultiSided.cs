@@ -5,11 +5,15 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Behaviors;
+using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Siding;
 
+/// <summary>
+/// Behavior for <see cref="Sided"/> blocks that can have multiple main or front sides at once, and store them in the block state.
+/// </summary>
 public class StoredMultiSided : BlockBehavior, IBehavior<StoredMultiSided, BlockBehavior, Block>
 {
     private IAttribute<Sides> Sides => sides ?? throw Exceptions.NotInitialized(nameof(sides));
@@ -17,7 +21,9 @@ public class StoredMultiSided : BlockBehavior, IBehavior<StoredMultiSided, Block
     
     private StoredMultiSided(Block subject) : base(subject)
     {
-        subject.Require<Sided>();
+        var sided = subject.Require<Sided>();
+        sided.Sides.ContributeFunction(GetSides);
+        sided.SidedState.ContributeFunction(GetSidedState);
     }
     
     /// <inheritdoc/>
@@ -30,6 +36,18 @@ public class StoredMultiSided : BlockBehavior, IBehavior<StoredMultiSided, Block
     public override void DefineState(IStateBuilder builder)
     {
         sides = builder.Define(nameof(sides)).Flags<Sides>().Attribute();
+    }
+    
+    private Sides GetSides(Sides original, State state)
+    {
+        return GetSides(state);
+    }
+    
+    private State? GetSidedState(State? original, (State state, Sides sides) context)
+    {
+        (State state, Sides newSides) = context;
+        
+        return SetSides(state, newSides);
     }
     
     /// <summary>

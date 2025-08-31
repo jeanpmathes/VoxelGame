@@ -84,7 +84,7 @@ public static class BlockMeshes
     /// <summary>
     ///     Create a flat mesh.
     /// </summary>
-    /// <param name="side">The side the mesh is attached to.</param>
+    /// <param name="side">The side the mesh is attached to, meaning the side of the other block, not within this block.</param>
     /// <param name="offset">The offset from the block side.</param>
     /// <param name="textureIndex">The texture index to use.</param>
     /// <returns>The created mesh.</returns>
@@ -120,6 +120,27 @@ public static class BlockMeshes
         }
 
         return new BlockMesh(quads);
+    }
+    
+    /// <summary>
+    ///     Create a flat mesh on all given sides.
+    /// </summary>
+    /// <param name="sides">The sides the mesh is attached to.</param>
+    /// <param name="offset">The offset from the block side.</param>
+    /// <param name="textureIndex">The texture index to use.</param>
+    /// <returns>The created mesh.</returns>
+    public static BlockMesh CreateFlatModel(Sides sides, Single offset, Int32 textureIndex)
+    {
+        List<BlockMesh> meshes = [];
+
+        foreach (Side side in Side.All.Sides())
+        {
+            if (!sides.HasFlag(side.ToFlag())) continue;
+            
+            meshes.Add(CreateFlatModel(side, offset, textureIndex));
+        }
+
+        return BlockMesh.Combine(meshes.ToArray());
     }
 
     /// <summary>

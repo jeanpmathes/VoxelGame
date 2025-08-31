@@ -240,7 +240,7 @@ public static class WoodConvention
                     .BuildComplexBlock($"{Language.Gate} ({name.wood})", $"{namedID}{nameof(Wood.FenceGate)}")
                     .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("gate_closed"), RID.File<BlockModel>("gate_open")]))
                     .WithBehavior<Combustible>()
-                    .WithBehavior<FourWayRotatable>()
+                    .WithBehavior<LateralRotatable>()
                     // todo: opening and closing the gate
                     .Complete(),
 
@@ -273,7 +273,7 @@ public static class WoodConvention
                         // todo: texture override to TID.Block($"{texture}_bed")
                     })
                     // todo: Bed behavior that adds bounding volume and does the spawn point setting
-                    .WithBehavior<FourWayRotatable>()
+                    .WithBehavior<LateralRotatable>()
                     .WithBehavior<Composite>(composite => composite.MaximumSizeInitializer.ContributeConstant((2, 1, 1)))
                     .WithBehavior<Grounded>()
                     .WithBehavior<Paintable>()

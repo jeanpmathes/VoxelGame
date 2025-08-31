@@ -112,7 +112,7 @@ public static class StoneConvention // todo: check language for unused strings a
                 Decorated = builder
                     .BuildSimpleBlock($"{nameof(Language.DecoratedStone)} ({name})", $"{namedID}{nameof(Stone.Decorated)}")
                     .WithTextureLayout(TextureLayout.UniqueFront(TID.Block($"{texture}_worked_decorated"), TID.Block($"{texture}_worked")))
-                    .WithBehavior<FourWayRotatable>()
+                    .WithBehavior<LateralRotatable>()
                     // todo: probably needs a behavior for the placement logic that places with the correct orientation
                     // todo: could maybe be unified so it works for SixWayRotatable and AxisRotatable as well
                     .Complete(),
