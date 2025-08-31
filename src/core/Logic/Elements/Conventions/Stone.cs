@@ -114,12 +114,12 @@ public static class StoneConvention // todo: check language for unused strings a
                     .WithTextureLayout(TextureLayout.UniqueFront(TID.Block($"{texture}_worked_decorated"), TID.Block($"{texture}_worked")))
                     .WithBehavior<LateralRotatable>()
                     // todo: probably needs a behavior for the placement logic that places with the correct orientation
-                    // todo: could maybe be unified so it works for SixWayRotatable and AxisRotatable as well
+                    // todo: could maybe be unified so it works for AxisRotatable as well
                     .Complete(),
 
                 Cobblestone = builder
                     .BuildSimpleBlock($"{nameof(Language.Cobbles)} ({name})", $"{namedID}{nameof(Stone.Cobblestone)}")
-                    .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_cobblestone", x: 0)))
+                    .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_cobbles", x: 0)))
                     .Complete(),
 
                 Paving = builder
