@@ -26,7 +26,9 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     where TBehavior : class, IBehavior<TSelf>
 {
     private readonly List<TBehavior> behaviors = [];
-    private readonly Dictionary<Type, List<Action<TBehavior>>> watchers = new();
+    
+    private readonly Dictionary<Type, List<Action<TBehavior>>> newWatchers = new();
+    private readonly Dictionary<Type, List<Action<TBehavior>>> allWatchers = new();
     
     private TBehavior?[]? baked;
     
@@ -70,37 +72,59 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
         behaviors.Add(behavior);
 
-        if (!watchers.TryGetValue(typeof(TConcreteBehavior), out List<Action<TBehavior>>? actions)) 
-            return behavior;
+        ProcessNewWatchers();
+        ProcessExistingWatchers(behavior);
+        
+        return behavior;
+    }
+
+    private void ProcessExistingWatchers<TConcreteBehavior>(TConcreteBehavior behavior) where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
+    {
+        if (!allWatchers.TryGetValue(typeof(TConcreteBehavior), out List<Action<TBehavior>>? actions)) 
+            return;
 
         foreach (Action<TBehavior> action in actions)
         {
             action(behavior);
         }
             
-        watchers.Remove(typeof(TConcreteBehavior));
+        allWatchers.Remove(typeof(TConcreteBehavior));
+    }
 
-        return behavior;
+    private void ProcessNewWatchers()
+    {
+        foreach ((Type key, List<Action<TBehavior>> actions) in newWatchers)
+        {
+            Int32 index = behaviors.FindIndex(b => key.IsInstanceOfType(b));
+            
+            if (index != -1)
+            {
+                foreach (Action<TBehavior> action in actions)
+                {
+                    action(behaviors[index]);
+                }
+            }
+            else
+            {
+                allWatchers.GetOrAdd(key, []).AddRange(actions);
+            }
+        }
+        
+        newWatchers.Clear();
     }
 
     /// <inheritdoc />
     public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null) where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSelf> where TConditionConcreteBehavior : class, TBehavior, IBehavior<TConditionConcreteBehavior, TBehavior, TSelf>
     {
-        if (Get<TConditionConcreteBehavior>() != null)
+        // To prevent endless loops, we only process the watchers introduced by this behavior after it is fully constructed and added.
+        
+        newWatchers.GetOrAdd(typeof(TConditionConcreteBehavior), []).Add(behavior =>
         {
-            var behavior = Require<TConditionalConcreteBehavior>();
-            initializer?.Invoke(behavior);
-        }
-        else
-        {
-            watchers.GetOrAdd(typeof(TConditionConcreteBehavior), []).Add(behavior =>
-            {
-                if (behavior is not TConditionConcreteBehavior) return;
+            if (behavior is not TConditionConcreteBehavior) return;
 
-                var conditionalBehavior = Require<TConditionalConcreteBehavior>();
-                initializer?.Invoke(conditionalBehavior);
-            });
-        }
+            var conditionalBehavior = Require<TConditionalConcreteBehavior>();
+            initializer?.Invoke(conditionalBehavior);
+        });
     }
 
     /// <inheritdoc />
@@ -124,7 +148,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
         Debug.Assert(baked == null);
         baked = array;
 
-        watchers.Clear();
+        allWatchers.Clear();
         
         OnBake();
     }

@@ -9,6 +9,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Elements.Behaviors.Connection;
 using VoxelGame.Core.Logic.Elements.Behaviors.Materials;
 using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
+using VoxelGame.Core.Logic.Elements.Behaviors.Siding;
 using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -113,8 +114,7 @@ public static class StoneConvention // todo: check language for unused strings a
                     .BuildSimpleBlock($"{nameof(Language.DecoratedStone)} ({name})", $"{namedID}{nameof(Stone.Decorated)}")
                     .WithTextureLayout(TextureLayout.UniqueFront(TID.Block($"{texture}_worked_decorated"), TID.Block($"{texture}_worked")))
                     .WithBehavior<LateralRotatable>()
-                    // todo: probably needs a behavior for the placement logic that places with the correct orientation
-                    // todo: could maybe be unified so it works for AxisRotatable as well
+                    .WithBehavior<DirectionalSidePlacement>()
                     .Complete(),
 
                 Cobblestone = builder

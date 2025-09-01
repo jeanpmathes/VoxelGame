@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Behaviors;
+using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -21,8 +22,14 @@ public class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavi
     
     private AxisRotatable(Block subject) : base(subject)
     {
-        // todo: check the other rotatables to see what to initialize and require here
+        subject.Require<Rotatable>().Rotation.ContributeFunction(GetRotation);
     }
+    
+    // todo: use conditionals to rotate texture 
+    // Boolean isLeftOrRightSide = info.Side is Side.Left or Side.Right;
+    // Boolean onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
+    // Boolean onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
+    // Boolean rotated = onXAndRotated || onZAndRotated;
     
     /// <inheritdoc/>
     public static AxisRotatable Construct(Block input)
@@ -36,11 +43,10 @@ public class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavi
         axis = builder.Define(nameof(axis)).Enum<Axis>().Attribute();
     }
     
-    // todo: use conditionals to rotate texture 
-    // Boolean isLeftOrRightSide = info.Side is Side.Left or Side.Right;
-    // Boolean onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
-    // Boolean onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
-    // Boolean rotated = onXAndRotated || onZAndRotated;
+    private Side GetRotation(Side original, State state)
+    {
+        return TranslateSide(original, GetAxis(state));
+    }
 
     /// <summary>
     /// Get the current axis in the given state.

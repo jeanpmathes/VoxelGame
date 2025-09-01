@@ -39,7 +39,7 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     }
 
     /// <summary>
-    ///     Returns a texture layout where two textures are used, one for top/bottom, the other for the sides around it.
+    ///     Returns a texture layout where two textures are used, one for top/bottom, the other for the surrounding sides.
     /// </summary>
     public static TextureLayout Column(TID sides, TID ends)
     {
@@ -47,8 +47,8 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     }
 
     /// <summary>
-    ///     Returns a texture layout where three textures are used, one for top, one for bottom, the other for the sides around
-    ///     it.
+    ///     Returns a texture layout where three textures are used, one for top, one for bottom, the other for the surrounding sides
+    ///     .
     /// </summary>
     public static TextureLayout UniqueColumn(TID sides, TID bottom, TID top)
     {
@@ -78,6 +78,26 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     public static TextureLayout Fluid(TID sides, TID ends)
     {
         return Column(sides, ends);
+    }
+
+    /// <summary>
+    /// Get a rotated version of this texture layout, where the given side is now the front side.
+    /// </summary>
+    /// <param name="newFront">The side that should be considered the new front side.</param>
+    /// <returns>The rotated texture layout.</returns>
+    public TextureLayout Rotated(Side newFront)
+    {
+        if (newFront is Side.All or Side.Front) return this;
+        
+        return newFront switch
+        {
+            Side.Back => new TextureLayout(back, front, right, left, bottom, top),
+            Side.Left => new TextureLayout(right, left, front, right, bottom, top),
+            Side.Right => new TextureLayout(left, right, back, front, bottom, top),
+            Side.Bottom => new TextureLayout(top, bottom, left, right, front, back),
+            Side.Top => new TextureLayout(bottom, top, left, right, back, front),
+            _ => throw Exceptions.UnsupportedEnumValue(newFront)
+        };
     }
 
     /// <summary>

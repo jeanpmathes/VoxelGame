@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Elements.Behaviors.Materials;
 using VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
+using VoxelGame.Core.Logic.Elements.Behaviors.Siding;
 using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -218,7 +219,7 @@ public static class WoodConvention
                     .BuildSimpleBlock(name.log, $"{namedID}{nameof(Wood.Log)}")
                     .WithTextureLayout(TextureLayout.Column(TID.Block($"{texture}_log", x: 0), TID.Block($"{texture}_log", x: 1)))
                     .WithBehavior<AxisRotatable>()
-                    // todo: placement according to the targeted side
+                    .WithBehavior<TargetedSidePlacement>()
                     .WithBehavior<Combustible>()
                     .Complete(),
 

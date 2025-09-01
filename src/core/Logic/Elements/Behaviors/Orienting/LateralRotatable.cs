@@ -63,11 +63,22 @@ public class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, Block
         return SetOrientation(state, side.ToOrientation());
     }
     
-    public Orientation GetOrientation(State state) // todo: remove
+    /// <summary>
+    /// Get the orientation of the block in the given state.
+    /// </summary>
+    /// <param name="state">The state to query.</param>
+    /// <returns>The orientation of the block in the given state.</returns>
+    public Orientation GetOrientation(State state)
     {
         return state.Get(Orientation);
     }
 
+    /// <summary>
+    /// Set the orientation of the block in the given state.
+    /// </summary>
+    /// <param name="state">The state to start from.</param>
+    /// <param name="newOrientation">The new orientation.</param>
+    /// <returns>A new state with the updated orientation.</returns>
     public State SetOrientation(State state, Orientation newOrientation) // todo: remove
     {
         return state.With(Orientation, newOrientation);

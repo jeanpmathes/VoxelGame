@@ -8,6 +8,7 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
@@ -18,6 +19,8 @@ public class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Bloc
 {
     private Rotatable(Block subject) : base(subject)
     {
+        subject.RequireIfPresent<RotatableCubeTextured, CubeTextured>();
+        
         Rotation = Aspect<Side, State>.New<Exclusive<Side, State>>(nameof(Rotation), this);
     }
     
@@ -31,5 +34,15 @@ public class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Bloc
     public static Rotatable Construct(Block input)
     {
         return new Rotatable(input);
+    }
+    
+    /// <summary>
+    /// Get the current front side of the block in the given state.
+    /// </summary>
+    /// <param name="state">The side which should be considered the front side.</param>
+    /// <returns>The current front side of the block.</returns>
+    public Side GetCurrentFront(State state)
+    {
+        return Rotation.GetValue(original: Side.Front, state);
     }
 }
