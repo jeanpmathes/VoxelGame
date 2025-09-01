@@ -51,6 +51,10 @@ public class ShowcaseConvention : Command
             case nameof(Stone):
                 ShowcaseStones();
                 break;
+            
+            case nameof(Wood):
+                ShowcaseWoods();
+                break;
 
             default:
                 Context.Output.WriteError($"No known convention '{convention}'.");
@@ -174,6 +178,37 @@ public class ShowcaseConvention : Command
             stone.Bricks.Place(world, position + Vector3i.UnitY * 6);
             stone.Wall.Place(world, position + Vector3i.UnitY * 7);
             stone.BrickWall.Place(world, position + Vector3i.UnitY * 8);
+        }
+    }
+
+    private void ShowcaseWoods()
+    {
+        Vector3i position = Context.Player.Body.Transform.Position.Floor();
+        World world = Context.Player.World;
+
+        foreach (IContent content in Blocks.Instance.Woods.Contents)
+        {
+            if (content is not Wood wood) continue;
+
+            position += Vector3i.UnitX;
+
+            wood.Leaves.Place(world, position);
+            wood.Log.Place(world, position + Vector3i.UnitY);
+            wood.Planks.Place(world, position + Vector3i.UnitY * 2);
+            wood.Fence.Place(world, position + Vector3i.UnitY * 3);
+            wood.FenceGate.Place(world, position + Vector3i.UnitY * 4);
+            
+            wood.Pipe.Place(world, position + Vector3i.UnitY * 5);
+            wood.Pipe.Place(world, position + Vector3i.UnitY * 6);
+
+            Vector3i doorPosition = position + Vector3i.UnitZ;
+            wood.Planks.Place(world, doorPosition.Below());
+            wood.Door.Place(world, doorPosition);
+
+            Vector3i bedPosition = position + Vector3i.UnitZ * 2;
+            wood.Planks.Place(world, bedPosition.Below());
+            wood.Planks.Place(world, bedPosition.Below() + Vector3i.UnitZ);
+            wood.Bed.Place(world, bedPosition);
         }
     }
 }
