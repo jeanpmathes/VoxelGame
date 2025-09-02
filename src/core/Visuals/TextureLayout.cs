@@ -5,8 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Visuals;
@@ -79,25 +81,53 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     {
         return Column(sides, ends);
     }
+    
+    private TID GetTexture(Side side)
+    {
+        return side switch
+        {
+            Side.Front => front,
+            Side.Back => back,
+            Side.Left => left,
+            Side.Right => right,
+            Side.Bottom => bottom,
+            Side.Top => top,
+            Side.All => throw Exceptions.InvalidOperation("Cannot get texture for all sides."),
+            _ => throw Exceptions.UnsupportedEnumValue(side)
+        };
+    }
 
     /// <summary>
-    /// Get a rotated version of this texture layout, where the given side is now the front side.
+    /// Get a rotated version of this texture layout, rotated around the given axis by the given number of 90° clockwise turns.
     /// </summary>
-    /// <param name="newFront">The side that should be considered the new front side.</param>
+    /// <param name="axis">The axis to rotate around.</param>
+    /// <param name="turns">The number of 90° clockwise turns to rotate by, must be between 0 and 3 inclusive.</param>
     /// <returns>The rotated texture layout.</returns>
-    public TextureLayout Rotated(Side newFront)
+    public TextureLayout Rotated(Axis axis, Int32 turns)
     {
-        if (newFront is Side.All or Side.Front) return this;
+        Debug.Assert(turns is >= 0 and < 4);
         
-        return newFront switch
+        if (turns == 0) return this;
+        
+        Side GetRotatedSide(Side side)
         {
-            Side.Back => new TextureLayout(back, front, right, left, bottom, top),
-            Side.Left => new TextureLayout(right, left, front, right, bottom, top),
-            Side.Right => new TextureLayout(left, right, back, front, bottom, top),
-            Side.Bottom => new TextureLayout(top, bottom, left, right, front, back),
-            Side.Top => new TextureLayout(bottom, top, left, right, back, front),
-            _ => throw Exceptions.UnsupportedEnumValue(newFront)
-        };
+            return turns switch
+            {
+                1 => side.Rotate(axis),
+                2 => side.Rotate(axis).Rotate(axis),
+                3 => side.Rotate(axis).Rotate(axis).Rotate(axis),
+                _ => throw Exceptions.UnsupportedValue(turns)
+            };
+        }
+        
+        return new TextureLayout(
+            GetTexture(GetRotatedSide(Side.Front)),
+            GetTexture(GetRotatedSide(Side.Back)),
+            GetTexture(GetRotatedSide(Side.Left)),
+            GetTexture(GetRotatedSide(Side.Right)),
+            GetTexture(GetRotatedSide(Side.Bottom)),
+            GetTexture(GetRotatedSide(Side.Top))
+        );
     }
 
     /// <summary>

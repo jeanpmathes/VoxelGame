@@ -4,11 +4,13 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
+using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
@@ -19,16 +21,21 @@ public class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Bloc
 {
     private Rotatable(Block subject) : base(subject)
     {
-        subject.RequireIfPresent<RotatableCubeTextured, CubeTextured>();
+        subject.RequireIfPresent<RotatableSimpleBlock, Simple>();
         
-        Rotation = Aspect<Side, State>.New<Exclusive<Side, State>>(nameof(Rotation), this);
+        Axis = Aspect<Axis, State>.New<Exclusive<Axis, State>>(nameof(Axis), this);
+        Turns = Aspect<Int32, State>.New<Exclusive<Int32, State>>(nameof(Turns), this);
     }
     
     /// <summary>
-    /// Get which side of the block corresponds to the <see cref="Side.Front"/> in a given state.
-    /// For example, if this returns <see cref="Side.Top"/>, then the block is oriented upwards in that state.
+    /// The axis around which the block is rotated in a given state.
     /// </summary>
-    public Aspect<Side, State> Rotation { get; }
+    public Aspect<Axis, State> Axis { get; }
+    
+    /// <summary>
+    /// Get the number of 90° clockwise turns the block has undergone from its original orientation in a given state.
+    /// </summary>
+    public Aspect<Int32, State> Turns { get; }
     
     /// <inheritdoc />
     public static Rotatable Construct(Block input)
@@ -37,12 +44,22 @@ public class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Bloc
     }
     
     /// <summary>
-    /// Get the current front side of the block in the given state.
+    /// Get the current rotation axis of the block in the given state.
     /// </summary>
-    /// <param name="state">The side which should be considered the front side.</param>
-    /// <returns>The current front side of the block.</returns>
-    public Side GetCurrentFront(State state)
+    /// <param name="state">The state to get the axis from.</param>
+    /// <returns>The current rotation axis of the block.</returns>
+    public Axis GetCurrentAxis(State state)
     {
-        return Rotation.GetValue(original: Side.Front, state);
+        return Axis.GetValue(Utilities.Axis.Y, state);
+    }
+    
+    /// <summary>
+    /// Get the current number of 90° clockwise turns around <see cref="Axis"/> the block has undergone from its original orientation in the given state.
+    /// </summary>
+    /// <param name="state">The state to get the number of turns from.</param>
+    /// <returns>The current number of 90° clockwise turns around <see cref="Axis"/>.</returns>
+    public Int32 GetCurrentTurns(State state)
+    {
+        return Turns.GetValue(original: 0, state);
     }
 }

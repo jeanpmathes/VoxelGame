@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -23,7 +24,7 @@ public class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, Block
     
     private LateralRotatable(Block subject) : base(subject)
     {
-        subject.Require<Rotatable>().Rotation.ContributeFunction(GetRotation);
+        subject.Require<Rotatable>().Turns.ContributeFunction(GetTurns);
 
         var siding = subject.Require<SingleSided>();
         siding.Side.ContributeFunction(GetSide);
@@ -43,9 +44,18 @@ public class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, Block
             .Attribute(placementDefault: Utilities.Orientation.South, generationDefault: Utilities.Orientation.South);
     }
     
-    private Side GetRotation(Side original, State state)
+    private Int32 GetTurns(Int32 original, State state)
     {
-        return GetOrientation(state).ToSide();
+        Orientation currentOrientation = GetOrientation(state);
+
+        return currentOrientation switch
+        {
+            Utilities.Orientation.South => 0,
+            Utilities.Orientation.West => 1,
+            Utilities.Orientation.North => 2,
+            Utilities.Orientation.East => 3,
+            _ => throw Exceptions.UnsupportedEnumValue(currentOrientation)
+        };
     }
     
     private Side GetSide(Side original, State state)
@@ -79,7 +89,7 @@ public class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, Block
     /// <param name="state">The state to start from.</param>
     /// <param name="newOrientation">The new orientation.</param>
     /// <returns>A new state with the updated orientation.</returns>
-    public State SetOrientation(State state, Orientation newOrientation) // todo: remove
+    public State SetOrientation(State state, Orientation newOrientation)
     {
         return state.With(Orientation, newOrientation);
     }

@@ -34,7 +34,7 @@ public class Simple : BlockBehavior, IBehavior<Simple, BlockBehavior, Block>, IM
     /// <summary>
     ///     Whether the texture is rotated.
     /// </summary>
-    public Aspect<Boolean, (State, Side)> IsTextureRotated { get; }
+    public Aspect<Boolean, (State state, Side side)> IsTextureRotated { get; }
     
     /// <inheritdoc />
     public Meshable Type => Meshable.Simple; 

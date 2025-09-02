@@ -4,6 +4,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using OpenTK.Mathematics;
+using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -22,15 +26,13 @@ public class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavi
     
     private AxisRotatable(Block subject) : base(subject)
     {
-        subject.Require<Rotatable>().Rotation.ContributeFunction(GetRotation);
+        var rotatable = subject.Require<Rotatable>();
+        rotatable.Axis.ContributeFunction(GetAxis);
+        rotatable.Turns.ContributeFunction(GetTurns);
+        
+        subject.PlacementState.ContributeFunction(GetPlacementState);
     }
-    
-    // todo: use conditionals to rotate texture 
-    // Boolean isLeftOrRightSide = info.Side is Side.Left or Side.Right;
-    // Boolean onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
-    // Boolean onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
-    // Boolean rotated = onXAndRotated || onZAndRotated;
-    
+
     /// <inheritdoc/>
     public static AxisRotatable Construct(Block input)
     {
@@ -43,9 +45,35 @@ public class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavi
         axis = builder.Define(nameof(axis)).Enum<Axis>().Attribute();
     }
     
-    private Side GetRotation(Side original, State state)
+    private Axis GetAxis(Axis original, State state)
     {
-        return TranslateSide(original, GetAxis(state));
+        return state.Get(Axis) switch
+        {
+            Utilities.Axis.Y => Utilities.Axis.Y,
+            Utilities.Axis.X => Utilities.Axis.Z,
+            Utilities.Axis.Z => Utilities.Axis.X,
+            _ => original
+        };
+    }
+    
+    private Int32 GetTurns(Int32 original, State state)
+    {
+        return state.Get(Axis) switch
+        {
+            Utilities.Axis.X => 1,
+            Utilities.Axis.Y => 0,
+            Utilities.Axis.Z => 1,
+            _ => original
+        };
+    }
+    
+    private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
+    {
+        (World _, Vector3i _, Actor? actor) = context;
+        
+        Side? side = actor?.GetTargetedSide()?.Opposite();
+        
+        return side == null ? original : SetAxis(original, side.Value.Axis());
     }
 
     /// <summary>
@@ -67,18 +95,5 @@ public class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavi
     public State SetAxis(State state, Axis newAxis)
     {
         return state.With(Axis, newAxis);
-    }
-    
-    private static Side TranslateSide(Side side, Axis axis)
-    {
-        return axis switch
-        {
-            Utilities.Axis.Y => side,
-            Utilities.Axis.X =>
-                side.Rotate(Utilities.Axis.Z),
-            Utilities.Axis.Z =>
-                side.Rotate(Utilities.Axis.X),
-            _ => throw Exceptions.UnsupportedEnumValue(axis)
-        };
     }
 }

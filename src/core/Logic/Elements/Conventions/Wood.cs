@@ -212,14 +212,18 @@ public static class WoodConvention
                     .BuildSimpleBlock(name.leaves, $"{namedID}{nameof(Wood.Leaves)}")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_leaves")))
                     .WithBehavior<Combustible>()
-                    .WithConditionalDefinition(!tree.Needles, b => b.WithBehavior<NeutralTint>())
+                    .WithConditionalDefinition(!tree.Needles, definition => definition.WithBehavior<NeutralTint>())
+                    .WithProperties(properties =>
+                    {
+                        properties.IsOpaque.ContributeConstant(value: false);
+                        properties.MeshFaceAtNonOpaques.ContributeConstant(value: true);
+                    })
                     .Complete(),
 
                 Log = builder
                     .BuildSimpleBlock(name.log, $"{namedID}{nameof(Wood.Log)}")
                     .WithTextureLayout(TextureLayout.Column(TID.Block($"{texture}_log", x: 0), TID.Block($"{texture}_log", x: 1)))
                     .WithBehavior<AxisRotatable>()
-                    .WithBehavior<TargetedSidePlacement>()
                     .WithBehavior<Combustible>()
                     .Complete(),
 
