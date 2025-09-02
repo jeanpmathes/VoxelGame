@@ -236,17 +236,26 @@ public static class WoodConvention
 
                 Fence = builder
                     .BuildComplexBlock($"{Language.Fence} ({name.wood})", $"{namedID}{nameof(Wood.Fence)}")
-                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("fence_post"), RID.File<BlockModel>("fence_extension"), null)))
+                    .WithBehavior<WideConnecting>(connecting =>
+                    {
+                        connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("fence_post"), RID.File<BlockModel>("fence_extension"), null));
+                        connecting.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_planks"));
+                    })
                     .WithBehavior<Fence>()
                     .WithBehavior<Combustible>()
                     .Complete(),
 
                 FenceGate = builder
                     .BuildComplexBlock($"{Language.Gate} ({name.wood})", $"{namedID}{nameof(Wood.FenceGate)}")
-                    .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("gate_closed"), RID.File<BlockModel>("gate_open")]))
+                    .WithBehavior<Modelled>(modelled =>
+                    {
+                        modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("gate_closed"), RID.File<BlockModel>("gate_open")]);
+                        modelled.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_planks"));
+                    })
                     .WithBehavior<Combustible>()
                     .WithBehavior<LateralRotatable>()
                     // todo: opening and closing the gate
+                    // todo: collision of the gate
                     .Complete(),
 
                 Door = builder
@@ -254,7 +263,7 @@ public static class WoodConvention
                     .WithBehavior<Modelled>(modelled =>
                     {
                         modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("door_wood_closed"), RID.File<BlockModel>("door_wood_open")]);
-                        // todo: texture override to TID.Block($"{texture}_door")
+                        modelled.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_door"));
                     })
                     .WithBehavior<Door>()
                     .Complete(),
@@ -275,7 +284,7 @@ public static class WoodConvention
                     .WithBehavior<Modelled>(modelled =>
                     {
                         modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("bed")]);
-                        // todo: texture override to TID.Block($"{texture}_bed")
+                        modelled.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_bed")); // todo: this probably does not work as block is a two-part texture, think about a solution
                     })
                     // todo: Bed behavior that adds bounding volume and does the spawn point setting
                     .WithBehavior<LateralRotatable>()

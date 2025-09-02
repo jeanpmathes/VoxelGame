@@ -85,6 +85,7 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
             
                 // todo: when doing caching on model provider, the returned model should be read only (interface)
                 // todo: maybe doing the overrides as a parameter to the CreateMesh method would be better
+                // todo: and the method on the model provider is thus removed
             }
         }
         
