@@ -196,10 +196,10 @@ public class ShowcaseConvention : Command
             wood.Log.Place(world, position + Vector3i.UnitY);
             wood.Planks.Place(world, position + Vector3i.UnitY * 2);
             wood.Fence.Place(world, position + Vector3i.UnitY * 3);
-            wood.FenceGate.Place(world, position + Vector3i.UnitY * 4);
+            wood.FenceGate.Place(world, position + Vector3i.UnitY * 3 + Vector3i.UnitZ);
             
+            wood.Pipe.Place(world, position + Vector3i.UnitY * 4);
             wood.Pipe.Place(world, position + Vector3i.UnitY * 5);
-            wood.Pipe.Place(world, position + Vector3i.UnitY * 6);
 
             Vector3i doorPosition = position + Vector3i.UnitZ;
             wood.Planks.Place(world, doorPosition.Below());

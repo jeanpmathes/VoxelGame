@@ -23,7 +23,7 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
     {
         StrengthInitializer = Aspect<Strengths, Block>.New<Exclusive<Strengths, Block>>(nameof(StrengthInitializer), this);
         
-        IsConnectionAllowed = Aspect<Boolean, State>.New<ANDing<State>>(nameof(IsConnectionAllowed), this);
+        IsConnectionAllowed = Aspect<Boolean, (Side, State)>.New<ANDing<(Side, State)>>(nameof(IsConnectionAllowed), this);
     }
     
     /// <inheritdoc/>
@@ -45,7 +45,7 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
     /// <summary>
     /// Whether connection to this block is allowed in the given state.
     /// </summary>
-    public Aspect<Boolean, State> IsConnectionAllowed { get; }
+    public Aspect<Boolean, (Side side, State state)> IsConnectionAllowed { get; }
 
     /// <inheritdoc/>
     public override void OnInitialize(BlockProperties properties)
@@ -61,14 +61,19 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
     }
 
     /// <summary>
-    /// Check whether two given connection strengths can connect to each other.
-    /// The order of the two connection strengths does not matter.
+    /// Check whether another connectable can connect to this one on the given side.
     /// </summary>
-    /// <param name="a">The first connection strength.</param>
-    /// <param name="b">The second connection strength.</param>
-    /// <returns><c>true</c> if the two connection strengths can connect to each other, <c>false</c> otherwise.</returns>
-    public static Boolean CanConnect(Strengths a, Strengths b)
+    /// <param name="state">The state of this block.</param>
+    /// <param name="other">The other connectable to check connection against.</param>
+    /// <param name="side">The side of this block to check connection on.</param>
+    /// <returns><c>true</c> if the blocks can connect, <c>false</c> otherwise.</returns>
+    public Boolean CanConnect(State state, Side side, Connectable other)
     {
+        if (!IsConnectionAllowed.GetValue(original: true, (side, state))) return false; 
+        
+        Strengths a = Strength;
+        Strengths b = other.Strength;
+        
         return (a & b) != Strengths.None;
     }
 

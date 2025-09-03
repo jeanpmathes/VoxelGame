@@ -254,6 +254,7 @@ public static class WoodConvention
                     })
                     .WithBehavior<Combustible>()
                     .WithBehavior<LateralRotatable>()
+                    .WithBehavior<Gate>()
                     // todo: opening and closing the gate
                     // todo: collision of the gate
                     .Complete(),
@@ -284,7 +285,7 @@ public static class WoodConvention
                     .WithBehavior<Modelled>(modelled =>
                     {
                         modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("bed")]);
-                        modelled.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_bed")); // todo: this probably does not work as block is a two-part texture, think about a solution
+                        // todo: think about a clever way to do the texture override here, the bed uses multiple textures but only one must be changed -> texture replacement
                     })
                     // todo: Bed behavior that adds bounding volume and does the spawn point setting
                     .WithBehavior<LateralRotatable>()

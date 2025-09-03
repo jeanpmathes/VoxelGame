@@ -114,7 +114,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("concrete")))
         .WithBehavior<StoredHeight8>(height => height.PlacementHeightInitializer.ContributeConstant(StoredHeight8.MaximumHeight))
         .WithBehavior<Paintable>()
-        .WithBehavior<PartialHeight, Connectable>((height, connectable) => connectable.IsConnectionAllowed.ContributeFunction((_, state) => height.IsFull(state)))
+        .WithBehavior<PartialHeight, Connectable>((height, connectable) => connectable.IsConnectionAllowed.ContributeFunction((_, context) => height.IsFull(context.state)))
         .Complete();
     
     /// <summary>

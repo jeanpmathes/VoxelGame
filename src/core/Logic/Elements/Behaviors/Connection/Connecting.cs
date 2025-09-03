@@ -73,7 +73,7 @@ public class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Bl
         {
             Vector3i neighborPosition = orientation.Offset(position);
 
-            if (CanConnectTo(world, neighborPosition)) 
+            if (CanConnectTo(world, neighborPosition, orientation.ToSide())) 
                 state.Set(GetDirection(orientation), value: true);
         }
 
@@ -85,7 +85,7 @@ public class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Bl
         if (!message.Side.IsLateral()) return;
         
         IAttribute<Boolean> side = GetDirection(message.Side.ToOrientation());
-        Boolean canConnect = CanConnectTo(message.World, message.Side.Offset(message.Position));
+        Boolean canConnect = CanConnectTo(message.World, message.Side.Offset(message.Position), message.Side);
         
         if (message.State.Get(side) == canConnect) return;
 
@@ -94,10 +94,11 @@ public class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Bl
         message.World.SetBlock(new BlockInstance(newState), message.Position);
     }
     
-    private Boolean CanConnectTo(World world, Vector3i position)
+    private Boolean CanConnectTo(World world, Vector3i position, Side side)
     {
-        return world.GetBlock(position)?.Block.Get<Connectable>() is {} otherConnectable &&
-               Connectable.CanConnect(connectable.Strength, otherConnectable.Strength);
+        BlockInstance? other = world.GetBlock(position);
+
+        return other?.Block.Get<Connectable>() is {} otherConnectable && otherConnectable.CanConnect(other.Value.State, side.Opposite(), connectable);
     }
     
     private IAttribute<Boolean> GetDirection(Orientation orientation)
