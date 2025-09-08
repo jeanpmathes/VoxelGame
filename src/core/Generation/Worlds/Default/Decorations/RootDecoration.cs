@@ -48,7 +48,7 @@ public class RootDecoration : Decoration
 
             if (!shape.Contains(offset - extents)) continue;
 
-            if (grid.GetContent(current)?.Block.Block != Blocks.Instance.Environment.Dirt) continue;
+            if (grid.GetContent(current)?.Block.Block != Blocks.Instance.Environment.Soil) continue;
 
             grid.SetContent(new Content(Blocks.Instance.Environment.Roots), current);
         }

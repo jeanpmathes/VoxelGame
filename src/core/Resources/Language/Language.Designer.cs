@@ -123,11 +123,11 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Ash-covered Dirt.
+        ///   Looks up a localized string similar to Ash-covered Soil.
         /// </summary>
-        public static string AshCoveredDirt {
+        public static string AshCoveredSoil {
             get {
-                return ResourceManager.GetString("AshCoveredDirt", resourceCulture);
+                return ResourceManager.GetString("AshCoveredSoil", resourceCulture);
             }
         }
         
@@ -623,15 +623,6 @@ namespace VoxelGame.Core.Resources.Language {
         public static string DevBlock {
             get {
                 return ResourceManager.GetString("DevBlock", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Dirt.
-        /// </summary>
-        public static string Dirt {
-            get {
-                return ResourceManager.GetString("Dirt", resourceCulture);
             }
         }
         
@@ -2711,6 +2702,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string Snow {
             get {
                 return ResourceManager.GetString("Snow", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Soil.
+        /// </summary>
+        public static string Soil {
+            get {
+                return ResourceManager.GetString("Soil", resourceCulture);
             }
         }
         

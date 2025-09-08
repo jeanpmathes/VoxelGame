@@ -86,7 +86,7 @@ public sealed class Wood(String namedID, BlockBuilder builder) : Convention<Wood
     /// <param name="Density">The density of the crown.</param>
     /// <param name="Needles">Whether the tree has needles instead of leaves. Needles will not have neutral tint.</param>
     /// <param name="Ground">The ground the tree grows on.</param>
-    public record Tree(Tree.Growth Height, Tree.CrownShape Shape, Tree.CrownDensity Density, Boolean Needles = false, Tree.GroundType Ground = Tree.GroundType.Dirt)
+    public record Tree(Tree.Growth Height, Tree.CrownShape Shape, Tree.CrownDensity Density, Boolean Needles = false, Tree.GroundType Ground = Tree.GroundType.Earth)
     {
         /// <summary>
         ///     The density of the crown.
@@ -172,9 +172,9 @@ public sealed class Wood(String namedID, BlockBuilder builder) : Convention<Wood
         public enum GroundType
         {
             /// <summary>
-            ///     Dirt-based ground.
+            ///     Earth-based ground.
             /// </summary>
-            Dirt,
+            Earth,
 
             /// <summary>
             ///     Sand-based ground.
@@ -285,8 +285,6 @@ public static class WoodConvention
                     .WithBehavior<Paintable>()
                     .WithBehavior<Combustible>()
                     .Complete()
-                
-                // todo: es braucht vielleicht ein opposite in placement oder so, oder irgendwo weil derzeit passt es einfach nicht
             };
         });
     }

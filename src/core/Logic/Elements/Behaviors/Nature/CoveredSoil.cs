@@ -1,4 +1,4 @@
-﻿// <copyright file="CoveredDirt.cs" company="VoxelGame">
+﻿// <copyright file="CoveredSoil.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -15,22 +15,22 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// Blocks with this behavior are dirt blocks that are covered with something.
-/// Some conditions like placement of a block on top remove the covering, turning the block into a regular dirt block.
+/// Blocks with this behavior are soil blocks that are covered with something.
+/// Some conditions like placement of a block on top remove the covering, turning the block into a regular soil block.
 /// </summary>
-public class CoveredDirt : BlockBehavior, IBehavior<CoveredDirt, BlockBehavior, Block>
+public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, Block>
 {
-    private CoveredDirt(Block subject) : base(subject)
+    private CoveredSoil(Block subject) : base(subject)
     {
-        subject.Require<Dirt>();
+        subject.Require<Soil>();
         
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
     }
 
     /// <inheritdoc/>
-    public static CoveredDirt Construct(Block input)
+    public static CoveredSoil Construct(Block input)
     {
-        return new CoveredDirt(input);
+        return new CoveredSoil(input);
     }
 
     /// <inheritdoc/>
@@ -44,7 +44,7 @@ public class CoveredDirt : BlockBehavior, IBehavior<CoveredDirt, BlockBehavior, 
     {
         (World world, Vector3i position, Actor? actor) = context;
         
-        return CanHaveCover(world, position) == false || Blocks.Instance.Environment.Dirt.CanPlace(world, position, actor);
+        return CanHaveCover(world, position) == false || Blocks.Instance.Environment.Soil.CanPlace(world, position, actor);
     }
 
     private void OnPlacement(Block.PlacementMessage message)
@@ -52,7 +52,7 @@ public class CoveredDirt : BlockBehavior, IBehavior<CoveredDirt, BlockBehavior, 
         if (CanHaveCover(message.World, message.Position) == false) 
             message.World.SetBlock(new BlockInstance(Subject.States.PlacementDefault), message.Position);
         else 
-            Blocks.Instance.Environment.Dirt.Place(message.World, message.Position, message.Actor);
+            Blocks.Instance.Environment.Soil.Place(message.World, message.Position, message.Actor);
     }
     
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
@@ -85,6 +85,6 @@ public class CoveredDirt : BlockBehavior, IBehavior<CoveredDirt, BlockBehavior, 
     /// <param name="position">The position of the block.</param>
     public void RemoveCover(World world, Vector3i position)
     {
-        world.SetBlock(Blocks.Instance.Environment.Dirt.AsInstance(), position);
+        world.SetBlock(Blocks.Instance.Environment.Soil.AsInstance(), position);
     }
 }

@@ -129,9 +129,9 @@
     <data name="Ash" xml:space="preserve">
     <value>Asche</value>
   </data>
-    <data name="AshCoveredDirt" xml:space="preserve">
-    <value>Aschebedeckte Erde</value>
-  </data>
+    <data name="AshCoveredSoil" xml:space="preserve">
+        <value>Aschebedeckter Erdboden</value>
+    </data>
     <data name="Barrier" xml:space="preserve">
     <value>Barriere</value>
   </data>
@@ -177,9 +177,9 @@
     <data name="WoolDecorated" xml:space="preserve">
     <value>Geschmückte Wolle</value>
   </data>
-    <data name="Dirt" xml:space="preserve">
-    <value>Erde</value>
-  </data>
+    <data name="Soil" xml:space="preserve">
+        <value>Erdboden</value>
+    </data>
     <data name="EternalFlame" xml:space="preserve">
     <value>Ewiges Feuer</value>
   </data>

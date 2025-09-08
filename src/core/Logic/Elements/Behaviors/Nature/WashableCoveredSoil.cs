@@ -1,4 +1,4 @@
-﻿// <copyright file="WashableCoveredDirt.cs" company="VoxelGame">
+﻿// <copyright file="WashableCoveredSoil.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,23 +11,23 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// Extends <see cref="CoveredDirt"/> to remove the cover when becoming wet.
+/// Extends <see cref="CoveredSoil"/> to remove the cover when becoming wet.
 /// </summary>
-public class WashableCoveredDirt : BlockBehavior, IBehavior<WashableCoveredDirt, BlockBehavior, Block>
+public class WashableCoveredSoil : BlockBehavior, IBehavior<WashableCoveredSoil, BlockBehavior, Block>
 {
-    private readonly CoveredDirt dirt;
+    private readonly CoveredSoil soil;
     
-    private WashableCoveredDirt(Block subject) : base(subject)
+    private WashableCoveredSoil(Block subject) : base(subject)
     {
         subject.Require<Wet>();
         
-        dirt = subject.Require<CoveredDirt>();
+        soil = subject.Require<CoveredSoil>();
     }
     
     /// <inheritdoc/>
-    public static WashableCoveredDirt Construct(Block input)
+    public static WashableCoveredSoil Construct(Block input)
     {
-        return new WashableCoveredDirt(input);
+        return new WashableCoveredSoil(input);
     }
 
     /// <inheritdoc/>
@@ -38,6 +38,6 @@ public class WashableCoveredDirt : BlockBehavior, IBehavior<WashableCoveredDirt,
     
     private void OnBecomeWet(Wet.BecomeWetMessage message)
     {
-        dirt.RemoveCover(message.World, message.Position);
+        soil.RemoveCover(message.World, message.Position);
     }
 }

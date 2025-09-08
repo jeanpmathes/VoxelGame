@@ -11,7 +11,7 @@ using VoxelGame.Core.Behaviors.Events;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// When <see cref="Dirt"/> gets filled with too much water, it turns into <see cref="Mud"/>.
+/// When <see cref="Soil"/> gets filled with too much water, it turns into <see cref="Mud"/>.
 /// </summary>
 public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
 {
@@ -43,8 +43,8 @@ public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
         FluidLevel remaining = FluidLevel.Eight - (Int32) message.Level; // todo: add a fluid level struct
 
         message.World.SetContent(remaining >= FluidLevel.One
-                ? new Content(Blocks.Instance.Environment.Dirt.AsInstance(), Elements.Fluids.Instance.FreshWater.AsInstance(remaining))
-                : new Content(Blocks.Instance.Environment.Dirt),
+                ? new Content(Blocks.Instance.Environment.Soil.AsInstance(), Elements.Fluids.Instance.FreshWater.AsInstance(remaining))
+                : new Content(Blocks.Instance.Environment.Soil),
             message.Position);
 
         message.CanGrow = true;

@@ -506,13 +506,13 @@
         <None Update="Resources\Textures\Blocks\checkerboard_tiles_white.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\dirt.xml">
+        <None Update="Resources\Textures\Blocks\soil.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\Parts\dirt.png">
+        <None Update="Resources\Textures\Blocks\Parts\soil.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\dirt_wet.xml">
+        <None Update="Resources\Textures\Blocks\soil_wet.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\steel_door.png">

@@ -343,14 +343,14 @@ public abstract class Layer
     {
         private readonly Int32 amplitude;
 
-        private readonly Content dirt;
+        private readonly Content soil;
         private readonly Content grass;
 
         public StonyTop(Int32 width, Int32 amplitude)
         {
             Width = width;
 
-            dirt = new Content(Blocks.Instance.Environment.Dirt);
+            soil = new Content(Blocks.Instance.Environment.Soil);
             grass = new Content(Blocks.Instance.Environment.Grass);
 
             this.amplitude = amplitude;
@@ -360,9 +360,9 @@ public abstract class Layer
         {
             if (offset > amplitude)
             {
-                if (depth == 0) return isFilled ? dirt : grass;
+                if (depth == 0) return isFilled ? soil : grass;
 
-                return dirt;
+                return soil;
             }
 
             if (offset < -amplitude) return Palette!.GetLoose(stoneType);

@@ -1,4 +1,4 @@
-﻿// <copyright file="Dirt.cs" company="VoxelGame">
+﻿// <copyright file="Soil.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,9 +17,9 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 /// Core behavior for all soil blocks.
 /// Not only the soil block itself, but also blocks that contain significant amounts of soil.
 /// </summary>
-public class Dirt : BlockBehavior, IBehavior<Dirt, BlockBehavior, Block>
+public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
 {
-    private Dirt(Block subject) : base(subject)
+    private Soil(Block subject) : base(subject)
     {
         subject.Require<Plantable>();
         subject.Require<Membrane>().MaxViscosityInitializer.ContributeConstant(value: 100);
@@ -27,9 +27,9 @@ public class Dirt : BlockBehavior, IBehavior<Dirt, BlockBehavior, Block>
     }
     
     /// <inheritdoc/>
-    public static Dirt Construct(Block input)
+    public static Soil Construct(Block input)
     {
-        return new Dirt(input);
+        return new Soil(input);
     }
 
     /// <inheritdoc/>
@@ -57,7 +57,7 @@ public class Dirt : BlockBehavior, IBehavior<Dirt, BlockBehavior, Block>
     
     private static void OnAshCover(AshCoverable.AshCoverMessage message)
     {
-        message.World.SetBlock(Blocks.Instance.Environment.AshCoveredDirt.AsInstance(), message.Position);
+        message.World.SetBlock(Blocks.Instance.Environment.AshCoveredSoil.AsInstance(), message.Position);
     }
 
     /// <inheritdoc/>

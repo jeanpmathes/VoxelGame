@@ -72,7 +72,7 @@ public sealed class DecorationLoader : IResourceLoader
 
             Decorator decorator = treeDefinition.Ground switch
             {
-                Wood.Tree.GroundType.Dirt => new PlantableDecorator(Vector3i.UnitY, width: 3),
+                Wood.Tree.GroundType.Earth => new PlantableDecorator(Vector3i.UnitY, width: 3),
                 Wood.Tree.GroundType.Sand => new CoverDecorator(Blocks.Instance.Environment.Sand, Vector3i.UnitY, width: 3),
                 _ => throw Exceptions.UnsupportedEnumValue(treeDefinition.Ground)
             };

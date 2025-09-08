@@ -129,8 +129,8 @@
     <data name="Ash" xml:space="preserve">
     <value>Ash</value>
   </data>
-    <data name="AshCoveredDirt" xml:space="preserve">
-    <value>Ash-covered Dirt</value>
+    <data name="AshCoveredSoil" xml:space="preserve">
+    <value>Ash-covered Soil</value>
   </data>
     <data name="Barrier" xml:space="preserve">
     <value>Barrier</value>
@@ -177,8 +177,8 @@
     <data name="WoolDecorated" xml:space="preserve">
     <value>Decorated Wool</value>
   </data>
-    <data name="Dirt" xml:space="preserve">
-    <value>Dirt</value>
+    <data name="Soil" xml:space="preserve">
+    <value>Soil</value>
   </data>
     <data name="EternalFlame" xml:space="preserve">
     <value>Eternal Flame</value>

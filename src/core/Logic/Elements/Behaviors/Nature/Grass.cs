@@ -20,7 +20,7 @@ public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
 {
     private Grass(Block subject) : base(subject)
     {
-        subject.Require<CoveredDirt>();
+        subject.Require<CoveredSoil>();
         subject.Require<Combustible>();
     }
     
@@ -51,7 +51,7 @@ public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
     
     private static void OnBurn(Combustible.BurnMessage message)
     {
-        message.World.SetBlock(Blocks.Instance.Environment.AshCoveredDirt.AsInstance(), message.Position);
+        message.World.SetBlock(Blocks.Instance.Environment.AshCoveredSoil.AsInstance(), message.Position);
         message.Fire.Place(message.World, message.Position.Above());
     }
 }

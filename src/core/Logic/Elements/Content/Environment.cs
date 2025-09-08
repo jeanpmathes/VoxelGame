@@ -26,13 +26,13 @@ namespace VoxelGame.Core.Logic.Elements;
 public class Environment(BlockBuilder builder) : Category(builder)
 {
     /// <summary>
-    ///     Dirt with some grass on top. Plants can be placed on top of this.
+    ///     Soil with some grass on top. Plants can be placed on top of this.
     ///     The grass can burn, creating ash.
     /// </summary>
     public Block Grass { get; } = builder
         .BuildSimpleBlock(Language.Grass, nameof(Grass))
-        .WithTextureLayout(TextureLayout.UniqueColumn(TID.Block("grass_side"), TID.Block("dirt"), TID.Block("grass")))
-        .WithWetTextureLayout(TextureLayout.UniqueColumn(TID.Block("grass_side_wet"), TID.Block("dirt_wet"), TID.Block("grass_wet")))
+        .WithTextureLayout(TextureLayout.UniqueColumn(TID.Block("grass_side"), TID.Block("soil"), TID.Block("grass")))
+        .WithWetTextureLayout(TextureLayout.UniqueColumn(TID.Block("grass_side_wet"), TID.Block("soil_wet"), TID.Block("grass_wet")))
         .WithBehavior<NeutralTint>()
         .WithBehavior<Grass>()
         .Complete();
@@ -40,27 +40,27 @@ public class Environment(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     Soil covered with ash. Water can wash the ash away.
     /// </summary>
-    public Block AshCoveredDirt { get; } = builder
-        .BuildSimpleBlock(Language.AshCoveredDirt, nameof(AshCoveredDirt))
-        .WithTextureLayout(TextureLayout.UniqueColumn(TID.Block("ash_side"), TID.Block("dirt"), TID.Block("ash")))
-        .WithBehavior<WashableCoveredDirt>()
+    public Block AshCoveredSoil { get; } = builder
+        .BuildSimpleBlock(Language.AshCoveredSoil, nameof(AshCoveredSoil))
+        .WithTextureLayout(TextureLayout.UniqueColumn(TID.Block("ash_side"), TID.Block("soil"), TID.Block("ash")))
+        .WithBehavior<WashableCoveredSoil>()
         .WithBehavior<GrassSpreadable>()
         .Complete();
     
     /// <summary>
-    ///     Simple dirt. Grass next to it can spread over it.
+    ///     Simple soil. Grass next to it can spread over it.
     /// </summary>
-    public Block Dirt { get; } = builder
-        .BuildSimpleBlock(Language.Dirt, nameof(Dirt))
-        .WithTextureLayout(TextureLayout.Uniform(TID.Block("dirt")))
-        .WithWetTextureLayout(TextureLayout.Uniform(TID.Block("dirt_wet")))
+    public Block Soil { get; } = builder
+        .BuildSimpleBlock(Language.Soil, nameof(Soil))
+        .WithTextureLayout(TextureLayout.Uniform(TID.Block("soil")))
+        .WithWetTextureLayout(TextureLayout.Uniform(TID.Block("soil_wet")))
         .WithBehavior<NeutralTint>()
-        .WithBehavior<Dirt>()
+        .WithBehavior<Soil>()
         .WithBehavior<GrassSpreadable>()
         .Complete();
     
     /// <summary>
-    ///     Mud is created when water and dirt mix.
+    ///     Mud is created when water and soil mix.
     /// </summary>
     public Block Mud { get; } = builder
         .BuildSimpleBlock(Language.Mud, nameof(Mud))
@@ -93,11 +93,11 @@ public class Environment(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block Farmland { get; } = builder
         .BuildPartialHeightBlock(Language.Farmland, nameof(Farmland))
-        .WithTextureLayout(TextureLayout.UniqueTop(TID.Block("dirt"), TID.Block("farmland")))
-        .WithWetTextureLayout(TextureLayout.UniqueTop(TID.Block("dirt_wet"), TID.Block("farmland_wet")))
+        .WithTextureLayout(TextureLayout.UniqueTop(TID.Block("soil"), TID.Block("farmland")))
+        .WithWetTextureLayout(TextureLayout.UniqueTop(TID.Block("soil_wet"), TID.Block("farmland_wet")))
         .WithBehavior<ConstantHeight>(height => height.HeightInitializer.ContributeConstant(PartialHeight.MaximumHeight - 1))
-        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(nameof(Dirt)))
-        .WithBehavior<CoveredDirt>()
+        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(nameof(Soil)))
+        .WithBehavior<CoveredSoil>()
         .WithBehavior<Plantable>(plantable => plantable.SupportsFullGrowthInitializer.ContributeConstant(value: true))
         .Complete();
     
@@ -118,15 +118,15 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .Complete();
     
     /// <summary>
-    ///     The path is a dirt block with its top layer trampled.
+    ///     The path is a soil block with its top layer trampled.
     /// </summary>
     public Block Path { get; } = builder
         .BuildPartialHeightBlock(Language.Path, nameof(Path))
-        .WithTextureLayout(TextureLayout.Uniform(TID.Block("dirt")))
-        .WithWetTextureLayout(TextureLayout.Uniform(TID.Block("dirt_wet")))
+        .WithTextureLayout(TextureLayout.Uniform(TID.Block("soil")))
+        .WithWetTextureLayout(TextureLayout.Uniform(TID.Block("soil_wet")))
         .WithBehavior<ConstantHeight>(height => height.HeightInitializer.ContributeConstant(PartialHeight.MaximumHeight - 1))
-        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(nameof(Dirt)))
-        .WithBehavior<CoveredDirt>()
+        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(nameof(Soil)))
+        .WithBehavior<CoveredSoil>()
         .WithBehavior<Plantable>()
         .Complete();
     
