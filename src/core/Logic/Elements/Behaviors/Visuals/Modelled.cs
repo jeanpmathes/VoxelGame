@@ -27,7 +27,6 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     private Modelled(Block subject) : base(subject)
     {
         LayersInitializer = Aspect<IReadOnlyList<RID>, Block>.New<Exclusive<IReadOnlyList<RID>, Block>>(nameof(LayersInitializer), this);
-        TextureOverrideInitializer = Aspect<TID?, Block>.New<Exclusive<TID?, Block>>(nameof(TextureOverrideInitializer), this);
 
         Selector = Aspect<Selector, State>.New<Chaining<Selector, State>>(nameof(Selector), this);
         Model = Aspect<BlockModel, State>.New<Exclusive<BlockModel, State>>(nameof(Model), this);
@@ -35,7 +34,7 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
         
         subject.RequireIfPresent<CompositeModelled, Composite>();
-        subject.RequireIfPresent<FourWayRotatableModelled, LateralRotatable>();
+        subject.RequireIfPresent<LateralRotatableModelled, LateralRotatable>();
     }
 
     /// <inheritdoc />
@@ -53,22 +52,11 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     /// Aspect used to initialize the <see cref="Layers"/> property.
     /// </summary>
     public Aspect<IReadOnlyList<RID>, Block> LayersInitializer { get; }
-    
-    /// <summary>
-    /// Optional texture to override the texture of the provided models.
-    /// </summary>
-    public TID? TextureOverride { get; private set; }
-    
-    /// <summary>
-    /// Aspect used to initialize the <see cref="TextureOverride"/> property.
-    /// </summary>
-    public Aspect<TID?, Block> TextureOverrideInitializer { get; }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
         Layers = LayersInitializer.GetValue(new List<RID>(), Subject);
-        TextureOverride = TextureOverrideInitializer.GetValue(original: null, Subject);
     }
 
     /// <inheritdoc />
@@ -102,15 +90,10 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
         RID layer = Layers[selector.Layer]; // todo: handle out of bounds access
         
         BlockModel model = blockModelProvider.GetModel(layer, selector.Part);
-
-        if (TextureOverride is {} textureOverride)
-        {
-            model.OverwriteTexture(textureOverride);      
-        }
         
         model = Model.GetValue(model, state);
-        
-        return model.CreateMesh(textureIndexProvider);
+
+        return model.CreateMesh(textureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
     }
 }
 

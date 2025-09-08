@@ -15,6 +15,7 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors;
 
@@ -25,17 +26,24 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
 {
     private IAttribute<Vector3i> Part => part ?? throw Exceptions.NotInitialized(nameof(part));
     private IAttribute<Vector3i>? part;
-    
+
+    private Boolean isRotatable;
+
     private Composite(Block subject) : base(subject)
     {
         MaximumSizeInitializer = Aspect<Vector3i, Block>.New<Exclusive<Vector3i, Block>>(nameof(MaximumSizeInitializer), this);
 
         Size = Aspect<Vector3i, State>.New<Exclusive<Vector3i, State>>(nameof(Size), this);
         IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Vector3i, Actor?)>.New<ANDing<(World, Vector3i, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
-        
+
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
-        
+
         subject.Require<Constraint>().IsValid.ContributeFunction(GetIsValid);
+        subject.RequireIfPresent<LateralRotatableComposite, LateralRotatable>(rotatable => // todo: also ensure that oak door unaffected by the addition of this behavior
+        {
+            isRotatable = true;
+            rotatable.PartState.ContributeFunction((original, context) => original.With(Part, context.part), exclusive: true);
+        });
     }
 
     /// <inheritdoc />
@@ -47,6 +55,8 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     /// <summary>
     /// Maximum size of the composite block in block positions.
     /// Individual states can occupy a smaller size than this, but not larger.
+    /// If the block can be rotated, this size is interpreted as for the default orientation (north).
+    /// The size must be greater than zero in every dimension and not exceed the section size.
     /// </summary>
     public Vector3i MaximumSize { get; private set; } = Vector3i.One;
     
@@ -110,6 +120,8 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
+        if (isRotatable) return;
+
         bus.Subscribe<Block.PlacementMessage>(OnPlacement);
         bus.Subscribe<Block.DestructionMessage>(OnDestruction);
         bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
@@ -118,9 +130,11 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
 
     private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
+        if (isRotatable) return true;
+        
         (World world, Vector3i position, Actor? actor) = context;
         
-        Vector3i size = Size.GetValue(MaximumSize, Subject.GetPlacementState(world, position, actor));
+        Vector3i size = GetSize(Subject.GetPlacementState(world, position, actor));
         
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
@@ -140,7 +154,7 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     
     private Boolean GetIsValid(Boolean original, State state)
     {
-        Vector3i currentSize = Size.GetValue(MaximumSize, state);
+        Vector3i currentSize = GetSize(state);
         Vector3i currentPart = GetPartPosition(state);
         
         return currentPart is {X: >= 0, Y: >= 0, Z: >= 0}
@@ -150,7 +164,7 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     private void OnPlacement(Block.PlacementMessage message)
     {
         State state = Subject.GetPlacementState(message.World, message.Position, message.Actor);
-        Vector3i size = Size.GetValue(MaximumSize, state);
+        Vector3i size = GetSize(state);
 
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
@@ -175,7 +189,7 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     
     private void OnDestruction(Block.DestructionMessage message)
     {
-        Vector3i size = Size.GetValue(MaximumSize, message.State);
+        Vector3i size = GetSize(message.State);
         Vector3i root = message.Position - GetPartPosition(message.State);
         
         for (var x = 0; x < size.X; x++)
@@ -194,8 +208,8 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
         
         if (oldState == newState) return;
         
-        Vector3i oldSize = Size.GetValue(MaximumSize, oldState);
-        Vector3i newSize = Size.GetValue(MaximumSize, newState);
+        Vector3i oldSize = GetSize(oldState);
+        Vector3i newSize = GetSize(newState);
         
         Vector3i currentPart = GetPartPosition(oldState);
 
@@ -207,7 +221,7 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
     {
-        Vector3i size = Size.GetValue(MaximumSize, message.State);
+        Vector3i size = GetSize(message.State);
         
         Vector3i currentPart = GetPartPosition(message.State);
         Vector3i updatedPart = message.Side.Offset(currentPart);
@@ -284,6 +298,16 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     public Vector3i GetPartPosition(State state)
     {
         return state.Get(Part);
+    }
+    
+    /// <summary>
+    /// Get the size of the composite in a given state.
+    /// </summary>
+    /// <param name="state">The state to get the size for.</param>
+    /// <returns>The size of the composite in the given state.</returns>
+    public Vector3i GetSize(State state)
+    {
+        return Size.GetValue(MaximumSize, state);
     }
     
     /// <summary>

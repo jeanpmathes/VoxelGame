@@ -104,9 +104,6 @@
         <None Update="Resources\Models\bars_side.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Models\bed.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Resources\Models\carpet.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -1417,6 +1414,9 @@
         </None>
         <None Update="Resources\Textures\Blocks\dev.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Models\bed.json">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 

@@ -172,11 +172,8 @@ public class Construction(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block ClayBrickWall { get; } = builder
         .BuildComplexBlock(Language.ClayBrickWall, nameof(ClayBrickWall))
-        .WithBehavior<WideConnecting>(connecting =>
-        {
-            connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight")));
-            connecting.TextureOverrideInitializer.ContributeConstant(TID.Block("clay_bricks"));
-        })
+        .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight"))))
+        .WithTextureOverride(TextureOverride.All(TID.Block("clay_bricks")))
         .WithBehavior<Wall>()
         .Complete();
     

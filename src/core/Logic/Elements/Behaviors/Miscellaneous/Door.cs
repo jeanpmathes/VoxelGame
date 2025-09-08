@@ -40,7 +40,7 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         subject.Require<Grounded>();
 
         rotatable = subject.Require<LateralRotatable>();
-        subject.Require<FourWayRotatableModelled>().OrientationOverride.ContributeFunction(GetOrientationOverride);
+        subject.Require<LateralRotatableModelled>().OrientationOverride.ContributeFunction(GetOrientationOverride);
         
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
         subject.PlacementState.ContributeFunction(GetPlacementState);

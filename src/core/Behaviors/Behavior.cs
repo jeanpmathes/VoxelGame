@@ -63,6 +63,6 @@ public abstract class Behavior<TSelf, TSubject>(TSubject subject) : IBehavior<TS
     /// <inheritdoc />
     public override String ToString()
     {
-        return Reflections.GetDecoratedName<TSelf>(Subject.ToString() ?? "unknown", instance: null);
+        return Reflections.GetDecoratedName<TSelf>(Subject.ToString() ?? "unknown", instance: null); // todo: using TSelf here does not work as TSelf is always block behavior
     }
 }

@@ -43,7 +43,6 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
         
         ModelsInitializer = Aspect<(RID, RID, RID), Block>.New<Exclusive<(RID, RID, RID), Block>>(nameof(ModelsInitializer), this);
-        TextureOverrideInitializer = Aspect<TID?, Block>.New<Exclusive<TID?, Block>>(nameof(TextureOverrideInitializer), this);
 
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
@@ -57,16 +56,6 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
     /// Aspect used to initialize the <see cref="Models"/> property.
     /// </summary>
     public Aspect<(RID center, RID connector, RID surface), Block> ModelsInitializer { get; }
-    
-    /// <summary>
-    /// Optional texture to override the texture of the provided models.
-    /// </summary>
-    public TID? TextureOverride { get; private set; }
-    
-    /// <summary>
-    /// Aspect used to initialize the <see cref="TextureOverride"/> property.
-    /// </summary>
-    public Aspect<TID?, Block> TextureOverrideInitializer { get; }
 
     /// <inheritdoc/>
     public static ConnectingPipe Construct(Block input)
@@ -78,7 +67,6 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
     public override void OnInitialize(BlockProperties properties)
     {
         Models = ModelsInitializer.GetValue(original: default, Subject);
-        TextureOverride = TextureOverrideInitializer.GetValue(original: null, Subject);
     }
     
     /// <inheritdoc/>
@@ -101,13 +89,6 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         BlockModel frontConnector = blockModelProvider.GetModel(Models.connector);
         BlockModel frontSurface = blockModelProvider.GetModel(Models.surface);
 
-        if (TextureOverride is {} texture)
-        {
-            center.OverwriteTexture(texture, index: 0);
-            frontConnector.OverwriteTexture(texture, index: 0);
-            frontSurface.OverwriteTexture(texture, index: 0);
-        }
-
         (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
             connectors = frontConnector.CreateAllSides();
 
@@ -120,7 +101,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
 
         Sides sides = siding.GetSides(state);
 
-        return BlockModel.GetCombinedMesh(textureIndexProvider,
+        return BlockModel.GetCombinedMesh(textureIndexProvider, // todo: use Subject.Get<TextureOverride>()?.Textures
             center,
             sides.HasFlag(Sides.Front) ? connectors.front : surfaces.front,
             sides.HasFlag(Sides.Back) ? connectors.back : surfaces.back,

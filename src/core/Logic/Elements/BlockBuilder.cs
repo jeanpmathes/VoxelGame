@@ -225,6 +225,19 @@ public class BlockBuilder
         }
         
         /// <summary>
+        /// Set a <see cref="TextureOverride"/> on this block, which will override textures provided by models.
+        /// Generally only sensible for <see cref="Meshable.Complex"/> blocks.
+        /// </summary>
+        /// <param name="overrides">A dictionary mapping texture indices to the texture to use as override. Use -1 as key to override all textures which are not specified in the dictionary otherwise.</param>
+        /// <returns>The current <see cref="BlockDefinition"/> instance.</returns>
+        public BlockDefinition WithTextureOverride(IReadOnlyDictionary<Int32, TID> overrides)
+        {
+            block.Require<TextureOverride>().TexturesInitializer.ContributeConstant(overrides);
+            
+            return this;
+        }
+        
+        /// <summary>
         /// Make a part of the block's definition conditional based on a boolean condition.
         /// </summary>
         /// <param name="condition">The boolean condition that determines whether the definition should be applied.</param>

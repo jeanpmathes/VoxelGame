@@ -94,10 +94,11 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     ///     Create a block mesh from this model.
     /// </summary>
     /// <param name="textureIndexProvider">A texture index provider.</param>
+    /// <param name="textureOverrides">Optional texture overrides, using by-index substitution. A minus one key will replace all textures that are not explicitly named.</param>
     /// <returns>The block mesh.</returns>
-    public BlockMesh CreateMesh(ITextureIndexProvider textureIndexProvider)
+    public BlockMesh CreateMesh(ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
-        ToData(out BlockMesh.Quad[] quads, textureIndexProvider);
+        ToData(out BlockMesh.Quad[] quads, textureIndexProvider, textureOverrides);
 
         return new BlockMesh(quads);
     }
@@ -205,30 +206,6 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
         rotations = rotateTopAndBottomTexture ? 0 : rotations;
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, rotations);
-    }
-
-    /// <summary>
-    ///     Overwrites the texture of the model, replacing them with a single texture.
-    ///     This is only valid for models that have a single texture.
-    /// </summary>
-    /// <param name="newTexture">The replacement texture.</param>
-    public void OverwriteTexture(TID newTexture)
-    {
-        Debug.Assert(TextureNames.Length == 1);
-
-        OverwriteTexture(newTexture, index: 0);
-    }
-
-    /// <summary>
-    ///     Overwrite the texture with the given local index.
-    /// </summary>
-    /// <param name="newTexture">The new texture.</param>
-    /// <param name="index">The index of the texture to replace.</param>
-    public void OverwriteTexture(TID newTexture, Int32 index)
-    {
-        Debug.Assert(index >= 0 && index < TextureNames.Length);
-
-        TextureNames[index] = newTexture.Key;
     }
 
     /// <summary>
@@ -380,7 +357,10 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     /// <summary>
     ///     Get this model as data that can be used for rendering.
     /// </summary>
-    public void ToData(out BlockMesh.Quad[] quads, ITextureIndexProvider textureIndexProvider)
+    /// <param name="quads">The quads of the model.</param>
+    /// <param name="textureIndexProvider">A texture index provider.</param>
+    /// <param name="textureOverrides">Optional texture overrides, using by-index substitution. A minus one key will replace all textures that are not explicitly named.</param>
+    public void ToData(out BlockMesh.Quad[] quads, ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
         if (lockedQuads != null)
         {
@@ -391,8 +371,21 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
 
         var textureIndexLookup = new Int32[TextureNames.Length];
 
-        for (var i = 0; i < TextureNames.Length; i++)
-            textureIndexLookup[i] = textureIndexProvider.GetTextureIndex(TID.FromString(TextureNames[i], isBlock: true));
+        for (var texture = 0; texture < TextureNames.Length; texture++)
+        {
+            TID id = TID.FromString(TextureNames[texture], isBlock: true);
+
+            if (textureOverrides != null)
+            {
+                if (textureOverrides.TryGetValue(texture, out TID overrideId) ||
+                    textureOverrides.TryGetValue(key: -1, out overrideId))
+                {
+                    id = overrideId;
+                }
+            }
+            
+            textureIndexLookup[texture] = textureIndexProvider.GetTextureIndex(id);
+        }
 
         quads = new BlockMesh.Quad[Quads.Length];
 
@@ -481,7 +474,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     /// <param name="models">The models to combine.</param>
     /// <param name="textureIndexProvider">The texture index provider.</param>
     /// <returns>The combined mesh.</returns>
-    public static BlockMesh GetCombinedMesh(ITextureIndexProvider textureIndexProvider, params BlockModel[] models) // todo: should return model and not mesh
+    public static BlockMesh GetCombinedMesh(ITextureIndexProvider textureIndexProvider, params BlockModel[] models) // todo: should return model and not mesh, use override then
     {
         Int32 totalQuadCount = models.Sum(model => model.Quads.Length);
         Boolean locked = models.Aggregate(seed: true, (current, model) => current && model.lockedQuads != null);

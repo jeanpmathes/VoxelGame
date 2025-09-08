@@ -1,4 +1,4 @@
-﻿// <copyright file="FourWayRotatableModelled.cs" company="VoxelGame">
+﻿// <copyright file="LateralRotatableModelled.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,12 +17,12 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 /// <summary>
 /// Rotates the models used by a <see cref="Modelled"/> block and changes the selection to match the rotation.
 /// </summary>
-public class FourWayRotatableModelled : BlockBehavior, IBehavior<FourWayRotatableModelled, BlockBehavior, Block>
+public class LateralRotatableModelled : BlockBehavior, IBehavior<LateralRotatableModelled, BlockBehavior, Block>
 // todo: make this class just RotatableModelled when the new API on BlockModel to get sided models is done
 {
     private readonly LateralRotatable rotatable;
     
-    private FourWayRotatableModelled(Block subject) : base(subject)
+    private LateralRotatableModelled(Block subject) : base(subject)
     {
         OrientationOverride = Aspect<Utilities.Orientation, State>.New<Exclusive<Utilities.Orientation, State>>(nameof(OrientationOverride), this);
         
@@ -32,9 +32,9 @@ public class FourWayRotatableModelled : BlockBehavior, IBehavior<FourWayRotatabl
     }
 
     /// <inheritdoc />
-    public static FourWayRotatableModelled Construct(Block input)
+    public static LateralRotatableModelled Construct(Block input)
     {
-        return new FourWayRotatableModelled(input);
+        return new LateralRotatableModelled(input);
     }
     
     /// <summary>

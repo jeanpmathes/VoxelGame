@@ -48,7 +48,7 @@ public class PlayerDebugProperties : Group
     {
         yield return new Message("Block ID", $"{instance.Block.NamedID}[{instance.Block.ID}]");
         yield return new Message("State ID", $"{instance.State.ID}");
-        yield return new Message("State Index", $"{instance.Block.ID}/{instance.State.Index}");
+        yield return new Message("State Index", $"{instance.State.Index} of {instance.Block.States.Count}");
         yield return new Group("Attributes", instance.State.CreateProperties());
     }
     

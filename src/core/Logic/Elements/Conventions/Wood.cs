@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Elements.Behaviors;
 using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
@@ -236,64 +237,56 @@ public static class WoodConvention
 
                 Fence = builder
                     .BuildComplexBlock($"{Language.Fence} ({name.wood})", $"{namedID}{nameof(Wood.Fence)}")
-                    .WithBehavior<WideConnecting>(connecting =>
-                    {
-                        connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("fence_post"), RID.File<BlockModel>("fence_extension"), null));
-                        connecting.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_planks"));
-                    })
+                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("fence_post"), RID.File<BlockModel>("fence_extension"), null)))
+                    .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Fence>()
                     .WithBehavior<Combustible>()
                     .Complete(),
 
                 FenceGate = builder
                     .BuildComplexBlock($"{Language.Gate} ({name.wood})", $"{namedID}{nameof(Wood.FenceGate)}")
-                    .WithBehavior<Modelled>(modelled =>
-                    {
-                        modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("gate_closed"), RID.File<BlockModel>("gate_open")]);
-                        modelled.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_planks"));
-                    })
+                    .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("gate_closed"), RID.File<BlockModel>("gate_open")]))
+                    .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Combustible>()
                     .WithBehavior<LateralRotatable>()
                     .WithBehavior<Gate>()
-                    // todo: opening and closing the gate
-                    // todo: collision of the gate
                     .Complete(),
 
                 Door = builder
                     .BuildComplexBlock($"{Language.Door} ({name.wood})", $"{namedID}{nameof(Wood.Door)}")
-                    .WithBehavior<Modelled>(modelled =>
-                    {
-                        modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("door_wood_closed"), RID.File<BlockModel>("door_wood_open")]);
-                        modelled.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_door"));
-                    })
+                    .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("door_wood_closed"), RID.File<BlockModel>("door_wood_open")]))
+                    .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_door")))
                     .WithBehavior<Door>()
                     .Complete(),
 
                 Pipe = builder
                     .BuildComplexBlock($"{Language.Pipe} ({name.wood})", $"{namedID}{nameof(Wood.Pipe)}")
                     .WithBehavior<Piped>(piped => piped.TierInitializer.ContributeConstant(Piped.PipeTier.Primitive))
-                    .WithBehavior<ConnectingPipe>(pipe =>
-                    {
-                        pipe.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wood_pipe_center"), RID.File<BlockModel>("wood_pipe_connector"), RID.File<BlockModel>("wood_pipe_surface")));
-                        pipe.TextureOverrideInitializer.ContributeConstant(TID.Block(texture));
-                    })
+                    .WithBehavior<ConnectingPipe>(pipe => pipe.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wood_pipe_center"), RID.File<BlockModel>("wood_pipe_connector"), RID.File<BlockModel>("wood_pipe_surface"))))
+                    .WithTextureOverride(TextureOverride.All(TID.Block(texture)))
                     .WithBehavior<Combustible>()
                     .Complete(),
 
                 Bed = builder
                     .BuildComplexBlock($"{Language.Bed} ({name.wood})", $"{namedID}{nameof(Wood.Bed)}")
-                    .WithBehavior<Modelled>(modelled =>
-                    {
-                        modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("bed")]);
-                        // todo: think about a clever way to do the texture override here, the bed uses multiple textures but only one must be changed -> texture replacement
-                    })
-                    // todo: Bed behavior that adds bounding volume and does the spawn point setting
                     .WithBehavior<LateralRotatable>()
-                    .WithBehavior<Composite>(composite => composite.MaximumSizeInitializer.ContributeConstant((2, 1, 1)))
+                    .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("bed")]))
+                    .WithTextureOverride(new Dictionary<Int32, TID>
+                    {
+                        [0] = TID.Block($"{texture}_bed", x: 0, y: 1),
+                        [1] = TID.Block($"{texture}_bed", x: 0, y: 0),
+                        [2] = TID.Block($"{texture}_bed", x: 1, y: 0),
+                        [3] = TID.Block($"{texture}_bed", x: 1, y: 1),
+                    })
+                    .WithBehavior<Bed>()
+                    .WithBehavior<DirectionalSidePlacement>()
+                    .WithBehavior<Composite>(composite => composite.MaximumSizeInitializer.ContributeConstant((1, 1, 2)))
                     .WithBehavior<Grounded>()
                     .WithBehavior<Paintable>()
                     .WithBehavior<Combustible>()
                     .Complete()
+                
+                // todo: es braucht vielleicht ein opposite in placement oder so, oder irgendwo weil derzeit passt es einfach nicht
             };
         });
     }

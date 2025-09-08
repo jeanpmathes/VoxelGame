@@ -136,21 +136,15 @@ public static class StoneConvention // todo: check language for unused strings a
                 Wall = builder
                     .BuildComplexBlock($"{nameof(Language.Wall)} ({name})", $"{namedID}{nameof(Stone.Wall)}")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(connecting =>
-                    {
-                        connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight")));
-                        connecting.TextureOverrideInitializer.ContributeConstant(TID.Block(texture, x: 1));
-                    })
+                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight"))))
+                    .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
                     .Complete(),
 
                 BrickWall = builder
                     .BuildComplexBlock($"{nameof(Language.BrickWall)} ({name})", $"{namedID}{nameof(Stone.BrickWall)}")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(connecting =>
-                    {
-                        connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight")));
-                        connecting.TextureOverrideInitializer.ContributeConstant(TID.Block($"{texture}_bricks", x: 0));
-                    })
+                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight"))))
+                    .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))
                     .Complete()
             };
         });

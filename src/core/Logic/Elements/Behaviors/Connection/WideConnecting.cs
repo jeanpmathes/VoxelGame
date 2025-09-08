@@ -34,16 +34,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
     /// </summary>
     public Aspect<(RID post, RID extension, RID? straight), Block> ModelsInitializer { get; }
     
-    /// <summary>
-    /// Optional texture to override the texture of the provided models.
-    /// </summary>
-    public TID? TextureOverride { get; private set; }
-    
-    /// <summary>
-    /// Aspect used to initialize the <see cref="TextureOverride"/> property.
-    /// </summary>
-    public Aspect<TID?, Block> TextureOverrideInitializer { get; }
-    
     private WideConnecting(Block subject) : base(subject)
     {
         connecting = subject.Require<Connecting>();
@@ -52,7 +42,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
 
         ModelsInitializer = Aspect<(RID, RID, RID?), Block>.New<Exclusive<(RID, RID, RID?), Block>>(nameof(ModelsInitializer), this);
-        TextureOverrideInitializer = Aspect<TID?, Block>.New<Exclusive<TID?, Block>>(nameof(TextureOverrideInitializer), this);
     }
 
     /// <inheritdoc/>
@@ -65,7 +54,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
     public override void OnInitialize(BlockProperties properties)
     {
         Models = ModelsInitializer.GetValue(original: default, Subject);
-        TextureOverride = TextureOverrideInitializer.GetValue(original: null, Subject);
     }
     
     private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
@@ -76,18 +64,8 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
         
         BlockModel post = blockModelProvider.GetModel(Models.post);
         BlockModel extension = blockModelProvider.GetModel(Models.extension);
-
-        {
-            if (TextureOverride is {} textureOverride)
-            {
-                post.OverwriteTexture(textureOverride);
-                extension.OverwriteTexture(textureOverride);
-            
-                // todo: when doing caching on model provider, the returned model should be read only (interface)
-                // todo: maybe doing the overrides as a parameter to the CreateMesh method would be better
-                // todo: and the method on the model provider is thus removed
-            }
-        }
+        
+        // todo: when doing caching on model provider, the returned model should be read only (interface)
         
         (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
             extension.CreateAllOrientations(rotateTopAndBottomTexture: false);
@@ -100,11 +78,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
         if (Models.straight is {} straight && (useStraightX || useStraightZ))
         {
             BlockModel straightZ = blockModelProvider.GetModel(straight);
-            
-            if (TextureOverride is {} textureOverride)
-            {
-                straightZ.OverwriteTexture(textureOverride);
-            }
             
             if (useStraightZ)
             {
@@ -128,6 +101,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
             if (west) models.Add(extensions.west);
         }
         
-        return BlockModel.GetCombinedMesh(textureIndexProvider, models.ToArray());
+        return BlockModel.GetCombinedMesh(textureIndexProvider, models.ToArray()); // todo: use Subject.Get<TextureOverride>()?.Textures
     }
 }

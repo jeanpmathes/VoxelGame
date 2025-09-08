@@ -33,7 +33,7 @@ public partial class BlockModelProvider : ResourceProvider<BlockModel>, IBlockMo
             position.Z >= 0 && position.Z < modelParts.GetLength(2)) 
             return modelParts[position.X, position.Y, position.Z];
 
-        LogPartDoesNotExist(logger, identifier, position);
+        LogPartDoesNotExist(logger, identifier, position); // todo: fix that this warning is sent so often, find a way to avoid it or not make it a warning
                 
         return GetResource(identifier);
 

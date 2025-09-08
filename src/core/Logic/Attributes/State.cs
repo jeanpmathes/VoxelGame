@@ -41,7 +41,7 @@ public record struct State(StateSet Owner, Int32 Index)
     /// <returns>The properties of this state, containing the attributes and their values.</returns>
     public IEnumerable<Property> CreateProperties()
     {
-        foreach (IScoped entry in Owner.Entries) 
+        foreach (IScoped entry in Owner.Entries) // todo: filter out empty entries
             yield return entry.GetRepresentation(this);
     }
 

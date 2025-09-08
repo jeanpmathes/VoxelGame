@@ -27,7 +27,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 {
     private readonly List<TBehavior> behaviors = [];
     
-    private readonly Dictionary<Type, List<Action<TBehavior>>> newWatchers = new();
+    private Dictionary<Type, List<Action<TBehavior>>> newWatchers = new();
     private readonly Dictionary<Type, List<Action<TBehavior>>> allWatchers = new();
     
     private TBehavior?[]? baked;
@@ -93,7 +93,10 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
     private void ProcessNewWatchers()
     {
-        foreach ((Type key, List<Action<TBehavior>> actions) in newWatchers)
+        Dictionary<Type, List<Action<TBehavior>>> watchersToProcess = newWatchers;
+        newWatchers = new Dictionary<Type, List<Action<TBehavior>>>();
+        
+        foreach ((Type key, List<Action<TBehavior>> actions) in watchersToProcess)
         {
             Int32 index = behaviors.FindIndex(b => key.IsInstanceOfType(b));
             
@@ -109,8 +112,6 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
                 allWatchers.GetOrAdd(key, []).AddRange(actions);
             }
         }
-        
-        newWatchers.Clear();
     }
 
     /// <inheritdoc />
