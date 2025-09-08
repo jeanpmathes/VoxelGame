@@ -85,8 +85,8 @@ public sealed class Wood(String namedID, BlockBuilder builder) : Convention<Wood
     /// <param name="Shape">The shape of the crown.</param>
     /// <param name="Density">The density of the crown.</param>
     /// <param name="Needles">Whether the tree has needles instead of leaves. Needles will not have neutral tint.</param>
-    /// <param name="Soil">The soil the tree grows on.</param>
-    public record Tree(Tree.Growth Height, Tree.CrownShape Shape, Tree.CrownDensity Density, Boolean Needles = false, Tree.SoilType Soil = Tree.SoilType.Dirt)
+    /// <param name="Ground">The ground the tree grows on.</param>
+    public record Tree(Tree.Growth Height, Tree.CrownShape Shape, Tree.CrownDensity Density, Boolean Needles = false, Tree.GroundType Ground = Tree.GroundType.Dirt)
     {
         /// <summary>
         ///     The density of the crown.
@@ -167,17 +167,17 @@ public sealed class Wood(String namedID, BlockBuilder builder) : Convention<Wood
         }
 
         /// <summary>
-        ///     The soil the tree grows on.
+        ///     The ground the tree grows on.
         /// </summary>
-        public enum SoilType
+        public enum GroundType
         {
             /// <summary>
-            ///     Dirt-based soil.
+            ///     Dirt-based ground.
             /// </summary>
             Dirt,
 
             /// <summary>
-            ///     Sand-based soil.
+            ///     Sand-based ground.
             /// </summary>
             Sand
         }

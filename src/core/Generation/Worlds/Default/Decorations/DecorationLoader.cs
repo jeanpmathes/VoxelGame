@@ -70,11 +70,11 @@ public sealed class DecorationLoader : IResourceLoader
 
             Tree treeStructure = new(height, crownRandomization, crownShape, wood.Log, wood.Leaves);
 
-            Decorator decorator = treeDefinition.Soil switch
+            Decorator decorator = treeDefinition.Ground switch
             {
-                Wood.Tree.SoilType.Dirt => new PlantableDecorator(Vector3i.UnitY, width: 3),
-                Wood.Tree.SoilType.Sand => new CoverDecorator(Blocks.Instance.Environment.Sand, Vector3i.UnitY, width: 3),
-                _ => throw Exceptions.UnsupportedEnumValue(treeDefinition.Soil)
+                Wood.Tree.GroundType.Dirt => new PlantableDecorator(Vector3i.UnitY, width: 3),
+                Wood.Tree.GroundType.Sand => new CoverDecorator(Blocks.Instance.Environment.Sand, Vector3i.UnitY, width: 3),
+                _ => throw Exceptions.UnsupportedEnumValue(treeDefinition.Ground)
             };
 
             yield return new StructureDecoration(name, treeStructure, decorator);
