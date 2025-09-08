@@ -34,7 +34,7 @@ public class FoliageBlock : Block
     public override Meshable Meshable => Meshable.Foliage;
 
     /// <inheritdoc />
-    public FoliageBlock(String name, UInt32 id, String namedID) : base(name, id, namedID)
+    public FoliageBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         foliage = Require<Foliage>();
     }

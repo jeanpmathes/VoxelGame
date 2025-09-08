@@ -209,7 +209,7 @@ public class Metals(BlockBuilder builder) : Category(builder)
     ///     This blocks is a large accumulation of rust.
     /// </summary>
     public Block Rust { get; } = builder
-        .BuildSimpleBlock(Language.Rust, nameof(Language.Rust))
+        .BuildSimpleBlock(nameof(Language.Rust), Language.Rust)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("rust")))
         .Complete();
     
@@ -217,7 +217,7 @@ public class Metals(BlockBuilder builder) : Category(builder)
     ///     The steel block is a metal construction block.
     /// </summary>
     public Block Steel { get; } = builder
-        .BuildSimpleBlock(Language.Steel, nameof(Steel))
+        .BuildSimpleBlock(nameof(Steel), Language.Steel)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("steel")))
         .WithBehavior<ConstructionMaterial>()
         .Complete();

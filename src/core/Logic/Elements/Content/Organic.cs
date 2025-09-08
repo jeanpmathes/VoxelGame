@@ -30,7 +30,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     A cactus slowly grows upwards. It can only be placed on sand.
     /// </summary>
     public Block Cactus { get; } = builder
-        .BuildSimpleBlock(Language.Cactus, nameof(Cactus))
+        .BuildSimpleBlock(nameof(Cactus), Language.Cactus)
         .WithTextureLayout(TextureLayout.Column(TID.Block("cactus", x: 0), TID.Block("cactus", x: 1)))
         .WithBehavior<Growing>(growing => growing.RequiredGroundInitializer.ContributeConstant(nameof(Blocks.Instance.Environment.Sand)))
         .Complete();
@@ -39,7 +39,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     Spiderwebs slow the movement of entities and can be used to trap enemies.
     /// </summary>
     public Block Spiderweb { get; } = builder
-        .BuildComplexBlock(Language.SpiderWeb, nameof(Spiderweb))
+        .BuildComplexBlock(nameof(Spiderweb), Language.SpiderWeb)
         .WithBehavior<CrossModel>()
         .WithBehavior<SingleTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TID.Block("spider_web")))
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(0.01))
@@ -53,7 +53,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     Vines grow downwards, and can hang freely. It is possible to climb them.
     /// </summary>
     public Block Vines { get; } = builder
-        .BuildComplexBlock(Language.Vines, nameof(Vines))
+        .BuildComplexBlock(nameof(Vines), Language.Vines)
         .WithBehavior<FlatModel>(model => model.WidthInitializer.ContributeConstant(value: 0.9))
         .WithBehavior<SingleTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TID.Block("vines")))
         .WithBehavior<NeutralTint>()
@@ -76,7 +76,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     Lichen is a plant that grows on rocks and trees.
     /// </summary>
     public Block Lichen { get; } = builder 
-        .BuildComplexBlock(Language.Lichen, nameof(Lichen))
+        .BuildComplexBlock(nameof(Lichen), Language.Lichen)
         .WithBehavior<FlatModel>()
         .WithBehavior<SingleTextured>(textured => textured.DefaultTextureInitializer.ContributeConstant(TID.Block("lichen")))
         .WithBehavior<Attached, StoredMultiSided>((attached, siding) =>
@@ -96,7 +96,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     Moss is a covering that grows flatly on the ground.
     /// </summary>
     public Block Moss { get; } = builder
-        .BuildPartialHeightBlock(Language.Moss, nameof(Moss))
+        .BuildPartialHeightBlock(nameof(Moss), Language.Moss)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("moss")))
         .WithBehavior<Modifiable>()
         .WithBehavior<DestroyOnLiquid>(destroy => destroy.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
@@ -107,7 +107,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     A fern, a plant that grows in shady areas.
     /// </summary>
     public Block Fern { get; } = builder
-        .BuildFoliageBlock(Language.Fern, nameof(Fern))
+        .BuildFoliageBlock(nameof(Fern), Language.Fern)
         .WithTexture(TID.Block("fern"))
         .WithBehavior<NeutralTint>()
         .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.6))
@@ -119,7 +119,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     A chanterelle, a type of mushroom.
     /// </summary>
     public Block Chanterelle { get; } = builder
-        .BuildFoliageBlock(Language.Chanterelle, nameof(Chanterelle))
+        .BuildFoliageBlock(nameof(Chanterelle), Language.Chanterelle)
         .WithTexture(TID.Block("chanterelle"))
         .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.25))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
@@ -129,7 +129,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     An aloe vera plant - a succulent.
     /// </summary>
     public Block AloeVera { get; } = builder
-        .BuildFoliageBlock(Language.AloeVera, nameof(AloeVera))
+        .BuildFoliageBlock(nameof(AloeVera), Language.AloeVera)
         .WithTexture(TID.Block("aloe_vera"))
         .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.5))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
@@ -139,7 +139,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     ///     This block is part of a termite mound.
     /// </summary>
     public Block TermiteMound { get; } = builder
-        .BuildSimpleBlock(Language.TermiteMound, nameof(TermiteMound))
+        .BuildSimpleBlock(nameof(TermiteMound), Language.TermiteMound)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("termite_mound")))
         .WithBehavior<Animated>()
         .WithBehavior<Combustible>()

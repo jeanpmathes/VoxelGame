@@ -23,7 +23,7 @@ public class UnmeshedBlock : Block
     public override Meshable Meshable => Meshable.Unmeshed;
 
     /// <inheritdoc />
-    public UnmeshedBlock(String name, UInt32 id, String namedID) : base(name, id, namedID)
+    public UnmeshedBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         Require<Unmeshed>();
     }

@@ -22,7 +22,7 @@ public class Core(BlockBuilder builder) : Category(builder)
     ///     The air block that fills the world. Could also be interpreted as "no block".
     /// </summary>
     public Block Air { get; } = builder
-        .BuildUnmeshedBlock(Language.Air, nameof(Air))
+        .BuildUnmeshedBlock(nameof(Air), Language.Air)
         .WithBehavior<Static>()
         .WithBehavior<Fillable>()
         .WithProperties(flags => flags.IsSolid.ContributeConstant(value: false))
@@ -34,7 +34,7 @@ public class Core(BlockBuilder builder) : Category(builder)
     ///     An error block, used as fallback when structure operations fail.
     /// </summary>
     public Block Error { get; } = builder
-        .BuildSimpleBlock(Language.Error, nameof(Error))
+        .BuildSimpleBlock(nameof(Error), Language.Error)
         .WithTextureLayout(TextureLayout.Uniform(TID.MissingTexture))
         .Complete();
     
@@ -42,7 +42,7 @@ public class Core(BlockBuilder builder) : Category(builder)
     ///     The core of the world, which is found at the lowest level.
     /// </summary>
     public Block CoreBlock { get; } = builder
-        .BuildSimpleBlock(Language.Core, nameof(CoreBlock))
+        .BuildSimpleBlock(nameof(CoreBlock), Language.Core)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("core")))
         .Complete();
     
@@ -50,7 +50,7 @@ public class Core(BlockBuilder builder) : Category(builder)
     ///     A block that serves as a neutral choice for development purposes.
     /// </summary>
     public Block Dev { get; } = builder
-        .BuildSimpleBlock(Language.DevBlock, nameof(Dev))
+        .BuildSimpleBlock(nameof(Dev), Language.DevBlock)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("dev")))
         .Complete();
 }

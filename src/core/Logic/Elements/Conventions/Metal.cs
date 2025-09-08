@@ -53,7 +53,7 @@ public static class MetalConvention
                 var blockTexture = $"{texture}_{blockNamedID.PascalCaseToSnakeCase()}";
 
                 ores.Add(
-                    builder.BuildSimpleBlock(blockName, blockNamedID)
+                    builder.BuildSimpleBlock(blockNamedID, blockName)
                         .WithTextureLayout(TextureLayout.Uniform(TID.Block(blockTexture)))
                         .Complete()
                 );
@@ -66,7 +66,7 @@ public static class MetalConvention
                 var blockTexture = $"{texture}_{blockNamedID.PascalCaseToSnakeCase()}";
 
                 nativeMetals.Add(
-                    builder.BuildSimpleBlock(blockName, blockNamedID)
+                    builder.BuildSimpleBlock(blockNamedID, blockName)
                         .WithTextureLayout(TextureLayout.Uniform(TID.Block(blockTexture)))
                         .Complete()
                 );

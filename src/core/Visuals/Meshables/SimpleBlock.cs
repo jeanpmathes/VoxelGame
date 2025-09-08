@@ -37,7 +37,7 @@ public class SimpleBlock : Elements_Block, IOverlayTextureProvider
     public override Meshable Meshable => Meshable.Simple;
 
     /// <inheritdoc />
-    public SimpleBlock(String name, UInt32 id, String namedID) : base(name, id, namedID)
+    public SimpleBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         simple = Require<Simple>();
         

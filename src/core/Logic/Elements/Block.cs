@@ -46,10 +46,10 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
     /// <summary>
     ///     Create a new block.
     /// </summary>
-    /// <param name="name">The name of the block. Can be localized.</param>
     /// <param name="id">The unique integer ID of the block.</param>
     /// <param name="namedID">The named ID of the block. A unique and unlocalized identifier.</param>
-    protected Block(String name, UInt32 id, String namedID)
+    /// <param name="name">The name of the block. Can be localized.</param>
+    protected Block(UInt32 id, String namedID, String name)
     {
         Name = name;
         ID = id;

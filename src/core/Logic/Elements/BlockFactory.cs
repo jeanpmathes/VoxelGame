@@ -20,18 +20,25 @@ public class BlockFactory
     private readonly List<Block> blocksByID = [];
     private readonly Dictionary<String, Block> blocksByNamedID = [];
     
+    /// <summary>
+    /// Get a container associating block IDs to blocks.
+    /// </summary>
     public IReadOnlyList<Block> BlocksByID => blocksByID;
-    public IReadOnlyDictionary<String, Block> BlocksByNamedID => blocksByNamedID;
     
+    /// <summary>
+    /// Get a container associating block named IDs to blocks.
+    /// </summary>
+    public IReadOnlyDictionary<String, Block> BlocksByNamedID => blocksByNamedID;
+
     /// <summary>
     ///     Create a new block.
     /// </summary>
-    /// <param name="name">The name of the block. Can be localized.</param>
     /// <param name="namedID">The named ID of the block. A unique and unlocalized identifier.</param>
+    /// <param name="name">The name of the block. Can be localized.</param>
     /// <param name="meshable">The type of meshing this block uses.</param>
-    public Block Create(String name, String namedID, Meshable meshable)
+    public Block Create(String namedID, String name, Meshable meshable)
     {
-        Block block = CreateBlock(name, namedID, meshable);
+        Block block = CreateBlock(namedID, name, meshable);
 
         if (blocksByNamedID.ContainsKey(namedID))
         {
@@ -46,17 +53,17 @@ public class BlockFactory
         return block;
     }
 
-    private Block CreateBlock(String name, String namedID, Meshable meshable)
+    private Block CreateBlock(String namedID, String name, Meshable meshable)
     {
         var id = (UInt32) blocksByID.Count;
         
         return meshable switch
         {
-            Meshable.Simple => new SimpleBlock(name, id, namedID),
-            Meshable.Foliage => new FoliageBlock(name, id, namedID),
-            Meshable.Complex => new ComplexBlock(name, id, namedID),
-            Meshable.PartialHeight => new PartialHeightBlock(name, id, namedID),
-            Meshable.Unmeshed => new UnmeshedBlock(name, id, namedID),
+            Meshable.Simple => new SimpleBlock(id, namedID, name),
+            Meshable.Foliage => new FoliageBlock(id, namedID, name),
+            Meshable.Complex => new ComplexBlock(id, namedID, name),
+            Meshable.PartialHeight => new PartialHeightBlock(id, namedID, name),
+            Meshable.Unmeshed => new UnmeshedBlock(id, namedID, name),
             _ => throw Exceptions.UnsupportedEnumValue(meshable)
         };
     }

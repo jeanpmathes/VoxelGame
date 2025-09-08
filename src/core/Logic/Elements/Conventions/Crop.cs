@@ -39,10 +39,10 @@ public static class CropConvention
     /// Build a new dense crop.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="name">The name of the crop, used for display purposes.</param>
     /// <param name="namedID">The named ID of the crop, used to create the block IDs.</param>
+    /// <param name="name">The name of the crop, used for display purposes.</param>
     /// <returns>The created dense crop.</returns>
-    public static Crop BuildDenseCrop(this BlockBuilder b, String name, String namedID)
+    public static Crop BuildDenseCrop(this BlockBuilder b, String namedID, String name)
     {
         return b.BuildConvention<Crop>(builder =>
         {
@@ -51,7 +51,7 @@ public static class CropConvention
             return new Crop(namedID, builder)
             {
                 Plant = builder
-                    .BuildFoliageBlock(name, $"{namedID}{nameof(Crop.Plant)}")
+                    .BuildFoliageBlock($"{namedID}{nameof(Crop.Plant)}", name)
                     .WithTexture(TID.Block(texture))
                     .WithBehavior<DenseCropPlant>()
                     .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
@@ -61,15 +61,15 @@ public static class CropConvention
             };
         });
     }
-    
+
     /// <summary>
     /// Build a new double crop.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="name">The name of the crop, used for display purposes.</param>
     /// <param name="namedID">The named ID of the crop, used to create the block IDs.</param>
+    /// <param name="name">The name of the crop, used for display purposes.</param>
     /// <returns>The created double crop.</returns>
-    public static Crop BuildDoubleCrop(this BlockBuilder b, String name, String namedID)
+    public static Crop BuildDoubleCrop(this BlockBuilder b, String namedID, String name)
     {
         return b.BuildConvention<Crop>(builder =>
         {
@@ -78,7 +78,7 @@ public static class CropConvention
             return new Crop(namedID, builder)
             {
                 Plant = builder
-                    .BuildFoliageBlock(name, $"{namedID}{nameof(Crop.Plant)}")
+                    .BuildFoliageBlock($"{namedID}{nameof(Crop.Plant)}", name)
                     .WithTexture(TID.Block(texture))
                     .WithBehavior<DoubleCropPlant>()
                     .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
@@ -88,15 +88,15 @@ public static class CropConvention
             };
         });
     }
-    
+
     /// <summary>
     /// Build a new fruit crop.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="names">The names of the parts, used for display purposes.</param>
     /// <param name="namedID">The named ID of the crop, used to create the block IDs.</param>
+    /// <param name="names">The names of the parts, used for display purposes.</param>
     /// <returns>The created fruit crop.</returns>
-    public static Crop BuildFruitCrop(this BlockBuilder b, (String plant, String fruit) names, String namedID)
+    public static Crop BuildFruitCrop(this BlockBuilder b, String namedID, (String plant, String fruit) names)
     {
         return b.BuildConvention<Crop>(builder =>
         {
@@ -107,14 +107,14 @@ public static class CropConvention
             return new Crop(namedID, builder)
             {
                 Plant = builder
-                    .BuildFoliageBlock(names.plant, $"{namedID}{nameof(Crop.Plant)}")
+                    .BuildFoliageBlock($"{namedID}{nameof(Crop.Plant)}", names.plant)
                     .WithTexture(TID.Block($"{texture}_plant"))
                     .WithBehavior<FruitCropPlant>(plant => plant.FruitInitializer.ContributeConstant(fruitID))
                     .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
                     .Complete(),
 
                 Fruit = builder
-                    .BuildSimpleBlock(names.fruit, fruitID)
+                    .BuildSimpleBlock(fruitID, names.fruit)
                     .WithTextureLayout(TextureLayout.Column(TID.Block(texture, x: 0), TID.Block(texture, x: 1)))
                     .WithBehavior<Fruit>()
                     .Complete()

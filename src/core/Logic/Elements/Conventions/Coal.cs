@@ -31,10 +31,10 @@ public static class CoalConvention
     /// Builds a new coal type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="name">The name of the coal, used for display purposes.</param>
     /// <param name="namedID">The named ID of the coal, used to create the block IDs.</param>
+    /// <param name="name">The name of the coal, used for display purposes.</param>
     /// <returns>The created coal type.</returns>
-    public static Coal BuildCoal(this BlockBuilder b, String name, String namedID)
+    public static Coal BuildCoal(this BlockBuilder b, String namedID, String name)
     {
         return b.BuildConvention<Coal>(builder =>
         {
@@ -43,7 +43,7 @@ public static class CoalConvention
             return new Coal(namedID, builder)
             {
                 Block = builder
-                    .BuildSimpleBlock(name, namedID)
+                    .BuildSimpleBlock(namedID, name)
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"coal_{texture}")))
                     .WithBehavior<Combustible>()
                     .Complete()

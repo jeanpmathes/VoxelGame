@@ -89,9 +89,9 @@ public class BlockBuilder
     /// <summary>
     /// Defines a new <see cref="Meshable.Simple"/> block.
     /// </summary>
-    public SimpleBlockDefinition BuildSimpleBlock(String name, String namedID)
+    public SimpleBlockDefinition BuildSimpleBlock(String namedID, String name)
     {
-        Block block = factory.Create(name, namedID, Meshable.Simple);
+        Block block = factory.Create(namedID, name, Meshable.Simple);
         
         return new SimpleBlockDefinition(block, registry);
     }
@@ -99,9 +99,9 @@ public class BlockBuilder
     /// <summary>
     /// Defines a new <see cref="Meshable.Complex"/> block.
     /// </summary>
-    public FoliageBlockDefinition BuildFoliageBlock(String name, String namedID)
+    public FoliageBlockDefinition BuildFoliageBlock(String namedID, String name)
     {
-        Block block = factory.Create(name, namedID, Meshable.Foliage);
+        Block block = factory.Create(namedID, name, Meshable.Foliage);
         
         return new FoliageBlockDefinition(block, registry);
     }
@@ -109,9 +109,9 @@ public class BlockBuilder
     /// <summary>
     /// Defines a new <see cref="Meshable.Complex"/> block.
     /// </summary>
-    public ComplexBlockDefinition BuildComplexBlock(String name, String namedID)
+    public ComplexBlockDefinition BuildComplexBlock(String namedID, String name)
     {
-        Block block = factory.Create(name, namedID, Meshable.Complex);
+        Block block = factory.Create(namedID, name, Meshable.Complex);
         
         return new ComplexBlockDefinition(block, registry);
     }
@@ -119,9 +119,9 @@ public class BlockBuilder
     /// <summary>
     /// Defines a new <see cref="Meshable.PartialHeight"/> block.
     /// </summary>
-    public PartialHeightBlockDefinition BuildPartialHeightBlock(String name, String namedID)
+    public PartialHeightBlockDefinition BuildPartialHeightBlock(String namedID, String name)
     {
-        Block block = factory.Create(name, namedID, Meshable.PartialHeight);
+        Block block = factory.Create(namedID, name, Meshable.PartialHeight);
         
         return new PartialHeightBlockDefinition(block, registry);
     }
@@ -129,9 +129,9 @@ public class BlockBuilder
     /// <summary>
     /// Defines a new <see cref="Meshable.Unmeshed"/> block.
     /// </summary>
-    public UnmeshedBlockDefinition BuildUnmeshedBlock(String name, String namedID)
+    public UnmeshedBlockDefinition BuildUnmeshedBlock(String namedID, String name)
     {
-        Block block = factory.Create(name, namedID, Meshable.Unmeshed);
+        Block block = factory.Create(namedID, name, Meshable.Unmeshed);
         
         return new UnmeshedBlockDefinition(block, registry);
     }

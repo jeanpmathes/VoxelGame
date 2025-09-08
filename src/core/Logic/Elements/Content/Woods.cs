@@ -17,161 +17,141 @@ public class Woods(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     Oak wood.
     /// </summary>
-    public Wood Oak { get; } = builder.BuildWood(
+    public Wood Oak { get; } = builder.BuildWood(nameof(Oak),
         (Language.OakLeaves, Language.OakLog, Language.OakWood),
-        nameof(Oak),
         new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Maple wood.
     /// </summary>
-    public Wood Maple { get; } = builder.BuildWood(
+    public Wood Maple { get; } = builder.BuildWood(nameof(Maple),
         (Language.MapleLeaves, Language.MapleLog, Language.MapleWood),
-        nameof(Maple),
         new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
 
     /// <summary>
     ///     Birch wood.
     /// </summary>
-    public Wood Birch { get; } = builder.BuildWood(
+    public Wood Birch { get; } = builder.BuildWood(nameof(Birch),
         (Language.BirchLeaves, Language.BirchLog, Language.BirchWood),
-        nameof(Birch),
         new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Maple wood.
     /// </summary>
-    public Wood Walnut { get; } = builder.BuildWood(
+    public Wood Walnut { get; } = builder.BuildWood(nameof(Walnut),
         (Language.WalnutLeaves, Language.WalnutLog, Language.WalnutWood),
-        nameof(Walnut),
         new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Cherry wood.
     /// </summary>
-    public Wood Cherry { get; } = builder.BuildWood(
+    public Wood Cherry { get; } = builder.BuildWood(nameof(Cherry),
         (Language.CherryLeaves, Language.CherryLog, Language.CherryWood),
-        nameof(Cherry),
         new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
 
     /// <summary>
     ///     Ash tree wood.
     /// </summary>
-    public Wood AshTree { get; } = builder.BuildWood(
+    public Wood AshTree { get; } = builder.BuildWood(nameof(AshTree),
         (Language.AshTreeLeaves, Language.AshTreeLog, Language.AshTreeWood),
-        nameof(AshTree),
         new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Normal));
 
     /// <summary>
     ///     Rubber tree wood.
     /// </summary>
-    public Wood RubberTree { get; } = builder.BuildWood(
+    public Wood RubberTree { get; } = builder.BuildWood(nameof(RubberTree),
         (Language.RubberTreeLeaves, Language.RubberTreeLog, Language.RubberTreeWood),
-        nameof(RubberTree),
         new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Pine wood.
     /// </summary>
-    public Wood Pine { get; } = builder.BuildWood(
+    public Wood Pine { get; } = builder.BuildWood(nameof(Pine),
         (Language.PineLeaves, Language.PineLog, Language.PineWood),
-        nameof(Pine),
         new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Normal, Needles: true));
 
     /// <summary>
     ///     Spruce wood.
     /// </summary>
-    public Wood Spruce { get; } = builder.BuildWood(
+    public Wood Spruce { get; } = builder.BuildWood(nameof(Spruce),
         (Language.SpruceLeaves, Language.SpruceLog, Language.SpruceWood),
-        nameof(Spruce),
         new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Dense, Needles: true));
 
     /// <summary>
     ///     Fir wood.
     /// </summary>
-    public Wood Fir { get; } = builder.BuildWood(
+    public Wood Fir { get; } = builder.BuildWood(nameof(Fir),
         (Language.FirLeaves, Language.FirLog, Language.FirWood),
-        nameof(Fir),
         new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Dense, Needles: true));
 
     /// <summary>
     ///     Mahogany wood.
     /// </summary>
-    public Wood Mahogany { get; } = builder.BuildWood(
+    public Wood Mahogany { get; } = builder.BuildWood(nameof(Mahogany),
         (Language.MahoganyLeaves, Language.MahoganyLog, Language.MahoganyWood),
-        nameof(Mahogany),
         new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Teak wood.
     /// </summary>
-    public Wood Teak { get; } = builder.BuildWood(
+    public Wood Teak { get; } = builder.BuildWood(nameof(Teak),
         (Language.TeakLeaves, Language.TeakLog, Language.TeakWood),
-        nameof(Teak),
         new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Ebony wood.
     /// </summary>
-    public Wood Ebony { get; } = builder.BuildWood(
+    public Wood Ebony { get; } = builder.BuildWood(nameof(Ebony),
         (Language.EbonyLeaves, Language.EbonyLog, Language.EbonyWood),
-        nameof(Ebony),
         new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.LongSpheroid, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Coconut palm wood.
     /// </summary>
-    public Wood CoconutPalm { get; } = builder.BuildWood(
+    public Wood CoconutPalm { get; } = builder.BuildWood(nameof(CoconutPalm),
         (Language.CoconutPalmLeaves, Language.CoconutPalmLog, Language.CoconutPalmWood),
-        nameof(CoconutPalm),
         new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Ground: Wood.Tree.GroundType.Sand));
 
     /// <summary>
     ///     Date palm wood.
     /// </summary>
-    public Wood DatePalm { get; } = builder.BuildWood(
+    public Wood DatePalm { get; } = builder.BuildWood(nameof(DatePalm),
         (Language.DatePalmLeaves, Language.DatePalmLog, Language.DatePalmWood),
-        nameof(DatePalm),
         new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Ground: Wood.Tree.GroundType.Sand));
 
     /// <summary>
     ///     Acacia wood.
     /// </summary>
-    public Wood Acacia { get; } = builder.BuildWood(
+    public Wood Acacia { get; } = builder.BuildWood(nameof(Acacia),
         (Language.AcaciaLeaves, Language.AcaciaLog, Language.AcaciaWood),
-        nameof(Acacia),
         new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Baobab wood.
     /// </summary>
-    public Wood Baobab { get; } = builder.BuildWood(
+    public Wood Baobab { get; } = builder.BuildWood(nameof(Baobab),
         (Language.BaobabLeaves, Language.BaobabLog, Language.BaobabWood),
-        nameof(Baobab),
         new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Shepherd's tree wood.
     /// </summary>
-    public Wood ShepherdsTree { get; } = builder.BuildWood(
+    public Wood ShepherdsTree { get; } = builder.BuildWood(nameof(ShepherdsTree),
         (Language.ShepherdsTreeLeaves, Language.ShepherdsTreeLog, Language.ShepherdsTreeWood),
-        nameof(ShepherdsTree),
         new Wood.Tree(Wood.Tree.Growth.Shrub, Wood.Tree.CrownShape.Sphere, Wood.Tree.CrownDensity.Dense));
 
     /// <summary>
     ///     Juniper wood.
     /// </summary>
-    public Wood Juniper { get; } = builder.BuildWood(
+    public Wood Juniper { get; } = builder.BuildWood(nameof(Juniper),
         (Language.JuniperLeaves, Language.JuniperLog, Language.JuniperWood),
-        nameof(Juniper),
         new Wood.Tree(Wood.Tree.Growth.Short, Wood.Tree.CrownShape.Cone, Wood.Tree.CrownDensity.Sparse));
 
     /// <summary>
     ///     Mesquite wood.
     /// </summary>
-    public Wood Mesquite { get; } = builder.BuildWood(
+    public Wood Mesquite { get; } = builder.BuildWood(nameof(Mesquite),
         (Language.MesquiteLeaves, Language.MesquiteLog, Language.MesquiteWood),
-        nameof(Mesquite),
         new Wood.Tree(Wood.Tree.Growth.Shrub, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Sparse));
 
 }

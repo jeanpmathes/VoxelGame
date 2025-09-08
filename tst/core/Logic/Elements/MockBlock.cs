@@ -12,7 +12,7 @@ using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Tests.Logic.Elements;
 
-public class MockBlock() : Block("Mock Block", id: 0, nameof(MockBlock))
+public class MockBlock() : Block(id: 0, namedID: nameof(MockBlock), name: "Mock Block")
 {
     protected override void OnValidate()
     {

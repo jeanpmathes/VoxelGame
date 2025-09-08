@@ -17,10 +17,10 @@ public class Flowers(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     A simple red flower.
     /// </summary>
-    public Flower FlowerRed { get; } = builder.BuildFlower(Language.FlowerRed, nameof(FlowerRed)); // todo: rename to Red when separate class and adapt naming in convention to include flower
+    public Flower FlowerRed { get; } = builder.BuildFlower(nameof(FlowerRed), Language.FlowerRed); // todo: rename to Red when separate class and adapt naming in convention to include flower
     
     /// <summary>
     ///     A simple yellow flower.
     /// </summary>
-    public Flower FlowerYellow { get; } = builder.BuildFlower(Language.FlowerYellow, nameof(FlowerYellow)); // todo: rename to Yellow when separate class and adapt naming in convention to include flower
+    public Flower FlowerYellow { get; } = builder.BuildFlower(nameof(FlowerYellow), Language.FlowerYellow); // todo: rename to Yellow when separate class and adapt naming in convention to include flower
 }

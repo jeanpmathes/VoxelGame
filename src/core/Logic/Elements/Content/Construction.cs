@@ -34,7 +34,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Glass is a transparent block.
     /// </summary>
     public Block Glass { get; } = builder
-        .BuildSimpleBlock(Language.Glass, nameof(Glass))
+        .BuildSimpleBlock(nameof(Glass), Language.Glass)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("glass")))
         .WithBehavior<Glass>()
         .Complete();
@@ -43,7 +43,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Tiled glass is like glass, but made out of four tiles.
     /// </summary>
     public Block GlassTiled { get; } = builder
-        .BuildSimpleBlock(Language.TiledGlass, nameof(GlassTiled))
+        .BuildSimpleBlock(nameof(GlassTiled), Language.TiledGlass)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("glass_tiled")))
         .WithBehavior<Glass>()
         .Complete();
@@ -52,7 +52,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Small tiles for construction of floors and walls.
     /// </summary>
     public Block TilesSmall { get; } = builder
-        .BuildSimpleBlock(Language.SmallTiles, nameof(TilesSmall))
+        .BuildSimpleBlock(nameof(TilesSmall), Language.SmallTiles)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("small_tiles")))
         .WithBehavior<ConstructionMaterial>()
         .Complete();
@@ -61,7 +61,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Large tiles for construction of floors and walls.
     /// </summary>
     public Block TilesLarge { get; } = builder
-        .BuildSimpleBlock(Language.LargeTiles, nameof(TilesLarge))
+        .BuildSimpleBlock(nameof(TilesLarge), Language.LargeTiles)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("large_tiles")))
         .WithBehavior<ConstructionMaterial>()
         .Complete();
@@ -71,7 +71,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     This block is a construction material.
     /// </summary>
     public Block ClayBricks { get; } = builder
-        .BuildSimpleBlock(Language.ClayBricks, nameof(ClayBricks))
+        .BuildSimpleBlock(nameof(ClayBricks), Language.ClayBricks)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("clay_bricks")))
         .WithBehavior<ConstructionMaterial>()
         .Complete();
@@ -80,7 +80,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Red plastic is a construction material.
     /// </summary>
     public Block RedPlastic { get; } = builder
-        .BuildSimpleBlock(Language.RedPlastic, nameof(RedPlastic))
+        .BuildSimpleBlock(nameof(RedPlastic), Language.RedPlastic)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("red_plastic")))
         .WithBehavior<ConstructionMaterial>()
         .Complete();
@@ -89,7 +89,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Black checkerboard tiles come in different colors.
     /// </summary>
     public Block TilesCheckerboardBlack { get; } = builder
-        .BuildSimpleBlock(Language.CheckerboardTilesBlack, nameof(TilesCheckerboardBlack))
+        .BuildSimpleBlock(nameof(TilesCheckerboardBlack), Language.CheckerboardTilesBlack)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("checkerboard_tiles_black")))
         .WithBehavior<ConstructionMaterial>()
         .WithBehavior<Paintable>()
@@ -99,7 +99,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     White checkerboard tiles come in different colors.
     /// </summary>
     public Block TilesCheckerboardWhite { get; } = builder
-        .BuildSimpleBlock(Language.CheckerboardTilesWhite, nameof(TilesCheckerboardWhite))
+        .BuildSimpleBlock(nameof(TilesCheckerboardWhite), Language.CheckerboardTilesWhite)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("checkerboard_tiles_white")))
         .WithBehavior<ConstructionMaterial>()
         .WithBehavior<Paintable>()
@@ -110,7 +110,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     It can be build using fluid concrete.
     /// </summary>
     public Block Concrete { get; } = builder // todo: check why debug view shows hight on placement as zero
-        .BuildSimpleBlock(Language.Concrete, nameof(Concrete))
+        .BuildSimpleBlock(nameof(Concrete), Language.Concrete)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("concrete")))
         .WithBehavior<StoredHeight8>(height => height.PlacementHeightInitializer.ContributeConstant(StoredHeight8.MaximumHeight))
         .WithBehavior<Paintable>()
@@ -121,7 +121,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     A ladder allows climbing up and down.
     /// </summary>
     public Block Ladder { get; } = builder
-        .BuildComplexBlock(Language.Ladder, nameof(Ladder))
+        .BuildComplexBlock(nameof(Ladder), Language.Ladder)
         .WithBehavior<FlatModel>(model => model.WidthInitializer.ContributeConstant(value: 0.9))
         .WithBehavior<SingleTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TID.Block("ladder")))
         .WithBehavior<Climbable>(climbable => climbable.ClimbingVelocityInitializer.ContributeConstant(value: 3.0))
@@ -141,7 +141,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     The vase is a decorative block that must be placed on solid ground.
     /// </summary>
     public Block Vase { get; } = builder
-        .BuildComplexBlock(Language.Vase, nameof(Vase))
+        .BuildComplexBlock(nameof(Vase), Language.Vase)
         .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("vase")]))
         .WithBoundingVolume(new BoundingVolume(new Vector3d(x: 0.5f, y: 0.375f, z: 0.5f), new Vector3d(x: 0.25f, y: 0.375f, z: 0.25f)))
         .WithBehavior<Fillable>()
@@ -153,7 +153,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     They connect to some neighboring blocks.
     /// </summary>
     public Block GlassPane { get; } = builder
-        .BuildComplexBlock(Language.GlassPane, nameof(GlassPane))
+        .BuildComplexBlock(nameof(GlassPane), Language.GlassPane)
         .WithBehavior<Glass>()
         .WithBehavior<ThinConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("pane_glass_post"), RID.File<BlockModel>("pane_glass_side"), RID.File<BlockModel>("pane_glass_extension"))))
         .Complete();
@@ -162,7 +162,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Steel bars are a thin, but strong barrier.
     /// </summary>
     public Block Bars { get; } = builder
-        .BuildComplexBlock(Language.Bars, nameof(Bars))
+        .BuildComplexBlock(nameof(Bars), Language.Bars)
         .WithBehavior<ThinConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("bars_post"), RID.File<BlockModel>("bars_side"), RID.File<BlockModel>("bars_extension"))))
         .Complete();
     
@@ -171,7 +171,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     The wall does not prevent jumping over it, and can connect to other blocks.
     /// </summary>
     public Block ClayBrickWall { get; } = builder
-        .BuildComplexBlock(Language.ClayBrickWall, nameof(ClayBrickWall))
+        .BuildComplexBlock(nameof(ClayBrickWall), Language.ClayBrickWall)
         .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight"))))
         .WithTextureOverride(TextureOverride.All(TID.Block("clay_bricks")))
         .WithBehavior<Wall>()
@@ -181,7 +181,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     The steel door allows closing of a room. It can be opened and closed.
     /// </summary>
     public Block DoorSteel { get; } = builder
-        .BuildComplexBlock(Language.SteelDoor, nameof(DoorSteel))
+        .BuildComplexBlock(nameof(DoorSteel), Language.SteelDoor)
         .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("door_steel_closed"), RID.File<BlockModel>("door_steel_open")]))
         .WithBehavior<Door>() 
         .Complete();
@@ -191,7 +191,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     It does not prevent gasses from flowing through it.
     /// </summary>
     public Block FluidBarrier { get; } = builder
-        .BuildSimpleBlock(Language.Barrier, nameof(FluidBarrier))
+        .BuildSimpleBlock(nameof(FluidBarrier), Language.Barrier)
         .WithBehavior<CubeTextured, Barrier>((texture, barrier) => texture.ActiveTexture.ContributeFunction((_, state) => TextureLayout.Uniform(TID.Block("fluid_barrier", (Byte) (barrier.IsBarrierOpen(state) ? 0 : 1)))))
         .WithBehavior<Combustible>()
         .Complete();
@@ -201,7 +201,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     It connects to other pipes.
     /// </summary>
     public Block SteelPipe { get; } = builder
-        .BuildComplexBlock(Language.SteelPipe, nameof(SteelPipe))
+        .BuildComplexBlock(nameof(SteelPipe), Language.SteelPipe)
         .WithBehavior<Piped>(piped => piped.TierInitializer.ContributeConstant(Piped.PipeTier.Industrial))
         .WithBehavior<ConnectingPipe>(pipe => pipe.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("steel_pipe_center"), RID.File<BlockModel>("steel_pipe_connector"), RID.File<BlockModel>("steel_pipe_surface"))))
         .Complete();
@@ -211,7 +211,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     It is ideal for parallel pipes.
     /// </summary>
     public Block StraightSteelPipe { get; } = builder
-        .BuildComplexBlock(Language.SteelPipeStraight, nameof(StraightSteelPipe))
+        .BuildComplexBlock(nameof(StraightSteelPipe), Language.SteelPipeStraight)
         .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("steel_pipe_straight")]))
         .WithBehavior<Piped>(piped => piped.TierInitializer.ContributeConstant(Piped.PipeTier.Industrial))
         .WithBehavior<StraightPipe>()
@@ -221,7 +221,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     This is a special steel pipe that can be closed. It prevents all fluid flow.
     /// </summary>
     public Block PipeValve { get; } = builder
-        .BuildComplexBlock(Language.ValvePipe, nameof(PipeValve))
+        .BuildComplexBlock(nameof(PipeValve), Language.ValvePipe)
         .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("steel_pipe_valve_open"), RID.File<BlockModel>("steel_pipe_valve_closed")]))
         .WithBehavior<Piped>(piped => piped.TierInitializer.ContributeConstant(Piped.PipeTier.Industrial))
         .WithBehavior<StraightPipe>()
@@ -233,7 +233,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     It can only lift to a threshold of 16 blocks.
     /// </summary>
     public Block Pump { get; } = builder
-        .BuildSimpleBlock(Language.Pump, nameof(Pump))
+        .BuildSimpleBlock(nameof(Pump), Language.Pump)
         .WithBehavior<CubeTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TextureLayout.Uniform(TID.Block("pump"))))
         .WithBehavior<Piped>(piped => piped.TierInitializer.ContributeConstant(Piped.PipeTier.Industrial))
         .WithBehavior<Pump>()
@@ -243,7 +243,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     This is a magical pulsating block.
     /// </summary>
     public Block Pulsating { get; } = builder
-        .BuildSimpleBlock(Language.PulsatingBlock, nameof(Pulsating))
+        .BuildSimpleBlock(nameof(Pulsating), Language.PulsatingBlock)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("pulsating")))
         .WithBehavior<Paintable>()
         .WithBehavior<Animated>()
@@ -253,7 +253,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     The eternal flame, once lit, will never go out naturally.
     /// </summary>
     public Block EternalFlame { get; } = builder
-        .BuildSimpleBlock(Language.EternalFlame, nameof(EternalFlame))
+        .BuildSimpleBlock(nameof(EternalFlame), Language.EternalFlame)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("eternal_flame")))
         .WithBehavior<EternallyBurning>()
         .Complete();

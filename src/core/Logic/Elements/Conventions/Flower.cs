@@ -40,10 +40,10 @@ public static class FlowerConvention
     /// Build a new flower.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="name">The name of the flower, used for display purposes.</param>
     /// <param name="namedID">The named ID of the flower, used to create the block IDs.</param>
+    /// <param name="name">The name of the flower, used for display purposes.</param>
     /// <returns>The created flower.</returns>
-    public static Flower BuildFlower(this BlockBuilder b, String name, String namedID)
+    public static Flower BuildFlower(this BlockBuilder b, String namedID, String name)
     {
         return b.BuildConvention<Flower>(builder =>
         {
@@ -52,7 +52,7 @@ public static class FlowerConvention
             return new Flower(namedID, builder)
             {
                 Short = builder
-                    .BuildFoliageBlock(name, $"{namedID}{nameof(Flower.Short)}")
+                    .BuildFoliageBlock($"{namedID}{nameof(Flower.Short)}", name)
                     .WithTexture(TID.Block(texture))
                     .WithBehavior<NeutralTint>()
                     .WithBehavior<CrossPlant>(plant =>
@@ -65,7 +65,7 @@ public static class FlowerConvention
                     .Complete(),
 
                 Tall = builder
-                    .BuildFoliageBlock($"{name} ({nameof(Language.Tall)})", $"{namedID}{nameof(Flower.Tall)}")
+                    .BuildFoliageBlock($"{namedID}{nameof(Flower.Tall)}", $"{name} ({nameof(Language.Tall)})")
                     .WithTexture(TID.Block($"{texture}_tall"))
                     .WithBehavior<NeutralTint>()
                     .WithBehavior<DoubleCrossPlant>()

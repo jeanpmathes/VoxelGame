@@ -26,7 +26,7 @@ public class ComplexBlock : Block
     public override Meshable Meshable => Meshable.Complex;
 
     /// <inheritdoc />
-    public ComplexBlock(String name, UInt32 id, String namedID) : base(name, id, namedID)
+    public ComplexBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         complex = Require<Complex>();
     }

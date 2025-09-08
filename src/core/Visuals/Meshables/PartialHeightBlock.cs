@@ -32,7 +32,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     public override Meshable Meshable => Meshable.PartialHeight;
 
     /// <inheritdoc />
-    public PartialHeightBlock(String name, UInt32 id, String namedID) : base(name, id, namedID)
+    public PartialHeightBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         partialHeightMeshable = Require<PartialHeight>();
         partialHeightBehavior = Require<Logic.Elements.Behaviors.Height.PartialHeight>();

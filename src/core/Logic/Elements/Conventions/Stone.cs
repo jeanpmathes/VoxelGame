@@ -82,10 +82,10 @@ public static class StoneConvention // todo: check language for unused strings a
     /// Build a new stone type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="name">The name of the stone, used for display purposes.</param>
     /// <param name="namedID">The named ID of the stone, used to create the block IDs.</param>
+    /// <param name="name">The name of the stone, used for display purposes.</param>
     /// <returns>The created stone type.</returns>
-    public static Stone BuildStone(this BlockBuilder b, String name, String namedID)
+    public static Stone BuildStone(this BlockBuilder b, String namedID, String name)
     {
         return b.BuildConvention<Stone>(builder =>
         {
@@ -94,54 +94,54 @@ public static class StoneConvention // todo: check language for unused strings a
             return new Stone(namedID, builder)
             {
                 Base = builder
-                    .BuildSimpleBlock(name, $"{namedID}{nameof(Stone.Base)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Stone.Base)}", name)
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block(texture, x: 0)))
                     .Complete(),
 
                 Rubble = builder
-                    .BuildSimpleBlock($"{nameof(Language.Rubble)} ({name})", $"{namedID}")
+                    .BuildSimpleBlock($"{namedID}", $"{nameof(Language.Rubble)} ({name})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block(texture, x: 1)))
                     .WithBehavior<WetTint>()
                     .WithBehavior<Loose>()
                     .Complete(),
 
                 Worked = builder
-                    .BuildSimpleBlock($"{nameof(Language.WorkedStone)} ({name})", $"{namedID}{nameof(Stone.Worked)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Stone.Worked)}", $"{nameof(Language.WorkedStone)} ({name})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_worked", x: 0)))
                     .Complete(),
 
                 Decorated = builder
-                    .BuildSimpleBlock($"{nameof(Language.DecoratedStone)} ({name})", $"{namedID}{nameof(Stone.Decorated)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Stone.Decorated)}", $"{nameof(Language.DecoratedStone)} ({name})")
                     .WithTextureLayout(TextureLayout.UniqueFront(TID.Block($"{texture}_worked_decorated"), TID.Block($"{texture}_worked")))
                     .WithBehavior<LateralRotatable>()
                     .WithBehavior<DirectionalSidePlacement>()
                     .Complete(),
 
                 Cobblestone = builder
-                    .BuildSimpleBlock($"{nameof(Language.Cobbles)} ({name})", $"{namedID}{nameof(Stone.Cobblestone)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Stone.Cobblestone)}", $"{nameof(Language.Cobbles)} ({name})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_cobbles", x: 0)))
                     .Complete(),
 
                 Paving = builder
-                    .BuildSimpleBlock($"{nameof(Language.Paving)} ({name})", $"{namedID}{nameof(Stone.Paving)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Stone.Paving)}", $"{nameof(Language.Paving)} ({name})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_paving", x: 0)))
                     .Complete(),
 
                 Bricks = builder
-                    .BuildSimpleBlock($"{nameof(Language.Bricks)} ({name})", $"{namedID}{nameof(Stone.Bricks)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Stone.Bricks)}", $"{nameof(Language.Bricks)} ({name})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_bricks", x: 0)))
                     .WithBehavior<ConstructionMaterial>()
                     .Complete(),
 
                 Wall = builder
-                    .BuildComplexBlock($"{nameof(Language.Wall)} ({name})", $"{namedID}{nameof(Stone.Wall)}")
+                    .BuildComplexBlock($"{namedID}{nameof(Stone.Wall)}", $"{nameof(Language.Wall)} ({name})")
                     .WithBehavior<Wall>()
                     .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
                     .Complete(),
 
                 BrickWall = builder
-                    .BuildComplexBlock($"{nameof(Language.BrickWall)} ({name})", $"{namedID}{nameof(Stone.BrickWall)}")
+                    .BuildComplexBlock($"{namedID}{nameof(Stone.BrickWall)}", $"{nameof(Language.BrickWall)} ({name})")
                     .WithBehavior<Wall>()
                     .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))

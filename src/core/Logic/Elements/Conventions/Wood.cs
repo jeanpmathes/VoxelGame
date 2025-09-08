@@ -195,11 +195,11 @@ public static class WoodConvention
     /// Build a new wood type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="name">The names of the associated blocks, used for display purposes.</param>
     /// <param name="namedID">The named ID of the wood type, used to create the block IDs.</param>
+    /// <param name="name">The names of the associated blocks, used for display purposes.</param>
     /// <param name="tree">The tree that grows this wood.</param>
     /// <returns>The created wood type.</returns>
-    public static Wood BuildWood(this BlockBuilder b, (String leaves, String log, String wood) name, String namedID, Wood.Tree tree)
+    public static Wood BuildWood(this BlockBuilder b, String namedID, (String leaves, String log, String wood) name, Wood.Tree tree)
     {
         return b.BuildConvention<Wood>(builder =>
         {
@@ -210,7 +210,7 @@ public static class WoodConvention
                 Trees = tree,
 
                 Leaves = builder
-                    .BuildSimpleBlock(name.leaves, $"{namedID}{nameof(Wood.Leaves)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Wood.Leaves)}", name.leaves)
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_leaves")))
                     .WithBehavior<Combustible>()
                     .WithConditionalDefinition(!tree.Needles, definition => definition.WithBehavior<NeutralTint>())
@@ -222,21 +222,21 @@ public static class WoodConvention
                     .Complete(),
 
                 Log = builder
-                    .BuildSimpleBlock(name.log, $"{namedID}{nameof(Wood.Log)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Wood.Log)}", name.log)
                     .WithTextureLayout(TextureLayout.Column(TID.Block($"{texture}_log", x: 0), TID.Block($"{texture}_log", x: 1)))
                     .WithBehavior<AxisRotatable>()
                     .WithBehavior<Combustible>()
                     .Complete(),
 
                 Planks = builder
-                    .BuildSimpleBlock($"{Language.Planks} ({name.wood})", $"{namedID}{nameof(Wood.Planks)}")
+                    .BuildSimpleBlock($"{namedID}{nameof(Wood.Planks)}", $"{Language.Planks} ({name.wood})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_planks")))
                     .WithBehavior<Combustible>()
                     .WithBehavior<ConstructionMaterial>()
                     .Complete(),
 
                 Fence = builder
-                    .BuildComplexBlock($"{Language.Fence} ({name.wood})", $"{namedID}{nameof(Wood.Fence)}")
+                    .BuildComplexBlock($"{namedID}{nameof(Wood.Fence)}", $"{Language.Fence} ({name.wood})")
                     .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("fence_post"), RID.File<BlockModel>("fence_extension"), null)))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Fence>()
@@ -244,7 +244,7 @@ public static class WoodConvention
                     .Complete(),
 
                 FenceGate = builder
-                    .BuildComplexBlock($"{Language.Gate} ({name.wood})", $"{namedID}{nameof(Wood.FenceGate)}")
+                    .BuildComplexBlock($"{namedID}{nameof(Wood.FenceGate)}", $"{Language.Gate} ({name.wood})")
                     .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("gate_closed"), RID.File<BlockModel>("gate_open")]))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Combustible>()
@@ -253,14 +253,14 @@ public static class WoodConvention
                     .Complete(),
 
                 Door = builder
-                    .BuildComplexBlock($"{Language.Door} ({name.wood})", $"{namedID}{nameof(Wood.Door)}")
+                    .BuildComplexBlock($"{namedID}{nameof(Wood.Door)}", $"{Language.Door} ({name.wood})")
                     .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("door_wood_closed"), RID.File<BlockModel>("door_wood_open")]))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_door")))
                     .WithBehavior<Door>()
                     .Complete(),
 
                 Pipe = builder
-                    .BuildComplexBlock($"{Language.Pipe} ({name.wood})", $"{namedID}{nameof(Wood.Pipe)}")
+                    .BuildComplexBlock($"{namedID}{nameof(Wood.Pipe)}", $"{Language.Pipe} ({name.wood})")
                     .WithBehavior<Piped>(piped => piped.TierInitializer.ContributeConstant(Piped.PipeTier.Primitive))
                     .WithBehavior<ConnectingPipe>(pipe => pipe.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wood_pipe_center"), RID.File<BlockModel>("wood_pipe_connector"), RID.File<BlockModel>("wood_pipe_surface"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture)))
@@ -268,7 +268,7 @@ public static class WoodConvention
                     .Complete(),
 
                 Bed = builder
-                    .BuildComplexBlock($"{Language.Bed} ({name.wood})", $"{namedID}{nameof(Wood.Bed)}")
+                    .BuildComplexBlock($"{namedID}{nameof(Wood.Bed)}", $"{Language.Bed} ({name.wood})")
                     .WithBehavior<LateralRotatable>()
                     .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<BlockModel>("bed")]))
                     .WithTextureOverride(new Dictionary<Int32, TID>
