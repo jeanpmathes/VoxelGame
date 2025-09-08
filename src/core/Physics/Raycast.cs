@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Physics;
 public static class Raycast
 {
     /// <summary>
-    ///     Checks if a ray intersects with a block that is not <see cref="Blocks.Air" />.
+    ///     Checks if a ray intersects with a block that is not <see cref="Core.Air" />.
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
