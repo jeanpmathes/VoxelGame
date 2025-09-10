@@ -6,6 +6,7 @@
 
 using System;
 using JetBrains.Annotations;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Tests.Logic.Elements;
 using VoxelGame.Core.Tests.Utilities.Resources;
@@ -19,7 +20,7 @@ public class StateTests
     [Fact]
     public void State_SetGet_Boolean()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Boolean> booleanAttribute = builder.Define("bool").Boolean().Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -32,7 +33,7 @@ public class StateTests
     [Fact]
     public void State_GetSetGet_Boolean()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Boolean> booleanAttribute = builder.Define("bool").Boolean().Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -46,7 +47,7 @@ public class StateTests
     [Fact]
     public void State_SetGet_Int32()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Int32> intAttribute = builder.Define("int").Int32(min: 0, max: 4).Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -59,7 +60,7 @@ public class StateTests
     [Fact]
     public void State_GetSetGet_Int32()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Int32> intAttribute = builder.Define("int").Int32(min: 0, max: 4).Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -73,7 +74,7 @@ public class StateTests
     [Fact]
     public void State_SetGet_Enum()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -86,7 +87,7 @@ public class StateTests
     [Fact]
     public void State_GetSetGet_Enum()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -100,7 +101,7 @@ public class StateTests
     [Fact]
     public void State_SetGet_Flags()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<TestStates> flagsAttribute = builder.Define("flags").Flags<TestStates>().Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -113,7 +114,7 @@ public class StateTests
     [Fact]
     public void State_GetSetGet_Flags()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<TestStates> flagsAttribute = builder.Define("flags").Flags<TestStates>().Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -127,7 +128,7 @@ public class StateTests
     [Fact]
     public void State_SetGet_List()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<TestStruct> listAttribute = builder.Define("list").List([new TestStruct("a"), new TestStruct("b")]).Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -140,7 +141,7 @@ public class StateTests
     [Fact]
     public void State_GetSetGet_List()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<TestStruct> listAttribute = builder.Define("list").List([new TestStruct("a"), new TestStruct("b")]).Attribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -154,7 +155,7 @@ public class StateTests
     [Fact]
     public void State_SetGet_Nullable()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Int32?> nullableAttribute = builder.Define("nullable").Int32(min: 0, max: 2).NullableAttribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -169,7 +170,7 @@ public class StateTests
     [Fact]
     public void State_GetSetGet_Nullable()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Int32?> nullableAttribute = builder.Define("nullable").Int32(min: 0, max: 2).NullableAttribute();
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
@@ -183,7 +184,7 @@ public class StateTests
     [Fact]
     public void State_SetGet_MultipleAttributes()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Boolean> boolAttribute = builder.Define("bool").Boolean().Attribute();
         IAttribute<Int32> intAttribute = builder.Define("int").Int32(min: 0, max: 2).Attribute();
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute();
@@ -202,7 +203,7 @@ public class StateTests
     [Fact]
     public void State_GetSetGet_MultipleAttributes()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Boolean> boolAttribute = builder.Define("bool").Boolean().Attribute();
         IAttribute<Int32> intAttribute = builder.Define("int").Int32(min: 0, max: 2).Attribute();
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute();

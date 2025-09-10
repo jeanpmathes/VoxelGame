@@ -10,7 +10,6 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
@@ -79,12 +78,12 @@ public class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, BlockBehavi
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (PlacementHeight is >= MinimumHeight and <= MaximumHeight) 
             return;
 
-        context.ReportWarning(this, "Placement height is out of bounds");
+        validator.ReportWarning("Placement height is out of bounds");
         PlacementHeight = MinimumHeight;
     }
 

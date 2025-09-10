@@ -54,10 +54,10 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (Strength == Strengths.None)
-            context.ReportWarning(this, "Connectable blocks should have at least one connection strength defined");
+            validator.ReportWarning("Connectable blocks should have at least one connection strength defined");
     }
 
     /// <summary>

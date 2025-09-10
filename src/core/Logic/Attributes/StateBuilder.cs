@@ -12,18 +12,18 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes.Implementations;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Attributes;
 
 /// <summary>
 /// Used to define the <see cref="StateSet"/> of a block by defining the attributes of a block.
 /// </summary>
-/// <param name="context">The context in which the state set is defined.</param>
-public partial class StateBuilder(IResourceContext context) : IStateBuilder
+/// <param name="validator">The validator to report warnings and errors to.</param>
+public partial class StateBuilder(IValidator validator) : IStateBuilder
 {
     private const String Root = "Root";
     private const String Separator = "/";
@@ -41,17 +41,17 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
     {
         if (isAttribute && !AttributeNameRegex().IsMatch(name))
         {
-            context.ReportWarning(this, $"Attribute names must be alphanumeric and start with a lowercase letter, '{name}' is not valid");
+            validator.ReportWarning($"Attribute names must be alphanumeric and start with a lowercase letter, '{name}' is not valid");
             name = "!unnamed";
         }
         else if (!isAttribute && !ScopeNameRegex().IsMatch(name))
         {
-            context.ReportWarning(this, $"Scope names must be alphanumeric (with dots), '{name}' is not valid");
+            validator.ReportWarning($"Scope names must be alphanumeric (with dots), '{name}' is not valid");
             name = "!unnamed";
         }
         else if (names.Contains(GetPath(name)))
         {
-            context.ReportWarning(this, $"Attribute or scope name '{name}' is not unique in the current scope");
+            validator.ReportWarning($"Attribute or scope name '{name}' is not unique in the current scope");
         }
         else
         {
@@ -111,7 +111,7 @@ public partial class StateBuilder(IResourceContext context) : IStateBuilder
     {
         if (stateCount * (UInt64) attribute.Multiplicity > Int32.MaxValue)
         {
-            context.ReportWarning(this, $"Attribute '{name}' would cause {stateCount * (UInt64) attribute.Multiplicity} states which is more than allowed");
+            validator.ReportWarning($"Attribute '{name}' would cause {stateCount * (UInt64) attribute.Multiplicity} states which is more than allowed");
 
             return;
         }

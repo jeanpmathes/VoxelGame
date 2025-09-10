@@ -15,7 +15,6 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Utilities;
 
@@ -86,18 +85,18 @@ public class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, BlockBeha
     }
     
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (Fruit == null)
-            context.ReportWarning(this, "No fruit block is set");
+            validator.ReportWarning("No fruit block is set");
         
         if (Fruit == Subject.NamedID)
-            context.ReportWarning(this, "The fruit block cannot be the same as the growing block itself");
+            validator.ReportWarning("The fruit block cannot be the same as the growing block itself");
         
         fruit = Blocks.Instance.SafelyTranslateNamedID(Fruit);
         
         if (fruit == Blocks.Instance.Core.Error && Fruit != Blocks.Instance.Core.Error.NamedID)
-            context.ReportWarning(this, $"The fruit block '{Fruit}' could not be found");
+            validator.ReportWarning($"The fruit block '{Fruit}' could not be found");
     }
     
     private void OnMatureUpdate(GrowingPlant.MatureUpdateMessage message)

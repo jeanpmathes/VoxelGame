@@ -9,7 +9,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
@@ -49,21 +48,21 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (Replacement == null)
-            context.ReportWarning(this, "Replacement block is not set");
+            validator.ReportWarning("Replacement block is not set");
         
         if (Replacement == Subject.NamedID)
-            context.ReportWarning(this, "Replacement block cannot be the same as the block itself");
+            validator.ReportWarning("Replacement block cannot be the same as the block itself");
         
         replacement = Blocks.Instance.SafelyTranslateNamedID(Replacement);
         
         if (replacement == Blocks.Instance.Core.Error && Replacement != Blocks.Instance.Core.Error.NamedID)
-            context.ReportWarning(this, $"The replacement block '{Replacement}' could not be found");
+            validator.ReportWarning($"The replacement block '{Replacement}' could not be found");
 
         if (!replacement.IsFullySolid(replacement.States.Default))
-            context.ReportWarning(this, "Replacement block is not fully solid");
+            validator.ReportWarning("Replacement block is not fully solid");
     }
 
     /// <summary>

@@ -9,7 +9,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
@@ -52,10 +51,10 @@ public class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBehavior, Bl
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (!ModifyHeight.HasSubscribers)
-            context.ReportWarning(this, "Modifable behavior has no effect as there are no subsribers");
+            validator.ReportWarning("Modifiable behavior has no effect as there are no subscribers");
     }
 
     /// <summary>

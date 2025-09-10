@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
@@ -68,15 +69,15 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
     /// Must be called before the block behavior system is baked.
     /// </summary>
     /// <param name="offset">The number of already existing block states.</param>
-    /// <param name="context">The context in which the block is initialized.</param>
+    /// <param name="validator">The validator to use for validation.</param>
     /// <returns>The number of states this block has.</returns>
-    internal UInt32 Initialize(UInt32 offset, IResourceContext context)
+    internal UInt32 Initialize(UInt32 offset, IValidator validator)
     {
         // todo: call EnsureNotBaked() on behavior system through method on base class
         
         InitializeProperties();
         
-        StateBuilder builder = new(context);
+        StateBuilder builder = new(validator);
 
         foreach (BlockBehavior behavior in Behaviors)
             builder.Enclose(Reflections.GetLongName(behavior.GetType()), behavior.DefineState);
@@ -486,20 +487,39 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
     }
     
     /// <inheritdoc />
-    public sealed override void Validate(IResourceContext context)
+    public sealed override void Validate(IValidator validator)
     {
         IMeshable? meshable = null;
-        
-        // todo: instead of using the resource context in the behavior system and event system, use a custom class that allows matching issues and the offending subject
-        // todo: for validation, the block loader should use a class that tracks errors and warnings (use basic interface defined in component system), so that block loader can then report to context and also skip loading of blocks if fitting
-        // todo: when loading a block fails, replace the state set with one re-routing to the error block or so, then SetContent can check if a state ID fits to the owner (it can simply do a range check) and if not then the error block state is used
-        
-        // todo: validate that there is only at most one meshable
-        // todo: validate that if there is a meshable, its type matches the Meshable property
+        List<IMeshable> otherMeshables = [];
+
+        foreach (BlockBehavior behavior in Behaviors)
+        {
+            if (behavior is not IMeshable m) continue;
+
+            if (meshable == null)
+                meshable = m;
+            else
+                otherMeshables.Add(meshable);
+        }
+
+        if (otherMeshables.Count > 0)
+        {
+            otherMeshables.Add(meshable!);
+            
+            validator.ReportWarning($"Multiple meshable behaviors found ({String.Join(", ", otherMeshables.Select(m => m.GetType()))}), which indicates a misconfiguration");
+        }
+        else if (meshable == null)
+        {
+            validator.ReportWarning($"No meshable behavior found");
+        }
+        else if (Meshable != meshable.Type)
+        {
+            validator.ReportWarning($"Meshable type {meshable.Type} does not match the declared meshable type {Meshable}");
+        }
         
         OnValidate();
         
-        base.Validate(context);
+        base.Validate(validator);
     }
 
     /// <summary>

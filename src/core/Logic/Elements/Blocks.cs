@@ -86,17 +86,23 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     public IEnumerable<IContent> Initialize(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals, IResourceContext context) // todo: should call initialize on all blocks and be called by the loader
     {
         states.Clear();
+
+        Validator validator = new(context);
         
         UInt32 offset = 0;
 
         foreach (Block block in builder.BlocksByID)
         {
-            offset += block.Initialize(offset, context);
+            offset += block.Initialize(offset, validator);
             
             states.AddRange(block.States.GetAllStates());
         }
 
-        BehaviorSystem<Block, BlockBehavior>.Bake(context);
+        if (validator.HasError) return []; // todo: test triggering an error to see if this prevents loading the world
+
+        BehaviorSystem<Block, BlockBehavior>.Bake(validator);
+        
+        if (validator.HasError) return []; // todo: test triggering an error to see if this prevents loading the world
 
         foreach (Block block in builder.BlocksByID)
             block.Activate(textureIndexProvider, blockModelProvider, visuals);

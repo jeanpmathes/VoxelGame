@@ -6,6 +6,7 @@
 
 using System;
 using JetBrains.Annotations;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Tests.Logic.Elements;
 using VoxelGame.Core.Tests.Utilities.Resources;
@@ -19,7 +20,7 @@ public class StateSetTests
     [Fact]
     public void StateSet_GenerationDefault_ShouldContainSpecifiedValues()
     {
-        StateBuilder builder = new(new MockResourceContext());
+        StateBuilder builder = new(new Validator(new MockResourceContext()));
         IAttribute<Boolean> boolAttribute = builder.Define("bool").Boolean().Attribute(generationDefault: true);
         IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute(TestState.C);
 

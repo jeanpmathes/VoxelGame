@@ -135,9 +135,9 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     public virtual void SubscribeToEvents(IEventBus bus) {}
 
     /// <inheritdoc />
-    public virtual void Validate(IResourceContext context)
+    public virtual void Validate(IValidator validator)
     {
-        Validation?.Invoke(this, new IAspectable.ValidationEventArgs { Context = context});
+        Validation?.Invoke(this, new IAspectable.ValidationEventArgs { Validator = validator});
     }
     
     /// <inheritdoc />

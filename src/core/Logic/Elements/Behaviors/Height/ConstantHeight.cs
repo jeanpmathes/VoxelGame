@@ -8,7 +8,6 @@ using System;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
@@ -38,18 +37,18 @@ public class ConstantHeight : BlockBehavior, IBehavior<ConstantHeight, BlockBeha
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (Height < PartialHeight.MinimumHeight)
         {
-            context.ReportWarning(this, "Constant partial height value is below the minimum valid value");
+            validator.ReportWarning("Constant partial height value is below the minimum valid value");
 
             Height = PartialHeight.MinimumHeight;
         }
         
         if (Height > PartialHeight.MaximumHeight)
         {
-            context.ReportWarning(this, "Constant partial height value is above the maximum valid value");
+            validator.ReportWarning("Constant partial height value is above the maximum valid value");
 
             Height = PartialHeight.MaximumHeight;
         }

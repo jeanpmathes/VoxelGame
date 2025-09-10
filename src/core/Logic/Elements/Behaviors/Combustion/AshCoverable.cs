@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 
@@ -32,13 +31,13 @@ public class AshCoverable : BlockBehavior, IBehavior<AshCoverable, BlockBehavior
     }
     
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (!AshCover.HasSubscribers) 
-            context.ReportWarning(this, "No operation registered to cover the block with ash");
+            validator.ReportWarning("No operation registered to cover the block with ash");
         
         if (Subject.Has<Combustible>())
-            context.ReportWarning(this, "Combustible blocks should not be coverable with ash as they burn instead");
+            validator.ReportWarning("Combustible blocks should not be coverable with ash as they burn instead");
     }
 
     /// <summary>

@@ -3,7 +3,6 @@ using JetBrains.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Tests.Utilities.Resources;
-using VoxelGame.Core.Utilities.Resources;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Behaviors;
@@ -43,7 +42,7 @@ public class BehaviorSystemTests
             Subscribed = true;
         }
 
-        protected override void OnValidate(IResourceContext context)
+        protected override void OnValidate(IValidator validator)
         {
             Validated = true;
         }
@@ -77,7 +76,7 @@ public class BehaviorSystemTests
         var b2A = subject2.Require<BehaviorA>();
         var b2C = subject2.Require<BehaviorC>();
 
-        Int32 count = BehaviorSystem<TestSubject, TestBehaviorBase>.Bake(new MockResourceContext());
+        Int32 count = BehaviorSystem<TestSubject, TestBehaviorBase>.Bake(new Validator(new MockResourceContext()));
 
         Assert.Equal(expected: 3, count);
         

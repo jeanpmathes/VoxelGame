@@ -37,7 +37,8 @@ internal sealed class MockResourceContext : IResourceContext
         return [];
     }
 
-    public void ReportWarning(Object source, String message, Exception? exception = null, FileSystemInfo? path = null) {}
+    public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null) {}
+    public void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null) {}
     public void ReportDiscovery(ResourceType type, RID identifier, Exception? error = null, String? errorMessage = null) {}
     public event EventHandler? Completed;
     public void Dispose() {}

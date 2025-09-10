@@ -10,7 +10,6 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
@@ -69,12 +68,12 @@ public class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, BlockBeha
     }
     
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (PlacementHeight is >= PartialHeight.MinimumHeight and <= PartialHeight.MaximumHeight) 
             return;
 
-        context.ReportWarning(this, "Placement height is out of bounds");
+        validator.ReportWarning("Placement height is out of bounds");
         PlacementHeight = PartialHeight.MinimumHeight;
     }
 

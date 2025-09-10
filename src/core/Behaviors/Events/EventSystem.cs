@@ -6,21 +6,20 @@
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Behaviors.Events;
 
 /// <summary>
 ///     The event system is responsible for managing events and their handlers.
 /// </summary>
-public class EventSystem(IResourceContext context) : IEventRegistry, IEventBus
+public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
 {
     private readonly Dictionary<Type, Event> events = new();
  
     /// <inheritdoc />
     public void Subscribe<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : IEventMessage
     {
-        if (events.TryGetValue(typeof(TEventMessage), out Event? @event) && @event is Event<TEventMessage> specific) specific.Subscribe(handler, context);
+        if (events.TryGetValue(typeof(TEventMessage), out Event? @event) && @event is Event<TEventMessage> specific) specific.Subscribe(handler, validator);
 
         // If the event is not defined, just ignore the subscription.
     }
@@ -31,9 +30,12 @@ public class EventSystem(IResourceContext context) : IEventRegistry, IEventBus
     {
         if (events.TryGetValue(typeof(TEventMessage), out Event? existingEvent))
         {
-            context.ReportWarning(this, $"Event {typeof(TEventMessage)} already defined");
+            var typedEvent = (Event<TEventMessage>) existingEvent;
+            
+            if (typedEvent.IsSingle != single)
+                validator.ReportWarning($"Event {typeof(TEventMessage)} is already registered with single={typedEvent.IsSingle}, but tried to register with single={single}");
 
-            return (IEvent<TEventMessage>) existingEvent;
+            return typedEvent;
         }
 
         Event<TEventMessage> @event = new(single);
@@ -54,15 +56,16 @@ public class EventSystem(IResourceContext context) : IEventRegistry, IEventBus
                 handler(message);
         }
 
-        public void Subscribe(Action<TEventMessage> handler, IResourceContext context)
+        public void Subscribe(Action<TEventMessage> handler, IValidator validator)
         {
             if (single && handlers.Count >= 1)
-                context.ReportWarning(this,
-                    $"Event {typeof(TEventMessage)} is single but has multiple subscriptions");
+                validator.ReportWarning($"Event {typeof(TEventMessage)} is single but has multiple subscriptions");
             else
                 handlers.Add(handler);
         }
         
         public Boolean HasSubscribers => handlers.Count > 0;
+        
+        public Boolean IsSingle => single;
     }
 }

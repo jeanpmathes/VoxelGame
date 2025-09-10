@@ -13,7 +13,6 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Sections;
-using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
@@ -84,23 +83,23 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     }
 
     /// <inheritdoc />
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (MaximumSize.X <= 0 || MaximumSize.Y <= 0 || MaximumSize.Z <= 0)
         {
-            context.ReportWarning(this, "Composite block size must be greater than zero in every dimension");
+            validator.ReportWarning("Composite block size must be greater than zero in every dimension");
         }
         
         if (MaximumSize.X > Section.Size || MaximumSize.Y > Section.Size || MaximumSize.Z > Section.Size)
         {
-            context.ReportWarning(this, "Composite block size must not exceed section size in any dimension");
+            validator.ReportWarning("Composite block size must not exceed section size in any dimension");
         }
         
         MaximumSize = Vector3i.Clamp(MaximumSize, Vector3i.One, new Vector3i(Section.Size));
         
         if (MaximumSize == Vector3i.One)
         {
-            context.ReportWarning(this, "Composite block size is set to one, which is equivalent to a normal block");
+            validator.ReportWarning("Composite block size is set to one, which is equivalent to a normal block");
         }
     }
 

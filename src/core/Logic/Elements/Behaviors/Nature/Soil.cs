@@ -9,7 +9,6 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
@@ -61,11 +60,11 @@ public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (!Subject.Has<Wet>())
         {
-            context.ReportWarning(this, "Soil blocks must be able to get wet in some way, preferably with visual representation of that");
+            validator.ReportWarning("Soil blocks must be able to get wet in some way, preferably with visual representation of that");
         }
     }
 }

@@ -13,7 +13,6 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors;
 
@@ -112,10 +111,10 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     }
 
     /// <inheritdoc />
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (AttachmentSides == Sides.None)
-            context.ReportWarning(this, "Block cannot be placed as it has no sides allowing attachment");
+            validator.ReportWarning("Block cannot be placed as it has no sides allowing attachment");
     }
     
     private Boolean GetIsPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)

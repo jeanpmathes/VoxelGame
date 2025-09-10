@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using VoxelGame.Core.Utilities;
@@ -15,13 +16,19 @@ namespace VoxelGame.Client.Visuals.Textures;
 ///     Represents a source of images during the texture creation process.
 ///     See <see cref="Bundler" /> for more information.
 /// </summary>
-public class ImageSource
+public class ImageSource : IIssueSource
 {
     private readonly List<FileInfo> sheets = [];
     private readonly List<FileInfo> decks = [];
     private readonly List<FileInfo> parts = [];
 
-    private ImageSource() {}
+    private ImageSource(DirectoryInfo directory)
+    {
+        InstanceName = directory.Name;
+    }
+    
+    /// <inheritdoc />
+    public String? InstanceName { get; }
 
     /// <summary>
     ///     Get all sheets in this source.
@@ -46,7 +53,7 @@ public class ImageSource
     /// <returns>The image source, will be empty if an error occurred.</returns>
     public static ImageSource Scan(DirectoryInfo directory, IResourceContext context)
     {
-        ImageSource source = new();
+        ImageSource source = new(directory);
 
         try
         {

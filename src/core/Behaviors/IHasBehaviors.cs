@@ -13,12 +13,17 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Behaviors;
 
 /// <summary>
+///    Interface for a subject that carries behaviors.
+/// </summary>
+public interface IHasBehaviors : IEventSubject, IAspectable, IIssueSource;
+
+/// <summary>
 ///     Interface for a subject that carries behaviors.
 ///     See <see cref="BehaviorContainer{TSelf, TBehavior}" /> for a base implementation.
 /// </summary>
 /// <typeparam name="TSubject">The subject type that holds behaviors.</typeparam>
 /// <typeparam name="TBehavior">The behavior base class type that this subject holds.</typeparam>
-public interface IHasBehaviors<TSubject, TBehavior> : IEventSubject, IAspectable
+public interface IHasBehaviors<TSubject, TBehavior> : IHasBehaviors
     where TSubject : class, IHasBehaviors<TSubject, TBehavior>
     where TBehavior : class, IBehavior<TSubject>
 {
@@ -71,5 +76,5 @@ public interface IHasBehaviors<TSubject, TBehavior> : IEventSubject, IAspectable
     /// <summary>
     ///     Validates the behaviors of this subject.
     /// </summary>
-    public void Validate(IResourceContext context);
+    public void Validate(IValidator validator);
 }

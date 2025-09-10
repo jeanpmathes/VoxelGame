@@ -26,7 +26,7 @@ namespace VoxelGame.Core.Logic.Definitions.Structures;
 /// <summary>
 ///     A static structure can be stored and loaded from a file.
 /// </summary>
-public sealed partial class StaticStructure : Structure, IResource, ILocated
+public sealed partial class StaticStructure : Structure, IResource, ILocated, IIssueSource
 {
     private const Int32 MaxSize = 1024;
 

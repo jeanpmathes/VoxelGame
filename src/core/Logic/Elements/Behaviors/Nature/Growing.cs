@@ -13,7 +13,6 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
@@ -74,18 +73,18 @@ public class Growing  : BlockBehavior, IBehavior<Growing, BlockBehavior, Block>
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (RequiredGround == null)
-            context.ReportWarning(this, "No required ground block is set");
+            validator.ReportWarning("No required ground block is set");
         
         if (RequiredGround == Subject.NamedID)
-            context.ReportWarning(this, "The required ground block cannot be the same as the growing block itself");
+            validator.ReportWarning("The required ground block cannot be the same as the growing block itself");
         
         requiredGround = Blocks.Instance.SafelyTranslateNamedID(RequiredGround);
         
         if (requiredGround == Blocks.Instance.Core.Error && RequiredGround != Blocks.Instance.Core.Error.NamedID)
-            context.ReportWarning(this, $"The required ground block '{RequiredGround}' could not be found");
+            validator.ReportWarning($"The required ground block '{RequiredGround}' could not be found");
     }
     
     private Boolean GetIsPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)

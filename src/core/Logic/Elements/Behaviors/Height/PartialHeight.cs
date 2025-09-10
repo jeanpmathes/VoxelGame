@@ -10,7 +10,6 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
@@ -66,10 +65,10 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (!Subject.Has<Meshables.PartialHeight>()) 
-            context.ReportWarning(this, "Partial height blocks should use the corresponding meshing behavior");
+            validator.ReportWarning("Partial height blocks should use the corresponding meshing behavior");
     }
 
     /// <summary>

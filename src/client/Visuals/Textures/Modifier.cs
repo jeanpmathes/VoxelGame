@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Visuals.Textures;
@@ -18,7 +19,7 @@ namespace VoxelGame.Client.Visuals.Textures;
 ///     One can inherit from this class to create custom modifiers.
 ///     Custom modifiers are detected by reflection.
 /// </summary>
-public abstract class Modifier
+public abstract class Modifier : IIssueSource
 {
     private readonly Parameter[] @params;
 
@@ -33,6 +34,9 @@ public abstract class Modifier
 
         this.@params = @params ?? [];
     }
+
+    /// <inheritdoc />
+    public String InstanceName => Type;
 
     /// <summary>
     ///     The type of this modifier. Used as a key to find the correct modifier.

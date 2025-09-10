@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Behaviors.Aspects;
 /// </summary>
 /// <typeparam name="TValue">The value type of the aspect.</typeparam>
 /// <typeparam name="TContext">The type of context in which the aspect is evaluated.</typeparam>
-public class Aspect<TValue, TContext>
+public class Aspect<TValue, TContext> 
 {
     // todo: think about precomputing all / some aspects that use State as context, aspects could register them with a generic aspect registry
 
@@ -40,24 +40,6 @@ public class Aspect<TValue, TContext>
         this.owner = owner;
         
         owner.Validation += OnValidation;
-    }
-    
-    /// <summary>
-    ///     Create a new aspect with the given strategy.
-    /// </summary>
-    /// <param name="name">The name of the aspect.</param>
-    /// <param name="strategy">The contribution strategy to use for this aspect.</param>
-    /// <param name="owner">The owner of this aspect.</param>
-    /// <typeparam name="TStrategy">The type of contribution strategy to use.</typeparam>
-    /// <returns>The new aspect.</returns>
-    public static Aspect<TValue, TContext> New<TStrategy>(String name, TStrategy strategy, IAspectable owner) where TStrategy : IContributionStrategy<TValue, TContext>
-    {
-        return new Aspect<TValue, TContext>(
-            name,
-            TStrategy.MaxContributorCount,
-            strategy,
-            owner
-        );
     }
 
     /// <summary>
@@ -120,11 +102,11 @@ public class Aspect<TValue, TContext>
     {
         if (usedContributors.Count == maxContributors && rejectedContributors.Count > 0)
         {
-            e.Context.ReportWarning(this, $"Cannot add more than {maxContributors} contributors to aspect");
+            e.Validator.ReportWarning($"Cannot add more than {maxContributors} contributors to aspect '{this}'");
         }
         else if (exclusiveContributor != null && rejectedContributors.Count > 0)
         {
-            e.Context.ReportWarning(this, "Cannot add more than one contributor when an exclusive contributor is set");
+            e.Validator.ReportWarning($"Cannot add more than one contributor to aspect '{this}' as an exclusive contributor is set");
         }
     }
 
@@ -154,6 +136,6 @@ public class Aspect<TValue, TContext>
     /// <inheritdoc/>
     public override String ToString()
     {
-        return Reflections.GetDecoratedName(owner.ToString() ?? "unknown", GetType(), name);
+        return name;
     }
 }

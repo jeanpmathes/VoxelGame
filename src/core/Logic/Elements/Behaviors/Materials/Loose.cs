@@ -7,7 +7,6 @@
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Materials;
 
@@ -29,11 +28,11 @@ public class Loose : BlockBehavior, IBehavior<Loose, BlockBehavior, Block>
     }
 
     /// <inheritdoc/>
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (!Subject.Has<Wet>())
         {
-            context.ReportWarning(this, "Loose blocks must be able to get wet in some way, preferably with visual representation of that");
+            validator.ReportWarning("Loose blocks must be able to get wet in some way, preferably with visual representation of that");
         } 
     }
 }

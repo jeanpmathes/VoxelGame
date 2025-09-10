@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using VoxelGame.Core.Behaviors.Events;
-using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Behaviors;
@@ -63,17 +62,17 @@ public static class BehaviorSystem<TSubject, TBehavior>
     /// <summary>
     ///     Bake the entire system. This may only be called once.
     /// </summary>
-    /// <param name="context">The resource context in which the baking occurs.</param>
+    /// <param name="validator">The validator to use during baking.</param>
     /// <returns>The number of unique behavior types registered in the system.</returns>
-    public static Int32 Bake(IResourceContext context)
+    public static Int32 Bake(Validator validator)
     {
         EnsureNotBaked();
         isBaked = true;
 
         foreach ((TSubject subject, _) in subjects)
         {
-            SetupEvents(subject, context);
-            Validate(subject, context);
+            SetupEvents(subject, validator);
+            Validate(subject, validator);
         }
 
         Int32 knownCount = knownTypes.Count;
@@ -96,27 +95,39 @@ public static class BehaviorSystem<TSubject, TBehavior>
         return knownCount;
     }
 
-    private static void SetupEvents(TSubject subject, IResourceContext context)
+    private static void SetupEvents(TSubject subject, Validator validator)
     {
-        EventSystem eventSystem = new(context);
+        EventSystem eventSystem = new(validator);
 
+        validator.SetScope(subject);
         subject.DefineEvents(eventSystem);
 
         foreach (TBehavior behavior in subject.Behaviors)
+        {
+            validator.SetScope(behavior);
             behavior.DefineEvents(eventSystem);
+        }
 
+        validator.SetScope(subject);
         subject.SubscribeToEvents(eventSystem);
 
         foreach (TBehavior behavior in subject.Behaviors)
+        {
+            validator.SetScope(behavior);
             behavior.SubscribeToEvents(eventSystem);
+        }
     }
 
-    private static void Validate(TSubject subject, IResourceContext context)
+    private static void Validate(TSubject subject, Validator validator)
     {
-        subject.Validate(context);
-        
+        validator.SetScope(subject);
+        subject.Validate(validator);
+
         foreach (TBehavior behavior in subject.Behaviors)
-            behavior.Validate(context);
+        {
+            validator.SetScope(behavior);
+            behavior.Validate(validator);
+        }
     }
 
     private static void EnsureNotBaked()

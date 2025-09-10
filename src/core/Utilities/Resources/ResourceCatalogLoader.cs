@@ -195,15 +195,30 @@ public sealed partial class ResourceCatalogLoader
         {
             return content.GetAll<T>();
         }
-
-        public void ReportWarning(Object source, String message, Exception? exception = null, FileSystemInfo? path = null)
+        
+        private static String GetSourceName(IIssueSource source)
         {
-            currentReport!.Add(new Error(Reflections.GetLongName(source.GetType()), message, isCritical: false));
+            return source.InstanceName is {} name ? Reflections.GetLongName(source.GetType(), name) : Reflections.GetLongName(source.GetType());
+        }
+
+        public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null)
+        {
+            currentReport!.Add(new Error(GetSourceName(source), message, isCritical: false));
 
             if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
             else LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
 
             warningCount++;
+        }
+        
+        public void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null)
+        {
+            currentReport!.Add(new Error(GetSourceName(source), message, isCritical: true));
+
+            if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
+            else LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
+
+            errorCount++;
         }
 
         public void ReportDiscovery(ResourceType type, RID identifier, Exception? error = null, String? errorMessage = null)

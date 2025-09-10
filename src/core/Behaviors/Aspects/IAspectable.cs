@@ -25,8 +25,8 @@ public interface IAspectable
     public class ValidationEventArgs : EventArgs
     {
         /// <summary>
-        /// The resource loading context in which the validation is performed.
+        /// The validator to use.
         /// </summary>
-        public required IResourceContext Context { get; init; }
+        public required IValidator Validator { get; init; }
     }
 }

@@ -60,13 +60,13 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     }
 
     /// <inheritdoc />
-    protected override void OnValidate(IResourceContext context)
+    protected override void OnValidate(IValidator validator)
     {
         if (Layers.Count == 0)
-            context.ReportWarning(this, "No layers defined for modelled block");
+            validator.ReportWarning("No layers defined for modelled block");
         
         if (Layers.Count > Visuals.Selector.MaxLayerCount)
-            context.ReportWarning(this, $"Too many layers defined for modelled block (max {Visuals.Selector.MaxLayerCount}, got {Layers.Count})");
+            validator.ReportWarning($"Too many layers defined for modelled block (max {Visuals.Selector.MaxLayerCount}, got {Layers.Count})");
         
         Layers = Layers.Take(Visuals.Selector.MaxLayerCount).ToArray();
     }

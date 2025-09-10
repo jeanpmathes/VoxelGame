@@ -7,7 +7,6 @@
 using System;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
-using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Behaviors;
@@ -23,6 +22,8 @@ public abstract class Behavior<TSelf, TSubject>(TSubject subject) : IBehavior<TS
     where TSelf : Behavior<TSelf, TSubject>
     where TSubject : class, IHasBehaviors<TSubject, TSelf>
 {
+    IHasBehaviors IBehavior.Subject => Subject;
+    
     /// <inheritdoc />
     public TSubject Subject { get; } = subject;
     
@@ -39,30 +40,24 @@ public abstract class Behavior<TSelf, TSubject>(TSubject subject) : IBehavior<TS
     /// <summary>
     /// Perform any validation required by the behavior.
     /// </summary>
-    public void Validate(IResourceContext context)
+    public void Validate(IValidator validator)
     {
-        OnValidate(context);
+        OnValidate(validator);
         
         Validation?.Invoke(this, new IAspectable.ValidationEventArgs
         {
-            Context = context
+            Validator = validator
         });
     }
-    
+
     /// <summary>
     ///     Override this method to validate the behavior.
     /// </summary>
-    protected virtual void OnValidate(IResourceContext context)
+    protected virtual void OnValidate(IValidator validator)
     {
         
     }
 
     /// <inheritdoc />
     public event EventHandler<IAspectable.ValidationEventArgs>? Validation;
-
-    /// <inheritdoc />
-    public override String ToString()
-    {
-        return Reflections.GetDecoratedName<TSelf>(Subject.ToString() ?? "unknown", instance: null); // todo: using TSelf here does not work as TSelf is always block behavior
-    }
 }

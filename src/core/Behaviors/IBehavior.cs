@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Behaviors;
 ///     Defines the minimal behavior interface.
 ///     Mostly used for internal purposes, see <see cref="Behavior{TSelf,TSubject}" /> for the main functionality.
 /// </summary>
-public interface IBehavior
+public interface IBehavior : IIssueSource
 {
     /// <summary>
     ///     The unknown ID for behaviors.
@@ -29,19 +29,24 @@ public interface IBehavior
     /// <summary>
     ///     Validates the behavior.
     /// </summary>
-    public void Validate(IResourceContext context);
+    public void Validate(IValidator validator);
+    
+    /// <summary>
+    ///     Get the subject that this behavior applies to.
+    /// </summary>
+    public IHasBehaviors Subject { get; }
 }
 
 /// <summary>
 ///     Specializations of <see cref="IBehavior" /> that include a subject.
 /// </summary>
 /// <typeparam name="TSubject">The subject type that the behavior applies to.</typeparam>
-public interface IBehavior<out TSubject> : IBehavior, IEventSubject, IAspectable
+public interface IBehavior<out TSubject> : IBehavior, IEventSubject, IAspectable where TSubject : IHasBehaviors
 {
     /// <summary>
     ///     Get the subject that this behavior applies to.
     /// </summary>
-    public TSubject Subject { get; }
+    public new TSubject Subject { get; }
 }
 
 /// <summary>

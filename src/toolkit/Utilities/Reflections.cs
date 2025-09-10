@@ -61,6 +61,18 @@ public static class Reflections
 
         return builder.ToString();
     }
+    
+    /// <summary>
+    /// Get the long name of a type with an instance name.
+    /// Different from <see cref="Type.FullName" /> for generic types.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="instance">The instance name.</param>
+    /// <returns>The long name with instance.</returns>
+    public static String GetLongName(Type type, String instance)
+    {
+        return $"{GetLongName(type)}::{instance}";
+    }
 
     /// <summary>
     ///     Get a decorated name for a type.
