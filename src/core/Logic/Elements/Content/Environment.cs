@@ -218,7 +218,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     A block made out of frozen water.
     /// </summary>
     public Block Ice { get; } = builder
-        .BuildSimpleBlock(nameof(Ice), Language.Ice)
+        .BuildPartialHeightBlock(nameof(Ice), Language.Ice)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("ice")))
         .WithBehavior<StoredHeight16>()
         .WithBehavior<Modifiable>()

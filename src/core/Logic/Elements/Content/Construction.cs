@@ -109,11 +109,12 @@ public class Construction(BlockBuilder builder) : Category(builder)
     ///     Concrete is a versatile construction material that can have different heights and colors.
     ///     It can be build using fluid concrete.
     /// </summary>
-    public Block Concrete { get; } = builder // todo: check why debug view shows hight on placement as zero
-        .BuildSimpleBlock(nameof(Concrete), Language.Concrete)
+    public Block Concrete { get; } = builder // todo: check why debug view shows height on placement as zero
+        .BuildPartialHeightBlock(nameof(Concrete), Language.Concrete)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("concrete")))
         .WithBehavior<StoredHeight8>(height => height.PlacementHeightInitializer.ContributeConstant(StoredHeight8.MaximumHeight))
         .WithBehavior<Paintable>()
+        .WithBehavior<Connectable>(connectable => connectable.StrengthInitializer.ContributeConstant(Connectable.Strengths.All))
         .WithBehavior<PartialHeight, Connectable>((height, connectable) => connectable.IsConnectionAllowed.ContributeFunction((_, context) => height.IsFull(context.state)))
         .Complete();
     

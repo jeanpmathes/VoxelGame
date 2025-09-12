@@ -99,6 +99,12 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
         /// Wide connectable blocks are four sixteenth wide.
         /// Note that the connecting block might require this block to close of the connection surface.
         /// </summary>
-        Wide = 1 << 1
+        Wide = 1 << 1,
+        
+        /// <summary>
+        /// The block allows all connectable blocks.
+        /// Blocks which are full and solid will typically use this.
+        /// </summary>
+        All = Thin | Wide
     }
 }
