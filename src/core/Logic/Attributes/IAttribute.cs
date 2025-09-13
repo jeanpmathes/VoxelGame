@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Text.Json.Nodes;
 using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes;
@@ -121,6 +122,9 @@ public abstract class AttributeImplementation<TValue> : IAttribute<TValue>
     public String Name { get; private set; } = null!;
 
     /// <inheritdoc />
+    public Boolean IsEmpty => false;
+
+    /// <inheritdoc />
     public Int32 Divisor { get; private set; }
 
     /// <inheritdoc />
@@ -134,6 +138,12 @@ public abstract class AttributeImplementation<TValue> : IAttribute<TValue>
 
     /// <inheritdoc />
     public abstract Property RetrieveRepresentation(Int32 index);
+
+    /// <inheritdoc />
+    public abstract JsonNode GetValues(State state);
+
+    /// <inheritdoc />
+    public abstract State SetValues(State state, JsonNode values);
 
     internal void Initialize(String name, Int32 divisor)
     {

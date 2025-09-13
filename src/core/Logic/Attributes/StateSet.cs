@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Text.Json.Nodes;
 using VoxelGame.Core.Logic.Elements;
 
 namespace VoxelGame.Core.Logic.Attributes;
@@ -132,5 +133,49 @@ public class StateSet
         {
             yield return (GetStateByIndex(index), index);
         }
+    }
+
+    /// <summary>
+    /// Convert a state to a JSON node.
+    /// This should be used for debugging or serialization, not for regular in-game use.
+    /// </summary>
+    /// <returns>The created dictionary.</returns>
+    public JsonNode GetJson(State state)
+    {
+        JsonObject node = new();
+        
+        foreach (IScoped entry in entries)
+        {
+            if (entry.IsEmpty) continue;
+            
+            node[entry.Name] = entry.GetValues(state);
+        }
+        
+        return node;
+    }
+    
+    /// <summary>
+    /// Get the state from a JSON node.
+    /// Unknown elements will be ignored.
+    /// </summary>
+    /// <param name="node">The JSON node to read from. Must be a dictionary.</param>
+    /// <returns>The created state.</returns>
+    public State SetJson(JsonNode node)
+    {
+        State state = Default;
+            
+        if (node is not JsonObject obj) return state;
+        
+        foreach (IScoped entry in entries)
+        {
+            if (entry.IsEmpty) continue;
+            
+            if (!obj.TryGetPropertyValue(entry.Name, out JsonNode? inner)) 
+                continue;
+            
+            state = entry.SetValues(state, inner!);
+        }
+        
+        return state;
     }
 }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Text.Json.Nodes;
 using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
@@ -29,5 +30,15 @@ internal class Int32Attribute(Int32 min, Int32 max) : AttributeImplementation<In
     public override Property RetrieveRepresentation(Int32 index)
     {
         return new Integer(Name, Retrieve(index));
+    }
+
+    public override JsonNode GetValues(State state)
+    {
+        return state.Get(this);
+    }
+    
+    public override State SetValues(State state, JsonNode values)
+    {
+        return state.With(this, values.GetValue<Int32>());
     }
 }

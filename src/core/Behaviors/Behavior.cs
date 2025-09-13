@@ -14,6 +14,8 @@ namespace VoxelGame.Core.Behaviors;
 /// <summary>
 ///     The base class for the behavior system.
 ///     Behaviors allow defining the functionality of subject instances modularly.
+///     The behavior system expects a baking step after all which no behaviors can be added anymore.
+///     As such, the behavior system is not really dynamic and rather made for cases where the instances are actually types of flyweights.
 /// </summary>
 /// <param name="subject">The subject that this behavior applies to.</param>
 /// <typeparam name="TSelf">The type of the behavior itself.</typeparam>

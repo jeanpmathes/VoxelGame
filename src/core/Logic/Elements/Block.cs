@@ -291,7 +291,7 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
     /// Called when the content at a position changed, while the block did not change.
     /// It can be used to react to fluid changes and changes in the block state.
     /// </summary>
-    public IEvent<ContentUpdateMessage> ContentUpdate { get; private set; } = null!;
+    public IEvent<ContentUpdateMessage> ContentUpdate { get; private set; } = null!; // todo: rename to StateUpdate
 
     /// <summary>
     /// Sent when a neighboring position is changed.

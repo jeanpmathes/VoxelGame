@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Nodes;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections.Properties;
 
@@ -42,5 +43,28 @@ internal class Vector3iAttribute(Vector3i max) : AttributeImplementation<Vector3
             new Integer("y", Retrieve(index).Y),
             new Integer("z", Retrieve(index).Z)
         ]);
+    }
+
+    public override JsonNode GetValues(State state)
+    {
+        Vector3i vector = state.Get(this);
+        JsonObject obj = new()
+        {
+            ["x"] = vector.X,
+            ["y"] = vector.Y,
+            ["z"] = vector.Z
+        };
+        return obj;
+    }
+    
+    public override State SetValues(State state, JsonNode values)
+    {
+        if (values is not JsonObject obj) return state;
+
+        Int32 x = obj["x"]?.GetValue<Int32>() ?? 0;
+        Int32 y = obj["y"]?.GetValue<Int32>() ?? 0;
+        Int32 z = obj["z"]?.GetValue<Int32>() ?? 0;
+
+        return state.With(this, new Vector3i(x, y, z));
     }
 }

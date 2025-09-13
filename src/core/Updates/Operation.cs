@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -122,7 +123,7 @@ public abstract class Operation
     ///     Blocks and runs the main thread until the operation has completed.
     /// </summary>
     /// <returns>The result of the operation.</returns>
-    public Result Wait()
+    [MustUseReturnValue] public Result Wait()
     {
         Result = DoWait();
 
@@ -245,7 +246,7 @@ public abstract class Operation<T> : Operation
     /// <returns>The result of the operation.</returns>
     public new Result<T> Wait()
     {
-        base.Wait();
+        _ = base.Wait();
 
         return Result!;
     }

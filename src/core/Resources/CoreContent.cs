@@ -19,9 +19,9 @@ public class CoreContent : ResourceCatalog
     ///     Create a new instance of the core content catalog.
     /// </summary>
     public CoreContent() : base([
-        new StaticStructures(),
         new BlockLoader(),
         new FluidLoader(),
+        new StaticStructures(),
         new Generators()
     ]) {}
 }

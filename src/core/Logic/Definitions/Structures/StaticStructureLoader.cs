@@ -48,7 +48,7 @@ public sealed class StaticStructureLoader : IResourceLoader
                     structure => loaded.Add(structure),
                     exception => loaded.Add(new MissingResource(ResourceTypes.Structure, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception))));
             }
-        }).Wait();
+        }).Wait().ThrowIfError();
 
         return loaded;
     }

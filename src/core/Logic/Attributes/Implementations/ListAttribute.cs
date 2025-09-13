@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Nodes;
 using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
@@ -33,5 +34,19 @@ internal class ListAttribute<TElement>(IEnumerable<TElement> elements) : Attribu
     public override Property RetrieveRepresentation(Int32 index)
     {
         return new Message(Name, $"[{index}] = {elements[index]}");
+    }
+
+    public override JsonNode GetValues(State state)
+    {
+        return state.Get(this).ToString() ?? "";
+    }
+    
+    public override State SetValues(State state, JsonNode values)
+    {
+        foreach (TElement element in elements)
+            if (element.ToString() == values.GetValue<String>())
+                return state.With(this, element);
+        
+        return state;
     }
 }

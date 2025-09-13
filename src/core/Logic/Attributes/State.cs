@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
@@ -41,8 +42,12 @@ public record struct State(StateSet Owner, Int32 Index)
     /// <returns>The properties of this state, containing the attributes and their values.</returns>
     public IEnumerable<Property> CreateProperties()
     {
-        foreach (IScoped entry in Owner.Entries) // todo: filter out empty entries
+        foreach (IScoped entry in Owner.Entries)
+        {
+            if (entry.IsEmpty) continue;
+            
             yield return entry.GetRepresentation(this);
+        }
     }
 
     /// <summary>
@@ -91,5 +96,14 @@ public record struct State(StateSet Owner, Int32 Index)
         State newState = this;
         newState.Set(attribute, value);
         return newState;
+    }
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return $"{Block.NamedID}:{Index} [{Owner.GetJson(this).ToJsonString(new JsonSerializerOptions()
+        {
+            WriteIndented = false
+        })}]";
     }
 }

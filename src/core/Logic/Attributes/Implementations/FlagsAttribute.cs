@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Nodes;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Utilities;
 
@@ -37,5 +38,15 @@ internal class FlagsAttribute<TFlags> : AttributeImplementation<TFlags> where TF
         }
 
         return new Group(Name, flags);
+    }
+
+    public override JsonNode GetValues(State state)
+    {
+        return state.Get(this).ToString();
+    }
+    
+    public override State SetValues(State state, JsonNode values)
+    {
+        return Enum.TryParse(values.GetValue<String>(), out TFlags result) ? state.With(this, result) : state;
     }
 }

@@ -193,13 +193,8 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
 
             block = Blocks.Instance.Core.Air;
         }
-        
-        // todo: check if index is valid
-        
-        // todo: instead of storing state index, why not store serialized attributes?
-        // todo: also, add a way to get the attribute representation of a state as a string, the property system might be able to do that but add a utility to get it to the state itself
 
-        State state = block.States.GetStateByIndex(placement.StateIndex);
+        State state = block.States.SetJson(placement.State);
 
         content.Block = new BlockInstance(state);
 
@@ -259,18 +254,16 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
         for (var y = 0; y < Extents.Y; y++)
         for (var z = 0; z < Extents.Z; z++)
         {
-            Content? content = contents[x, y, z];
-
-            if (content == null) continue;
+            if (contents[x, y, z] is not {} content) continue;
 
             placements.Add(new Placement
             {
                 Position = new Vector {Values = [x, y, z]},
-                Block = content.Value.Block.Block.NamedID,
-                StateIndex = content.Value.Block.State.Index,
-                Fluid = content.Value.Fluid.Fluid.NamedID,
-                Level = (Int32) content.Value.Fluid.Level,
-                IsStatic = content.Value.Fluid.IsStatic
+                Block = content.Block.Block.NamedID,
+                State = content.Block.State.Owner.GetJson(content.Block.State),
+                Fluid = content.Fluid.Fluid.NamedID,
+                Level = (Int32) content.Fluid.Level,
+                IsStatic = content.Fluid.IsStatic
             });
         }
 
