@@ -5,16 +5,23 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Elements.Conventions;
+using VoxelGame.Core.Logic.Definitions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Manual;
 using VoxelGame.Manual.Modifiers;
 using VoxelGame.Manual.Utility;
+using VoxelGame.Toolkit.Utilities;
 using Section = VoxelGame.Manual.Section;
 
 namespace VoxelGame.Client.Application;
@@ -51,23 +58,55 @@ public static partial class ManualBuilder
         controls.Generate();
 
         Includable blocks = new("blocks", directory);
-        
-        // todo: adapt the manual generation to the new block system
-        // todo: it should display all the block properties
-        // todo: it should display all block behaviors, with the associated attributes
-        // todo: it should display the total number of block states
-        // todo: it should do grouping by convention
 
-        blocks.CreateSections(
-            Blocks.Instance.GetDocumentedValues<Block>(documentation),
-            ((Block block, String description) s) =>
-                Section.Create(s.block.Name,
-                    section =>
-                        section.Text(s.description).NewLine()
-                            .List(list => list
-                                .Item("ID:").Text(s.block.NamedID, TextStyle.Monospace)
-                                .Item("Solid:").Boolean(s.block.IsSolid)
-                                .Item("Interactions:").Boolean(s.block.IsInteractable))));
+        var categories = Blocks.Instance.Categories.Select(category => new
+        {
+            Name = Reflections.GetName(category.GetType()),
+            Category = category,
+            Description = documentation.GetTypeSummary(category.GetType())
+        });
+
+        blocks.CreateSections(categories,
+            category => Section.Create(category.Name, section =>
+            {
+                section.Text(category.Description).NewLine();
+
+                foreach (PropertyInfo contentInfo in Reflections.GetPropertiesOfType<IContent>(category.Category))
+                {
+                    var content = (IContent) contentInfo.GetValue(category.Category)!;
+                    String contentDescription = documentation.GetPropertySummary(contentInfo);
+
+                    switch (content)
+                    {
+                        case Block block:
+                            section.SubSection(block.Name, sub =>
+                                AddBlockDetails(sub.Text(contentDescription).NewLine(), block));
+                            break;
+
+                        case IConvention convention:
+                            section.SubSection(AddSpacesToPascalCase(contentInfo.Name), subSection =>
+                            {
+                                subSection.Text(contentDescription).NewLine();
+
+                                foreach (PropertyInfo blockInfo in Reflections.GetPropertiesOfType<Block>(convention))
+                                {
+                                    var block = blockInfo.GetValue(content) as Block;
+                                    String blockDescription = documentation.GetPropertySummary(blockInfo);
+
+                                    if (block == null)
+                                        continue;
+                                    
+                                    AddBlockDetails(subSection.Text($"{block.Name}: {blockDescription}").NewLine(), block).NewLine();
+                                }
+
+                                return subSection;
+                            });
+                            break;
+                    }
+                }
+
+                return section;
+            }));
 
         blocks.Generate();
 
@@ -87,6 +126,113 @@ public static partial class ManualBuilder
         fluids.Generate();
 
         LogSavedManual(logger, directory.FullName);
+    }
+
+    private static Chainable AddBlockDetails(Chainable chain, Block block)
+    {
+        return chain
+            .Table("ll",
+                table =>
+                {
+                    table
+                        .Row(row => row
+                            .Cell(cell => cell.Text("Named ID"))
+                            .Cell(cell => cell.Text(block.NamedID, TextStyle.Monospace)))
+                        .Row(row => row
+                            .Cell(cell => cell.Text("ID"))
+                            .Cell(cell => cell.Text(block.ID.ToString(CultureInfo.InvariantCulture), TextStyle.Monospace)))
+                        .Row(row => row
+                            .Cell(cell => cell.Text("State Count"))
+                            .Cell(cell => cell.Text(block.States.Count.ToString(CultureInfo.InvariantCulture))));
+
+                    foreach ((String name, Boolean value) in GetProperties(block))
+                    {
+                        table.Row(row => row
+                            .Cell(cell => cell.Text(name))
+                            .Cell(cell => cell.Boolean(value)));
+                    }
+                })
+            .NewLine()
+            .Text("Behaviors:")
+            .NewLine()
+            .Table("ll", table =>
+                {
+                    foreach ((String name, IEnumerable<String> attributes) in GetBehaviors(block))
+                    {
+                        table.Row(row =>
+                        {
+                            row.Cell(cell => cell.Text(name));
+                            
+                            List<String> list = attributes.ToList();
+
+                            if (list.Count > 0)
+                            {
+                                row.Cell(cell =>
+                                {
+                                    var first = true;
+                                    
+                                    foreach (String attribute in list)
+                                    {
+                                        if (!first) 
+                                            cell.Text(", ");
+                                        
+                                        cell.Text(attribute, TextStyle.Monospace).NewLine();
+                                        
+                                        first = false;
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                row.Cell(cell => cell.Text("—"));
+                            }
+                        });
+                    }
+                });
+    }
+
+    private static IEnumerable<(String, Boolean)> GetProperties(Block block)
+    {
+        yield return ("Opaque", block.IsOpaque);
+        yield return ("Mesh At Non Opaques", block.MeshFaceAtNonOpaques);
+        yield return ("Solid", block.IsSolid);
+        yield return ("Unshaded", block.IsUnshaded);
+        yield return ("Collider", block.IsCollider);
+        yield return ("Trigger", block.IsTrigger);
+        yield return ("Interactable", block.IsInteractable);
+    }
+
+    private static IEnumerable<(String, IEnumerable<String>)> GetBehaviors(Block block)
+    {
+        Dictionary<String, List<IAttribute>> attributes = [];
+
+        foreach (IScoped scoped in block.States.Entries)
+        {
+            if (scoped is not Scope scope) 
+                continue;
+
+            foreach (IScoped entry in scope.Entries)
+            {
+                if (entry is IAttribute attribute)
+                {
+                    attributes.GetOrAdd(scoped.Name, []).Add(attribute);
+                }
+            }
+        }
+        
+        foreach (BlockBehavior behavior in block.Behaviors)
+        {
+            String name = Reflections.GetLongName(behavior.GetType());
+            
+            yield return (Reflections.GetName(behavior.GetType()), attributes.GetValueOrDefault(name) is {Count: > 0} list
+                ? list.Select(attribute => attribute.Name)
+                : []);
+        }
+    }
+    
+    private static String AddSpacesToPascalCase(String name)
+    {
+        return String.Concat(name.Select((x, i) => i > 0 && Char.IsUpper(x) ? $" {x}" : $"{x}"));
     }
 
     #region LOGGING

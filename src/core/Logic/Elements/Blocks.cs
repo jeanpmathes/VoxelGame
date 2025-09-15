@@ -69,6 +69,11 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     public Fabricated Fabricated { get; } = categories.Register(new Fabricated(builder.CreateScoped()));
 
     /// <summary>
+    /// Get all categories of blocks defined in the game.
+    /// </summary>
+    public IEnumerable<Category> Categories => categories.Values;
+
+    /// <summary>
     /// Get the total number of blocks defined in the game.
     /// </summary>
     public UInt32 Count => (UInt32) builder.BlocksByID.Count;

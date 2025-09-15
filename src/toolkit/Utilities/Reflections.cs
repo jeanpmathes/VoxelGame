@@ -38,6 +38,42 @@ public static class Reflections
         if (type.Namespace is {} ns)
             builder.Append(ns).Append(value: '.');
 
+        builder.Append(GetName(type));
+
+        return builder.ToString();
+    }
+    
+    /// <summary>
+    /// Get the long name of a type with an instance name.
+    /// Different from <see cref="Type.FullName" /> for generic types.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <param name="instance">The instance name.</param>
+    /// <returns>The long name with instance.</returns>
+    public static String GetLongName(Type type, String instance)
+    {
+        return $"{GetLongName(type)}::{instance}";
+    }
+    
+    /// <summary>
+    /// Get the name of a type, handling generics and arrays properly.
+    /// </summary>
+    /// <typeparam name="T">The type.</typeparam>
+    /// <returns>The name of the type.</returns>
+    public static String GetName<T>() where T : notnull
+    {
+        return GetName(typeof(T));
+    }
+
+    /// <summary>
+    /// Get the name of a type, handling generics and arrays properly.
+    /// </summary>
+    /// <param name="type">The type.</param>
+    /// <returns>The name of the type.</returns>
+    public static String GetName(Type type)
+    {
+        StringBuilder builder = new();
+        
         if (type.IsGenericType)
         {
             String name = type.Name;
@@ -58,20 +94,8 @@ public static class Reflections
             if (type.IsArray)
                 builder.Append("[]");
         }
-
+        
         return builder.ToString();
-    }
-    
-    /// <summary>
-    /// Get the long name of a type with an instance name.
-    /// Different from <see cref="Type.FullName" /> for generic types.
-    /// </summary>
-    /// <param name="type">The type.</param>
-    /// <param name="instance">The instance name.</param>
-    /// <returns>The long name with instance.</returns>
-    public static String GetLongName(Type type, String instance)
-    {
-        return $"{GetLongName(type)}::{instance}";
     }
 
     /// <summary>
@@ -101,7 +125,7 @@ public static class Reflections
     }
 
     /// <summary>
-    ///     Get all properties of an object that have a certain type.
+    ///     Get all properties of an object that have a certain type or can be assigned to it.
     /// </summary>
     /// <typeparam name="T">The type of the properties.</typeparam>
     /// <param name="target">The object to get the properties from.</param>
@@ -111,7 +135,7 @@ public static class Reflections
         Type filterType = typeof(T);
 
         return target.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
-            .Where(info => info.PropertyType == filterType);
+            .Where(info => filterType.IsAssignableFrom(info.PropertyType));
     }
 
     /// <summary>
