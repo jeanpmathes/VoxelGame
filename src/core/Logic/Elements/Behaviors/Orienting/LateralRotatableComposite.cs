@@ -147,7 +147,7 @@ public class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatab
         if (oldSize != newSize)
             ResizeComposite(message.World, root, oldSize, newSize, orientation, newState);
         else if (message.OldContent.Block.State != message.NewContent.Block.State)
-            SetStateOnAllParts(message.World, newState, newSize, orientation, root, currentPart);
+            SetStateOnAllParts(message.World, newSize, root, currentPart, orientation, newState);
     }
 
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
@@ -204,7 +204,7 @@ public class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatab
         }
     }
 
-    private void SetStateOnAllParts(World world, State state, Vector3i size, Orientation orientation, Vector3i root, Vector3i exclude)
+    private void SetStateOnAllParts(World world, Vector3i size, Vector3i root, Vector3i exclude, Orientation orientation, State state)
     {
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)

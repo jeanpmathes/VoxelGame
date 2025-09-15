@@ -62,7 +62,7 @@ public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     /// <inheritdoc/>
     protected override void OnValidate(IValidator validator)
     {
-        if (!Subject.Has<Wet>())
+        if (!Subject.Is<Wet>())
         {
             validator.ReportWarning("Soil blocks must be able to get wet in some way, preferably with visual representation of that");
         }

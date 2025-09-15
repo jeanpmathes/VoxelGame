@@ -44,7 +44,7 @@ public class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBeha
         
         BlockInstance? ground = world.GetBlock(position.Below());
         
-        return ground?.Block.Has<Plantable>() == true;
+        return ground?.Block.Is<Plantable>() == true;
     }
     
     private void OnNeighborUpdate(Composite.NeighborUpdateMessage message)
@@ -55,7 +55,7 @@ public class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBeha
         if (message.Side != Side.Bottom)
             return;
         
-        if (message.World.GetBlock(message.Position.Below())?.Block.Has<Plantable>() != true)
+        if (message.World.GetBlock(message.Position.Below())?.Block.Is<Plantable>() != true)
             Subject.Destroy(message.World, message.Position);
     }
 }

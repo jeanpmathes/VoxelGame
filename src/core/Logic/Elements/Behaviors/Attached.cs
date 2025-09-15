@@ -46,7 +46,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     /// Get whether the block is attached by any other means not covered by this behavior.
     /// Does not have an effect if the mode is <see cref="AttachmentMode.Multi"/>.
     /// </summary>
-    public Aspect<Boolean, (World world, Vector3i position, State state)> IsOtherwiseAttached { get; } // todo: go through tuples like this and enforce uniform order, or maybe add it to the analyzer note
+    public Aspect<Boolean, (World world, Vector3i position, State state)> IsOtherwiseAttached { get; }
 
     /// <summary>
     /// Describes how the block can be attached.

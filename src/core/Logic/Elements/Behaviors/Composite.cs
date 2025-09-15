@@ -215,7 +215,7 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
         if (oldSize != newSize)
             ResizeComposite(message.World, message.Position - currentPart, oldSize, newSize, newState);
         else if (message.OldContent.Block.State != message.NewContent.Block.State)
-            SetStateOnAllParts(message.World, message.NewContent.Block.State, newSize, message.Position - currentPart, currentPart);
+            SetStateOnAllParts(message.World, newSize, message.Position - currentPart, currentPart, message.NewContent.Block.State);
     }
     
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
@@ -273,7 +273,7 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
         }
     }
     
-    private void SetStateOnAllParts(World world, State state, Vector3i size, Vector3i root, Vector3i exclude)
+    private void SetStateOnAllParts(World world, Vector3i size, Vector3i root, Vector3i exclude, State state)
     {
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)

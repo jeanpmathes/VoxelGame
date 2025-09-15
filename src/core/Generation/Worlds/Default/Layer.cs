@@ -96,7 +96,7 @@ public abstract class Layer
     /// </summary>
     public static Layer CreateSimple(Block block, Int32 width, Boolean isSolid)
     {
-        if (isSolid) Debug.Assert(!block.Has<Fillable>());
+        if (isSolid) Debug.Assert(!block.Is<Fillable>());
 
         return new Simple(block, width, isSolid);
     }

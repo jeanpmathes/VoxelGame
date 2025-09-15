@@ -130,7 +130,11 @@ public static class BehaviorSystem<TSubject, TBehavior>
         }
     }
 
-    private static void EnsureNotBaked()
+    /// <summary>
+    /// Ensure the behavior system is not yet baked, throwing an exception if it is.
+    /// </summary>
+    /// <exception cref="Exception">The exception is thrown if the behavior system is already baked.</exception>
+    public static void EnsureNotBaked()
     {
         if (isBaked)
             throw Exceptions.InvalidOperation("Behavior system already baked.");

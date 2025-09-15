@@ -34,7 +34,7 @@ public record struct State(StateSet Owner, Int32 Index)
     /// <summary>
     /// Ugly fix to pretend that some states can have a fluid associated with them.
     /// </summary>
-    public Fluid? Fluid => Owner.Block.Has<Fillable>() && Index % 2 == 0 ? Fluids.Instance.FreshWater : null;
+    public Fluid? Fluid => Owner.Block.Is<Fillable>() && Index % 2 == 0 ? Fluids.Instance.FreshWater : null;
 
     /// <summary>
     ///     Get the properties of this state, which are the attributes and their values for this state.

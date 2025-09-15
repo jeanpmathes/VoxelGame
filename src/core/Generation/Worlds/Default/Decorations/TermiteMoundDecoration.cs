@@ -54,7 +54,7 @@ public class TermiteMoundDecoration : Decoration
             if (content is not {Block: var block})
                 continue;
 
-            if (block.IsReplaceable || block.Block.Has<Soil>())
+            if (block.IsReplaceable || block.Block.Is<Soil>())
                 grid.SetContent(new Content(Blocks.Instance.Organic.TermiteMound), current);
         }
     }

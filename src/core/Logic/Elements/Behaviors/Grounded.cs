@@ -80,6 +80,6 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
         Vector3i positionBelow = position.Below();
         BlockInstance blockBelow = world.GetBlock(positionBelow) ?? BlockInstance.Default;
 
-        return blockBelow.IsFullySolid || blockBelow.Block.Has<CompletableGround>();
+        return blockBelow.IsFullySolid || blockBelow.Block.Is<CompletableGround>();
     }
 }

@@ -532,7 +532,7 @@ public sealed partial class Generator : IWorldGenerator
     private static Content FillContent(Content content)
     {
         if (!content.Fluid.IsEmpty) return content;
-        if (!content.Block.Block.Has<Fillable>()) return content;
+        if (!content.Block.Block.Is<Fillable>()) return content;
 
         return content with {Fluid = Fluids.Instance.SeaWater.AsInstance()};
     }

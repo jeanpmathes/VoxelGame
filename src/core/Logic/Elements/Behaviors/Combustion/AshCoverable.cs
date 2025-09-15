@@ -36,7 +36,7 @@ public class AshCoverable : BlockBehavior, IBehavior<AshCoverable, BlockBehavior
         if (!AshCover.HasSubscribers) 
             validator.ReportWarning("No operation registered to cover the block with ash");
         
-        if (Subject.Has<Combustible>())
+        if (Subject.Is<Combustible>())
             validator.ReportWarning("Combustible blocks should not be coverable with ash as they burn instead");
     }
 
@@ -68,7 +68,7 @@ public class AshCoverable : BlockBehavior, IBehavior<AshCoverable, BlockBehavior
     /// <param name="position">The position of the block to cover with ash.</param>
     public void CoverWithAsh(World world, Vector3i position)
     {
-        if (!AshCover.HasSubscribers) return; // todo: add idea to custom analyzer note that publish must always be preceded by subscriber count check
+        if (!AshCover.HasSubscribers) return;
         
         AshCoverMessage message = new(this)
         {

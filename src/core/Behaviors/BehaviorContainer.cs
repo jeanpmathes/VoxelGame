@@ -12,7 +12,6 @@ using System.Runtime.CompilerServices;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Behaviors;
 
@@ -39,9 +38,9 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
     /// <inheritdoc /> 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Boolean Has<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
+    public Boolean Is<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
-        return Get<TConcreteBehavior>() != null; // todo: think renaming Has to Is
+        return Get<TConcreteBehavior>() != null;
     }
 
     /// <inheritdoc />
@@ -61,7 +60,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     /// <inheritdoc />
     public TConcreteBehavior Require<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
-        // todo: ensure not called after baking
+        BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
         
         var behavior = Get<TConcreteBehavior>();
 

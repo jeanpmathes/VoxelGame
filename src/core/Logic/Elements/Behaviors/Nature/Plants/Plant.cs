@@ -76,7 +76,7 @@ public class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Block>
         
         BlockInstance? ground = world.GetBlock(position.Below());
         
-        return ground?.Block.Has<Plantable>() == true;
+        return ground?.Block.Is<Plantable>() == true;
     }
 
     private State GetPlacementState(State state, (World world, Vector3i position, Actor? actor) context)
@@ -95,7 +95,7 @@ public class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Block>
         if (message.Side != Side.Bottom)
             return;
         
-        if (message.World.GetBlock(message.Position.Below())?.Block.Has<Plantable>() != true)
+        if (message.World.GetBlock(message.Position.Below())?.Block.Is<Plantable>() != true)
             Subject.Destroy(message.World, message.Position);
     }
 }

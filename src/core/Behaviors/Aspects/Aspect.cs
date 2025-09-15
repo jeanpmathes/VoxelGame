@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using VoxelGame.Core.Behaviors.Events;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Behaviors.Aspects;
 
@@ -20,12 +19,9 @@ namespace VoxelGame.Core.Behaviors.Aspects;
 /// <typeparam name="TContext">The type of context in which the aspect is evaluated.</typeparam>
 public class Aspect<TValue, TContext> 
 {
-    // todo: think about precomputing all / some aspects that use State as context, aspects could register them with a generic aspect registry
-
     private readonly String name;
     private readonly Int32 maxContributors;
     private readonly IContributionStrategy<TValue, TContext> strategy;
-    private readonly IAspectable owner;
 
     private readonly List<IContributor<TValue, TContext>> usedContributors = [];
     private readonly List<IContributor<TValue, TContext>> rejectedContributors = [];
@@ -37,8 +33,7 @@ public class Aspect<TValue, TContext>
         this.name = name;
         this.maxContributors = maxContributors;
         this.strategy = strategy;
-        this.owner = owner;
-        
+
         owner.Validation += OnValidation;
     }
 

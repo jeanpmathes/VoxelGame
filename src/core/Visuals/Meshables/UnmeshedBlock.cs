@@ -31,7 +31,7 @@ public class UnmeshedBlock : Block
     /// <inheritdoc />
     protected override void OnValidate()
     {
-        if (Has<Meshed>()) Debug.Fail("cringe bro");
+        if (Is<Meshed>()) Debug.Fail("cringe bro");
             // todo: use proper validation (through the resource context or whatever) here as meshed behavior does not make sense for unmeshed blocks
     }
 

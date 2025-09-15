@@ -67,7 +67,7 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
     /// <inheritdoc/>
     protected override void OnValidate(IValidator validator)
     {
-        if (!Subject.Has<Meshables.PartialHeight>()) 
+        if (!Subject.Is<Meshables.PartialHeight>()) 
             validator.ReportWarning("Partial height blocks should use the corresponding meshing behavior");
     }
 

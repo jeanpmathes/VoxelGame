@@ -37,7 +37,7 @@ public interface IHasBehaviors<TSubject, TBehavior> : IHasBehaviors
     /// </summary>
     /// <typeparam name="TConcreteBehavior">The concrete behavior type to check for.</typeparam>
     /// <returns><c>true</c> if the subject has the specified behavior; otherwise, <c>false</c>.</returns>
-    public Boolean Has<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
+    public Boolean Is<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
 
     /// <summary>
     ///     Get the behavior of the specified concrete type if it exists, otherwise returns <c>null</c>.
