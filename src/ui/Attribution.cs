@@ -66,7 +66,7 @@ public sealed class Attribution : IResource, ILocated
         // Nothing to dispose.
     }
 
-    #endregion
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Creates a document from the attribution.

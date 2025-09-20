@@ -642,5 +642,5 @@ public sealed partial class Generator : IWorldGenerator
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

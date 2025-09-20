@@ -33,7 +33,7 @@ public class Targeting : ActorComponent, IConstructible<Actor, Targeting>
     public Boolean HasTarget { get; set; }
     
     /// <summary>
-    ///     The targeted side, or <see cref="Core.Logic.Elements.Side.All" /> if no side is targeted.
+    ///     The targeted side, or <see cref="Logic.Elements.Side.All" /> if no side is targeted.
     /// </summary>
     public Side Side { get; set; }
 

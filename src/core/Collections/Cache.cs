@@ -180,5 +180,5 @@ public sealed class DisposableCache<TK, TV> : Cache<TK, TV>, IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

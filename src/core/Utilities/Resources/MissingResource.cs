@@ -31,5 +31,5 @@ public sealed class MissingResource(ResourceType type, RID identifier, ResourceI
         // Nothing to dispose.
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

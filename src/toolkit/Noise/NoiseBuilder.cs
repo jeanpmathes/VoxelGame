@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Toolkit.Noise;
@@ -124,7 +125,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
         return this;
     }
 
-    #region IFractalNoiseBuilder
+    #region FRACTALS
 
     IFractalNoiseBuilder IFractalNoiseBuilder.WithOctaves(Int32 octaves)
     {
@@ -154,5 +155,5 @@ public class NoiseBuilder : IFractalNoiseBuilder
         return this;
     }
 
-    #endregion IFractalNoiseBuilder
+    #endregion FRACTALS
 }

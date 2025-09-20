@@ -232,5 +232,5 @@ public sealed partial class CommandInvoker : IResource
     [LoggerMessage(EventId = LogID.CommandInvoker + 7, Level = LogLevel.Error, Message = "Error while invoking command '{Command}'")]
     private static partial void LogErrorInvokingCommand(ILogger logger, Exception? exception, String command);
 
-    #endregion
+    #endregion LOGGING
 }

@@ -1094,5 +1094,5 @@ public sealed partial class Map : IMap, IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

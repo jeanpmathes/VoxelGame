@@ -108,6 +108,8 @@
         </Compile>
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" />
+        <ProjectReference Include="..\generators\VoxelGame.Generators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
         <ProjectReference Include="..\toolkit\VoxelGame.Toolkit.csproj"/>
     </ItemGroup>

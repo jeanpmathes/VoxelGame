@@ -41,7 +41,7 @@ public sealed class GenerationContext(Generator generator, ChunkPosition hint) :
         generator.GenerateStructures(section, columns);
     }
 
-    #region Disposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

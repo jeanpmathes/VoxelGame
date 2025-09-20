@@ -284,5 +284,5 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         disposed = true;
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

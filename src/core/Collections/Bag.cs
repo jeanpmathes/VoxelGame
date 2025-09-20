@@ -131,7 +131,7 @@ public class Bag<T> : IEnumerable<T>
         return index;
     }
 
-    #region IEnumerable
+    #region ENUMERABLE
 
     /// <summary>
     ///     The internally-used enumerator.
@@ -232,5 +232,5 @@ public class Bag<T> : IEnumerable<T>
         return GetEnumerator();
     }
 
-    #endregion IEnumerable
+    #endregion ENUMERABLE
 }

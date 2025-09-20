@@ -5,6 +5,7 @@
 // </copyright>
 // <author>Microsoft Corporation</author>
 
+using System;
 using System.Runtime.InteropServices;
 
 namespace VoxelGame.Graphics.Definition;

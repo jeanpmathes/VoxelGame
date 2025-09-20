@@ -55,7 +55,7 @@ public class SideArray<T> : IEnumerable<T>
         return GetRef(side);
     }
 
-    #region IEnumerable
+    #region ENUMERABLE
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator()
     {
@@ -152,6 +152,6 @@ public class SideArray<T> : IEnumerable<T>
 
         #endregion EQUALITY
     }
-
-    #endregion
+    
+    #endregion ENUMERABLE
 }

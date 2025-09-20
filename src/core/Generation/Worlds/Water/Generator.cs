@@ -132,5 +132,5 @@ public sealed class Generator : IWorldGenerator
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

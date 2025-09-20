@@ -127,7 +127,7 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
 
     #endregion EQUALITY
 
-    #region Comparable Support
+    #region COMPARABLE
 
     /// <inheritdoc />
     public Int32 CompareTo(RequestLevel other)
@@ -135,7 +135,7 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
         return level.CompareTo(other.level);
     }
 
-    #endregion Comparable Support
+    #endregion COMPARABLE
 
     #region OPERATORS
 

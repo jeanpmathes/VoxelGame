@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Runtime.InteropServices.Marshalling;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Toolkit.Interop;

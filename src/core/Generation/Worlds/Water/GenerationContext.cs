@@ -32,7 +32,7 @@ public sealed class GenerationContext(Generator generator) : IGenerationContext
         // No structures to generate.
     }
 
-    #region Disposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

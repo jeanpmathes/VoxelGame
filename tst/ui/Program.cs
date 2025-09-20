@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.IO;
 using Gwen.Net.Tests.Components;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;

@@ -23,7 +23,7 @@ public partial class Chunk
     [LoggerMessage(EventId = LogID.ChunkStates + 0, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
     private static partial void LogChunkMeshingError(ILogger logger, Exception exception, ChunkPosition position);
 
-    #endregion
+    #endregion LOGGING
 
     /// <summary>
     ///     Utility to allow easier access without casting.

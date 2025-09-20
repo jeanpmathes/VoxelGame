@@ -25,7 +25,7 @@ public sealed class DecorationContext(Generator generator) : IDecorationContext
         // No decorations to place.
     }
 
-    #region Disposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

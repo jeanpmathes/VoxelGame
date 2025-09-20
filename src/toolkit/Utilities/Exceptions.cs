@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.ComponentModel;
 using System.Diagnostics;
 
@@ -116,7 +117,7 @@ public static class Exceptions
     /// </summary>
     /// <param name="field">The name of the field that is not initialized.</param>
     /// <returns>The exception.</returns>
-    public static Exception NotInitialized(String field)
+    public static Exception NotInitialized(String field) // todo: remove
     {
         return new InvalidOperationException($"The field '{field}' is not initialized. Please ensure it is set before use.");
     }
