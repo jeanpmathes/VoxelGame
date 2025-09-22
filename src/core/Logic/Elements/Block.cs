@@ -322,7 +322,7 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
         }
         else if (Meshable != meshable.Type)
         {
-            validator.ReportWarning($"Meshable type {meshable.Type} does not match the declared meshable type {Meshable}");
+            validator.ReportWarning($"Meshable type {meshable.Type.ToStringFast()} does not match the declared meshable type {Meshable.ToStringFast()}");
         }
 
         OnValidate();

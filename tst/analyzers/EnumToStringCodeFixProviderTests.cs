@@ -1,3 +1,9 @@
+// <copyright file="EnumToStringCodeFixProviderTests.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
 using System;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Testing;

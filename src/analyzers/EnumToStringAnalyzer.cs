@@ -20,12 +20,18 @@ namespace VoxelGame.Analyzers;
 public class EnumToStringAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>
-    /// The ID of diagnostics produced by this analyzer.
+    /// The ID of diagnostics produced for <see cref="Enum.ToString()"/> by this analyzer.
     /// </summary>
-    public const String DiagnosticID = "VG0001";
+    public const String ToStringDiagnosticID = "VG0001";
+    
+    /// <summary>
+    /// The ID of diagnostics produced for string interpolation by this analyzer.
+    /// </summary>
+    public const String InterpolationDiagnosticID = "VG0002";
+    
     private const String Category = "Usage";
     
-    private static readonly DiagnosticDescriptor rule = new(DiagnosticID,
+    private static readonly DiagnosticDescriptor toStringRule = new(ToStringDiagnosticID,
         "Use Enum.ToStringFast()",
         "Enum.ToString() used, prefer Enum.ToStringFast() for better performance",
         Category,
@@ -33,9 +39,17 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
         isEnabledByDefault: true,
         description: "Using Enum.ToStringFast() is significantly faster than Enum.ToString() and should be preferred in performance critical code.");
 
+    private static readonly DiagnosticDescriptor interpolationRule = new(InterpolationDiagnosticID,
+        "Use Enum.ToStringFast() in string interpolation",
+        "Enum used in string interpolation, consider using Enum.ToStringFast() for better performance",
+        Category,
+        DiagnosticSeverity.Warning,
+        isEnabledByDefault: true,
+        description: "Using Enum.ToStringFast() is significantly faster than Enum.ToString() and should be preferred in performance critical code.");
+    
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
-        ImmutableArray.Create(rule);
+        ImmutableArray.Create(toStringRule, interpolationRule);
 
     /// <inheritdoc />
     public override void Initialize(AnalysisContext context)
@@ -44,9 +58,7 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
         context.EnableConcurrentExecution();
         
         context.RegisterOperationAction(AnalyzeOperation, OperationKind.Invocation);
-        
-        // todo: think about string conversion in string interpolation, maybe use a new diagnostic for that
-        // todo: also check the current case in FlagsAttribute.cs where the code fix does not work well
+        context.RegisterOperationAction(AnalyzeInterpolation, OperationKind.Interpolation);
     }
     
     private static void AnalyzeOperation(OperationAnalysisContext context)
@@ -67,7 +79,21 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
         if (receiverType is ITypeParameterSymbol)
             return;
 
-        var diagnostic = Diagnostic.Create(rule, invocationSyntax.GetLocation());
+        var diagnostic = Diagnostic.Create(toStringRule, invocationSyntax.GetLocation());
+        context.ReportDiagnostic(diagnostic);
+    }
+    
+    private static void AnalyzeInterpolation(OperationAnalysisContext context)
+    {
+        if (context.Operation is not IInterpolationOperation interpolationOperation ||
+            context.Operation.Syntax is not InterpolationSyntax interpolationSyntax)
+            return;
+
+        ITypeSymbol? typeSymbol = interpolationOperation.Expression.Type;
+        if (typeSymbol is null || typeSymbol.TypeKind != TypeKind.Enum)
+            return;
+
+        var diagnostic = Diagnostic.Create(interpolationRule, interpolationSyntax.GetLocation());
         context.ReportDiagnostic(diagnostic);
     }
     

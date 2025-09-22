@@ -27,7 +27,7 @@ public class EnumToStringCodeFixProvider : CodeFixProvider
 {
     /// <inheritdoc />
     public sealed override ImmutableArray<String> FixableDiagnosticIds { get; } =
-        ImmutableArray.Create(EnumToStringAnalyzer.DiagnosticID);
+        ImmutableArray.Create(EnumToStringAnalyzer.ToStringDiagnosticID);
     
     /// <inheritdoc />
     public override FixAllProvider? GetFixAllProvider() => null;
