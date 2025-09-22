@@ -6,7 +6,7 @@
 
 using System.Text;
 
-namespace VoxelGame.Generators.Utilities;
+namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
 /// Tools to help with generating source code.

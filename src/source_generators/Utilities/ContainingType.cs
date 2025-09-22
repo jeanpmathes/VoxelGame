@@ -6,7 +6,7 @@
 
 using System;
 
-namespace VoxelGame.Generators.Utilities;
+namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
 /// Class to represent the containing type of declarations, able to handle nested types.

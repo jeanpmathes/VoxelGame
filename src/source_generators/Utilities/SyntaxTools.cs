@@ -9,7 +9,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace VoxelGame.Generators.Utilities;
+namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
 /// Helps with working with syntax nodes.

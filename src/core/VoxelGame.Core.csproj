@@ -108,10 +108,10 @@
         </Compile>
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" />
-        <ProjectReference Include="..\generators\VoxelGame.Generators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
         <ProjectReference Include="..\toolkit\VoxelGame.Toolkit.csproj"/>
+        <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\analyzers\VoxelGame.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
     </ItemGroup>
     <ItemGroup>
         <EmbeddedResource Update="Resources\Language\Language.resx">

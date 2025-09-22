@@ -7,7 +7,7 @@
 using Microsoft.CodeAnalysis;
 using VoxelGame.Annotations;
 
-namespace VoxelGame.Generators.Generators;
+namespace VoxelGame.SourceGenerators.Generators;
 
 /// <summary>
 /// Generates a non-nullable property over a *nullable* field marked with <see cref="LateInitializationAttribute"/>.

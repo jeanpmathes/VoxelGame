@@ -7,7 +7,7 @@
 using System;
 using Microsoft.CodeAnalysis;
 
-namespace VoxelGame.Generators.Utilities;
+namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
 /// Wraps an integer constant for comparison, e.g. for enum values.

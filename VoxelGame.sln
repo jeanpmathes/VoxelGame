@@ -29,9 +29,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Toolkit", "src\to
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Toolkit.Tests", "tst\toolkit\VoxelGame.Toolkit.Tests.csproj", "{51BFE3E1-4AE6-46DE-A170-B37A27B9F830}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Generators", "src\generators\VoxelGame.Generators.csproj", "{F1CDDD1E-B19F-497A-A910-EBF689573DFA}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Annotations", "src\annotations\VoxelGame.Annotations.csproj", "{FAD15943-5636-495E-BB39-5E91E2354B12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.SourceGenerators", "src\source_generators\VoxelGame.SourceGenerators.csproj", "{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Analyzers", "src\analyzers\VoxelGame.Analyzers.csproj", "{1286A429-B572-483F-A450-5B5433ED5628}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Analyzers.Tests", "tst\analyzers\VoxelGame.Analyzers.Tests.csproj", "{ACFAE256-BBD4-4A26-9452-95AC6893831D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.SourceGenerators.Tests", "tst\source_generators\VoxelGame.SourceGenerators.Tests.csproj", "{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -129,14 +135,6 @@ Global
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Release|x64.Build.0 = Release|x64
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Debug|x64.ActiveCfg = Release|x64
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Debug|x64.Build.0 = Release|x64
-		{F1CDDD1E-B19F-497A-A910-EBF689573DFA}.Debug|x64.ActiveCfg = Debug|x64
-		{F1CDDD1E-B19F-497A-A910-EBF689573DFA}.Debug|x64.Build.0 = Debug|x64
-		{F1CDDD1E-B19F-497A-A910-EBF689573DFA}.Manual|x64.ActiveCfg = Debug|x64
-		{F1CDDD1E-B19F-497A-A910-EBF689573DFA}.Manual|x64.Build.0 = Debug|x64
-		{F1CDDD1E-B19F-497A-A910-EBF689573DFA}.Release|x64.ActiveCfg = Release|x64
-		{F1CDDD1E-B19F-497A-A910-EBF689573DFA}.Release|x64.Build.0 = Release|x64
-		{F1CDDD1E-B19F-497A-A910-EBF689573DFA}.Test|x64.ActiveCfg = Debug|x64
-		{F1CDDD1E-B19F-497A-A910-EBF689573DFA}.Test|x64.Build.0 = Debug|x64
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Debug|x64.ActiveCfg = Debug|x64
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Debug|x64.Build.0 = Debug|x64
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Manual|x64.ActiveCfg = Debug|x64
@@ -145,6 +143,38 @@ Global
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Release|x64.Build.0 = Release|x64
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Test|x64.ActiveCfg = Debug|x64
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Test|x64.Build.0 = Debug|x64
+		{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}.Debug|x64.Build.0 = Debug|Any CPU
+		{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}.Manual|x64.ActiveCfg = Debug|Any CPU
+		{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}.Manual|x64.Build.0 = Debug|Any CPU
+		{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}.Release|x64.ActiveCfg = Release|Any CPU
+		{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}.Release|x64.Build.0 = Release|Any CPU
+		{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}.Test|x64.ActiveCfg = Debug|Any CPU
+		{11EAC98C-85E2-41B1-AEB0-8A5843C585EA}.Test|x64.Build.0 = Debug|Any CPU
+		{1286A429-B572-483F-A450-5B5433ED5628}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1286A429-B572-483F-A450-5B5433ED5628}.Debug|x64.Build.0 = Debug|Any CPU
+		{1286A429-B572-483F-A450-5B5433ED5628}.Manual|x64.ActiveCfg = Debug|Any CPU
+		{1286A429-B572-483F-A450-5B5433ED5628}.Manual|x64.Build.0 = Debug|Any CPU
+		{1286A429-B572-483F-A450-5B5433ED5628}.Release|x64.ActiveCfg = Release|Any CPU
+		{1286A429-B572-483F-A450-5B5433ED5628}.Release|x64.Build.0 = Release|Any CPU
+		{1286A429-B572-483F-A450-5B5433ED5628}.Test|x64.ActiveCfg = Debug|Any CPU
+		{1286A429-B572-483F-A450-5B5433ED5628}.Test|x64.Build.0 = Debug|Any CPU
+		{ACFAE256-BBD4-4A26-9452-95AC6893831D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{ACFAE256-BBD4-4A26-9452-95AC6893831D}.Debug|x64.Build.0 = Debug|Any CPU
+		{ACFAE256-BBD4-4A26-9452-95AC6893831D}.Manual|x64.ActiveCfg = Debug|Any CPU
+		{ACFAE256-BBD4-4A26-9452-95AC6893831D}.Manual|x64.Build.0 = Debug|Any CPU
+		{ACFAE256-BBD4-4A26-9452-95AC6893831D}.Release|x64.ActiveCfg = Release|Any CPU
+		{ACFAE256-BBD4-4A26-9452-95AC6893831D}.Release|x64.Build.0 = Release|Any CPU
+		{ACFAE256-BBD4-4A26-9452-95AC6893831D}.Test|x64.ActiveCfg = Debug|Any CPU
+		{ACFAE256-BBD4-4A26-9452-95AC6893831D}.Test|x64.Build.0 = Debug|Any CPU
+		{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}.Debug|x64.Build.0 = Debug|Any CPU
+		{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}.Manual|x64.ActiveCfg = Debug|Any CPU
+		{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}.Manual|x64.Build.0 = Debug|Any CPU
+		{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}.Release|x64.ActiveCfg = Release|Any CPU
+		{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}.Release|x64.Build.0 = Release|Any CPU
+		{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}.Test|x64.ActiveCfg = Debug|Any CPU
+		{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}.Test|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

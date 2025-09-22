@@ -7,7 +7,7 @@
 using System;
 using System.Text;
 
-namespace VoxelGame.Generators.Utilities;
+namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
 /// Tools to help working with names.

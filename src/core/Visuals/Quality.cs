@@ -62,6 +62,6 @@ public static class Qualities
     /// </summary>
     public static String Name(this Quality quality)
     {
-        return quality.ToString();
+        return quality.ToStringFast();
     }
 }
