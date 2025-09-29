@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
@@ -15,7 +16,7 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 /// <summary>
 /// Allows to modify the height by interacting with the block.
 /// </summary>
-public class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBehavior, Block>
+public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBehavior, Block>
 {
     private Modifiable(Block subject) : base(subject)
     {
@@ -78,8 +79,6 @@ public class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBehavior, Bl
         public State State { get; set; }
     }
 
-    /// <summary>
-    /// Called when the height of the block should be modified.
-    /// </summary>
-    public IEvent<ModifyHeightMessage> ModifyHeight { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<ModifyHeightMessage> ModifyHeight { get; set; } 
 }

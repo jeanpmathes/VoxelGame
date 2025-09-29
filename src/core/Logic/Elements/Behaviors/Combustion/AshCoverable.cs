@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 /// <summary>
 /// A block that is not <see cref="Combustible"/> but can be covered with ash if the block above it is burned.
 /// </summary>
-public class AshCoverable : BlockBehavior, IBehavior<AshCoverable, BlockBehavior, Block>
+public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, BlockBehavior, Block>
 {
     private AshCoverable(Block subject) : base(subject) {}
     
@@ -56,10 +57,8 @@ public class AshCoverable : BlockBehavior, IBehavior<AshCoverable, BlockBehavior
         public Vector3i Position { get; set; }
     }
 
-    /// <summary>
-    /// Called when the block should be covered with ash.
-    /// </summary>
-    public IEvent<AshCoverMessage> AshCover { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<AshCoverMessage> AshCover { get; set; } 
     
     /// <summary>
     /// Cover the block with ash.

@@ -46,6 +46,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" />
+        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" 
+                          OutputItemType="Analyzer"
+                          ReferenceOutputAssembly="true" />
     </ItemGroup>
 </Project>

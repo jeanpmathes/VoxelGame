@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Behaviors;
@@ -34,7 +35,7 @@ namespace VoxelGame.Core.Logic.Elements;
 ///     Blocks use the flyweight pattern, the world data only stores a state ID.
 ///     The state ID can be used to retrieve both the type of the block and its state.
 /// </summary>
-public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifiable<String>, IIdentifiable<UInt32>, IContent
+public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifiable<String>, IIdentifiable<UInt32>, IContent
 {
     private const Int32 ScheduledDestroyOffset = 5;
 
@@ -68,62 +69,39 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
     ///     The states of the block.
     /// </summary>
     public StateSet States { get; private set; } = null!;
+    
+    [LateInitialization]
+    private partial IEvent<ActorCollisionMessage> ActorCollision { get; set; }
 
-    /// <summary>
-    ///     Called when an actor collides with this block.
-    /// </summary>
-    public IEvent<ActorCollisionMessage> ActorCollision { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<ActorInteractionMessage> ActorInteraction { get; set; }
 
-    /// <summary>
-    ///     Called when an actor interacts with this block.
-    /// </summary>
-    public IEvent<ActorInteractionMessage> ActorInteraction { get; private set; } = null!; // todo: go through all event properties and make the private fields using late init
+    [LateInitialization]
+    private partial IEvent<PlacementMessage> Placement { get; set; } 
 
-    /// <summary>
-    ///     Called when the block is actually placed in the world.
-    /// </summary>
-    public IEvent<PlacementMessage> Placement { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<PlacementCompletedMessage> PlacementCompleted { get; set; }
 
-    /// <summary>
-    ///     Called after the block was placed in the world successfully.
-    /// </summary>
-    public IEvent<PlacementCompletedMessage> PlacementCompleted { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<DestructionMessage> Destruction { get; set; } 
 
-    /// <summary>
-    ///     Called when the block is actually destroyed in the world.
-    /// </summary>
-    public IEvent<DestructionMessage> Destruction { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<DestructionCompletedMessage> DestructionCompleted { get; set; }
 
-    /// <summary>
-    ///     Called after the block was destroyed in the world successfully.
-    /// </summary>
-    public IEvent<DestructionCompletedMessage> DestructionCompleted { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<ContentUpdateMessage> ContentUpdate { get; set; } // todo: rename to StateUpdate
 
-    /// <summary>
-    ///     Called when the content at a position changed, while the block did not change.
-    ///     It can be used to react to fluid changes and changes in the block state.
-    /// </summary>
-    public IEvent<ContentUpdateMessage> ContentUpdate { get; private set; } = null!; // todo: rename to StateUpdate
+    [LateInitialization]
+    private partial IEvent<NeighborUpdateMessage> NeighborUpdate { get; set; }
 
-    /// <summary>
-    ///     Called when a neighboring block is updated.
-    /// </summary>
-    public IEvent<NeighborUpdateMessage> NeighborUpdate { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<RandomUpdateMessage> RandomUpdate { get; set; }
 
-    /// <summary>
-    ///     Called for random updates, which occur on randomly selected blocks in the world.
-    /// </summary>
-    public IEvent<RandomUpdateMessage> RandomUpdate { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<ScheduledUpdateMessage> ScheduledUpdate { get; set; }
 
-    /// <summary>
-    ///     Called for scheduled updates, which can be requested by the block itself or by other systems.
-    /// </summary>
-    public IEvent<ScheduledUpdateMessage> ScheduledUpdate { get; private set; } = null!;
-
-    /// <summary>
-    ///     Called on every block in a freshly generated chunk.
-    /// </summary>
-    public IEvent<GeneratorUpdateMessage> GeneratorUpdate { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<GeneratorUpdateMessage> GeneratorUpdate { get; set; }
 
     /// <summary>
     ///     Whether the block is always full, meaning it occupies the entire voxel space it is in,
@@ -917,6 +895,7 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
 
     /// <summary>
     ///     Sent when the content at a position changes.
+    ///     Can be used to react to state and fluid changes.
     /// </summary>
     /// <param name="Sender">The block that sent the message.</param>
     public record ContentUpdateMessage(Object Sender) : IEventMessage // todo: maybe rename to StateUpdate

@@ -160,10 +160,8 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
         public Plantable Ground { get; set; } = null!;
     }
     
-    /// <summary>
-    /// Called when the plant receives a random update and has already reached the last stage.
-    /// </summary>
-    public IEvent<MatureUpdateMessage> MatureUpdate { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<MatureUpdateMessage> MatureUpdate { get; set; }
     
     /// <summary>
     /// Get the current growth stage of the plant from the given state.

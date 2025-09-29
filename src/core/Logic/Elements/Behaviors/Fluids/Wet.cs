@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
@@ -15,7 +16,7 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 /// <summary>
 /// Behavior of blocks that can be wet.
 /// </summary>
-public class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
+public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
 {
     private Wet(Block subject) : base(subject) {}
     
@@ -74,9 +75,6 @@ public class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
         public Vector3i Position { get; set; }
     }
 
-    /// <summary>
-    /// Called when a block becomes wet.
-    /// Could also be called when a block is already wet.
-    /// </summary>
-    public IEvent<BecomeWetMessage> BecomeWet { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<BecomeWetMessage> BecomeWet { get; set; }
 }

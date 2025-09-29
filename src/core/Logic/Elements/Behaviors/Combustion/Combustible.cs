@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 /// <summary>
 /// Makes a block able to be burned.
 /// </summary>
-public class Combustible : BlockBehavior, IBehavior<Combustible, BlockBehavior, Block>
+public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBehavior, Block>
 {
     private Combustible(Block subject) : base(subject) {}
     
@@ -83,8 +84,6 @@ public class Combustible : BlockBehavior, IBehavior<Combustible, BlockBehavior, 
         public Boolean Burned { get; set;  }
     }
     
-    /// <summary>
-    /// Called when a block is burned.
-    /// </summary>
-    public IEvent<BurnMessage> Burn { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<BurnMessage> Burn { get; set; }
 }

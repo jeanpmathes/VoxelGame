@@ -342,10 +342,8 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         public Side Side { get; set; }
     }
     
-    /// <summary>
-    /// Called when a neighboring position with a different block is updated.
-    /// </summary>
-    public IEvent<NeighborUpdateMessage> NeighborUpdate { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<NeighborUpdateMessage> NeighborUpdate { get; set; } 
 
     /// <summary>
     /// Sent after the composite block was placed in the world successfully.
@@ -373,8 +371,6 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         public Actor? Actor { get; set; }
     }
 
-    /// <summary>
-    /// Called after the composite block was placed in the world successfully.
-    /// </summary>
-    public IEvent<PlacementCompletedMessage> PlacementCompleted { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<PlacementCompletedMessage> PlacementCompleted { get; set; }
 }

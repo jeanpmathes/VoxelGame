@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 /// <summary>
 /// Provides rotated composite behavior for blocks that are both <see cref="Composite"/> and <see cref="LateralRotatable"/>.
 /// </summary>
-public class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatableComposite, BlockBehavior, Block>
+public partial class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatableComposite, BlockBehavior, Block>
 {
     private readonly Composite composite;
     private readonly LateralRotatable rotatable;
@@ -43,6 +44,13 @@ public class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatab
     public static LateralRotatableComposite Construct(Block input)
     {
         return new LateralRotatableComposite(input);
+    }
+    
+    /// <inheritdoc />
+    public override void DefineEvents(IEventRegistry registry)
+    {
+        NeighborUpdate = registry.RegisterEvent<Composite.NeighborUpdateMessage>();
+        PlacementCompleted = registry.RegisterEvent<Composite.PlacementCompletedMessage>();
     }
 
     /// <inheritdoc />
@@ -101,7 +109,7 @@ public class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatab
 
             message.World.SetBlock(new BlockInstance(state), position);
 
-            composite.PlacementCompleted.Publish(new Composite.PlacementCompletedMessage(Subject)
+            PlacementCompleted.Publish(new Composite.PlacementCompletedMessage(Subject)
             {
                 World = message.World,
                 Position = position,
@@ -165,7 +173,7 @@ public class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatab
 
         if (isPartOfComposite) return;
 
-        composite.NeighborUpdate.Publish(new Composite.NeighborUpdateMessage(Subject)
+        NeighborUpdate.Publish(new Composite.NeighborUpdateMessage(Subject)
         {
             World = message.World,
             Position = message.Position,
@@ -242,4 +250,10 @@ public class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatab
     {
         return PartState.GetValue(original, (original, part));
     }
+    
+    [LateInitialization]
+    private partial IEvent<Composite.NeighborUpdateMessage> NeighborUpdate { get; set; } 
+    
+    [LateInitialization]
+    private partial IEvent<Composite.PlacementCompletedMessage> PlacementCompleted { get; set; }
 }

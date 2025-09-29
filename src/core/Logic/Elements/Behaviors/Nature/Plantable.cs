@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -16,7 +17,7 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 /// <summary>
 /// The behavior for blocks that can support plant growth.
 /// </summary>
-public class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavior, Block>
+public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavior, Block>
 {
     private Plantable(Block subject) : base(subject)
     {
@@ -113,8 +114,6 @@ public class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavior, Bloc
         public Boolean CanGrow { get; set; } = false;
     }
 
-    /// <summary>
-    /// Called when a plant attempts to grow on this block.
-    /// </summary>
-    public IEvent<GrowthAttemptMessage> GrowthAttempt { get; private set; } = null!;
+    [LateInitialization]
+    private partial IEvent<GrowthAttemptMessage> GrowthAttempt { get; set; }
 }
