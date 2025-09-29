@@ -11,7 +11,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Operations;
 
-namespace VoxelGame.Analyzers;
+namespace VoxelGame.Analyzers.Analyzers;
 
 /// <summary>
 /// Enforces the usage of a custom enum to string conversion method instead of the default <see cref="Enum.ToString()"/>.

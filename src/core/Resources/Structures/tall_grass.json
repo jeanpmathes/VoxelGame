@@ -18,13 +18,13 @@
             "Block": "TallestGrass",
             "State": {
                 "VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants.Plant": {
-                    "isLowered": false
+                    "IsLowered": false
                 },
                 "VoxelGame.Core.Logic.Elements.Behaviors.Composite": {
-                    "part": {
-                        "x": 0,
-                        "y": 0,
-                        "z": 0
+                    "Part": {
+                        "X": 0,
+                        "Y": 0,
+                        "Z": 0
                     }
                 }
             },
@@ -43,13 +43,13 @@
             "Block": "TallestGrass",
             "State": {
                 "VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants.Plant": {
-                    "isLowered": false
+                    "IsLowered": false
                 },
                 "VoxelGame.Core.Logic.Elements.Behaviors.Composite": {
-                    "part": {
-                        "x": 0,
-                        "y": 1,
-                        "z": 0
+                    "Part": {
+                        "X": 0,
+                        "Y": 1,
+                        "Z": 0
                     }
                 }
             },

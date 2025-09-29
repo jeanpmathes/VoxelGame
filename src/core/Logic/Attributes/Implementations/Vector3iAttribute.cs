@@ -39,9 +39,9 @@ internal class Vector3iAttribute(Vector3i max) : AttributeImplementation<Vector3
     public override Property RetrieveRepresentation(Int32 index)
     {
         return new Group(Name, [
-            new Integer("x", Retrieve(index).X),
-            new Integer("y", Retrieve(index).Y),
-            new Integer("z", Retrieve(index).Z)
+            new Integer("X", Retrieve(index).X),
+            new Integer("Y", Retrieve(index).Y),
+            new Integer("Z", Retrieve(index).Z)
         ]);
     }
 
@@ -50,9 +50,9 @@ internal class Vector3iAttribute(Vector3i max) : AttributeImplementation<Vector3
         Vector3i vector = state.Get(this);
         JsonObject obj = new()
         {
-            ["x"] = vector.X,
-            ["y"] = vector.Y,
-            ["z"] = vector.Z
+            ["X"] = vector.X,
+            ["Y"] = vector.Y,
+            ["Z"] = vector.Z
         };
         return obj;
     }
@@ -61,9 +61,9 @@ internal class Vector3iAttribute(Vector3i max) : AttributeImplementation<Vector3
     {
         if (values is not JsonObject obj) return state;
 
-        Int32 x = obj["x"]?.GetValue<Int32>() ?? 0;
-        Int32 y = obj["y"]?.GetValue<Int32>() ?? 0;
-        Int32 z = obj["z"]?.GetValue<Int32>() ?? 0;
+        Int32 x = obj["X"]?.GetValue<Int32>() ?? 0;
+        Int32 y = obj["Y"]?.GetValue<Int32>() ?? 0;
+        Int32 z = obj["Z"]?.GetValue<Int32>() ?? 0;
 
         return state.With(this, new Vector3i(x, y, z));
     }

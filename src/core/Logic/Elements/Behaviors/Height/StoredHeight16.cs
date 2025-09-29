@@ -5,12 +5,12 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
@@ -18,10 +18,10 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 /// Defines the partial block height of a block as a stored attribute with 16 different states.
 /// </summary>
 /// <seealso cref="PartialHeight"/>
-public class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, BlockBehavior, Block>
+public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, BlockBehavior, Block>
 {
-    private IAttribute<Int32> Height => height ?? throw Exceptions.NotInitialized(nameof(height));
-    private IAttribute<Int32>? height;
+    [LateInitialization]
+    private partial IAttribute<Int32> Height { get; set; }
     
     /// <summary>
     /// The preferred height of the block at placement.
@@ -49,8 +49,8 @@ public class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, BlockBeha
     /// <inheritdoc/>
     public override void DefineState(IStateBuilder builder)
     {
-        height = builder
-            .Define(nameof(height))
+        Height = builder
+            .Define(nameof(Height))
             .Int32(PartialHeight.MinimumHeight, PartialHeight.MaximumHeight + 1)
             .Attribute(generationDefault: PartialHeight.MaximumHeight);
     }

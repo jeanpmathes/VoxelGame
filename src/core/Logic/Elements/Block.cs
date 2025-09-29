@@ -731,7 +731,7 @@ public abstract class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifi
     {
         return stateBoundingVolumes != null
             ? stateBoundingVolumes[state.Index]
-            : placementBoundingVolume ?? throw Exceptions.NotInitialized(nameof(placementBoundingVolume));
+            : placementBoundingVolume ?? throw Exceptions.InvalidOperation("Bounding volumes are not initialized.");
     }
 
     /// <summary>

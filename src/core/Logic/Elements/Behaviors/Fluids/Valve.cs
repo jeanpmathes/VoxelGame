@@ -6,25 +6,25 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
 /// <summary>
 /// Similar to a <see cref="Barrier"/>, but using <see cref="Modelled"/> blocks instead of textured ones.
 /// </summary>
-public class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Block>
+public partial class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Block>
 {
     // todo: valve and barrier do the same thing, merge both into a single behavior with conditonal require for Modelled or CubeTextured
     // todo: also fix that barrier does not change texture at all
     
-    private IAttribute<Boolean> IsOpen => isOpen ?? throw Exceptions.NotInitialized(nameof(isOpen));
-    private IAttribute<Boolean>? isOpen;
+    [LateInitialization]
+    private partial IAttribute<Boolean> IsOpen { get; set; }
     
     private Valve(Block subject) : base(subject)
     {
@@ -44,7 +44,7 @@ public class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Block>
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        isOpen = builder.Define(nameof(isOpen)).Boolean().Attribute();
+        IsOpen = builder.Define(nameof(IsOpen)).Boolean().Attribute();
     }
     
     /// <inheritdoc />

@@ -7,10 +7,11 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.Testing;
+using VoxelGame.Analyzers.Analyzers;
 using Xunit;
-using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.XUnit.AnalyzerVerifier<VoxelGame.Analyzers.EnumToStringAnalyzer>;
+using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<VoxelGame.Analyzers.Analyzers.EnumToStringAnalyzer, Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
 
-namespace VoxelGame.Analyzers.Tests;
+namespace VoxelGame.Analyzers.Tests.Analyzers;
 
 public class EnumToStringAnalyzerTests
 {

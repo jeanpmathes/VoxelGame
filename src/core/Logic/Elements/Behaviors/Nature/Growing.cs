@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -13,19 +14,18 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
 /// A block that grows upwards and requires a specific ground block to be placed on.
 /// </summary>
-public class Growing  : BlockBehavior, IBehavior<Growing, BlockBehavior, Block>
+public partial class Growing  : BlockBehavior, IBehavior<Growing, BlockBehavior, Block>
 {
     private Block requiredGround = null!;
 
-    private IAttribute<Int32> Age => age ?? throw Exceptions.NotInitialized(nameof(age));
-    private IAttribute<Int32>? age;
+    [LateInitialization]
+    private partial IAttribute<Int32> Age { get; set; }
 
     private const Int32 MaxAge = 7;
     private const Int32 MaxHeight = 4;
@@ -62,7 +62,7 @@ public class Growing  : BlockBehavior, IBehavior<Growing, BlockBehavior, Block>
     /// <inheritdoc/>
     public override void DefineState(IStateBuilder builder)
     {
-        age = builder.Define(nameof(age)).Int32(min: 0, MaxAge + 1).Attribute();
+        Age = builder.Define(nameof(Age)).Int32(min: 0, MaxAge + 1).Attribute();
     }
 
     /// <inheritdoc/>

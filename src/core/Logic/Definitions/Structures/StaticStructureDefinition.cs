@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Text.Json.Nodes;
 using VoxelGame.Core.Logic.Elements;
 

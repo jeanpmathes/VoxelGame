@@ -1740,7 +1740,7 @@
         "Block": "GraniteDecorated",
         "State": {
             "VoxelGame.Core.Logic.Elements.Behaviors.Orienting.LateralRotatable": {
-                "orientation": "East"
+                "Orientation": "East"
             }
         },
       "Fluid": "None",
@@ -1786,7 +1786,7 @@
         "Block": "GraniteDecorated",
         "State": {
             "VoxelGame.Core.Logic.Elements.Behaviors.Orienting.LateralRotatable": {
-                "orientation": "South"
+                "Orientation": "South"
             }
         },
       "Fluid": "None",
@@ -1832,7 +1832,7 @@
         "Block": "GraniteDecorated",
         "State": {
             "VoxelGame.Core.Logic.Elements.Behaviors.Orienting.LateralRotatable": {
-                "orientation": "East"
+                "Orientation": "East"
             }
         },
       "Fluid": "None",
@@ -1892,7 +1892,7 @@
         "Block": "GraniteDecorated",
         "State": {
             "VoxelGame.Core.Logic.Elements.Behaviors.Orienting.LateralRotatable": {
-                "orientation": "North"
+                "Orientation": "North"
             }
         },
       "Fluid": "None",

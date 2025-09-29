@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -15,7 +16,6 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 using PartialHeight = VoxelGame.Core.Logic.Elements.Behaviors.Height.PartialHeight;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
@@ -24,10 +24,10 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 /// Basic behavior for plant blocks.
 /// Assumes and supports <see cref="Foliage"/> rendering.
 /// </summary>
-public class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Block>
+public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Block>
 {
-    private IAttribute<Boolean> IsLowered => isLowered ?? throw Exceptions.NotInitialized(nameof(isLowered));
-    private IAttribute<Boolean>? isLowered;
+    [LateInitialization]
+    private partial IAttribute<Boolean> IsLowered { get; set; }
 
     private Boolean isComposite;
     
@@ -58,7 +58,7 @@ public class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Block>
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        isLowered = builder.Define(nameof(isLowered)).Boolean().Attribute();
+        IsLowered = builder.Define(nameof(IsLowered)).Boolean().Attribute();
     }
 
     /// <inheritdoc />

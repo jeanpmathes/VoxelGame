@@ -43,5 +43,11 @@
         <PackageReference Include="OpenTK.Mathematics" Version="4.9.3"/>
         <PackageReference Include="Serilog.Extensions.Logging.File" Version="3.0.0"/>
     </ItemGroup>
+    
+    <ItemGroup>
+        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" />
+        <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\analyzers\VoxelGame.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+    </ItemGroup>
 
 </Project>

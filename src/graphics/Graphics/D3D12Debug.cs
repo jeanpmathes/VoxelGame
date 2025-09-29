@@ -9,6 +9,7 @@ using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Definition;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
 
@@ -124,6 +125,6 @@ internal class D3D12Debug
 
     private static (String, Int32) ResolveEvent(Definition.Native.D3D12_MESSAGE_ID id)
     {
-        return (id.ToString(), LogID.D3D12);
+        return (id.ToStringFast(), LogID.D3D12);
     }
 }

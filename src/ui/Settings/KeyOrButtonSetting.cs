@@ -56,7 +56,7 @@ internal class KeyOrButtonSetting : Setting
 
         rebind = new Button(layout)
         {
-            Text = get().ToString(),
+            Text = get().ToStringFast(),
             Dock = Dock.Fill
         };
 
@@ -70,7 +70,7 @@ internal class KeyOrButtonSetting : Setting
                     modal.Close();
 
                     set(keyOrButton);
-                    rebind.Text = keyOrButton.ToString();
+                    rebind.Text = keyOrButton.ToStringFast();
 
                     Validator.Validate();
                 });
@@ -87,7 +87,7 @@ internal class KeyOrButtonSetting : Setting
         resetBind.Released += (_, _) =>
         {
             reset();
-            rebind.Text = get().ToString();
+            rebind.Text = get().ToStringFast();
 
             Validator.Validate();
         };

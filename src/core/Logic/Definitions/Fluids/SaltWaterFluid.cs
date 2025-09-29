@@ -7,7 +7,6 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Behaviors;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 

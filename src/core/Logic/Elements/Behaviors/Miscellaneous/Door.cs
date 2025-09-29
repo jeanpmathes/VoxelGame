@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Behaviors;
@@ -16,22 +17,21 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 
 /// <summary>
 /// Can be opened and closed, allowing bodies to pass through.
 /// </summary>
-public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
+public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 {
     private readonly LateralRotatable rotatable;
     
-    private IAttribute<Boolean> IsOpen => isOpen ?? throw Exceptions.NotInitialized(nameof(isOpen));
-    private IAttribute<Boolean>? isOpen;
+    [LateInitialization]
+    private partial IAttribute<Boolean> IsOpen { get; set; }
     
-    private IAttribute<Boolean> IsLeftSided => isLeftSided ?? throw Exceptions.NotInitialized(nameof(isLeftSided));
-    private IAttribute<Boolean>? isLeftSided;
+    [LateInitialization]
+    private partial IAttribute<Boolean> IsLeftSided { get; set; }
     
     private Door(Block subject) : base(subject)
     {
@@ -80,8 +80,8 @@ public class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        isOpen = builder.Define(nameof(isOpen)).Boolean().Attribute();
-        isLeftSided = builder.Define(nameof(isLeftSided)).Boolean().Attribute();
+        IsOpen = builder.Define(nameof(IsOpen)).Boolean().Attribute();
+        IsLeftSided = builder.Define(nameof(IsLeftSided)).Boolean().Attribute();
     }
 
     /// <inheritdoc />

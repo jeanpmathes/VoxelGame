@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -17,10 +18,10 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 /// <summary>
 /// Allows a block to be rotated in the four cardinal directions.
 /// </summary>
-public class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, BlockBehavior, Block>
+public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, BlockBehavior, Block>
 {
-    private IAttribute<Orientation> Orientation => orientation ?? throw Exceptions.NotInitialized(nameof(orientation));
-    private IAttribute<Orientation>? orientation;
+    [LateInitialization]
+    private partial IAttribute<Orientation> Orientation { get; set; }
     
     private LateralRotatable(Block subject) : base(subject)
     {
@@ -40,7 +41,7 @@ public class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, Block
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        orientation = builder.Define(nameof(orientation)).Enum<Orientation>()
+        Orientation = builder.Define(nameof(Orientation)).Enum<Orientation>()
             .Attribute(placementDefault: Utilities.Orientation.South, generationDefault: Utilities.Orientation.South);
     }
     

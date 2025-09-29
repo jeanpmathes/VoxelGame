@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -13,7 +14,6 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Sections;
-using VoxelGame.Toolkit.Utilities;
 using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors;
@@ -21,10 +21,10 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors;
 /// <summary>
 /// A block that is a composite of multiple parts, occupying multiple block positions.
 /// </summary>
-public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Block>
+public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Block>
 {
-    private IAttribute<Vector3i> Part => part ?? throw Exceptions.NotInitialized(nameof(part));
-    private IAttribute<Vector3i>? part;
+    [LateInitialization]
+    private partial IAttribute<Vector3i> Part { get; set; }
 
     private Boolean isRotatable;
 
@@ -106,7 +106,7 @@ public class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Bloc
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        part = builder.Define(nameof(part)).Vector3i(MaximumSize).Attribute();
+        Part = builder.Define(nameof(Part)).Vector3i(MaximumSize).Attribute();
     }
 
     /// <inheritdoc />

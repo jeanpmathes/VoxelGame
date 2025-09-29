@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -19,21 +20,21 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Connection;
 /// <summary>
 /// Connects to other connectable blocks along its lateral sides.
 /// </summary>
-public class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Block>
+public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Block>
 {
     private readonly Connectable connectable;
     
-    private IAttribute<Boolean> North => north ?? throw Exceptions.NotInitialized(nameof(north));
-    private IAttribute<Boolean>? north;
+    [LateInitialization]
+    private partial IAttribute<Boolean> North { get; set; }
     
-    private IAttribute<Boolean> East => east ?? throw Exceptions.NotInitialized(nameof(east));
-    private IAttribute<Boolean>? east;
+    [LateInitialization]
+    private partial IAttribute<Boolean> East { get; set; }
     
-    private IAttribute<Boolean> South => south ?? throw Exceptions.NotInitialized(nameof(south));
-    private IAttribute<Boolean>? south;
+    [LateInitialization]
+    private partial IAttribute<Boolean> South { get; set; }
     
-    private IAttribute<Boolean> West => west ?? throw Exceptions.NotInitialized(nameof(west));
-    private IAttribute<Boolean>? west;
+    [LateInitialization]
+    private partial IAttribute<Boolean> West { get; set; }
 
     private Connecting(Block subject) : base(subject)
     {
@@ -51,10 +52,10 @@ public class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Bl
     /// <inheritdoc/>
     public override void DefineState(IStateBuilder builder)
     {
-        north = builder.Define(nameof(north)).Boolean().Attribute();
-        east = builder.Define(nameof(east)).Boolean().Attribute();
-        south = builder.Define(nameof(south)).Boolean().Attribute();
-        west = builder.Define(nameof(west)).Boolean().Attribute();
+        North = builder.Define(nameof(North)).Boolean().Attribute();
+        East = builder.Define(nameof(East)).Boolean().Attribute();
+        South = builder.Define(nameof(South)).Boolean().Attribute();
+        West = builder.Define(nameof(West)).Boolean().Attribute();
     }
 
     /// <inheritdoc/>
@@ -109,7 +110,7 @@ public class Connecting : BlockBehavior, IBehavior<Connecting, BlockBehavior, Bl
             Orientation.East => East,
             Orientation.South => South,
             Orientation.West => West,
-            _ => throw Exceptions.NotInitialized(nameof(orientation))
+            _ => throw Exceptions.UnsupportedEnumValue(orientation)
         };
     }
     

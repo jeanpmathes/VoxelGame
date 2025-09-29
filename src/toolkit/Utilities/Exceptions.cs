@@ -111,14 +111,4 @@ public static class Exceptions
 
         return new InvalidOperationException(message);
     }
-
-    /// <summary>
-    ///     Create an exception for an invalid operation that requires a specific field to be initialized.
-    /// </summary>
-    /// <param name="field">The name of the field that is not initialized.</param>
-    /// <returns>The exception.</returns>
-    public static Exception NotInitialized(String field) // todo: remove
-    {
-        return new InvalidOperationException($"The field '{field}' is not initialized. Please ensure it is set before use.");
-    }
 }

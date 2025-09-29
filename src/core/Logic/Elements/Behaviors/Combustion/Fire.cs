@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -26,25 +27,25 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 /// <summary>
 /// Spreads and burns blocks.
 /// </summary>
-public class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
+public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 {
     private const UInt32 UpdateOffset = 150;
     private const UInt32 UpdateVariation = 25;
     
-    private IAttribute<Boolean> Front => front ?? throw Exceptions.NotInitialized(nameof(front));
-    private IAttribute<Boolean>? front;
+    [LateInitialization]
+    private partial IAttribute<Boolean> Front { get; set; }
     
-    private IAttribute<Boolean> Back => back ?? throw Exceptions.NotInitialized(nameof(back));
-    private IAttribute<Boolean>? back;
+    [LateInitialization]
+    private partial IAttribute<Boolean> Back { get; set; }
     
-    private IAttribute<Boolean> Left => left ?? throw Exceptions.NotInitialized(nameof(left));
-    private IAttribute<Boolean>? left;
+    [LateInitialization]
+    private partial IAttribute<Boolean> Left { get; set; }
     
-    private IAttribute<Boolean> Right => right ?? throw Exceptions.NotInitialized(nameof(right));
-    private IAttribute<Boolean>? right;
+    [LateInitialization]
+    private partial IAttribute<Boolean> Right { get; set; }
     
-    private IAttribute<Boolean> Top => top ?? throw Exceptions.NotInitialized(nameof(top));
-    private IAttribute<Boolean>? top;
+    [LateInitialization]
+    private partial IAttribute<Boolean> Top { get; set; }
     
     private Fire(Block subject) : base(subject)
     {
@@ -88,11 +89,11 @@ public class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     /// <inheritdoc/>
     public override void DefineState(IStateBuilder builder)
     {
-        front = builder.Define(nameof(front)).Boolean().Attribute();
-        back = builder.Define(nameof(back)).Boolean().Attribute();
-        left = builder.Define(nameof(left)).Boolean().Attribute();
-        right = builder.Define(nameof(right)).Boolean().Attribute();
-        top = builder.Define(nameof(top)).Boolean().Attribute();
+        Front = builder.Define(nameof(Front)).Boolean().Attribute();
+        Back = builder.Define(nameof(Back)).Boolean().Attribute();
+        Left = builder.Define(nameof(Left)).Boolean().Attribute();
+        Right = builder.Define(nameof(Right)).Boolean().Attribute();
+        Top = builder.Define(nameof(Top)).Boolean().Attribute();
     }
 
     /// <inheritdoc/>

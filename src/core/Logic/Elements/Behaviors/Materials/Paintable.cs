@@ -5,23 +5,23 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Materials;
 
 /// <summary>
 /// Blocks that can be painted with different colors.
 /// </summary>
-public class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavior, Block>
+public partial class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavior, Block>
 {
-    private IAttribute<NamedColor> Color => color ?? throw Exceptions.NotInitialized(nameof(color));
-    private IAttribute<NamedColor>? color;
+    [LateInitialization]
+    private partial IAttribute<NamedColor> Color { get; set; }
     
     private Paintable(Block subject) : base(subject)
     {
@@ -37,7 +37,7 @@ public class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavior, Bloc
     /// <inheritdoc/>
     public override void DefineState(IStateBuilder builder)
     {
-        color = builder.Define(nameof(color)).Enum<NamedColor>().Attribute();
+        Color = builder.Define(nameof(Color)).Enum<NamedColor>().Attribute();
     }
 
     /// <inheritdoc/>

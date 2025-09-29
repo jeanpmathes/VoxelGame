@@ -23,8 +23,20 @@ public static class NameTools
     {
         StringBuilder sb = new();
         
+        var skip = 0;
+        
+        const String globalPrefix = "global::";
+        if (str.StartsWith(globalPrefix, StringComparison.Ordinal))
+            skip = globalPrefix.Length;
+        
         foreach (Char c in str)
         {
+            if (skip > 0)
+            {
+                skip -= 1;
+                continue;
+            }
+            
             if (Char.IsLetterOrDigit(c) || c is '-' or '.' or '_')
             {
                 sb.Append(c);
@@ -45,4 +57,20 @@ public static class NameTools
     /// <returns>The sanitized string.</returns>
     public static String SanitizeForDocumentationReference(String str)
         => str.Replace(oldChar: '<', newChar: '{').Replace(oldChar: '>', newChar: '}');
+    
+    /// <summary>
+    /// Convert a <c>PascalCase</c> string to <c>camelCase</c>.
+    /// </summary>
+    /// <param name="str">The string to convert.</param>
+    /// <returns>The converted string.</returns>
+    public static String ConvertPascalCaseToCamelCase(String str)
+    {
+        if (String.IsNullOrEmpty(str) || Char.IsLower(str, index: 0))
+            return str;
+        
+        if (str.Length == 1)
+            return str.ToLowerInvariant();
+        
+        return Char.ToLowerInvariant(str[0]) + str.Substring(startIndex: 1);
+    }
 }

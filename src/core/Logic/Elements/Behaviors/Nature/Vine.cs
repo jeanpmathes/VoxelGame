@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
@@ -13,19 +14,18 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Elements.Behaviors.Siding;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
 /// A flat block which grows downwards and can, as an alternative to a holding wall, also hang from other vines.
 /// </summary>
-public class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
+public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
 {
     private const Int32 MaxAge = 8;
     
-    private IAttribute<Int32> Age => age ?? throw Exceptions.NotInitialized(nameof(age));
-    private IAttribute<Int32>? age;
+    [LateInitialization]
+    private partial IAttribute<Int32> Age { get; set; }
 
     private readonly SingleSided siding;
     private readonly Attached attached;
@@ -49,7 +49,7 @@ public class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        age = builder.Define(nameof(age)).Int32(min: 0, MaxAge + 1).Attribute();
+        Age = builder.Define(nameof(Age)).Int32(min: 0, MaxAge + 1).Attribute();
     }
 
     /// <inheritdoc />

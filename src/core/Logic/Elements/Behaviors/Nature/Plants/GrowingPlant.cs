@@ -6,23 +6,23 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
 /// <summary>
 /// An extension of a <see cref="Plant"/> which grows over time.
 /// </summary>
-public class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, BlockBehavior, Block>
+public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, BlockBehavior, Block>
 {
-    private IAttribute<Int32?> Stage => stage ?? throw Exceptions.NotInitialized(nameof(stage));
-    private IAttribute<Int32?>? stage;
+    [LateInitialization]
+    private partial IAttribute<Int32?> Stage { get; set; }
     
     /// <summary>
     /// The number of growth stages this plant has.
@@ -65,7 +65,7 @@ public class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, BlockBehavior
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        stage = builder.Define(nameof(stage)).Int32(min: 0, StageCount).NullableAttribute(placementDefault: 0, generationDefault: 0);
+        Stage = builder.Define(nameof(Stage)).Int32(min: 0, StageCount).NullableAttribute(placementDefault: 0, generationDefault: 0);
     }
 
     /// <inheritdoc />

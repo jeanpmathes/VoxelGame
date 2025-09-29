@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -16,21 +17,20 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
 /// <summary>
 /// A crop <see cref="Plant"/> that uses the <see cref="Foliage.LayoutType.Cross"/> layout places a fruit when fully grown.
 /// </summary>
-public class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, BlockBehavior, Block>
+public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, BlockBehavior, Block>
 {
     private readonly GrowingPlant plant;
 
     private Block fruit = null!;
     
-    private IAttribute<Int32> Age => age ?? throw Exceptions.NotInitialized(nameof(age));
-    private IAttribute<Int32>? age;
+    [LateInitialization]
+    private partial IAttribute<Int32> Age { get; set; }
 
     private const Int32 MaxAge = 3;
     
@@ -75,7 +75,7 @@ public class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, BlockBeha
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        age = builder.Define(nameof(age)).Int32(min: 0, MaxAge + 1).Attribute();
+        Age = builder.Define(nameof(Age)).Int32(min: 0, MaxAge + 1).Attribute();
     }
 
     /// <inheritdoc />

@@ -23,7 +23,7 @@ public static class SyntaxTools
     /// <returns>The namespace the type is contained in, or an empty string if it is in the global namespace.</returns>
     public static String GetNamespace(BaseTypeDeclarationSyntax node)
     {
-        var nameSpace = "";
+        var @namespace = "";
         
         SyntaxNode? potentialNamespaceParent = node.Parent;
         
@@ -35,44 +35,77 @@ public static class SyntaxTools
         }
 
         if (potentialNamespaceParent is not BaseNamespaceDeclarationSyntax namespaceParent) 
-            return nameSpace;
+            return @namespace;
         
-        nameSpace = namespaceParent.Name.ToString();
+        @namespace = namespaceParent.Name.ToString();
         
         while (true)
         {
             if (namespaceParent.Parent is not NamespaceDeclarationSyntax parent)
                 break;
             
-            nameSpace = $"{namespaceParent.Name}.{nameSpace}";
+            @namespace = $"{namespaceParent.Name}.{@namespace}";
             namespaceParent = parent;
         }
         
-        return nameSpace;
+        return @namespace;
+    }
+    
+    /// <summary>
+    /// Get the namespace a member declaration is contained in.
+    /// </summary>
+    /// <param name="node">The member declaration syntax node.</param>
+    /// <returns>The namespace the member is contained in, or an empty string if it is in the global namespace.</returns>
+    public static String GetNamespace(MemberDeclarationSyntax node)
+    {
+        return node.Parent is TypeDeclarationSyntax typeDeclaration ? GetNamespace(typeDeclaration) : "";
     }
     
     /// <summary>
     /// Get the containing type chain of a type declaration.
+    /// This does not include the passed type itself.
     /// </summary>
     /// <param name="node">The type declaration syntax node.</param>
+    /// <param name="semanticModel">The semantic model to use for symbol information.</param>
     /// <returns>The chain of containing type.</returns>
-    public static ContainingType? GetContainingType(BaseTypeDeclarationSyntax node)
+    public static ContainingType? GetContainingType(BaseTypeDeclarationSyntax node, SemanticModel semanticModel)
+    {
+        return GetContainingType(node, first: null, semanticModel);
+    }
+
+    /// <summary>
+    /// Get the containing type chain of a member declaration.
+    /// </summary>
+    /// <param name="node">The member declaration syntax node.</param>
+    /// <param name="semanticModel">The semantic model to use for symbol information.</param>
+    /// <returns>The chain of containing type.</returns>
+    public static ContainingType? GetContainingType(MemberDeclarationSyntax node, SemanticModel semanticModel)
+    {
+        return node.Parent is TypeDeclarationSyntax first ? GetContainingType(first, first, semanticModel) : null;
+    }
+
+    private static ContainingType? GetContainingType(BaseTypeDeclarationSyntax node, TypeDeclarationSyntax? first, SemanticModel semanticModel)
     {
         var parentSyntax = node.Parent as TypeDeclarationSyntax;
-        ContainingType? containingInfo = null;
+        ContainingType? containingInfo = first != null ? CreateContainingType(first, child: null, semanticModel) : null;
         
         while (parentSyntax?.Kind() is SyntaxKind.ClassDeclaration or SyntaxKind.StructDeclaration or SyntaxKind.RecordDeclaration)
         {
-            containingInfo = new ContainingType(
-                keyword: parentSyntax.Keyword.ValueText,
-                parentSyntax.Identifier.ToString(),
-                parentSyntax.TypeParameterList?.ToString(),
-                parentSyntax.ConstraintClauses.ToString(),
-                child: containingInfo);
-            
+            containingInfo = CreateContainingType(parentSyntax, containingInfo, semanticModel);
             parentSyntax = parentSyntax.Parent as TypeDeclarationSyntax;
         }
         
         return containingInfo;
+    }
+
+    private static ContainingType CreateContainingType(TypeDeclarationSyntax node, ContainingType? child, SemanticModel semanticModel)
+    {
+        return new ContainingType(
+            SyntaxFacts.GetText(semanticModel.GetDeclaredSymbol(node)?.DeclaredAccessibility ?? Accessibility.NotApplicable),
+            keyword: node.Keyword.ValueText,
+            node.Identifier.ToString(),
+            node.TypeParameterList?.ToString(),
+            node.ConstraintClauses.ToString(),
+            child);
     }
 }

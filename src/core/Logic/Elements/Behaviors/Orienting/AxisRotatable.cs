@@ -6,23 +6,23 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
 /// <summary>
 /// Allows rotation of the block to align with each of the three axes.
 /// </summary>
-public class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavior, Block>
+public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavior, Block>
 {
-    private IAttribute<Axis> Axis => axis ?? throw Exceptions.NotInitialized(nameof(axis));
-    private IAttribute<Axis>? axis;
+    [LateInitialization]
+    private partial IAttribute<Axis> Axis { get; set; }
     
     private AxisRotatable(Block subject) : base(subject)
     {
@@ -42,7 +42,7 @@ public class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavi
     /// <inheritdoc/>
     public override void DefineState(IStateBuilder builder)
     {
-        axis = builder.Define(nameof(axis)).Enum<Axis>().Attribute();
+        Axis = builder.Define(nameof(Axis)).Enum<Axis>().Attribute();
     }
     
     private Axis GetAxis(Axis original, State state)
