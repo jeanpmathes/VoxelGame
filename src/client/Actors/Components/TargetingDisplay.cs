@@ -11,6 +11,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
 using VoxelGame.Toolkit.Utilities;
@@ -47,7 +48,7 @@ public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, T
     /// <inheritdoc />
     public override void OnActivate()
     {
-        SetTarget(world: null, instance: null, position: null);
+        SetTarget(world: null, state: null, position: null);
     }
 
     /// <inheritdoc />
@@ -64,13 +65,13 @@ public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, T
         effect.LogicUpdate();
     }
 
-    private void SetTarget(World? world, BlockInstance? instance, Vector3i? position)
+    private void SetTarget(World? world, State? state, Vector3i? position)
     {
         BoxCollider? collider = null;
 
-        if (world != null && instance is {Block: {} block} && position != null)
+        if (world != null && state is {Block: {} block} && position != null)
         {
-            Boolean visualized = !instance.Value.IsReplaceable;
+            Boolean visualized = !state.Value.IsReplaceable;
 
             if (Core.App.Application.Instance.IsDebug)
                 visualized |= block != Blocks.Instance.Core.Air;

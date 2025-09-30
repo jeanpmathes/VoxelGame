@@ -78,7 +78,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             Vector3i part = (x, y, z);
             Vector3i current = position + Rotate(part, orientation);
 
-            BlockInstance? block = world.GetBlock(current);
+            State? block = world.GetBlock(current);
 
             if (block?.IsReplaceable != true)
                 return false;
@@ -107,7 +107,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             state = Subject.GetPlacementState(message.World, position, message.Actor);
             state = SetPartPosition(state, part);
 
-            message.World.SetBlock(new BlockInstance(state), position);
+            message.World.SetBlock(state, position);
 
             PlacementCompleted.Publish(new Composite.PlacementCompletedMessage(Subject)
             {
@@ -139,8 +139,8 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void OnStateUpdate(Block.StateUpdateMessage message)
     {
-        State oldState = message.OldContent.Block.State;
-        State newState = message.NewContent.Block.State;
+        State oldState = message.OldContent.Block;
+        State newState = message.NewContent.Block;
 
         if (oldState == newState) return;
 
@@ -154,7 +154,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         if (oldSize != newSize)
             ResizeComposite(message.World, root, oldSize, newSize, orientation, newState);
-        else if (message.OldContent.Block.State != message.NewContent.Block.State)
+        else if (message.OldContent.Block != message.NewContent.Block)
             SetStateOnAllParts(message.World, newSize, root, currentPart, orientation, newState);
     }
 
@@ -198,7 +198,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             if (inOld && inNew)
             {
                 state = SetPartPosition(state, part);
-                world.SetBlock(new BlockInstance(state), position + Rotate(part, orientation));
+                world.SetBlock(state, position + Rotate(part, orientation));
             }
             else if (inOld && !inNew)
             {
@@ -207,7 +207,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             else if (!inOld && inNew)
             {
                 state = SetPartPosition(state, part);
-                world.SetBlock(new BlockInstance(state), position + Rotate(part, orientation));
+                world.SetBlock(state, position + Rotate(part, orientation));
             }
         }
     }
@@ -223,7 +223,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
             state = SetPartPosition(state, part);
             
-            world.SetBlock(new BlockInstance(state), root + Rotate(part, orientation));
+            world.SetBlock(state, root + Rotate(part, orientation));
         }
     }
 

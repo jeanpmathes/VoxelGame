@@ -74,7 +74,7 @@ public partial class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Bloc
     
     private void OnActorInteraction(Block.ActorInteractionMessage message)
     {
-        message.Actor.World.SetBlock(new BlockInstance(message.State.With(IsOpen, !message.State.Get(IsOpen))), message.Position);
+        message.Actor.World.SetBlock(message.State.With(IsOpen, !message.State.Get(IsOpen)), message.Position);
     }
     
     /// <summary>

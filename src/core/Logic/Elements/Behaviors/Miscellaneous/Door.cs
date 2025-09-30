@@ -121,9 +121,9 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         if (side == Side.Top)
         {
             Vector3i neighborPosition = orientation.Rotate().Opposite().Offset(position);
-            BlockInstance neighbor = world.GetBlock(neighborPosition) ?? BlockInstance.Default;
+            State neighbor = world.GetBlock(neighborPosition) ?? Content.DefaultState;
             
-            leftSided = neighbor.Block != Subject || rotatable.GetOrientation(neighbor.State) != orientation;
+            leftSided = neighbor.Block != Subject || rotatable.GetOrientation(neighbor) != orientation;
         }
         else
         {
@@ -149,19 +149,19 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 
         void ToggleNeighbor(Vector3i neighborPosition)
         {
-            BlockInstance neighbor = message.Actor.World.GetBlock(neighborPosition) ?? BlockInstance.Default;
+            State neighbor = message.Actor.World.GetBlock(neighborPosition) ?? Content.DefaultState;
 
             if (neighbor.Block == Subject 
-                && neighbor.State.Get(IsLeftSided) != leftSided
-                && neighbor.State.Get(IsOpen) == wasOpen
-                && rotatable.GetOrientation(neighbor.State) == orientation)
-                neighbor.Block.Get<Door>()?.ToggleDoor(message.Actor.World, neighborPosition, neighbor.State);
+                && neighbor.Get(IsLeftSided) != leftSided
+                && neighbor.Get(IsOpen) == wasOpen
+                && rotatable.GetOrientation(neighbor) == orientation)
+                neighbor.Block.Get<Door>()?.ToggleDoor(message.Actor.World, neighborPosition, neighbor);
         }
     }
 
     private void ToggleDoor(World world, Vector3i position, State state)
     {
         State newState = state.With(IsOpen, !state.Get(IsOpen));
-        world.SetBlock(new BlockInstance(newState), position);
+        world.SetBlock(newState, position);
     }
 }

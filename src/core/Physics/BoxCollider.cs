@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 
@@ -154,7 +155,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
 
             if (content == null) continue;
 
-            (BlockInstance currentBlock, FluidInstance currentFluid) = content.Value;
+            (State currentBlock, FluidInstance currentFluid) = content.Value;
 
             BoxCollider blockCollider = currentBlock.Block.GetCollider(
                 world,

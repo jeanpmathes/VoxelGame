@@ -90,7 +90,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
         if (currentStage is not {} aliveStage)
             return;
 
-        BlockInstance? below = message.World.GetBlock(message.Position.Below());
+        State? below = message.World.GetBlock(message.Position.Below());
         
         if (below?.Block.Get<Plantable>() is not {} plantable)
             return;
@@ -131,7 +131,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
             newState.Set(Stage, aliveStage + 1);
         }
         
-        message.World.SetBlock(new BlockInstance(newState), message.Position);
+        message.World.SetBlock(newState, message.Position);
     }
 
     /// <summary>

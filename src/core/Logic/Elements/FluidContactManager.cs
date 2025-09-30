@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -90,7 +91,7 @@ public class FluidContactManager
     {
         Select(a, b, Fluids.Instance.Lava, out ContactInformation lava, out ContactInformation coolant);
 
-        BlockInstance lavaBlock = world.GetBlock(lava.position) ?? BlockInstance.Default;
+        State lavaBlock = world.GetBlock(lava.position) ?? Content.DefaultState;
 
         if (lavaBlock.IsReplaceable || lavaBlock.Block.Destroy(world, lava.position))
             world.SetContent(new Content(Blocks.Instance.Stones.Pumice.Base), lava.position);

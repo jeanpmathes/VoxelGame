@@ -9,6 +9,7 @@ using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Toolkit.Utilities;
 
@@ -57,7 +58,7 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
         DestroyInteract(targeting.Block!.Value, targeting.Position!.Value);
     }
     
-    private void PlaceInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
+    private void PlaceInteract(State targetedBlock, Vector3i targetedPosition)
     {
         if (!input.ShouldInteract) return;
 
@@ -84,7 +85,7 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
         }
     }
 
-    private void DestroyInteract(BlockInstance targetedBlock, Vector3i targetedPosition)
+    private void DestroyInteract(State targetedBlock, Vector3i targetedPosition)
     {
         if (input.ShouldDestroy)
         {

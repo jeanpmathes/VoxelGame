@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections.Properties;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Profiling;
@@ -30,7 +31,7 @@ public class PlayerDebugProperties : Group
         new Message("Position (Target)", FormatObject(player.GetComponent<Targeting>()?.Position)),
         new Message("Position (Chunk)", FormatObject(player.GetComponent<ChunkLoader>()?.Chunk)),
         new Message("Position (Section)", FormatObject(SectionPosition.From(player.Body.Transform.Position.Floor()))),
-        new Group("Target Block", CreateBlockTargetProperties(player.GetComponent<Targeting>()?.Block ?? BlockInstance.Default)),
+        new Group("Target Block", CreateBlockTargetProperties(player.GetComponent<Targeting>()?.Block ?? Content.DefaultState)),
         new Group("Target Fluid", CreateFluidTargetProperties(player.GetComponent<Targeting>()?.Fluid ?? FluidInstance.Default)),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Body.Transform.Position)),
         new Group("World",
@@ -44,12 +45,12 @@ public class PlayerDebugProperties : Group
         ])
     ]) {}
     
-    private static IEnumerable<Property> CreateBlockTargetProperties(BlockInstance instance)
+    private static IEnumerable<Property> CreateBlockTargetProperties(State block)
     {
-        yield return new Message("Block ID", $"{instance.Block.NamedID}[{instance.Block.ID}]");
-        yield return new Message("State ID", $"{instance.State.ID}");
-        yield return new Message("State Index", $"{instance.State.Index} of {instance.Block.States.Count}");
-        yield return new Group("Attributes", instance.State.CreateProperties());
+        yield return new Message("Block ID", $"{block.Block.NamedID}[{block.Block.ID}]");
+        yield return new Message("State ID", $"{block.ID}");
+        yield return new Message("State Index", $"{block.Index} of {block.Block.States.Count}");
+        yield return new Group("Attributes", block.CreateProperties());
     }
     
     private static IEnumerable<Property> CreateFluidTargetProperties(FluidInstance instance)

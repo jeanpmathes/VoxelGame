@@ -73,7 +73,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         void MeshVaryingHeightSide(Side side)
         {
             Vector3i checkPosition = side.Offset(position);
-            BlockInstance? blockToCheck = context.GetBlock(checkPosition, side);
+            State? blockToCheck = context.GetBlock(checkPosition, side);
 
             if (blockToCheck == null) return;
 
@@ -117,10 +117,10 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] BlockInstance? blockToCheck, Int32 height, PartialHeight.MeshData mesh, MeshingContext context)
+    private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] State? blockToCheck, Int32 height, PartialHeight.MeshData mesh, MeshingContext context)
     {
         if (side != Side.Top && blockToCheck.Value.Block.Get<Logic.Elements.Behaviors.Height.PartialHeight>() is {} toCheck &&
-            toCheck.GetHeight(blockToCheck.Value.State) == height) return;
+            toCheck.GetHeight(blockToCheck.Value) == height) return;
 
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
@@ -151,7 +151,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     
     OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
     {
-        PartialHeight.MeshData mesh = meshData[Side.Front][content.Block.State.Index];
+        PartialHeight.MeshData mesh = meshData[Side.Front][content.Block.Index];
 
         return new OverlayTexture
         {

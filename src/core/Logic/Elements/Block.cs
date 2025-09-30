@@ -402,7 +402,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <param name="position">The block position.</param>
     public void OnActorCollision(Body body, Vector3i position)
     {
-        BlockInstance? potentialBlock = body.Subject.World.GetBlock(position);
+        State? potentialBlock = body.Subject.World.GetBlock(position);
 
         if (potentialBlock?.Block != this) return;
 
@@ -410,7 +410,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         {
             Body = body,
             Position = position,
-            State = potentialBlock.Value.State
+            State = potentialBlock.Value
         };
 
         ActorCollision.Publish(message);
@@ -426,7 +426,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     {
         if (!IsInteractable) return;
 
-        BlockInstance? potentialBlock = actor.World.GetBlock(position);
+        State? potentialBlock = actor.World.GetBlock(position);
 
         if (potentialBlock?.Block != this) return;
 
@@ -434,7 +434,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         {
             Actor = actor,
             Position = position,
-            State = potentialBlock.Value.State
+            State = potentialBlock.Value
         };
 
         ActorInteraction.Publish(message);
@@ -465,7 +465,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         if (content == null) return false;
 
-        (BlockInstance block, FluidInstance _) = content.Value;
+        (State block, FluidInstance _) = content.Value;
 
         if (!block.IsReplaceable)
             return false;
@@ -486,7 +486,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         }
         else
         {
-            world.SetBlock(new BlockInstance(GetPlacementState(world, position, actor)), position);
+            world.SetBlock(GetPlacementState(world, position, actor), position);
         }
 
         PlacementCompleted.Publish(new PlacementCompletedMessage(this)
@@ -520,12 +520,12 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <returns><c>true</c> if the block can be destroyed at the given position, <c>false</c> otherwise.</returns>
     public Boolean CanDestroy(World world, Vector3i position, Actor? actor = null)
     {
-        BlockInstance? potentialBlock = world.GetBlock(position);
+        State? potentialBlock = world.GetBlock(position);
 
         if (potentialBlock is not {} block) return false;
         if (block.Block != this) return false;
 
-        return IsDestructionAllowed.GetValue(original: true, (block.State, world, position, actor));
+        return IsDestructionAllowed.GetValue(original: true, (block, world, position, actor));
     }
 
     /// <summary>
@@ -542,7 +542,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (!CanDestroy(world, position, actor))
             return false;
 
-        BlockInstance? potentialBlock = world.GetBlock(position);
+        State? potentialBlock = world.GetBlock(position);
 
         if (potentialBlock is not {} block) return false;
 
@@ -552,7 +552,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             {
                 World = world,
                 Position = position,
-                State = block.State,
+                State = block,
                 Actor = actor
             };
 
@@ -567,7 +567,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         {
             World = world,
             Position = position,
-            State = block.State,
+            State = block,
             Actor = actor
         });
 
@@ -719,9 +719,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <returns>The bounding volume.</returns>
     public BoxCollider GetCollider(World world, Vector3i position)
     {
-        BlockInstance? potentialBlock = world.GetBlock(position);
+        State? potentialBlock = world.GetBlock(position);
 
-        State state = potentialBlock?.Block == this ? potentialBlock.Value.State : GetPlacementState(world, position);
+        State state = potentialBlock?.Block == this ? potentialBlock.Value : GetPlacementState(world, position);
 
         return GetBoundingVolume(state).GetColliderAt(position);
     }
@@ -1031,7 +1031,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         public void Update(World world)
         {
-            BlockInstance? potentialBlock = world.GetBlock((x, y, z));
+            State? potentialBlock = world.GetBlock((x, y, z));
 
             if (potentialBlock is not {} block) return;
             if (block.Block.ID != target) return;
@@ -1039,7 +1039,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             switch (operation)
             {
                 case UpdateOperation.Update:
-                    block.Block.DoScheduledUpdate(world, (x, y, z), block.State);
+                    block.Block.DoScheduledUpdate(world, (x, y, z), block);
 
                     break;
 

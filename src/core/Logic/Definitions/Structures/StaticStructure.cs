@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Serialization;
@@ -193,10 +192,8 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
 
             block = Blocks.Instance.Core.Air;
         }
-
-        State state = block.States.SetJson(placement.State);
-
-        content.Block = new BlockInstance(state);
+        
+        content.Block = block.States.SetJson(placement.State);
 
         Fluid? fluid = Elements.Fluids.Instance.TranslateNamedID(placement.Fluid);
 
@@ -260,7 +257,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
             {
                 Position = new Vector {Values = [x, y, z]},
                 Block = content.Block.Block.NamedID,
-                State = content.Block.State.Owner.GetJson(content.Block.State),
+                State = content.Block.Owner.GetJson(content.Block),
                 Fluid = content.Fluid.Fluid.NamedID,
                 Level = (Int32) content.Fluid.Level,
                 IsStatic = content.Fluid.IsStatic

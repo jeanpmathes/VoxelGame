@@ -89,17 +89,15 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
         Boolean canConnect = CanConnectTo(message.World, message.Side.Offset(message.Position), message.Side);
         
         if (message.State.Get(side) == canConnect) return;
-
-        State newState = message.State;
-        newState.Set(side, canConnect);
-        message.World.SetBlock(new BlockInstance(newState), message.Position);
+        
+        message.World.SetBlock(message.State.With(side, canConnect), message.Position);
     }
     
     private Boolean CanConnectTo(World world, Vector3i position, Side side)
     {
-        BlockInstance? other = world.GetBlock(position);
+        State? other = world.GetBlock(position);
 
-        return other?.Block.Get<Connectable>() is {} otherConnectable && otherConnectable.CanConnect(other.Value.State, side.Opposite(), connectable);
+        return other?.Block.Get<Connectable>() is {} otherConnectable && otherConnectable.CanConnect(other.Value, side.Opposite(), connectable);
     }
     
     private IAttribute<Boolean> GetDirection(Orientation orientation)

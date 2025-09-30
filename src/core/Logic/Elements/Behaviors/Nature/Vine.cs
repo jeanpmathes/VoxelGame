@@ -63,7 +63,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
     {
         (World world, Vector3i position, State state) = context;
 
-        BlockInstance? above = world.GetBlock(position.Above());
+        State? above = world.GetBlock(position.Above());
 
         if (above == null) 
             return false;
@@ -71,7 +71,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
         if (above.Value.Block != Subject)
             return false;
 
-        return siding.GetSide(state) == above.Value.Block.Get<Vine>()?.siding.GetSide(above.Value.State);
+        return siding.GetSide(state) == above.Value.Block.Get<Vine>()?.siding.GetSide(above.Value);
     }
     
     private void OnRandomUpdate(Block.RandomUpdateMessage message)
@@ -80,12 +80,12 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
         
         if (currentAge < MaxAge) 
         {
-            message.World.SetBlock(new BlockInstance(message.State.With(Age, currentAge + 1)), message.Position);
+            message.World.SetBlock(message.State.With(Age, currentAge + 1), message.Position);
         }
         else if (message.World.GetBlock(message.Position.Below())?.Block == Blocks.Instance.Core.Air) // todo: replace all air checks with checks for an empty behavior or maybe a new empty block flag, describe difference to replaceable
         {
-            message.World.SetBlock(new BlockInstance(message.State.With(Age, value: 0)), message.Position.Below());
-            message.World.SetBlock(new BlockInstance(message.State.With(Age, value: 0)), message.Position);
+            message.World.SetBlock(message.State.With(Age, value: 0), message.Position.Below());
+            message.World.SetBlock(message.State.With(Age, value: 0), message.Position);
         }
     }
     

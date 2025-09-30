@@ -57,6 +57,6 @@ public partial class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavi
         
         State newState = message.State.With(Color, (NamedColor) (((Int32) currentColor + 1) % (Int32) (NamedColor.Viridian + 1)));
         
-        message.Actor.World.SetBlock(new BlockInstance(newState), message.Position);
+        message.Actor.World.SetBlock(newState, message.Position);
     }
 }

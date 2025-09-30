@@ -65,7 +65,7 @@ public interface IGenerationContext : IDisposable
                 Content modifiedContent = content.Block.Block.DoGeneratorUpdate(content);
 
                 UInt32 encodedContent = Section.Encode(
-                    modifiedContent.Block.State,
+                    modifiedContent.Block,
                     modifiedContent.Fluid.Fluid,
                     modifiedContent.Fluid.Level,
                     modifiedContent.Fluid.IsStatic);

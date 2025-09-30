@@ -7,6 +7,7 @@
 using System;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
@@ -43,7 +44,7 @@ public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
         FluidLevel remaining = FluidLevel.Eight - (Int32) message.Level; // todo: add a fluid level struct
 
         message.World.SetContent(remaining >= FluidLevel.One
-                ? new Content(Blocks.Instance.Environment.Soil.AsInstance(), Elements.Fluids.Instance.FreshWater.AsInstance(remaining))
+                ? new Content(new State(Blocks.Instance.Environment.Soil), Elements.Fluids.Instance.FreshWater.AsInstance(remaining))
                 : new Content(Blocks.Instance.Environment.Soil),
             message.Position);
 

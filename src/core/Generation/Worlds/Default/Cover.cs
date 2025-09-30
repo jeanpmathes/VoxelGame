@@ -77,7 +77,7 @@ public abstract class Cover
             // todo: think about a way to get the height to the block, maybe through an event or a utility function and an aspect on PartialHeight
             // todo: also probably use the GenerationState by default instead of the default state
 
-            return new Content(new BlockInstance(snow.States.Default), FluidInstance.Default);
+            return new Content(snow.States.Default, FluidInstance.Default);
         }
 
         return GetCover(position, climate);

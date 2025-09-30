@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
 
@@ -162,13 +163,13 @@ public class MeshingContext
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
     /// <returns>The block and fluid or null if there is nothing.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (BlockInstance block, FluidInstance fluid)? GetBlockAndFluid(Vector3i position, Side side)
+    public (State block, FluidInstance fluid)? GetBlockAndFluid(Vector3i position, Side side)
     {
-        (BlockInstance block, FluidInstance fluid)? result;
+        (State block, FluidInstance fluid)? result;
 
         if (Section.IsInBounds((position.X, position.Y, position.Z)))
         {
-            BlockInstance block = current.GetBlock(position);
+            State block = current.GetBlock(position);
             FluidInstance fluid = current.GetFluid(position);
 
             result = (block, fluid);
@@ -178,7 +179,7 @@ public class MeshingContext
             position = Section.ToLocalPosition(position);
 
             Section? neighbor = neighbors[side];
-            BlockInstance? block = neighbor?.GetBlock(position);
+            State? block = neighbor?.GetBlock(position);
             FluidInstance? fluid = neighbor?.GetFluid(position);
 
             result = neighbor != null ? (block!.Value, fluid!.Value) : null;
@@ -194,9 +195,9 @@ public class MeshingContext
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
     /// <returns>The block or null if there is no block.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance? GetBlock(Vector3i position, Side side)
+    public State? GetBlock(Vector3i position, Side side)
     {
-        BlockInstance? block;
+        State? block;
 
         if (Section.IsInBounds(position.X, position.Y, position.Z))
         {

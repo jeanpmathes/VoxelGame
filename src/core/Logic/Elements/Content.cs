@@ -10,38 +10,6 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-///     A specific instance of a block.
-/// </summary>
-/// <param name="State">The state of the block, which includes the block and its data.</param>
-public readonly record struct BlockInstance(State State) // todo: remove this and use state directly, also transfer all the methods and properties
-{
-    /// <summary>
-    ///     Get the default block instance.
-    /// </summary>
-    public static BlockInstance Default => new(Blocks.Instance.Core.Air.States.Default);
-
-    /// <summary>
-    /// Get the block of this instance.
-    /// </summary>
-    public Block Block => State.Owner.Block;
-
-    /// <inheritdoc cref="Block.IsFullySolid" />
-    public Boolean IsFullySolid => Block.IsFullySolid(State);
-
-    /// <inheritdoc cref="Block.IsFullyOpaque" />
-    public Boolean IsFullyOpaque => Block.IsFullyOpaque(State);
-
-    /// <inheritdoc cref="Block.IsSideFull" />
-    public Boolean IsSideFull(Side side)
-    {
-        return Block.IsSideFull(side, State);
-    }
-    
-    /// <inheritdoc cref="Block.IsReplaceable" />
-    public Boolean IsReplaceable => Block.IsReplaceable(State);
-}
-
-/// <summary>
 ///     A specific instance of a fluid.
 /// </summary>
 /// <param name="Fluid">The fluid.</param>
@@ -70,23 +38,24 @@ public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, Boole
 /// </summary>
 /// <param name="Block">The block instance.</param>
 /// <param name="Fluid">The fluid instance.</param>
-public record struct Content(BlockInstance Block, FluidInstance Fluid) 
+public record struct Content(State Block, FluidInstance Fluid)
 {
-    // todo: add to note about fluid rework that the content class should be removed, only state will be used then
-    
-    // todo: add better ToString for this struct and State
+    /// <summary>
+    /// Get the default state, which is always air.
+    /// </summary>
+    public static State DefaultState => Blocks.Instance.Core.Air.States.Default;
     
     /// <summary>
     ///     Create a new content instance.
     /// </summary>
     /// <param name="block">The block instance. The data is assumed to be 0.</param>
     /// <param name="fluid">The fluid instance. The level is assumed to be maximal and the fluid is assumed to be static.</param>
-    public Content(Block? block = null, Fluid? fluid = null) : this(block.AsInstance(), fluid.AsInstance()) {}
+    public Content(Block? block = null, Fluid? fluid = null) : this(block?.States.Default ?? DefaultState, fluid.AsInstance()) {}
 
     /// <summary>
     ///     Get the default content.
     /// </summary>
-    public static Content Default => new(BlockInstance.Default, FluidInstance.Default);
+    public static Content Default => new(DefaultState, FluidInstance.Default);
 
     /// <summary>
     ///     Whether the content is empty.
@@ -99,23 +68,19 @@ public record struct Content(BlockInstance Block, FluidInstance Fluid)
     /// </summary>
     public Boolean IsSettable => Block.IsReplaceable && Fluid.IsEmpty;
     
-    // todo: the multi block behavior should set IsReplaceable to false even though that would be the default anyways, setting itself as exclusive contributor
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return $"Content(Block: {Block}, Fluid: {Fluid})";
+    }
 }
 
 /// <summary>
-///     Extends the <see cref="BlockInstance" /> and <see cref="FluidInstance" /> classes.
+///     Extends the <see cref="FluidInstance" /> type.
 /// </summary>
-public static class ContentExtensions // todo: remove these two extensions
+public static class ContentExtensions
 {
     #pragma warning disable S4226 // Extensions can handle null references in their first argument
-    /// <summary>
-    ///     Get a block as instance.
-    /// </summary>
-    public static BlockInstance AsInstance(this Block? block, State? state = null)
-    {
-        return block is null ? BlockInstance.Default : new BlockInstance(state ?? block.States.Default);
-    }
-
     /// <summary>
     ///     Get a fluid as instance.
     /// </summary>

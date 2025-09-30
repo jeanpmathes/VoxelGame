@@ -9,6 +9,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
+using VoxelGame.Core.Logic.Attributes;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
@@ -75,6 +76,6 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
         if (replacement == Blocks.Instance.Core.Error)
             return;
 
-        world.SetBlock(new BlockInstance(replacement.States.Default), position);
+        world.SetBlock(replacement.States.Default, position);
     }
 }

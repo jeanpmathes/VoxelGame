@@ -82,8 +82,7 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
         State state = message.State;
         
         Int32 newHeight = (state.Get(Height) + 1) % (PartialHeight.MaximumHeight + 1);
-        state.Set(Height, newHeight);
         
-        message.World.SetBlock(new BlockInstance(state), message.Position);
+        message.World.SetBlock(state.With(Height, newHeight), message.Position);
     }
 }

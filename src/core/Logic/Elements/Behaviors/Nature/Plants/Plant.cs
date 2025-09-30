@@ -74,7 +74,7 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
         
         (World world, Vector3i position, Actor? _) = context;
         
-        BlockInstance? ground = world.GetBlock(position.Below());
+        State? ground = world.GetBlock(position.Below());
         
         return ground?.Block.Is<Plantable>() == true;
     }
@@ -83,9 +83,9 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
     {
         (World world, Vector3i position, _) = context;
         
-        BlockInstance? below = world.GetBlock(position.Below());
+        State? below = world.GetBlock(position.Below());
 
-        state.Set(IsLowered, below?.Block.Get<PartialHeight>() is {} partialHeight && partialHeight.GetHeight(below.Value.State) < PartialHeight.MaximumHeight);
+        state.Set(IsLowered, below?.Block.Get<PartialHeight>() is {} partialHeight && partialHeight.GetHeight(below.Value) < PartialHeight.MaximumHeight);
         
         return state;
     }

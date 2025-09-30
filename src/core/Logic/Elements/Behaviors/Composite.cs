@@ -139,7 +139,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         for (var y = 0; y < size.Y; y++)
         for (var z = 0; z < size.Z; z++)
         {
-            BlockInstance? block = world.GetBlock(position + (x, y, z));
+            State? block = world.GetBlock(position + (x, y, z));
 
             if (block?.IsReplaceable != true)
                 return false;
@@ -174,7 +174,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
             state = Subject.GetPlacementState(message.World, position, message.Actor);
             state.Set(Part, (x, y, z));
 
-            message.World.SetBlock(new BlockInstance(state), position);
+            message.World.SetBlock(state, position);
 
             PlacementCompleted.Publish(new PlacementCompletedMessage(Subject)
             {
@@ -202,8 +202,8 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     
     private void OnStateUpdate(Block.StateUpdateMessage message)
     {
-        State oldState = message.OldContent.Block.State;
-        State newState = message.NewContent.Block.State;
+        State oldState = message.OldContent.Block;
+        State newState = message.NewContent.Block;
         
         if (oldState == newState) return;
         
@@ -214,8 +214,8 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
         if (oldSize != newSize)
             ResizeComposite(message.World, message.Position - currentPart, oldSize, newSize, newState);
-        else if (message.OldContent.Block.State != message.NewContent.Block.State)
-            SetStateOnAllParts(message.World, newSize, message.Position - currentPart, currentPart, message.NewContent.Block.State);
+        else if (message.OldContent.Block != message.NewContent.Block)
+            SetStateOnAllParts(message.World, newSize, message.Position - currentPart, currentPart, message.NewContent.Block);
     }
     
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
@@ -259,7 +259,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
             if (inOld && inNew)
             {
                 state.Set(Part, (x, y, z));
-                world.SetBlock(new BlockInstance(state), current);
+                world.SetBlock(state, current);
             }
             else if (inOld && !inNew)
             {
@@ -268,7 +268,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
             else if (!inOld && inNew)
             {
                 state.Set(Part, (x, y, z));
-                world.SetBlock(new BlockInstance(state), current);
+                world.SetBlock(state, current);
             }
         }
     }
@@ -285,7 +285,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
             
             state.Set(Part, (x, y, z));
             
-            world.SetBlock(new BlockInstance(state), current);
+            world.SetBlock(state, current);
         }
     }
     

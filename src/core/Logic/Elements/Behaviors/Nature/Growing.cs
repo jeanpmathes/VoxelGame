@@ -113,7 +113,7 @@ public partial class Growing  : BlockBehavior, IBehavior<Growing, BlockBehavior,
 
         if (currentAge < MaxAge)
         {
-            message.World.SetBlock(new BlockInstance(message.State.With(Age, currentAge + 1)), message.Position);
+            message.World.SetBlock(message.State.With(Age, currentAge + 1), message.Position);
         }
         else
         {
@@ -130,7 +130,7 @@ public partial class Growing  : BlockBehavior, IBehavior<Growing, BlockBehavior,
                 return;
 
             if (Subject.Place(message.World, message.Position.Above()))
-                message.World.SetBlock(new BlockInstance(message.State.With(Age, value: 0)), message.Position);
+                message.World.SetBlock(message.State.With(Age, value: 0), message.Position);
         }
     }
 }

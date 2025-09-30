@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Toolkit.Utilities;
 
@@ -46,7 +47,7 @@ public class Targeting : ActorComponent, IConstructible<Actor, Targeting>
     /// <summary>
     ///     The targeted block, or null if no block is targeted.
     /// </summary>
-    public BlockInstance? Block { get; set; }
+    public State? Block { get; set; }
 
     /// <summary>
     ///     The targeted fluid, or null if no fluid is targeted.

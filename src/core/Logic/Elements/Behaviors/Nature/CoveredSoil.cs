@@ -10,6 +10,7 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
@@ -50,7 +51,7 @@ public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, 
     private void OnPlacement(Block.PlacementMessage message)
     {
         if (CanHaveCover(message.World, message.Position) == false) 
-            message.World.SetBlock(new BlockInstance(Subject.States.PlacementDefault), message.Position);
+            message.World.SetBlock(Subject.States.PlacementDefault, message.Position);
         else 
             Blocks.Instance.Environment.Soil.Place(message.World, message.Position, message.Actor);
     }
@@ -69,7 +70,7 @@ public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, 
     /// <returns><c>true</c> if the position can have cover, <c>false</c> if it cannot, and <c>null</c> if it is unknown.</returns>
     public static Boolean? CanHaveCover(World world, Vector3i position)
     {
-        BlockInstance? top = world.GetBlock(position.Above());
+        State? top = world.GetBlock(position.Above());
 
         if (top is null) return null;
         
@@ -85,6 +86,6 @@ public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, 
     /// <param name="position">The position of the block.</param>
     public void RemoveCover(World world, Vector3i position)
     {
-        world.SetBlock(Blocks.Instance.Environment.Soil.AsInstance(), position);
+        world.SetBlock(new State(Blocks.Instance.Environment.Soil), position);
     }
 }

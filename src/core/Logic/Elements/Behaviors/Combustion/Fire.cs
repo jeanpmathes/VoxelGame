@@ -223,7 +223,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
             else
             {
                 State state = SetSides(message.State, sides);
-                message.World.SetBlock(new BlockInstance(state), message.Position);
+                message.World.SetBlock(state, message.Position);
             }
         }
     }
@@ -312,7 +312,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         
         Boolean CheckSide(Side side)
         {
-            BlockInstance? neighbor = world.GetBlock(side.Offset(position));
+            State? neighbor = world.GetBlock(side.Offset(position));
             return neighbor is {IsFullySolid: true};
         }
     }

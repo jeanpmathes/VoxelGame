@@ -292,7 +292,7 @@ public class Section : IDisposable
     {
         Decode(value, out State state, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
 
-        content = new Content(new BlockInstance(state), fluid.AsInstance(level, isStatic));
+        content = new Content(state, fluid.AsInstance(level, isStatic));
     }
 
     /// <summary>
@@ -313,7 +313,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt32 Encode(in Content content)
     {
-        return Encode(content.Block.State, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
+        return Encode(content.Block, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
     }
 
     /// <summary>
@@ -322,13 +322,13 @@ public class Section : IDisposable
     /// <param name="blockPosition">The position.</param>
     /// <returns>The block at the position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance GetBlock(Vector3i blockPosition)
+    public State GetBlock(Vector3i blockPosition)
     {
         Throw.IfDisposed(disposed);
 
-        UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z) & BlockMask;
+        UInt32 value = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z) & BlockMask;
 
-        return new BlockInstance(Blocks.Instance.TranslateStateID(val & BlockMask));
+        return Blocks.Instance.TranslateStateID(value & BlockMask);
     }
 
     /// <summary>

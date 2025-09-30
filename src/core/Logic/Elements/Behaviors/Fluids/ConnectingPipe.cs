@@ -155,7 +155,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
             return;
 
         State newState = siding.SetSides(message.State, sides);
-        message.World.SetBlock(new BlockInstance(newState), message.Position);
+        message.World.SetBlock(newState, message.Position);
     }
     
     private static Sides DetermineOpenSides(World world, Vector3i position)
@@ -165,10 +165,10 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         foreach (Side side in Side.All.Sides())
         {
             Vector3i otherPosition = side.Offset(position);
-            BlockInstance? otherBlock = world.GetBlock(otherPosition);
+            State? otherBlock = world.GetBlock(otherPosition);
 
             if (otherBlock?.Block.Get<Piped>() is {} otherPiped 
-                && otherPiped.CanConnect(otherBlock.Value.State, side.Opposite(), otherPiped.Tier)) sides |= side.ToFlag();
+                && otherPiped.CanConnect(otherBlock.Value, side.Opposite(), otherPiped.Tier)) sides |= side.ToFlag();
         }
 
         if (sides.Count() == 1)

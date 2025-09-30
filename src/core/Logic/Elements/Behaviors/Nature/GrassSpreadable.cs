@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
+using VoxelGame.Core.Logic.Attributes;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
@@ -34,7 +35,7 @@ public class GrassSpreadable : BlockBehavior, IBehavior<GrassSpreadable, BlockBe
     {
         if (world.GetBlock(position)?.Block != Subject || CoveredSoil.CanHaveCover(world, position) != false) return false;
 
-        world.SetBlock(grass.AsInstance(), position);
+        world.SetBlock(new State(grass), position);
 
         return true;
     }

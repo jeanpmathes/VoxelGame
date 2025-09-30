@@ -15,7 +15,6 @@ using VoxelGame.Core.Logic.Elements.Behaviors;
 using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using Block = VoxelGame.Core.Logic.Elements.Block;
-using BlockInstance = VoxelGame.Core.Logic.Elements.BlockInstance;
 using Content = VoxelGame.Core.Logic.Elements.Content;
 using Elements_Block = VoxelGame.Core.Logic.Elements.Block;
 
@@ -79,7 +78,7 @@ public class SimpleBlock : Elements_Block, IOverlayTextureProvider
         void MeshSimpleSide(Side side)
         {
             Vector3i checkPosition = side.Offset(position);
-            BlockInstance? blockToCheck = context.GetBlock(checkPosition, side);
+            State? blockToCheck = context.GetBlock(checkPosition, side);
 
             if (blockToCheck == null) return;
             if (IsHiddenFace(this, blockToCheck.Value, side)) return;
@@ -125,7 +124,7 @@ public class SimpleBlock : Elements_Block, IOverlayTextureProvider
     /// <param name="side">The side of the current block that is being checked.</param>
     /// <returns>True if the face is hidden, false otherwise.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static Boolean IsHiddenFace(Block current, BlockInstance neighbor, Side side)
+    public static Boolean IsHiddenFace(Block current, State neighbor, Side side)
     {
         Boolean blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
                                                  || (current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques);
@@ -135,7 +134,7 @@ public class SimpleBlock : Elements_Block, IOverlayTextureProvider
     
     OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
     {
-        Simple.MeshData mesh = meshData[Side.Front][content.Block.State.Index];
+        Simple.MeshData mesh = meshData[Side.Front][content.Block.Index];
 
         return new OverlayTexture
         {

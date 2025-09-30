@@ -15,6 +15,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Generation.Worlds;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
@@ -276,7 +277,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <param name="position">The block position.</param>
     /// <returns>The block instance at the given position or null if the block was not found.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance? GetBlock(Vector3i position)
+    public State? GetBlock(Vector3i position)
     {
         Throw.IfDisposed(disposed);
 
@@ -327,10 +328,10 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     ///     Sets a block in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of
     ///     the changed block. The fluid at the position is preserved.
     /// </summary>
-    /// <param name="block">The block which should be set at the position.</param>
+    /// <param name="block">The block and its state which should be set at the position.</param>
     /// <param name="position">The block position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBlock(BlockInstance block, Vector3i position)
+    public void SetBlock(State block, Vector3i position)
     {
         Throw.IfDisposed(disposed);
 
@@ -350,7 +351,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        BlockInstance? potentialBlock = GetBlock(position);
+        State? potentialBlock = GetBlock(position);
 
         if (potentialBlock is not {} block) return;
 
@@ -392,10 +393,10 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
             if (neighborContent == null) continue;
 
-            (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
+            (State blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
 
             // Side is passed out of the perspective of the block receiving the block update.
-            blockNeighbor.Block.DoNeighborUpdate(this, neighborPosition, blockNeighbor.State, side.Opposite());
+            blockNeighbor.Block.DoNeighborUpdate(this, neighborPosition, blockNeighbor, side.Opposite());
             fluidNeighbor.Fluid.UpdateSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 
@@ -442,7 +443,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        SetBlock(BlockInstance.Default, position);
+        SetBlock(Content.DefaultState, position);
     }
 
     /// <summary>
@@ -468,9 +469,9 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         if (content == null) return false;
 
-        (BlockInstance block, FluidInstance fluid) = content.Value;
+        (State block, FluidInstance fluid) = content.Value;
 
-        block.Block.DoRandomUpdate(this, position, block.State);
+        block.Block.DoRandomUpdate(this, position, block);
         fluid.Fluid.DoRandomUpdate(this, position, fluid.Level, fluid.IsStatic);
 
         return true;

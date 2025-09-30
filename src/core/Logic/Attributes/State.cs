@@ -21,6 +21,15 @@ namespace VoxelGame.Core.Logic.Attributes;
 public record struct State(StateSet Owner, Int32 Index)
 {
     /// <summary>
+    /// Create a new state for the default state of the given block.
+    /// </summary>
+    /// <param name="block">The block to create the state for.</param>
+    public State(Block block) : this(block.States, block.States.Default.Index)
+    {
+        
+    }
+    
+    /// <summary>
     /// Get the state ID of this state.
     /// It identifies this state uniquely across all states of all blocks.
     /// </summary>
@@ -35,6 +44,21 @@ public record struct State(StateSet Owner, Int32 Index)
     /// Ugly fix to pretend that some states can have a fluid associated with them.
     /// </summary>
     public Fluid? Fluid => Owner.Block.Is<Fillable>() && Index % 2 == 0 ? Fluids.Instance.FreshWater : null;
+
+    /// <inheritdoc cref="Block.IsFullySolid" />
+    public Boolean IsFullySolid => Block.IsFullySolid(this);
+
+    /// <inheritdoc cref="Block.IsFullyOpaque" />
+    public Boolean IsFullyOpaque => Block.IsFullyOpaque(this);
+
+    /// <inheritdoc cref="Block.IsSideFull" />
+    public Boolean IsSideFull(Side side)
+    {
+        return Block.IsSideFull(side, this);
+    }
+    
+    /// <inheritdoc cref="Block.IsReplaceable" />
+    public Boolean IsReplaceable => Block.IsReplaceable(this);
 
     /// <summary>
     ///     Get the properties of this state, which are the attributes and their values for this state.
@@ -68,7 +92,7 @@ public record struct State(StateSet Owner, Int32 Index)
     /// <param name="attribute">The attribute to set the value for.</param>
     /// <param name="value">The value to set for the attribute.</param>
     /// <typeparam name="TValue">The value type of the attribute.</typeparam>
-    public void Set<TValue>(IAttribute<TValue> attribute, TValue value) // todo: go through all State::Set and check if With would be better
+    public void Set<TValue>(IAttribute<TValue> attribute, TValue value)
     {
         if (attribute.Multiplicity == 1)
             return;
@@ -101,7 +125,7 @@ public record struct State(StateSet Owner, Int32 Index)
     /// <inheritdoc />
     public override String ToString()
     {
-        return $"{Block.NamedID}:{Index} [{Owner.GetJson(this).ToJsonString(new JsonSerializerOptions()
+        return $"{Block.NamedID}:{Index} [{Owner.GetJson(this).ToJsonString(new JsonSerializerOptions
         {
             WriteIndented = false
         })}]";

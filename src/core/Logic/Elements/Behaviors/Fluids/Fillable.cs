@@ -68,12 +68,12 @@ public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
     /// <returns>True if inflow is allowed, false otherwise.</returns>
     public Boolean CanInflow(World world, Vector3i position, Side side, Fluid fluid)
     {
-        BlockInstance? block = world.GetBlock(position);
+        State? block = world.GetBlock(position);
         
-        if (block is not { State: var state }) return false;
-        if (state.Block != Subject) return false;
+        if (block == null) return false;
+        if (block.Value.Block != Subject) return false;
         
-        return IsInflowAllowed.GetValue(original: true, (world, position, state, side, fluid));
+        return IsInflowAllowed.GetValue(original: true, (world, position, block.Value, side, fluid));
     }
     
     /// <summary>
@@ -86,11 +86,11 @@ public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
     /// <returns>True if outflow is allowed, false otherwise.</returns>
     public Boolean CanOutflow(World world, Vector3i position, Side side, Fluid fluid)
     {
-        BlockInstance? block = world.GetBlock(position);
+        State? block = world.GetBlock(position);
         
-        if (block is not { State: var state }) return false;
-        if (state.Block != Subject) return false;
+        if (block == null) return false;
+        if (block.Value.Block != Subject) return false;
         
-        return IsOutflowAllowed.GetValue(original: true, (world, position, state, side, fluid));
+        return IsOutflowAllowed.GetValue(original: true, (world, position, block.Value, side, fluid));
     }
 }

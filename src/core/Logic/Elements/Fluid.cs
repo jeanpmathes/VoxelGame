@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Physics;
@@ -232,11 +233,11 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void MeshFluidSide(Side side)
         {
-            (BlockInstance, FluidInstance)? content = context.GetBlockAndFluid(side.Offset(position), side);
+            (State, FluidInstance)? content = context.GetBlockAndFluid(side.Offset(position), side);
 
             if (content == null) return;
 
-            (BlockInstance blockToCheck, FluidInstance fluidToCheck) = content.Value;
+            (State blockToCheck, FluidInstance fluidToCheck) = content.Value;
 
             Boolean atVerticalEnd = side is Side.Top or Side.Bottom;
 

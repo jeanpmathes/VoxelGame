@@ -270,7 +270,7 @@ public abstract class Layer
             
             // todo: see Cover for the same issue with height
 
-            snow = new Content(new BlockInstance(block.States.Default), FluidInstance.Default);
+            snow = new Content(block.States.Default, FluidInstance.Default);
             filled = Content.Default;
         }
 
@@ -420,7 +420,7 @@ public abstract class Layer
             IsDampen = isDampen;
             IsSolid = true;
 
-            ice = new Content(new BlockInstance(Blocks.Instance.Environment.Ice.States.GenerationDefault), FluidInstance.Default); // todo: the generation height problem
+            ice = new Content(Blocks.Instance.Environment.Ice.States.GenerationDefault, FluidInstance.Default); // todo: the generation height problem
         }
 
         public override Content GetContent(Int32 depth, Int32 offset, Int32 y, Map.StoneType stoneType, Boolean isFilled, Temperature temperature)

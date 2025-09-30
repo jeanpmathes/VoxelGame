@@ -7,6 +7,7 @@
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
@@ -56,7 +57,7 @@ public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     
     private static void OnAshCover(AshCoverable.AshCoverMessage message)
     {
-        message.World.SetBlock(Blocks.Instance.Environment.AshCoveredSoil.AsInstance(), message.Position);
+        message.World.SetBlock(new State(Blocks.Instance.Environment.AshCoveredSoil), message.Position);
     }
 
     /// <inheritdoc/>

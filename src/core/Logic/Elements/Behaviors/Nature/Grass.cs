@@ -8,6 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 using VoxelGame.Core.Utilities;
 
@@ -51,7 +52,7 @@ public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
     
     private static void OnBurn(Combustible.BurnMessage message)
     {
-        message.World.SetBlock(Blocks.Instance.Environment.AshCoveredSoil.AsInstance(), message.Position);
+        message.World.SetBlock(new State(Blocks.Instance.Environment.AshCoveredSoil), message.Position);
         message.Fire.Place(message.World, message.Position.Above());
     }
 }

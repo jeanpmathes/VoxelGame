@@ -135,7 +135,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
             newState.Set(Age, currentAge + 1);
         }
         
-        message.World.SetBlock(new BlockInstance(newState), message.Position);
+        message.World.SetBlock(newState, message.Position);
     }
 
     private TID GetActiveTexture(TID original, State state)

@@ -4,6 +4,7 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Utilities;
 
@@ -42,7 +43,7 @@ public class CompositeGrounded : BlockBehavior, IBehavior<CompositeGrounded, Blo
     private static void OnPlacementCompleted(Composite.PlacementCompletedMessage message)
     {
         Vector3i positionBelow = message.Position.Below();
-        BlockInstance blockBelow = message.World.GetBlock(positionBelow) ?? BlockInstance.Default;
+        State blockBelow = message.World.GetBlock(positionBelow) ?? Content.DefaultState;
 
         if (blockBelow.IsFullySolid) 
             return;

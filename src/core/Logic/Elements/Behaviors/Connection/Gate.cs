@@ -288,14 +288,14 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
         
         isClosed = !isClosed;
         
-        message.Actor.World.SetBlock(new BlockInstance(rotatable.SetOrientation(message.State.With(IsOpen, !isClosed), orientation)), message.Position);
+        message.Actor.World.SetBlock(rotatable.SetOrientation(message.State.With(IsOpen, !isClosed), orientation), message.Position);
     }
     
     private static Boolean CheckOrientation(World world, Vector3i position, Orientation orientation)
     {
-        BlockInstance? other = world.GetBlock(orientation.Offset(position));
+        State? other = world.GetBlock(orientation.Offset(position));
 
-        return other?.Block.Get<Connectable>() is {} connectable && connectable.CanConnect(other.Value.State, orientation.ToSide().Opposite(), connectable);
+        return other?.Block.Get<Connectable>() is {} connectable && connectable.CanConnect(other.Value, orientation.ToSide().Opposite(), connectable);
     }
 
 }

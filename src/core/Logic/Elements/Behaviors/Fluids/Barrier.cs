@@ -63,7 +63,7 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
     
     private void OnActorInteraction(Block.ActorInteractionMessage message)
     {
-        message.Actor.World.SetBlock(new BlockInstance(message.State.With(IsOpen, !message.State.Get(IsOpen))), message.Position);
+        message.Actor.World.SetBlock(message.State.With(IsOpen, !message.State.Get(IsOpen)), message.Position);
     }
     
     /// <summary>

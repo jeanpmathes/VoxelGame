@@ -188,7 +188,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
             else
             {
                 State newState = AttachedState.GetValue(message.State, (message.State, remainingSides)) ?? message.State;
-                message.World.SetBlock(new BlockInstance(newState), message.Position);
+                message.World.SetBlock(newState, message.Position);
             }
         }
     }
@@ -242,7 +242,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
             else
             {
                 State newState = AttachedState.GetValue(state, (state, remainingSides)) ?? state;
-                world.SetBlock(new BlockInstance(newState), position);
+                world.SetBlock(newState, position);
             }
         }
     }

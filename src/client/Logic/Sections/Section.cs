@@ -157,7 +157,7 @@ public class Section : Core.Logic.Sections.Section
 
                 currentFluid.CreateMesh(
                     (x, y, z),
-                    FluidMeshInfo.Fluid(new BlockInstance(state), level, Side.All, isStatic),
+                    FluidMeshInfo.Fluid(state, level, Side.All, isStatic),
                     context);
             }
         }

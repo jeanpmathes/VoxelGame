@@ -90,6 +90,6 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
     private void OnModifyHeight(Modifiable.ModifyHeightMessage message)
     {
         State newState = message.State.With(Height, (message.State.Get(Height) + 1) % MaximumHeight);
-        message.World.SetBlock(new BlockInstance(newState), message.Position);
+        message.World.SetBlock(newState, message.Position);
     }
 }

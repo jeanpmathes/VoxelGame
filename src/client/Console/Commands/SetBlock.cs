@@ -48,6 +48,6 @@ public class SetBlock : Command
             return;
         }
 
-        Context.Player.World.SetBlock(new BlockInstance(block.States.Default), position);
+        Context.Player.World.SetBlock(block.States.Default, position);
     }
 }

@@ -49,7 +49,7 @@ public class FlatBlockDecoration : Decoration // todo: rename to attached block 
             // todo: think of a way to get orientation.Opposite() to the block, similar issue as in the cover placement with snow
             // todo: also probably start of with the GenerationState instead of States.Default
 
-            grid.SetContent(new Content(new BlockInstance(block.States.Default), FluidInstance.Default), position);
+            grid.SetContent(new Content(block.States.Default, FluidInstance.Default), position);
 
             break;
         }

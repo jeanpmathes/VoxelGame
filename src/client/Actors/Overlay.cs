@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Physics;
@@ -90,11 +91,11 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
         return anyIsBlock ? overlays.Where(x => x.IsBlock) : overlays;
     }
 
-    private static (Double lower, Double upper)? GetOverlayBounds(BlockInstance block, Vector3d position, Frustum frustum)
+    private static (Double lower, Double upper)? GetOverlayBounds(State block, Vector3d position, Frustum frustum)
     {
         var height = 15;
 
-        if (block.Block.Get<PartialHeight>() is {} partialHeight) height = partialHeight.GetHeight(block.State);
+        if (block.Block.Get<PartialHeight>() is {} partialHeight) height = partialHeight.GetHeight(block);
 
         return GetOverlayBounds(height, position, inverted: false, frustum);
     }

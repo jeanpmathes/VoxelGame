@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Utilities;
 
@@ -145,7 +146,7 @@ public static class Raycast
 
     private static Boolean BlockIntersectionCheck(World world, Ray ray, Vector3i position)
     {
-        BlockInstance? potentialBlock = world.GetBlock(position);
+        State? potentialBlock = world.GetBlock(position);
 
         if (potentialBlock is not {} block) return false;
 

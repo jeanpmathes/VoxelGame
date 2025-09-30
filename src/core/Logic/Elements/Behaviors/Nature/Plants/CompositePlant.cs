@@ -10,6 +10,7 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
@@ -42,7 +43,7 @@ public class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBeha
         
         if (part.Y != 0) return true;
         
-        BlockInstance? ground = world.GetBlock(position.Below());
+        State? ground = world.GetBlock(position.Below());
         
         return ground?.Block.Is<Plantable>() == true;
     }

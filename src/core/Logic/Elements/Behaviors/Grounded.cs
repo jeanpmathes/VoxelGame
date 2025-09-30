@@ -10,6 +10,7 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Utilities;
 
@@ -56,7 +57,7 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
     private static void OnPlacementCompleted(Block.PlacementCompletedMessage message)
     {
         Vector3i positionBelow = message.Position.Below();
-        BlockInstance blockBelow = message.World.GetBlock(positionBelow) ?? BlockInstance.Default;
+        State blockBelow = message.World.GetBlock(positionBelow) ?? Content.DefaultState;
         
         if (blockBelow.IsFullySolid) 
             return;
@@ -78,7 +79,7 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
     internal static Boolean IsGrounded(World world, Vector3i position)
     {
         Vector3i positionBelow = position.Below();
-        BlockInstance blockBelow = world.GetBlock(positionBelow) ?? BlockInstance.Default;
+        State blockBelow = world.GetBlock(positionBelow) ?? Content.DefaultState;
 
         return blockBelow.IsFullySolid || blockBelow.Block.Is<CompletableGround>();
     }
