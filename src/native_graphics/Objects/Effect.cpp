@@ -41,7 +41,13 @@ void Effect::SetNewVertices(EffectVertex const* vertices, UINT const vertexCount
         return;
 
     auto const vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
-    util::ReAllocateBuffer(&GetUploadDataBuffer(), GetClient(), vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
+    util::ReAllocateBuffer(
+        &GetUploadDataBuffer(),
+        GetClient(),
+        vertexBufferSize,
+        D3D12_RESOURCE_FLAG_NONE,
+        D3D12_RESOURCE_STATE_GENERIC_READ,
+        D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
     TryDo(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
@@ -54,7 +60,10 @@ void Effect::Draw(ComPtr<ID3D12GraphicsCommandList4> const& commandList) const
     m_pipeline->SetPipeline(commandList);
     m_pipeline->BindResources(commandList);
 
-    m_pipeline->CreateConstantBufferView(m_pipeline->GetBindings().SpatialEffect().instanceData, 0, &m_instanceDataBufferView);
+    m_pipeline->CreateConstantBufferView(
+        m_pipeline->GetBindings().SpatialEffect().instanceData,
+        0,
+        &m_instanceDataBufferView);
 
     commandList->IASetVertexBuffers(0, 1, &m_geometryVBV);
     commandList->DrawInstanced(GetDataElementCount(), 1, 0, 0);
@@ -62,7 +71,9 @@ void Effect::Draw(ComPtr<ID3D12GraphicsCommandList4> const& commandList) const
 
 void Effect::Accept(Visitor& visitor) { visitor.Visit(*this); }
 
-void Effect::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers)
+void Effect::DoDataUpload(
+    ComPtr<ID3D12GraphicsCommandList> const& commandList,
+    std::vector<D3D12_RESOURCE_BARRIER>*     barriers)
 {
     if (GetDataElementCount() == 0)
     {
@@ -72,13 +83,22 @@ void Effect::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, 
 
     auto const geometryBufferSize = GetUploadDataBuffer().resource->GetDesc().Width;
 
-    util::ReAllocateBuffer(&m_geometryBuffer, GetClient(), geometryBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_HEAP_TYPE_DEFAULT);
+    util::ReAllocateBuffer(
+        &m_geometryBuffer,
+        GetClient(),
+        geometryBufferSize,
+        D3D12_RESOURCE_FLAG_NONE,
+        D3D12_RESOURCE_STATE_COPY_DEST,
+        D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT_WITH_ID(m_geometryBuffer);
 
     commandList->CopyBufferRegion(m_geometryBuffer.Get(), 0, GetUploadDataBuffer().Get(), 0, geometryBufferSize);
 
     D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {
-        CD3DX12_RESOURCE_BARRIER::Transition(m_geometryBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_geometryBuffer.Get(),
+            D3D12_RESOURCE_STATE_COPY_DEST,
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
     };
     barriers->push_back(transitionCopyDestToShaderResource);
 

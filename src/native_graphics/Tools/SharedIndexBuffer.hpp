@@ -17,8 +17,10 @@ class SharedIndexBuffer
 public:
     explicit SharedIndexBuffer(Space& space);
 
-    std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount, std::vector<D3D12_RESOURCE_BARRIER>* barriers);
-    void                                        CleanupRender();
+    std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(
+        UINT                                 vertexCount,
+        std::vector<D3D12_RESOURCE_BARRIER>* barriers);
+    void CleanupRender();
 
 private:
     Space& m_space;

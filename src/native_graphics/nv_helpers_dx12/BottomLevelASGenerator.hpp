@@ -90,7 +90,11 @@ namespace nv_helpers_dx12
          * \param boundsCount Number of bounding boxes to consider in the buffer.
          * \param boundsSizeInBytes Size of a bounding box, used to stride in the buffer.
          */
-        void AddBoundsBuffer(Allocation<ID3D12Resource> const& boundsBuffer, UINT64 boundsOffsetInBytes, uint32_t boundsCount, UINT boundsSizeInBytes);
+        void AddBoundsBuffer(
+            Allocation<ID3D12Resource> const& boundsBuffer,
+            UINT64                            boundsOffsetInBytes,
+            uint32_t                          boundsCount,
+            UINT                              boundsSizeInBytes);
 
         /**
          * \brief Compute the size of the scratch space required to build the acceleration structure, as well as the size of the resulting structure. The allocation of the buffers is then left to the application.
@@ -99,7 +103,11 @@ namespace nv_helpers_dx12
          * \param scratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure.
          * \param resultSizeInBytes Required GPU memory to store the acceleration structure.
          */
-        void ComputeASBufferSizes(ID3D12Device5* device, bool allowUpdate, UINT64* scratchSizeInBytes, UINT64* resultSizeInBytes);
+        void ComputeASBufferSizes(
+            ID3D12Device5* device,
+            bool           allowUpdate,
+            UINT64*        scratchSizeInBytes,
+            UINT64*        resultSizeInBytes);
 
         /**
          * \brief Enqueue the construction of the acceleration structure on a command list, using application-provided buffers and possibly a pointer to the previous acceleration structure in case of iterative updates. Note that the update can be done in place: the result and previousResult pointers can be the same.
@@ -130,6 +138,7 @@ namespace nv_helpers_dx12
         UINT64 m_scratchSizeInBytes = 0;
         UINT64 m_resultSizeInBytes  = 0;
 
-        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
+            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
     };
 }

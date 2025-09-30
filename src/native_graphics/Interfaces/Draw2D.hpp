@@ -23,8 +23,8 @@ namespace draw2d
 #pragma pack(pop)
 
     using InitializeTextures = void(*)(Texture** textures, UINT textureCount, Pipeline* ctx);
-    using UploadBuffer       = void(*)(Vertex const* vertices, UINT vertexCount, Pipeline* ctx);
-    using DrawBuffer         = void(*)(UINT firstVertex, UINT vertexCount, UINT textureIndex, BOOL useTexture, Pipeline* ctx);
+    using UploadBuffer = void(*)(Vertex const* vertices, UINT vertexCount, Pipeline* ctx);
+    using DrawBuffer = void(*)(UINT firstVertex, UINT vertexCount, UINT textureIndex, BOOL useTexture, Pipeline* ctx);
 
     struct Drawer
     {

@@ -60,8 +60,8 @@ namespace
     {
         std::map<MouseCursor, HCURSOR> cursors;
 
-        for (int i                               = 0; i < static_cast<int>(MouseCursor::COUNT); i++)
-            cursors[static_cast<MouseCursor>(i)] = LoadCursorFromEnum(static_cast<MouseCursor>(i));
+        for (int i = 0; i < static_cast<int>(MouseCursor::COUNT); i++) cursors[static_cast<MouseCursor>(i)] =
+            LoadCursorFromEnum(static_cast<MouseCursor>(i));
 
         return cursors;
     }
@@ -80,7 +80,10 @@ DXApp::DXApp(Configuration const& configuration)
 
 DXApp::~DXApp() = default;
 
-bool DXApp::HasFlag(CycleFlags value, CycleFlags flag) { return static_cast<bool>(static_cast<int>(value) & static_cast<int>(flag)); }
+bool DXApp::HasFlag(CycleFlags value, CycleFlags flag)
+{
+    return static_cast<bool>(static_cast<int>(value) & static_cast<int>(flag));
+}
 
 void DXApp::Update(CycleFlags const flags, bool const timer)
 {
@@ -181,7 +184,8 @@ void DXApp::OnSizeMove(bool const enter)
 {
     if (enter)
     {
-        CheckReturn(SetTimer(Win32Application::GetWindowHandle(), IDT_UPDATE, m_logicTimer.GetTargetElapsedMilliseconds(), nullptr));
+        CheckReturn(
+            SetTimer(Win32Application::GetWindowHandle(), IDT_UPDATE, m_logicTimer.GetTargetElapsedMilliseconds(), nullptr));
         m_isUpdateTimerRunning = true;
     }
     else if (m_isUpdateTimerRunning)
@@ -267,15 +271,19 @@ std::optional<DXApp::Cycle> DXApp::GetCycle() const
     return Cycle::WORKER;
 }
 
-ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(ComPtr<IDXGIFactory4> const& dxgiFactory, ComPtr<ID3D12DeviceFactory> const& deviceFactory, bool const requestHighPerformanceAdapter)
+ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
+    ComPtr<IDXGIFactory4> const&       dxgiFactory,
+    ComPtr<ID3D12DeviceFactory> const& deviceFactory,
+    bool const                         requestHighPerformanceAdapter)
 {
     ComPtr<IDXGIAdapter1> adapter;
 
     ComPtr<IDXGIFactory6> factory6;
     if (SUCCEEDED(dxgiFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
         for (UINT adapterIndex = 0; SUCCEEDED(
-                 factory6->EnumAdapterByGpuPreference( adapterIndex, requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
-                     IID_PPV_ARGS(&adapter))); ++adapterIndex)
+                 factory6->EnumAdapterByGpuPreference( adapterIndex, requestHighPerformanceAdapter == true ?
+                     DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&adapter)));
+             ++adapterIndex)
         {
             DXGI_ADAPTER_DESC1 desc;
             TryDo(adapter->GetDesc1(&desc));
@@ -283,7 +291,9 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(ComPtr<IDXGIFactory4> const& dxg
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 
             ComPtr<ID3D12Device> uselessDevice;
-            if (SUCCEEDED(deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr))) break ;
+            if (SUCCEEDED(
+                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr)))
+                break ;
         }
 
     if (adapter.Get() == nullptr)
@@ -295,7 +305,9 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(ComPtr<IDXGIFactory4> const& dxg
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 
             ComPtr<ID3D12Device> uselessDevice;
-            if (SUCCEEDED(deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr))) break ;
+            if (SUCCEEDED(
+                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr)))
+                break ;
         }
 
     return adapter;
@@ -313,8 +325,10 @@ void DXApp::CheckTearingSupport()
     HRESULT               hr = CreateDXGIFactory1(IID_PPV_ARGS(&factory));
 
     bool allowTearing = false;
-    if (SUCCEEDED(hr))
-        hr = factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
+    if (SUCCEEDED(hr)) hr = factory->CheckFeatureSupport(
+        DXGI_FEATURE_PRESENT_ALLOW_TEARING,
+        &allowTearing,
+        sizeof(allowTearing));
 
     auto const isTearingConfigured = static_cast<bool>(m_configuration.options & ConfigurationOptions::ALLOW_TEARING);
     m_tearingSupport               = SUCCEEDED(hr) && allowTearing && isTearingConfigured;

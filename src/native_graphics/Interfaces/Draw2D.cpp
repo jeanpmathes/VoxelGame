@@ -18,7 +18,8 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, UINT id
         NAME_D3D12_OBJECT(booleanConstantBuffer);
 
         this->m_cbuffers.push_back(booleanConstantBuffer);
-        this->m_constantBufferViews.push_back({booleanConstantBuffer.GetGPUVirtualAddress(), static_cast<UINT>(alignedSize)});
+        this->m_constantBufferViews.push_back(
+            {booleanConstantBuffer.GetGPUVirtualAddress(), static_cast<UINT>(alignedSize)});
 
         TryDo(util::MapAndWrite(booleanConstantBuffer, value));
     };
@@ -26,7 +27,9 @@ draw2d::Pipeline::Pipeline(NativeClient& client, RasterPipeline* raster, UINT id
     addBuffer(TRUE);
     addBuffer(FALSE);
 
-    this->m_raster->SetSelectionListContent(this->m_raster->GetBindings().Draw2D().booleans, this->m_constantBufferViews);
+    this->m_raster->SetSelectionListContent(
+        this->m_raster->GetBindings().Draw2D().booleans,
+        this->m_constantBufferViews);
 }
 
 static constexpr UINT TRUE_DESCRIPTOR_INDEX  = 0;
@@ -65,20 +68,43 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
 
             UINT const vertexBufferSize = vertexCount * sizeof(Vertex);
 
-            util::ReAllocateBuffer(&ctx->m_uploadBuffer, *ctx->m_client, vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
+            util::ReAllocateBuffer(
+                &ctx->m_uploadBuffer,
+                *ctx->m_client,
+                vertexBufferSize,
+                D3D12_RESOURCE_FLAG_NONE,
+                D3D12_RESOURCE_STATE_GENERIC_READ,
+                D3D12_HEAP_TYPE_UPLOAD);
             NAME_D3D12_OBJECT(ctx->m_uploadBuffer);
 
             TryDo(util::MapAndWrite(ctx->m_uploadBuffer, vertices, vertexCount));
 
-            util::ReAllocateBuffer(&ctx->m_vertexBuffer, *ctx->m_client, vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_DEFAULT);
+            util::ReAllocateBuffer(
+                &ctx->m_vertexBuffer,
+                *ctx->m_client,
+                vertexBufferSize,
+                D3D12_RESOURCE_FLAG_NONE,
+                D3D12_RESOURCE_STATE_COMMON,
+                D3D12_HEAP_TYPE_DEFAULT);
             NAME_D3D12_OBJECT(ctx->m_vertexBuffer);
 
-            auto transition = CD3DX12_RESOURCE_BARRIER::Transition(ctx->m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+            auto transition = CD3DX12_RESOURCE_BARRIER::Transition(
+                ctx->m_vertexBuffer.Get(),
+                D3D12_RESOURCE_STATE_COMMON,
+                D3D12_RESOURCE_STATE_COPY_DEST);
             ctx->m_currentCommandList->ResourceBarrier(1, &transition);
 
-            ctx->m_currentCommandList->CopyBufferRegion(ctx->m_vertexBuffer.Get(), 0, ctx->m_uploadBuffer.Get(), 0, vertexBufferSize);
+            ctx->m_currentCommandList->CopyBufferRegion(
+                ctx->m_vertexBuffer.Get(),
+                0,
+                ctx->m_uploadBuffer.Get(),
+                0,
+                vertexBufferSize);
 
-            transition = CD3DX12_RESOURCE_BARRIER::Transition(ctx->m_vertexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+            transition = CD3DX12_RESOURCE_BARRIER::Transition(
+                ctx->m_vertexBuffer.Get(),
+                D3D12_RESOURCE_STATE_COPY_DEST,
+                D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
             ctx->m_currentCommandList->ResourceBarrier(1, &transition);
 
             ctx->m_vertexBufferView                = {};
@@ -88,7 +114,12 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
 
             ctx->BindVertexBuffer();
         },
-        .drawBuffer = [](UINT const firstVertex, UINT const vertexCount, UINT const textureIndex, BOOL const useTexture, Pipeline* ctx)
+        .drawBuffer = [](
+        UINT const firstVertex,
+        UINT const vertexCount,
+        UINT const textureIndex,
+        BOOL const useTexture,
+        Pipeline*  ctx)
         {
             Require(vertexCount > 0);
 
@@ -152,7 +183,10 @@ void draw2d::Pipeline::BindBoolean() const
 
 void draw2d::Pipeline::BindTextures() const
 {
-    this->m_raster->BindSelectionIndex(this->m_currentCommandList, this->m_raster->GetBindings().Draw2D().textures, this->m_currentTextureIndex);
+    this->m_raster->BindSelectionIndex(
+        this->m_currentCommandList,
+        this->m_raster->GetBindings().Draw2D().textures,
+        this->m_currentTextureIndex);
 }
 
 void draw2d::Pipeline::BindVertexBuffer()

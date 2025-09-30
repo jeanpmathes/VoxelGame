@@ -19,7 +19,9 @@ AddressableBuffer InBufferAllocator::Allocate(UINT64 const size)
     return AllocateInternal(size);
 }
 
-void InBufferAllocator::CreateBarriers(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<ID3D12Resource*> const& resources)
+void InBufferAllocator::CreateBarriers(
+    ComPtr<ID3D12GraphicsCommandList> const& commandList,
+    std::vector<ID3D12Resource*> const&      resources)
 {
     size_t const uavCount = resources.size() + m_blocks.size();
 
@@ -75,10 +77,18 @@ AddressableBuffer InBufferAllocator::AllocateInternal(UINT64 const size)
 Allocation<ID3D12Resource> InBufferAllocator::AllocateMemory(UINT64 const size) const
 {
     bool const committed = m_pix;
-    return util::AllocateBuffer(*m_client, size, D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS, m_state, D3D12_HEAP_TYPE_DEFAULT, committed);
+    return util::AllocateBuffer(
+        *m_client,
+        size,
+        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+        m_state,
+        D3D12_HEAP_TYPE_DEFAULT,
+        committed);
 }
 
-std::unique_ptr<InBufferAllocator::Block> InBufferAllocator::Block::Create(InBufferAllocator& allocator, size_t const index)
+std::unique_ptr<InBufferAllocator::Block> InBufferAllocator::Block::Create(
+    InBufferAllocator& allocator,
+    size_t const       index)
 {
     D3D12MA::VirtualBlock* block;
     TryDo(CreateVirtualBlock(&allocator.m_blockDescription, &block));
@@ -117,7 +127,11 @@ ID3D12Resource* InBufferAllocator::Block::GetResource() const { return m_memory.
 
 InBufferAllocator::Block::~Block() { if (m_block) m_block->Release(); }
 
-InBufferAllocator::Block::Block(D3D12MA::VirtualBlock* block, Allocation<ID3D12Resource> memory, InBufferAllocator* allocator, size_t const index)
+InBufferAllocator::Block::Block(
+    D3D12MA::VirtualBlock*     block,
+    Allocation<ID3D12Resource> memory,
+    InBufferAllocator*         allocator,
+    size_t const               index)
     : m_block(block)
   , m_memory(std::move(memory))
   , m_allocator(allocator)
@@ -131,7 +145,10 @@ AddressableBuffer::AddressableBuffer(Allocation<ID3D12Resource> resource)
 {
 }
 
-AddressableBuffer::AddressableBuffer(D3D12_GPU_VIRTUAL_ADDRESS const address, D3D12MA::VirtualAllocation const allocation, InBufferAllocator::Block* block)
+AddressableBuffer::AddressableBuffer(
+    D3D12_GPU_VIRTUAL_ADDRESS const  address,
+    D3D12MA::VirtualAllocation const allocation,
+    InBufferAllocator::Block*        block)
     : m_address(address)
   , m_allocation(allocation)
   , m_block(block)
@@ -164,4 +181,7 @@ AddressableBuffer::~AddressableBuffer()
 
 D3D12_GPU_VIRTUAL_ADDRESS AddressableBuffer::GetAddress() const { return m_address; }
 
-ID3D12Resource* AddressableBuffer::GetResource() const { return m_resource.has_value() ? m_resource.value().Get() : nullptr; }
+ID3D12Resource* AddressableBuffer::GetResource() const
+{
+    return m_resource.has_value() ? m_resource.value().Get() : nullptr;
+}

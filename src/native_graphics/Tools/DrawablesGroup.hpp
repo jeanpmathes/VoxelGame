@@ -166,8 +166,7 @@ public:
     {
         return std::ranges::views::transform(
             m_modified,
-            [this](Drawable::EntryIndex const entry) -> D*
-            {
+            [this](Drawable::EntryIndex const entry) -> D* {
                 Require(m_entries[entry] != nullptr);
                 return m_entries[entry].get();
             });

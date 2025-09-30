@@ -64,7 +64,9 @@ public:
      * Enqueues commands to upload the data to the GPU.
      * Should only be called when the data is modified.
      */
-    void EnqueueDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers);
+    void EnqueueDataUpload(
+        ComPtr<ID3D12GraphicsCommandList> const& commandList,
+        std::vector<D3D12_RESOURCE_BARRIER>*     barriers);
 
     /**
      * Finalizes the data upload.
@@ -113,7 +115,9 @@ protected:
     bool                                      HandleModification(UINT newElementCount);
     [[nodiscard]] Allocation<ID3D12Resource>& GetUploadDataBuffer();
 
-    virtual void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers) = 0;
+    virtual void DoDataUpload(
+        ComPtr<ID3D12GraphicsCommandList> const& commandList,
+        std::vector<D3D12_RESOURCE_BARRIER>*     barriers) = 0;
     virtual void DoReset() = 0;
 
 private:

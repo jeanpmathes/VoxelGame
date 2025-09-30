@@ -60,7 +60,12 @@ constexpr void Require(bool const condition, std::source_location const& locatio
 
     if (!condition)
     {
-        std::string const message = std::format("failed requirement in function {} at {}:{}:{}", location.function_name(), location.file_name(), location.line(), location.column());
+        std::string const message = std::format(
+            "failed requirement in function {} at {}:{}:{}",
+            location.function_name(),
+            location.file_name(),
+            location.line(),
+            location.column());
 
         if (IsDebuggerPresent()) DebugBreak();
         throw NativeException(message);
@@ -70,7 +75,12 @@ constexpr void Require(bool const condition, std::source_location const& locatio
 inline std::string GetTryDoMessage(std::source_location const& location)
 {
     if constexpr (IS_DEBUG_BUILD)
-        return std::format("throwing from function {} at {}:{}:{}", location.function_name(), location.file_name(), location.line(), location.column());
+        return std::format(
+            "throwing from function {} at {}:{}:{}",
+            location.function_name(),
+            location.file_name(),
+            location.line(),
+            location.column());
     else return std::format("throwing from function {}", location.function_name());
 }
 
@@ -84,7 +94,7 @@ inline void TryDo(BOOL const b, bool const breakpoint = true, std::source_locati
     std::string const message = GetTryDoMessage(location);
 
     if (breakpoint && IsDebuggerPresent()) DebugBreak();
-
+    
     throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
 }
 
@@ -98,7 +108,7 @@ inline void TryDo(HRESULT const hr, bool const breakpoint = true, std::source_lo
     std::string const message = GetTryDoMessage(location);
 
     if (breakpoint && IsDebuggerPresent()) DebugBreak();
-
+    
     throw HResultException(hr, message);
 }
 
@@ -118,8 +128,9 @@ constexpr T const& CheckReturn(T const& value, bool const breakpoint = true, std
         location.line(),
         location.column());
 
+    
     if (breakpoint && IsDebuggerPresent()) DebugBreak();
-
+    
     throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
 }
 
@@ -158,7 +169,8 @@ inline void SetName(ComPtr<ID3D12Object> const& object, LPCWSTR const name) { Tr
 inline UINT CalculateConstantBufferByteSize(UINT byteSize)
 {
     // Constant buffer size is required to be aligned.
-    return (byteSize + (D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1)) & ~(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1);
+    return (byteSize + (D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1)) & ~(
+        D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1);
 }
 
 // Resets all elements in a ComPtr array.
@@ -173,5 +185,7 @@ void ResetUniquePtrArray(T* uniquePtrArray) { for (auto& i : *uniquePtrArray) i.
 template <typename T>
 std::vector<T> ReadBlob(ComPtr<ID3DBlob> const& blob)
 {
-    return std::vector<T>(static_cast<T*>(blob->GetBufferPointer()), static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
+    return std::vector<T>(
+        static_cast<T*>(blob->GetBufferPointer()),
+        static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
 }

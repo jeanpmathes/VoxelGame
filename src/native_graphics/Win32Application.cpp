@@ -331,7 +331,10 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPA
 
             RECT clientRect = {};
             TryDo(GetClientRect(hWnd, &clientRect));
-            app->HandleSizeChanged(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top, wParam == SIZE_MINIMIZED);
+            app->HandleSizeChanged(
+                clientRect.right - clientRect.left,
+                clientRect.bottom - clientRect.top,
+                wParam == SIZE_MINIMIZED);
         }
         return 0;
 

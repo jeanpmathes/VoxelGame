@@ -65,7 +65,11 @@ namespace nv_helpers_dx12
          * \param registerSpace Indicates how to access the parameter in the HLSL code, e.g a SRV with shaderRegister==1 and registerSpace==0 is accessible via register(t1, space0).
          * \param numRootConstants In case of a root constant, this parameter indicates how many successive 32-bit constants will be bound.
          */
-        void AddRootParameter(D3D12_ROOT_PARAMETER_TYPE type, UINT shaderRegister = 0, UINT registerSpace = 0, UINT numRootConstants = 1);
+        void AddRootParameter(
+            D3D12_ROOT_PARAMETER_TYPE type,
+            UINT                      shaderRegister   = 0,
+            UINT                      registerSpace    = 0,
+            UINT                      numRootConstants = 1);
 
         /**
          * \brief Add a static sampler to the root signature. The sampler is defined by a D3D12_STATIC_SAMPLER_DESC.
@@ -85,7 +89,9 @@ namespace nv_helpers_dx12
          * \param isLocal Whether the root signature is local to the device or shared across multiple devices.
          * \return The root signature.
          */
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> Generate(Microsoft::WRL::ComPtr<ID3D12Device> const& device, bool isLocal);
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> Generate(
+            Microsoft::WRL::ComPtr<ID3D12Device> const& device,
+            bool                                        isLocal);
 
     private:
         std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> m_ranges         = {};

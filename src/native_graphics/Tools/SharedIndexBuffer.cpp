@@ -5,7 +5,9 @@ SharedIndexBuffer::SharedIndexBuffer(Space& space)
 {
 }
 
-std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UINT const vertexCount, std::vector<D3D12_RESOURCE_BARRIER>* barriers)
+std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(
+    UINT const                           vertexCount,
+    std::vector<D3D12_RESOURCE_BARRIER>* barriers)
 {
     Require(vertexCount > 0);
     Require(vertexCount % 4 == 0);
@@ -53,10 +55,18 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
             D3D12_HEAP_TYPE_DEFAULT);
         NAME_D3D12_OBJECT(m_sharedIndexBuffer);
 
-        m_space.GetCommandList()->CopyBufferRegion(m_sharedIndexBuffer.Get(), 0, sharedIndexUpload.resource.Get(), 0, requiredIndexBufferSize);
+        m_space.GetCommandList()->CopyBufferRegion(
+            m_sharedIndexBuffer.Get(),
+            0,
+            sharedIndexUpload.resource.Get(),
+            0,
+            requiredIndexBufferSize);
 
         D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {
-            CD3DX12_RESOURCE_BARRIER::Transition(m_sharedIndexBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+            CD3DX12_RESOURCE_BARRIER::Transition(
+                m_sharedIndexBuffer.Get(),
+                D3D12_RESOURCE_STATE_COPY_DEST,
+                D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
         };
         barriers->push_back(transitionCopyDestToShaderResource);
 

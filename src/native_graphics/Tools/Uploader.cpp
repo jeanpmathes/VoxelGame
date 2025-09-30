@@ -10,7 +10,13 @@ Uploader::Uploader(NativeClient& client, ComPtr<ID3D12GraphicsCommandList> const
         TryDo(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
         NAME_D3D12_OBJECT(m_commandAllocator);
 
-        TryDo(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList)));
+        TryDo(
+            GetDevice()->CreateCommandList(
+                0,
+                D3D12_COMMAND_LIST_TYPE_DIRECT,
+                m_commandAllocator.Get(),
+                nullptr,
+                IID_PPV_ARGS(&m_commandList)));
         NAME_D3D12_OBJECT(m_commandList);
 
 #if defined(USE_NSIGHT_AFTERMATH)
@@ -19,7 +25,10 @@ Uploader::Uploader(NativeClient& client, ComPtr<ID3D12GraphicsCommandList> const
     }
 }
 
-void Uploader::UploadTexture(std::byte** data, TextureDescription const& description, Allocation<ID3D12Resource> const& destination)
+void Uploader::UploadTexture(
+    std::byte**                       data,
+    TextureDescription const&         description,
+    Allocation<ID3D12Resource> const& destination)
 {
     UINT const   subresources     = description.levels;
     UINT64 const uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
@@ -53,7 +62,14 @@ void Uploader::UploadTexture(std::byte** data, TextureDescription const& descrip
         }
     }
 
-    UpdateSubresources(m_commandList.Get(), destination.Get(), textureUploadBuffer.Get(), 0, 0, subresources, uploadDescription.data());
+    UpdateSubresources(
+        m_commandList.Get(),
+        destination.Get(),
+        textureUploadBuffer.Get(),
+        0,
+        0,
+        subresources,
+        uploadDescription.data());
 
     if (m_ownsCommandList) Texture::CreateUsabilityBarrier(m_commandList, destination);
 }
@@ -72,12 +88,18 @@ void Uploader::UploadBuffer(std::byte const* data, UINT const size, Allocation<I
 
     TryDo(util::MapAndWrite(normalUploadBuffer, data, size));
 
-    auto transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
+    auto transition = CD3DX12_RESOURCE_BARRIER::Transition(
+        destination.Get(),
+        D3D12_RESOURCE_STATE_COMMON,
+        D3D12_RESOURCE_STATE_COPY_DEST);
     m_commandList->ResourceBarrier(1, &transition);
 
     m_commandList->CopyBufferRegion(destination.Get(), 0, normalUploadBuffer.Get(), 0, size);
 
-    transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
+    transition = CD3DX12_RESOURCE_BARRIER::Transition(
+        destination.Get(),
+        D3D12_RESOURCE_STATE_COPY_DEST,
+        D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
     m_commandList->ResourceBarrier(1, &transition);
 }
 
@@ -85,7 +107,7 @@ void Uploader::ExecuteUploads(ComPtr<ID3D12CommandQueue> const& commandQueue) co
 {
     TryDo(m_commandList->Close());
     std::array<ID3D12CommandList*, 1> const commandLists = {m_commandList.Get()};
-    commandQueue->ExecuteCommandLists(commandLists.size(), commandLists.data());
+    commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
 }
 
 ComPtr<ID3D12Device4> Uploader::GetDevice() const { return m_client->GetDevice(); }
