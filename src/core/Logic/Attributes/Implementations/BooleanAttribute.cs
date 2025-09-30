@@ -33,7 +33,7 @@ internal class BooleanAttribute : AttributeImplementation<Boolean>
     {
         return state.Get(this);
     }
-    
+
     public override State SetValues(State state, JsonNode values)
     {
         return state.With(this, values.GetValue<Boolean>());

@@ -9,56 +9,55 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
-using VoxelGame.Core.Logic.Attributes;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
 /// <summary>
-/// A <see cref="PartialHeight"/> block which can be completed to serve as full ground for another block.
-/// Other blocks can then for example use this when being placed and expecting full ground to be present.
+///     A <see cref="PartialHeight" /> block which can be completed to serve as full ground for another block.
+///     Other blocks can then for example use this when being placed and expecting full ground to be present.
 /// </summary>
 public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, BlockBehavior, Block>
 {
     private Block replacement = null!;
-    
+
     private CompletableGround(Block subject) : base(subject)
     {
         ReplacementInitializer = Aspect<String?, Block>.New<Exclusive<String?, Block>>(nameof(ReplacementInitializer), this);
     }
-    
-    /// <inheritdoc/>
+
+    /// <summary>
+    ///     The block that will replace this block to complete it.
+    /// </summary>
+    public String? Replacement { get; private set; }
+
+    /// <summary>
+    ///     Aspect used to initialize the <see cref="Replacement" /> property.
+    /// </summary>
+    public Aspect<String?, Block> ReplacementInitializer { get; }
+
+    /// <inheritdoc />
     public static CompletableGround Construct(Block input)
     {
         return new CompletableGround(input);
     }
 
-    /// <summary>
-    /// The block that will replace this block to complete it.
-    /// </summary>
-    public String? Replacement { get; private set; }
-    
-    /// <summary>
-    /// Aspect used to initialize the <see cref="Replacement"/> property.
-    /// </summary>
-    public Aspect<String?, Block> ReplacementInitializer { get; }
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
         Replacement = ReplacementInitializer.GetValue(original: null, Subject);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
         if (Replacement == null)
             validator.ReportWarning("Replacement block is not set");
-        
+
         if (Replacement == Subject.NamedID)
             validator.ReportWarning("Replacement block cannot be the same as the block itself");
-        
+
         replacement = Blocks.Instance.SafelyTranslateNamedID(Replacement);
-        
+
         if (replacement == Blocks.Instance.Core.Error && Replacement != Blocks.Instance.Core.Error.NamedID)
             validator.ReportWarning($"The replacement block '{Replacement}' could not be found");
 

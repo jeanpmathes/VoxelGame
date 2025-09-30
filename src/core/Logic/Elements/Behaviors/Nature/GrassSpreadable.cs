@@ -12,18 +12,18 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// Blocks which can receive grass spread from a <see cref="Grass"/> block.
+///     Blocks which can receive grass spread from a <see cref="Grass" /> block.
 /// </summary>
 public class GrassSpreadable : BlockBehavior, IBehavior<GrassSpreadable, BlockBehavior, Block>
 {
     private GrassSpreadable(Block subject) : base(subject) {}
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static GrassSpreadable Construct(Block input)
     {
         return new GrassSpreadable(input);
     }
-    
+
     /// <summary>
     ///     Spreads grass on the block. This operation does not always succeed.
     /// </summary>

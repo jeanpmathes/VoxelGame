@@ -34,9 +34,7 @@ public:
      * Create barriers for all resources that are used by this allocator.
      * Additionally, a vector of further resources can be passed to create barriers for them as well.
      */
-    void CreateBarriers(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<ID3D12Resource*> const&      resources);
+    void CreateBarriers(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<ID3D12Resource*> const& resources);
 
 private:
     AddressableBuffer                        AllocateInternal(UINT64 size);
@@ -66,11 +64,7 @@ private:
 
         ~Block();
 
-        Block(
-            D3D12MA::VirtualBlock*     block,
-            Allocation<ID3D12Resource> memory,
-            InBufferAllocator*         allocator,
-            size_t                     index);
+        Block(D3D12MA::VirtualBlock* block, Allocation<ID3D12Resource> memory, InBufferAllocator* allocator, size_t index);
 
     private:
         D3D12MA::VirtualBlock*     m_block  = nullptr;
@@ -92,10 +86,7 @@ struct AddressableBuffer
     AddressableBuffer() = default;
 
     explicit AddressableBuffer(Allocation<ID3D12Resource> resource);
-    explicit AddressableBuffer(
-        D3D12_GPU_VIRTUAL_ADDRESS  address,
-        D3D12MA::VirtualAllocation allocation,
-        InBufferAllocator::Block*  block);
+    explicit AddressableBuffer(D3D12_GPU_VIRTUAL_ADDRESS address, D3D12MA::VirtualAllocation allocation, InBufferAllocator::Block* block);
 
     AddressableBuffer(AddressableBuffer const&)            = delete;
     AddressableBuffer& operator=(AddressableBuffer const&) = delete;
@@ -124,7 +115,4 @@ struct BLAS
     AddressableBuffer scratch;
 };
 
-inline void SetName(AddressableBuffer const& object, LPCWSTR const name)
-{
-    if (object.m_resource.has_value()) SetName(object.m_resource.value(), name);
-}
+inline void SetName(AddressableBuffer const& object, LPCWSTR const name) { if (object.m_resource.has_value()) SetName(object.m_resource.value(), name); }

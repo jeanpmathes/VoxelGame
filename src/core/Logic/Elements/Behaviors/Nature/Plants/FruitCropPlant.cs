@@ -21,42 +21,41 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
 /// <summary>
-/// A crop <see cref="Plant"/> that uses the <see cref="Foliage.LayoutType.Cross"/> layout places a fruit when fully grown.
+///     A crop <see cref="Plant" /> that uses the <see cref="Foliage.LayoutType.Cross" /> layout places a fruit when fully
+///     grown.
 /// </summary>
 public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, BlockBehavior, Block>
 {
+    private const Int32 MaxAge = 3;
     private readonly GrowingPlant plant;
 
     private Block fruit = null!;
-    
-    [LateInitialization]
-    private partial IAttribute<Int32> Age { get; set; }
 
-    private const Int32 MaxAge = 3;
-    
     private FruitCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
         plant.StageCountInitializer.ContributeConstant(value: 2);
-        
+
         var foliage = subject.Require<Foliage>();
         foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
         foliage.Part.ContributeConstant(Foliage.PartType.Single);
-        
+
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-        
+
         FruitInitializer = Aspect<String?, Block>.New<Exclusive<String?, Block>>(nameof(FruitInitializer), this);
     }
-    
+
+    [LateInitialization] private partial IAttribute<Int32> Age { get; set; }
+
     /// <summary>
-    /// The fruit block.
+    ///     The fruit block.
     /// </summary>
     public String? Fruit { get; private set; }
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="Fruit"/> property.
+    ///     Aspect used to initialize the <see cref="Fruit" /> property.
     /// </summary>
     public Aspect<String?, Block> FruitInitializer { get; }
 
@@ -64,6 +63,12 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     public static FruitCropPlant Construct(Block input)
     {
         return new FruitCropPlant(input);
+    }
+
+    /// <inheritdoc />
+    public override void SubscribeToEvents(IEventBus bus)
+    {
+        bus.Subscribe<GrowingPlant.MatureUpdateMessage>(OnMatureUpdate);
     }
 
     /// <inheritdoc />
@@ -79,36 +84,30 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     }
 
     /// <inheritdoc />
-    public override void SubscribeToEvents(IEventBus bus)
-    {
-        bus.Subscribe<GrowingPlant.MatureUpdateMessage>(OnMatureUpdate);
-    }
-    
-    /// <inheritdoc/>
     protected override void OnValidate(IValidator validator)
     {
         if (Fruit == null)
             validator.ReportWarning("No fruit block is set");
-        
+
         if (Fruit == Subject.NamedID)
             validator.ReportWarning("The fruit block cannot be the same as the growing block itself");
-        
+
         fruit = Blocks.Instance.SafelyTranslateNamedID(Fruit);
-        
+
         if (fruit == Blocks.Instance.Core.Error && Fruit != Blocks.Instance.Core.Error.NamedID)
             validator.ReportWarning($"The fruit block '{Fruit}' could not be found");
     }
-    
+
     private void OnMatureUpdate(GrowingPlant.MatureUpdateMessage message)
     {
         Int32 currentAge = message.State.Get(Age);
 
         State newState = message.State;
-        
+
         if (currentAge == MaxAge)
         {
             var placed = false;
-            
+
             if (message.Ground.SupportsFullGrowth && message.Ground.TryGrow(
                     message.World,
                     message.Position.Below(),
@@ -117,38 +116,39 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
             {
                 foreach (Orientation orientation in Orientations.ShuffledStart(message.Position))
                 {
-                    if (!fruit.Place(message.World, orientation.Offset(message.Position))) 
+                    if (!fruit.Place(message.World, orientation.Offset(message.Position)))
                         continue;
 
                     placed = true;
+
                     break;
                 }
             }
-            
-            if (!placed) 
+
+            if (!placed)
                 return;
-            
+
             newState.Set(Age, value: 0);
         }
         else
         {
             newState.Set(Age, currentAge + 1);
         }
-        
+
         message.World.SetBlock(newState, message.Position);
     }
 
     private TID GetActiveTexture(TID original, State state)
     {
         // todo: aspect with number of textures which is then used to determine the number of stages (subtract one because of dead stage)
-        
+
         return original.Offset((Byte) (plant.GetStage(state) + 1 ?? 0));
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Int32? stage = plant.GetStage(state);
-        
+
         return stage is null or 0
             ? new BoundingVolume(
                 new Vector3d(x: 0.5f, y: 0.25f, z: 0.5f),

@@ -11,24 +11,21 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
 
 /// <summary>
-/// Corresponds to <see cref="Meshable.Simple"/>
+///     Corresponds to <see cref="Meshable.Simple" />
 /// </summary>
 public class Unmeshed : BlockBehavior, IBehavior<Unmeshed, BlockBehavior, Block>, IMeshable
 {
-    private Unmeshed(Block subject) : base(subject)
-    {
-        
-    }
-    
-    /// <inheritdoc />
-    public Meshable Type => Meshable.Unmeshed;
+    private Unmeshed(Block subject) : base(subject) {}
 
     /// <inheritdoc />
     public static Unmeshed Construct(Block input)
     {
         return new Unmeshed(input);
     }
-    
+
+    /// <inheritdoc />
+    public Meshable Type => Meshable.Unmeshed;
+
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {

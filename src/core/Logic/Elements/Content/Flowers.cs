@@ -10,7 +10,7 @@ using VoxelGame.Core.Resources.Language;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// All sorts of flowers.
+///     All sorts of flowers.
 /// </summary>
 public class Flowers(BlockBuilder builder) : Category(builder)
 {
@@ -18,7 +18,7 @@ public class Flowers(BlockBuilder builder) : Category(builder)
     ///     A simple red flower.
     /// </summary>
     public Flower FlowerRed { get; } = builder.BuildFlower(nameof(FlowerRed), Language.FlowerRed); // todo: rename to Red when separate class and adapt naming in convention to include flower
-    
+
     /// <summary>
     ///     A simple yellow flower.
     /// </summary>

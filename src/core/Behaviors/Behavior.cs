@@ -14,7 +14,8 @@ namespace VoxelGame.Core.Behaviors;
 ///     The base class for the behavior system.
 ///     Behaviors allow defining the functionality of subject instances modularly.
 ///     The behavior system expects a baking step after all which no behaviors can be added anymore.
-///     As such, the behavior system is not really dynamic and rather made for cases where the instances are actually types of flyweights.
+///     As such, the behavior system is not really dynamic and rather made for cases where the instances are actually types
+///     of flyweights.
 /// </summary>
 /// <param name="subject">The subject that this behavior applies to.</param>
 /// <typeparam name="TSelf">The type of the behavior itself.</typeparam>
@@ -24,10 +25,10 @@ public abstract class Behavior<TSelf, TSubject>(TSubject subject) : IBehavior<TS
     where TSubject : class, IHasBehaviors<TSubject, TSelf>
 {
     IHasBehaviors IBehavior.Subject => Subject;
-    
+
     /// <inheritdoc />
     public TSubject Subject { get; } = subject;
-    
+
     /// <summary>
     ///     Override this method to define events that the behavior will publish.
     /// </summary>
@@ -39,26 +40,24 @@ public abstract class Behavior<TSelf, TSubject>(TSubject subject) : IBehavior<TS
     public virtual void SubscribeToEvents(IEventBus bus) {}
 
     /// <summary>
-    /// Perform any validation required by the behavior.
+    ///     Perform any validation required by the behavior.
     /// </summary>
     public void Validate(IValidator validator)
     {
         OnValidate(validator);
-        
-        Validation?.Invoke(this, new IAspectable.ValidationEventArgs
-        {
-            Validator = validator
-        });
-    }
 
-    /// <summary>
-    ///     Override this method to validate the behavior.
-    /// </summary>
-    protected virtual void OnValidate(IValidator validator)
-    {
-        
+        Validation?.Invoke(this,
+            new IAspectable.ValidationEventArgs
+            {
+                Validator = validator
+            });
     }
 
     /// <inheritdoc />
     public event EventHandler<IAspectable.ValidationEventArgs>? Validation;
+
+    /// <summary>
+    ///     Override this method to validate the behavior.
+    /// </summary>
+    protected virtual void OnValidate(IValidator validator) {}
 }

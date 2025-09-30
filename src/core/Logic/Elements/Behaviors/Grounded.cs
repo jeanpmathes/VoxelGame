@@ -17,7 +17,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors;
 
 /// <summary>
-/// Makes a block require fully solid ground to be placed.
+///     Makes a block require fully solid ground to be placed.
 /// </summary>
 public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
 {
@@ -26,17 +26,17 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
     private Grounded(Block subject) : base(subject)
     {
         subject.RequireIfPresent<CompositeGrounded, Composite>(_ => isComposite = true);
-        
+
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static Grounded Construct(Block input)
     {
         return new Grounded(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         if (isComposite) return;
@@ -48,33 +48,33 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
     private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
         if (isComposite) return true;
-        
+
         (World world, Vector3i position, Actor? _) = context;
-        
+
         return IsGrounded(world, position);
     }
-    
+
     private static void OnPlacementCompleted(Block.PlacementCompletedMessage message)
     {
         Vector3i positionBelow = message.Position.Below();
         State blockBelow = message.World.GetBlock(positionBelow) ?? Content.DefaultState;
-        
-        if (blockBelow.IsFullySolid) 
+
+        if (blockBelow.IsFullySolid)
             return;
 
         if (blockBelow.Block.Get<CompletableGround>() is {} completableGround)
             completableGround.BecomeComplete(message.World, positionBelow);
-    } 
-    
+    }
+
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
     {
         if (message.Side != Side.Bottom || IsGrounded(message.World, message.Position)) return;
 
         Subject.ScheduleDestroy(message.World, message.Position);
     }
-    
+
     /// <summary>
-    /// Check if a position is grounded.
+    ///     Check if a position is grounded.
     /// </summary>
     internal static Boolean IsGrounded(World world, Vector3i position)
     {

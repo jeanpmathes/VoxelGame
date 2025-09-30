@@ -36,9 +36,9 @@ public class PropertyBasedListControl : ControlBase
         private const Int32 KeyColumn = 0;
         private const Int32 ValueColumn = 1;
 
-        private readonly Stack<(String prefix, Int32 number, VerticalLayout parent, ListBox? list)> stack = new();
-
         private readonly Context context;
+
+        private readonly Stack<(String prefix, Int32 number, VerticalLayout parent, ListBox? list)> stack = new();
 
         public PropertyControlBuilder(ControlBase parent, Context context)
         {

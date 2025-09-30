@@ -18,12 +18,12 @@ public sealed class SamplingNoise : IDisposable
 {
     private readonly NoiseGenerator cellSamplingOffsetNoiseX;
     private readonly NoiseGenerator cellSamplingOffsetNoiseY;
+    private readonly NoiseGenerator oceanicSubBiomeDeterminationNoise;
 
     private readonly NoiseGenerator stoneSamplingOffsetNoiseX;
     private readonly NoiseGenerator stoneSamplingOffsetNoiseY;
 
     private readonly NoiseGenerator subBiomeDeterminationNoise;
-    private readonly NoiseGenerator oceanicSubBiomeDeterminationNoise;
 
     /// <summary>
     ///     Create all noise generators used for the map sampling.

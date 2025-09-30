@@ -42,7 +42,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         InGameUserInterface ui, Engine engine, SessionScene scene) : base(mass, boundingVolume)
     {
         Camera = camera;
-        
+
         Head = new PlayerHead(camera, Body.Transform);
         camera.Position = Head.Position;
 
@@ -58,17 +58,27 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         AddComponent<PlayerUI, InGameUserInterface, Player>(ui);
         AddComponent<TargetingDisplay, Engine, Player>(engine);
         AddComponent<CrosshairDisplay, Engine, Player>(engine);
-        
+
         LogCreatedNewPlayer(logger);
     }
 
     /// <inheritdoc />
     public override IOrientable Head { get; }
-    
+
     /// <summary>
     ///     Get the view of this player.
     /// </summary>
     public IView View => Camera;
+
+    /// <summary>
+    ///     Get access to the camera of the player.
+    /// </summary>
+    internal Camera Camera { get; }
+
+    /// <summary>
+    ///     Get access to the current scene in which the player is placed.
+    /// </summary>
+    internal SessionScene Scene { get; }
 
     /// <inheritdoc />
     public Property DebugData => new PlayerDebugProperties(this);
@@ -76,16 +86,6 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     String IPlayerDataProvider.Selection => selector.SelectionName;
 
     String IPlayerDataProvider.Mode => selector.ModeName;
-
-    /// <summary>
-    /// Get access to the camera of the player.
-    /// </summary>
-    internal Camera Camera { get; }
-
-    /// <summary>
-    /// Get access to the current scene in which the player is placed.
-    /// </summary>
-    internal SessionScene Scene { get; }
 
     #region LOGGING
 

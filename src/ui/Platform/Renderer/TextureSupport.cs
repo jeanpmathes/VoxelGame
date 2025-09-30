@@ -18,9 +18,8 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// </summary>
 public sealed class TextureSupport
 {
-    private readonly TextureList textures;
-
     private readonly Dictionary<String, String> preloadNameToPath = new();
+    private readonly TextureList textures;
 
     private Boolean textureDiscardAllowed;
 

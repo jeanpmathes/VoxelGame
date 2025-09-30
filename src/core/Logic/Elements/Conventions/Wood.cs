@@ -24,58 +24,58 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Conventions;
 
 /// <summary>
-/// A wood, as defined by the <see cref="WoodConvention"/>.
+///     A wood, as defined by the <see cref="WoodConvention" />.
 /// </summary>
 public sealed class Wood(String namedID, BlockBuilder builder) : Convention<Wood>(namedID, builder)
 {
     /// <summary>
-    /// The tree that grows this wood.
+    ///     The tree that grows this wood.
     /// </summary>
     public required Tree Trees { get; init; }
-    
+
     /// <summary>
-    /// The leaves of the tree.
+    ///     The leaves of the tree.
     /// </summary>
     public required Block Leaves { get; init; }
-    
+
     /// <summary>
-    /// The log of the tree.
+    ///     The log of the tree.
     /// </summary>
     public required Block Log { get; init; }
-    
+
     /// <summary>
     ///     Planks made out of the wood.
     /// </summary>
     public required Block Planks { get; init; }
-    
+
     /// <summary>
     ///     The wooden fence can be used as way of marking areas. It does not prevent jumping over it.
     ///     As this fence is made out of wood, it is flammable. Fences can connect to other blocks.
     /// </summary>
     public required Block Fence { get; init; }
-    
+
     /// <summary>
     ///     Fence gates are meant as a passage trough fences and walls.
     /// </summary>
     public required Block FenceGate { get; init; }
-    
+
     /// <summary>
     ///     The door allows closing of a room. It can be opened and closed.
     ///     As this door is made out of wood, it is flammable.
     /// </summary>
     public required Block Door { get; init; }
-    
+
     /// <summary>
     ///     The wooden pipe offers a primitive way of controlling fluid flow.
     ///     It connects to other pipes.
     /// </summary>
     public required Block Pipe { get; init; }
-    
+
     /// <summary>
     ///     The bed is a block that allows the player to sleep and set a spawn point.
     /// </summary>
     public required Block Bed { get; init; }
-    
+
     #region TREE
 
     /// <summary>
@@ -141,6 +141,22 @@ public sealed class Wood(String namedID, BlockBuilder builder) : Convention<Wood
         }
 
         /// <summary>
+        ///     The ground the tree grows on.
+        /// </summary>
+        public enum GroundType
+        {
+            /// <summary>
+            ///     Earth-based ground.
+            /// </summary>
+            Earth,
+
+            /// <summary>
+            ///     Sand-based ground.
+            /// </summary>
+            Sand
+        }
+
+        /// <summary>
         ///     The height of the tree.
         /// </summary>
         public enum Growth
@@ -165,34 +181,18 @@ public sealed class Wood(String namedID, BlockBuilder builder) : Convention<Wood
             /// </summary>
             Shrub
         }
-
-        /// <summary>
-        ///     The ground the tree grows on.
-        /// </summary>
-        public enum GroundType
-        {
-            /// <summary>
-            ///     Earth-based ground.
-            /// </summary>
-            Earth,
-
-            /// <summary>
-            ///     Sand-based ground.
-            /// </summary>
-            Sand
-        }
     }
 
     #endregion TREE
 }
 
 /// <summary>
-/// A convention on wood types.
+///     A convention on wood types.
 /// </summary>
 public static class WoodConvention
 {
     /// <summary>
-    /// Build a new wood type.
+    ///     Build a new wood type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
     /// <param name="namedID">The named ID of the wood type, used to create the block IDs.</param>
@@ -276,7 +276,7 @@ public static class WoodConvention
                         [0] = TID.Block($"{texture}_bed", x: 0, y: 1),
                         [1] = TID.Block($"{texture}_bed", x: 0, y: 0),
                         [2] = TID.Block($"{texture}_bed", x: 1, y: 0),
-                        [3] = TID.Block($"{texture}_bed", x: 1, y: 1),
+                        [3] = TID.Block($"{texture}_bed", x: 1, y: 1)
                     })
                     .WithBehavior<Bed>()
                     .WithBehavior<DirectionalSidePlacement>()

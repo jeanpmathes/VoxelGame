@@ -11,7 +11,7 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Connection;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Materials;
 
 /// <summary>
-/// Blocks used for basic construction.
+///     Blocks used for basic construction.
 /// </summary>
 public class ConstructionMaterial : BlockBehavior, IBehavior<ConstructionMaterial, BlockBehavior, Block>
 {
@@ -19,8 +19,8 @@ public class ConstructionMaterial : BlockBehavior, IBehavior<ConstructionMateria
     {
         subject.Require<Connectable>().StrengthInitializer.ContributeConstant(Connectable.Strengths.All);
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static ConstructionMaterial Construct(Block input)
     {
         return new ConstructionMaterial(input);

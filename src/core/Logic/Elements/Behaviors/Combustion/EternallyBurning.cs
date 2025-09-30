@@ -10,7 +10,7 @@ using VoxelGame.Core.Behaviors.Events;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Combustion;
 
 /// <summary>
-/// Does not stop burning.
+///     Does not stop burning.
 /// </summary>
 public class EternallyBurning : BlockBehavior, IBehavior<EternallyBurning, BlockBehavior, Block>
 {
@@ -18,14 +18,14 @@ public class EternallyBurning : BlockBehavior, IBehavior<EternallyBurning, Block
     {
         subject.Require<Combustible>();
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static EternallyBurning Construct(Block input)
     {
         return new EternallyBurning(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Combustible.BurnMessage>(OnBurn);

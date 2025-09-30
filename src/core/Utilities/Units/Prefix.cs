@@ -112,7 +112,7 @@ public record Prefix(String Symbol, Double Factor)
     public static Prefix Zetta { get; } = Create("Z", factor: 1e21);
 
     /// <summary>
-    /// Prefix for <c>10^18</c>.
+    ///     Prefix for <c>10^18</c>.
     /// </summary>
     public static Prefix Exa { get; } = Create("E", factor: 1e18);
 

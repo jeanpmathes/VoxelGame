@@ -6,7 +6,7 @@
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
-public class Orientable 
+public class Orientable
 {
     // todo: implement, is similar to Rotatable but more general, no Orientation aspect, just a marker for later steps to allow rotating structures
     // todo: work through the Orientation note in the planning and adapt it to refer to this behavior

@@ -16,28 +16,28 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Conventions;
 
 /// <summary>
-/// A flower, as defined by the <see cref="FlowerConvention"/>.
+///     A flower, as defined by the <see cref="FlowerConvention" />.
 /// </summary>
 public sealed class Flower(String namedID, BlockBuilder builder) : Convention<Flower>(namedID, builder)
 {
     /// <summary>
-    /// The short variant of this flower.
+    ///     The short variant of this flower.
     /// </summary>
     public required Block Short { get; init; }
-    
+
     /// <summary>
-    /// The tall variant of this flower.
+    ///     The tall variant of this flower.
     /// </summary>
     public required Block Tall { get; init; }
 }
 
 /// <summary>
-/// A convention on flowers.
+///     A convention on flowers.
 /// </summary>
 public static class FlowerConvention
 {
     /// <summary>
-    /// Build a new flower.
+    ///     Build a new flower.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
     /// <param name="namedID">The named ID of the flower, used to create the block IDs.</param>
@@ -70,7 +70,7 @@ public static class FlowerConvention
                     .WithBehavior<NeutralTint>()
                     .WithBehavior<DoubleCrossPlant>()
                     .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Five))
-                    .Complete(),
+                    .Complete()
             };
         });
     }

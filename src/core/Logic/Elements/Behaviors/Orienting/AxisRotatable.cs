@@ -17,34 +17,33 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
 /// <summary>
-/// Allows rotation of the block to align with each of the three axes.
+///     Allows rotation of the block to align with each of the three axes.
 /// </summary>
 public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavior, Block>
 {
-    [LateInitialization]
-    private partial IAttribute<Axis> Axis { get; set; }
-    
     private AxisRotatable(Block subject) : base(subject)
     {
         var rotatable = subject.Require<Rotatable>();
         rotatable.Axis.ContributeFunction(GetAxis);
         rotatable.Turns.ContributeFunction(GetTurns);
-        
+
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
-    /// <inheritdoc/>
+    [LateInitialization] private partial IAttribute<Axis> Axis { get; set; }
+
+    /// <inheritdoc />
     public static AxisRotatable Construct(Block input)
     {
         return new AxisRotatable(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
         Axis = builder.Define(nameof(Axis)).Enum<Axis>().Attribute();
     }
-    
+
     private Axis GetAxis(Axis original, State state)
     {
         return state.Get(Axis) switch
@@ -55,7 +54,7 @@ public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, Blo
             _ => original
         };
     }
-    
+
     private Int32 GetTurns(Int32 original, State state)
     {
         return state.Get(Axis) switch
@@ -66,18 +65,18 @@ public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, Blo
             _ => original
         };
     }
-    
+
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
     {
         (World _, Vector3i _, Actor? actor) = context;
-        
+
         Side? side = actor?.GetTargetedSide()?.Opposite();
-        
+
         return side == null ? original : SetAxis(original, side.Value.Axis());
     }
 
     /// <summary>
-    /// Get the current axis in the given state.
+    ///     Get the current axis in the given state.
     /// </summary>
     /// <param name="state">The state to get the axis in.</param>
     /// <returns>The current axis.</returns>
@@ -85,9 +84,9 @@ public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, Blo
     {
         return state.Get(Axis);
     }
-    
+
     /// <summary>
-    /// Set the axis in the given state to a new axis.
+    ///     Set the axis in the given state to a new axis.
     /// </summary>
     /// <param name="state">The state to set the axis in.</param>
     /// <param name="newAxis">The new axis to set.</param>

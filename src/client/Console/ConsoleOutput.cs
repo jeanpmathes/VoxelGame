@@ -17,10 +17,9 @@ namespace VoxelGame.Client.Console;
 /// </summary>
 public class ConsoleOutput
 {
-    private readonly Channel<(String message, Boolean error, FollowUp[] followUp)> responses = Channel.CreateUnbounded<(String message, Boolean error, FollowUp[] followUp)>();
-    
     private readonly SessionConsole console;
-    
+    private readonly Channel<(String message, Boolean error, FollowUp[] followUp)> responses = Channel.CreateUnbounded<(String message, Boolean error, FollowUp[] followUp)>();
+
     /// <summary>
     ///     Create a new console output.
     /// </summary>
@@ -39,7 +38,7 @@ public class ConsoleOutput
     public void WriteResponse(String response, FollowUp[]? followUp = null)
     {
         Core.App.Application.ThrowIfNotOnMainThread(this);
-        
+
         console.AddMessage(response, followUp ?? [], isError: false);
     }
 
@@ -87,7 +86,7 @@ public class ConsoleOutput
     {
         Core.App.Application.ThrowIfNotOnMainThread(this);
 
-        while (responses.Reader.TryRead(out (String message, Boolean error, FollowUp[] followUp) response)) 
+        while (responses.Reader.TryRead(out (String message, Boolean error, FollowUp[] followUp) response))
             console.AddMessage(response.message, response.followUp, response.error);
     }
 
@@ -98,7 +97,7 @@ public class ConsoleOutput
     public void Clear()
     {
         Core.App.Application.ThrowIfNotOnMainThread(this);
-        
+
         Flush();
 
         console.Clear();

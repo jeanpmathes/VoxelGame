@@ -13,26 +13,18 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Actors.Components;
 
 /// <summary>
-/// Contains the targeting information of an <see cref="Actor"/>.
-/// This does not perform any targeting logic, which requires other components.
+///     Contains the targeting information of an <see cref="Actor" />.
+///     This does not perform any targeting logic, which requires other components.
 /// </summary>
 public class Targeting : ActorComponent, IConstructible<Actor, Targeting>
 {
-    private Targeting(Actor subject) : base(subject) 
-    {
-    }
+    private Targeting(Actor subject) : base(subject) {}
 
-    /// <inheritdoc />
-    public static Targeting Construct(Actor input)
-    {
-        return new Targeting(input);
-    }
-    
     /// <summary>
     ///     Whether something is currently targeted by the actor.
     /// </summary>
     public Boolean HasTarget { get; set; }
-    
+
     /// <summary>
     ///     The targeted side, or <see cref="Logic.Elements.Side.All" /> if no side is targeted.
     /// </summary>
@@ -43,7 +35,7 @@ public class Targeting : ActorComponent, IConstructible<Actor, Targeting>
     ///     If the actor is not targeting a block, this will be null.
     /// </summary>
     public Vector3i? Position { get; set; }
-    
+
     /// <summary>
     ///     The targeted block, or null if no block is targeted.
     /// </summary>
@@ -53,15 +45,22 @@ public class Targeting : ActorComponent, IConstructible<Actor, Targeting>
     ///     The targeted fluid, or null if no fluid is targeted.
     /// </summary>
     public FluidInstance? Fluid { get; set; }
+
+    /// <inheritdoc />
+    public static Targeting Construct(Actor input)
+    {
+        return new Targeting(input);
+    }
 }
 
 /// <summary>
-/// Extensions for the <see cref="Targeting"/> component.
+///     Extensions for the <see cref="Targeting" /> component.
 /// </summary>
 public static class TargetingExtensions
 {
     /// <summary>
-    /// Get the side targeted by the actor, or null if no side is targeted or the actor does not have a targeting component.
+    ///     Get the side targeted by the actor, or null if no side is targeted or the actor does not have a targeting
+    ///     component.
     /// </summary>
     /// <param name="actor">The actor to check.</param>
     /// <returns>The side, or <c>null</c>.</returns>

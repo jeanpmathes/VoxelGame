@@ -11,7 +11,7 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Materials;
 
 /// <summary>
-/// A block made from loose materials, creating a permeable surface.
+///     A block made from loose materials, creating a permeable surface.
 /// </summary>
 public class Loose : BlockBehavior, IBehavior<Loose, BlockBehavior, Block>
 {
@@ -20,19 +20,19 @@ public class Loose : BlockBehavior, IBehavior<Loose, BlockBehavior, Block>
         subject.Require<Membrane>().MaxViscosityInitializer.ContributeConstant(value: 100);
         subject.Require<Fillable>().IsFluidRenderedInitializer.ContributeConstant(value: false);
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Loose Construct(Block input)
     {
         return new Loose(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
         if (!Subject.Is<Wet>())
         {
             validator.ReportWarning("Loose blocks must be able to get wet in some way, preferably with visual representation of that");
-        } 
+        }
     }
 }

@@ -72,11 +72,7 @@ namespace nv_helpers_dx12
         AddHeapRangesParameter(rangeStorage);
     }
 
-    void RootSignatureGenerator::AddRootParameter(
-        D3D12_ROOT_PARAMETER_TYPE const type,
-        UINT const                      shaderRegister,
-        UINT const                      registerSpace,
-        UINT const                      numRootConstants)
+    void RootSignatureGenerator::AddRootParameter(D3D12_ROOT_PARAMETER_TYPE const type, UINT const shaderRegister, UINT const registerSpace, UINT const numRootConstants)
     {
         D3D12_ROOT_PARAMETER param;
         param.ParameterType = type;
@@ -99,18 +95,13 @@ namespace nv_helpers_dx12
         m_rangeLocations.push_back(~0u);
     }
 
-    void RootSignatureGenerator::AddStaticSampler(D3D12_STATIC_SAMPLER_DESC const* sampler)
-    {
-        m_staticSamplers.push_back(*sampler);
-    }
+    void RootSignatureGenerator::AddStaticSampler(D3D12_STATIC_SAMPLER_DESC const* sampler) { m_staticSamplers.push_back(*sampler); }
 
-    Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(
-        Microsoft::WRL::ComPtr<ID3D12Device> const& device,
-        bool const                                  isLocal)
+    Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(Microsoft::WRL::ComPtr<ID3D12Device> const& device, bool const isLocal)
     {
         for (size_t i = 0; i < m_parameters.size(); i++)
-            if (m_parameters[i].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE) m_parameters[i].
-                DescriptorTable.pDescriptorRanges = m_ranges[m_rangeLocations[i]].data();
+            if (m_parameters[i].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
+                m_parameters[i].DescriptorTable.pDescriptorRanges = m_ranges[m_rangeLocations[i]].data();
 
         D3D12_ROOT_SIGNATURE_DESC rootDesc;
         rootDesc.NumParameters     = static_cast<UINT>(m_parameters.size());
@@ -124,7 +115,7 @@ namespace nv_helpers_dx12
 
         Microsoft::WRL::ComPtr<ID3DBlob> pSigBlob;
         Microsoft::WRL::ComPtr<ID3DBlob> pErrorBlob;
-        HRESULT hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &pSigBlob, &pErrorBlob);
+        HRESULT                          hr = D3D12SerializeRootSignature(&rootDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &pSigBlob, &pErrorBlob);
         if (FAILED(hr))
         {
             std::vector<char> infoLog(pErrorBlob->GetBufferSize() + 1);
@@ -135,11 +126,7 @@ namespace nv_helpers_dx12
         }
 
         Microsoft::WRL::ComPtr<ID3D12RootSignature> pRootSig;
-        hr = device->CreateRootSignature(
-            0,
-            pSigBlob->GetBufferPointer(),
-            pSigBlob->GetBufferSize(),
-            IID_PPV_ARGS(&pRootSig));
+        hr = device->CreateRootSignature(0, pSigBlob->GetBufferPointer(), pSigBlob->GetBufferSize(), IID_PPV_ARGS(&pRootSig));
         if (FAILED(hr)) throw std::logic_error("Cannot create root signature.");
 
         return pRootSig;

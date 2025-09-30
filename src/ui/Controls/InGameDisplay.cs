@@ -24,11 +24,11 @@ namespace VoxelGame.UI.Controls;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal class InGameDisplay : ControlBase
 {
-    private readonly Label performance;
-    private readonly Label playerSelection;
+    private readonly PropertyBasedTreeControl debugViewContent;
 
     private readonly ControlBase debugViewRoot;
-    private readonly PropertyBasedTreeControl debugViewContent;
+    private readonly Label performance;
+    private readonly Label playerSelection;
 
     private Boolean debugMode;
 

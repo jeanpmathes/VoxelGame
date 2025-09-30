@@ -19,10 +19,10 @@ namespace VoxelGame.Core.Collections;
 /// <typeparam name="T">The type of the items in the bag.</typeparam>
 public class Bag<T> : IEnumerable<T>
 {
-    private readonly List<T> items = [];
     private readonly PriorityQueue<Int32, Int32> gaps = new();
 
     private readonly T gapValue;
+    private readonly List<T> items = [];
 
     /// <summary>
     ///     Create a new gapped bag.

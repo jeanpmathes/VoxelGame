@@ -9,7 +9,7 @@ using VoxelGame.Core.Behaviors;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// A block that is grown by a plant as its fruit.
+///     A block that is grown by a plant as its fruit.
 /// </summary>
 public class Fruit : BlockBehavior, IBehavior<Fruit, BlockBehavior, Block>
 {
@@ -17,8 +17,8 @@ public class Fruit : BlockBehavior, IBehavior<Fruit, BlockBehavior, Block>
     {
         subject.Require<Grounded>();
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Fruit Construct(Block input)
     {
         return new Fruit(input);

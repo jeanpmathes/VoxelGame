@@ -38,7 +38,7 @@ public class SetSpeed : Command
                 return;
 
             default:
-                if (Context.Player.GetComponent<PlayerMovement>() is { } movement)
+                if (Context.Player.GetComponent<PlayerMovement>() is {} movement)
                     movement.SetFlyingSpeed(speed);
 
                 break;

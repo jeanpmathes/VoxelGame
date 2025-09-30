@@ -22,18 +22,18 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class MeshingContext
 {
-    private readonly Section current;
-    private readonly SideArray<Section?> neighbors;
     private readonly IMeshing basicOpaqueMeshing;
     private readonly IMeshing basicTransparentMeshing;
-    private readonly IMeshing foliageMeshing;
-    private readonly IMeshing fluidMeshing;
-    private readonly SideArray<MeshFaceHolder> opaqueFullBlockMeshFaceHolders;
-    private readonly SideArray<MeshFaceHolder> transparentFullBlockMeshFaceHolders;
-    private readonly SideArray<MeshFaceHolder> opaqueVaryingHeightBlockMeshFaceHolders;
-    private readonly SideArray<MeshFaceHolder> transparentVaryingHeightBlockMeshFaceHolders;
-    private readonly SideArray<MeshFaceHolder> fluidMeshFaceHolders;
     private readonly (ColorS block, ColorS fluid)[,] colors;
+    private readonly Section current;
+    private readonly SideArray<MeshFaceHolder> fluidMeshFaceHolders;
+    private readonly IMeshing fluidMeshing;
+    private readonly IMeshing foliageMeshing;
+    private readonly SideArray<Section?> neighbors;
+    private readonly SideArray<MeshFaceHolder> opaqueFullBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> opaqueVaryingHeightBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> transparentFullBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> transparentVaryingHeightBlockMeshFaceHolders;
 
     /// <summary>
     ///     Create a new block meshing context.

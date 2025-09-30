@@ -17,37 +17,37 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
 /// <summary>
-/// A <see cref="Plant"/> that uses the <see cref="Foliage.LayoutType.Cross"/> layout and consists of two parts.
+///     A <see cref="Plant" /> that uses the <see cref="Foliage.LayoutType.Cross" /> layout and consists of two parts.
 /// </summary>
 public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, BlockBehavior, Block>
 {
     private readonly Composite composite;
-    
+
     private DoubleCrossPlant(Block subject) : base(subject)
     {
         subject.Require<Plant>();
-        
+
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
-        
+
         composite = subject.Require<Composite>();
         composite.MaximumSizeInitializer.ContributeConstant((1, 2, 1));
-        
+
         var foliage = subject.Require<Foliage>();
         foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
-        
-        subject.BoundingVolume.ContributeFunction((_, _) => BoundingVolume.CrossBlock(height: 1.0, width: Width));
-        
+
+        subject.BoundingVolume.ContributeFunction((_, _) => BoundingVolume.CrossBlock(height: 1.0, Width));
+
         WidthInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(WidthInitializer), this);
     }
 
     /// <summary>
-    /// The width of the plant, used for the bounding volume.
+    ///     The width of the plant, used for the bounding volume.
     /// </summary>
     public Double Width { get; private set; } = 0.71;
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="Width"/> property.
+    ///     Aspect used to initialize the <see cref="Width" /> property.
     /// </summary>
     public Aspect<Double, Block> WidthInitializer { get; }
 
@@ -62,10 +62,10 @@ public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, Block
     {
         Width = WidthInitializer.GetValue(original: 0.71, Subject);
     }
-    
+
     private TID GetActiveTexture(TID original, State state)
     {
-        return original.Offset(y: (Byte)(composite.GetPartPosition(state).Y == 0 ? 0 : 1));
+        return original.Offset(y: (Byte) (composite.GetPartPosition(state).Y == 0 ? 0 : 1));
     }
 
     private Foliage.PartType GetPart(Foliage.PartType original, State state)

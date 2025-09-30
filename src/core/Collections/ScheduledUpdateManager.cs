@@ -31,9 +31,9 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
     private readonly UpdateCounter updateCounter;
 
-    private World? world;
-
     private UpdateHolder? nextUpdates;
+
+    private World? world;
 
     /// <summary>
     ///     Create a new scheduled update manager.

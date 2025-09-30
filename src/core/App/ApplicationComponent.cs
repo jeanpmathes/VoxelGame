@@ -11,7 +11,7 @@ using VoxelGame.Toolkit.Components;
 namespace VoxelGame.Core.App;
 
 /// <summary>
-///     Base class for all components used in the <see cref="Application"/> class.
+///     Base class for all components used in the <see cref="Application" /> class.
 /// </summary>
 public class ApplicationComponent(Application application) : Component<Application>(application)
 {

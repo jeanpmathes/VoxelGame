@@ -21,7 +21,7 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
     private readonly String name;
 
     private Dictionary<RID, T> resources = [];
-    
+
     /// <summary>
     ///     Creates a new group provider.
     /// </summary>
@@ -87,9 +87,9 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
 
         return CreateFallback();
     }
-    
+
     /// <summary>
-    /// Get all resources managed by this provider.
+    ///     Get all resources managed by this provider.
     /// </summary>
     /// <returns>All resources managed by this provider.</returns>
     protected IReadOnlyDictionary<RID, T> GetAllResources()

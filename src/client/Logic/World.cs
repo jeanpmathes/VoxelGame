@@ -31,7 +31,7 @@ public class World : Core.Logic.World
     internal World(Application.Client client, DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) : base(path, name, seed)
     {
         Space = client.Space;
-        
+
         SetUp();
     }
 
@@ -41,22 +41,22 @@ public class World : Core.Logic.World
     internal World(Application.Client client, WorldData data) : base(data)
     {
         Space = client.Space;
-        
+
         SetUp();
-    }
-    
-    private void SetUp()
-    {
-        Space.Light.Direction = sunLightDirection;
-        
-        AddComponent<SectionMeshing>();
-        AddComponent<HideWorldOnTermination>();
     }
 
     /// <summary>
     ///     Get the space in which all objects of this world are placed in.
     /// </summary>
     public Space Space { get; }
+
+    private void SetUp()
+    {
+        Space.Light.Direction = sunLightDirection;
+
+        AddComponent<SectionMeshing>();
+        AddComponent<HideWorldOnTermination>();
+    }
 
     /// <inheritdoc />
     protected override Core.Logic.Chunks.Chunk CreateChunk(NativeSegment<UInt32> blocks, ChunkContext context)
@@ -70,15 +70,15 @@ public class World : Core.Logic.World
     public void RenderUpdate()
     {
         if (!State.IsActive) return;
-        
+
         localPlayer ??= GetComponent<LocalPlayerHook>();
-        
-        if (localPlayer == null) 
+
+        if (localPlayer == null)
             return;
-        
+
         Frustum frustum = localPlayer.Player.View.Frustum;
 
-        if (Core.App.Application.Instance.IsDebug) 
+        if (Core.App.Application.Instance.IsDebug)
             Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
         else
             // Rendering chunks even if they are used by an off-thread operation is safe.

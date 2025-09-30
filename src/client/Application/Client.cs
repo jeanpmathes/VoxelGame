@@ -32,10 +32,10 @@ public sealed partial class Client : Graphics.Core.Client
 {
     private readonly GameParameters parameters;
 
+    private readonly SceneFactory sceneFactory;
+
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly SceneManager sceneManager;
-
-    private readonly SceneFactory sceneFactory;
 
     private Boolean isExitingToOS;
 
@@ -49,10 +49,10 @@ public sealed partial class Client : Graphics.Core.Client
     internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters, Version version) : base(windowSettings, version)
     {
         this.parameters = parameters;
-        
+
         sceneManager = AddComponent<SceneManager>();
         sceneFactory = new SceneFactory(this);
-        
+
         AddComponent<SceneOperationDispatch>();
         AddComponent<GlobalOperationDispatch>();
 

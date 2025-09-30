@@ -13,14 +13,13 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-/// Allows the user to hide or show the <see cref="InGameUserInterface"/> in a <see cref="SessionScene"/>.
+///     Allows the user to hide or show the <see cref="InGameUserInterface" /> in a <see cref="SessionScene" />.
 /// </summary>
 public class UserInterfaceHide : SceneComponent, IConstructible<SessionScene, InGameUserInterface, UserInterfaceHide>
 {
+    private readonly ToggleButton button;
     private readonly SessionScene scene;
     private readonly InGameUserInterface ui;
-
-    private readonly ToggleButton button;
 
     private UserInterfaceHide(SessionScene scene, InGameUserInterface ui) : base(scene)
     {

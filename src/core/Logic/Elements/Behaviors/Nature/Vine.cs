@@ -18,38 +18,31 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// A flat block which grows downwards and can, as an alternative to a holding wall, also hang from other vines.
+///     A flat block which grows downwards and can, as an alternative to a holding wall, also hang from other vines.
 /// </summary>
 public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
 {
     private const Int32 MaxAge = 8;
-    
-    [LateInitialization]
-    private partial IAttribute<Int32> Age { get; set; }
+    private readonly Attached attached;
 
     private readonly SingleSided siding;
-    private readonly Attached attached;
 
     private Vine(Block subject) : base(subject)
     {
         subject.Require<Combustible>();
-        
+
         siding = subject.Require<SingleSided>();
-        
+
         attached = subject.Require<Attached>();
         attached.IsOtherwiseAttached.ContributeFunction(GetIsOtherwiseAttached);
     }
+
+    [LateInitialization] private partial IAttribute<Int32> Age { get; set; }
 
     /// <inheritdoc />
     public static Vine Construct(Block input)
     {
         return new Vine(input);
-    }
-
-    /// <inheritdoc />
-    public override void DefineState(IStateBuilder builder)
-    {
-        Age = builder.Define(nameof(Age)).Int32(min: 0, MaxAge + 1).Attribute();
     }
 
     /// <inheritdoc />
@@ -59,13 +52,19 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
         bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
 
+    /// <inheritdoc />
+    public override void DefineState(IStateBuilder builder)
+    {
+        Age = builder.Define(nameof(Age)).Int32(min: 0, MaxAge + 1).Attribute();
+    }
+
     private Boolean GetIsOtherwiseAttached(Boolean original, (World world, Vector3i position, State state) context)
     {
         (World world, Vector3i position, State state) = context;
 
         State? above = world.GetBlock(position.Above());
 
-        if (above == null) 
+        if (above == null)
             return false;
 
         if (above.Value.Block != Subject)
@@ -73,12 +72,12 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
 
         return siding.GetSide(state) == above.Value.Block.Get<Vine>()?.siding.GetSide(above.Value);
     }
-    
+
     private void OnRandomUpdate(Block.RandomUpdateMessage message)
     {
         Int32 currentAge = message.State.Get(Age);
-        
-        if (currentAge < MaxAge) 
+
+        if (currentAge < MaxAge)
         {
             message.World.SetBlock(message.State.With(Age, currentAge + 1), message.Position);
         }
@@ -88,12 +87,12 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
             message.World.SetBlock(message.State.With(Age, value: 0), message.Position);
         }
     }
-    
+
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
     {
         if (message.Side != Side.Top)
             return;
-        
+
         attached.CheckAttachment(message.World, message.Position, message.State);
     }
 }

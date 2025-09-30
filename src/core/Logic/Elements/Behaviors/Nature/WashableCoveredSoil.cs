@@ -11,31 +11,31 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// Extends <see cref="CoveredSoil"/> to remove the cover when becoming wet.
+///     Extends <see cref="CoveredSoil" /> to remove the cover when becoming wet.
 /// </summary>
 public class WashableCoveredSoil : BlockBehavior, IBehavior<WashableCoveredSoil, BlockBehavior, Block>
 {
     private readonly CoveredSoil soil;
-    
+
     private WashableCoveredSoil(Block subject) : base(subject)
     {
         subject.Require<Wet>();
-        
+
         soil = subject.Require<CoveredSoil>();
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static WashableCoveredSoil Construct(Block input)
     {
         return new WashableCoveredSoil(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Wet.BecomeWetMessage>(OnBecomeWet);
     }
-    
+
     private void OnBecomeWet(Wet.BecomeWetMessage message)
     {
         soil.RemoveCover(message.World, message.Position);

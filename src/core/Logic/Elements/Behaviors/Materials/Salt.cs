@@ -15,7 +15,7 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Materials;
 
 /// <summary>
-/// Salt is a solid material that can be put into fresh water to create salt water.
+///     Salt is a solid material that can be put into fresh water to create salt water.
 /// </summary>
 public class Salt : BlockBehavior, IBehavior<Salt, BlockBehavior, Block>
 {
@@ -24,13 +24,13 @@ public class Salt : BlockBehavior, IBehavior<Salt, BlockBehavior, Block>
         subject.Require<Fillable>().IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static Salt Construct(Block input)
     {
         return new Salt(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
@@ -42,14 +42,14 @@ public class Salt : BlockBehavior, IBehavior<Salt, BlockBehavior, Block>
 
         return fluid.IsLiquid;
     }
-    
+
     private void OnStateUpdate(Block.StateUpdateMessage message)
     {
-        if (message.NewContent.Fluid.IsEmpty) return;
+        if (message.NewState.Fluid.IsEmpty) return;
 
         Subject.Destroy(message.World, message.Position);
 
-        if (message.NewContent.Fluid is {Fluid: var fluid, Level: var level}
+        if (message.NewState.Fluid is {Fluid: var fluid, Level: var level}
             && fluid == Elements.Fluids.Instance.FreshWater)
             message.World.SetFluid(Elements.Fluids.Instance.SeaWater.AsInstance(level), message.Position);
     }

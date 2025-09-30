@@ -26,6 +26,13 @@ public abstract class Actor : Composed<Actor, ActorComponent>
     public World World { get; private set; } = null!;
 
     /// <summary>
+    ///     The head of the actor, which allows to determine where the actor is looking at.
+    ///     If an actor has no head or the concept of looking does not make sense, this will try to return the transform of the
+    ///     actor itself.
+    /// </summary>
+    public virtual IOrientable? Head => GetComponent<Transform>();
+
+    /// <summary>
     ///     Called when this actor is added to a world.
     /// </summary>
     /// <param name="world">The world to which this actor was added.</param>
@@ -53,7 +60,7 @@ public abstract class Actor : Composed<Actor, ActorComponent>
     }
 
     /// <summary>
-    /// Call to activate this actor.
+    ///     Call to activate this actor.
     /// </summary>
     public void Activate()
     {
@@ -64,7 +71,7 @@ public abstract class Actor : Composed<Actor, ActorComponent>
     }
 
     /// <summary>
-    /// Call to deactivate this actor.
+    ///     Call to deactivate this actor.
     /// </summary>
     public void Deactivate()
     {
@@ -87,16 +94,10 @@ public abstract class Actor : Composed<Actor, ActorComponent>
             component.OnLogicUpdate(deltaTime);
         }
     }
-    
+
     /// <summary>
-    /// Called when the actor receives a logic update.
+    ///     Called when the actor receives a logic update.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    protected virtual void OnLogicUpdate(Double deltaTime) { }
-    
-    /// <summary>
-    ///     The head of the actor, which allows to determine where the actor is looking at.
-    ///     If an actor has no head or the concept of looking does not make sense, this will try to return the transform of the actor itself.
-    /// </summary>
-    public virtual IOrientable? Head => GetComponent<Transform>();
+    protected virtual void OnLogicUpdate(Double deltaTime) {}
 }

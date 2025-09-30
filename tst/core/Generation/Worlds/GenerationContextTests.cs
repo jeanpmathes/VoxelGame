@@ -41,10 +41,9 @@ public class GenerationContextTests : ContextTestBase
 
     private sealed class MockGenerationContext : IGenerationContext
     {
+        private readonly Content content = new(new MockBlock(), new MockFluid());
         private readonly HashSet<Vector3i> generatedBlocks = [];
         private readonly HashSet<SectionPosition> generatedSections = [];
-
-        private readonly Content content = new(new MockBlock(), new MockFluid());
 
         public Int32 NumberOfGeneratedBlocks => generatedBlocks.Count;
         public Int32 NumberOfGeneratedSections => generatedSections.Count;

@@ -12,198 +12,249 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// All sorts of metals and their ores, as well as other metal-related blocks.
+///     All sorts of metals and their ores, as well as other metal-related blocks.
 /// </summary>
 public class Metals(BlockBuilder builder) : Category(builder)
 {
     /// <summary>
-    /// Iron is the metal with the elemental symbol Fe.
+    ///     Iron is the metal with the elemental symbol Fe.
     /// </summary>
-    public Metal Iron { get; } = builder.BuildMetal(nameof(Iron), [
+    public Metal Iron { get; } = builder.BuildMetal(nameof(Iron),
+        [
             (Language.OreMagnetite, nameof(Language.OreMagnetite)),
-            (Language.OreHematite, nameof(Language.OreHematite)),
-        ], []);
-    
+            (Language.OreHematite, nameof(Language.OreHematite))
+        ],
+        []);
+
     /// <summary>
-    /// Gold is the metal with the elemental symbol Au.
+    ///     Gold is the metal with the elemental symbol Au.
     /// </summary>
-    public Metal Gold { get; } = builder.BuildMetal(nameof(Gold), [], [
+    public Metal Gold { get; } = builder.BuildMetal(nameof(Gold),
+        [],
+        [
             (Language.NativeGold, nameof(Language.NativeGold)),
             (Language.Electrum, nameof(Language.Electrum))
         ]);
-    
-    /// <summary>
-    /// Silver is the metal with the elemental symbol Ag.
-    /// </summary>
-    public Metal Silver { get; } = builder.BuildMetal(nameof(Silver), [], [
-            (Language.NativeSilver, nameof(Language.NativeSilver))
-        ]);
-    
-    /// <summary>
-    /// Platinum is the metal with the elemental symbol Pt.
-    /// </summary>
-    public Metal Platinum { get; } = builder.BuildMetal(nameof(Platinum), [], [
-            (Language.NativePlatinum, nameof(Language.NativePlatinum)),
-        ]);
-    
-    /// <summary>
-    /// Copper is the metal with the elemental symbol Cu.
-    /// </summary>
-    public Metal Copper { get; } = builder.BuildMetal(nameof(Copper), [
-            (Language.OreChalcopyrite, nameof(Language.OreChalcopyrite)),
-            (Language.OreMalachite, nameof(Language.OreMalachite)),
-        ], [
-            (Language.NativeCopper, nameof(Language.NativeCopper)), 
-        ]);
-    
-    /// <summary>
-    /// Aluminum is the metal with the elemental symbol Al.
-    /// </summary>
-    public Metal Aluminum { get; } = builder.BuildMetal(nameof(Aluminum), [
-            (Language.OreBauxite, nameof(Language.OreBauxite)),
-        ], []);
-    
-    /// <summary>
-    /// Lead is the metal with the elemental symbol Pb.
-    /// </summary>
-    public Metal Lead { get; } = builder.BuildMetal(nameof(Lead), [
-            (Language.OreGalena, nameof(Language.OreGalena)),
-        ], []);
-    
-    /// <summary>
-    /// Tin is the metal with the elemental symbol Sn.
-    /// </summary>
-    public Metal Tin { get; } = builder.BuildMetal(nameof(Tin), [
-            (Language.OreCassiterite, nameof(Language.OreCassiterite)),
-        ], []);
 
     /// <summary>
-    /// Mercury is the metal with the elemental symbol Hg.
+    ///     Silver is the metal with the elemental symbol Ag.
+    /// </summary>
+    public Metal Silver { get; } = builder.BuildMetal(nameof(Silver),
+        [],
+        [
+            (Language.NativeSilver, nameof(Language.NativeSilver))
+        ]);
+
+    /// <summary>
+    ///     Platinum is the metal with the elemental symbol Pt.
+    /// </summary>
+    public Metal Platinum { get; } = builder.BuildMetal(nameof(Platinum),
+        [],
+        [
+            (Language.NativePlatinum, nameof(Language.NativePlatinum))
+        ]);
+
+    /// <summary>
+    ///     Copper is the metal with the elemental symbol Cu.
+    /// </summary>
+    public Metal Copper { get; } = builder.BuildMetal(nameof(Copper),
+        [
+            (Language.OreChalcopyrite, nameof(Language.OreChalcopyrite)),
+            (Language.OreMalachite, nameof(Language.OreMalachite))
+        ],
+        [
+            (Language.NativeCopper, nameof(Language.NativeCopper))
+        ]);
+
+    /// <summary>
+    ///     Aluminum is the metal with the elemental symbol Al.
+    /// </summary>
+    public Metal Aluminum { get; } = builder.BuildMetal(nameof(Aluminum),
+        [
+            (Language.OreBauxite, nameof(Language.OreBauxite))
+        ],
+        []);
+
+    /// <summary>
+    ///     Lead is the metal with the elemental symbol Pb.
+    /// </summary>
+    public Metal Lead { get; } = builder.BuildMetal(nameof(Lead),
+        [
+            (Language.OreGalena, nameof(Language.OreGalena))
+        ],
+        []);
+
+    /// <summary>
+    ///     Tin is the metal with the elemental symbol Sn.
+    /// </summary>
+    public Metal Tin { get; } = builder.BuildMetal(nameof(Tin),
+        [
+            (Language.OreCassiterite, nameof(Language.OreCassiterite))
+        ],
+        []);
+
+    /// <summary>
+    ///     Mercury is the metal with the elemental symbol Hg.
     /// </summary>
     public Metal Mercury { get; } = builder.BuildMetal(nameof(Mercury),
         [
-            (Language.OreCinnabar, nameof(Language.OreCinnabar)),
-        ], []);
-    
+            (Language.OreCinnabar, nameof(Language.OreCinnabar))
+        ],
+        []);
+
     /// <summary>
-    /// Zinc is the metal with the elemental symbol Zn.
+    ///     Zinc is the metal with the elemental symbol Zn.
     /// </summary>
-    public Metal Zinc { get; } = builder.BuildMetal(nameof(Zinc), [
-            (Language.OreSphalerite, nameof(Language.OreSphalerite)),
-        ], []);
-    
+    public Metal Zinc { get; } = builder.BuildMetal(nameof(Zinc),
+        [
+            (Language.OreSphalerite, nameof(Language.OreSphalerite))
+        ],
+        []);
+
     /// <summary>
-    /// Chromium is the metal with the elemental symbol Cr.
+    ///     Chromium is the metal with the elemental symbol Cr.
     /// </summary>
-    public Metal Chromium { get; } = builder.BuildMetal(nameof(Chromium), [
-            (Language.OreChromite, nameof(Language.OreChromite)),
-        ], []);
-    
+    public Metal Chromium { get; } = builder.BuildMetal(nameof(Chromium),
+        [
+            (Language.OreChromite, nameof(Language.OreChromite))
+        ],
+        []);
+
     /// <summary>
-    /// Manganese is the metal with the elemental symbol Mn.
+    ///     Manganese is the metal with the elemental symbol Mn.
     /// </summary>
-    public Metal Manganese { get; } = builder.BuildMetal(nameof(Manganese), [
-            (Language.OrePyrolusite, nameof(Language.OrePyrolusite)),
-        ], []);
-    
+    public Metal Manganese { get; } = builder.BuildMetal(nameof(Manganese),
+        [
+            (Language.OrePyrolusite, nameof(Language.OrePyrolusite))
+        ],
+        []);
+
     /// <summary>
-    /// Titanium is the metal with the elemental symbol Ti.
+    ///     Titanium is the metal with the elemental symbol Ti.
     /// </summary>
-    public Metal Titanium { get; } = builder.BuildMetal(nameof(Titanium), [
-            (Language.OreRutile, nameof(Language.OreRutile)),
-        ], []);
-    
+    public Metal Titanium { get; } = builder.BuildMetal(nameof(Titanium),
+        [
+            (Language.OreRutile, nameof(Language.OreRutile))
+        ],
+        []);
+
     /// <summary>
-    /// Nickel is the metal with the elemental symbol Ni.
+    ///     Nickel is the metal with the elemental symbol Ni.
     /// </summary>
-    public Metal Nickel { get; } = builder.BuildMetal(nameof(Nickel), [
-            (Language.OrePentlandite, nameof(Language.OrePentlandite)),
-        ], []);
-    
+    public Metal Nickel { get; } = builder.BuildMetal(nameof(Nickel),
+        [
+            (Language.OrePentlandite, nameof(Language.OrePentlandite))
+        ],
+        []);
+
     /// <summary>
-    /// Zirconium is the metal with the elemental symbol Zr.
+    ///     Zirconium is the metal with the elemental symbol Zr.
     /// </summary>
-    public Metal Zirconium { get; } = builder.BuildMetal(nameof(Zirconium), [
-            (Language.OreZircon, nameof(Language.OreZircon)),
-        ], []);
-    
+    public Metal Zirconium { get; } = builder.BuildMetal(nameof(Zirconium),
+        [
+            (Language.OreZircon, nameof(Language.OreZircon))
+        ],
+        []);
+
     /// <summary>
-    /// Magnesium is the metal with the elemental symbol Mg.
+    ///     Magnesium is the metal with the elemental symbol Mg.
     /// </summary>
-    public Metal Magnesium { get; } = builder.BuildMetal(nameof(Magnesium), [
-            (Language.OreDolomite, nameof(Language.OreDolomite)),
-        ], []);
-    
+    public Metal Magnesium { get; } = builder.BuildMetal(nameof(Magnesium),
+        [
+            (Language.OreDolomite, nameof(Language.OreDolomite))
+        ],
+        []);
+
     /// <summary>
-    /// Strontium is the metal with the elemental symbol Sr.
+    ///     Strontium is the metal with the elemental symbol Sr.
     /// </summary>
-    public Metal Strontium { get; } = builder.BuildMetal(nameof(Strontium), [
-            (Language.OreCelestine, nameof(Language.OreCelestine)),
-        ], []);
-    
+    public Metal Strontium { get; } = builder.BuildMetal(nameof(Strontium),
+        [
+            (Language.OreCelestine, nameof(Language.OreCelestine))
+        ],
+        []);
+
     /// <summary>
-    /// Uranium is the metal with the elemental symbol U.
+    ///     Uranium is the metal with the elemental symbol U.
     /// </summary>
-    public Metal Uranium { get; } = builder.BuildMetal(nameof(Uranium), [
-            (Language.OreUraninite, nameof(Language.OreUraninite)),
-        ], []);
-    
+    public Metal Uranium { get; } = builder.BuildMetal(nameof(Uranium),
+        [
+            (Language.OreUraninite, nameof(Language.OreUraninite))
+        ],
+        []);
+
     /// <summary>
-    /// Bismuth is the metal with the elemental symbol Bi.
+    ///     Bismuth is the metal with the elemental symbol Bi.
     /// </summary>
-    public Metal Bismuth { get; } = builder.BuildMetal(nameof(Bismuth), [
-            (Language.OreBismuthinite, nameof(Language.OreBismuthinite)),
-        ], []);
-    
+    public Metal Bismuth { get; } = builder.BuildMetal(nameof(Bismuth),
+        [
+            (Language.OreBismuthinite, nameof(Language.OreBismuthinite))
+        ],
+        []);
+
     /// <summary>
-    /// Beryllium is the metal with the elemental symbol Be.
+    ///     Beryllium is the metal with the elemental symbol Be.
     /// </summary>
-    public Metal Beryllium { get; } = builder.BuildMetal(nameof(Beryllium), [
-            (Language.OreBeryl, nameof(Language.OreBeryl)),
-        ], []);
-    
+    public Metal Beryllium { get; } = builder.BuildMetal(nameof(Beryllium),
+        [
+            (Language.OreBeryl, nameof(Language.OreBeryl))
+        ],
+        []);
+
     /// <summary>
-    /// Molybdenum is the metal with the elemental symbol Mo.
+    ///     Molybdenum is the metal with the elemental symbol Mo.
     /// </summary>
-    public Metal Molybdenum { get; } = builder.BuildMetal(nameof(Molybdenum), [
-            (Language.OreMolybdenite, nameof(Language.OreMolybdenite)),
-        ], []);
-    
+    public Metal Molybdenum { get; } = builder.BuildMetal(nameof(Molybdenum),
+        [
+            (Language.OreMolybdenite, nameof(Language.OreMolybdenite))
+        ],
+        []);
+
     /// <summary>
-    /// Cobalt is the metal with the elemental symbol Co.
+    ///     Cobalt is the metal with the elemental symbol Co.
     /// </summary>
-    public Metal Cobalt { get; } = builder.BuildMetal(nameof(Cobalt), [
-            (Language.OreCobaltite, nameof(Language.OreCobaltite)),
-        ], []);
-    
+    public Metal Cobalt { get; } = builder.BuildMetal(nameof(Cobalt),
+        [
+            (Language.OreCobaltite, nameof(Language.OreCobaltite))
+        ],
+        []);
+
     /// <summary>
-    /// Lithium is the metal with the elemental symbol Li.
+    ///     Lithium is the metal with the elemental symbol Li.
     /// </summary>
-    public Metal Lithium { get; } = builder.BuildMetal(nameof(Lithium), [
-            (Language.OreSpodumene, nameof(Language.OreSpodumene)),
-        ], []);
-    
+    public Metal Lithium { get; } = builder.BuildMetal(nameof(Lithium),
+        [
+            (Language.OreSpodumene, nameof(Language.OreSpodumene))
+        ],
+        []);
+
     /// <summary>
-    /// Vanadium is the metal with the elemental symbol V.
+    ///     Vanadium is the metal with the elemental symbol V.
     /// </summary>
-    public Metal Vanadium { get; } = builder.BuildMetal(nameof(Vanadium), [
-            (Language.OreVanadinite, nameof(Language.OreVanadinite)),
-        ], []);
-    
+    public Metal Vanadium { get; } = builder.BuildMetal(nameof(Vanadium),
+        [
+            (Language.OreVanadinite, nameof(Language.OreVanadinite))
+        ],
+        []);
+
     /// <summary>
-    /// Tungsten is the metal with the elemental symbol W.
+    ///     Tungsten is the metal with the elemental symbol W.
     /// </summary>
-    public Metal Tungsten { get; } = builder.BuildMetal(nameof(Tungsten), [
-            (Language.OreScheelite, nameof(Language.OreScheelite)),
-        ], []);
-    
+    public Metal Tungsten { get; } = builder.BuildMetal(nameof(Tungsten),
+        [
+            (Language.OreScheelite, nameof(Language.OreScheelite))
+        ],
+        []);
+
     /// <summary>
-    /// Cadmium is the metal with the elemental symbol Cd.
+    ///     Cadmium is the metal with the elemental symbol Cd.
     /// </summary>
-    public Metal Cadmium { get; } = builder.BuildMetal(nameof(Cadmium), [
-            (Language.OreGreenockite, nameof(Language.OreGreenockite)), // note: sphalerite is a zinc ore, but it can also contain cadmium
-        ], []);
-    
+    public Metal Cadmium { get; } = builder.BuildMetal(nameof(Cadmium),
+        [
+            (Language.OreGreenockite, nameof(Language.OreGreenockite)) // note: sphalerite is a zinc ore, but it can also contain cadmium
+        ],
+        []);
+
     /// <summary>
     ///     When iron is exposed to oxygen and moisture, it rusts.
     ///     This blocks is a large accumulation of rust.
@@ -212,7 +263,7 @@ public class Metals(BlockBuilder builder) : Category(builder)
         .BuildSimpleBlock(nameof(Language.Rust), Language.Rust)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("rust")))
         .Complete();
-    
+
     /// <summary>
     ///     The steel block is a metal construction block.
     /// </summary>

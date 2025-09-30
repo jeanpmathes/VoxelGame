@@ -13,7 +13,7 @@ using Image = VoxelGame.Core.Visuals.Image;
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 
 /// <summary>
-/// Blurs images.
+///     Blurs images.
 /// </summary>
 [UsedImplicitly]
 public class Blur() : Modifier("blur")

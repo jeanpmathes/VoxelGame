@@ -177,12 +177,12 @@ public partial class Profile(ProfilerConfiguration configuration)
     private sealed class TimingMeasurement(String name, TimingStyle style, Boolean isRoot)
     {
         private readonly List<TimingMeasurement> children = [];
-
-        private readonly Lock timingLock = new();
         private readonly Lock childrenLock = new();
 
-        private CircularTimeBuffer? reoccurring;
+        private readonly Lock timingLock = new();
         private Double once;
+
+        private CircularTimeBuffer? reoccurring;
 
         public Boolean IsRoot => isRoot;
 
@@ -238,9 +238,9 @@ public partial class Profile(ProfilerConfiguration configuration)
     private sealed class StateMachine(String name)
     {
         private readonly Dictionary<String, Int32> activeStates = new();
-        private readonly Dictionary<String, Int64> stateDurations = new();
 
         private readonly List<IEnumerable<String>> lifetimes = [];
+        private readonly Dictionary<String, Int64> stateDurations = new();
 
         private UInt64 totalDurations;
 

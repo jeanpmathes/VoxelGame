@@ -15,24 +15,24 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 namespace VoxelGame.Core.Visuals.Meshables;
 
 /// <summary>
-/// Blocks which do not use any meshing at all and thus do not contribute any mesh data.
+///     Blocks which do not use any meshing at all and thus do not contribute any mesh data.
 /// </summary>
 public class UnmeshedBlock : Block
 {
-    /// <inheritdoc />
-    public override Meshable Meshable => Meshable.Unmeshed;
-
     /// <inheritdoc />
     public UnmeshedBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         Require<Unmeshed>();
     }
-    
+
+    /// <inheritdoc />
+    public override Meshable Meshable => Meshable.Unmeshed;
+
     /// <inheritdoc />
     protected override void OnValidate()
     {
         if (Is<Meshed>()) Debug.Fail("cringe bro");
-            // todo: use proper validation (through the resource context or whatever) here as meshed behavior does not make sense for unmeshed blocks
+        // todo: use proper validation (through the resource context or whatever) here as meshed behavior does not make sense for unmeshed blocks
     }
 
     /// <inheritdoc />

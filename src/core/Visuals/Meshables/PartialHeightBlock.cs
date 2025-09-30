@@ -23,49 +23,58 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// </summary>
 public class PartialHeightBlock : Block, IOverlayTextureProvider
 {
-    private readonly PartialHeight partialHeightMeshable;
-    private readonly Logic.Elements.Behaviors.Height.PartialHeight partialHeightBehavior;
-    
     private readonly SideArray<PartialHeight.MeshData[]> meshData = new();
-    
-    /// <inheritdoc />
-    public override Meshable Meshable => Meshable.PartialHeight;
+    private readonly Logic.Elements.Behaviors.Height.PartialHeight partialHeightBehavior;
+    private readonly PartialHeight partialHeightMeshable;
 
     /// <inheritdoc />
     public PartialHeightBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         partialHeightMeshable = Require<PartialHeight>();
         partialHeightBehavior = Require<Logic.Elements.Behaviors.Height.PartialHeight>();
-        
+
         Require<Overlay>().OverlayTextureProvider.ContributeConstant(this);
     }
-    
+
     /// <inheritdoc />
-    protected override void OnValidate()
+    public override Meshable Meshable => Meshable.PartialHeight;
+
+    OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
     {
-        
+        PartialHeight.MeshData mesh = meshData[Side.Front][content.Block.Index];
+
+        return new OverlayTexture
+        {
+            TextureIndex = mesh.TextureIndex,
+            Tint = mesh.Tint,
+            IsAnimated = mesh.IsAnimated
+        };
     }
-    
+
+    /// <inheritdoc />
+    protected override void OnValidate() {}
+
     /// <inheritdoc />
     protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
     {
         foreach (Side side in Side.All.Sides())
         {
             meshData[side] = new PartialHeight.MeshData[States.Count];
-            
+
             foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
             {
                 if (!Constraint.IsStateValid(state))
                 {
                     meshData[side][index] = new PartialHeight.MeshData(ITextureIndexProvider.MissingTextureIndex, ColorS.None, IsAnimated: false);
+
                     continue;
                 }
-                
+
                 meshData[side][index] = partialHeightMeshable.GetMeshData(state, side, textureIndexProvider);
             }
         }
     }
-    
+
     /// <inheritdoc />
     public override void Mesh(Vector3i position, State state, MeshingContext context)
     {
@@ -126,7 +135,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
 
         Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
         Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
-        
+
         // todo: allow animation here, set the bit, add it to the wiki, check that shader supports it
 
         if (side is not (Side.Top or Side.Bottom))
@@ -147,17 +156,5 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
             data,
             isSingleSided: true,
             height == Logic.Elements.Behaviors.Height.PartialHeight.MaximumHeight);
-    }
-    
-    OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
-    {
-        PartialHeight.MeshData mesh = meshData[Side.Front][content.Block.Index];
-
-        return new OverlayTexture
-        {
-            TextureIndex = mesh.TextureIndex,
-            Tint = mesh.Tint,
-            IsAnimated = mesh.IsAnimated
-        };
     }
 }

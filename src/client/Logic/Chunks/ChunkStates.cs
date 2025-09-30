@@ -48,9 +48,9 @@ public partial class Chunk
     public class Meshing : ChunkState
     {
         private ChunkMeshingContext? context;
+        private ChunkMeshData? meshData;
 
         private Future<ChunkMeshData>? meshing;
-        private ChunkMeshData? meshData;
 
         /// <summary>
         ///     Meshes a chunk and sets the data to the GPU.

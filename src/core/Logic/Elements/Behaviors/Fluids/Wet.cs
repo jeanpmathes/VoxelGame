@@ -14,25 +14,27 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
 /// <summary>
-/// Behavior of blocks that can be wet.
+///     Behavior of blocks that can be wet.
 /// </summary>
 public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
 {
     private Wet(Block subject) : base(subject) {}
-    
-    /// <inheritdoc/>
+
+    [LateInitialization] private partial IEvent<BecomeWetMessage> BecomeWet { get; set; }
+
+    /// <inheritdoc />
     public static Wet Construct(Block input)
     {
         return new Wet(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
         BecomeWet = registry.RegisterEvent<BecomeWetMessage>();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
@@ -41,8 +43,8 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     private void OnStateUpdate(Block.StateUpdateMessage message)
     {
         if (!BecomeWet.HasSubscribers) return;
-        
-        if (IsWet(message.NewContent.Block) || message.NewContent.Fluid.Fluid.IsLiquid)
+
+        if (IsWet(message.NewState.Block) || message.NewState.Fluid.Fluid.IsLiquid)
         {
             BecomeWet.Publish(new BecomeWetMessage(this)
             {
@@ -53,28 +55,28 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     }
 
     /// <summary>
-    /// Get whether the block is wet based on its state.
+    ///     Get whether the block is wet based on its state.
     /// </summary>
     /// <param name="state">The state of the block.</param>
     /// <returns>True if the block is wet, false otherwise.</returns>
-    public Boolean IsWet(State state) => state.Fluid?.IsLiquid == true;
+    public Boolean IsWet(State state)
+    {
+        return state.Fluid?.IsLiquid == true;
+    }
 
     /// <summary>
-    /// Sent when a block becomes wet.
+    ///     Sent when a block becomes wet.
     /// </summary>
     public record BecomeWetMessage(Object Sender) : IEventMessage
     {
         /// <summary>
-        /// The world in which the block is located.
+        ///     The world in which the block is located.
         /// </summary>
         public World World { get; set; } = null!;
-        
+
         /// <summary>
-        /// The position of the block.
+        ///     The position of the block.
         /// </summary>
         public Vector3i Position { get; set; }
     }
-
-    [LateInitialization]
-    private partial IEvent<BecomeWetMessage> BecomeWet { get; set; }
 }

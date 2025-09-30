@@ -14,16 +14,16 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Siding;
 
 /// <summary>
-/// Places sided blocks based on the targeted side of the placing actor.
+///     Places sided blocks based on the targeted side of the placing actor.
 /// </summary>
 public class TargetedSidePlacement : BlockBehavior, IBehavior<TargetedSidePlacement, BlockBehavior, Block>
 {
     private readonly Sided siding;
-    
+
     private TargetedSidePlacement(Block subject) : base(subject)
     {
         siding = subject.Require<Sided>();
-        
+
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
@@ -32,13 +32,13 @@ public class TargetedSidePlacement : BlockBehavior, IBehavior<TargetedSidePlacem
     {
         return new TargetedSidePlacement(input);
     }
-    
+
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
     {
         (World _, Vector3i _, Actor? actor) = context;
-        
+
         Side? side = actor?.GetTargetedSide()?.Opposite();
-        
+
         if (side == null) return original;
 
         return siding.SetSides(original, side.Value.ToFlag()) ?? original;

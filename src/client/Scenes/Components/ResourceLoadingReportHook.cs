@@ -11,19 +11,19 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-/// Presents a <see cref="ResourceLoadingIssueReport"/> to the user via the <see cref="StartUserInterface"/>.
+///     Presents a <see cref="ResourceLoadingIssueReport" /> to the user via the <see cref="StartUserInterface" />.
 /// </summary>
 public class ResourceLoadingReportHook : SceneComponent, IConstructible<Scene, (ResourceLoadingIssueReport, StartUserInterface), ResourceLoadingReportHook>
 {
-    private readonly StartUserInterface ui;
     private readonly ResourceLoadingIssueReport report;
-    
+    private readonly StartUserInterface ui;
+
     private ResourceLoadingReportHook(Scene scene, ResourceLoadingIssueReport report, StartUserInterface ui) : base(scene)
     {
         this.report = report;
         this.ui = ui;
     }
-    
+
     /// <inheritdoc />
     public static ResourceLoadingReportHook Construct(Scene input1, (ResourceLoadingIssueReport, StartUserInterface) input2)
     {

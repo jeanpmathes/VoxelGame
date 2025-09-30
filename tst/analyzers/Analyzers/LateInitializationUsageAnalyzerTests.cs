@@ -33,10 +33,10 @@ public class LateInitializationUsageAnalyzerTests
                            public Int32 Property { get; set; }
                        }
                        """,
-            
+
             ReferenceAssemblies = TestTool.DefaultAssembly,
             SolutionTransforms = {TestTool.DefaultSolutionTransform},
-            
+
             TestState =
             {
                 AdditionalReferences =
@@ -44,7 +44,7 @@ public class LateInitializationUsageAnalyzerTests
                     MetadataReference.CreateFromFile(typeof(LateInitializationAttribute).Assembly.Location)
                 }
             },
-            
+
             ExpectedDiagnostics =
             {
                 Verifier.Diagnostic(LateInitializationUsageAnalyzer.DiagnosticID)
@@ -61,22 +61,22 @@ public class LateInitializationUsageAnalyzerTests
             TestCode = """
                        using System;
                        using VoxelGame.Annotations;
-                       
+
                        public partial class TestClass
                        {
                            [LateInitialization]
                            public static partial Int32 Property { get; set; }
                        }
-                       
+
                        public partial class TestClass
                        {
                            public static partial Int32 Property { get => 0; set {} }
                        }
                        """,
-            
+
             ReferenceAssemblies = TestTool.DefaultAssembly,
             SolutionTransforms = {TestTool.DefaultSolutionTransform},
-            
+
             TestState =
             {
                 AdditionalReferences =
@@ -84,12 +84,12 @@ public class LateInitializationUsageAnalyzerTests
                     MetadataReference.CreateFromFile(typeof(LateInitializationAttribute).Assembly.Location)
                 }
             },
-            
+
             ExpectedDiagnostics =
             {
                 Verifier.Diagnostic(LateInitializationUsageAnalyzer.DiagnosticID)
                     .WithLocation(line: 7, column: 18).WithArguments("Property"),
-                
+
                 Verifier.Diagnostic(LateInitializationUsageAnalyzer.DiagnosticID)
                     .WithLocation(line: 12, column: 25).WithArguments("Property")
             }
@@ -104,22 +104,22 @@ public class LateInitializationUsageAnalyzerTests
             TestCode = """
                        using System;
                        using VoxelGame.Annotations;
-                       
+
                        public partial class TestClass
                        {
                            [LateInitialization]
                            public partial Int32? Property { get; set; }
                        }
-                       
+
                        public partial class TestClass
                        {
                            public partial Int32? Property { get => 0; set {} }
                        }
                        """,
-            
+
             ReferenceAssemblies = TestTool.DefaultAssembly,
             SolutionTransforms = {TestTool.DefaultSolutionTransform},
-            
+
             TestState =
             {
                 AdditionalReferences =
@@ -127,12 +127,12 @@ public class LateInitializationUsageAnalyzerTests
                     MetadataReference.CreateFromFile(typeof(LateInitializationAttribute).Assembly.Location)
                 }
             },
-            
+
             ExpectedDiagnostics =
             {
                 Verifier.Diagnostic(LateInitializationUsageAnalyzer.DiagnosticID)
                     .WithLocation(line: 7, column: 18).WithArguments("Property"),
-                
+
                 Verifier.Diagnostic(LateInitializationUsageAnalyzer.DiagnosticID)
                     .WithLocation(line: 12, column: 25).WithArguments("Property")
             }
@@ -147,29 +147,29 @@ public class LateInitializationUsageAnalyzerTests
             TestCode = """
                        using System;
                        using VoxelGame.Annotations;
-                       
+
                        public partial class TestClass
                        {
                            [LateInitialization]
                            public partial Int32 Property { get; set; }
                        }
-                       
+
                        public partial class TestClass
                        {
                            public partial Int32 Property { get => 0; set {} }
                        }
                        """,
-            
+
             ReferenceAssemblies = TestTool.DefaultAssembly,
             SolutionTransforms = {TestTool.DefaultSolutionTransform},
-            
+
             TestState =
             {
                 AdditionalReferences =
                 {
                     MetadataReference.CreateFromFile(typeof(LateInitializationAttribute).Assembly.Location)
                 }
-            },
+            }
         }.RunAsync();
     }
 }

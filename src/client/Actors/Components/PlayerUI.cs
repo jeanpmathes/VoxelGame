@@ -14,24 +14,25 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-/// Controls the user interface for the player, such as HUD and other UI elements.
+///     Controls the user interface for the player, such as HUD and other UI elements.
 /// </summary>
 public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterface, PlayerUI>
 {
-    private readonly Player player;
-    private readonly InGameUserInterface ui;
-    
+    private readonly Button debugViewButton;
+
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlacementSelection? placement;
 
-    private readonly Button debugViewButton;
-    
-    private PlayerUI(Player player, InGameUserInterface ui) : base(player) 
+    private readonly Player player;
+    private readonly InGameUserInterface ui;
+
+    private PlayerUI(Player player, InGameUserInterface ui) : base(player)
     {
         this.player = player;
         this.ui = ui;
-        
+
         placement = player.GetComponent<PlacementSelection>();
+
         if (placement != null)
         {
             placement.SelectionChanged += UpdatePlayerData;
@@ -50,7 +51,7 @@ public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterfa
     public override void OnActivate()
     {
         Throw.IfDisposed(disposed);
-        
+
         ui.SetActive(active: true);
         ui.UpdatePlayerData();
     }
@@ -59,7 +60,7 @@ public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterfa
     public override void OnDeactivate()
     {
         Throw.IfDisposed(disposed);
-        
+
         ui.SetActive(active: false);
     }
 
@@ -70,10 +71,10 @@ public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterfa
 
         if (player.Scene.CanHandleMetaInput && debugViewButton.IsDown)
             ui.ToggleDebugDataView();
-        
+
         ui.UpdatePlayerDebugData();
     }
-    
+
     private void UpdatePlayerData(Object? sender, EventArgs e)
     {
         Throw.IfDisposed(disposed);
@@ -82,19 +83,19 @@ public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterfa
     }
 
     #region DISPOSABLE
-    
+
     private Boolean disposed;
 
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
         if (disposed) return;
-        
+
         base.Dispose(disposing);
-        
+
         disposed = true;
 
-        if (!disposing) 
+        if (!disposing)
             return;
 
         if (placement != null)

@@ -32,14 +32,7 @@ namespace util
         ComPtr<T>                   resource;
         ComPtr<D3D12MA::Allocation> allocation;
 
-        TryDo(
-            client.GetAllocator()->CreateResource(
-                &allocationDesc,
-                &resourceDesc,
-                initState,
-                optimizedClearValue,
-                &allocation,
-                IID_PPV_ARGS(&resource)));
+        TryDo(client.GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, initState, optimizedClearValue, &allocation, IID_PPV_ARGS(&resource)));
 
         return {allocation, resource};
     }
@@ -101,12 +94,7 @@ namespace util
     {
         UINT64 const originalSize = *size;
         *size                     = RoundUp(originalSize, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-        return AllocateBuffer(
-            client,
-            *size,
-            D3D12_RESOURCE_FLAG_NONE,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            D3D12_HEAP_TYPE_UPLOAD);
+        return AllocateBuffer(client, *size, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     }
 
     /**
@@ -323,9 +311,7 @@ namespace util
             auto node = breadcrumbs.pHeadAutoBreadcrumbNode;
             while (node != nullptr)
             {
-                UINT const lastOperation = node->pLastBreadcrumbValue != nullptr
-                                               ? *node->pLastBreadcrumbValue
-                                               : node->BreadcrumbCount;
+                UINT const lastOperation = node->pLastBreadcrumbValue != nullptr ? *node->pLastBreadcrumbValue : node->BreadcrumbCount;
 
                 message << L"\t|";
                 message << L" CommandList: " << str(node->pCommandListDebugNameW);
@@ -387,11 +373,11 @@ namespace util
 
         message << L"2. Page Fault: " << L"[" << pageFaults.PageFaultVA << L"]" << std::endl;
 
-        if (pageFaults.pHeadExistingAllocationNode == nullptr) message << L"\t| No existing allocation node" <<
-            std::endl;
+        if (pageFaults.pHeadExistingAllocationNode == nullptr)
+            message << L"\t| No existing allocation node" << std::endl;
 
-        if (pageFaults.pHeadRecentFreedAllocationNode == nullptr) message << L"\t| No recent freed allocation node" <<
-            std::endl;
+        if (pageFaults.pHeadRecentFreedAllocationNode == nullptr)
+            message << L"\t| No recent freed allocation node" << std::endl;
 
         {
             auto formatNodes = [&](wchar_t const* category, D3D12_DRED_ALLOCATION_NODE1 const* node)

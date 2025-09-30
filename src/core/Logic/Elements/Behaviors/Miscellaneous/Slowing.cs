@@ -14,7 +14,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 
 /// <summary>
-/// Slows down all entities that come into contact with the block.
+///     Slows down all entities that come into contact with the block.
 /// </summary>
 public class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, Block>
 {
@@ -22,39 +22,39 @@ public class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, Block>
     {
         MaxVelocityInitializer = Aspect<Double, Block>.New<Minimum<Double, Block>>(nameof(MaxVelocityInitializer), this);
     }
-    
-    /// <inheritdoc/>
+
+    /// <summary>
+    ///     The maximum velocity that entities can have when in contact with this block.
+    /// </summary>
+    public Double MaxVelocity { get; set; } = 1f;
+
+    /// <summary>
+    ///     Aspect used to initialize the <see cref="MaxVelocity" /> property.
+    /// </summary>
+    public Aspect<Double, Block> MaxVelocityInitializer { get; }
+
+    /// <inheritdoc />
     public static Slowing Construct(Block input)
     {
         return new Slowing(input);
     }
-    
-    /// <summary>
-    /// The maximum velocity that entities can have when in contact with this block.
-    /// </summary>
-    public Double MaxVelocity { get; set; } = 1f;
-    
-    /// <summary>
-    /// Aspect used to initialize the <see cref="MaxVelocity"/> property.
-    /// </summary>
-    public Aspect<Double, Block> MaxVelocityInitializer { get; }
 
-    /// <inheritdoc/>
-    public override void OnInitialize(BlockProperties properties)
-    {
-        MaxVelocity = MaxVelocityInitializer.GetValue(original: 1.0, Subject);
-    }
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.ActorCollisionMessage>(OnActorCollision);
     }
 
+    /// <inheritdoc />
+    public override void OnInitialize(BlockProperties properties)
+    {
+        MaxVelocity = MaxVelocityInitializer.GetValue(original: 1.0, Subject);
+    }
+
     private void OnActorCollision(Block.ActorCollisionMessage message)
     {
         // todo: multiply by height of the block if it has a height
-        
+
         message.Body.Velocity = MathTools.Clamp(message.Body.Velocity, min: -1.0, MaxVelocity);
     }
 }

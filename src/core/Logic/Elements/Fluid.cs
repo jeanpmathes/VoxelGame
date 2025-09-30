@@ -216,9 +216,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     public void CreateMesh(Vector3i position, FluidMeshInfo info, MeshingContext context)
     {
         if (RenderType == RenderType.NotRendered) return;
-        
+
         var fillable = info.Block.Block.Get<Fillable>();
-        
+
         if (fillable is not {IsFluidRendered: true} || info.Block.IsFullySolid) return;
 
         SideArray<MeshFaceHolder> fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
@@ -254,7 +254,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             Boolean meshAtSide = (Int32) info.Level > sideHeight && !blockToCheck.IsFullyOpaque;
 
             Boolean meshAtDrainEnd = sideHeight != 7 && !blockToCheck.IsFullyOpaque;
-            Boolean meshAtSourceEnd = info.Level != FluidLevel.Eight || (fluidToCheck.Fluid != this && !blockToCheck.IsFullyOpaque);
+            Boolean meshAtSourceEnd = info.Level != FluidLevel.Eight || fluidToCheck.Fluid != this && !blockToCheck.IsFullyOpaque;
 
             Boolean meshAtEnd = flowsTowardsFace ? meshAtDrainEnd : meshAtSourceEnd;
 
@@ -335,8 +335,8 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     {
         Content? content = world.GetContent(position);
 
-        if (content?.Block.Block.Get<Fillable>() is {} fillable && content is { Fluid: var target }
-            && fillable.CanInflow(world, position, entrySide, this))
+        if (content?.Block.Block.Get<Fillable>() is {} fillable && content is {Fluid: var target}
+                                                                && fillable.CanInflow(world, position, entrySide, this))
         {
             if (target.Fluid == this && target.Level != FluidLevel.Eight)
             {

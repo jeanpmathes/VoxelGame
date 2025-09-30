@@ -49,18 +49,18 @@ public sealed partial class Generator : IWorldGenerator
     private static List<StructureGeneratorDefinition> loadedStructures = [];
     private static List<SubBiomeDefinition> loadedSubBiomes = [];
     private static List<BiomeDefinition> loadedBiomes = [];
+    private readonly List<Biome> biomes = [];
 
     private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(MathTools.Square((ChunkLoader.LoadDistance + 1) * 2 + 1));
 
+    private readonly NoiseGenerator decorationNoise;
+
     private readonly Palette palette;
 
-    private readonly NoiseGenerator decorationNoise;
+    private readonly Searcher search;
 
     private readonly List<StructureGenerator> structures = [];
     private readonly List<SubBiome> subBiomes = [];
-    private readonly List<Biome> biomes = [];
-
-    private readonly Searcher search;
 
     private Generator(IWorldGeneratorContext context, Palette palette,
         BiomeDistributionDefinition biomeDistributionDefinition,

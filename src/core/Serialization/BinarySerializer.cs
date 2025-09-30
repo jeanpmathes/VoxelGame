@@ -15,8 +15,8 @@ namespace VoxelGame.Core.Serialization;
 /// </summary>
 public sealed class BinarySerializer : Serializer, IDisposable
 {
-    private readonly BinaryWriter writer;
     private readonly FileInfo? destination;
+    private readonly BinaryWriter writer;
 
     /// <summary>
     ///     Create a new binary serializer.

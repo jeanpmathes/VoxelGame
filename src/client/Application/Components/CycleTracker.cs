@@ -19,13 +19,11 @@ namespace VoxelGame.Client.Application.Components;
 public sealed class CycleTracker : ApplicationComponent, IConstructible<Core.App.Application, CycleTracker>, IPerformanceProvider
 {
     private const Int32 DeltaBufferCapacity = 50;
+    private readonly CircularTimeBuffer logicDeltaBuffer = new(DeltaBufferCapacity);
 
     private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
-    private readonly CircularTimeBuffer logicDeltaBuffer = new(DeltaBufferCapacity);
-    
-    private CycleTracker(Core.App.Application application) : base(application) 
-    {
-    }
+
+    private CycleTracker(Core.App.Application application) : base(application) {}
 
     /// <inheritdoc />
     public static CycleTracker Construct(Core.App.Application input)

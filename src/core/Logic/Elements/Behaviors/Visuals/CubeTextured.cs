@@ -14,8 +14,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
 /// <summary>
-/// Gives a block a texture defined by a <see cref="TextureLayout"/>.
-/// The texture layout corresponds to texturing each side of a cube with a specific texture.
+///     Gives a block a texture defined by a <see cref="TextureLayout" />.
+///     The texture layout corresponds to texturing each side of a cube with a specific texture.
 /// </summary>
 public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior, Block>
 {
@@ -24,23 +24,23 @@ public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior
         DefaultTextureInitializer = Aspect<TextureLayout, Block>.New<Exclusive<TextureLayout, Block>>(nameof(DefaultTextureInitializer), this);
         ActiveTexture = Aspect<TextureLayout, State>.New<Exclusive<TextureLayout, State>>(nameof(ActiveTexture), this);
     }
-    
+
     /// <summary>
-    /// The default texture layout to use for the block.
-    /// This should be set through the <see cref="BlockBuilder"/> when defining the block.
+    ///     The default texture layout to use for the block.
+    ///     This should be set through the <see cref="BlockBuilder" /> when defining the block.
     /// </summary>
     public TextureLayout DefaultTexture { get; private set; } = TextureLayout.Uniform(TID.MissingTexture);
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="DefaultTexture"/> property.
+    ///     Aspect used to initialize the <see cref="DefaultTexture" /> property.
     /// </summary>
     public Aspect<TextureLayout, Block> DefaultTextureInitializer { get; }
-    
+
     /// <summary>
-    /// The actually used, state dependent texture layout.
+    ///     The actually used, state dependent texture layout.
     /// </summary>
     public Aspect<TextureLayout, State> ActiveTexture { get; }
-    
+
     /// <inheritdoc />
     public static CubeTextured Construct(Block input)
     {
@@ -54,7 +54,7 @@ public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior
     }
 
     /// <summary>
-    /// Get the texture index for a given state and side of the block.
+    ///     Get the texture index for a given state and side of the block.
     /// </summary>
     /// <param name="state">The state of the block to get the texture index for.</param>
     /// <param name="side">The side of the block to get the texture index for.</param>

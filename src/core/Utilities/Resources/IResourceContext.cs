@@ -55,10 +55,10 @@ public interface IResourceContext : IDisposable
     /// <param name="exception">An optional exception that caused the warning.</param>
     /// <param name="path">An optional path associated with the warning.</param>
     public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null);
-    
+
     /// <summary>
-    /// Report an error for the loading of the current resource.
-    /// Using an error resource is generally preferred to using this method.
+    ///     Report an error for the loading of the current resource.
+    ///     Using an error resource is generally preferred to using this method.
     /// </summary>
     /// <param name="source">The source of the error.</param>
     /// <param name="message">The error message.</param>

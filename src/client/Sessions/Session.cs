@@ -28,7 +28,7 @@ public sealed class Session : Composed<Session, SessionComponent>
         World = world;
         Player = player;
     }
-    
+
     /// <inheritdoc />
     protected override Session Self => this;
 
@@ -50,7 +50,7 @@ public sealed class Session : Composed<Session, SessionComponent>
     public void LogicUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
-        
+
         foreach (SessionComponent component in Components)
         {
             component.OnLogicUpdate(deltaTime, timer);
@@ -67,7 +67,7 @@ public sealed class Session : Composed<Session, SessionComponent>
     public void RenderUpdate(Double deltaTime, Timer? timer)
     {
         Throw.IfDisposed(disposed);
-        
+
         foreach (SessionComponent component in Components)
         {
             component.OnRenderUpdate(deltaTime, timer);
@@ -84,7 +84,7 @@ public sealed class Session : Composed<Session, SessionComponent>
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
-        
+
         if (disposed) return;
         if (!disposing) return;
 

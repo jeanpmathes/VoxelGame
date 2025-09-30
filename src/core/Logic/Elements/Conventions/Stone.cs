@@ -19,54 +19,54 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Conventions;
 
 /// <summary>
-/// A stone type, as defined by the <see cref="StoneConvention"/>.
+///     A stone type, as defined by the <see cref="StoneConvention" />.
 /// </summary>
 public class Stone(String namedID, BlockBuilder builder) : Convention<Stone>(namedID, builder)
 {
     /// <summary>
-    /// The base stone block of this stone type.
+    ///     The base stone block of this stone type.
     /// </summary>
     public required Block Base { get; init; }
-    
+
     /// <summary>
-    /// When braking the base stone, it will break into rubble.
-    /// The block is loose and as such allows water to flow through it.
+    ///     When braking the base stone, it will break into rubble.
+    ///     The block is loose and as such allows water to flow through it.
     /// </summary>
     public required Block Rubble { get; init; }
-    
+
     /// <summary>
-    /// A worked stone block of this stone type, which is the result of processing the base stone.
+    ///     A worked stone block of this stone type, which is the result of processing the base stone.
     /// </summary>
     public required Block Worked { get; init; }
-    
+
     /// <summary>
-    /// A decorated stone block of this stone type, which is the result of decorating the worked stone.
-    /// It shows a unique pattern on one of the sides.
+    ///     A decorated stone block of this stone type, which is the result of decorating the worked stone.
+    ///     It shows a unique pattern on one of the sides.
     /// </summary>
     public required Block Decorated { get; init; }
-    
+
     /// <summary>
-    /// Pieces of this stone type, connected by mortar, to form basic road paving.
-    /// The rough surface is not ideal for carts.
+    ///     Pieces of this stone type, connected by mortar, to form basic road paving.
+    ///     The rough surface is not ideal for carts.
     /// </summary>
     public required Block Cobblestone { get; init; }
-    
+
     /// <summary>
     ///     Paving made out of processed stone.
     ///     The processing ensures a smoother surface.
     /// </summary>
     public required Block Paving { get; init; }
-    
+
     /// <summary>
     ///     This stone type, cut into bricks and connected with mortar.
     /// </summary>
     public required Block Bricks { get; init; }
-    
+
     /// <summary>
     ///     A wall made out of rubble of this stone type.
     /// </summary>
     public required Block Wall { get; init; }
-    
+
     /// <summary>
     ///     A wall made out of bricks of this stone type.
     /// </summary>
@@ -74,12 +74,12 @@ public class Stone(String namedID, BlockBuilder builder) : Convention<Stone>(nam
 }
 
 /// <summary>
-/// A convention on stone types.
+///     A convention on stone types.
 /// </summary>
 public static class StoneConvention // todo: check language for unused strings and remove them, most of the stone stuff would be unused
 {
     /// <summary>
-    /// Build a new stone type.
+    ///     Build a new stone type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
     /// <param name="namedID">The named ID of the stone, used to create the block IDs.</param>

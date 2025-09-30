@@ -13,20 +13,20 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// Creates blocks based on a set of parameters.
+///     Creates blocks based on a set of parameters.
 /// </summary>
 public class BlockFactory
 {
     private readonly List<Block> blocksByID = [];
     private readonly Dictionary<String, Block> blocksByNamedID = [];
-    
+
     /// <summary>
-    /// Get a container associating block IDs to blocks.
+    ///     Get a container associating block IDs to blocks.
     /// </summary>
     public IReadOnlyList<Block> BlocksByID => blocksByID;
-    
+
     /// <summary>
-    /// Get a container associating block named IDs to blocks.
+    ///     Get a container associating block named IDs to blocks.
     /// </summary>
     public IReadOnlyDictionary<String, Block> BlocksByNamedID => blocksByNamedID;
 
@@ -43,20 +43,20 @@ public class BlockFactory
         if (blocksByNamedID.ContainsKey(namedID))
         {
             Debugger.Break();
-            
+
             // todo: think about how to handle this
         }
-        
+
         blocksByID.Add(block);
         blocksByNamedID.Add(namedID, block);
-        
+
         return block;
     }
 
     private Block CreateBlock(String namedID, String name, Meshable meshable)
     {
         var id = (UInt32) blocksByID.Count;
-        
+
         return meshable switch
         {
             Meshable.Simple => new SimpleBlock(id, namedID, name),

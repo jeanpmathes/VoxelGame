@@ -24,64 +24,63 @@ namespace VoxelGame.Core.Logic.Elements;
 /// <summary>
 ///     Contains all block definitions of the core game.
 /// </summary>
-public partial class Blocks(BlockBuilder builder, Registry<Category> categories) 
+public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
 {
+    private const Int32 BlockLimit = (Int32) Section.BlockMask;
     // todo: make sure that block IDs are unique across all blocks, even if they are in different categories
 
     private readonly List<State> states = [];
-    
+
     /// <summary>
-    ///     Get the singleton instance of the <see cref="Blocks"/> class, which contains all block definitions.
+    ///     Get the singleton instance of the <see cref="Blocks" /> class, which contains all block definitions.
     /// </summary>
     public static Blocks Instance { get; } = new(BlockBuilder.Create(), new Registry<Category>(category => Reflections.GetLongName(category.GetType())));
 
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Core"/>
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Core" />
     public Core Core { get; } = categories.Register(new Core(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Environment"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Environment" />
     public Environment Environment { get; } = categories.Register(new Environment(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Woods"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Woods" />
     public Woods Woods { get; } = categories.Register(new Woods(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Stones"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Stones" />
     public Stones Stones { get; } = categories.Register(new Stones(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Metals"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Metals" />
     public Metals Metals { get; } = categories.Register(new Metals(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Coals"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Coals" />
     public Coals Coals { get; } = categories.Register(new Coals(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Organic"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Organic" />
     public Organic Organic { get; } = categories.Register(new Organic(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Flowers"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Flowers" />
     public Flowers Flowers { get; } = categories.Register(new Flowers(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Crops"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Crops" />
     public Crops Crops { get; } = categories.Register(new Crops(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Construction"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Construction" />
     public Construction Construction { get; } = categories.Register(new Construction(builder.CreateScoped()));
-    
-    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Fabricated"/>
+
+    /// <inheritdoc cref="VoxelGame.Core.Logic.Elements.Fabricated" />
     public Fabricated Fabricated { get; } = categories.Register(new Fabricated(builder.CreateScoped()));
 
     /// <summary>
-    /// Get all categories of blocks defined in the game.
+    ///     Get all categories of blocks defined in the game.
     /// </summary>
     public IEnumerable<Category> Categories => categories.Values;
 
     /// <summary>
-    /// Get the total number of blocks defined in the game.
+    ///     Get the total number of blocks defined in the game.
     /// </summary>
     public UInt32 Count => (UInt32) builder.BlocksByID.Count;
-    
-    private const Int32 BlockLimit = (Int32) Section.BlockMask;
-    
+
     /// <summary>
-    /// Initialize all blocks. This should be called exactly once during loading.
+    ///     Initialize all blocks. This should be called exactly once during loading.
     /// </summary>
     /// <param name="textureIndexProvider">The texture index provider to use for resolving textures.</param>
     /// <param name="blockModelProvider">The block model provider to use for resolving block models.</param>
@@ -93,20 +92,20 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         states.Clear();
 
         Validator validator = new(context);
-        
+
         UInt32 offset = 0;
 
         foreach (Block block in builder.BlocksByID)
         {
             offset += block.Initialize(offset, validator);
-            
+
             states.AddRange(block.States.GetAllStates());
         }
 
         if (validator.HasError) return []; // todo: test triggering an error to see if this prevents loading the world
 
         BehaviorSystem<Block, BlockBehavior>.Bake(validator);
-        
+
         if (validator.HasError) return []; // todo: test triggering an error to see if this prevents loading the world
 
         foreach (Block block in builder.BlocksByID)
@@ -120,17 +119,16 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     }
 
     /// <summary>
-    /// 
     /// </summary>
     /// <param name="id"></param>
     /// <returns></returns>
     public State TranslateStateID(UInt32 id)
     {
-        if (id < states.Count) 
+        if (id < states.Count)
             return states[(Int32) id];
 
         LogUnknownStateID(logger, id, Core.Error.NamedID);
-            
+
         return Core.Error.States.Default;
 
         // todo: check memory usage of the new block system, especially of the state list used here
@@ -140,22 +138,23 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         // todo:    then, a simple binary search can be used
         // todo: if memory usage is fine for now, add a new note in far future to check it again
     }
-    
+
     /// <summary>
-    ///     Translates a block ID to a reference to the block that has that ID. If the ID is not valid, the error block is returned.
+    ///     Translates a block ID to a reference to the block that has that ID. If the ID is not valid, the error block is
+    ///     returned.
     /// </summary>
     /// <param name="id">The ID of the block to return.</param>
     /// <returns>The block with the ID or the error block if the ID is not valid.</returns>
     public Block TranslateBlockID(UInt32 id)
     {
-        if (id < builder.BlocksByID.Count) 
+        if (id < builder.BlocksByID.Count)
             return builder.BlocksByID[(Int32) id];
 
         LogUnknownBlockID(logger, id, Core.Error.NamedID);
-            
+
         return Core.Error;
     }
-    
+
     /// <summary>
     ///     Translate a named ID to the block that has that ID.
     /// </summary>
@@ -176,18 +175,18 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         if (String.IsNullOrEmpty(namedID))
         {
             LogUnknownNamedBlockID(logger, "", Core.Error.NamedID);
-            
+
             return Core.Error;
         }
 
-        if (builder.BlocksByNamedID.TryGetValue(namedID, out Block? block)) 
+        if (builder.BlocksByNamedID.TryGetValue(namedID, out Block? block))
             return block;
 
         LogUnknownNamedBlockID(logger, namedID, Core.Error.NamedID);
-            
+
         return Core.Error;
     }
-    
+
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Blocks>();
@@ -197,7 +196,7 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
 
     [LoggerMessage(EventId = LogID.Blocks + 1, Level = LogLevel.Warning, Message = "No Block with named ID {NamedID} could be found, returning {Fallback} instead")]
     private static partial void LogUnknownNamedBlockID(ILogger logger, String namedID, String fallback);
-    
+
     [LoggerMessage(EventId = LogID.Blocks + 2, Level = LogLevel.Warning, Message = "No State with ID {ID} could be found, returning {Fallback} instead")]
     private static partial void LogUnknownStateID(ILogger logger, UInt32 id, String fallback);
 

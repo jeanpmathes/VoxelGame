@@ -43,7 +43,7 @@ public class PlantableDecorator : SurfaceDecorator
         position += offset;
 
         if (!base.CanPlace(position, context, grid)) return false;
-        
+
         return grid.GetContent(position.Below())?.Block.Block.Get<Plantable>() != null;
     }
 }

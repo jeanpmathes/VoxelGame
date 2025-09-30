@@ -40,9 +40,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     private const Int32 ScheduledDestroyOffset = 5;
 
     private Boolean isReplaceable;
-    private Boolean receivesCollisions;
 
     private BoundingVolume? placementBoundingVolume;
+    private Boolean receivesCollisions;
     private BoundingVolume[]? stateBoundingVolumes;
 
     /// <summary>
@@ -69,39 +69,28 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     The states of the block.
     /// </summary>
     public StateSet States { get; private set; } = null!;
-    
-    [LateInitialization]
-    private partial IEvent<ActorCollisionMessage> ActorCollision { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<ActorInteractionMessage> ActorInteraction { get; set; }
+    [LateInitialization] private partial IEvent<ActorCollisionMessage> ActorCollision { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<PlacementMessage> Placement { get; set; } 
+    [LateInitialization] private partial IEvent<ActorInteractionMessage> ActorInteraction { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<PlacementCompletedMessage> PlacementCompleted { get; set; }
+    [LateInitialization] private partial IEvent<PlacementMessage> Placement { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<DestructionMessage> Destruction { get; set; } 
+    [LateInitialization] private partial IEvent<PlacementCompletedMessage> PlacementCompleted { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<DestructionCompletedMessage> DestructionCompleted { get; set; }
+    [LateInitialization] private partial IEvent<DestructionMessage> Destruction { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<StateUpdateMessage> StateUpdate { get; set; }
+    [LateInitialization] private partial IEvent<DestructionCompletedMessage> DestructionCompleted { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<NeighborUpdateMessage> NeighborUpdate { get; set; }
+    [LateInitialization] private partial IEvent<StateUpdateMessage> StateUpdate { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<RandomUpdateMessage> RandomUpdate { get; set; }
+    [LateInitialization] private partial IEvent<NeighborUpdateMessage> NeighborUpdate { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<ScheduledUpdateMessage> ScheduledUpdate { get; set; }
+    [LateInitialization] private partial IEvent<RandomUpdateMessage> RandomUpdate { get; set; }
 
-    [LateInitialization]
-    private partial IEvent<GeneratorUpdateMessage> GeneratorUpdate { get; set; }
+    [LateInitialization] private partial IEvent<ScheduledUpdateMessage> ScheduledUpdate { get; set; }
+
+    [LateInitialization] private partial IEvent<GeneratorUpdateMessage> GeneratorUpdate { get; set; }
 
     /// <summary>
     ///     Whether the block is always full, meaning it occupies the entire voxel space it is in,
@@ -247,7 +236,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
     /// <inheritdoc />
     public sealed override void SubscribeToEvents(IEventBus bus) {}
-    
+
     private void InitializeProperties()
     {
         BlockProperties properties = new(this);
@@ -309,7 +298,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <summary>
     ///     Override this method to perform additional validation.
     /// </summary>
-    protected abstract void OnValidate(); // todo: validate block properties like IsAlwaysFull
+    protected abstract void OnValidate();
 
     /// <inheritdoc />
     protected override void OnBake()
@@ -325,7 +314,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <param name="textureIndexProvider">The texture index provider to use for the block.</param>
     /// <param name="blockModelProvider">The block model provider to use for the block.</param>
     /// <param name="visuals">The visual configuration to use for the block.</param>
-    public void Activate(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) // todo: call in BlockLoader
+    public void Activate(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
     {
         BuildBoundingVolumes();
         BuildMeshes(textureIndexProvider, blockModelProvider, visuals);
@@ -612,8 +601,8 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         {
             World = world,
             Position = position,
-            OldContent = oldContent, // todo: instead, pass old and new fluid data and old and new block, not the whole content
-            NewContent = newContent // todo: also, use that the old content is avaialble to improve that one fluid event so no false positives occur 
+            OldState = oldContent,
+            NewState = newContent // todo: also, use that the old content is avaialble to improve that one fluid event so no false positives occur 
         };
 
         StateUpdate.Publish(message);
@@ -908,14 +897,14 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         public Vector3i Position { get; set; }
 
         /// <summary>
-        ///     The old content at the position.
+        ///     The old state of this block at the position.
         /// </summary>
-        public Content OldContent { get; set; }
+        public Content OldState { get; set; }
 
         /// <summary>
-        ///     The new content at the position.
+        ///     The new state of this block at the position.
         /// </summary>
-        public Content NewContent { get; set; }
+        public Content NewState { get; set; }
     }
 
     /// <summary>

@@ -9,12 +9,12 @@ using System;
 namespace VoxelGame.Core.Behaviors.Aspects;
 
 /// <summary>
-/// Extensions for contributing to aspects.
+///     Extensions for contributing to aspects.
 /// </summary>
 public static class ContributorExtensions
 {
     /// <summary>
-    /// Contribute a constant value to a given aspect.
+    ///     Contribute a constant value to a given aspect.
     /// </summary>
     /// <param name="aspect">The aspect to which the value should be contributed.</param>
     /// <param name="value">The constant value to contribute.</param>
@@ -28,17 +28,9 @@ public static class ContributorExtensions
     {
         aspect.Add(new ConstantContributor<TValue, TContext>(value), exclusive);
     }
-    
-    private class ConstantContributor<TValue, TContext>(TValue value) : IContributor<TValue, TContext>
-    {
-        public TValue Contribute(TValue original, TContext context)
-        {
-            return value;
-        }
-    }
-    
+
     /// <summary>
-    /// Contribute a value derived from a function to a given aspect.
+    ///     Contribute a value derived from a function to a given aspect.
     /// </summary>
     /// <param name="aspect">The aspect to which the function should be contributed.</param>
     /// <param name="function">The function that takes the original value and context, and returns a new value.</param>
@@ -52,7 +44,15 @@ public static class ContributorExtensions
     {
         aspect.Add(new FunctionContributor<TValue, TContext>(function), exclusive);
     }
-    
+
+    private class ConstantContributor<TValue, TContext>(TValue value) : IContributor<TValue, TContext>
+    {
+        public TValue Contribute(TValue original, TContext context)
+        {
+            return value;
+        }
+    }
+
     private class FunctionContributor<TValue, TContext>(Func<TValue, TContext, TValue> function) : IContributor<TValue, TContext>
     {
         public TValue Contribute(TValue original, TContext context)

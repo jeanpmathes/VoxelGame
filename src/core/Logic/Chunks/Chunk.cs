@@ -108,12 +108,19 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public static readonly Int32 BlockSizeExp2 = BlockSizeExp * 2;
 
-    private readonly StateTracker tracker = new(nameof(Chunk));
+    /// <summary>
+    ///     The block data of this chunk.
+    ///     Storage layout is defined by <see cref="Section" />.
+    /// </summary>
+    private readonly NativeSegment<UInt32> blocks;
+
+    private readonly ScheduledUpdateManager<Block.BlockUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk> blockUpdateManager;
+    private readonly ScheduledUpdateManager<Fluid.FluidUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk> fluidUpdateManager;
 
     /// <summary>
-    ///     The sections in this chunk. Provide views into the block data.
+    ///     Using a local counter allows to use the update managers after normalization without having to revert normalization.
     /// </summary>
-    private readonly Section[] sections = new Section[SectionCount];
+    private readonly UpdateCounter localLogicUpdateCounter = new();
 
     /// <summary>
     ///     Used to control access to the chunk in the context of multi-threading.
@@ -121,18 +128,13 @@ public partial class Chunk : IDisposable, IEntity
     private readonly RW rw = new(nameof(Chunk));
 
     /// <summary>
-    ///     Using a local counter allows to use the update managers after normalization without having to revert normalization.
+    ///     The sections in this chunk. Provide views into the block data.
     /// </summary>
-    private readonly UpdateCounter localLogicUpdateCounter = new();
+    private readonly Section[] sections = new Section[SectionCount];
 
-    private readonly ScheduledUpdateManager<Block.BlockUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk> blockUpdateManager;
-    private readonly ScheduledUpdateManager<Fluid.FluidUpdate, MaxScheduledUpdatesPerLogicUpdateAndChunk> fluidUpdateManager;
-
-    /// <summary>
-    ///     The block data of this chunk.
-    ///     Storage layout is defined by <see cref="Section" />.
-    /// </summary>
-    private readonly NativeSegment<UInt32> blocks;
+    private readonly StateTracker tracker = new(nameof(Chunk));
+    private Int32? activeIndex;
+    private Int32? completeIndex;
 
     private DecorationLevels decoration = DecorationLevels.None;
 
@@ -141,8 +143,6 @@ public partial class Chunk : IDisposable, IEntity
     private ChunkState state = null!;
 
     private Int32? updateIndex;
-    private Int32? activeIndex;
-    private Int32? completeIndex;
 
     /// <summary>
     ///     Create a new chunk. The chunk is not initialized.
@@ -693,10 +693,10 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public static (Int32 x, Int32 y, Int32 z) IndexToLocalSection(Int32 index)
     {
-        Int32 z = index & (Size - 1);
-        index = (index - z) >> SizeExp;
-        Int32 y = index & (Size - 1);
-        index = (index - y) >> SizeExp;
+        Int32 z = index & Size - 1;
+        index = index - z >> SizeExp;
+        Int32 y = index & Size - 1;
+        index = index - y >> SizeExp;
         Int32 x = index;
 
         return (x, y, z);

@@ -11,7 +11,7 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// Used to determine basic boolean aspects of a block.
+///     Used to determine basic boolean aspects of a block.
 /// </summary>
 public class BlockProperties(Block subject)
 {
@@ -21,23 +21,23 @@ public class BlockProperties(Block subject)
     ///     If the block is not full, it is possible to see around the block.
     /// </summary>
     public Aspect<Boolean, Block> IsOpaque { get; } = Aspect<Boolean, Block>.New<ANDing<Block>>(nameof(IsOpaque), subject);
-    
+
     /// <summary>
     ///     This aspect is only relevant for non-opaque full blocks. It decides if their faces should be meshed next to
     ///     another non-opaque block.
     /// </summary>
     public Aspect<Boolean, Block> MeshFaceAtNonOpaques { get; } = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(MeshFaceAtNonOpaques), subject);
-    
+
     /// <summary>
     ///     Whether this block hinders movement.
     /// </summary>
     public Aspect<Boolean, Block> IsSolid { get; } = Aspect<Boolean, Block>.New<ANDing<Block>>(nameof(IsSolid), subject);
-    
+
     /// <summary>
     ///     Whether this block can be replaced when placing a block.
     /// </summary>
     public Aspect<Boolean, Block> IsReplaceable { get; } = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(IsReplaceable), subject);
-    
+
     /// <summary>
     ///     Gets whether this block is unshaded, which means it does not receive shadows.
     /// </summary>

@@ -13,9 +13,9 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Definitions;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Elements.Conventions;
-using VoxelGame.Core.Logic.Definitions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Manual;
@@ -67,46 +67,51 @@ public static partial class ManualBuilder
         });
 
         blocks.CreateSections(categories,
-            category => Section.Create(category.Name, section =>
-            {
-                section.Text(category.Description).NewLine();
-
-                foreach (PropertyInfo contentInfo in Reflections.GetPropertiesOfType<IContent>(category.Category))
+            category => Section.Create(category.Name,
+                section =>
                 {
-                    var content = (IContent) contentInfo.GetValue(category.Category)!;
-                    String contentDescription = documentation.GetPropertySummary(contentInfo);
+                    section.Text(category.Description).NewLine();
 
-                    switch (content)
+                    foreach (PropertyInfo contentInfo in Reflections.GetPropertiesOfType<IContent>(category.Category))
                     {
-                        case Block block:
-                            section.SubSection(block.Name, sub =>
-                                AddBlockDetails(sub.Text(contentDescription).NewLine(), block));
-                            break;
+                        var content = (IContent) contentInfo.GetValue(category.Category)!;
+                        String contentDescription = documentation.GetPropertySummary(contentInfo);
 
-                        case IConvention convention:
-                            section.SubSection(AddSpacesToPascalCase(contentInfo.Name), subSection =>
-                            {
-                                subSection.Text(contentDescription).NewLine();
+                        switch (content)
+                        {
+                            case Block block:
+                                section.SubSection(block.Name,
+                                    sub =>
+                                        AddBlockDetails(sub.Text(contentDescription).NewLine(), block));
 
-                                foreach (PropertyInfo blockInfo in Reflections.GetPropertiesOfType<Block>(convention))
-                                {
-                                    var block = blockInfo.GetValue(content) as Block;
-                                    String blockDescription = documentation.GetPropertySummary(blockInfo);
+                                break;
 
-                                    if (block == null)
-                                        continue;
-                                    
-                                    AddBlockDetails(subSection.Text($"{block.Name}: {blockDescription}").NewLine(), block).NewLine();
-                                }
+                            case IConvention convention:
+                                section.SubSection(AddSpacesToPascalCase(contentInfo.Name),
+                                    subSection =>
+                                    {
+                                        subSection.Text(contentDescription).NewLine();
 
-                                return subSection;
-                            });
-                            break;
+                                        foreach (PropertyInfo blockInfo in Reflections.GetPropertiesOfType<Block>(convention))
+                                        {
+                                            var block = blockInfo.GetValue(content) as Block;
+                                            String blockDescription = documentation.GetPropertySummary(blockInfo);
+
+                                            if (block == null)
+                                                continue;
+
+                                            AddBlockDetails(subSection.Text($"{block.Name}: {blockDescription}").NewLine(), block).NewLine();
+                                        }
+
+                                        return subSection;
+                                    });
+
+                                break;
+                        }
                     }
-                }
 
-                return section;
-            }));
+                    return section;
+                }));
 
         blocks.Generate();
 
@@ -155,14 +160,15 @@ public static partial class ManualBuilder
             .NewLine()
             .Text("Behaviors:")
             .NewLine()
-            .Table("ll", table =>
+            .Table("ll",
+                table =>
                 {
                     foreach ((String name, IEnumerable<String> attributes) in GetBehaviors(block))
                     {
                         table.Row(row =>
                         {
                             row.Cell(cell => cell.Text(name));
-                            
+
                             List<String> list = attributes.ToList();
 
                             if (list.Count > 0)
@@ -170,14 +176,14 @@ public static partial class ManualBuilder
                                 row.Cell(cell =>
                                 {
                                     var first = true;
-                                    
+
                                     foreach (String attribute in list)
                                     {
-                                        if (!first) 
+                                        if (!first)
                                             cell.Text(", ");
-                                        
+
                                         cell.Text(attribute, TextStyle.Monospace).NewLine();
-                                        
+
                                         first = false;
                                     }
                                 });
@@ -208,7 +214,7 @@ public static partial class ManualBuilder
 
         foreach (IScoped scoped in block.States.Entries)
         {
-            if (scoped is not Scope scope) 
+            if (scoped is not Scope scope)
                 continue;
 
             foreach (IScoped entry in scope.Entries)
@@ -219,17 +225,17 @@ public static partial class ManualBuilder
                 }
             }
         }
-        
+
         foreach (BlockBehavior behavior in block.Behaviors)
         {
             String name = Reflections.GetLongName(behavior.GetType());
-            
+
             yield return (Reflections.GetName(behavior.GetType()), attributes.GetValueOrDefault(name) is {Count: > 0} list
                 ? list.Select(attribute => attribute.Name)
                 : []);
         }
     }
-    
+
     private static String AddSpacesToPascalCase(String name)
     {
         return String.Concat(name.Select((x, i) => i > 0 && Char.IsUpper(x) ? $" {x}" : $"{x}"));

@@ -10,18 +10,18 @@ using VoxelGame.Core.Behaviors.Events;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
 /// <summary>
-/// Breaks when filled with any fluid, both liquid and gas.
+///     Breaks when filled with any fluid, both liquid and gas.
 /// </summary>
 public class DestroyOnFluid : BlockBehavior, IBehavior<DestroyOnFluid, BlockBehavior, Block>
 {
     private DestroyOnFluid(Block subject) : base(subject) {}
-    
+
     /// <inheritdoc />
     public static DestroyOnFluid Construct(Block input)
     {
         return new DestroyOnFluid(input);
     }
-    
+
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
@@ -31,14 +31,14 @@ public class DestroyOnFluid : BlockBehavior, IBehavior<DestroyOnFluid, BlockBeha
 
     private void OnStateUpdate(Block.StateUpdateMessage message)
     {
-        if (!message.NewContent.Fluid.IsEmpty) 
+        if (!message.NewState.Fluid.IsEmpty)
             Subject.ScheduleDestroy(message.World, message.Position);
     }
-    
+
     private void OnPlacementCompleted(Block.PlacementCompletedMessage message)
     {
         Content? content = message.World.GetContent(message.Position);
-        
+
         if (content is {Fluid.IsEmpty: false})
             Subject.ScheduleDestroy(message.World, message.Position);
     }

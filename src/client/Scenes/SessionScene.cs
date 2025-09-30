@@ -29,12 +29,12 @@ namespace VoxelGame.Client.Scenes;
 /// </summary>
 public sealed class SessionScene : Scene
 {
-    private readonly EventHandler<FocusChangeEventArgs> onFocusChange;
-    
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly MetaController meta;
-    
-    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Disposed in OnUnload")] 
+
+    private readonly EventHandler<FocusChangeEventArgs> onFocusChange;
+
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Disposed in OnUnload")]
     private Session session;
 
     internal SessionScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine) : base(client)
@@ -48,31 +48,31 @@ public sealed class SessionScene : Scene
         {
             console.OnWorldReady();
         };
-        
+
         AddComponent<SessionHook, Session>(session);
         AddComponent<UpdateInGamePerformanceData, InGameUserInterface>(ui);
         AddComponent<UserInterfaceHook, UserInterface>(ui);
 
         AddComponent<ScreenshotController, SessionScene>();
         AddComponent<UserInterfaceHide, InGameUserInterface, SessionScene>(ui);
-        
+
         meta = AddComponent<MetaController, InGameUserInterface, SessionScene>(ui);
-        
+
         SetUpUI(ui, world, console);
-        
+
         onFocusChange = (_, _) =>
         {
             if (!Client.IsFocused) ui.HandleLossOfFocus();
         };
     }
-    
+
     /// <summary>
-    /// Whether it is OK to handle game input currently.
+    ///     Whether it is OK to handle game input currently.
     /// </summary>
     public Boolean CanHandleGameInput => !meta.IsSidelined && Client.IsFocused;
-    
+
     /// <summary>
-    /// Whether it is OK to handle meta input currently.
+    ///     Whether it is OK to handle meta input currently.
     /// </summary>
     public Boolean CanHandleMetaInput => Client.IsFocused;
 
@@ -111,8 +111,8 @@ public sealed class SessionScene : Scene
         Player player = new(
             mass: 70.0,
             new BoundingVolume(new Vector3d(x: 0.25f, y: 0.9f, z: 0.25f)),
-            camera: camera,
-            ui, 
+            camera,
+            ui,
             engine,
             this);
 

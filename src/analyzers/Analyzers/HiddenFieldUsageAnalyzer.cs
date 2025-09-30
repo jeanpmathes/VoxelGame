@@ -14,13 +14,13 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace VoxelGame.Analyzers.Analyzers;
 
 /// <summary>
-/// Warns if a field prefixed with two underscores is used as these are hidden fields created by generators.
+///     Warns if a field prefixed with two underscores is used as these are hidden fields created by generators.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class HiddenFieldUsageAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>
-    /// The ID of diagnostics produced by this analyzer.
+    ///     The ID of diagnostics produced by this analyzer.
     /// </summary>
     public const String DiagnosticID = "VG0004";
 
@@ -33,7 +33,7 @@ public class HiddenFieldUsageAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Fields starting with two underscores are generated implementation details and must not be referenced directly.");
+        "Fields starting with two underscores are generated implementation details and must not be referenced directly.");
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [rule];
@@ -43,7 +43,7 @@ public class HiddenFieldUsageAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        
+
         context.RegisterSyntaxNodeAction(AnalyzeIdentifier, SyntaxKind.IdentifierName);
     }
 
@@ -51,17 +51,17 @@ public class HiddenFieldUsageAnalyzer : DiagnosticAnalyzer
     {
         if (context.Node is not IdentifierNameSyntax identifierName)
             return;
-        
+
         if (context.SemanticModel.GetSymbolInfo(identifierName).Symbol is not IFieldSymbol fieldSymbol)
             return;
-        
+
         if (!fieldSymbol.Name.StartsWith("__", StringComparison.Ordinal))
             return;
-        
+
         if (identifierName.Parent is VariableDeclaratorSyntax declarator &&
             declarator.Identifier.ValueText == fieldSymbol.Name)
             return;
-        
+
         var diagnostic = Diagnostic.Create(rule, identifierName.Identifier.GetLocation(), fieldSymbol.Name);
         context.ReportDiagnostic(diagnostic);
     }

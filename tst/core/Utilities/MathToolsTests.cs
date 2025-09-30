@@ -21,7 +21,7 @@ public class MathToolsTests
         const Int32 b = 1;
         const Int32 c = 2;
         const Int32 d = 3;
-        
+
         Int32 selected = MathTools.SelectByWeight(a, b, c, d, (0.0, 0.0));
         Assert.Equal(a, selected);
 

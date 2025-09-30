@@ -7,10 +7,10 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Physics;
@@ -19,21 +19,20 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-/// Displays the information in <see cref="Targeting"/> in the world.
+///     Displays the information in <see cref="Targeting" /> in the world.
 /// </summary>
 public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, TargetingDisplay>
 {
-    private readonly Player player;
-    
     private readonly TargetingBoxEffect effect;
+    private readonly Player player;
 
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
-    
+
     private TargetingDisplay(Player player, Engine engine) : base(player)
     {
         this.player = player;
-        
+
         effect = engine.TargetingBoxPipeline.CreateEffect();
 
         targeting = player.GetRequiredComponent<Targeting>();
@@ -61,7 +60,7 @@ public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, T
     public override void OnLogicUpdate(Double deltaTime)
     {
         SetTarget(player.World, targeting.Block, targeting.Position);
-        
+
         effect.LogicUpdate();
     }
 
@@ -84,19 +83,19 @@ public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, T
 
         effect.IsEnabled = collider != null;
     }
-    
-    #region DISPOSABLE 
-    
+
+    #region DISPOSABLE
+
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
-        
+
         if (disposing)
         {
             effect.Dispose();
         }
     }
-    
+
     #endregion DISPOSABLE
 }

@@ -181,7 +181,7 @@ public class Image
     }
 
     /// <summary>
-    /// Save the image to a file asynchronously.
+    ///     Save the image to a file asynchronously.
     /// </summary>
     /// <param name="file">The file to save to.</param>
     /// <param name="token">The cancellation token.</param>
@@ -223,7 +223,7 @@ public class Image
 
         for (var x = 0; x < fallback.Width; x++)
         for (var y = 0; y < fallback.Height; y++)
-            fallback.SetPixel(x, y, (x % 2 == 0) ^ (y % 2 == 0) ? magenta : black);
+            fallback.SetPixel(x, y, x % 2 == 0 ^ y % 2 == 0 ? magenta : black);
 
         return fallback;
     }
@@ -262,9 +262,9 @@ public class Image
     }
 
     /// <summary>
-    /// Get the average color of the image.
-    /// This ignores pixels that are completely transparent.
-    /// Only supported for images with a size less than or equal <c>32x32</c>.
+    ///     Get the average color of the image.
+    ///     This ignores pixels that are completely transparent.
+    ///     Only supported for images with a size less than or equal <c>32x32</c>.
     /// </summary>
     /// <returns>The average color, or transparent black if no non-transparent pixels are present.</returns>
     public Color32 CalculateAverage()
@@ -308,8 +308,8 @@ public class Image
     }
 
     /// <summary>
-    /// Create a translated (moved) image, shifting by the given amount of pixels.
-    /// This wraps around the image, so pixels that are moved out of the image will appear on the other side.
+    ///     Create a translated (moved) image, shifting by the given amount of pixels.
+    ///     This wraps around the image, so pixels that are moved out of the image will appear on the other side.
     /// </summary>
     /// <param name="dx">The amount of pixels to move the image in the x direction.</param>
     /// <param name="dy">The amount of pixels to move the image in the y direction.</param>
@@ -369,8 +369,8 @@ public class Image
     }
 
     /// <summary>
-    /// Check if an image is empty.
-    /// An image is considered empty if all pixels have the zero-value.
+    ///     Check if an image is empty.
+    ///     An image is considered empty if all pixels have the zero-value.
     /// </summary>
     /// <returns>The result of the check.</returns>
     public Boolean IsEmpty()
@@ -410,10 +410,10 @@ public class Image
         {
             var result = 0;
 
-            result |= ((original >> originalFormat.R) & Color32.ChannelMask) << targetFormat.R;
-            result |= ((original >> originalFormat.G) & Color32.ChannelMask) << targetFormat.G;
-            result |= ((original >> originalFormat.B) & Color32.ChannelMask) << targetFormat.B;
-            result |= ((original >> originalFormat.A) & Color32.ChannelMask) << targetFormat.A;
+            result |= (original >> originalFormat.R & Color32.ChannelMask) << targetFormat.R;
+            result |= (original >> originalFormat.G & Color32.ChannelMask) << targetFormat.G;
+            result |= (original >> originalFormat.B & Color32.ChannelMask) << targetFormat.B;
+            result |= (original >> originalFormat.A & Color32.ChannelMask) << targetFormat.A;
 
             return result;
         }

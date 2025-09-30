@@ -28,9 +28,9 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     private static readonly IReadOnlyCollection<Int32>[] sideIndices;
     private static readonly IReadOnlyCollection<Int32> allIndices;
 
-    private readonly Chunk mid;
-
     private readonly Side? exclusiveSide;
+
+    private readonly Chunk mid;
 
     private Guard? guard;
     private SideArray<(Chunk chunk, Guard? guard)?> neighbors;

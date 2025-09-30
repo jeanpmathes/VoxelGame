@@ -15,54 +15,59 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
 /// <summary>
-/// Defines the partial block height of a block as a stored attribute with 8 different states.
+///     Defines the partial block height of a block as a stored attribute with 8 different states.
 /// </summary>
-/// <seealso cref="PartialHeight"/>
+/// <seealso cref="PartialHeight" />
 public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, BlockBehavior, Block>
 {
-    [LateInitialization]
-    private partial IAttribute<Int32> Height { get; set; }
-    
     /// <summary>
-    /// The minimum height that can be stored in this behavior.
+    ///     The minimum height that can be stored in this behavior.
     /// </summary>
     public const Int32 MinimumHeight = PartialHeight.MinimumHeight / 2;
-    
+
     /// <summary>
-    /// The maximum height that can be stored in this behavior.
+    ///     The maximum height that can be stored in this behavior.
     /// </summary>
     public const Int32 MaximumHeight = (PartialHeight.MaximumHeight + 1) / 2;
-    
-    /// <summary>
-    /// The preferred height of the block at placement.
-    /// </summary>
-    public Int32 PlacementHeight { get; private set; }
-    
-    /// <summary>
-    /// Aspect used to initialize the <see cref="PlacementHeight"/> property.
-    /// </summary>
-    public Aspect<Int32, Block> PlacementHeightInitializer { get; }
-    
+
     private StoredHeight8(Block subject) : base(subject)
     {
         subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => state.Get(Height) * 2, exclusive: true);
-        
+
         PlacementHeightInitializer = Aspect<Int32, Block>.New<Exclusive<Int32, Block>>(nameof(PlacementHeightInitializer), this);
     }
 
-    /// <inheritdoc/>
+    [LateInitialization] private partial IAttribute<Int32> Height { get; set; }
+
+    /// <summary>
+    ///     The preferred height of the block at placement.
+    /// </summary>
+    public Int32 PlacementHeight { get; private set; }
+
+    /// <summary>
+    ///     Aspect used to initialize the <see cref="PlacementHeight" /> property.
+    /// </summary>
+    public Aspect<Int32, Block> PlacementHeightInitializer { get; }
+
+    /// <inheritdoc />
     public static StoredHeight8 Construct(Block input)
     {
         return new StoredHeight8(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
+    public override void SubscribeToEvents(IEventBus bus)
+    {
+        bus.Subscribe<Modifiable.ModifyHeightMessage>(OnModifyHeight);
+    }
+
+    /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
         PlacementHeight = PlacementHeightInitializer.GetValue(original: 0, Subject);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
         Height = builder
@@ -71,16 +76,10 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
             .Attribute(generationDefault: MaximumHeight);
     }
 
-    /// <inheritdoc/>
-    public override void SubscribeToEvents(IEventBus bus)
-    {
-        bus.Subscribe<Modifiable.ModifyHeightMessage>(OnModifyHeight);
-    }
-
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (PlacementHeight is >= MinimumHeight and <= MaximumHeight) 
+        if (PlacementHeight is >= MinimumHeight and <= MaximumHeight)
             return;
 
         validator.ReportWarning("Placement height is out of bounds");

@@ -23,16 +23,16 @@ public sealed class ScreenElementPipeline : IDisposable
 {
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
-    private readonly Vector2d relativeScreenPosition;
     private readonly Texture placeholder;
-    
-    private Texture? texture;
-    private Single scaling = 1.0f;
+    private readonly Vector2d relativeScreenPosition;
     private ColorS color = ColorS.White;
+    private IDisposable? disposable;
     private Boolean isTextureInitialized;
     private Boolean isVertexBufferUploaded;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
-    private IDisposable? disposable;
+    private Single scaling = 1.0f;
+
+    private Texture? texture;
 
     private ScreenElementPipeline(VoxelGame.Graphics.Core.Client client, Vector2d relativeScreenPosition, ShaderBuffer<Data> data)
     {
@@ -44,7 +44,7 @@ public sealed class ScreenElementPipeline : IDisposable
     }
 
     /// <summary>
-    /// Whether the pipeline is enabled.
+    ///     Whether the pipeline is enabled.
     /// </summary>
     public Boolean IsEnabled { get; set; }
 
@@ -116,7 +116,7 @@ public sealed class ScreenElementPipeline : IDisposable
     }
 
     /// <summary>
-    /// Call each logic update.
+    ///     Call each logic update.
     /// </summary>
     public void LogicUpdate()
     {
@@ -212,16 +212,16 @@ public sealed class ScreenElementPipeline : IDisposable
 
         disposed = true;
     }
-    
+
     /// <inheritdoc />
     public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
-    
+
     /// <summary>
-    /// Finalizer.
+    ///     Finalizer.
     /// </summary>
     ~ScreenElementPipeline()
     {

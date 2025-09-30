@@ -23,10 +23,10 @@ namespace VoxelGame.Client.Visuals.Textures;
 /// </summary>
 public class DeckLoader : IIssueSource
 {
-    private readonly Dictionary<String, Modifier> modifiers = new();
     private readonly Dictionary<String, Combinator> combinators = new();
 
     private readonly Combinator defaultCombinator = new Blend();
+    private readonly Dictionary<String, Modifier> modifiers = new();
 
     /// <summary>
     ///     The image library to add the decks to and retrieve images from.

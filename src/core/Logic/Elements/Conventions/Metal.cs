@@ -12,28 +12,28 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Conventions;
 
 /// <summary>
-/// A metal type, as defined by the <see cref="MetalConvention"/>.
+///     A metal type, as defined by the <see cref="MetalConvention" />.
 /// </summary>
 public class Metal(String namedID, BlockBuilder builder) : Convention<Metal>(namedID, builder)
 {
     /// <summary>
-    /// Ores of this metal type which can be mined in the world.
+    ///     Ores of this metal type which can be mined in the world.
     /// </summary>
     public required IEnumerable<Block> Ores { get; init; }
 
     /// <summary>
-    /// Blocks for native metals, which can be found in the world.
+    ///     Blocks for native metals, which can be found in the world.
     /// </summary>
     public required IEnumerable<Block> NativeMetals { get; init; }
 }
 
 /// <summary>
-/// A convention for metal types.
+///     A convention for metal types.
 /// </summary>
 public static class MetalConvention
 {
     /// <summary>
-    /// Builds a new metal type.
+    ///     Builds a new metal type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
     /// <param name="namedID">The named ID of the metal, used to create the block IDs.</param>

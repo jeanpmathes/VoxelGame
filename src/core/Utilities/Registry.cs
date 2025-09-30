@@ -16,9 +16,9 @@ namespace VoxelGame.Core.Utilities;
 public class Registry<T> where T : class
 {
     private readonly Func<T, String> keySelector;
+    private readonly Dictionary<String, T> valueByKey = [];
 
     private readonly List<T> values = [];
-    private readonly Dictionary<String, T> valueByKey = [];
 
     /// <summary>
     ///     Create a new registry.

@@ -26,10 +26,10 @@ public record Scope(String Name, IReadOnlyList<IScoped> Entries) : IScoped
         {
             foreach (IScoped scoped in Entries)
             {
-                if (!scoped.IsEmpty) 
+                if (!scoped.IsEmpty)
                     return false;
             }
-            
+
             return true;
         }
     }
@@ -38,12 +38,12 @@ public record Scope(String Name, IReadOnlyList<IScoped> Entries) : IScoped
     public JsonNode GetValues(State state)
     {
         JsonObject values = new();
-        
+
         foreach (IScoped entry in Entries) values[entry.Name] = entry.GetValues(state);
-        
+
         return values;
     }
-    
+
     /// <inheritdoc />
     public State SetValues(State state, JsonNode values)
     {
@@ -51,7 +51,7 @@ public record Scope(String Name, IReadOnlyList<IScoped> Entries) : IScoped
 
         foreach (IScoped entry in Entries)
         {
-            if (!obj.TryGetPropertyValue(entry.Name, out JsonNode? value)) 
+            if (!obj.TryGetPropertyValue(entry.Name, out JsonNode? value))
                 continue;
 
             try

@@ -163,8 +163,8 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <returns>A bounding volume with the given depth.</returns>
     public static BoundingVolume FlatBlock(Side side, Double width, Double depth)
     {
-        
-        
+
+
         Double halfWidth = width / 2.0;
         Double halfDepth = depth / 2.0;
 
@@ -173,14 +173,15 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         offset += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
 
         Vector3d widthDirection = side.Rotate(Axis.Y).Direction().Abs(); // todo: test for up and down, also check if it generally works for all sides
-        
+
         Vector3d extents = side.Direction().Abs();
         extents *= halfDepth - 0.5;
         extents += widthDirection * (halfWidth - 0.5);
         extents += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
+
         return new BoundingVolume(offset, extents);
     }
-    
+
     /// <summary>
     ///     Creates a flat block bounding volume with the given depth, on all specified sides.
     /// </summary>
@@ -195,6 +196,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         foreach (Side side in Side.All.Sides())
         {
             if (!sides.HasFlag(side.ToFlag())) continue;
+
             volumes.Add(FlatBlock(side, width, depth));
         }
 

@@ -13,18 +13,18 @@ namespace VoxelGame.Core.Behaviors.Aspects;
 
 /// <summary>
 ///     Aspects provide a way to let multiple contributors (i.e., behaviors) determine a value.
-///     In contrast to the <see cref="IEvent{T}"/> system, aspects are meant to be side effect free.
+///     In contrast to the <see cref="IEvent{T}" /> system, aspects are meant to be side effect free.
 /// </summary>
 /// <typeparam name="TValue">The value type of the aspect.</typeparam>
 /// <typeparam name="TContext">The type of context in which the aspect is evaluated.</typeparam>
-public class Aspect<TValue, TContext> 
+public class Aspect<TValue, TContext>
 {
-    private readonly String name;
     private readonly Int32 maxContributors;
+    private readonly String name;
+    private readonly List<IContributor<TValue, TContext>> rejectedContributors = [];
     private readonly IContributionStrategy<TValue, TContext> strategy;
 
     private readonly List<IContributor<TValue, TContext>> usedContributors = [];
-    private readonly List<IContributor<TValue, TContext>> rejectedContributors = [];
 
     private IContributor<TValue, TContext>? exclusiveContributor;
 
@@ -128,7 +128,7 @@ public class Aspect<TValue, TContext>
         return value;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override String ToString()
     {
         return name;

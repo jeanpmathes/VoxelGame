@@ -24,19 +24,19 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     where TSelf : BehaviorContainer<TSelf, TBehavior>
     where TBehavior : class, IBehavior<TSelf>
 {
-    private readonly List<TBehavior> behaviors = [];
-    
-    private Dictionary<Type, List<Action<TBehavior>>> newWatchers = new();
     private readonly Dictionary<Type, List<Action<TBehavior>>> allWatchers = new();
-    
+    private readonly List<TBehavior> behaviors = [];
+
     private TBehavior?[]? baked;
-    
+
+    private Dictionary<Type, List<Action<TBehavior>>> newWatchers = new();
+
     private TSelf Self => (TSelf) this;
 
     /// <inheritdoc />
     public IEnumerable<TBehavior> Behaviors => behaviors;
 
-    /// <inheritdoc /> 
+    /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Boolean Is<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
@@ -61,7 +61,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     public TConcreteBehavior Require<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
-        
+
         var behavior = Get<TConcreteBehavior>();
 
         if (behavior != null)
@@ -73,51 +73,15 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
         ProcessNewWatchers();
         ProcessExistingWatchers(behavior);
-        
+
         return behavior;
-    }
-
-    private void ProcessExistingWatchers<TConcreteBehavior>(TConcreteBehavior behavior) where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
-    {
-        if (!allWatchers.TryGetValue(typeof(TConcreteBehavior), out List<Action<TBehavior>>? actions)) 
-            return;
-
-        foreach (Action<TBehavior> action in actions)
-        {
-            action(behavior);
-        }
-            
-        allWatchers.Remove(typeof(TConcreteBehavior));
-    }
-
-    private void ProcessNewWatchers()
-    {
-        Dictionary<Type, List<Action<TBehavior>>> watchersToProcess = newWatchers;
-        newWatchers = new Dictionary<Type, List<Action<TBehavior>>>();
-        
-        foreach ((Type key, List<Action<TBehavior>> actions) in watchersToProcess)
-        {
-            Int32 index = behaviors.FindIndex(b => key.IsInstanceOfType(b));
-            
-            if (index != -1)
-            {
-                foreach (Action<TBehavior> action in actions)
-                {
-                    action(behaviors[index]);
-                }
-            }
-            else
-            {
-                allWatchers.GetOrAdd(key, []).AddRange(actions);
-            }
-        }
     }
 
     /// <inheritdoc />
     public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null) where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSelf> where TConditionConcreteBehavior : class, TBehavior, IBehavior<TConditionConcreteBehavior, TBehavior, TSelf>
     {
         // To prevent endless loops, we only process the watchers introduced by this behavior after it is fully constructed and added.
-        
+
         newWatchers.GetOrAdd(typeof(TConditionConcreteBehavior), []).Add(behavior =>
         {
             if (behavior is not TConditionConcreteBehavior) return;
@@ -136,18 +100,12 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     /// <inheritdoc />
     public virtual void Validate(IValidator validator)
     {
-        Validation?.Invoke(this, new IAspectable.ValidationEventArgs { Validator = validator});
+        Validation?.Invoke(this, new IAspectable.ValidationEventArgs {Validator = validator});
     }
-    
+
     /// <inheritdoc />
     public event EventHandler<IAspectable.ValidationEventArgs>? Validation;
 
-    /// <inheritdoc cref="BehaviorSystem{TSelf,TBehavior}.EnsureNotBaked"/>
-    public void EnsureNotBaked()
-    {
-        BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
-    }
-    
     /// <inheritdoc />
     public void Bake(TBehavior?[] array)
     {
@@ -155,16 +113,55 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
         baked = array;
 
         allWatchers.Clear();
-        
+
         OnBake();
     }
 
-    /// <summary>
-    /// Is called after baking of this behavior container.
-    /// Other containers might not be baked yet.
-    /// </summary>
-    protected virtual void OnBake()
+    private void ProcessExistingWatchers<TConcreteBehavior>(TConcreteBehavior behavior) where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
-        
+        if (!allWatchers.TryGetValue(typeof(TConcreteBehavior), out List<Action<TBehavior>>? actions))
+            return;
+
+        foreach (Action<TBehavior> action in actions)
+        {
+            action(behavior);
+        }
+
+        allWatchers.Remove(typeof(TConcreteBehavior));
     }
+
+    private void ProcessNewWatchers()
+    {
+        Dictionary<Type, List<Action<TBehavior>>> watchersToProcess = newWatchers;
+        newWatchers = new Dictionary<Type, List<Action<TBehavior>>>();
+
+        foreach ((Type key, List<Action<TBehavior>> actions) in watchersToProcess)
+        {
+            Int32 index = behaviors.FindIndex(b => key.IsInstanceOfType(b));
+
+            if (index != -1)
+            {
+                foreach (Action<TBehavior> action in actions)
+                {
+                    action(behaviors[index]);
+                }
+            }
+            else
+            {
+                allWatchers.GetOrAdd(key, []).AddRange(actions);
+            }
+        }
+    }
+
+    /// <inheritdoc cref="BehaviorSystem{TSelf,TBehavior}.EnsureNotBaked" />
+    public void EnsureNotBaked()
+    {
+        BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
+    }
+
+    /// <summary>
+    ///     Is called after baking of this behavior container.
+    ///     Other containers might not be baked yet.
+    /// </summary>
+    protected virtual void OnBake() {}
 }

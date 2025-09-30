@@ -10,8 +10,8 @@ using VoxelGame.Core.Behaviors.Aspects;
 namespace VoxelGame.Core.Logic.Elements.Behaviors;
 
 /// <summary>
-/// Prevents placement and destruction of the block.
-/// Note that if the block is replaceable, it can still be replaced by other blocks.
+///     Prevents placement and destruction of the block.
+///     Note that if the block is replaceable, it can still be replaced by other blocks.
 /// </summary>
 public class Static : BlockBehavior, IBehavior<Static, BlockBehavior, Block>
 {
@@ -20,8 +20,8 @@ public class Static : BlockBehavior, IBehavior<Static, BlockBehavior, Block>
         subject.IsPlacementAllowed.ContributeConstant(value: false);
         subject.IsDestructionAllowed.ContributeConstant(value: false);
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Static Construct(Block input)
     {
         return new Static(input);

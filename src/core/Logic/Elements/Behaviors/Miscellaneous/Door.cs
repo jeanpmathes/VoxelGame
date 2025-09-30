@@ -21,18 +21,12 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 
 /// <summary>
-/// Can be opened and closed, allowing bodies to pass through.
+///     Can be opened and closed, allowing bodies to pass through.
 /// </summary>
 public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 {
     private readonly LateralRotatable rotatable;
-    
-    [LateInitialization]
-    private partial IAttribute<Boolean> IsOpen { get; set; }
-    
-    [LateInitialization]
-    private partial IAttribute<Boolean> IsLeftSided { get; set; }
-    
+
     private Door(Block subject) : base(subject)
     {
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
@@ -41,15 +35,31 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 
         rotatable = subject.Require<LateralRotatable>();
         subject.Require<LateralRotatableModelled>().OrientationOverride.ContributeFunction(GetOrientationOverride);
-        
+
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
         subject.PlacementState.ContributeFunction(GetPlacementState);
+    }
+
+    [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
+
+    [LateInitialization] private partial IAttribute<Boolean> IsLeftSided { get; set; }
+
+    /// <inheritdoc />
+    public static Door Construct(Block input)
+    {
+        return new Door(input);
+    }
+
+    /// <inheritdoc />
+    public override void SubscribeToEvents(IEventBus bus)
+    {
+        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteract);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Orientation orientation = rotatable.GetOrientation(state);
-        
+
         if (state.Get(IsOpen))
             orientation = state.Get(IsLeftSided) ? orientation.Rotate() : orientation.Rotate().Opposite();
 
@@ -72,36 +82,24 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
     }
 
     /// <inheritdoc />
-    public static Door Construct(Block input)
-    {
-        return new Door(input);
-    }
-
-    /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
         IsOpen = builder.Define(nameof(IsOpen)).Boolean().Attribute();
         IsLeftSided = builder.Define(nameof(IsLeftSided)).Boolean().Attribute();
     }
 
-    /// <inheritdoc />
-    public override void SubscribeToEvents(IEventBus bus)
-    { 
-        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteract);
-    }
-
     private Selector GetSelector(Selector original, State state)
     {
         return original.WithLayer(state.Get(IsOpen) ? 1 : 0);
     }
-    
+
     private Orientation GetOrientationOverride(Orientation original, State state)
     {
         if (!state.Get(IsOpen)) return original;
-        
+
         return state.Get(IsLeftSided) ? original.Opposite() : original;
     }
-    
+
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
     {
         (World world, Vector3i position, Actor? actor) = context;
@@ -122,24 +120,24 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         {
             Vector3i neighborPosition = orientation.Rotate().Opposite().Offset(position);
             State neighbor = world.GetBlock(neighborPosition) ?? Content.DefaultState;
-            
+
             leftSided = neighbor.Block != Subject || rotatable.GetOrientation(neighbor) != orientation;
         }
         else
         {
             leftSided = orientation.Rotate().Opposite().ToSide() != side;
         }
-        
+
         return leftSided;
     }
-    
+
     private void OnActorInteract(Block.ActorInteractionMessage message)
     {
         ToggleDoor(message.Actor.World, message.Position, message.State);
-        
+
         // if (message.Actor.GetComponent<Body>() is {} body && body.Collider.Intersects(collider)) return;
         // todo: use composite and add a method to it to get the full collider for a given state, merging all parts
-        
+
         Boolean leftSided = message.State.Get(IsLeftSided);
         Boolean wasOpen = message.State.Get(IsOpen);
 
@@ -151,7 +149,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         {
             State neighbor = message.Actor.World.GetBlock(neighborPosition) ?? Content.DefaultState;
 
-            if (neighbor.Block == Subject 
+            if (neighbor.Block == Subject
                 && neighbor.Get(IsLeftSided) != leftSided
                 && neighbor.Get(IsOpen) == wasOpen
                 && rotatable.GetOrientation(neighbor) == orientation)

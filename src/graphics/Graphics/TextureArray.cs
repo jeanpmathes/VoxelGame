@@ -22,8 +22,8 @@ namespace VoxelGame.Graphics.Graphics;
 /// </summary>
 public sealed class TextureArray : IEnumerable<Texture>
 {
-    private readonly Texture[] textures;
     private readonly ColorS[] dominantColors;
+    private readonly Texture[] textures;
 
     private TextureArray(Texture[] textures, ColorS[] dominantColors)
     {

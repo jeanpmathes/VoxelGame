@@ -50,9 +50,7 @@ public:
     void Accept(Visitor& visitor) override;
 
 protected:
-    void DoDataUpload(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<D3D12_RESOURCE_BARRIER>*     barriers) override;
+    void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers) override;
     void DoReset() override;
 
 private:

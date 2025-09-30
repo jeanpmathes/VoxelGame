@@ -18,7 +18,8 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
 /// <summary>
-/// Provides rotated composite behavior for blocks that are both <see cref="Composite"/> and <see cref="LateralRotatable"/>.
+///     Provides rotated composite behavior for blocks that are both <see cref="Composite" /> and
+///     <see cref="LateralRotatable" />.
 /// </summary>
 public partial class LateralRotatableComposite : BlockBehavior, IBehavior<LateralRotatableComposite, BlockBehavior, Block>
 {
@@ -29,23 +30,27 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     {
         composite = subject.Require<Composite>();
         rotatable = subject.Require<LateralRotatable>();
-        
+
         PartState = Aspect<State, (State, Vector3i)>.New<Exclusive<State, (State, Vector3i)>>(nameof(PartState), this);
 
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
     }
-    
+
     /// <summary>
-    /// Provides states where the part position is set to the given part.
+    ///     Provides states where the part position is set to the given part.
     /// </summary>
     public Aspect<State, (State state, Vector3i part)> PartState { get; }
+
+    [LateInitialization] private partial IEvent<Composite.NeighborUpdateMessage> NeighborUpdate { get; set; }
+
+    [LateInitialization] private partial IEvent<Composite.PlacementCompletedMessage> PlacementCompleted { get; set; }
 
     /// <inheritdoc />
     public static LateralRotatableComposite Construct(Block input)
     {
         return new LateralRotatableComposite(input);
     }
-    
+
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
@@ -68,7 +73,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         State state = Subject.GetPlacementState(world, position, actor);
         Vector3i size = composite.GetSize(state);
-        
+
         Orientation orientation = rotatable.GetOrientation(state);
 
         for (var x = 0; x < size.X; x++)
@@ -94,7 +99,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     {
         State state = Subject.GetPlacementState(message.World, message.Position, message.Actor);
         Vector3i size = composite.GetSize(state);
-        
+
         Orientation orientation = rotatable.GetOrientation(state);
 
         for (var x = 0; x < size.X; x++)
@@ -123,7 +128,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     {
         Vector3i size = composite.GetSize(message.State);
         Vector3i currentPart = composite.GetPartPosition(message.State);
-        
+
         Orientation orientation = rotatable.GetOrientation(message.State);
         Vector3i root = message.Position - Rotate(currentPart, orientation);
 
@@ -139,8 +144,8 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void OnStateUpdate(Block.StateUpdateMessage message)
     {
-        State oldState = message.OldContent.Block;
-        State newState = message.NewContent.Block;
+        State oldState = message.OldState.Block;
+        State newState = message.NewState.Block;
 
         if (oldState == newState) return;
 
@@ -154,7 +159,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         if (oldSize != newSize)
             ResizeComposite(message.World, root, oldSize, newSize, orientation, newState);
-        else if (message.OldContent.Block != message.NewContent.Block)
+        else if (message.OldState.Block != message.NewState.Block)
             SetStateOnAllParts(message.World, newSize, root, currentPart, orientation, newState);
     }
 
@@ -162,7 +167,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     {
         Vector3i size = composite.GetSize(message.State);
         Vector3i currentPart = composite.GetPartPosition(message.State);
-        
+
         Orientation orientation = rotatable.GetOrientation(message.State);
         Vector3i currentOriented = Rotate(currentPart, orientation);
         Vector3i updatedOriented = message.Side.Offset(currentOriented);
@@ -219,10 +224,11 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         for (var z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
+
             if (part == exclude) continue;
 
             state = SetPartPosition(state, part);
-            
+
             world.SetBlock(state, root + Rotate(part, orientation));
         }
     }
@@ -242,18 +248,12 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     private static Vector3i Derotate(Vector3i world, Orientation orientation)
     {
         Orientation inverse = orientation.Opposite();
-        
+
         return Rotate(world, inverse);
     }
-    
+
     private State SetPartPosition(State original, Vector3i part)
     {
         return PartState.GetValue(original, (original, part));
     }
-    
-    [LateInitialization]
-    private partial IEvent<Composite.NeighborUpdateMessage> NeighborUpdate { get; set; } 
-    
-    [LateInitialization]
-    private partial IEvent<Composite.PlacementCompletedMessage> PlacementCompleted { get; set; }
 }

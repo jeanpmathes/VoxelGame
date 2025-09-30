@@ -23,7 +23,7 @@ public class ContentRegistry
     {
         this.parent = parent;
     }
-    
+
     /// <summary>
     ///     Create a new content registry.
     /// </summary>

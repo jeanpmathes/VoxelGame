@@ -40,12 +40,11 @@ PSInput VSMain(float2 const position : POSITION, float2 const uv : TEXCOORD, flo
 
     int const offset = isBlockMode ? 0 : cb.firstFluidTextureIndex;
 
-    result.uv = uv;
-    result.color = color;
+    result.uv       = uv;
+    result.color    = color;
     result.position = mul(float4(position, 0.0f, 1.0f), cb.mvp);
-    result.height = (result.position.y + 1.0f) * 0.5f;
-    result.index = vg::animation::GetAnimatedTextureIndex(cb.attributes, 0, native::draw2d::time.value, isBlockMode) +
-        offset;
+    result.height   = (result.position.y + 1.0f) * 0.5f;
+    result.index    = vg::animation::GetAnimatedTextureIndex(cb.attributes, 0, native::draw2d::time.value, isBlockMode) + offset;
 
     return result;
 }

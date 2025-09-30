@@ -45,7 +45,7 @@ public class FlatBlockDecoration : Decoration // todo: rename to attached block 
 
             if (neighbor is not {Block: {IsFullySolid: true} neighborBlock}) continue;
             if (!filter.Contains(neighborBlock.Block)) continue;
-            
+
             // todo: think of a way to get orientation.Opposite() to the block, similar issue as in the cover placement with snow
             // todo: also probably start of with the GenerationState instead of States.Default
 

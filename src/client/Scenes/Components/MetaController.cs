@@ -13,19 +13,18 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-/// Responsible for handling all meta input in a <see cref="SessionScene"/>.
+///     Responsible for handling all meta input in a <see cref="SessionScene" />.
 /// </summary>
 public class MetaController : SceneComponent, IConstructible<SessionScene, InGameUserInterface, MetaController>
 {
-    private readonly SessionScene scene;
-    private readonly InGameUserInterface ui;
-    
     private readonly ToggleButton consoleToggle;
     private readonly PushButton escapeButton;
+    private readonly SessionScene scene;
+    private readonly InGameUserInterface ui;
     private readonly PushButton unlockMouseButton;
 
     private Boolean isMouseUnlockedByUserRequest;
-    
+
     private MetaController(SessionScene scene, InGameUserInterface ui) : base(scene)
     {
         this.scene = scene;
@@ -34,19 +33,13 @@ public class MetaController : SceneComponent, IConstructible<SessionScene, InGam
         consoleToggle = scene.Client.Keybinds.GetToggle(scene.Client.Keybinds.Console);
         escapeButton = scene.Client.Keybinds.GetPushButton(scene.Client.Keybinds.Escape);
         unlockMouseButton = scene.Client.Keybinds.GetPushButton(scene.Client.Keybinds.UnlockMouse);
-        
+
         OnSideliningEnd();
-        
+
         ui.AnyMetaControlOpened += (_, _) => OnSideliningStart();
         ui.AnyMetaControlClosed += (_, _) => OnSideliningEnd();
     }
-    
-    /// <inheritdoc />
-    public static MetaController Construct(SessionScene input1, InGameUserInterface input2)
-    {
-        return new MetaController(input1, input2);
-    }
-    
+
     /// <summary>
     ///     Get whether the actual game content is currently sidelined, meaning it is not the main focus of the user.
     ///     One reason for this could be that meta UI is shown on top of the game.
@@ -54,6 +47,12 @@ public class MetaController : SceneComponent, IConstructible<SessionScene, InGam
     ///     If sidelined, in-game input should not be handled.
     /// </summary>
     public Boolean IsSidelined { get; private set; }
+
+    /// <inheritdoc />
+    public static MetaController Construct(SessionScene input1, InGameUserInterface input2)
+    {
+        return new MetaController(input1, input2);
+    }
 
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)
@@ -80,7 +79,7 @@ public class MetaController : SceneComponent, IConstructible<SessionScene, InGam
         if (consoleToggle.Changed)
             ui.ToggleConsole();
     }
-    
+
     private void OnSideliningEnd()
     {
         IsSidelined = false;

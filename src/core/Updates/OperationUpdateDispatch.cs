@@ -50,7 +50,7 @@ public class OperationUpdateDispatch : ApplicationComponent
     ///     The singleton instance of the operation update dispatch.
     /// </summary>
     public static OperationUpdateDispatch? Instance { get; private set; }
-    
+
     private void Update()
     {
         operations.Apply(operation =>
@@ -62,8 +62,8 @@ public class OperationUpdateDispatch : ApplicationComponent
     }
 
     /// <summary>
-    /// Set up a mock instance for testing.
-    /// It will override the singleton instance.
+    ///     Set up a mock instance for testing.
+    ///     It will override the singleton instance.
     /// </summary>
     public static void SetUpMockInstance()
     {
@@ -107,7 +107,7 @@ public class OperationUpdateDispatch : ApplicationComponent
 
         operations.Add(operation);
     }
-    
+
     /// <inheritdoc />
     public override void OnLogicUpdate(Double delta, Timer? timer)
     {

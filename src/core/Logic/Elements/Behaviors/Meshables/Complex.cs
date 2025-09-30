@@ -21,28 +21,28 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
 public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, IMeshable
 {
     private readonly Meshed meshed;
-    
+
     private Complex(Block subject) : base(subject)
     {
         meshed = subject.Require<Meshed>();
-        
+
         Mesh = Aspect<BlockMesh, (State, ITextureIndexProvider, IBlockModelProvider, VisualConfiguration)>.New<Exclusive<BlockMesh, (State, ITextureIndexProvider, IBlockModelProvider, VisualConfiguration)>>(nameof(Mesh), this);
     }
-    
+
     /// <summary>
-    /// Get the state dependent mesh for the block.
+    ///     Get the state dependent mesh for the block.
     /// </summary>
     public Aspect<BlockMesh, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)> Mesh { get; }
-    
+
     /// <inheritdoc />
     public static Complex Construct(Block input)
     {
         return new Complex(input);
     }
-    
+
     /// <inheritdoc />
     public Meshable Type => Meshable.Complex;
-    
+
     /// <summary>
     ///     Get the mesh data for a given state of the block.
     /// </summary>
@@ -61,7 +61,7 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
 
         return new MeshData(quads, quadCount, tint, isAnimated);
     }
-    
+
     /// <summary>
     ///     The mesh data for a complex block.
     /// </summary>
@@ -69,5 +69,5 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
     /// <param name="QuadCount">Number of quads in the mesh.</param>
     /// <param name="Tint">The tint color to apply to the mesh.</param>
     /// <param name="IsAnimated">Whether the texture is animated.</param>
-    public readonly record struct MeshData(BlockMesh.Quad[] Quads, UInt32 QuadCount, ColorS Tint,Boolean IsAnimated);
+    public readonly record struct MeshData(BlockMesh.Quad[] Quads, UInt32 QuadCount, ColorS Tint, Boolean IsAnimated);
 }

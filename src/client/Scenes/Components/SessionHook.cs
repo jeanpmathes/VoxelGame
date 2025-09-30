@@ -14,17 +14,23 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-/// Attaches a <see cref="Session"/> to a <see cref="Scene"/>.
+///     Attaches a <see cref="Session" /> to a <see cref="Scene" />.
 /// </summary>
 public class SessionHook : SceneComponent, IConstructible<Scene, Session, SessionHook>
 {
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<SessionHook>();
+
+    #endregion LOGGING
+
     private readonly Session session;
-    
+
     private SessionHook(Scene subject, Session session) : base(subject)
     {
         this.session = session;
     }
-    
+
     /// <inheritdoc />
     public static SessionHook Construct(Scene input1, Session input2)
     {
@@ -39,7 +45,7 @@ public class SessionHook : SceneComponent, IConstructible<Scene, Session, Sessio
             session.LogicUpdate(deltaTime, timer);
         }
     }
-    
+
     /// <inheritdoc />
     public override void OnRenderUpdate(Double deltaTime, Timer? timer)
     {
@@ -48,10 +54,4 @@ public class SessionHook : SceneComponent, IConstructible<Scene, Session, Sessio
             session.RenderUpdate(deltaTime, timer);
         }
     }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<SessionHook>();
-
-    #endregion LOGGING
 }

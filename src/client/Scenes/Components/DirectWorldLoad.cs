@@ -16,21 +16,21 @@ using VoxelGame.UI.Providers;
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-/// Loads a world directly in the first logic update of the scene.
+///     Loads a world directly in the first logic update of the scene.
 /// </summary>
 public partial class DirectWorldLoad : SceneComponent, IConstructible<Scene, (IWorldProvider, Int32), DirectWorldLoad>
 {
-    private readonly IWorldProvider worldProvider;
     private readonly Int32 index;
-    
+    private readonly IWorldProvider worldProvider;
+
     private Boolean isLoadingPossible;
-    
+
     private DirectWorldLoad(Scene subject, IWorldProvider worldProvider, Int32 index) : base(subject)
     {
         this.worldProvider = worldProvider;
         this.index = index;
     }
-    
+
     /// <inheritdoc />
     public static DirectWorldLoad Construct(Scene input1, (IWorldProvider, Int32) input2)
     {
@@ -41,7 +41,7 @@ public partial class DirectWorldLoad : SceneComponent, IConstructible<Scene, (IW
     public override void OnLoad()
     {
         isLoadingPossible = !Subject.HasComponent<ResourceLoadingReportHook>();
-        
+
         if (!isLoadingPossible)
             LogResourceLoadingFailurePreventsDirectWorldLoading(logger);
     }
@@ -50,12 +50,12 @@ public partial class DirectWorldLoad : SceneComponent, IConstructible<Scene, (IW
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)
     {
         if (!isLoadingPossible) return;
-        
+
         LoadWorldDirectly();
-        
+
         isLoadingPossible = false;
     }
-    
+
     private void LoadWorldDirectly()
     {
         Result result = worldProvider.Refresh().Wait();
@@ -80,7 +80,7 @@ public partial class DirectWorldLoad : SceneComponent, IConstructible<Scene, (IW
                 LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
             });
     }
-    
+
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<DirectWorldLoad>();

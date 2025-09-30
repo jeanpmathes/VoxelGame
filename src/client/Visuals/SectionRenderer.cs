@@ -43,12 +43,13 @@ public sealed class SectionRenderer : IDisposable
     /// </summary>
     private static Material fluidMaterial = null!;
 
-    private readonly Space space;
     private readonly Vector3d position;
-    private Boolean enabled;
+
+    private readonly Space space;
     private (Mesh? opaque, Mesh? transparent) basic;
-    private Mesh? foliage;
+    private Boolean enabled;
     private Mesh? fluid;
+    private Mesh? foliage;
 
     /// <summary>
     ///     Creates a new <see cref="SectionRenderer" />.
@@ -60,7 +61,7 @@ public sealed class SectionRenderer : IDisposable
     }
 
     /// <summary>
-    /// Get or set whether the section renderer is enabled.
+    ///     Get or set whether the section renderer is enabled.
     /// </summary>
     public Boolean IsEnabled
     {
@@ -188,7 +189,7 @@ public sealed class SectionRenderer : IDisposable
     #region DISPOSABLE
 
     private Boolean disposed;
-    
+
     private void Dispose(Boolean disposing)
     {
         if (disposed) return;
@@ -208,16 +209,16 @@ public sealed class SectionRenderer : IDisposable
 
         disposed = true;
     }
-    
+
     /// <inheritdoc />
     public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
-    
+
     /// <summary>
-    /// Finalizer.
+    ///     Finalizer.
     /// </summary>
     ~SectionRenderer()
     {

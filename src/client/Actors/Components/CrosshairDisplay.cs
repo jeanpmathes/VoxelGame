@@ -12,14 +12,14 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-/// Displays the crosshair for the player.
+///     Displays the crosshair for the player.
 /// </summary>
 public class CrosshairDisplay : ActorComponent, IConstructible<Player, Engine, CrosshairDisplay>
 {
-    private readonly Player player;
     private readonly Engine engine;
-    
-    private CrosshairDisplay(Player player, Engine engine) : base(player) 
+    private readonly Player player;
+
+    private CrosshairDisplay(Player player, Engine engine) : base(player)
     {
         this.player = player;
         this.engine = engine;
@@ -36,7 +36,7 @@ public class CrosshairDisplay : ActorComponent, IConstructible<Player, Engine, C
     {
         engine.CrosshairPipeline.IsEnabled = true;
     }
-    
+
     /// <inheritdoc />
     public override void OnDeactivate()
     {

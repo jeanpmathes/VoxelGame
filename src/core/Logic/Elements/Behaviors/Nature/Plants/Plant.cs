@@ -21,34 +21,40 @@ using PartialHeight = VoxelGame.Core.Logic.Elements.Behaviors.Height.PartialHeig
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
 /// <summary>
-/// Basic behavior for plant blocks.
-/// Assumes and supports <see cref="Foliage"/> rendering.
+///     Basic behavior for plant blocks.
+///     Assumes and supports <see cref="Foliage" /> rendering.
 /// </summary>
 public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Block>
 {
-    [LateInitialization]
-    private partial IAttribute<Boolean> IsLowered { get; set; }
-
     private Boolean isComposite;
-    
+
     private Plant(Block subject) : base(subject)
     {
         subject.Require<Combustible>();
         subject.Require<Fillable>();
         subject.Require<Foliage>().IsLowered.ContributeFunction((_, state) => state.Get(IsLowered));
-        
+
         subject.RequireIfPresent<CompositePlant, Composite>(_ => isComposite = true);
-        
+
         subject.PlacementState.ContributeFunction(GetPlacementState);
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
     }
+
+    [LateInitialization] private partial IAttribute<Boolean> IsLowered { get; set; }
 
     /// <inheritdoc />
     public static Plant Construct(Block input)
     {
         return new Plant(input);
     }
-    
+
+    /// <inheritdoc />
+    public override void SubscribeToEvents(IEventBus bus)
+    {
+        if (!isComposite)
+            bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+    }
+
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
@@ -61,32 +67,25 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
         IsLowered = builder.Define(nameof(IsLowered)).Boolean().Attribute();
     }
 
-    /// <inheritdoc />
-    public override void SubscribeToEvents(IEventBus bus)
-    {
-        if (!isComposite)
-            bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
-    }
-
     private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
         if (isComposite) return true;
-        
+
         (World world, Vector3i position, Actor? _) = context;
-        
+
         State? ground = world.GetBlock(position.Below());
-        
+
         return ground?.Block.Is<Plantable>() == true;
     }
 
     private State GetPlacementState(State state, (World world, Vector3i position, Actor? actor) context)
     {
         (World world, Vector3i position, _) = context;
-        
+
         State? below = world.GetBlock(position.Below());
 
         state.Set(IsLowered, below?.Block.Get<PartialHeight>() is {} partialHeight && partialHeight.GetHeight(below.Value) < PartialHeight.MaximumHeight);
-        
+
         return state;
     }
 
@@ -94,7 +93,7 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
     {
         if (message.Side != Side.Bottom)
             return;
-        
+
         if (message.World.GetBlock(message.Position.Below())?.Block.Is<Plantable>() != true)
             Subject.Destroy(message.World, message.Position);
     }

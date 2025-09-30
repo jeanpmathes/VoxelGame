@@ -12,22 +12,13 @@ using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Tests.Logic.Elements;
 
-public class MockBlock() : Block(id: 0, namedID: nameof(MockBlock), name: "Mock Block")
+public class MockBlock() : Block(id: 0, nameof(MockBlock), "Mock Block")
 {
-    protected override void OnValidate()
-    {
-        
-    }
-
     public override Meshable Meshable => Meshable.Unmeshed;
-    
-    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
-    {
-        
-    }
-    
-    public override void Mesh(Vector3i position, State state, MeshingContext context)
-    {
-        
-    }
+
+    protected override void OnValidate() {}
+
+    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) {}
+
+    public override void Mesh(Vector3i position, State state, MeshingContext context) {}
 }

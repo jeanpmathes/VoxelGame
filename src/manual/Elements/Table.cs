@@ -15,8 +15,8 @@ namespace VoxelGame.Manual.Elements;
 /// </summary>
 public class Table(String columnsSpec) : Chainable, IElement
 {
-    private readonly List<TableRow> rows = [];
     private readonly List<IElement> others = [];
+    private readonly List<TableRow> rows = [];
 
     void IElement.Generate(StreamWriter writer)
     {
@@ -29,8 +29,8 @@ public class Table(String columnsSpec) : Chainable, IElement
         }
 
         writer.WriteLine(@"\end{tabular}");
-        
-        foreach (IElement element in others) 
+
+        foreach (IElement element in others)
             element.Generate(writer);
     }
 
@@ -47,11 +47,12 @@ public class Table(String columnsSpec) : Chainable, IElement
         TableRow row = new();
         rows.Add(row);
         builder(row);
+
         return this;
     }
 
     /// <summary>
-    /// Represents a row in a table.
+    ///     Represents a row in a table.
     /// </summary>
     public class TableRow : Chainable
     {
@@ -70,6 +71,7 @@ public class Table(String columnsSpec) : Chainable, IElement
             TableCell cell = new();
             builder(cell);
             cells.Add(cell);
+
             return this;
         }
 
@@ -84,24 +86,23 @@ public class Table(String columnsSpec) : Chainable, IElement
     }
 
     /// <summary>
-    /// Represents a cell in a table row.
+    ///     Represents a cell in a table row.
     /// </summary>
     public class TableCell : Chainable, IElement
     {
         private readonly List<IElement> elements = [];
 
-        internal override void AddElement(IElement element)
-        {
-            elements.Add(element);
-        }
-
         /// <summary>
-        /// Generate the LaTeX code for the cell.
+        ///     Generate the LaTeX code for the cell.
         /// </summary>
         public void Generate(StreamWriter writer)
         {
             foreach (IElement element in elements) element.Generate(writer);
         }
+
+        internal override void AddElement(IElement element)
+        {
+            elements.Add(element);
+        }
     }
 }
-

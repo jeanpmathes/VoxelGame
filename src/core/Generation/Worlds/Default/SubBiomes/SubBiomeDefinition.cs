@@ -24,9 +24,9 @@ namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
 {
     private readonly IList<Layer> layers;
+    private (Layer layer, Int32 depth)[] lowerHorizon;
 
     private (Layer layer, Int32 depth)[] upperHorizon;
-    private (Layer layer, Int32 depth)[] lowerHorizon;
 
     /// <summary>
     ///     The name of the sub-biome.

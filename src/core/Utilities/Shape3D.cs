@@ -20,7 +20,7 @@ public abstract class Shape3D
     public Vector3d Position { get; init; }
 
     /// <summary>
-    /// Get a bounding box that completely contains the shape.
+    ///     Get a bounding box that completely contains the shape.
     /// </summary>
     public abstract Box3d BoundingBox { get; }
 

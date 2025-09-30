@@ -657,7 +657,7 @@ public static class MathTools
     }
 
     /// <summary>
-    /// Simply gets the cube of a number.
+    ///     Simply gets the cube of a number.
     /// </summary>
     public static Single Cube(Single x)
     {

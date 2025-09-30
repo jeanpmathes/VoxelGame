@@ -37,7 +37,7 @@ public class SaltWaterFluid : BasicFluid
         if (world.GetBlock(position.Below())?.IsFullySolid != true) return;
 
         world.SetDefaultFluid(position);
-        
+
         Blocks.Instance.Environment.Salt.Place(world, position); // todo: find a way to set the level of the concrete on placement, similar problem as with world gen and snow and such
     }
 }

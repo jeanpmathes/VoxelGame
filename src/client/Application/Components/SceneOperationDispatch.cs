@@ -16,8 +16,7 @@ namespace VoxelGame.Client.Application.Components;
 /// </summary>
 public class SceneOperationDispatch : OperationUpdateDispatch, IConstructible<Core.App.Application, SceneOperationDispatch>
 {
-    private SceneOperationDispatch(Core.App.Application application) : base(singleton: true, application) {
-    }
+    private SceneOperationDispatch(Core.App.Application application) : base(singleton: true, application) {}
 
     /// <inheritdoc />
     public override String Name => "Scene Operations";

@@ -17,19 +17,18 @@ namespace VoxelGame.Core.Logic.Definitions.Structures;
 /// </summary>
 public class Tree : DynamicStructure
 {
-    private readonly Content trunk;
+    private readonly Vector3d crownOffset;
+    private readonly Double crownRandomization;
+
+    private readonly Shape3D crownShape;
     private readonly Content leaf;
     private readonly Content roots;
+    private readonly Content trunk;
 
     private readonly Int32 trunkHeight;
 
-    private readonly Shape3D crownShape;
-    private readonly Double crownRandomization;
-
-    private readonly Vector3d crownOffset;
-
     /// <summary>
-    /// Creates a new tree.
+    ///     Creates a new tree.
     /// </summary>
     /// <param name="trunkHeight">The height of the trunk.</param>
     /// <param name="crownRandomization">The randomization factor of the crown, a smaller factor causes a more dense crown.</param>
@@ -45,7 +44,7 @@ public class Tree : DynamicStructure
         trunk = new Content(log);
         leaf = new Content(leaves);
         roots = new Content(Blocks.Instance.Environment.Roots);
-        
+
         // todo: find a way to rotate the log block to align with Y axis
 
         Box3d box = crownShape.BoundingBox;

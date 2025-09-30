@@ -18,11 +18,9 @@ public:
     StepTimer() noexcept(false)
     {
         if (QueryPerformanceFrequency(&m_qpcFrequency) == FALSE)
-            throw NativeException(
-            "Failed to query performance frequency.");
+            throw NativeException("Failed to query performance frequency.");
 
-        if (QueryPerformanceCounter(&m_qpcLastTime) == FALSE)
-            throw NativeException("Failed to query performance counter.");
+        if (QueryPerformanceCounter(&m_qpcLastTime) == FALSE) throw NativeException("Failed to query performance counter.");
 
         m_qpcMaxDelta = static_cast<uint64_t>(m_qpcFrequency.QuadPart / 10);
     }
@@ -39,36 +37,23 @@ public:
     [[nodiscard]] uint64_t GetTargetElapsedTicks() const noexcept { return m_targetElapsedTicks; }
     [[nodiscard]] double   GetTargetElapsedSeconds() const noexcept { return TicksToSeconds(m_targetElapsedTicks); }
 
-    [[nodiscard]] UINT GetTargetElapsedMilliseconds() const noexcept
-    {
-        return static_cast<UINT>(GetTargetElapsedSeconds() * 1000.0);
-    }
+    [[nodiscard]] UINT GetTargetElapsedMilliseconds() const noexcept { return static_cast<UINT>(GetTargetElapsedSeconds() * 1000.0); }
 
     void SetFixedTimeStep(bool const isFixedTimestep) noexcept { m_isFixedTimeStep = isFixedTimestep; }
 
     void SetTargetElapsedTicks(uint64_t const targetElapsed) noexcept { m_targetElapsedTicks = targetElapsed; }
 
-    void SetTargetElapsedSeconds(double const targetElapsed) noexcept
-    {
-        m_targetElapsedTicks = SecondsToTicks(targetElapsed);
-    }
+    void SetTargetElapsedSeconds(double const targetElapsed) noexcept { m_targetElapsedTicks = SecondsToTicks(targetElapsed); }
 
     static constexpr uint64_t TICKS_PER_SECOND = 10000000;
 
-    static constexpr double TicksToSeconds(uint64_t const ticks) noexcept
-    {
-        return static_cast<double>(ticks) / TICKS_PER_SECOND;
-    }
+    static constexpr double TicksToSeconds(uint64_t const ticks) noexcept { return static_cast<double>(ticks) / TICKS_PER_SECOND; }
 
-    static constexpr uint64_t SecondsToTicks(double const seconds) noexcept
-    {
-        return static_cast<uint64_t>(seconds * TICKS_PER_SECOND);
-    }
+    static constexpr uint64_t SecondsToTicks(double const seconds) noexcept { return static_cast<uint64_t>(seconds * TICKS_PER_SECOND); }
 
     void ResetElapsedTime()
     {
-        if (QueryPerformanceCounter(&m_qpcLastTime) == FALSE)
-            throw NativeException("Failed to query performance counter.");
+        if (QueryPerformanceCounter(&m_qpcLastTime) == FALSE) throw NativeException("Failed to query performance counter.");
 
         m_leftOverTicks    = 0;
         m_framesPerSecond  = 0;
@@ -81,8 +66,7 @@ public:
     {
         LARGE_INTEGER currentTime;
 
-        if (QueryPerformanceCounter(&currentTime) == FALSE)
-            throw NativeException("Failed to query performance counter.");
+        if (QueryPerformanceCounter(&currentTime) == FALSE) throw NativeException("Failed to query performance counter.");
 
         auto timeDelta = static_cast<uint64_t>(currentTime.QuadPart - m_qpcLastTime.QuadPart);
 
@@ -98,8 +82,7 @@ public:
 
         if (m_isFixedTimeStep)
         {
-            if (static_cast<uint64_t>(std::abs(static_cast<int64_t>(timeDelta - m_targetElapsedTicks))) <
-                TICKS_PER_SECOND / 4000) timeDelta = m_targetElapsedTicks;
+            if (static_cast<uint64_t>(std::abs(static_cast<int64_t>(timeDelta - m_targetElapsedTicks))) < TICKS_PER_SECOND / 4000) timeDelta = m_targetElapsedTicks;
 
             m_leftOverTicks += timeDelta;
 

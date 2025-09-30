@@ -18,12 +18,17 @@ internal class SubSection(String sectionTitle) : Chainable, IElement
 {
     private readonly List<IElement> elements = [];
 
+    void IElement.Generate(StreamWriter writer)
+    {
+        Generate(writer, String.Empty);
+    }
+
     internal static SubSection Create(String title, Func<Chainable, Chainable> builder)
     {
         SubSection subSection = new(title);
-        
+
         builder(subSection);
-        
+
         return subSection;
     }
 
@@ -38,10 +43,4 @@ internal class SubSection(String sectionTitle) : Chainable, IElement
 
         foreach (IElement element in elements) element.Generate(writer);
     }
-
-    void IElement.Generate(StreamWriter writer)
-    {
-        Generate(writer, String.Empty);
-    }
 }
-

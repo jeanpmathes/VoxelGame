@@ -121,7 +121,7 @@ public static class BlockMeshes
 
         return new BlockMesh(quads);
     }
-    
+
     /// <summary>
     ///     Create a flat mesh on all given sides.
     /// </summary>
@@ -136,7 +136,7 @@ public static class BlockMeshes
         foreach (Side side in Side.All.Sides())
         {
             if (!sides.HasFlag(side.ToFlag())) continue;
-            
+
             meshes.Add(CreateFlatModel(side, offset, textureIndex));
         }
 
@@ -168,7 +168,10 @@ public static class BlockMeshes
     ///     Create a crop plant model for a given quality level.
     /// </summary>
     /// <param name="quality">The quality level.</param>
-    /// <param name="createMiddlePiece">Whether to create a middle piece, in effect switching between two parallel planes or three planes.</param>
+    /// <param name="createMiddlePiece">
+    ///     Whether to create a middle piece, in effect switching between two parallel planes or
+    ///     three planes.
+    /// </param>
     /// <param name="textureIndex">The texture index to use.</param>
     /// <param name="lowered">Whether the plant is lowered.</param>
     /// <returns>The model data.</returns>
@@ -270,26 +273,23 @@ public static class BlockMeshes
     }
 
     /// <summary>
-    /// Create a fallback mesh. It does not depend on any loaded textures and can be used as a placeholder.
+    ///     Create a fallback mesh. It does not depend on any loaded textures and can be used as a placeholder.
     /// </summary>
     /// <returns>The created mesh.</returns>
     public static BlockMesh CreateFallback()
     {
         return BlockModels.CreateFallback().CreateMesh(FallbackTextureIndexProvider.Instance);
     }
-    
+
     private class FallbackTextureIndexProvider : ITextureIndexProvider
     {
         public static ITextureIndexProvider Instance { get; } = new FallbackTextureIndexProvider();
-        
+
         public IResourceContext? Context { get; set; } = null;
-        
-        
-        public void SetUp()
-        {
-            
-        }
-        
+
+
+        public void SetUp() {}
+
         public Int32 GetTextureIndex(TID textureID)
         {
             return ITextureIndexProvider.MissingTextureIndex;

@@ -16,36 +16,30 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-/// Decides which block or fluid the player is placing.
+///     Decides which block or fluid the player is placing.
 /// </summary>
 public class PlacementSelection : ActorComponent, IConstructible<Player, PlacementSelection>
 {
-    private readonly Player player;
-    
-    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
-    private readonly Targeting targeting;
-    
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlayerInput input;
-    
-    private PlacementSelection(Player player) : base(player) 
+
+    private readonly Player player;
+
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly Targeting targeting;
+
+    private PlacementSelection(Player player) : base(player)
     {
         this.player = player;
-        
+
         targeting = player.GetRequiredComponent<Targeting>();
         input = player.GetRequiredComponent<PlayerInput, Player>();
-        
+
         // The initially selected block and fluid have to be set as block 0 and fluid 0 are not valid in this context.
         ActiveBlock = Blocks.Instance.Environment.Grass;
         ActiveFluid = Fluids.Instance.FreshWater;
     }
-    
-    /// <inheritdoc />
-    public static PlacementSelection Construct(Player input)
-    {
-        return new PlacementSelection(input);
-    }
-    
+
     /// <summary>
     ///     Get the name of the current selection.
     /// </summary>
@@ -72,11 +66,17 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
     internal Boolean IsBlockMode { get; private set; } = true;
 
     /// <inheritdoc />
+    public static PlacementSelection Construct(Player input)
+    {
+        return new PlacementSelection(input);
+    }
+
+    /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime)
     {
         if (!player.Scene.CanHandleGameInput)
             return;
-        
+
         var changed = false;
 
         changed |= SelectMode();
@@ -88,10 +88,10 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
     }
 
     /// <summary>
-    /// Invoked if the selection has changed in any way, e.g. the block or fluid was changed or the mode was switched.
+    ///     Invoked if the selection has changed in any way, e.g. the block or fluid was changed or the mode was switched.
     /// </summary>
     public event EventHandler? SelectionChanged;
-    
+
     private Boolean SelectMode()
     {
         if (!input.ShouldChangePlacementMode) return false;

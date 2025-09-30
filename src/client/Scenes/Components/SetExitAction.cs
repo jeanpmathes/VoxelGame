@@ -10,17 +10,17 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-/// Set the exit action on the <see cref="StartUserInterface"/>.
+///     Set the exit action on the <see cref="StartUserInterface" />.
 /// </summary>
 public class SetExitAction : SceneComponent, IConstructible<Scene, StartUserInterface, SetExitAction>
 {
     private readonly StartUserInterface ui;
-    
+
     private SetExitAction(Scene scene, StartUserInterface ui) : base(scene)
     {
         this.ui = ui;
     }
-    
+
     /// <inheritdoc />
     public static SetExitAction Construct(Scene input1, StartUserInterface input2)
     {

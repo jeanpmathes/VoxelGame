@@ -11,19 +11,13 @@ using VoxelGame.Toolkit.Components;
 namespace VoxelGame.Client.Sessions;
 
 /// <summary>
-///     Base class for all components used in the <see cref="Session"/> class.
+///     Base class for all components used in the <see cref="Session" /> class.
 /// </summary>
 public class SessionComponent(Session subject) : Component<Session>(subject)
 {
-    /// <inheritdoc cref="Session.LogicUpdate"/>
-    public virtual void OnLogicUpdate(Double deltaTime, Timer? timer)
-    {
-        
-    }
-    
-    /// <inheritdoc cref="Session.RenderUpdate"/>
-    public virtual void OnRenderUpdate(Double deltaTime, Timer? timer)
-    {
-        
-    }
+    /// <inheritdoc cref="Session.LogicUpdate" />
+    public virtual void OnLogicUpdate(Double deltaTime, Timer? timer) {}
+
+    /// <inheritdoc cref="Session.RenderUpdate" />
+    public virtual void OnRenderUpdate(Double deltaTime, Timer? timer) {}
 }

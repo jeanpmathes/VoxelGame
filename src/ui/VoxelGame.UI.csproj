@@ -113,10 +113,10 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\GUI\Icons\check.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\GUI\Icons\close.png">
-          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
@@ -138,8 +138,8 @@
     <ItemGroup>
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
         <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj"/>
-        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" />
-        <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
-        <ProjectReference Include="..\analyzers\VoxelGame.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj"/>
+        <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
+        <ProjectReference Include="..\analyzers\VoxelGame.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
     </ItemGroup>
 </Project>

@@ -10,8 +10,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Client.Visuals.Textures.Combinators;
 
 /// <summary>
-/// Implements the basic functionality of a combinator, allowing easy creation of new combinators.
-/// Will support 1-to-1, 1-to-all, and all-to-all operations.
+///     Implements the basic functionality of a combinator, allowing easy creation of new combinators.
+///     Will support 1-to-1, 1-to-all, and all-to-all operations.
 /// </summary>
 public abstract class BasicCombinator(String type) : Combinator(type)
 {
@@ -53,7 +53,7 @@ public abstract class BasicCombinator(String type) : Combinator(type)
     }
 
     /// <summary>
-    /// Apply the combination logic to two images.
+    ///     Apply the combination logic to two images.
     /// </summary>
     /// <param name="back">The image to be modified.</param>
     /// <param name="front">The image to modify with.</param>

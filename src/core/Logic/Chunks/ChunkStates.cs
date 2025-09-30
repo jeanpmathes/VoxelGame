@@ -103,10 +103,10 @@ public partial class Chunk
     /// </summary>
     public class Generating : ChunkState
     {
+        private IDecorationContext? decorationContext;
         private Future? generating;
 
         private IGenerationContext? generationContext;
-        private IDecorationContext? decorationContext;
 
         /// <inheritdoc />
         protected override Access Access => Access.Write;
@@ -161,11 +161,11 @@ public partial class Chunk
         private readonly Neighborhood<Chunk?> chunks;
         private readonly PooledList<Guard> guards;
 
+        private Boolean cleaned;
+
         private Future? decorating;
 
         private IDecorationContext? decorationContext;
-
-        private Boolean cleaned;
 
         /// <summary>
         ///     Creates a new decorating state.

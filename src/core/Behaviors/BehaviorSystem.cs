@@ -88,7 +88,7 @@ public static class BehaviorSystem<TSubject, TBehavior>
                 array[id] = behavior;
                 maxID = Math.Max(maxID, id);
             }
-            
+
             subject.Bake(array.Take(maxID + 1).ToArray());
         }
 
@@ -131,7 +131,7 @@ public static class BehaviorSystem<TSubject, TBehavior>
     }
 
     /// <summary>
-    /// Ensure the behavior system is not yet baked, throwing an exception if it is.
+    ///     Ensure the behavior system is not yet baked, throwing an exception if it is.
     /// </summary>
     /// <exception cref="Exception">The exception is thrown if the behavior system is already baked.</exception>
     public static void EnsureNotBaked()

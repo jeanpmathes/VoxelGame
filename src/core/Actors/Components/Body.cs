@@ -17,7 +17,7 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Actors.Components;
 
 /// <summary>
-/// Adds physics capabilities to an <see cref="Actor"/>.
+///     Adds physics capabilities to an <see cref="Actor" />.
 /// </summary>
 public partial class Body : ActorComponent, IConstructible<Actor, Body.Characteristics, Body>
 {
@@ -30,14 +30,14 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
     private const Double FluidDrag = 15.0;
 
     private const Int32 PhysicsIterations = 10;
+    private readonly BoundingVolume boundingVolume;
 
     private readonly Double mass;
-    private readonly BoundingVolume boundingVolume;
 
     private Vector3d force;
 
     private Boolean isEnabled = true;
-    
+
     private Body(Actor subject, Double mass, BoundingVolume boundingVolume) : base(subject)
     {
         this.mass = mass;
@@ -45,15 +45,9 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
 
         Transform = subject.GetRequiredComponent<Transform>();
     }
-    
-    /// <inheritdoc />
-    public static Body Construct(Actor input1, Characteristics input2)
-    {
-        return new Body(input1, input2.Mass, input2.BoundingVolume);
-    }
 
     /// <summary>
-    /// Get the transform of the body, which contains the position and orientation in the world.
+    ///     Get the transform of the body, which contains the position and orientation in the world.
     /// </summary>
     public Transform Transform { get; }
 
@@ -66,7 +60,7 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
     ///     Get the target movement of the body.
     /// </summary>
     public Vector3d Movement { get; set; }
-    
+
     /// <summary>
     ///     Get whether the body touches the ground.
     /// </summary>
@@ -76,7 +70,7 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
     ///     Get whether the body is in a fluid.
     /// </summary>
     public Boolean IsSwimming { get; private set; }
-    
+
     /// <summary>
     ///     Get the collider of this body.
     /// </summary>
@@ -99,7 +93,13 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
             LogSetActorPhysics(logger, isEnabled);
         }
     }
-    
+
+    /// <inheritdoc />
+    public static Body Construct(Actor input1, Characteristics input2)
+    {
+        return new Body(input1, input2.Mass, input2.BoundingVolume);
+    }
+
     /// <summary>
     ///     Applies force to this actor.
     /// </summary>
@@ -226,14 +226,14 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
 
         Transform.Position += movement;
     }
-    
+
     /// <summary>
-    /// Describes the important characteristics of a body required on creation.
+    ///     Describes the important characteristics of a body required on creation.
     /// </summary>
     /// <param name="Mass">The mass of the body, in kilograms.</param>
     /// <param name="BoundingVolume">The bounding volume of the body, which is used for collision detection.</param>
     public record Characteristics(Double Mass, BoundingVolume BoundingVolume);
-    
+
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Body>();

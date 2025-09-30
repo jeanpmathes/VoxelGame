@@ -15,28 +15,28 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Conventions;
 
 /// <summary>
-/// A crop, as defined by the <see cref="CropConvention"/>.
+///     A crop, as defined by the <see cref="CropConvention" />.
 /// </summary>
 public sealed class Crop(String namedID, BlockBuilder builder) : Convention<Crop>(namedID, builder)
 {
     /// <summary>
-    /// The plant corresponding to this crop.
+    ///     The plant corresponding to this crop.
     /// </summary>
     public required Block Plant { get; init; }
-    
+
     /// <summary>
-    /// The optional fruit block that is grown by the crop.
+    ///     The optional fruit block that is grown by the crop.
     /// </summary>
     public required Block? Fruit { get; init; }
 }
 
 /// <summary>
-/// A convention on crops.
+///     A convention on crops.
 /// </summary>
 public static class CropConvention
 {
     /// <summary>
-    /// Build a new dense crop.
+    ///     Build a new dense crop.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
     /// <param name="namedID">The named ID of the crop, used to create the block IDs.</param>
@@ -63,7 +63,7 @@ public static class CropConvention
     }
 
     /// <summary>
-    /// Build a new double crop.
+    ///     Build a new double crop.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
     /// <param name="namedID">The named ID of the crop, used to create the block IDs.</param>
@@ -90,7 +90,7 @@ public static class CropConvention
     }
 
     /// <summary>
-    /// Build a new fruit crop.
+    ///     Build a new fruit crop.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
     /// <param name="namedID">The named ID of the crop, used to create the block IDs.</param>

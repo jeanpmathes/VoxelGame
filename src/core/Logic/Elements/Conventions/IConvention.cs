@@ -15,11 +15,11 @@ namespace VoxelGame.Core.Logic.Elements.Conventions;
 /// </summary>
 public interface IConvention : IContent // todo: think about how to handle conventions in the manual
 {
-    /// <inheritdoc />
-    ResourceType IResource.Type => ResourceTypes.Convention;
-    
     /// <summary>
     ///     The content that is part of this convention instance.
     /// </summary>
     public IEnumerable<IContent> Content { get; }
+
+    /// <inheritdoc />
+    ResourceType IResource.Type => ResourceTypes.Convention;
 }

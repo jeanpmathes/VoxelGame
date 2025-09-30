@@ -27,10 +27,11 @@ public class MeshFaceHolder
     /// </summary>
     public const Boolean DefaultDirection = true;
 
-    private readonly Side side;
+    private readonly Vector3 inset;
 
     private readonly MeshFace?[][] lastFaces;
-    private readonly Vector3 inset;
+
+    private readonly Side side;
 
     private Int32 count;
 
@@ -440,6 +441,15 @@ public class MeshFaceHolder
         /// </summary>
         public Boolean direction;
 
+        public UInt32 height;
+        public Boolean isRotated;
+
+        public Boolean isSingleSided;
+        public UInt32 length;
+        public Int32 position;
+
+        public MeshFace? previous;
+
         /// <summary>
         ///     The size of the face, in the units used by <see cref="PartialHeight" />.
         ///     Is referred to as the height of the face outside of this class.
@@ -451,15 +461,6 @@ public class MeshFaceHolder
         ///     This can be the height of a neighboring block.
         /// </summary>
         public Int32 skip;
-
-        public UInt32 height;
-        public UInt32 length;
-        public Int32 position;
-
-        public Boolean isSingleSided;
-        public Boolean isRotated;
-
-        public MeshFace? previous;
 
         #pragma warning disable S1067
         public Boolean IsExtendable(MeshFace extension)

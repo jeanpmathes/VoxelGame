@@ -18,15 +18,14 @@ namespace VoxelGame.UI.UserInterfaces;
 /// </summary>
 public class InGameUserInterface : UserInterface
 {
-    private InGameUI? control;
-
     private IConsoleProvider? consoleProvider;
-    private IPerformanceProvider? performanceProvider;
-    private IPlayerDataProvider? playerDataProvider;
-    private ICollection<SettingsProvider>? settingsProviders;
+    private InGameUI? control;
 
     private Boolean isActive;
     private Boolean isHidden;
+    private IPerformanceProvider? performanceProvider;
+    private IPlayerDataProvider? playerDataProvider;
+    private ICollection<SettingsProvider>? settingsProviders;
 
     /// <summary>
     ///     Creates a new game user interface.

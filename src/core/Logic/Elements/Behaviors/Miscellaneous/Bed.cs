@@ -18,18 +18,18 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Miscellaneous;
 
 /// <summary>
-/// Implements basic functionality for beds.
+///     Implements basic functionality for beds.
 /// </summary>
 public class Bed : BlockBehavior, IBehavior<Bed, BlockBehavior, Block>
 {
-    private readonly LateralRotatable rotatable;
     private readonly Composite composite;
-    
+    private readonly LateralRotatable rotatable;
+
     private Bed(Block subject) : base(subject)
     {
         rotatable = subject.Require<LateralRotatable>();
         composite = subject.Require<Composite>();
-        
+
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
     }
 
@@ -110,7 +110,7 @@ public class Bed : BlockBehavior, IBehavior<Bed, BlockBehavior, Block>
             new Vector3d(x: 0.5, y: 0.125, z: 0.5),
             legs);
     }
-    
+
     private void OnPlacementCompleted(Block.PlacementCompletedMessage message)
     {
         message.World.SpawnPosition = new Vector3d(message.Position.X, message.Position.Y + 1f, message.Position.Z);

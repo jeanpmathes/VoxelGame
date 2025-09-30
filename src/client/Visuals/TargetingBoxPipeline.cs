@@ -16,17 +16,17 @@ namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     A rendering pipeline for block targeting visualization based on the <see cref="BoxCollider" /> struct.
-///     Create a <see cref="TargetingBoxEffect"/> to use this pipeline.
+///     Create a <see cref="TargetingBoxEffect" /> to use this pipeline.
 /// </summary>
 public sealed class TargetingBoxPipeline : IDisposable
 {
+    private readonly ShaderBuffer<Data> buffer;
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly RasterPipeline pipeline;
-    private readonly ShaderBuffer<Data> buffer;
-    
-    private ColorS darkColor = ColorS.Black;
     private ColorS brightColor = ColorS.White;
     private Boolean colorsDirty = true;
+
+    private ColorS darkColor = ColorS.Black;
 
     private TargetingBoxPipeline(VoxelGame.Graphics.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
     {
@@ -34,6 +34,16 @@ public sealed class TargetingBoxPipeline : IDisposable
         this.pipeline = pipeline;
         this.buffer = buffer;
     }
+
+    #region DISPOSABLE
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose, but all pipelines should implement IDisposable.
+    }
+
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Create a new <see cref="TargetingBoxPipeline" />.
@@ -49,7 +59,7 @@ public sealed class TargetingBoxPipeline : IDisposable
     }
 
     /// <summary>
-    /// Create a new <see cref="TargetingBoxEffect"/> using this pipeline.
+    ///     Create a new <see cref="TargetingBoxEffect" /> using this pipeline.
     /// </summary>
     /// <returns>The created effect.</returns>
     public TargetingBoxEffect CreateEffect()
@@ -78,14 +88,14 @@ public sealed class TargetingBoxPipeline : IDisposable
     }
 
     /// <summary>
-    /// Update the data used by the pipeline.
+    ///     Update the data used by the pipeline.
     /// </summary>
     public void UpdateData()
     {
         if (!colorsDirty) return;
-        
+
         buffer.Data = new Data(darkColor.ToColor4(), brightColor.ToColor4());
-        
+
         colorsDirty = false;
     }
 
@@ -152,14 +162,4 @@ public sealed class TargetingBoxPipeline : IDisposable
             return !left.Equals(right);
         }
     }
-
-    #region DISPOSABLE
-    
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        // Nothing to dispose, but all pipelines should implement IDisposable.
-    }
-
-    #endregion DISPOSABLE
 }

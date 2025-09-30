@@ -36,7 +36,7 @@ internal class Int32Attribute(Int32 min, Int32 max) : AttributeImplementation<In
     {
         return state.Get(this);
     }
-    
+
     public override State SetValues(State state, JsonNode values)
     {
         return state.With(this, values.GetValue<Int32>());

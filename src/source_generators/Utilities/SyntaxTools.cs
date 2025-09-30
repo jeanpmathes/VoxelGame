@@ -12,47 +12,47 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
-/// Helps with working with syntax nodes.
+///     Helps with working with syntax nodes.
 /// </summary>
 public static class SyntaxTools
 {
     /// <summary>
-    /// Determine the namespace a type declaration is contained in.
+    ///     Determine the namespace a type declaration is contained in.
     /// </summary>
     /// <param name="node">The type declaration syntax node.</param>
     /// <returns>The namespace the type is contained in, or an empty string if it is in the global namespace.</returns>
     public static String GetNamespace(BaseTypeDeclarationSyntax node)
     {
         var @namespace = "";
-        
+
         SyntaxNode? potentialNamespaceParent = node.Parent;
-        
-        while (potentialNamespaceParent != null 
-               && potentialNamespaceParent is not NamespaceDeclarationSyntax 
+
+        while (potentialNamespaceParent != null
+               && potentialNamespaceParent is not NamespaceDeclarationSyntax
                && potentialNamespaceParent is not FileScopedNamespaceDeclarationSyntax)
         {
             potentialNamespaceParent = potentialNamespaceParent.Parent;
         }
 
-        if (potentialNamespaceParent is not BaseNamespaceDeclarationSyntax namespaceParent) 
+        if (potentialNamespaceParent is not BaseNamespaceDeclarationSyntax namespaceParent)
             return @namespace;
-        
+
         @namespace = namespaceParent.Name.ToString();
-        
+
         while (true)
         {
             if (namespaceParent.Parent is not NamespaceDeclarationSyntax parent)
                 break;
-            
+
             @namespace = $"{namespaceParent.Name}.{@namespace}";
             namespaceParent = parent;
         }
-        
+
         return @namespace;
     }
-    
+
     /// <summary>
-    /// Get the namespace a member declaration is contained in.
+    ///     Get the namespace a member declaration is contained in.
     /// </summary>
     /// <param name="node">The member declaration syntax node.</param>
     /// <returns>The namespace the member is contained in, or an empty string if it is in the global namespace.</returns>
@@ -60,10 +60,10 @@ public static class SyntaxTools
     {
         return node.Parent is TypeDeclarationSyntax typeDeclaration ? GetNamespace(typeDeclaration) : "";
     }
-    
+
     /// <summary>
-    /// Get the containing type chain of a type declaration.
-    /// This does not include the passed type itself.
+    ///     Get the containing type chain of a type declaration.
+    ///     This does not include the passed type itself.
     /// </summary>
     /// <param name="node">The type declaration syntax node.</param>
     /// <param name="semanticModel">The semantic model to use for symbol information.</param>
@@ -74,7 +74,7 @@ public static class SyntaxTools
     }
 
     /// <summary>
-    /// Get the containing type chain of a member declaration.
+    ///     Get the containing type chain of a member declaration.
     /// </summary>
     /// <param name="node">The member declaration syntax node.</param>
     /// <param name="semanticModel">The semantic model to use for symbol information.</param>
@@ -88,13 +88,13 @@ public static class SyntaxTools
     {
         var parentSyntax = node.Parent as TypeDeclarationSyntax;
         ContainingType? containingInfo = first != null ? CreateContainingType(first, child: null, semanticModel) : null;
-        
+
         while (parentSyntax?.Kind() is SyntaxKind.ClassDeclaration or SyntaxKind.StructDeclaration or SyntaxKind.RecordDeclaration)
         {
             containingInfo = CreateContainingType(parentSyntax, containingInfo, semanticModel);
             parentSyntax = parentSyntax.Parent as TypeDeclarationSyntax;
         }
-        
+
         return containingInfo;
     }
 
@@ -102,7 +102,7 @@ public static class SyntaxTools
     {
         return new ContainingType(
             SyntaxFacts.GetText(semanticModel.GetDeclaredSymbol(node)?.DeclaredAccessibility ?? Accessibility.NotApplicable),
-            keyword: node.Keyword.ValueText,
+            node.Keyword.ValueText,
             node.Identifier.ToString(),
             node.TypeParameterList?.ToString(),
             node.ConstraintClauses.ToString(),

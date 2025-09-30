@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis;
 namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
-/// Wraps an integer constant for comparison, e.g. for enum values.
+///     Wraps an integer constant for comparison, e.g. for enum values.
 /// </summary>
 public readonly struct IntegerConstant : IEquatable<IntegerConstant>
 {
@@ -26,18 +26,18 @@ public readonly struct IntegerConstant : IEquatable<IntegerConstant>
     }
 
     /// <summary>
-    /// Whether the value is a flag value, meaning it is a power of two or zero.
+    ///     Whether the value is a flag value, meaning it is a power of two or zero.
     /// </summary>
     public Boolean IsFlag => isUnsigned
         ? (unsignedData & unsignedData - 1) == 0
         : (signedData & signedData - 1) == 0;
 
     /// <summary>
-    /// Creates an <see cref="IntegerConstant"/> from the given underlying type and value.
+    ///     Creates an <see cref="IntegerConstant" /> from the given underlying type and value.
     /// </summary>
     /// <param name="underlying">The underlying type of the enum.</param>
     /// <param name="value">The value of the enum.</param>
-    /// <returns>>The created <see cref="IntegerConstant"/>.</returns>
+    /// <returns>>The created <see cref="IntegerConstant" />.</returns>
     public static IntegerConstant From(ITypeSymbol? underlying, Object value)
     {
         SpecialType st = (underlying as INamedTypeSymbol)?.SpecialType ?? SpecialType.System_Int32;
@@ -60,11 +60,15 @@ public readonly struct IntegerConstant : IEquatable<IntegerConstant>
 
     /// <inheritdoc />
     public Boolean Equals(IntegerConstant other)
-        => isUnsigned == other.isUnsigned && (isUnsigned ? unsignedData == other.unsignedData : signedData == other.signedData);
+    {
+        return isUnsigned == other.isUnsigned && (isUnsigned ? unsignedData == other.unsignedData : signedData == other.signedData);
+    }
 
     /// <inheritdoc />
-    public override Boolean Equals(Object? obj) 
-        => obj is IntegerConstant o && Equals(o);
+    public override Boolean Equals(Object? obj)
+    {
+        return obj is IntegerConstant o && Equals(o);
+    }
 
     /// <inheritdoc />
     public override Int32 GetHashCode()
@@ -74,21 +78,26 @@ public readonly struct IntegerConstant : IEquatable<IntegerConstant>
             Int32 hashCode = isUnsigned.GetHashCode();
             hashCode = hashCode * 397 ^ unsignedData.GetHashCode();
             hashCode = hashCode * 397 ^ signedData.GetHashCode();
+
             return hashCode;
         }
     }
-    
+
     /// <summary>
-    /// Equality operator.
+    ///     Equality operator.
     /// </summary>
     public static Boolean operator ==(IntegerConstant left, IntegerConstant right)
-        => left.Equals(right);
-    
+    {
+        return left.Equals(right);
+    }
+
     /// <summary>
-    /// Inequality operator.
+    ///     Inequality operator.
     /// </summary>
     public static Boolean operator !=(IntegerConstant left, IntegerConstant right)
-        => !left.Equals(right);
+    {
+        return !left.Equals(right);
+    }
 
     #endregion EQUALITY
 }

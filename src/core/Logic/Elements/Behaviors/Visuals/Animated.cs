@@ -10,7 +10,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
 /// <summary>
-/// Makes a block use animated textures.
+///     Makes a block use animated textures.
 /// </summary>
 public class Animated : BlockBehavior, IBehavior<Animated, BlockBehavior, Block>
 {
@@ -18,8 +18,8 @@ public class Animated : BlockBehavior, IBehavior<Animated, BlockBehavior, Block>
     {
         subject.Require<Meshed>().IsAnimated.ContributeConstant(value: true);
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Animated Construct(Block input)
     {
         return new Animated(input);

@@ -17,31 +17,31 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
 /// <summary>
-/// For <see cref="Complex"/> blocks which use the predefined flat mesh.
+///     For <see cref="Complex" /> blocks which use the predefined flat mesh.
 /// </summary>
 public class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Block>
 {
     private readonly Sided siding;
     private readonly SingleTextured texture;
-    
+
     private FlatModel(Block subject) : base(subject)
     {
         siding = subject.Require<Sided>();
         texture = subject.Require<SingleTextured>();
-        
+
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
-        
+
         WidthInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(WidthInitializer), this);
     }
 
     /// <summary>
-    /// The width of the flat model, mainly used for collision.
+    ///     The width of the flat model, mainly used for collision.
     /// </summary>
     public Double Width { get; private set; } = 1.0;
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="Width"/> property.
+    ///     Aspect used to initialize the <see cref="Width" /> property.
     /// </summary>
     public Aspect<Double, Block> WidthInitializer { get; }
 
@@ -60,16 +60,17 @@ public class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Bloc
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Sides sides = siding.GetSides(state);
+
         return BoundingVolume.FlatBlock(sides, Width, depth: 0.1);
     }
-    
+
     private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
         (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider _, VisualConfiguration _) = context; // todo: create struct for this tuple
 
         Sides sides = siding.GetSides(state);
         Int32 textureIndex = texture.GetTextureIndex(state, textureIndexProvider, isBlock: true);
-        
+
         return BlockMeshes.CreateFlatModel(
             sides,
             offset: 0.01f,

@@ -10,7 +10,8 @@ using VoxelGame.Core.Serialization;
 namespace VoxelGame.Core.Collections;
 
 /// <summary>
-///     A world object that can receive updates, used by the <see cref="ScheduledUpdateManager{T,TMaxScheduledUpdatesPerLogicUpdate}"/>.
+///     A world object that can receive updates, used by the
+///     <see cref="ScheduledUpdateManager{T,TMaxScheduledUpdatesPerLogicUpdate}" />.
 /// </summary>
 public interface IUpdateable : IValue
 {

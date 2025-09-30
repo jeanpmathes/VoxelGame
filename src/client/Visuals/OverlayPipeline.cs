@@ -19,30 +19,31 @@ namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     A pipeline for rendering overlay textures. Any block or fluid texture can be used as an overlay.
-///     This is a direct pipeline, meaning no instance objects are created and only a single overlay can be rendered at a time.
+///     This is a direct pipeline, meaning no instance objects are created and only a single overlay can be rendered at a
+///     time.
 /// </summary>
 public sealed class OverlayPipeline : IDisposable
 {
     private const Int32 BlockMode = 0;
     private const Int32 FluidMode = 1;
-    
+
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
     private readonly (TextureArray block, TextureArray fluid) textures;
-    
-    private Boolean isAnimated;
-    private Single lowerBound;
-    private Single upperBound;
-    private Int32 textureID;
+
+    private IDisposable? disposable;
     private Int32 firstFluidTextureID;
+
+    private Boolean isAnimated;
     private Boolean isTextureInitialized;
     private Boolean isVertexBufferUploaded;
-    private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
-    
+    private Single lowerBound;
+
     private Int32 mode = BlockMode;
+    private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
+    private Int32 textureID;
     private ColorS tint = ColorS.None;
-    
-    private IDisposable? disposable;
+    private Single upperBound;
 
     private OverlayPipeline(VoxelGame.Graphics.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
     {
@@ -52,7 +53,7 @@ public sealed class OverlayPipeline : IDisposable
     }
 
     /// <summary>
-    /// Whether rendering of the overlay is enabled.
+    ///     Whether rendering of the overlay is enabled.
     /// </summary>
     public Boolean IsEnabled { get; set; }
 
@@ -126,7 +127,7 @@ public sealed class OverlayPipeline : IDisposable
     }
 
     /// <summary>
-    /// Perform the logic update for the overlay pipeline.
+    ///     Perform the logic update for the overlay pipeline.
     /// </summary>
     public void LogicUpdate()
     {
@@ -268,26 +269,26 @@ public sealed class OverlayPipeline : IDisposable
     #region DISPOSABLE
 
     private Boolean disposed;
-    
+
     private void Dispose(Boolean disposing)
     {
         if (disposed) return;
 
-        if (disposing) 
+        if (disposing)
             disposable?.Dispose();
 
         disposed = true;
     }
-    
+
     /// <inheritdoc />
     public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
-    
+
     /// <summary>
-    /// Finalizer.
+    ///     Finalizer.
     /// </summary>
     ~OverlayPipeline()
     {

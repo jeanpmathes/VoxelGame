@@ -27,9 +27,7 @@ public partial class Graphics
 
     private Engine? engine;
 
-    private Graphics()
-    {
-    }
+    private Graphics() {}
 
     /// <summary>
     ///     Get the active instance controlling the graphics.

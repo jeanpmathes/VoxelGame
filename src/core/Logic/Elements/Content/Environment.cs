@@ -21,7 +21,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// These blocks make up most of the environment and thus are essential for world generation.
+///     These blocks make up most of the environment and thus are essential for world generation.
 /// </summary>
 public class Environment(BlockBuilder builder) : Category(builder)
 {
@@ -36,7 +36,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<NeutralTint>()
         .WithBehavior<Grass>()
         .Complete();
-    
+
     /// <summary>
     ///     Soil covered with ash. Water can wash the ash away.
     /// </summary>
@@ -46,7 +46,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<WashableCoveredSoil>()
         .WithBehavior<GrassSpreadable>()
         .Complete();
-    
+
     /// <summary>
     ///     Simple soil. Grass next to it can spread over it.
     /// </summary>
@@ -58,7 +58,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Soil>()
         .WithBehavior<GrassSpreadable>()
         .Complete();
-    
+
     /// <summary>
     ///     Mud is created when water and soil mix.
     /// </summary>
@@ -68,7 +68,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Mud>()
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.1))
         .Complete();
-    
+
     /// <summary>
     ///     Mud, but dried out and cracked.
     /// </summary>
@@ -76,7 +76,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildSimpleBlock(nameof(CrackedDriedMud), Language.CrackedDriedMud)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("mud_cracked")))
         .Complete();
-    
+
     /// <summary>
     ///     Peat is naturally created from organic matter and can be found in bogs.
     /// </summary>
@@ -86,7 +86,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Mud>()
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.1))
         .Complete();
-    
+
     /// <summary>
     ///     Tilled soil that allows many plants to grow.
     ///     While plants can also grow on normal soil, this block allows full growth.
@@ -100,7 +100,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<CoveredSoil>()
         .WithBehavior<Plantable>(plantable => plantable.SupportsFullGrowthInitializer.ContributeConstant(value: true))
         .Complete();
-    
+
     /// <summary>
     ///     Clay is found beneath the ground and blocks groundwater flow.
     /// </summary>
@@ -108,7 +108,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildSimpleBlock(nameof(Clay), Language.Clay)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("clay")))
         .Complete();
-    
+
     /// <summary>
     ///     Permafrost is a type of soil that is frozen solid.
     /// </summary>
@@ -116,7 +116,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildSimpleBlock(nameof(Permafrost), Language.Permafrost)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("permafrost")))
         .Complete();
-    
+
     /// <summary>
     ///     The path is a soil block with its top layer trampled.
     /// </summary>
@@ -129,17 +129,17 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<CoveredSoil>()
         .WithBehavior<Plantable>()
         .Complete();
-    
+
     /// <summary>
     ///     Sand naturally forms and allows water to flow through it.
     /// </summary>
-    public Block Sand { get; } = builder  
+    public Block Sand { get; } = builder
         .BuildSimpleBlock(nameof(Sand), Language.Sand)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("sand")))
         .WithWetTint()
         .WithBehavior<Loose>()
         .Complete();
-    
+
     /// <summary>
     ///     Gravel, which is made out of small pebbles, allows water to flow through it.
     /// </summary>
@@ -149,7 +149,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithWetTint()
         .WithBehavior<Loose>()
         .Complete();
-    
+
     /// <summary>
     ///     A tall grassy plant. Fluids will destroy it if the level is too high.
     /// </summary>
@@ -161,7 +161,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
         .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
         .Complete();
-    
+
     /// <summary>
     ///     A somewhat taller version of the normal tall grass.
     /// </summary>
@@ -173,7 +173,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
         .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
         .Complete();
-    
+
     /// <summary>
     ///     An even taller version of the normal tall grass.
     ///     Truly the tallest grass in the game.
@@ -185,7 +185,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<DoubleCrossPlant>()
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Five))
         .Complete();
-    
+
     /// <summary>
     ///     Snow covers the ground and can have different heights.
     /// </summary>
@@ -198,7 +198,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Densifying>()
         .WithBehavior<DestroyOnFluid>()
         .Complete();
-    
+
     /// <summary>
     ///     Loose snow allows entities to sink into it.
     /// </summary>
@@ -213,7 +213,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.01))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
         .Complete();
-    
+
     /// <summary>
     ///     A block made out of frozen water.
     /// </summary>
@@ -242,7 +242,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Fire>(fire => fire.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("fire_complete"), RID.File<BlockModel>("fire_side"), RID.File<BlockModel>("fire_top"))))
         .WithBehavior<DestroyOnLiquid>()
         .Complete();
-    
+
     /// <summary>
     ///     Roots grow at the bottom of trees.
     /// </summary>
@@ -252,7 +252,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Fillable>()
         .WithBehavior<Combustible>()
         .Complete();
-    
+
     /// <summary>
     ///     Salt is contained in seawater, it becomes usable after the water evaporates.
     /// </summary>

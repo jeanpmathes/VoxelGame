@@ -22,18 +22,17 @@ namespace VoxelGame.Core.Logic.Chunks;
 /// </summary>
 public sealed partial class ChunkSet : IDisposable
 {
-    private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
-
-    private readonly World world;
-    private readonly ChunkContext context;
-
     private readonly Bag<Chunk> active = new(null!);
+    private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
     private readonly Bag<Chunk> complete = new(null!);
+    private readonly ChunkContext context;
+    private readonly HashSet<Request> pendingReleases = [];
+
+    private readonly HashSet<Request> pendingRequests = [];
 
     private readonly RequestAlgorithm requests;
 
-    private readonly HashSet<Request> pendingRequests = [];
-    private readonly HashSet<Request> pendingReleases = [];
+    private readonly World world;
 
     /// <summary>
     ///     Create a new chunk set.

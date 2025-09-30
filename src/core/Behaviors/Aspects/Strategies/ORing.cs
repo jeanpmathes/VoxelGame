@@ -9,7 +9,7 @@ using System;
 namespace VoxelGame.Core.Behaviors.Aspects.Strategies;
 
 /// <summary>
-/// Combines contributions by ORing them together.
+///     Combines contributions by ORing them together.
 /// </summary>
 /// <typeparam name="TContext">The context in which the aspect is evaluated.</typeparam>
 public class ORing<TContext> : IContributionStrategy<Boolean, TContext>

@@ -10,7 +10,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 
 /// <summary>
-/// Applies a color tint to the layer.
+///     Applies a color tint to the layer.
 /// </summary>
 [UsedImplicitly]
 public class Colorize() : Modifier("colorize", [colorParameter])

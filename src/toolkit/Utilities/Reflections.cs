@@ -45,10 +45,10 @@ public static class Reflections
 
         return builder.ToString();
     }
-    
+
     /// <summary>
-    /// Get the long name of a type with an instance name.
-    /// Different from <see cref="Type.FullName" /> for generic types.
+    ///     Get the long name of a type with an instance name.
+    ///     Different from <see cref="Type.FullName" /> for generic types.
     /// </summary>
     /// <param name="type">The type.</param>
     /// <param name="instance">The instance name.</param>
@@ -57,9 +57,9 @@ public static class Reflections
     {
         return $"{GetLongName(type)}::{instance}";
     }
-    
+
     /// <summary>
-    /// Get the name of a type, handling generics and arrays properly.
+    ///     Get the name of a type, handling generics and arrays properly.
     /// </summary>
     /// <typeparam name="T">The type.</typeparam>
     /// <returns>The name of the type.</returns>
@@ -69,14 +69,14 @@ public static class Reflections
     }
 
     /// <summary>
-    /// Get the name of a type, handling generics and arrays properly.
+    ///     Get the name of a type, handling generics and arrays properly.
     /// </summary>
     /// <param name="type">The type.</param>
     /// <returns>The name of the type.</returns>
     public static String GetName(Type type)
     {
         StringBuilder builder = new();
-        
+
         if (type.IsGenericType)
         {
             String name = type.Name;
@@ -97,7 +97,7 @@ public static class Reflections
             if (type.IsArray)
                 builder.Append("[]");
         }
-        
+
         return builder.ToString();
     }
 

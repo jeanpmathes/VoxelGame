@@ -16,7 +16,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
 /// <summary>
-/// Glue behavior for plants that are made up of multiple parts.
+///     Glue behavior for plants that are made up of multiple parts.
 /// </summary>
 public class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBehavior, Block>
 {
@@ -40,22 +40,22 @@ public class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBeha
     private static Boolean GetIsPlacementAllowed(Boolean original, (World world, Vector3i position, Vector3i part, Actor? actor) context)
     {
         (World world, Vector3i position, Vector3i part, Actor? _) = context;
-        
+
         if (part.Y != 0) return true;
-        
+
         State? ground = world.GetBlock(position.Below());
-        
+
         return ground?.Block.Is<Plantable>() == true;
     }
-    
+
     private void OnNeighborUpdate(Composite.NeighborUpdateMessage message)
     {
         if (message.Part.Y != 0)
             return;
-        
+
         if (message.Side != Side.Bottom)
             return;
-        
+
         if (message.World.GetBlock(message.Position.Below())?.Block.Is<Plantable>() != true)
             Subject.Destroy(message.World, message.Position);
     }

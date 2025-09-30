@@ -18,11 +18,17 @@ namespace VoxelGame.Client.Scenes;
 /// </summary>
 public abstract class Scene(Application.Client client) : Composed<Scene, SceneComponent>
 {
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Scene>();
+
+    #endregion LOGGING
+
     /// <inheritdoc />
     protected override Scene Self => this;
-    
+
     /// <summary>
-    /// Get the client that this scene belongs to.
+    ///     Get the client that this scene belongs to.
     /// </summary>
     internal Application.Client Client { get; } = client;
 
@@ -32,7 +38,7 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     public void Load()
     {
         OnLoad();
-        
+
         foreach (SceneComponent component in Components)
         {
             component.OnLoad();
@@ -52,9 +58,9 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     public void LogicUpdate(Double deltaTime, Timer? timer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("Scene LogicUpdate", timer);
-        
+
         OnLogicUpdate(deltaTime, subTimer);
-        
+
         foreach (SceneComponent component in Components)
         {
             component.OnLogicUpdate(deltaTime, subTimer);
@@ -62,7 +68,7 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     }
 
     /// <summary>
-    /// Called each logic update cycle.
+    ///     Called each logic update cycle.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
@@ -76,15 +82,15 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     public void RenderUpdate(Double deltaTime, Timer? timer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("Scene RenderUpdate", timer);
-        
+
         OnRenderUpdate(deltaTime, subTimer);
-        
+
         foreach (SceneComponent component in Components)
         {
             component.OnRenderUpdate(deltaTime, subTimer);
         }
     }
-    
+
     /// <summary>
     ///     Called each render update cycle.
     /// </summary>
@@ -99,13 +105,13 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     public void Resize(Vector2i size)
     {
         OnResize(size);
-        
+
         foreach (SceneComponent component in Components)
         {
             component.OnResize(size);
         }
     }
-    
+
     /// <summary>
     ///     Handle a game resize.
     /// </summary>
@@ -118,13 +124,13 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     public void Unload()
     {
         OnUnload();
-        
+
         foreach (SceneComponent component in Components)
         {
             component.OnUnload();
         }
     }
-    
+
     /// <summary>
     ///     Called when the scene is unloaded.
     /// </summary>
@@ -134,10 +140,4 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     ///     Whether the window can be closed in this scene.
     /// </summary>
     public abstract Boolean CanCloseWindow();
-    
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<Scene>();
-
-    #endregion LOGGING
 }

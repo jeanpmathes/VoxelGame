@@ -19,18 +19,24 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-/// Controls the block / fluid overlay for the player.
+///     Controls the block / fluid overlay for the player.
 /// </summary>
 public class OverlayDisplay : ActorComponent, IConstructible<Player, Engine, OverlayDisplay>
 {
-    private readonly Player player;
     private readonly Engine engine;
-    
+    private readonly Player player;
+
     private OverlayDisplay(Player player, Engine engine) : base(player)
     {
         this.player = player;
         this.engine = engine;
     }
+
+    /// <summary>
+    ///     Whether overlay rendering (of block / fluid overlays) is allowed. Building overlay is still possible, but it will
+    ///     not be rendered.
+    /// </summary>
+    public Boolean IsEnabled { get; set; } = true;
 
     /// <inheritdoc />
     public static OverlayDisplay Construct(Player input1, Engine input2)
@@ -57,15 +63,10 @@ public class OverlayDisplay : ActorComponent, IConstructible<Player, Engine, Ove
         Frustum frustum = player.Camera.GetPartialFrustum(near: 0.0, player.Camera.Definition.Clipping.near);
 
         BuildOverlay(Raycast.CastFrustum(player.World, center, range: 1, frustum));
-        
+
         engine.OverlayPipeline.LogicUpdate();
     }
-    
-    /// <summary>
-    ///     Whether overlay rendering (of block / fluid overlays) is allowed. Building overlay is still possible, but it will not be rendered.
-    /// </summary>
-    public Boolean IsEnabled { get; set; } = true;
-    
+
     private void BuildOverlay(IEnumerable<(Content content, Vector3i position)> positions)
     {
         engine.OverlayPipeline.IsEnabled = false;

@@ -98,11 +98,7 @@ namespace nv_helpers_dx12
             std::vector<void*> inputData;
         };
 
-        uint32_t CopyShaderData(
-            ID3D12StateObjectProperties* raytracingPipeline,
-            uint8_t*                     outputData,
-            std::vector<SBTEntry> const& shaders,
-            uint32_t                     entrySize) const;
+        uint32_t CopyShaderData(ID3D12StateObjectProperties* raytracingPipeline, uint8_t* outputData, std::vector<SBTEntry> const& shaders, uint32_t entrySize) const;
 
         [[nodiscard]] uint32_t GetEntrySize(std::vector<SBTEntry> const& entries) const;
 

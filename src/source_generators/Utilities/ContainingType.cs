@@ -9,37 +9,37 @@ using System;
 namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
-/// Class to represent the containing type of declarations, able to handle nested types.
+///     Class to represent the containing type of declarations, able to handle nested types.
 /// </summary>
 public class ContainingType(String accessbility, String keyword, String name, String? typeParameters, String constraints, ContainingType? child)
 {
     /// <summary>
-    /// The child containing type, if any.
+    ///     The child containing type, if any.
     /// </summary>
     public ContainingType? Child { get; } = child;
-    
+
     /// <summary>
-    /// The accessibility of the containing type (e.g., "public", "internal", "private").
+    ///     The accessibility of the containing type (e.g., "public", "internal", "private").
     /// </summary>
     public String Accessibility { get; } = accessbility;
-    
+
     /// <summary>
-    /// The keyword of the containing type (e.g., "class", "struct", "record", "interface").
+    ///     The keyword of the containing type (e.g., "class", "struct", "record", "interface").
     /// </summary>
     public String Keyword { get; } = keyword;
-    
+
     /// <summary>
-    /// The name of the containing type.
+    ///     The name of the containing type.
     /// </summary>
     public String Name { get; } = name;
-    
+
     /// <summary>
-    /// The type parameters of the containing type, if any (including angle brackets).
+    ///     The type parameters of the containing type, if any (including angle brackets).
     /// </summary>
     public String? TypeParameters { get; } = typeParameters;
-    
+
     /// <summary>
-    /// The constraints of the containing type, if any.
+    ///     The constraints of the containing type, if any.
     /// </summary>
     public String Constraints { get; } = constraints;
 
@@ -48,7 +48,7 @@ public class ContainingType(String accessbility, String keyword, String name, St
     {
         if (obj is not ContainingType other)
             return false;
-        
+
         if (obj == this)
             return true;
 
@@ -66,11 +66,12 @@ public class ContainingType(String accessbility, String keyword, String name, St
         unchecked
         {
             Int32 hashCode = Accessibility.GetHashCode();
-            hashCode = (hashCode * 397) ^ Keyword.GetHashCode();
-            hashCode = (hashCode * 397) ^ Name.GetHashCode();
-            hashCode = (hashCode * 397) ^ (TypeParameters != null ? TypeParameters.GetHashCode() : 0);
-            hashCode = (hashCode * 397) ^ Constraints.GetHashCode();
-            hashCode = (hashCode * 397) ^ (Child != null ? Child.GetHashCode() : 0);
+            hashCode = hashCode * 397 ^ Keyword.GetHashCode();
+            hashCode = hashCode * 397 ^ Name.GetHashCode();
+            hashCode = hashCode * 397 ^ (TypeParameters != null ? TypeParameters.GetHashCode() : 0);
+            hashCode = hashCode * 397 ^ Constraints.GetHashCode();
+            hashCode = hashCode * 397 ^ (Child != null ? Child.GetHashCode() : 0);
+
             return hashCode;
         }
     }

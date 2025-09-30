@@ -39,7 +39,7 @@ public class ConcreteFluid : BasicFluid
         if (!isStatic) return;
 
         world.SetDefaultFluid(position);
-        
+
         Blocks.Instance.Construction.Concrete.Place(world, position); // todo: find a way to set the level of the concrete on placement, similar problem as with world gen and snow and such
     }
 }

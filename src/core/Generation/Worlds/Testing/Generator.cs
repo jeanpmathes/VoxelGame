@@ -20,8 +20,8 @@ namespace VoxelGame.Core.Generation.Worlds.Testing;
 /// </summary>
 public sealed class Generator : IWorldGenerator
 {
-    private readonly Content ground = new(Blocks.Instance.Core.Dev);
     private readonly Content empty = Content.Default;
+    private readonly Content ground = new(Blocks.Instance.Core.Dev);
 
     /// <inheritdoc />
     public IMap Map { get; } = new Map();

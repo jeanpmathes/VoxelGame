@@ -20,15 +20,14 @@ namespace VoxelGame.Graphics.Objects;
 [NativeMarshalling(typeof(CameraMarshaller))]
 public class Camera : NativeObject, IView
 {
+    private Boolean advancedDataDirty;
     private Double fovX = MathHelper.DegreesToRadians(degrees: 90.0);
     private Double fovY;
 
-    private Boolean advancedDataDirty;
-
     private Double pitch;
-    private Double yaw;
 
     private Vector3 preparedPosition = Vector3.Zero;
+    private Double yaw;
 
     /// <summary>
     ///     Create a new camera.

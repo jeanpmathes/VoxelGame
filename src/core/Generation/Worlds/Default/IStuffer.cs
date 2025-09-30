@@ -23,7 +23,7 @@ public interface IStuffer
     public Content GetContent(Temperature temperature);
 
     /// <summary>
-    /// Simply stuffs with ice.
+    ///     Simply stuffs with ice.
     /// </summary>
     public sealed class Ice : IStuffer
     {
@@ -41,8 +41,8 @@ public interface IStuffer
     /// </summary>
     public sealed class Water : IStuffer
     {
-        private readonly Content water = new(Content.DefaultState, Fluids.Instance.FreshWater.AsInstance());
         private readonly Content ice = new(Blocks.Instance.Environment.Ice.States.GenerationDefault, FluidInstance.Default); // todo: check that state is with correct height or find a way to pass it to there, similar problem as with snow in cover
+        private readonly Content water = new(Content.DefaultState, Fluids.Instance.FreshWater.AsInstance());
 
         /// <inheritdoc />
         public Content GetContent(Temperature temperature)

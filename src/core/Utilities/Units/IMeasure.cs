@@ -19,7 +19,7 @@ public interface IMeasure
     static abstract Unit Unit { get; }
 
     /// <summary>
-    /// All allowed prefixes for the measure.
+    ///     All allowed prefixes for the measure.
     /// </summary>
     static abstract Prefix.AllowedPrefixes Prefixes { get; }
 

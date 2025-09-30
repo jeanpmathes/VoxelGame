@@ -21,9 +21,9 @@ namespace VoxelGame.Client.Visuals.Textures;
 public sealed class TextureBundleLoader : IResourceLoader
 {
     private readonly RID identifier;
-    private readonly Int32 resolution;
     private readonly Int32 maxTextures;
     private readonly Image.MipmapAlgorithm mipmap;
+    private readonly Int32 resolution;
 
     private readonly List<DirectoryInfo> sources = [];
 
@@ -39,7 +39,7 @@ public sealed class TextureBundleLoader : IResourceLoader
     /// <param name="mipmap">The mipmap algorithm to use for the textures.</param>
     public TextureBundleLoader(RID identifier, Int32 resolution, Int32 maxTextures, Image.MipmapAlgorithm mipmap)
     {
-        Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
+        Debug.Assert(resolution > 0 && (resolution & resolution - 1) == 0);
 
         this.identifier = identifier;
         this.resolution = resolution;
@@ -61,7 +61,7 @@ public sealed class TextureBundleLoader : IResourceLoader
     }
 
     /// <summary>
-    /// Add a source directory to the texture bundle loader.
+    ///     Add a source directory to the texture bundle loader.
     /// </summary>
     /// <param name="directory">The source directory to add.</param>
     public void AddSource(DirectoryInfo directory)

@@ -21,52 +21,52 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
 /// <summary>
-/// A variant of a <see cref="Pipe"/> that only connects to other pipes in a straight line.
+///     A variant of a <see cref="Pipe" /> that only connects to other pipes in a straight line.
 /// </summary>
 public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior, Block>
 {
     private readonly Piped piped;
     private readonly AxisRotatable rotation;
-    
+
     private StraightPipe(Block subject) : base(subject)
     {
         rotation = subject.Require<AxisRotatable>();
         piped = subject.Require<Piped>();
-        
+
         piped.IsConnectionAllowed.ContributeFunction(GetIsConnectionAllowed);
-        
+
         subject.Require<Pipe>().OpenSides.ContributeFunction(GetOpenSides);
-        
+
         subject.Require<Modelled>().Model.ContributeFunction(GetModel);
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-        
+
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static StraightPipe Construct(Block input)
     {
         return new StraightPipe(input);
     }
-    
+
     private Boolean GetIsConnectionAllowed(Boolean original, (State state, Side side) context)
     {
         (State state, Side side) = context;
-        
+
         return rotation.GetAxis(state) == side.Axis();
     }
-    
+
     private Sides GetOpenSides(Sides original, State state)
     {
         return rotation.GetAxis(state).Sides();
     }
-    
+
     private BlockModel GetModel(BlockModel original, State state)
     {
         (BlockModel x, BlockModel y, BlockModel z) = original.CreateAllAxis(); // todo: only create the one needed
-        
+
         Axis axis = rotation.GetAxis(state);
-        
+
         return axis switch
         {
             Axis.X => x,
@@ -75,16 +75,16 @@ public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior
             _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Double diameter = Piped.GetPipeDiameter(piped.Tier);
-        
+
         Axis axis = rotation.GetAxis(state);
 
         return new BoundingVolume(new Vector3d(x: 0.5, y: 0.5, z: 0.5), axis.Vector3(onAxis: 0.5, diameter));
     }
-    
+
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
     {
         (World _, Vector3i _, Actor? actor) = context;

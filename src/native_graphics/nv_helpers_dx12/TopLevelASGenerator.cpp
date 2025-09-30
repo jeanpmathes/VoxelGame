@@ -68,10 +68,7 @@ namespace nv_helpers_dx12
         UINT const                            instanceID,
         UINT const                            hitGroupIndex,
         BYTE const                            inclusionMask,
-        D3D12_RAYTRACING_INSTANCE_FLAGS const flags)
-    {
-        m_instances.emplace_back(bottomLevelAS, transform, instanceID, hitGroupIndex, inclusionMask, flags);
-    }
+        D3D12_RAYTRACING_INSTANCE_FLAGS const flags) { m_instances.emplace_back(bottomLevelAS, transform, instanceID, hitGroupIndex, inclusionMask, flags); }
 
     void TopLevelASGenerator::ComputeASBufferSizes(
         ComPtr<ID3D12Device5> const& device,
@@ -80,35 +77,27 @@ namespace nv_helpers_dx12
         UINT64*                      resultSizeInBytes,
         UINT64*                      descriptorsSizeInBytes)
     {
-        m_flags = allowUpdate
-                      ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
-                      : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        m_flags = allowUpdate ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc = {};
-        prebuildDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
-        prebuildDesc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
-        prebuildDesc.NumDescs = static_cast<UINT>(m_instances.size());
-        prebuildDesc.Flags = m_flags;
+        prebuildDesc.Type                                                 = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
+        prebuildDesc.DescsLayout                                          = D3D12_ELEMENTS_LAYOUT_ARRAY;
+        prebuildDesc.NumDescs                                             = static_cast<UINT>(m_instances.size());
+        prebuildDesc.Flags                                                = m_flags;
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info = {};
 
         device->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildDesc, &info);
 
-        info.ResultDataMaxSizeInBytes = RoundUp(
-            info.ResultDataMaxSizeInBytes,
-            D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-        info.ScratchDataSizeInBytes = RoundUp(
-            info.ScratchDataSizeInBytes,
-            D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        info.ResultDataMaxSizeInBytes = RoundUp(info.ResultDataMaxSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        info.ScratchDataSizeInBytes   = RoundUp(info.ScratchDataSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
         m_resultSizeInBytes               = info.ResultDataMaxSizeInBytes;
         m_scratchSizeInBytes              = info.ScratchDataSizeInBytes;
-        m_instanceDescriptionsSizeInBytes = RoundUp(
-            sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_instances.size(),
-            D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        m_instanceDescriptionsSizeInBytes = RoundUp(sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_instances.size(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-        if (m_instanceDescriptionsSizeInBytes == 0) m_instanceDescriptionsSizeInBytes =
-            D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
+        if (m_instanceDescriptionsSizeInBytes == 0)
+            m_instanceDescriptionsSizeInBytes = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
 
         *scratchSizeInBytes     = m_scratchSizeInBytes;
         *resultSizeInBytes      = m_resultSizeInBytes;
@@ -126,10 +115,7 @@ namespace nv_helpers_dx12
         constexpr D3D12_RANGE none = {0, 0};
 
         D3D12_RAYTRACING_INSTANCE_DESC* instanceDescription;
-        if (HRESULT const ok = descriptorsBuffer.resource->Map(
-                0,
-                &none,
-                reinterpret_cast<void**>(&instanceDescription));
+        if (HRESULT const ok = descriptorsBuffer.resource->Map(0, &none, reinterpret_cast<void**>(&instanceDescription));
             FAILED(ok) || !instanceDescription)
             throw std::logic_error("Cannot map the instance descriptor buffer - is it in the upload heap?");
 
@@ -154,14 +140,12 @@ namespace nv_helpers_dx12
 
         descriptorsBuffer.resource->Unmap(0, nullptr);
 
-        D3D12_GPU_VIRTUAL_ADDRESS const sourceAS = updateOnly
-                                                       ? previousResult.GetGPUVirtualAddress<ID3D12Resource>()
-                                                       : 0;
+        D3D12_GPU_VIRTUAL_ADDRESS const sourceAS = updateOnly ? previousResult.GetGPUVirtualAddress<ID3D12Resource>() : 0;
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
 
-        if (flags == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly) flags =
-            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+        if (flags == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly)
+            flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
 
         flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
 

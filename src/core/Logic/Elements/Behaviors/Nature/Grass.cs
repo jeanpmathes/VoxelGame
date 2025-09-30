@@ -15,7 +15,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// A special soil cover that spreads to blocks which are <see cref="GrassSpreadable"/>.
+///     A special soil cover that spreads to blocks which are <see cref="GrassSpreadable" />.
 /// </summary>
 public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
 {
@@ -24,20 +24,20 @@ public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
         subject.Require<CoveredSoil>();
         subject.Require<Combustible>();
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Grass Construct(Block input)
     {
         return new Grass(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.RandomUpdateMessage>(OnRandomUpdate);
         bus.Subscribe<Combustible.BurnMessage>(OnBurn);
     }
-    
+
     private void OnRandomUpdate(Block.RandomUpdateMessage message)
     {
         for (Int32 yOffset = -1; yOffset <= 1; yOffset++)
@@ -49,7 +49,7 @@ public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
                     spreadable.SpreadGrass(message.World, position, Subject);
             }
     }
-    
+
     private static void OnBurn(Combustible.BurnMessage message)
     {
         message.World.SetBlock(new State(Blocks.Instance.Environment.AshCoveredSoil), message.Position);

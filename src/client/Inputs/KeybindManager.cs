@@ -23,17 +23,16 @@ namespace VoxelGame.Client.Inputs;
 
 internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 {
+    private readonly IDisposable binding;
     private readonly Dictionary<Keybind, Button> keybinds = new();
 
     private readonly Dictionary<Keybind, PushButton> pushButtons = new();
+
+    private readonly List<Setting> settings = [];
     private readonly Dictionary<Keybind, SimpleButton> simpleButtons = new();
     private readonly Dictionary<Keybind, ToggleButton> toggleButtons = new();
 
     private readonly KeyMap usageMap = new();
-
-    private readonly List<Setting> settings = [];
-
-    private readonly IDisposable binding;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="KeybindManager" /> class.

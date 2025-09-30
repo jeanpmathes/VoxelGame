@@ -54,17 +54,17 @@ public abstract class Command : ICommand
     }
 
     /// <summary>
-    /// Get the previous position of the player, e.g. before a teleportation.
-    /// This is only set by the command system, so normal movement does not change it.
+    ///     Get the previous position of the player, e.g. before a teleportation.
+    ///     This is only set by the command system, so normal movement does not change it.
     /// </summary>
     /// <returns>The previous position, or spawn position if not set.</returns>
     private Vector3d? GetPreviousPlayerPosition()
     {
         return Context.Player.GetComponent<PreviousPosition>()?.Value ?? Context.Player.World.SpawnPosition;
     }
-    
+
     /// <summary>
-    /// Set the previous position of the player, e.g. before a teleportation.
+    ///     Set the previous position of the player, e.g. before a teleportation.
     /// </summary>
     /// <param name="position">The position to set as previous.</param>
     public void SetPreviousPlayerPosition(Vector3d position)

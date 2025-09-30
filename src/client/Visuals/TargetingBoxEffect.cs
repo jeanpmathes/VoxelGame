@@ -14,13 +14,13 @@ using VoxelGame.Graphics.Objects;
 namespace VoxelGame.Client.Visuals;
 
 /// <summary>
-/// A rendering effect for visualizing targeting boxes in the world.
+///     A rendering effect for visualizing targeting boxes in the world.
 /// </summary>
 public sealed class TargetingBoxEffect : IDisposable
 {
     private readonly Effect effect;
     private readonly TargetingBoxPipeline pipeline;
-    
+
     private BoxCollider? currentBox;
 
     internal TargetingBoxEffect(Effect effect, TargetingBoxPipeline pipeline)
@@ -30,15 +30,15 @@ public sealed class TargetingBoxEffect : IDisposable
     }
 
     /// <summary>
-    /// Get or set whether the effect is enabled.
+    ///     Get or set whether the effect is enabled.
     /// </summary>
     public Boolean IsEnabled
     {
         get => effect.IsEnabled;
         set => effect.IsEnabled = value;
     }
-    
-        /// <summary>
+
+    /// <summary>
     ///     Set the box collider to display.
     /// </summary>
     /// <param name="boxCollider">The box collider to display.</param>
@@ -87,7 +87,7 @@ public sealed class TargetingBoxEffect : IDisposable
         AddLine(vertices, (minX, minY, maxZ), (minX, maxY, maxZ));
         AddLine(vertices, (maxX, minY, maxZ), (maxX, maxY, maxZ));
     }
-    
+
 #pragma warning disable S3242 // Concrete type used for performance.
     private static void AddLine(PooledList<EffectVertex> vertices, Vector3 a, Vector3 b)
 #pragma warning restore S3242
@@ -95,27 +95,27 @@ public sealed class TargetingBoxEffect : IDisposable
         vertices.Add(new EffectVertex {Position = a, Data = 0});
         vertices.Add(new EffectVertex {Position = b, Data = 0});
     }
-    
+
     /// <summary>
-    /// Call on every logic update.
+    ///     Call on every logic update.
     /// </summary>
     public void LogicUpdate()
     {
         pipeline.UpdateData();
     }
-    
+
     #region DISPOSABLE
 
     private Boolean disposed;
-    
+
     private void Dispose(Boolean disposing)
     {
         if (disposed)
             return;
-        
+
         if (disposing)
             effect.Dispose();
-        
+
         disposed = true;
     }
 
@@ -127,12 +127,12 @@ public sealed class TargetingBoxEffect : IDisposable
     }
 
     /// <summary>
-    /// Finalizer.
+    ///     Finalizer.
     /// </summary>
     ~TargetingBoxEffect()
     {
         Dispose(disposing: false);
     }
-    
+
     #endregion DISPOSABLE
 }

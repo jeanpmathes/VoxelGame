@@ -10,33 +10,35 @@ using System.Text;
 namespace VoxelGame.SourceGenerators.Utilities;
 
 /// <summary>
-/// Tools to help working with names.
+///     Tools to help working with names.
 /// </summary>
 public static class NameTools
 {
     /// <summary>
-    /// Sanitize a string so it can be used for IO, e.g. as file name.
+    ///     Sanitize a string so it can be used for IO, e.g. as file name.
     /// </summary>
     /// <param name="str">The string to sanitize.</param>
     /// <returns>The sanitized string.</returns>
     public static String SanitizeForIO(String str)
     {
         StringBuilder sb = new();
-        
+
         var skip = 0;
-        
+
         const String globalPrefix = "global::";
+
         if (str.StartsWith(globalPrefix, StringComparison.Ordinal))
             skip = globalPrefix.Length;
-        
+
         foreach (Char c in str)
         {
             if (skip > 0)
             {
                 skip -= 1;
+
                 continue;
             }
-            
+
             if (Char.IsLetterOrDigit(c) || c is '-' or '.' or '_')
             {
                 sb.Append(c);
@@ -46,20 +48,22 @@ public static class NameTools
                 sb.Append('_');
             }
         }
-        
+
         return sb.ToString();
     }
-    
+
     /// <summary>
-    /// Sanitize a string so it can be used in XML documentation references.
+    ///     Sanitize a string so it can be used in XML documentation references.
     /// </summary>
     /// <param name="str">The string to sanitize.</param>
     /// <returns>The sanitized string.</returns>
     public static String SanitizeForDocumentationReference(String str)
-        => str.Replace(oldChar: '<', newChar: '{').Replace(oldChar: '>', newChar: '}');
-    
+    {
+        return str.Replace(oldChar: '<', newChar: '{').Replace(oldChar: '>', newChar: '}');
+    }
+
     /// <summary>
-    /// Convert a <c>PascalCase</c> string to <c>camelCase</c>.
+    ///     Convert a <c>PascalCase</c> string to <c>camelCase</c>.
     /// </summary>
     /// <param name="str">The string to convert.</param>
     /// <returns>The converted string.</returns>
@@ -67,10 +71,10 @@ public static class NameTools
     {
         if (String.IsNullOrEmpty(str) || Char.IsLower(str, index: 0))
             return str;
-        
+
         if (str.Length == 1)
             return str.ToLowerInvariant();
-        
+
         return Char.ToLowerInvariant(str[0]) + str.Substring(startIndex: 1);
     }
 }

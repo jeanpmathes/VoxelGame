@@ -12,46 +12,46 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Siding;
 
 /// <summary>
-/// Behavior for <see cref="Sided"/> blocks that can have multiple main or front sides at once, and store them in the block state.
+///     Behavior for <see cref="Sided" /> blocks that can have multiple main or front sides at once, and store them in the
+///     block state.
 /// </summary>
 public partial class StoredMultiSided : BlockBehavior, IBehavior<StoredMultiSided, BlockBehavior, Block>
 {
-    [LateInitialization]
-    private partial IAttribute<Sides> Sides { get; set; }
-    
     private StoredMultiSided(Block subject) : base(subject)
     {
         var sided = subject.Require<Sided>();
         sided.Sides.ContributeFunction(GetSides);
         sided.SidedState.ContributeFunction(GetSidedState);
     }
-    
-    /// <inheritdoc/>
+
+    [LateInitialization] private partial IAttribute<Sides> Sides { get; set; }
+
+    /// <inheritdoc />
     public static StoredMultiSided Construct(Block input)
     {
         return new StoredMultiSided(input);
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
         Sides = builder.Define(nameof(Sides)).Flags<Sides>().Attribute();
     }
-    
+
     private Sides GetSides(Sides original, State state)
     {
         return GetSides(state);
     }
-    
+
     private State? GetSidedState(State? original, (State state, Sides sides) context)
     {
         (State state, Sides newSides) = context;
-        
+
         return SetSides(state, newSides);
     }
-    
+
     /// <summary>
-    /// Get the current sides of the block in the given state.
+    ///     Get the current sides of the block in the given state.
     /// </summary>
     /// <param name="state">The state to get the sides from.</param>
     /// <returns>The sides of the block in the given state.</returns>
@@ -59,9 +59,9 @@ public partial class StoredMultiSided : BlockBehavior, IBehavior<StoredMultiSide
     {
         return state.Get(Sides);
     }
-    
+
     /// <summary>
-    /// Set the sides of the block in the given state.
+    ///     Set the sides of the block in the given state.
     /// </summary>
     /// <param name="state">The state to set the sides in.</param>
     /// <param name="newSides">The sides to set.</param>

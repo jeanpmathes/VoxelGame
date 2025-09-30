@@ -48,12 +48,12 @@ public class Section : IDisposable
     ///     The shift to get the isStatic value.
     /// </summary>
     public const Int32 StaticShift = 26;
-    
+
     /// <summary>
     ///     Mask to get only the block.
     /// </summary>
     public const UInt32 BlockMask = 0b0000_0000_0000_0011_1111_1111_1111_1111;
-    
+
     // todo: use the masks or associated constants to determine the max number of block states and use in validation
     // todo: also make sure that the limit calculations have overflow checks or work in a much larger range than (U)Int32
 
@@ -154,7 +154,7 @@ public class Section : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        return GetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1));
+        return GetContent(blockPosition.X & Size - 1, blockPosition.Y & Size - 1, blockPosition.Z & Size - 1);
     }
 
     /// <summary>
@@ -182,7 +182,7 @@ public class Section : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        SetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1), value);
+        SetContent(blockPosition.X & Size - 1, blockPosition.Y & Size - 1, blockPosition.Z & Size - 1, value);
     }
 
     /// <summary>
@@ -192,7 +192,7 @@ public class Section : IDisposable
     /// <returns>The local 3D-index.</returns>
     public static (Int32 x, Int32 y, Int32 z) ToLocalPosition(Vector3i worldPosition)
     {
-        return (worldPosition.X & (Size - 1), worldPosition.Y & (Size - 1), worldPosition.Z & (Size - 1));
+        return (worldPosition.X & Size - 1, worldPosition.Y & Size - 1, worldPosition.Z & Size - 1);
     }
 
     /// <summary>
@@ -259,10 +259,10 @@ public class Section : IDisposable
             Int32 index = NumberGenerator.Random.Next(minValue: 0, Size * Size * Size);
             UInt32 posVal = blocks[index];
 
-            randomPosition.Z = index & (Size - 1);
-            index = (index - randomPosition.Z) >> SizeExp;
-            randomPosition.Y = index & (Size - 1);
-            index = (index - randomPosition.Y) >> SizeExp;
+            randomPosition.Z = index & Size - 1;
+            index = index - randomPosition.Z >> SizeExp;
+            randomPosition.Y = index & Size - 1;
+            index = index - randomPosition.Y >> SizeExp;
             randomPosition.X = index;
 
             return posVal;
@@ -278,7 +278,7 @@ public class Section : IDisposable
         out Fluid fluid, out FluidLevel level, out Boolean isStatic)
     {
         state = Blocks.Instance.TranslateStateID(value & BlockMask);
-        
+
         fluid = Fluids.Instance.TranslateID((value & FluidMask) >> FluidShift);
         level = (FluidLevel) ((value & LevelMask) >> LevelShift);
         isStatic = (value & StaticMask) != 0;

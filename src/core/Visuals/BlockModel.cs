@@ -94,7 +94,10 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     ///     Create a block mesh from this model.
     /// </summary>
     /// <param name="textureIndexProvider">A texture index provider.</param>
-    /// <param name="textureOverrides">Optional texture overrides, using by-index substitution. A minus one key will replace all textures that are not explicitly named.</param>
+    /// <param name="textureOverrides">
+    ///     Optional texture overrides, using by-index substitution. A minus one key will replace
+    ///     all textures that are not explicitly named.
+    /// </param>
     /// <returns>The block mesh.</returns>
     public BlockMesh CreateMesh(ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
@@ -102,9 +105,9 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
 
         return new BlockMesh(quads);
     }
-    
+
     /// <summary>
-    /// Get the axis-aligned bounding box of this model.
+    ///     Get the axis-aligned bounding box of this model.
     /// </summary>
     /// <returns>The bounding box.</returns>
     public Box3d GetBounds()
@@ -128,9 +131,9 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     }
 
     /// <summary>
-    /// Partitions the model into block-sized parts.
-    /// This method does not cut individual quads, it only sorts them into the parts they fully belong to.
-    /// Quads are also moved so that the part they belong to has its origin at (0,0,0).
+    ///     Partitions the model into block-sized parts.
+    ///     This method does not cut individual quads, it only sorts them into the parts they fully belong to.
+    ///     Quads are also moved so that the part they belong to has its origin at (0,0,0).
     /// </summary>
     /// <returns>The parts of the model.</returns>
     public BlockModel[,,] PartitionByBlocks()
@@ -138,14 +141,15 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
         // todo: this is a bit ugly and could maybe sometimes put quads into the wrong part
         // todo: so add to the note for the custom editor that models should already define the separation in the format
         // todo: so the format would be changed and the editor would help with displaying and configuring that
-        
+
         Box3d bounds = GetBounds();
-        
+
         var sizeX = (Int32) Math.Ceiling(bounds.Size.X);
         var sizeY = (Int32) Math.Ceiling(bounds.Size.Y);
         var sizeZ = (Int32) Math.Ceiling(bounds.Size.Z);
-        
+
         var partQuads = new List<Quad>[sizeX, sizeY, sizeZ];
+
         for (var x = 0; x < sizeX; x++)
         for (var y = 0; y < sizeY; y++)
         for (var z = 0; z < sizeZ; z++)
@@ -154,35 +158,36 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
         foreach (Quad quad in Quads)
         {
             Vector3i target = quad.Center.Floor();
-            
+
             Int32 x = Math.Clamp(target.X, min: 0, sizeX - 1);
             Int32 y = Math.Clamp(target.Y, min: 0, sizeY - 1);
             Int32 z = Math.Clamp(target.Z, min: 0, sizeZ - 1);
-            
+
             partQuads[x, y, z].Add(quad);
         }
-        
+
         var parts = new BlockModel[sizeX, sizeY, sizeZ];
-        
+
         for (var x = 0; x < sizeX; x++)
         for (var y = 0; y < sizeY; y++)
         for (var z = 0; z < sizeZ; z++)
         {
             List<Quad> quads = partQuads[x, y, z];
-            
-            var translation = Matrix4.CreateTranslation(x: -x, y: -y, z: -z);
+
+            var translation = Matrix4.CreateTranslation(-x, -y, -z);
+
             for (var index = 0; index < quads.Count; index++)
             {
                 quads[index] = quads[index].ApplyMatrix(translation);
             }
-            
+
             parts[x, y, z] = new BlockModel
             {
                 TextureNames = TextureNames.ToArray(),
                 Quads = quads.ToArray()
             };
         }
-        
+
         return parts;
     }
 
@@ -247,7 +252,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
 
         return result;
     }
-    
+
     // todo: unify the orientation based and the side based rotations, sided might be better overall but needs param whether to rotate textures too
 
     /// <summary>
@@ -256,7 +261,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom textures should be rotated.</param>
     /// <returns>All model versions.</returns>
     public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllOrientations(
-        Boolean rotateTopAndBottomTexture) 
+            Boolean rotateTopAndBottomTexture)
         // todo: find out when and why this parameter is used, maybe an abstraction is possible
         // todo: probably for all blocks that use Modelled it can be true and for all that combine meshes on their own it can be false
     {
@@ -359,7 +364,10 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     /// </summary>
     /// <param name="quads">The quads of the model.</param>
     /// <param name="textureIndexProvider">A texture index provider.</param>
-    /// <param name="textureOverrides">Optional texture overrides, using by-index substitution. A minus one key will replace all textures that are not explicitly named.</param>
+    /// <param name="textureOverrides">
+    ///     Optional texture overrides, using by-index substitution. A minus one key will replace
+    ///     all textures that are not explicitly named.
+    /// </param>
     public void ToData(out BlockMesh.Quad[] quads, ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
         if (lockedQuads != null)
@@ -383,7 +391,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
                     id = overrideId;
                 }
             }
-            
+
             textureIndexLookup[texture] = textureIndexProvider.GetTextureIndex(id);
         }
 

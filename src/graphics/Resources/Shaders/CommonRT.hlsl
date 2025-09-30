@@ -30,10 +30,7 @@ namespace native
          */
         float3 GetBarycentrics(in Attributes attributes)
         {
-            return float3(
-                1.0f - attributes.barycentrics.x - attributes.barycentrics.y,
-                attributes.barycentrics.x,
-                attributes.barycentrics.y);
+            return float3(1.0f - attributes.barycentrics.x - attributes.barycentrics.y, attributes.barycentrics.x, attributes.barycentrics.y);
         }
 
         static float const RAY_DISTANCE = 100000.0f;

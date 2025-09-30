@@ -12,11 +12,7 @@
 class DescriptorHeap
 {
 public:
-    static DescriptorHeap CreateNew(
-        ComPtr<ID3D12Device5> const& device,
-        UINT                         numDescriptors,
-        D3D12_DESCRIPTOR_HEAP_TYPE   type,
-        bool                         shaderVisible);
+    static DescriptorHeap CreateNew(ComPtr<ID3D12Device5> const& device, UINT numDescriptors, D3D12_DESCRIPTOR_HEAP_TYPE type, bool shaderVisible);
 
     /**
      * \brief Create a descriptor heap. If this class already contains a heap, it will be destroyed.
@@ -26,12 +22,7 @@ public:
      * \param shaderVisible Whether the heap should be shader visible.
      * \param copyExisting Whether the existing heap, if any, should be copied to the new heap.
      */
-    void Create(
-        ComPtr<ID3D12Device5> const& device,
-        UINT                         numDescriptors,
-        D3D12_DESCRIPTOR_HEAP_TYPE   type,
-        bool                         shaderVisible,
-        bool                         copyExisting = false);
+    void Create(ComPtr<ID3D12Device5> const& device, UINT numDescriptors, D3D12_DESCRIPTOR_HEAP_TYPE type, bool shaderVisible, bool copyExisting = false);
 
     DescriptorHeap()                                 = default;
     DescriptorHeap(DescriptorHeap const&)            = delete;

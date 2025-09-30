@@ -15,13 +15,20 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
-/// Sends logic updates to all chunks in the world that require it.
+///     Sends logic updates to all chunks in the world that require it.
 /// </summary>
 public class ChunkSimulator(World subject) : WorldComponent(subject), IConstructible<World, ChunkSimulator>
 {
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkSimulator>();
+
+    #endregion LOGGING
+
     private readonly List<Chunk> chunksWithActors = [];
-    
-    /// <inheritdoc />1
+
+    /// <inheritdoc />
+    /// 1
     public static ChunkSimulator Construct(World input)
     {
         return new ChunkSimulator(input);
@@ -34,7 +41,7 @@ public class ChunkSimulator(World subject) : WorldComponent(subject), IConstruct
 
         SendLogicUpdatesForSimulation(deltaTime, simTimer);
     }
-    
+
     private void SendLogicUpdatesForSimulation(Double deltaTime, Timer? updateTimer)
     {
         chunksWithActors.Clear();
@@ -50,7 +57,7 @@ public class ChunkSimulator(World subject) : WorldComponent(subject), IConstruct
                 chunk.SendLogicUpdatesToActors(deltaTime);
         }
     }
-    
+
     private void SendLogicUpdateChunk(Chunk chunk)
     {
         if (!chunk.IsRequestedToSimulate)
@@ -61,10 +68,4 @@ public class ChunkSimulator(World subject) : WorldComponent(subject), IConstruct
         if (chunk.HasActors)
             chunksWithActors.Add(chunk);
     }
-    
-    #region LOGGING
-    
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkSimulator>();
-    
-    #endregion LOGGING
 }

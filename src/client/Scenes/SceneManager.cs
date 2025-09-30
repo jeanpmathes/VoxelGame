@@ -30,22 +30,22 @@ public partial class SceneManager : ApplicationComponent, IConstructible<Core.Ap
 
     private Scene? current;
     private (Scene? scene, Action completion)? next;
-    
+
     private SceneManager(Core.App.Application application) : base(application)
     {
         dispatch = application.GetComponent<SceneOperationDispatch>();
     }
+
+    /// <summary>
+    ///     Whether a scene is currently loaded or is currently being loaded.
+    /// </summary>
+    public Boolean IsActive => current is not null || next is {scene: not null};
 
     /// <inheritdoc />
     public static SceneManager Construct(Core.App.Application input)
     {
         return new SceneManager(input);
     }
-    
-    /// <summary>
-    ///     Whether a scene is currently loaded or is currently being loaded.
-    /// </summary>
-    public Boolean IsActive => current is not null || next is {scene: not null};
 
     /// <summary>
     ///     Begin loading a new scene, unloading the current one if necessary.
@@ -56,26 +56,26 @@ public partial class SceneManager : ApplicationComponent, IConstructible<Core.Ap
     public Activity BeginLoad(Scene scene)
     {
         Debug.Assert(next == null);
-        
+
         LogSwitchingScene(logger, current, scene);
-        
+
         var activity = Activity.Create(out Action completion);
-        
+
         next = (scene, completion);
-        
+
         return activity;
     }
 
     private void Transition()
     {
-        if (next is not {scene: var scene, completion: {} completion}) 
+        if (next is not {scene: var scene, completion: {} completion})
             return;
-        
+
         Unload();
 
         if (scene != null)
             Load(scene);
-        
+
         completion();
         next = null;
     }
@@ -83,7 +83,7 @@ public partial class SceneManager : ApplicationComponent, IConstructible<Core.Ap
     private void Load(Scene scene)
     {
         LogLoadingScene(logger, current);
-        
+
         current = scene;
         current.Load();
     }
@@ -114,16 +114,16 @@ public partial class SceneManager : ApplicationComponent, IConstructible<Core.Ap
     public Activity BeginUnload()
     {
         LogStartingOfUnloadingScene(logger, current);
-        
+
         var activity = Activity.Create(out Action completion);
-        
+
         next = (null, completion);
-        
+
         return activity;
     }
-    
+
     /// <summary>
-    /// Unload the current scene immediately, without waiting for the next update cycle.
+    ///     Unload the current scene immediately, without waiting for the next update cycle.
     /// </summary>
     public void UnloadImmediately()
     {
@@ -152,7 +152,7 @@ public partial class SceneManager : ApplicationComponent, IConstructible<Core.Ap
     public override void OnLogicUpdate(Double delta, Timer? timer)
     {
         Transition();
-        
+
         current?.LogicUpdate(delta, timer);
     }
 
@@ -185,7 +185,7 @@ public partial class SceneManager : ApplicationComponent, IConstructible<Core.Ap
 
     [LoggerMessage(EventId = LogID.SceneManager + 0, Level = LogLevel.Debug, Message = "Initiating scene change from {OldScene} to {NewScene}")]
     private static partial void LogSwitchingScene(ILogger logger, Scene? oldScene, Scene? newScene);
-    
+
     [LoggerMessage(EventId = LogID.SceneManager + 1, Level = LogLevel.Debug, Message = "Initiating unloading of {OldScene}")]
     private static partial void LogStartingOfUnloadingScene(ILogger logger, Scene? oldScene);
 

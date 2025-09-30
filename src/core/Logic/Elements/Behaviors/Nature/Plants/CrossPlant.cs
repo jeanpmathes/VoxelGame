@@ -14,42 +14,42 @@ using VoxelGame.Core.Physics;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
 /// <summary>
-/// A <see cref="Plant"/> that uses the <see cref="Foliage.LayoutType.Cross"/> layout.
+///     A <see cref="Plant" /> that uses the <see cref="Foliage.LayoutType.Cross" /> layout.
 /// </summary>
 public class CrossPlant : BlockBehavior, IBehavior<CrossPlant, BlockBehavior, Block>
 {
     private CrossPlant(Block subject) : base(subject)
     {
         subject.Require<Plant>();
-        
+
         subject.Require<Foliage>().LayoutInitializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
-        
+
         subject.BoundingVolume.ContributeFunction((_, _) => BoundingVolume.CrossBlock(Height, Width));
-        
+
         HeightInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(HeightInitializer), this);
         WidthInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(WidthInitializer), this);
     }
-    
+
     /// <summary>
-    /// The height of the plant, used for the bounding volume.
+    ///     The height of the plant, used for the bounding volume.
     /// </summary>
     public Double Height { get; private set; } = 1.0;
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="Height"/> property.
+    ///     Aspect used to initialize the <see cref="Height" /> property.
     /// </summary>
     public Aspect<Double, Block> HeightInitializer { get; }
-    
+
     /// <summary>
-    /// The width of the plant, used for the bounding volume.
+    ///     The width of the plant, used for the bounding volume.
     /// </summary>
     public Double Width { get; private set; } = 0.71;
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="Width"/> property.
+    ///     Aspect used to initialize the <see cref="Width" /> property.
     /// </summary>
     public Aspect<Double, Block> WidthInitializer { get; }
-    
+
     /// <inheritdoc />
     public static CrossPlant Construct(Block input)
     {

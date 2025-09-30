@@ -12,8 +12,8 @@ using VoxelGame.Core.Collections.Properties;
 namespace VoxelGame.Core.Logic.Attributes;
 
 /// <summary>
-/// Base interface for attributes.
-/// See <see cref="IAttribute{TValue}"/> for the more specific interface.
+///     Base interface for attributes.
+///     See <see cref="IAttribute{TValue}" /> for the more specific interface.
 /// </summary>
 public interface IAttribute : IScoped
 {
@@ -35,26 +35,26 @@ public interface IAttribute : IScoped
     }
 
     /// <summary>
-    /// Retrieve the representation of the attribute for a given index.
+    ///     Retrieve the representation of the attribute for a given index.
     /// </summary>
-    /// <param name="index">The value index, which will be in the range [0, <see cref="Multiplicity"/>).</param>
+    /// <param name="index">The value index, which will be in the range [0, <see cref="Multiplicity" />).</param>
     /// <returns>The property representing the value of the attribute for the given index.</returns>
     internal Property RetrieveRepresentation(Int32 index);
 
     /// <summary>
-    /// Get the value index of this attribute in the given state.
+    ///     Get the value index of this attribute in the given state.
     /// </summary>
     /// <param name="index">The state index to get the value index for.</param>
-    /// <returns>The attribute value index for the given state, which will be in the range [0, <see cref="Multiplicity"/>).</returns>
+    /// <returns>The attribute value index for the given state, which will be in the range [0, <see cref="Multiplicity" />).</returns>
     internal Int32 GetValueIndex(Int32 index)
     {
         return index / Divisor % Multiplicity;
     }
 
     /// <summary>
-    /// Get the state index for a given value index.
+    ///     Get the state index for a given value index.
     /// </summary>
-    /// <param name="index">The value index, which will be in the range [0, <see cref="Multiplicity"/>).</param>
+    /// <param name="index">The value index, which will be in the range [0, <see cref="Multiplicity" />).</param>
     /// <returns>The state index for the given value index.</returns>
     internal Int32 GetStateIndex(Int32 index)
     {
@@ -63,31 +63,31 @@ public interface IAttribute : IScoped
 }
 
 /// <summary>
-/// An attribute is a value that depends on the block state.
-/// Attributes assign an index to each possible value they can take.
+///     An attribute is a value that depends on the block state.
+///     Attributes assign an index to each possible value they can take.
 /// </summary>
 /// <typeparam name="TValue">The type of the value.</typeparam>
 public interface IAttribute<TValue> : IAttribute
 {
     /// <summary>
-    /// Gets the value of the attribute for a given index.
+    ///     Gets the value of the attribute for a given index.
     /// </summary>
-    /// <param name="index">The index, which will be in the range [0, <see cref="IAttribute.Multiplicity"/>).</param>
+    /// <param name="index">The index, which will be in the range [0, <see cref="IAttribute.Multiplicity" />).</param>
     /// <returns>The value of the attribute for the given index.</returns>
     TValue Retrieve(Int32 index);
 
     /// <summary>
-    /// Get the value of the attribute for a given <see cref="State"/>.
+    ///     Get the value of the attribute for a given <see cref="State" />.
     /// </summary>
     /// <param name="index">The state index of the state to get the value for.</param>
     /// <returns>The value of the attribute for the given state.</returns>
     internal TValue Get(Int32 index)
     {
-        if (Divisor == 0) 
+        if (Divisor == 0)
             return default!;
-        
-        return Multiplicity == 1 
-            ? Retrieve(0) 
+
+        return Multiplicity == 1
+            ? Retrieve(0)
             : Retrieve(GetValueIndex(index));
     }
 
@@ -107,7 +107,7 @@ public interface IAttribute<TValue> : IAttribute
     {
         if (Divisor == 0 || Multiplicity == 1)
             return 0;
-        
+
         return GetStateIndex(Provide(value));
     }
 }

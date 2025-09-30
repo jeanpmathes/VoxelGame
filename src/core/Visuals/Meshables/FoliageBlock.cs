@@ -21,17 +21,14 @@ public class FoliageBlock : Block
     private static readonly BlockMesh.Quad[] errorQuads;
     private static readonly UInt32 errorQuadCount;
 
+    private readonly Foliage foliage;
+
+    private Foliage.MeshData[] meshData = null!;
+
     static FoliageBlock()
     {
         errorQuads = BlockMeshes.CreateCrossMesh(ITextureIndexProvider.MissingTextureIndex).GetMeshData(out errorQuadCount);
     }
-    
-    private readonly Foliage foliage;
-
-    private Foliage.MeshData[] meshData = null!;
-    
-    /// <inheritdoc />
-    public override Meshable Meshable => Meshable.Foliage;
 
     /// <inheritdoc />
     public FoliageBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
@@ -40,21 +37,22 @@ public class FoliageBlock : Block
     }
 
     /// <inheritdoc />
-    protected override void OnValidate()
-    {
-        
-    }
+    public override Meshable Meshable => Meshable.Foliage;
+
+    /// <inheritdoc />
+    protected override void OnValidate() {}
 
     /// <inheritdoc />
     protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
     {
         meshData = new Foliage.MeshData[States.Count];
-        
+
         foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
         {
             if (!Constraint.IsStateValid(state))
             {
                 meshData[index] = new Foliage.MeshData(errorQuads, errorQuadCount, ColorS.None, Foliage.PartType.Single, IsAnimated: false);
+
                 continue;
             }
 
@@ -67,11 +65,11 @@ public class FoliageBlock : Block
     private void BuildMeshData(Foliage.MeshData mesh)
     {
         BlockMesh.Quad[] quads = mesh.Quads;
-        
+
         for (var index = 0; index < mesh.QuadCount; index++)
         {
             ref BlockMesh.Quad quad = ref quads[index];
-            
+
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsUnshaded, IsUnshaded);
 
@@ -85,17 +83,17 @@ public class FoliageBlock : Block
     {
         Vector3 offset = position;
         IMeshing meshing = context.GetFoliageMesh();
-        
+
         ref readonly Foliage.MeshData mesh = ref meshData[state.Index]; // todo: use ref readonly in the other Mesh overrides as well
         BlockMesh.Quad[] quads = mesh.Quads;
-        
+
         for (var index = 0; index < mesh.QuadCount; index++)
         {
             ref readonly BlockMesh.Quad quad = ref quads[index];
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = quad.data;
-            
+
             Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
-            
+
             meshing.PushQuadWithOffset(quad.Positions, data, offset);
         }
     }

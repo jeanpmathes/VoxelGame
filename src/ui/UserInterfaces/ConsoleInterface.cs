@@ -30,17 +30,17 @@ public class ConsoleInterface
     private const Int32 MaxConsoleLogLength = 200;
     private const String DefaultMarker = "[ ]";
     private const String FollowUpMarker = "[a]";
-    
+
     private static readonly Color echoColor = Colors.Secondary;
     private static readonly Color responseColor = Colors.Primary;
     private static readonly Color errorColor = Colors.Error;
-    
+
     private readonly IConsoleProvider console;
     private readonly LinkedList<Entry> consoleLog = [];
     private readonly LinkedList<String> consoleMemory = [];
     private readonly Context context;
     private readonly ControlBase root;
-    
+
     private MemorizingTextBox? consoleInput;
     private ListBox? consoleOutput;
     private Window? consoleWindow;
@@ -51,17 +51,17 @@ public class ConsoleInterface
         this.root = root;
         this.console = console;
         this.context = context;
-        
+
         console.MessageAdded += (_, args) =>
         {
             Write(
-                args.Message, 
-                args.IsError ? EntryType.Error : EntryType.Response, 
+                args.Message,
+                args.IsError ? EntryType.Error : EntryType.Response,
                 args.FollowUp);
         };
 
         console.Cleared += (_, _) => Clear();
-        
+
         consoleLog.AddLast(new Entry(
             $"Welcome! Enter your commands below, and note that entries with {FollowUpMarker} offer follow-up actions in their right-click menu.",
             EntryType.Echo,
@@ -239,7 +239,7 @@ public class ConsoleInterface
 
         WindowClosed?.Invoke(this, EventArgs.Empty);
     }
-    
+
     private void Clear()
     {
         consoleOutput?.Clear();

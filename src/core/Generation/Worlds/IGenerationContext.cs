@@ -61,7 +61,7 @@ public interface IGenerationContext : IDisposable
                          range))
             {
                 Vector3i blockPosition = (x, y, z);
-                
+
                 Content modifiedContent = content.Block.Block.DoGeneratorUpdate(content);
 
                 UInt32 encodedContent = Section.Encode(

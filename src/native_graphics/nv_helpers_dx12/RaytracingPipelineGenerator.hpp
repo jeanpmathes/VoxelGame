@@ -45,7 +45,7 @@ namespace nv_helpers_dx12
          * \brief The pipeline helper requires access to the device, as well as the raytracing device prior to Windows 10 RS5.
          * \param device The device used to create the pipeline.
          */
-        explicit RayTracingPipelineGenerator(Microsoft::WRL::ComPtr<ID3D12Device5> device);
+        explicit RayTracingPipelineGenerator(ComPtr<ID3D12Device5> device);
 
         /**
          * \brief Add a DXIL library to the pipeline. Note that this library has to be compiled with dxc, using a lib_6_3 target. The exported symbols must correspond exactly to the names of the shaders declared in the library, although unused ones can be omitted.
@@ -73,10 +73,7 @@ namespace nv_helpers_dx12
          * \param local Whether the root signature is local or global.
          * \param symbols The list of symbols to associate with the root signature.
          */
-        void AddRootSignatureAssociation(
-            ID3D12RootSignature*             rootSignature,
-            bool                             local,
-            std::vector<std::wstring> const& symbols);
+        void AddRootSignatureAssociation(ID3D12RootSignature* rootSignature, bool local, std::vector<std::wstring> const& symbols);
 
         /**
          * \brief The payload is the way hit or miss shaders can exchange data with the shader that called TraceRay. When several ray types are used (e.g. primary and shadow rays), this value must be the largest possible payload size. Note that to optimize performance, this size must be kept as low as possible.
@@ -101,8 +98,7 @@ namespace nv_helpers_dx12
          * \param globalRootSignature The global root signature, which is used when no local root signature is specified.
          * \return The state object.
          */
-        Microsoft::WRL::ComPtr<ID3D12StateObject> Generate(
-            Microsoft::WRL::ComPtr<ID3D12RootSignature> const& globalRootSignature);
+        ComPtr<ID3D12StateObject> Generate(ComPtr<ID3D12RootSignature> const& globalRootSignature);
 
     private:
         /**
@@ -133,11 +129,7 @@ namespace nv_helpers_dx12
          */
         struct HitGroup
         {
-            HitGroup(
-                std::wstring hitGroupName,
-                std::wstring closestHitSymbol,
-                std::wstring anyHitSymbol       = L"",
-                std::wstring intersectionSymbol = L"");
+            HitGroup(std::wstring hitGroupName, std::wstring closestHitSymbol, std::wstring anyHitSymbol = L"", std::wstring intersectionSymbol = L"");
 
             HitGroup(HitGroup const& other)            = delete;
             HitGroup& operator=(HitGroup const& other) = delete;
@@ -160,10 +152,7 @@ namespace nv_helpers_dx12
          */
         struct RootSignatureAssociation
         {
-            RootSignatureAssociation(
-                ID3D12RootSignature*             rootSignature,
-                bool                             local,
-                std::vector<std::wstring> const& symbols);
+            RootSignatureAssociation(ID3D12RootSignature* rootSignature, bool local, std::vector<std::wstring> const& symbols);
 
             RootSignatureAssociation(RootSignatureAssociation const& other)            = delete;
             RootSignatureAssociation& operator=(RootSignatureAssociation const& other) = delete;
@@ -173,12 +162,12 @@ namespace nv_helpers_dx12
 
             ~RootSignatureAssociation() = default;
 
-            Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignature;
-            Microsoft::WRL::ComPtr<ID3D12RootSignature> rootSignaturePointer;
-            bool                                        local;
-            std::vector<std::wstring>                   symbols;
-            std::vector<LPCWSTR>                        symbolPointers;
-            D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION      association = {};
+            ComPtr<ID3D12RootSignature>            rootSignature;
+            ComPtr<ID3D12RootSignature>            rootSignaturePointer;
+            bool                                   local;
+            std::vector<std::wstring>              symbols;
+            std::vector<LPCWSTR>                   symbolPointers;
+            D3D12_SUBOBJECT_TO_EXPORTS_ASSOCIATION association = {};
         };
 
         /**
@@ -200,7 +189,7 @@ namespace nv_helpers_dx12
         UINT m_maxAttributeSizeInBytes = 2 * sizeof(float);
         UINT m_maxRecursionDepth       = 1;
 
-        Microsoft::WRL::ComPtr<ID3D12Device5>       m_device;
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dummyLocalRootSignature;
+        ComPtr<ID3D12Device5>       m_device;
+        ComPtr<ID3D12RootSignature> m_dummyLocalRootSignature;
     };
 }

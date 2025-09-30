@@ -291,8 +291,7 @@ namespace D3D12MA
         ALLOCATION_FLAG_STRATEGY_FIRST_FIT = ALLOCATION_FLAG_STRATEGY_MIN_TIME,
 
         /// A bit mask to extract only `STRATEGY` bits from entire set of flags.
-        ALLOCATION_FLAG_STRATEGY_MASK = ALLOCATION_FLAG_STRATEGY_MIN_MEMORY | ALLOCATION_FLAG_STRATEGY_MIN_TIME |
-        ALLOCATION_FLAG_STRATEGY_MIN_OFFSET,
+        ALLOCATION_FLAG_STRATEGY_MASK = ALLOCATION_FLAG_STRATEGY_MIN_MEMORY | ALLOCATION_FLAG_STRATEGY_MIN_TIME | ALLOCATION_FLAG_STRATEGY_MIN_OFFSET,
     };
 
     /// \brief Parameters of created D3D12MA::Allocation object. To be used with Allocator::CreateResource.
@@ -633,10 +632,7 @@ namespace D3D12MA
 
             Type GetType() const { return static_cast<Type>(m_Type); }
 
-            D3D12_RESOURCE_DIMENSION GetResourceDimension() const
-            {
-                return static_cast<D3D12_RESOURCE_DIMENSION>(m_ResourceDimension);
-            }
+            D3D12_RESOURCE_DIMENSION GetResourceDimension() const { return static_cast<D3D12_RESOURCE_DIMENSION>(m_ResourceDimension); }
 
             D3D12_RESOURCE_FLAGS GetResourceFlags() const { return static_cast<D3D12_RESOURCE_FLAGS>(m_ResourceFlags); }
             D3D12_TEXTURE_LAYOUT GetTextureLayout() const { return static_cast<D3D12_TEXTURE_LAYOUT>(m_TextureLayout); }
@@ -692,8 +688,7 @@ namespace D3D12MA
         DEFRAGMENTATION_FLAG_ALGORITHM_FULL = 0x4,
 
         /// A bit mask to extract only `ALGORITHM` bits from entire set of flags.
-        DEFRAGMENTATION_FLAG_ALGORITHM_MASK = DEFRAGMENTATION_FLAG_ALGORITHM_FAST |
-        DEFRAGMENTATION_FLAG_ALGORITHM_BALANCED | DEFRAGMENTATION_FLAG_ALGORITHM_FULL
+        DEFRAGMENTATION_FLAG_ALGORITHM_MASK = DEFRAGMENTATION_FLAG_ALGORITHM_FAST | DEFRAGMENTATION_FLAG_ALGORITHM_BALANCED | DEFRAGMENTATION_FLAG_ALGORITHM_FULL
     };
 
     /** \brief Parameters for defragmentation.
@@ -1253,10 +1248,7 @@ namespace D3D12MA
         If you use D3D12MA::ALLOCATION_FLAG_COMMITTED you will get a separate memory block -
         a heap that always has offset 0.
         */
-        HRESULT AllocateMemory(
-            ALLOCATION_DESC const*                pAllocDesc,
-            D3D12_RESOURCE_ALLOCATION_INFO const* pAllocInfo,
-            Allocation**                          ppAllocation);
+        HRESULT AllocateMemory(ALLOCATION_DESC const* pAllocDesc, D3D12_RESOURCE_ALLOCATION_INFO const* pAllocInfo, Allocation** ppAllocation);
 
         /** \brief Creates a new resource in place of an existing allocation. This is useful for memory aliasing.
     

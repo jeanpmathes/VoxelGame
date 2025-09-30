@@ -15,7 +15,7 @@ namespace VoxelGame.UI.Controls.Common;
 /// <summary>
 ///     A <see cref="TreeControl" /> that is built from a <see cref="Property" />.
 /// </summary>
-public class PropertyBasedTreeControl : TreeControl 
+public class PropertyBasedTreeControl : TreeControl
 {
     /// <summary>
     ///     Create a <see cref="PropertyBasedTreeControl" /> from a <see cref="Property" />.
@@ -136,10 +136,10 @@ public class PropertyBasedTreeControl : TreeControl
         public override void Visit(Truth truth)
         {
             TreeNode node = FindOrCreateNode(truth.Name, truth.Name);
-            
+
             String icon = truth.Value ? Icons.Instance.Check : Icons.Instance.Close;
             Gwen.Net.Color color = truth.Value ? Colors.Good : Colors.Bad;
-            
+
             node.SetImage(icon, Context.SmallIconSize, color);
         }
 

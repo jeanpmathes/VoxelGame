@@ -123,7 +123,8 @@ public abstract class Operation
     ///     Blocks and runs the main thread until the operation has completed.
     /// </summary>
     /// <returns>The result of the operation.</returns>
-    [MustUseReturnValue] public Result Wait()
+    [MustUseReturnValue]
+    public Result Wait()
     {
         Result = DoWait();
 
@@ -145,9 +146,9 @@ public abstract class Operation
     public abstract Operation Then(Func<CancellationToken, Task> action);
 
     /// <summary>
-    /// Run an action when the operation is completed.
-    /// Note that the action will run both when the operation is successful and when it fails or is cancelled.
-    /// The action will run on the main thread.
+    ///     Run an action when the operation is completed.
+    ///     Note that the action will run both when the operation is successful and when it fails or is cancelled.
+    ///     The action will run on the main thread.
     /// </summary>
     /// <param name="action">The action to run.</param>
     /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
@@ -185,8 +186,8 @@ public abstract class Operation
     }
 
     /// <summary>
-    /// Perform an action when the operation is completed and successful.
-    /// The action will run on the main thread.
+    ///     Perform an action when the operation is completed and successful.
+    ///     The action will run on the main thread.
     /// </summary>
     /// <param name="action">The action to run.</param>
     /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>
@@ -252,7 +253,7 @@ public abstract class Operation<T> : Operation
     }
 
     /// <summary>
-    /// Check if the operation is completed.
+    ///     Check if the operation is completed.
     /// </summary>
     /// <returns>The result of the operation, or <c>null</c> if the operation is still running.</returns>
     protected abstract Result<T>? CheckCompletionT();
@@ -277,8 +278,8 @@ public abstract class Operation<T> : Operation
     public abstract Operation<TNext> Then<TNext>(Func<T, CancellationToken, Task<TNext>> function);
 
     /// <summary>
-    /// Perform a group of actions when the operation is completed.
-    /// All actions will run on the main thread.
+    ///     Perform a group of actions when the operation is completed.
+    ///     All actions will run on the main thread.
     /// </summary>
     /// <param name="initial">The initial action to run. Will run before the success or fail action.</param>
     /// <param name="success">The action to run if the operation was successful.</param>
@@ -324,8 +325,8 @@ public abstract class Operation<T> : Operation
     }
 
     /// <summary>
-    /// Perform an action when the operation is completed and successful.
-    /// The action will run on the main thread.
+    ///     Perform an action when the operation is completed and successful.
+    ///     The action will run on the main thread.
     /// </summary>
     /// <param name="action">The action to run.</param>
     /// <param name="token">A cancellation token. If cancelled, the action will not run.</param>

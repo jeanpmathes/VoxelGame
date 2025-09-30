@@ -29,9 +29,9 @@ internal class StartUI : ControlBase
     private const Int32 SettingsMenuIndex = 1;
     private const Int32 WorldSelectionMenuIndex = 2;
     private const Int32 CreditsMenuIndex = 3;
+    private readonly MainMenu mainMenu;
 
     private readonly List<StandardMenu> menus = [];
-    private readonly MainMenu mainMenu;
 
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
         IEnumerable<SettingsProvider> settingsProviders) : base(parent.Root)

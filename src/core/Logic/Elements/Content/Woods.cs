@@ -10,7 +10,7 @@ using VoxelGame.Core.Resources.Language;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// All sorts of wood types. Trees can be found in the world and can be used for the construction of various things.
+///     All sorts of wood types. Trees can be found in the world and can be used for the construction of various things.
 /// </summary>
 public class Woods(BlockBuilder builder) : Category(builder)
 {
@@ -153,5 +153,4 @@ public class Woods(BlockBuilder builder) : Category(builder)
     public Wood Mesquite { get; } = builder.BuildWood(nameof(Mesquite),
         (Language.MesquiteLeaves, Language.MesquiteLog, Language.MesquiteWood),
         new Wood.Tree(Wood.Tree.Growth.Shrub, Wood.Tree.CrownShape.FlatSpheroid, Wood.Tree.CrownDensity.Sparse));
-
 }

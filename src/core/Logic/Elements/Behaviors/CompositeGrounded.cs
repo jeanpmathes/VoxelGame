@@ -11,7 +11,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors;
 
 /// <summary>
-/// Adapts the Grounded behavior for composite blocks.
+///     Adapts the Grounded behavior for composite blocks.
 /// </summary>
 public class CompositeGrounded : BlockBehavior, IBehavior<CompositeGrounded, BlockBehavior, Block>
 {
@@ -39,13 +39,13 @@ public class CompositeGrounded : BlockBehavior, IBehavior<CompositeGrounded, Blo
 
         return part.Y != 0 || Grounded.IsGrounded(world, position);
     }
-    
+
     private static void OnPlacementCompleted(Composite.PlacementCompletedMessage message)
     {
         Vector3i positionBelow = message.Position.Below();
         State blockBelow = message.World.GetBlock(positionBelow) ?? Content.DefaultState;
 
-        if (blockBelow.IsFullySolid) 
+        if (blockBelow.IsFullySolid)
             return;
 
         if (blockBelow.Block.Get<CompletableGround>() is {} completableGround)

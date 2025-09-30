@@ -12,23 +12,23 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Conventions;
 
 /// <summary>
-/// A coal type, as defined by the <see cref="CoalConvention"/>.
+///     A coal type, as defined by the <see cref="CoalConvention" />.
 /// </summary>
 public class Coal(String namedID, BlockBuilder builder) : Convention<Coal>(namedID, builder)
 {
     /// <summary>
-    /// The block that represents this coal type.
+    ///     The block that represents this coal type.
     /// </summary>
     public required Block Block { get; init; }
 }
 
 /// <summary>
-/// A convention for coal types.
+///     A convention for coal types.
 /// </summary>
 public static class CoalConvention
 {
     /// <summary>
-    /// Builds a new coal type.
+    ///     Builds a new coal type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
     /// <param name="namedID">The named ID of the coal, used to create the block IDs.</param>

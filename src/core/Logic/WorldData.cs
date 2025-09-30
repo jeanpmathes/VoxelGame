@@ -29,9 +29,9 @@ public partial class WorldData
 {
     private const String InfoFileName = "info.json";
 
-    private readonly List<DirectoryInfo> subdirectories = [];
-
     private readonly FileInfo informationFile;
+
+    private readonly List<DirectoryInfo> subdirectories = [];
 
     /// <summary>
     ///     Creates a new world data object.

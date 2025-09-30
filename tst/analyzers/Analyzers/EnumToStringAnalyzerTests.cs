@@ -24,7 +24,7 @@ public class EnumToStringAnalyzerTests
                                 Value1,
                                 Value2
                             }
-                            
+
                             public class TestClass
                             {
                                 public void TestMethod()
@@ -40,7 +40,7 @@ public class EnumToStringAnalyzerTests
 
         await Verifier.VerifyAnalyzerAsync(text, expected);
     }
-    
+
     [Fact]
     public async Task EnumToStringAnalyzer_ShouldDetectUsageOfEnumInStringInterpolation()
     {

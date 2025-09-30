@@ -11,12 +11,12 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
 /// <summary>
-/// Performs part selection for a <see cref="Modelled"/> block based on the <see cref="Composite"/> parts.
+///     Performs part selection for a <see cref="Modelled" /> block based on the <see cref="Composite" /> parts.
 /// </summary>
 public class CompositeModelled : BlockBehavior, IBehavior<CompositeModelled, BlockBehavior, Block>
 {
     private readonly Composite composite;
-    
+
     private CompositeModelled(Block subject) : base(subject)
     {
         composite = subject.Require<Composite>();
@@ -28,7 +28,7 @@ public class CompositeModelled : BlockBehavior, IBehavior<CompositeModelled, Blo
     {
         return new CompositeModelled(input);
     }
-    
+
     private Selector GetSelector(Selector original, State state)
     {
         return original.WithPart(composite.GetPartPosition(state));

@@ -27,7 +27,7 @@ public static class Raycast
     /// <returns>Intersection information, if a hit occurred.</returns>
     public static (Vector3i hit, Side side)? CastBlockRay(World world, Ray ray)
     {
-        return CastVoxelRay(ray, (r, pos) => BlockIntersectionCheck(world, r, pos)); 
+        return CastVoxelRay(ray, (r, pos) => BlockIntersectionCheck(world, r, pos));
     }
 
     /// <summary>

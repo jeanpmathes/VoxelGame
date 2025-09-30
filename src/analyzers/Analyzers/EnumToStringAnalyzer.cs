@@ -14,30 +14,31 @@ using Microsoft.CodeAnalysis.Operations;
 namespace VoxelGame.Analyzers.Analyzers;
 
 /// <summary>
-/// Enforces the usage of a custom enum to string conversion method instead of the default <see cref="Enum.ToString()"/>.
+///     Enforces the usage of a custom enum to string conversion method instead of the default
+///     <see cref="Enum.ToString()" />.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class EnumToStringAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>
-    /// The ID of diagnostics produced for <see cref="Enum.ToString()"/> by this analyzer.
+    ///     The ID of diagnostics produced for <see cref="Enum.ToString()" /> by this analyzer.
     /// </summary>
     public const String ToStringDiagnosticID = "VG0001";
-    
+
     /// <summary>
-    /// The ID of diagnostics produced for string interpolation by this analyzer.
+    ///     The ID of diagnostics produced for string interpolation by this analyzer.
     /// </summary>
     public const String InterpolationDiagnosticID = "VG0002";
-    
+
     private const String Category = "Usage";
-    
+
     private static readonly DiagnosticDescriptor toStringRule = new(ToStringDiagnosticID,
         "Use Enum.ToStringFast()",
         "Enum.ToString() used, prefer Enum.ToStringFast() for better performance",
         Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Using Enum.ToStringFast() is significantly faster than Enum.ToString() and should be preferred in performance critical code.");
+        "Using Enum.ToStringFast() is significantly faster than Enum.ToString() and should be preferred in performance critical code.");
 
     private static readonly DiagnosticDescriptor interpolationRule = new(InterpolationDiagnosticID,
         "Use Enum.ToStringFast() in string interpolation",
@@ -45,8 +46,8 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Using Enum.ToStringFast() is significantly faster than Enum.ToString() and should be preferred in performance critical code.");
-    
+        "Using Enum.ToStringFast() is significantly faster than Enum.ToString() and should be preferred in performance critical code.");
+
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } =
         ImmutableArray.Create(toStringRule, interpolationRule);
@@ -56,11 +57,11 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        
+
         context.RegisterOperationAction(AnalyzeOperation, OperationKind.Invocation);
         context.RegisterOperationAction(AnalyzeInterpolation, OperationKind.Interpolation);
     }
-    
+
     private static void AnalyzeOperation(OperationAnalysisContext context)
     {
         if (context.Operation is not IInvocationOperation invocationOperation ||
@@ -68,21 +69,22 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
             return;
 
         IMethodSymbol methodSymbol = invocationOperation.TargetMethod;
-        
+
         if (!IsTargetedMethod(methodSymbol))
             return;
-        
+
         if (invocationSyntax.ArgumentList.Arguments.Count != 0)
             return;
-        
+
         ITypeSymbol? receiverType = invocationOperation.Instance?.Type;
+
         if (receiverType is ITypeParameterSymbol)
             return;
 
         var diagnostic = Diagnostic.Create(toStringRule, invocationSyntax.GetLocation());
         context.ReportDiagnostic(diagnostic);
     }
-    
+
     private static void AnalyzeInterpolation(OperationAnalysisContext context)
     {
         if (context.Operation is not IInterpolationOperation interpolationOperation ||
@@ -90,13 +92,16 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
             return;
 
         ITypeSymbol? typeSymbol = interpolationOperation.Expression.Type;
+
         if (typeSymbol is null || typeSymbol.TypeKind != TypeKind.Enum)
             return;
 
         var diagnostic = Diagnostic.Create(interpolationRule, interpolationSyntax.GetLocation());
         context.ReportDiagnostic(diagnostic);
     }
-    
+
     private static Boolean IsTargetedMethod(IMethodSymbol methodSymbol)
-        => methodSymbol is {MethodKind: MethodKind.Ordinary, ReceiverType.Name: nameof(Enum), Name: nameof(Enum.ToString), Parameters.Length: 0};
+    {
+        return methodSymbol is {MethodKind: MethodKind.Ordinary, ReceiverType.Name: nameof(Enum), Name: nameof(Enum.ToString), Parameters.Length: 0};
+    }
 }

@@ -35,13 +35,13 @@ public abstract class Modifier : IIssueSource
         this.@params = @params ?? [];
     }
 
-    /// <inheritdoc />
-    public String InstanceName => Type;
-
     /// <summary>
     ///     The type of this modifier. Used as a key to find the correct modifier.
     /// </summary>
     public String Type { get; }
+
+    /// <inheritdoc />
+    public String InstanceName => Type;
 
     /// <summary>
     ///     Modify the given image.
@@ -108,7 +108,7 @@ public abstract class Modifier : IIssueSource
     }
 
     /// <summary>
-    /// Create a new color parameter.
+    ///     Create a new color parameter.
     /// </summary>
     /// <param name="name">The name of the parameter.</param>
     /// <param name="fallback">The optional fallback value.</param>
@@ -119,7 +119,7 @@ public abstract class Modifier : IIssueSource
     }
 
     /// <summary>
-    /// Create a new double parameter.
+    ///     Create a new double parameter.
     /// </summary>
     /// <param name="name">The name of the parameter.</param>
     /// <param name="fallback">The optional fallback value.</param>
@@ -152,7 +152,7 @@ public abstract class Modifier : IIssueSource
     }
 
     /// <summary>
-    /// The context in which the modifier is executed.
+    ///     The context in which the modifier is executed.
     /// </summary>
     public interface IContext
     {
@@ -167,14 +167,14 @@ public abstract class Modifier : IIssueSource
         public Vector2i Size { get; }
 
         /// <summary>
-        /// Report a warning.
+        ///     Report a warning.
         /// </summary>
         /// <param name="message">The message of the warning.</param>
         public void ReportWarning(String message);
     }
 
     /// <summary>
-    /// Contains all parsed parameters of a modifier.
+    ///     Contains all parsed parameters of a modifier.
     /// </summary>
     /// <param name="parameters">The parsed parameters of the modifier.</param>
     protected class Parameters(Dictionary<Parameter, Object> parameters)
@@ -192,18 +192,18 @@ public abstract class Modifier : IIssueSource
     }
 
     /// <summary>
-    /// Base class for a parameter.
+    ///     Base class for a parameter.
     /// </summary>
     /// <param name="name">The name of the parameter.</param>
     protected abstract class Parameter(String name)
     {
         /// <summary>
-        /// Gets the name of the parameter.
+        ///     Gets the name of the parameter.
         /// </summary>
         public String Name { get; } = name;
 
         /// <summary>
-        /// Determine the value of the parameter.
+        ///     Determine the value of the parameter.
         /// </summary>
         /// <param name="input">The string input of the parameter, can be <c>null</c>.</param>
         /// <returns>The value of the parameter, or <c>null</c> if the parameter failed.</returns>
@@ -211,7 +211,7 @@ public abstract class Modifier : IIssueSource
     }
 
     /// <summary>
-    /// Specific and typed base class for a parameter.
+    ///     Specific and typed base class for a parameter.
     /// </summary>
     /// <param name="name">The name of the parameter.</param>
     /// <param name="fallback">An optional fallback value, if not set the parameter is required.</param>
@@ -219,7 +219,7 @@ public abstract class Modifier : IIssueSource
     protected abstract class Parameter<T>(String name, Object? fallback) : Parameter(name) where T : notnull
     {
         /// <summary>
-        /// Get the value of the parameter.
+        ///     Get the value of the parameter.
         /// </summary>
         /// <param name="parameters">The current parameters of the modifier.</param>
         /// <returns>The value of the parameter.</returns>
@@ -235,7 +235,7 @@ public abstract class Modifier : IIssueSource
         }
 
         /// <summary>
-        /// Parse the input text to the parameter type.
+        ///     Parse the input text to the parameter type.
         /// </summary>
         /// <param name="text">A string representation of the parameter.</param>
         /// <returns>An object of the parameter type, or <c>null</c> if the parsing failed.</returns>

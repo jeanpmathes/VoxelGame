@@ -13,8 +13,8 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
 /// <summary>
-/// Behavior that swaps out the texture of a block when it is wet.
-/// Uses the <see cref="CubeTextured"/> behavior.
+///     Behavior that swaps out the texture of a block when it is wet.
+///     Uses the <see cref="CubeTextured" /> behavior.
 /// </summary>
 public class WetCubeTexture : BlockBehavior, IBehavior<WetCubeTexture, BlockBehavior, Block>
 {
@@ -25,24 +25,24 @@ public class WetCubeTexture : BlockBehavior, IBehavior<WetCubeTexture, BlockBeha
         subject.Require<Wet>();
         subject.Require<CubeTextured>().ActiveTexture.ContributeFunction((original, state) => state.Fluid?.IsLiquid == true ? WetTexture : original);
     }
-    
+
     /// <summary>
-    /// The texture layout to use when the block is wet.
+    ///     The texture layout to use when the block is wet.
     /// </summary>
     public TextureLayout WetTexture { get; private set; } = TextureLayout.Uniform(TID.MissingTexture);
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="WetTexture"/> property.
+    ///     Aspect used to initialize the <see cref="WetTexture" /> property.
     /// </summary>
     public Aspect<TextureLayout, Block> WetTextureInitializer { get; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static WetCubeTexture Construct(Block input)
     {
         return new WetCubeTexture(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
         WetTexture = WetTextureInitializer.GetValue(TextureLayout.Uniform(TID.MissingTexture), Subject);

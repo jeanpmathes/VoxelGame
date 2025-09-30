@@ -18,7 +18,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// These blocks are fabricated from other materials and are mostly decorative.
+///     These blocks are fabricated from other materials and are mostly decorative.
 /// </summary>
 public class Fabricated(BlockBuilder builder) : Category(builder)
 {
@@ -31,7 +31,7 @@ public class Fabricated(BlockBuilder builder) : Category(builder)
         .WithBehavior<Combustible>()
         .WithBehavior<Paintable>()
         .Complete();
-    
+
     /// <summary>
     ///     Decorated wool is similar to wool, decorated with golden ornaments.
     /// </summary>
@@ -41,7 +41,7 @@ public class Fabricated(BlockBuilder builder) : Category(builder)
         .WithBehavior<Combustible>()
         .WithBehavior<Paintable>()
         .Complete();
-    
+
     /// <summary>
     ///     Carpets can be used to cover the floor. Their color can be changed.
     /// </summary>
@@ -52,7 +52,7 @@ public class Fabricated(BlockBuilder builder) : Category(builder)
         .WithBehavior<Fillable>()
         .WithBehavior<Paintable>()
         .Complete();
-    
+
     /// <summary>
     ///     Decorated carpets are similar to carpets, decorated with golden ornaments.
     /// </summary>

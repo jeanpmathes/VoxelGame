@@ -27,14 +27,14 @@ public interface IBehavior : IIssueSource
     public const Int32 UnknownID = -1;
 
     /// <summary>
-    ///     Validates the behavior.
-    /// </summary>
-    public void Validate(IValidator validator);
-    
-    /// <summary>
     ///     Get the subject that this behavior applies to.
     /// </summary>
     public IHasBehaviors Subject { get; }
+
+    /// <summary>
+    ///     Validates the behavior.
+    /// </summary>
+    public void Validate(IValidator validator);
 }
 
 /// <summary>
@@ -84,7 +84,7 @@ public interface IBehavior<out TSelf, TBase, TSubject> : IBehavior<TSubject>, IC
     internal static TSelf Create(TSubject subject)
     {
         var behavior = TSelf.Construct(subject);
-        
+
         BehaviorSystem<TSubject, TBase>.Register(behavior);
 
         return behavior;

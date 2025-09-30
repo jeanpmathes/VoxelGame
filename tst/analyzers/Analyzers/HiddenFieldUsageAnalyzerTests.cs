@@ -73,10 +73,10 @@ public class HiddenFieldUsageAnalyzerTests
                                 }
                             }
                             """;
-        
+
         DiagnosticResult expected = Verifier.Diagnostic(HiddenFieldUsageAnalyzer.DiagnosticID)
             .WithLocation(line: 6, column: 24).WithArguments("__f");
-        
+
         await Verifier.VerifyAnalyzerAsync(text, expected);
     }
 }

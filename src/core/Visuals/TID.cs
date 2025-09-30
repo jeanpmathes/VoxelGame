@@ -82,8 +82,8 @@ public readonly partial struct TID : IEquatable<TID>
     }
 
     /// <summary>
-    /// Create a texture identifier from a string.
-    /// The string should be in the format <c>'base_key':'x','y'</c>.
+    ///     Create a texture identifier from a string.
+    ///     The string should be in the format <c>'base_key':'x','y'</c>.
     /// </summary>
     /// <param name="str">The string to parse.</param>
     /// <param name="isBlock">The type of the texture.</param>
@@ -131,7 +131,7 @@ public readonly partial struct TID : IEquatable<TID>
     public Boolean IsMissingTexture => baseKey == MissingTextureKey;
 
     /// <summary>
-    /// Offset from this texture.
+    ///     Offset from this texture.
     /// </summary>
     /// <param name="x">The x offset. Must remain in the valid range.</param>
     /// <param name="y">The y offset. Must remain in the valid range.</param>

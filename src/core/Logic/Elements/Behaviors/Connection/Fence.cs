@@ -15,30 +15,30 @@ using VoxelGame.Core.Physics;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Connection;
 
 /// <summary>
-/// Provides the bounding volume for the <see cref="WideConnecting"/> fence block.
+///     Provides the bounding volume for the <see cref="WideConnecting" /> fence block.
 /// </summary>
 public class Fence : BlockBehavior, IBehavior<Fence, BlockBehavior, Block>
 {
     private readonly Connecting connecting;
-    
+
     private Fence(Block subject) : base(subject)
     {
         subject.Require<WideConnecting>();
         connecting = subject.Require<Connecting>();
-        
+
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static Fence Construct(Block input)
     {
         return new Fence(input);
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(state);
-        
+
         List<BoundingVolume> children = new(capacity: 6);
 
         if (north)

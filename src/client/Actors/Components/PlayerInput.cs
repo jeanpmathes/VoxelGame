@@ -41,7 +41,7 @@ public sealed class PlayerInput : ActorComponent, IConstructible<Player, PlayerI
     private PlayerInput(Player player) : base(player)
     {
         KeybindManager keybinds = player.Scene.Client.Keybinds;
-        
+
         Button forwardsButton = keybinds.GetButton(keybinds.Forwards);
         Button backwardsButton = keybinds.GetButton(keybinds.Backwards);
         Button strafeRightButton = keybinds.GetButton(keybinds.StrafeRight);
@@ -68,12 +68,6 @@ public sealed class PlayerInput : ActorComponent, IConstructible<Player, PlayerI
         Button previousButton = keybinds.GetPushButton(keybinds.PreviousPlacement);
         selectionAxis = new InputAxis(nextButton, previousButton);
     }
-    
-    /// <inheritdoc />
-    public static PlayerInput Construct(Player input)
-    {
-        return new PlayerInput(input);
-    }
 
     internal Boolean ShouldJump => jumpButton.IsDown;
 
@@ -90,6 +84,12 @@ public sealed class PlayerInput : ActorComponent, IConstructible<Player, PlayerI
     internal Boolean ShouldSelectTargeted => selectTargetedButton.IsDown;
 
     internal Boolean IsInteractionBlocked => blockInteractButton.IsDown;
+
+    /// <inheritdoc />
+    public static PlayerInput Construct(Player input)
+    {
+        return new PlayerInput(input);
+    }
 
     /// <summary>
     ///     Get the movement decided by the user input for an orientable object.

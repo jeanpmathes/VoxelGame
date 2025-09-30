@@ -163,9 +163,7 @@ public:
      * Get a buffer containing indices for the given vertex count.
      * The indices are valid for a vertex buffer that contains a list of quads.
      */
-    [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(
-        UINT                                 vertexCount,
-        std::vector<D3D12_RESOURCE_BARRIER>* barriers);
+    [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount, std::vector<D3D12_RESOURCE_BARRIER>* barriers);
 
     struct RenderData
     {
@@ -177,10 +175,7 @@ public:
     void SpoolUp();
 
     void Update(double delta);
-    void Render(
-        Allocation<ID3D12Resource> const& color,
-        Allocation<ID3D12Resource> const& depth,
-        RenderData const&                 data);
+    void Render(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth, RenderData const& data);
     void CleanupRender();
 
     /**
@@ -221,21 +216,18 @@ private:
 
     void InitializePipelineResourceViews(SpacePipelineDescription const& pipeline);
 
-    bool CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDescription);
+    bool                                                  CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDescription);
     static std::pair<std::vector<ComPtr<IDxcBlob>>, bool> CompileShaderLibraries(
         NativeClient&                                 client,
         SpacePipelineDescription const&               pipelineDescription,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline);
-    std::unique_ptr<Material> SetUpMaterial(
-        MaterialDescription const&                    description,
-        UINT                                          index,
-        nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
-    void CreateAnimations(SpacePipelineDescription const& pipeline);
-    void SetUpStaticResourceLayout(ShaderResources::Description* description);
-    void SetUpDynamicResourceLayout(ShaderResources::Description* description);
-    void SetUpAnimationResourceLayout(ShaderResources::Description* description);
-    void InitializeAnimations();
-    void CreateRaytracingOutputBuffer();
+    std::unique_ptr<Material> SetUpMaterial(MaterialDescription const& description, UINT index, nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
+    void                      CreateAnimations(SpacePipelineDescription const& pipeline);
+    void                      SetUpStaticResourceLayout(ShaderResources::Description* description);
+    void                      SetUpDynamicResourceLayout(ShaderResources::Description* description);
+    void                      SetUpAnimationResourceLayout(ShaderResources::Description* description);
+    void                      InitializeAnimations();
+    void                      CreateRaytracingOutputBuffer();
 
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateRayGenSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMissSignature() const;

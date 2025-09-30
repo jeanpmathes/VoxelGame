@@ -46,7 +46,7 @@ internal class DefaultMovement(Player player, PlayerInput input, Double flyingSp
     private Vector3d GetPhysicsBasedMovement()
     {
         Body body = player.Body;
-        
+
         Vector3d movement = input.GetMovement(player.Body.Transform, Speed, SprintSpeed, allowFlying: false);
 
         body.Move(movement, maxForce);

@@ -26,22 +26,17 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider, IConst
     /// </summary>
     public const String WorldReadyScript = "world_ready";
 
-    private readonly Session session;
     private readonly CommandInvoker commandInvoker;
     private readonly ConsoleOutput output;
-    
+
+    private readonly Session session;
+
     private SessionConsole(Session session, CommandInvoker commandInvoker) : base(session)
     {
         this.session = session;
         this.commandInvoker = commandInvoker;
 
         output = new ConsoleOutput(this);
-    }
-    
-    /// <inheritdoc />
-    public static SessionConsole Construct(Session input1, CommandInvoker input2)
-    {
-        return new SessionConsole(input1, input2);
     }
 
     /// <inheritdoc />
@@ -66,13 +61,25 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider, IConst
     }
 
     /// <inheritdoc />
+    public event EventHandler<IConsoleProvider.MessageAddedEventArgs>? MessageAdded;
+
+    /// <inheritdoc />
+    public event EventHandler? Cleared;
+
+    /// <inheritdoc />
+    public static SessionConsole Construct(Session input1, CommandInvoker input2)
+    {
+        return new SessionConsole(input1, input2);
+    }
+
+    /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)
     {
         output.Flush();
     }
 
     /// <summary>
-    /// Add a message to the console.
+    ///     Add a message to the console.
     /// </summary>
     /// <param name="message">The text of the message to add.</param>
     /// <param name="followUp">The follow-up actions associated with the message.</param>
@@ -81,20 +88,14 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider, IConst
     {
         MessageAdded?.Invoke(this, new IConsoleProvider.MessageAddedEventArgs(message, followUp, isError));
     }
-    
+
     /// <summary>
-    /// Clear the console output.
+    ///     Clear the console output.
     /// </summary>
     public void Clear()
     {
         Cleared?.Invoke(this, EventArgs.Empty);
     }
-
-    /// <inheritdoc />
-    public event EventHandler<IConsoleProvider.MessageAddedEventArgs>? MessageAdded;
-    
-    /// <inheritdoc />
-    public event EventHandler? Cleared;
 
     #region LOGGING
 

@@ -46,7 +46,7 @@ public class Section : Chainable
 
     internal void Generate(StreamWriter writer, String parent)
     {
-        String id = $"{parent.ToLowerInvariant()}_{title.ToLowerInvariant()}";
+        var id = $"{parent.ToLowerInvariant()}_{title.ToLowerInvariant()}";
 
         writer.WriteLine(@$"\subsection{{{title}}}\label{{subsec:{id}}}");
 

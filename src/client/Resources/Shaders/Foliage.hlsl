@@ -29,9 +29,7 @@
     else IgnoreHit();
 }
 
-[shader("closesthit")]void FoliageSectionClosestHit(
-    inout native::rt::HitInfo    payload,
-    native::rt::Attributes const attributes)
+[shader("closesthit")]void FoliageSectionClosestHit(inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
 {
     vg::spatial::Info const info  = vg::spatial::GetCurrentInfo(attributes);
     float3 const            color = vg::ray::GetColor(payload).rgb;
@@ -50,7 +48,4 @@
     else IgnoreHit();
 }
 
-[shader("closesthit")]void FoliageShadowClosestHit(inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes)
-{
-    hitInfo.isHit = true;
-}
+[shader("closesthit")]void FoliageShadowClosestHit(inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes) { hitInfo.isHit = true; }

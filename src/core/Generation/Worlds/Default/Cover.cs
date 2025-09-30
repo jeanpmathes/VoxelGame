@@ -42,7 +42,7 @@ public abstract class Cover
     private readonly Snow snowMode;
 
     /// <summary>
-    /// Create a new cover generator.
+    ///     Create a new cover generator.
     /// </summary>
     protected Cover(Snow snow)
     {
@@ -69,11 +69,11 @@ public abstract class Cover
             };
 
             height = Math.Clamp(height, min: 0, PartialHeight.MaximumHeight);
-            
+
             Block snow = snowMode == Snow.Loose
                 ? Blocks.Instance.Environment.LooseSnow
                 : Blocks.Instance.Environment.Snow;
-            
+
             // todo: think about a way to get the height to the block, maybe through an event or a utility function and an aspect on PartialHeight
             // todo: also probably use the GenerationState by default instead of the default state
 

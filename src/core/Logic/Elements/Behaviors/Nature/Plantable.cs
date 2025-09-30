@@ -15,7 +15,7 @@ using VoxelGame.Core.Behaviors.Events;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// The behavior for blocks that can support plant growth.
+///     The behavior for blocks that can support plant growth.
 /// </summary>
 public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavior, Block>
 {
@@ -23,39 +23,41 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
     {
         SupportsFullGrowthInitializer = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(SupportsFullGrowthInitializer), this);
     }
-    
+
     /// <summary>
-    /// Whether this block supports full plant growth.
-    /// This means that plants can reach all growth stages and are not limited to only the first few stages.
+    ///     Whether this block supports full plant growth.
+    ///     This means that plants can reach all growth stages and are not limited to only the first few stages.
     /// </summary>
     public Boolean SupportsFullGrowth { get; private set; }
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="SupportsFullGrowth"/> property.
+    ///     Aspect used to initialize the <see cref="SupportsFullGrowth" /> property.
     /// </summary>
     public Aspect<Boolean, Block> SupportsFullGrowthInitializer { get; }
-    
+
+    [LateInitialization] private partial IEvent<GrowthAttemptMessage> GrowthAttempt { get; set; }
+
     // todo: when visualizing aspects, maybe filter out by type of second argument
     // todo: so if it is Block then this are init-only aspects, all others are runtime aspects
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Plantable Construct(Block input)
     {
         return new Plantable(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
+    public override void DefineEvents(IEventRegistry registry)
+    {
+        GrowthAttempt = registry.RegisterEvent<GrowthAttemptMessage>(single: true);
+    }
+
+    /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
         SupportsFullGrowth = SupportsFullGrowthInitializer.GetValue(original: false, Subject);
     }
 
-    /// <inheritdoc/>
-    public override void DefineEvents(IEventRegistry registry)
-    {
-        GrowthAttempt = registry.RegisterEvent<GrowthAttemptMessage>(single: true);
-    }
-    
     /// <summary>
     ///     Try to grow a plant on this block.
     /// </summary>
@@ -66,7 +68,7 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
     /// <returns>True if enough fluid was available.</returns>
     public Boolean TryGrow(World world, Vector3i position, Fluid fluid, FluidLevel level)
     {
-        if (!GrowthAttempt.HasSubscribers) 
+        if (!GrowthAttempt.HasSubscribers)
             return fluid.TryTakeExact(world, position, level);
 
         GrowthAttemptMessage message = new(this)
@@ -76,44 +78,41 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
             Fluid = fluid,
             Level = level
         };
-            
+
         GrowthAttempt.Publish(message);
 
         return message.CanGrow;
     }
-    
+
     /// <summary>
-    /// Sent when a plant attempts to grow on this block.
+    ///     Sent when a plant attempts to grow on this block.
     /// </summary>
     public record GrowthAttemptMessage(Object Sender) : IEventMessage
     {
         /// <summary>
-        /// The world in which the placement was completed.
+        ///     The world in which the placement was completed.
         /// </summary>
         public World World { get; set; } = null!;
-        
+
         /// <summary>
-        /// The position at which the block was placed.
+        ///     The position at which the block was placed.
         /// </summary>
         public Vector3i Position { get; set; }
-        
+
         /// <summary>
-        /// The fluid that is required by the plant.
+        ///     The fluid that is required by the plant.
         /// </summary>
         public Fluid Fluid { get; set; } = null!;
-        
+
         /// <summary>
-        /// The amount of fluid required by the plant.
+        ///     The amount of fluid required by the plant.
         /// </summary>
         public FluidLevel Level { get; set; }
-        
+
         /// <summary>
-        /// Whether the plant can grow on this block.
-        /// If this is set to <c>true</c> by a subscriber, it must remove the fluid from the world.
+        ///     Whether the plant can grow on this block.
+        ///     If this is set to <c>true</c> by a subscriber, it must remove the fluid from the world.
         /// </summary>
         public Boolean CanGrow { get; set; } = false;
     }
-
-    [LateInitialization]
-    private partial IEvent<GrowthAttemptMessage> GrowthAttempt { get; set; }
 }

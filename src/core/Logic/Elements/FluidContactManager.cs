@@ -149,7 +149,7 @@ public class FluidContactManager
 
         Content? content = world.GetContent(
             light.position - light.fluid.FlowDirection);
-        
+
         if (content?.Block.Block.Is<Fillable>() != true) return false;
         if (content is not {Fluid: var aboveLightFluid}) return false;
         if (!IsFlowAllowed(world, light.position, aboveLightPosition) || !aboveLightFluid.IsEmpty) return false;
@@ -215,10 +215,10 @@ public class FluidContactManager
     {
         Content? fromContent = world.GetContent(from);
         Content? toContent = world.GetContent(to);
-        
+
         if (fromContent?.Block.Block.Get<Fillable>() is not {} source) return false;
         if (toContent?.Block.Block.Get<Fillable>() is not {} target) return false;
-        
+
         if (fromContent is not {Fluid.Fluid: {} fluid}) return false;
 
         var side = (to - from).ToSide();

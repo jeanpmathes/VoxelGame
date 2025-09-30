@@ -32,7 +32,7 @@ public interface ICatalogEntry : IIssueSource
     ///     The optional instance name of the catalog entry. Will be used to create the full name of the entry if not null.
     /// </summary>
     protected String? Instance { get; }
-    
+
     /// <inheritdoc />
     String? IIssueSource.InstanceName => Instance;
 

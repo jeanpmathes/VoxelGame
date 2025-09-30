@@ -15,26 +15,26 @@ using VoxelGame.Core.Physics;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Connection;
 
 /// <summary>
-/// Provides the bounding volume for the <see cref="WideConnecting"/> wall block.
+///     Provides the bounding volume for the <see cref="WideConnecting" /> wall block.
 /// </summary>
 public class Wall : BlockBehavior, IBehavior<Wall, BlockBehavior, Block>
 {
     private readonly Connecting connecting;
-    
+
     private Wall(Block subject) : base(subject)
     {
         subject.Require<WideConnecting>();
         connecting = subject.Require<Connecting>();
-        
+
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static Wall Construct(Block input)
     {
         return new Wall(input);
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(state);
@@ -51,9 +51,9 @@ public class Wall : BlockBehavior, IBehavior<Wall, BlockBehavior, Block>
             return new BoundingVolume(
                 new Vector3d(x: 0.5f, y: 0.46875f, z: 0.5f),
                 new Vector3d(x: 0.5f, y: 0.46875f, z: 0.1875f));
-        
+
         List<BoundingVolume> children = new(capacity: 6);
-        
+
 
         if (north)
         {

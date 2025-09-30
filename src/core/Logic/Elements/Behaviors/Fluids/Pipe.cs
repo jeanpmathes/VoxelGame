@@ -14,32 +14,32 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
 /// <summary>
-/// Guides the flow of fluids.
+///     Guides the flow of fluids.
 /// </summary>
 public class Pipe : BlockBehavior, IBehavior<Pipe, BlockBehavior, Block>
 {
     private Pipe(Block subject) : base(subject)
     {
         subject.Require<Piped>();
-        
+
         var fillable = subject.Require<Fillable>();
         fillable.IsFluidRenderedInitializer.ContributeConstant(value: false);
         fillable.IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
         fillable.IsOutflowAllowed.ContributeFunction(GetIsOutflowAllowed);
-        
+
         OpenSides = Aspect<Sides, State>.New<Exclusive<Sides, State>>(nameof(OpenSides), this);
     }
 
-    /// <inheritdoc/>
+    /// <summary>
+    ///     Get the sides which are open in a given state.
+    /// </summary>
+    public Aspect<Sides, State> OpenSides { get; }
+
+    /// <inheritdoc />
     public static Pipe Construct(Block input)
     {
         return new Pipe(input);
     }
-    
-    /// <summary>
-    /// Get the sides which are open in a given state.
-    /// </summary>
-    public Aspect<Sides, State> OpenSides { get; }
 
     private Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {
@@ -47,7 +47,7 @@ public class Pipe : BlockBehavior, IBehavior<Pipe, BlockBehavior, Block>
 
         return OpenSides.GetValue(Sides.None, state).HasFlag(side.ToFlag());
     }
-    
+
     private Boolean GetIsOutflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {
         (World _, Vector3i _, State state, Side side, Fluid _) = context;

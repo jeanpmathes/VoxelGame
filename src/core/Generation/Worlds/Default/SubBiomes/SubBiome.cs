@@ -22,8 +22,8 @@ namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 /// </summary>
 public sealed class SubBiome : IDisposable
 {
-    private readonly NoiseGenerator noise;
     private readonly Int32 dampeningFactor;
+    private readonly NoiseGenerator noise;
 
     /// <summary>
     ///     Create a new sub-biome.

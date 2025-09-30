@@ -20,7 +20,7 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Attributes;
 
 /// <summary>
-/// Used to define the <see cref="StateSet"/> of a block by defining the attributes of a block.
+///     Used to define the <see cref="StateSet" /> of a block by defining the attributes of a block.
 /// </summary>
 /// <param name="validator">The validator to report warnings and errors to.</param>
 public partial class StateBuilder(IValidator validator) : IStateBuilder
@@ -29,13 +29,21 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
     private const String Separator = "/";
 
     private readonly HashSet<String> names = [];
+    private List<IScoped> entries = [];
+    private UInt64 generationDefaultState;
     private String path = Root;
 
-    private UInt64 stateCount = 1;
-    private List<IScoped> entries = [];
-
     private UInt64 placementDefaultState;
-    private UInt64 generationDefaultState;
+
+    private UInt64 stateCount = 1;
+
+    /// <inheritdoc />
+    public AttributeDefinition Define(String name)
+    {
+        name = CheckName(name, isAttribute: true);
+
+        return new AttributeDefinition(name, this);
+    }
 
     private String CheckName(String name, Boolean isAttribute)
     {
@@ -69,7 +77,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
     }
 
     /// <summary>
-    /// Enclose a set of attributes in a named scope.
+    ///     Enclose a set of attributes in a named scope.
     /// </summary>
     /// <param name="name">The name of the scope, which must be unique within the current scope and alphanumeric.</param>
     /// <param name="scoped">A builder function, all attributes defined within this function will be part of the scope.</param>
@@ -84,9 +92,9 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         path = GetPath(name);
 
         scoped(this);
-        
+
         List<IScoped> innerEntries = entries;
-        
+
         entries = outerEntries;
         path = outerPath;
 
@@ -97,14 +105,6 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
     {
         entries.Add(entry);
         names.Add($"{path}{Separator}{entry.Name}");
-    }
-    
-    /// <inheritdoc />
-    public AttributeDefinition Define(String name)
-    {
-        name = CheckName(name, isAttribute: true);
-
-        return new AttributeDefinition(name, this);
     }
 
     private void AddAttribute<TValue>(AttributeImplementation<TValue> attribute, String name, TValue placementDefault, TValue generationDefault)
@@ -125,7 +125,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         UpdatePlacementDefaultState(attribute, placementDefault);
         UpdateGenerationDefaultState(attribute, generationDefault);
     }
-    
+
     private void UpdatePlacementDefaultState<TValue>(IAttribute<TValue> attribute, TValue placementDefault)
     {
         Int32 index = attribute.Provide(placementDefault);
@@ -139,7 +139,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
     }
 
     /// <summary>
-    /// Builds the <see cref="StateSet"/> with the defined attributes.
+    ///     Builds the <see cref="StateSet" /> with the defined attributes.
     /// </summary>
     /// <param name="block">The block that this state set belongs to.</param>
     /// <param name="setOffset">The offset of the state set within the global state space.</param>
@@ -149,13 +149,13 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         Debug.Assert(stateCount <= UInt32.MaxValue);
         Debug.Assert(placementDefaultState <= Int32.MaxValue);
         Debug.Assert(generationDefaultState <= Int32.MaxValue);
-        
+
         return new StateSet(block, setOffset, (UInt32) stateCount, (Int32) placementDefaultState, (Int32) generationDefaultState, entries);
     }
 
     [GeneratedRegex("^[a-z][a-zA-Z0-9]*$")]
     private static partial Regex AttributeNameRegex();
-    
+
     [GeneratedRegex("^[a-zA-Z0-9.]+$")]
     private static partial Regex ScopeNameRegex();
 
@@ -184,10 +184,10 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
 
             return new AttributeDefinition<Int32>(new Int32Attribute(min, max), name, builder);
         }
-        
+
         /// <summary>
-        /// Defines the attribute as an <see cref="Vector3i"/> attribute with the given maximum values.
-        /// The lower bound is always (0, 0, 0) and the upper bound is exclusive.
+        ///     Defines the attribute as an <see cref="Vector3i" /> attribute with the given maximum values.
+        ///     The lower bound is always (0, 0, 0) and the upper bound is exclusive.
         /// </summary>
         /// <param name="max">The maximum value for each component of the vector, which must be greater than 0.</param>
         [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Naming must match the type name.")]
@@ -251,8 +251,9 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         [MustUseReturnValue]
         public IAttribute<TValue> Attribute(TValue? placementDefault = null, TValue? generationDefault = null)
         {
-            builder.AddAttribute(attribute, name, 
-                placementDefault ?? attribute.Retrieve(index: 0), 
+            builder.AddAttribute(attribute,
+                name,
+                placementDefault ?? attribute.Retrieve(index: 0),
                 generationDefault ?? attribute.Retrieve(index: 0));
 
             return attribute;
@@ -277,12 +278,12 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
 }
 
 /// <summary>
-/// Limited interface for the <see cref="StateBuilder"/> to allow defining attributes.
+///     Limited interface for the <see cref="StateBuilder" /> to allow defining attributes.
 /// </summary>
 public interface IStateBuilder
 {
     /// <summary>
-    /// Begin defining a new attribute with the given name.
+    ///     Begin defining a new attribute with the given name.
     /// </summary>
     /// <param name="name">The name of the attribute, which must be unique within the current scope and alphanumeric.</param>
     /// <returns>The next step of the builder.</returns>

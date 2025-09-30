@@ -47,10 +47,10 @@ public static class EnumTools
 
         return BitTools.MostSignificantBit(max) + 1;
     }
-    
+
     /// <summary>
-    /// Get a list of all named positions in the given flags enum type.
-    /// A named position is a defined value in the enum that has exactly one bit set.
+    ///     Get a list of all named positions in the given flags enum type.
+    ///     A named position is a defined value in the enum that has exactly one bit set.
     /// </summary>
     /// <typeparam name="TEnum">The flags enum type.</typeparam>
     /// <returns>The list of named positions in the flags enum.</returns>
@@ -59,29 +59,6 @@ public static class EnumTools
         Debug.Assert(IsFlagsEnum<TEnum>());
 
         return PositionCache<TEnum>.Value;
-    }
-    
-    private static class PositionCache<TEnum> where TEnum : struct, Enum
-    {
-        public static IEnumerable<(String name, TEnum value)> Value { get; } = GetPositions();
-
-        private static List<(String name, TEnum value)> GetPositions()
-        {
-            List<(String name, TEnum value)> positions = [];
-            
-            foreach (TEnum flag in Enum.GetValues<TEnum>())
-            {
-                UInt64 value = GetUnsignedValue(flag);
-
-                if (BitTools.CountSetBits(value) != 1) 
-                    continue;
-
-                String name = Enum.GetName(flag) ?? "Unknown";
-                positions.Add((name, flag));
-            }
-            
-            return positions;
-        }
     }
 
     /// <summary>
@@ -137,5 +114,28 @@ public static class EnumTools
         if (Unsafe.SizeOf<TEnum>() == sizeof(UInt64)) return Unsafe.As<UInt64, TEnum>(ref v64);
 
         throw Exceptions.UnsupportedValue(v64);
+    }
+
+    private static class PositionCache<TEnum> where TEnum : struct, Enum
+    {
+        public static IEnumerable<(String name, TEnum value)> Value { get; } = GetPositions();
+
+        private static List<(String name, TEnum value)> GetPositions()
+        {
+            List<(String name, TEnum value)> positions = [];
+
+            foreach (TEnum flag in Enum.GetValues<TEnum>())
+            {
+                UInt64 value = GetUnsignedValue(flag);
+
+                if (BitTools.CountSetBits(value) != 1)
+                    continue;
+
+                String name = Enum.GetName(flag) ?? "Unknown";
+                positions.Add((name, flag));
+            }
+
+            return positions;
+        }
     }
 }

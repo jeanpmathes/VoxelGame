@@ -13,35 +13,35 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
 /// <summary>
-/// Behavior that applies a wet tint to a block when it is wet.
+///     Behavior that applies a wet tint to a block when it is wet.
 /// </summary>
 public class WetTint : BlockBehavior, IBehavior<WetTint, BlockBehavior, Block>
 {
     private WetTint(Block subject) : base(subject)
     {
         WetColorInitializer = Aspect<ColorS, Block>.New<Exclusive<ColorS, Block>>(nameof(WetColorInitializer), this);
-        
+
         subject.Require<Wet>();
         subject.Require<Meshed>().Tint.ContributeFunction((original, state) => state.Fluid?.IsLiquid == true ? WetColor : original);
     }
-    
+
     /// <summary>
-    /// The color tint to apply when the block is wet.
+    ///     The color tint to apply when the block is wet.
     /// </summary>
     public ColorS WetColor { get; private set; } = ColorS.LightGray;
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="WetColor"/> property.
+    ///     Aspect used to initialize the <see cref="WetColor" /> property.
     /// </summary>
     public Aspect<ColorS, Block> WetColorInitializer { get; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static WetTint Construct(Block input)
     {
         return new WetTint(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
         WetColor = WetColorInitializer.GetValue(ColorS.LightGray, Subject);

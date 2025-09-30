@@ -29,9 +29,9 @@ internal class FlagsAttribute<TFlags> : AttributeImplementation<TFlags> where TF
     public override Property RetrieveRepresentation(Int32 index)
     {
         TFlags value = Retrieve(index);
-        
+
         List<Property> flags = new(capacity: EnumTools.CountFlags<TFlags>());
-        
+
         foreach ((String name, TFlags flag) in EnumTools.GetPositions<TFlags>())
         {
             flags.Add(new Truth(name, value.HasFlag(flag)));
@@ -44,7 +44,7 @@ internal class FlagsAttribute<TFlags> : AttributeImplementation<TFlags> where TF
     {
         return state.Get(this).ToString();
     }
-    
+
     public override State SetValues(State state, JsonNode values)
     {
         return Enum.TryParse(values.GetValue<String>(), out TFlags result) ? state.With(this, result) : state;

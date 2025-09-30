@@ -28,8 +28,7 @@ namespace
     }
 
     constexpr auto UPLOAD_STATE = D3D12_RESOURCE_STATE_COPY_DEST;
-    constexpr auto USABLE_STATE = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE |
-        D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
+    constexpr auto USABLE_STATE = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 
     Allocation<ID3D12Resource> CreateTextureResource(
         NativeClient const&              client,
@@ -49,11 +48,7 @@ namespace
 
         auto const state = requiresUpload ? UPLOAD_STATE : USABLE_STATE;
 
-        Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(
-            client,
-            textureDescription,
-            D3D12_HEAP_TYPE_DEFAULT,
-            state);
+        Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(client, textureDescription, D3D12_HEAP_TYPE_DEFAULT, state);
         NAME_D3D12_OBJECT(texture);
 
         if (srv != nullptr)
@@ -78,12 +73,8 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
 
     uploader.UploadTexture(data, description, texture);
 
-    auto result = std::make_unique<Texture>(
-        uploader.GetClient(),
-        texture,
-        DirectX::XMUINT3{description.width, description.height, description.levels},
-        srv);
-    auto const ptr = result.get();
+    auto       result = std::make_unique<Texture>(uploader.GetClient(), texture, DirectX::XMUINT3{description.width, description.height, description.levels}, srv);
+    auto const ptr    = result.get();
 
     // When uploading before use, the texture will be in safe (non-fresh) state and can be used without transition.
     ptr->m_usable = uploader.IsUploadingBeforeAnyUse();
@@ -99,11 +90,7 @@ Texture* Texture::Create(NativeClient& client, TextureDescription const descript
     D3D12_SHADER_RESOURCE_VIEW_DESC srv;
     Allocation<ID3D12Resource>      texture = CreateTextureResource(client, description, false, &srv);
 
-    auto result = std::make_unique<Texture>(
-        client,
-        texture,
-        DirectX::XMUINT3{description.width, description.height, description.levels},
-        srv);
+    auto result = std::make_unique<Texture>(client, texture, DirectX::XMUINT3{description.width, description.height, description.levels}, srv);
 
     auto const ptr = result.get();
 
@@ -114,11 +101,7 @@ Texture* Texture::Create(NativeClient& client, TextureDescription const descript
     return ptr;
 }
 
-Texture::Texture(
-    NativeClient&                          client,
-    Allocation<ID3D12Resource> const&      resource,
-    DirectX::XMUINT3                       size,
-    D3D12_SHADER_RESOURCE_VIEW_DESC const& srvDesc)
+Texture::Texture(NativeClient& client, Allocation<ID3D12Resource> const& resource, DirectX::XMUINT3 size, D3D12_SHADER_RESOURCE_VIEW_DESC const& srvDesc)
     : Object(client)
   , m_resource(resource)
   , m_srvDesc(srvDesc)
@@ -141,14 +124,9 @@ void Texture::TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> const command
     m_usable = true;
 }
 
-void Texture::CreateUsabilityBarrier(
-    ComPtr<ID3D12GraphicsCommandList> const commandList,
-    Allocation<ID3D12Resource> const        resource)
+void Texture::CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> const commandList, Allocation<ID3D12Resource> const resource)
 {
-    CD3DX12_RESOURCE_BARRIER const barrier = CD3DX12_RESOURCE_BARRIER::Transition(
-        resource.Get(),
-        UPLOAD_STATE,
-        USABLE_STATE);
+    CD3DX12_RESOURCE_BARRIER const barrier = CD3DX12_RESOURCE_BARRIER::Transition(resource.Get(), UPLOAD_STATE, USABLE_STATE);
 
     commandList->ResourceBarrier(1, &barrier);
 }

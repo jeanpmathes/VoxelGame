@@ -25,47 +25,56 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// </summary>
 public class SimpleBlock : Elements_Block, IOverlayTextureProvider
 {
-    private readonly Simple simple;
-    
     private readonly SideArray<Simple.MeshData[]> meshData = new();
-    
-    /// <inheritdoc />
-    protected override Boolean IsAlwaysFull => true;
-    
-    /// <inheritdoc />
-    public override Meshable Meshable => Meshable.Simple;
+    private readonly Simple simple;
 
     /// <inheritdoc />
     public SimpleBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         simple = Require<Simple>();
-        
+
         BoundingVolume.ContributeConstant(Physics.BoundingVolume.Block, exclusive: true);
-        
+
         Require<Overlay>().OverlayTextureProvider.ContributeConstant(this);
     }
-    
+
     /// <inheritdoc />
-    protected override void OnValidate()
+    protected override Boolean IsAlwaysFull => true;
+
+    /// <inheritdoc />
+    public override Meshable Meshable => Meshable.Simple;
+
+    OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
     {
-        
+        Simple.MeshData mesh = meshData[Side.Front][content.Block.Index];
+
+        return new OverlayTexture
+        {
+            TextureIndex = mesh.TextureIndex,
+            Tint = mesh.Tint,
+            IsAnimated = mesh.IsAnimated
+        };
     }
-    
+
+    /// <inheritdoc />
+    protected override void OnValidate() {}
+
     /// <inheritdoc />
     protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
     {
         foreach (Side side in Side.All.Sides())
         {
             meshData[side] = new Simple.MeshData[States.Count];
-            
+
             foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
             {
                 if (!Constraint.IsStateValid(state))
                 {
                     meshData[side][index] = new Simple.MeshData(ITextureIndexProvider.MissingTextureIndex, IsTextureRotated: false, ColorS.None, IsAnimated: false);
+
                     continue;
                 }
-                
+
                 meshData[side][index] = simple.GetMeshData(state, side, textureIndexProvider);
             }
         }
@@ -127,20 +136,8 @@ public class SimpleBlock : Elements_Block, IOverlayTextureProvider
     public static Boolean IsHiddenFace(Block current, State neighbor, Side side)
     {
         Boolean blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
-                                                 || (current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques);
+                                                 || current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques;
 
         return neighbor.IsSideFull(side.Opposite()) && blockToCheckIsConsideredOpaque;
-    }
-    
-    OverlayTexture IOverlayTextureProvider.GetOverlayTexture(Content content)
-    {
-        Simple.MeshData mesh = meshData[Side.Front][content.Block.Index];
-
-        return new OverlayTexture
-        {
-            TextureIndex = mesh.TextureIndex,
-            Tint = mesh.Tint,
-            IsAnimated = mesh.IsAnimated
-        };
     }
 }

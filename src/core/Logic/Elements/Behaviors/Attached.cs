@@ -17,65 +17,28 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors;
 
 /// <summary>
-/// A block which must be attached to another block in order to exist.
+///     A block which must be attached to another block in order to exist.
 /// </summary>
 public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
 {
     /// <summary>
-    /// Which sides of the block can be attached to other blocks.
-    /// </summary>
-    public Sides AttachmentSides { get; private set; } = Sides.All;
-    
-    /// <summary>
-    /// Aspect used to initialize the <see cref="AttachmentSides"/> property.
-    /// </summary>
-    public Aspect<Sides, Block> AttachmentSidesInitializer { get; }
-    
-    /// <summary>
-    /// Get the sides the block is currently attached at in a given state.
-    /// </summary>
-    public Aspect<Sides, State> AttachedSides { get; }
-    
-    /// <summary>
-    /// Get a state where the block is attached in the given sides, starting from a given other state.
-    /// May be <c>null</c> if the given sides are not supported by the block.
-    /// </summary>
-    public Aspect<State?, (State state, Sides sides)> AttachedState { get; }
-    
-    /// <summary>
-    /// Get whether the block is attached by any other means not covered by this behavior.
-    /// Does not have an effect if the mode is <see cref="AttachmentMode.Multi"/>.
-    /// </summary>
-    public Aspect<Boolean, (World world, Vector3i position, State state)> IsOtherwiseAttached { get; }
-
-    /// <summary>
-    /// Describes how the block can be attached.
+    ///     Describes how the block can be attached.
     /// </summary>
     public enum AttachmentMode
     {
         /// <summary>
-        /// The block can only be attached to one side at a time.
-        /// If that side is removed, the block will be destroyed.
+        ///     The block can only be attached to one side at a time.
+        ///     If that side is removed, the block will be destroyed.
         /// </summary>
         Single,
-        
+
         /// <summary>
-        /// The block can be attached to multiple sides at a time.
-        /// If a single side is removed, the block will remain as long as it is still attached to at least one other side.
-        /// The block will not re-attach to sides it is not currently attached to.
+        ///     The block can be attached to multiple sides at a time.
+        ///     If a single side is removed, the block will remain as long as it is still attached to at least one other side.
+        ///     The block will not re-attach to sides it is not currently attached to.
         /// </summary>
         Multi
     }
-
-    /// <summary>
-    /// The attachment mode of the block.
-    /// </summary>
-    public AttachmentMode Mode { get; private set; } = AttachmentMode.Single;
-
-    /// <summary>
-    /// Aspect used to initialize the <see cref="Mode"/> property.
-    /// </summary>
-    public Aspect<AttachmentMode, Block> ModeInitializer { get; }
 
     private Attached(Block subject) : base(subject)
     {
@@ -90,11 +53,54 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
         subject.IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
-    
+
+    /// <summary>
+    ///     Which sides of the block can be attached to other blocks.
+    /// </summary>
+    public Sides AttachmentSides { get; private set; } = Sides.All;
+
+    /// <summary>
+    ///     Aspect used to initialize the <see cref="AttachmentSides" /> property.
+    /// </summary>
+    public Aspect<Sides, Block> AttachmentSidesInitializer { get; }
+
+    /// <summary>
+    ///     Get the sides the block is currently attached at in a given state.
+    /// </summary>
+    public Aspect<Sides, State> AttachedSides { get; }
+
+    /// <summary>
+    ///     Get a state where the block is attached in the given sides, starting from a given other state.
+    ///     May be <c>null</c> if the given sides are not supported by the block.
+    /// </summary>
+    public Aspect<State?, (State state, Sides sides)> AttachedState { get; }
+
+    /// <summary>
+    ///     Get whether the block is attached by any other means not covered by this behavior.
+    ///     Does not have an effect if the mode is <see cref="AttachmentMode.Multi" />.
+    /// </summary>
+    public Aspect<Boolean, (World world, Vector3i position, State state)> IsOtherwiseAttached { get; }
+
+    /// <summary>
+    ///     The attachment mode of the block.
+    /// </summary>
+    public AttachmentMode Mode { get; private set; } = AttachmentMode.Single;
+
+    /// <summary>
+    ///     Aspect used to initialize the <see cref="Mode" /> property.
+    /// </summary>
+    public Aspect<AttachmentMode, Block> ModeInitializer { get; }
+
     /// <inheritdoc />
     public static Attached Construct(Block input)
     {
         return new Attached(input);
+    }
+
+    /// <inheritdoc />
+    public override void SubscribeToEvents(IEventBus bus)
+    {
+        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     /// <inheritdoc />
@@ -103,12 +109,6 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
         AttachmentSides = AttachmentSidesInitializer.GetValue(Sides.All, Subject);
         Mode = ModeInitializer.GetValue(AttachmentMode.Single, Subject);
     }
-    
-    /// <inheritdoc />
-    public override void SubscribeToEvents(IEventBus bus)
-    {
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
-    }
 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
@@ -116,22 +116,22 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
         if (AttachmentSides == Sides.None)
             validator.ReportWarning("Block cannot be placed as it has no sides allowing attachment");
     }
-    
+
     private Boolean GetIsPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
         (World world, Vector3i position, Actor? actor) = context;
-        
+
         Side? side = actor?.GetTargetedSide()?.Opposite();
-        
+
         if (side == null)
             return false;
-        
+
         if (!AttachmentSides.HasFlag(side.Value.ToFlag()))
             return false;
-        
+
         return world.GetBlock(side.Value.Offset(position))?.IsFullySolid == true;
     }
-    
+
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
     {
         (World _, Vector3i _, Actor? actor) = context;
@@ -145,36 +145,34 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
 
             return AttachedState.GetValue(original, (original, side.Value.ToFlag())) ?? original;
         }
-        else
+
+        var attachableSides = Sides.None;
+
+        foreach (Side possibleSide in Side.All.Sides())
         {
-            Sides attachableSides = Sides.None;
-
-            foreach (Side possibleSide in Side.All.Sides())
+            if (AttachmentSides.HasFlag(possibleSide.ToFlag()) &&
+                context.world.GetBlock(possibleSide.Offset(context.position))?.IsFullySolid == true)
             {
-                if (AttachmentSides.HasFlag(possibleSide.ToFlag()) &&
-                    context.world.GetBlock(possibleSide.Offset(context.position))?.IsFullySolid == true)
-                {
-                    attachableSides |= possibleSide.ToFlag();
-                }
+                attachableSides |= possibleSide.ToFlag();
             }
-
-            return AttachedState.GetValue(original, (original, attachableSides)) ?? original;
         }
+
+        return AttachedState.GetValue(original, (original, attachableSides)) ?? original;
     }
-    
+
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
     {
         Sides sides = AttachedSides.GetValue(Sides.None, message.State);
-        
+
         if (!sides.HasFlag(message.Side.ToFlag()) ||
             message.World.GetBlock(message.Side.Offset(message.Position))?.IsFullySolid == true)
             return;
-        
+
         if (Mode == AttachmentMode.Single)
         {
             if (IsOtherwiseAttached.GetValue(original: false, (message.World, message.Position, message.State)))
                 return;
-            
+
             Subject.ScheduleDestroy(message.World, message.Position);
         }
         else
@@ -192,10 +190,10 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
             }
         }
     }
-    
+
     /// <summary>
-    /// Check if the block is still properly attached, and destroy it if not.
-    /// Use this if the value of <see cref="IsOtherwiseAttached"/> may have changed.
+    ///     Check if the block is still properly attached, and destroy it if not.
+    ///     Use this if the value of <see cref="IsOtherwiseAttached" /> may have changed.
     /// </summary>
     /// <param name="world">The world the block is in.</param>
     /// <param name="position">The position of the block.</param>
@@ -208,7 +206,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
         {
             if (IsOtherwiseAttached.GetValue(original: false, (world, position, state)))
                 return;
-            
+
             foreach (Side side in Side.All.Sides())
             {
                 if (!sides.HasFlag(side.ToFlag()))

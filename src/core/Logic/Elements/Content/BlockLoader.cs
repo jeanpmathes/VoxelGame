@@ -23,11 +23,11 @@ public sealed class BlockLoader : IResourceLoader
     {
         return context.Require<ITextureIndexProvider>(textureIndexProvider =>
             context.Require<IBlockModelProvider>(blockModelProvider =>
-                context.Require<VisualConfiguration>(visualConfiguration => 
+                context.Require<VisualConfiguration>(visualConfiguration =>
                     Blocks.Instance.Initialize(
-                        textureIndexProvider, 
-                        blockModelProvider, 
-                        visualConfiguration, 
+                        textureIndexProvider,
+                        blockModelProvider,
+                        visualConfiguration,
                         context))));
     }
 }

@@ -267,7 +267,7 @@ public abstract class Layer
             Block block = loose
                 ? Blocks.Instance.Environment.LooseSnow
                 : Blocks.Instance.Environment.Snow;
-            
+
             // todo: see Cover for the same issue with height
 
             snow = new Content(block.States.Default, FluidInstance.Default);
@@ -342,9 +342,9 @@ public abstract class Layer
     private sealed class StonyTop : Layer
     {
         private readonly Int32 amplitude;
+        private readonly Content grass;
 
         private readonly Content soil;
-        private readonly Content grass;
 
         public StonyTop(Int32 width, Int32 amplitude)
         {
@@ -392,8 +392,8 @@ public abstract class Layer
 
     private sealed class OasisTop : Layer
     {
-        private readonly Content sandstone = new(Blocks.Instance.Stones.Sandstone.Base);
         private readonly Content sand = new(Blocks.Instance.Environment.Sand);
+        private readonly Content sandstone = new(Blocks.Instance.Stones.Sandstone.Base);
 
         private readonly Int32 subBiomeOffset;
 

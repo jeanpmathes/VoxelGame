@@ -14,8 +14,8 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// Core behavior for all soil blocks.
-/// Not only the soil block itself, but also blocks that contain significant amounts of soil.
+///     Core behavior for all soil blocks.
+///     Not only the soil block itself, but also blocks that contain significant amounts of soil.
 /// </summary>
 public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
 {
@@ -25,19 +25,19 @@ public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
         subject.Require<Membrane>().MaxViscosityInitializer.ContributeConstant(value: 100);
         subject.Require<Fillable>().IsFluidRenderedInitializer.ContributeConstant(value: false);
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Soil Construct(Block input)
     {
         return new Soil(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.RandomUpdateMessage>(OnRandomUpdate);
         bus.Subscribe<Block.GeneratorUpdateMessage>(OnGeneratorUpdate);
-        
+
         bus.Subscribe<AshCoverable.AshCoverMessage>(OnAshCover);
     }
 
@@ -48,19 +48,19 @@ public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
         if (fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
             message.World.SetContent(new Content(Blocks.Instance.Environment.Mud, Elements.Fluids.Instance.None), message.Position);
     }
-    
+
     private static void OnGeneratorUpdate(Block.GeneratorUpdateMessage message)
     {
         if (message.Content.Fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
             message.Content = new Content(Blocks.Instance.Environment.Mud);
     }
-    
+
     private static void OnAshCover(AshCoverable.AshCoverMessage message)
     {
         message.World.SetBlock(new State(Blocks.Instance.Environment.AshCoveredSoil), message.Position);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
         if (!Subject.Is<Wet>())

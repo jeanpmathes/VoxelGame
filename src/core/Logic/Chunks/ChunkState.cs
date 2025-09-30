@@ -27,13 +27,14 @@ public abstract class ChunkState
     /// </summary>
     private Boolean isAccessSufficient;
 
+    private ChunkState? next;
+    private ChunkState? previous;
+
     /// <summary>
     ///     Whether this state has exited and released all resources.
     /// </summary>
     private Boolean released;
 
-    private ChunkState? next;
-    private ChunkState? previous;
     private RequestQueue requests = null!;
 
     /// <summary>
@@ -480,7 +481,7 @@ public abstract class ChunkState
             return true;
         }
 
-        Debug.Assert((guard == null && Access == Access.None) || (guard != null && Chunk.IsHeldBy(guard, Access)));
+        Debug.Assert(guard == null && Access == Access.None || guard != null && Chunk.IsHeldBy(guard, Access));
 
         return false;
     }

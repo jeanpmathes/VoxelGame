@@ -19,7 +19,7 @@ public abstract class Combinator(String type) : IIssueSource
     ///     Get the type of this combinator. Used as a key to find the correct combinator.
     /// </summary>
     public String Type { get; } = type;
-    
+
     /// <inheritdoc />
     public String? InstanceName => Type;
 

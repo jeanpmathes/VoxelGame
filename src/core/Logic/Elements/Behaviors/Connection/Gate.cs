@@ -21,38 +21,37 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Connection;
 
 /// <summary>
-/// Provides the functionality and collision for fence gates.
+///     Provides the functionality and collision for fence gates.
 /// </summary>
 public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
 {
     private readonly Connectable connectable;
     private readonly LateralRotatable rotatable;
-    
-    [LateInitialization]
-    private partial IAttribute<Boolean> IsOpen { get; set; }
 
     private Gate(Block subject) : base(subject)
     {
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
-        
+
         connectable = subject.Require<Connectable>();
         connectable.StrengthInitializer.ContributeConstant(Connectable.Strengths.Wide);
         connectable.IsConnectionAllowed.ContributeFunction(IsConnectionAllowed);
-        
+
         rotatable = subject.Require<LateralRotatable>();
-        
+
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-        
+
         subject.IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
+
+    [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
 
     /// <inheritdoc />
     public static Gate Construct(Block input)
     {
         return new Gate(input);
     }
-    
+
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
@@ -65,12 +64,12 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
     {
         IsOpen = builder.Define(nameof(IsOpen)).Boolean().Attribute();
     }
-    
+
     private Selector GetSelector(Selector original, State state)
     {
         return original.WithLayer(state.Get(IsOpen) ? 1 : 0);
     }
-    
+
     private Boolean IsConnectionAllowed(Boolean original, (Side side, State state) context)
     {
         (Side side, State state) = context;
@@ -86,7 +85,7 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
             _ => false
         };
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Orientation orientation = rotatable.GetOrientation(state);
@@ -213,24 +212,24 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
                     new Vector3d(x: 0.1875f, y: 0.09375f, z: 0.0625f)));
         }
     }
-    
+
     private Boolean GetIsPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
         (World world, Vector3i position, Actor? _) = context;
-        
+
         Boolean canConnectOnAxisX = CheckOrientation(world, position, Orientation.East) ||
-                           CheckOrientation(world, position, Orientation.West);
+                                    CheckOrientation(world, position, Orientation.West);
 
         Boolean canConnectOnAxisZ = CheckOrientation(world, position, Orientation.South) ||
                                     CheckOrientation(world, position, Orientation.North);
 
         return canConnectOnAxisX || canConnectOnAxisZ;
     }
-    
+
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
     {
         (World world, Vector3i position, Actor? actor) = context;
-        
+
         Orientation orientation = actor?.Head?.Forward.ToOrientation() ?? Orientation.North;
 
         Boolean connectX = CheckOrientation(world, position, Orientation.East) ||
@@ -238,12 +237,12 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
 
         Boolean connectZ = CheckOrientation(world, position, Orientation.South) ||
                            CheckOrientation(world, position, Orientation.North);
-        
+
         if (orientation.IsZ() && !connectX || orientation.IsX() && !connectZ) orientation = orientation.Rotate();
 
         return rotatable.SetOrientation(original, orientation);
     }
-    
+
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
     {
         Orientation orientation = rotatable.GetOrientation(message.State);
@@ -254,15 +253,15 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
             CheckOrientation(message.World, message.Position, message.Side.ToOrientation()) ||
             CheckOrientation(message.World, message.Position, message.Side.ToOrientation().Opposite());
 
-        if (!valid) 
+        if (!valid)
             Subject.ScheduleDestroy(message.World, message.Position);
     }
-    
+
     private void OnActorInteraction(Block.ActorInteractionMessage message)
     {
         Orientation orientation = rotatable.GetOrientation(message.State);
         Boolean isClosed = !message.State.Get(IsOpen);
-        
+
         var body = message.Actor.GetComponent<Body>();
 
         // Check if orientation has to be inverted.
@@ -285,17 +284,16 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
         BoundingVolume volume = new(center, extents);
 
         if (body != null && body.Collider.Intersects(volume.GetColliderAt(message.Position))) return;
-        
+
         isClosed = !isClosed;
-        
+
         message.Actor.World.SetBlock(rotatable.SetOrientation(message.State.With(IsOpen, !isClosed), orientation), message.Position);
     }
-    
+
     private static Boolean CheckOrientation(World world, Vector3i position, Orientation orientation)
     {
         State? other = world.GetBlock(orientation.Offset(position));
 
         return other?.Block.Get<Connectable>() is {} connectable && connectable.CanConnect(other.Value, orientation.ToSide().Opposite(), connectable);
     }
-
 }

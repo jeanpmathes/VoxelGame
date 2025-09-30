@@ -16,25 +16,25 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-/// Rotates the player head and camera based on mouse input.
+///     Rotates the player head and camera based on mouse input.
 /// </summary>
 public class PlayerRotator : ActorComponent, IConstructible<Player, PlayerRotator>
 {
-    private readonly Player player;
-    
-    private readonly LookInput input;
     private readonly Camera camera;
-    
+
+    private readonly LookInput input;
+    private readonly Player player;
+
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Transform transform;
-    
+
     private PlayerRotator(Player player) : base(player)
     {
         this.player = player;
-        
+
         input = player.Scene.Client.Keybinds.LookBind;
         camera = player.Camera;
-        
+
         transform = player.GetRequiredComponent<Transform>();
     }
 
@@ -49,9 +49,9 @@ public class PlayerRotator : ActorComponent, IConstructible<Player, PlayerRotato
     {
         if (!player.Scene.CanHandleGameInput)
             return;
-        
+
         (Double yaw, Double pitch) = input.Value;
-        
+
         // The pitch is clamped in the camera class.
         camera.Yaw += yaw;
         camera.Pitch += pitch;

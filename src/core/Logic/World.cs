@@ -373,15 +373,15 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
-        
+
         Section section = chunk.GetSection(position);
 
         UInt32 oldValue = section.GetContent(position);
         UInt32 newValue = Section.Encode(newContent);
         Section.Decode(oldValue, out Content oldContent);
-        
+
         section.SetContent(position, newValue);
-        
+
         newContent.Block.Block.DoStateUpdate(this, position, oldContent, newContent);
         if (updateFluid) newContent.Fluid.Fluid.UpdateNow(this, position, newContent.Fluid);
 
@@ -637,7 +637,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <param name="updateTimer">A timer for profiling.</param>
     public void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
     {
-        foreach (WorldComponent component in Components) 
+        foreach (WorldComponent component in Components)
             component.OnLogicUpdateInActiveState(deltaTime, updateTimer);
     }
 

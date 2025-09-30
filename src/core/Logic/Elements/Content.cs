@@ -41,16 +41,16 @@ public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, Boole
 public record struct Content(State Block, FluidInstance Fluid)
 {
     /// <summary>
-    /// Get the default state, which is always air.
-    /// </summary>
-    public static State DefaultState => Blocks.Instance.Core.Air.States.Default;
-    
-    /// <summary>
     ///     Create a new content instance.
     /// </summary>
     /// <param name="block">The block instance. The data is assumed to be 0.</param>
     /// <param name="fluid">The fluid instance. The level is assumed to be maximal and the fluid is assumed to be static.</param>
     public Content(Block? block = null, Fluid? fluid = null) : this(block?.States.Default ?? DefaultState, fluid.AsInstance()) {}
+
+    /// <summary>
+    ///     Get the default state, which is always air.
+    /// </summary>
+    public static State DefaultState => Blocks.Instance.Core.Air.States.Default;
 
     /// <summary>
     ///     Get the default content.
@@ -67,7 +67,7 @@ public record struct Content(State Block, FluidInstance Fluid)
     ///     allowing to set the block to a new value without any problems.
     /// </summary>
     public Boolean IsSettable => Block.IsReplaceable && Fluid.IsEmpty;
-    
+
     /// <inheritdoc />
     public override String ToString()
     {

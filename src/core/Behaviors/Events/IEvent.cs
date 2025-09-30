@@ -15,13 +15,13 @@ namespace VoxelGame.Core.Behaviors.Events;
 public interface IEvent<in TEventMessage> where TEventMessage : IEventMessage
 {
     /// <summary>
+    ///     Get whether this event has any subscribers.
+    /// </summary>
+    Boolean HasSubscribers { get; }
+
+    /// <summary>
     ///     Publish an event message to all subscribers of this event.
     /// </summary>
     /// <param name="message">The event message to publish.</param>
     public void Publish(TEventMessage message);
-
-    /// <summary>
-    /// Get whether this event has any subscribers.
-    /// </summary>
-    Boolean HasSubscribers { get; }
 }

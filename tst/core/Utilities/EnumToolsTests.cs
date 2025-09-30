@@ -33,12 +33,12 @@ public class EnumToolsTests
     {
         Assert.Equal(expected: 3, EnumTools.CountFlags<Values>());
     }
-    
+
     [Fact]
     public void EnumTools_GetPositions_ShouldReturnCorrectPositionsForFlagsEnum()
     {
         IEnumerable<(String name, Values value)> positions = EnumTools.GetPositions<Values>().ToList();
-        
+
         Assert.Equal(expected: 3, positions.Count());
         Assert.Contains((nameof(Values.Option1), Values.Option1), positions);
         Assert.Contains((nameof(Values.Option2), Values.Option2), positions);

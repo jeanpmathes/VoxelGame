@@ -16,25 +16,25 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
-/// Implements the interaction logic of the player.
+///     Implements the interaction logic of the player.
 /// </summary>
 public class Interaction : ActorComponent, IConstructible<Player, Interaction>
 {
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly PlayerInput input;
+
     private readonly Player player;
 
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
-    private readonly Targeting targeting;
-    
-    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
-    private readonly PlayerInput input;
-    
-    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlacementSelection selection;
-    
-    private Interaction(Player player) : base(player) 
+
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly Targeting targeting;
+
+    private Interaction(Player player) : base(player)
     {
         this.player = player;
-        
+
         targeting = player.GetRequiredComponent<Targeting>();
         input = player.GetRequiredComponent<PlayerInput, Player>();
         selection = player.GetRequiredComponent<PlacementSelection, Player>();
@@ -51,13 +51,13 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
     {
         if (!player.Scene.CanHandleGameInput)
             return;
-        
+
         if (!targeting.HasTarget) return;
 
         PlaceInteract(targeting.Block!.Value, targeting.Position!.Value);
         DestroyInteract(targeting.Block!.Value, targeting.Position!.Value);
     }
-    
+
     private void PlaceInteract(State targetedBlock, Vector3i targetedPosition)
     {
         if (!input.ShouldInteract) return;

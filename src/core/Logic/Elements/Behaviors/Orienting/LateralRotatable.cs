@@ -16,13 +16,10 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
 /// <summary>
-/// Allows a block to be rotated in the four cardinal directions.
+///     Allows a block to be rotated in the four cardinal directions.
 /// </summary>
 public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, BlockBehavior, Block>
 {
-    [LateInitialization]
-    private partial IAttribute<Orientation> Orientation { get; set; }
-    
     private LateralRotatable(Block subject) : base(subject)
     {
         subject.Require<Rotatable>().Turns.ContributeFunction(GetTurns);
@@ -31,6 +28,8 @@ public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatabl
         siding.Side.ContributeFunction(GetSide);
         siding.SidedState.ContributeFunction(GetSidedState);
     }
+
+    [LateInitialization] private partial IAttribute<Orientation> Orientation { get; set; }
 
     /// <inheritdoc />
     public static LateralRotatable Construct(Block input)
@@ -42,9 +41,9 @@ public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatabl
     public override void DefineState(IStateBuilder builder)
     {
         Orientation = builder.Define(nameof(Orientation)).Enum<Orientation>()
-            .Attribute(placementDefault: Utilities.Orientation.South, generationDefault: Utilities.Orientation.South);
+            .Attribute(Utilities.Orientation.South, Utilities.Orientation.South);
     }
-    
+
     private Int32 GetTurns(Int32 original, State state)
     {
         Orientation currentOrientation = GetOrientation(state);
@@ -58,24 +57,24 @@ public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatabl
             _ => throw Exceptions.UnsupportedEnumValue(currentOrientation)
         };
     }
-    
+
     private Side GetSide(Side original, State state)
     {
         return GetOrientation(state).ToSide();
     }
-    
+
     private State? GetSidedState(State? original, (State state, Side side) context)
     {
         (State state, Side side) = context;
 
         if (!side.IsLateral())
             return null;
-        
+
         return SetOrientation(state, side.ToOrientation());
     }
-    
+
     /// <summary>
-    /// Get the orientation of the block in the given state.
+    ///     Get the orientation of the block in the given state.
     /// </summary>
     /// <param name="state">The state to query.</param>
     /// <returns>The orientation of the block in the given state.</returns>
@@ -85,7 +84,7 @@ public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatabl
     }
 
     /// <summary>
-    /// Set the orientation of the block in the given state.
+    ///     Set the orientation of the block in the given state.
     /// </summary>
     /// <param name="state">The state to start from.</param>
     /// <param name="newOrientation">The new orientation.</param>

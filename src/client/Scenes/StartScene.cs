@@ -20,9 +20,9 @@ namespace VoxelGame.Client.Scenes;
 /// </summary>
 public sealed class StartScene : Scene
 {
-    private readonly WorldProvider worldProvider;
     private readonly Func<Boolean> isSafeToClose;
-    
+    private readonly WorldProvider worldProvider;
+
     internal StartScene(Application.Client client, UserInterfaceResources uiResources, ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly) : base(client)
     {
         worldProvider = new WorldProvider(client, Program.WorldsDirectory);
@@ -42,18 +42,18 @@ public sealed class StartScene : Scene
             settingsProviders,
             uiResources,
             drawBackground: true);
-        
+
         isSafeToClose = () => ui.IsSafeToClose;
 
         AddComponent<UserInterfaceHook, UserInterface>(ui);
         AddComponent<SetExitAction, StartUserInterface>(ui);
-        
+
         if (resourceLoadingIssueReport != null)
         {
             AddComponent<ResourceLoadingReportHook, (ResourceLoadingIssueReport, StartUserInterface)>(
                 (resourceLoadingIssueReport, ui));
         }
-        
+
         if (loadWorldDirectly.HasValue)
         {
             AddComponent<DirectWorldLoad, (IWorldProvider, Int32)>((worldProvider, loadWorldDirectly.Value));

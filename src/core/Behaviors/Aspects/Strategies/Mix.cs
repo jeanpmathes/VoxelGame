@@ -12,7 +12,7 @@ namespace VoxelGame.Core.Behaviors.Aspects.Strategies;
 /// <summary>
 ///     Mixes multiple contributions of all contributors.
 ///     This strategy can only be used when the value type is <see cref="ColorS" />.
-///     This performs special handling of <see cref="ColorS.Neutral"/> contributions.
+///     This performs special handling of <see cref="ColorS.Neutral" /> contributions.
 /// </summary>
 public class Mix<TContext> : IContributionStrategy<ColorS, TContext>
 {
@@ -24,7 +24,7 @@ public class Mix<TContext> : IContributionStrategy<ColorS, TContext>
     {
         if (contributors.Length == 0)
             return original;
-        
+
         var r = 0.0;
         var g = 0.0;
         var b = 0.0;
@@ -44,11 +44,11 @@ public class Mix<TContext> : IContributionStrategy<ColorS, TContext>
         }
 
         Single count = contributors.Length;
-        
+
         return ColorS.FromRGBA(
-            (Single)(r / count),
-            (Single)(g / count),
-            (Single)(b / count),
-            (Single)(a / count));
+            (Single) (r / count),
+            (Single) (g / count),
+            (Single) (b / count),
+            (Single) (a / count));
     }
 }

@@ -16,11 +16,6 @@ namespace VoxelGame.Core.Actors;
 public abstract class Player : Actor
 {
     /// <summary>
-    /// The body of the player.
-    /// </summary>
-    public Body Body { get; }
-    
-    /// <summary>
     ///     Create a new player.
     /// </summary>
     /// <param name="mass">The mass the player has.</param>
@@ -28,8 +23,13 @@ public abstract class Player : Actor
     protected Player(Double mass, BoundingVolume boundingVolume)
     {
         Body = AddComponent<Body, Body.Characteristics>(new Body.Characteristics(mass, boundingVolume));
-        
+
         AddComponent<Spawning>();
         AddComponent<ChunkLoader>();
     }
+
+    /// <summary>
+    ///     The body of the player.
+    /// </summary>
+    public Body Body { get; }
 }

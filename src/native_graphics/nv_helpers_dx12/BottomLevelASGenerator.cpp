@@ -37,25 +37,12 @@ namespace nv_helpers_dx12
 {
     void BottomLevelASGenerator::AddVertexBuffer(
         Allocation<ID3D12Resource> const& vertexBuffer,
-        UINT64 const                      vertexOffsetInBytes,
-        uint32_t const                    vertexCount,
-        UINT const                        vertexSizeInBytes,
+        UINT64 const vertexOffsetInBytes,
+        uint32_t const vertexCount,
+        UINT const vertexSizeInBytes,
         Allocation<ID3D12Resource> const& transformBuffer,
-        UINT64 const                      transformOffsetInBytes,
-        bool const                        isOpaque)
-    {
-        AddVertexBuffer(
-            vertexBuffer,
-            vertexOffsetInBytes,
-            vertexCount,
-            vertexSizeInBytes,
-            {},
-            0,
-            0,
-            transformBuffer,
-            transformOffsetInBytes,
-            isOpaque);
-    }
+        UINT64 const transformOffsetInBytes,
+        bool const isOpaque) { AddVertexBuffer(vertexBuffer, vertexOffsetInBytes, vertexCount, vertexSizeInBytes, {}, 0, 0, transformBuffer, transformOffsetInBytes, isOpaque); }
 
     void BottomLevelASGenerator::AddVertexBuffer(
         Allocation<ID3D12Resource> const& vertexBuffer,
@@ -73,23 +60,16 @@ namespace nv_helpers_dx12
         // triangles, with 3xf32 vertex coordinates and 32-bit indices.
 
         D3D12_RAYTRACING_GEOMETRY_DESC descriptor;
-        descriptor.Type                                = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
-        descriptor.Triangles.VertexBuffer.StartAddress = vertexBuffer.GetGPUVirtualAddress<ID3D12Resource>() +
-            vertexOffsetInBytes;
+        descriptor.Type                                 = D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES;
+        descriptor.Triangles.VertexBuffer.StartAddress  = vertexBuffer.GetGPUVirtualAddress<ID3D12Resource>() + vertexOffsetInBytes;
         descriptor.Triangles.VertexBuffer.StrideInBytes = vertexSizeInBytes;
         descriptor.Triangles.VertexCount                = vertexCount;
         descriptor.Triangles.VertexFormat               = DXGI_FORMAT_R32G32B32_FLOAT;
-        descriptor.Triangles.IndexBuffer                = indexBuffer.IsSet()
-                                                              ? (indexBuffer.GetGPUVirtualAddress<ID3D12Resource>() +
-                                                                  indexOffsetInBytes)
-                                                              : 0;
-        descriptor.Triangles.IndexFormat  = indexBuffer.IsSet() ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_UNKNOWN;
-        descriptor.Triangles.IndexCount   = indexCount;
-        descriptor.Triangles.Transform3x4 = transformBuffer.IsSet()
-                                                ? (transformBuffer.GetGPUVirtualAddress<ID3D12Resource>() +
-                                                    transformOffsetInBytes)
-                                                : 0;
-        descriptor.Flags = isOpaque ? D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE : D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
+        descriptor.Triangles.IndexBuffer                = indexBuffer.IsSet() ? (indexBuffer.GetGPUVirtualAddress<ID3D12Resource>() + indexOffsetInBytes) : 0;
+        descriptor.Triangles.IndexFormat                = indexBuffer.IsSet() ? DXGI_FORMAT_R32_UINT : DXGI_FORMAT_UNKNOWN;
+        descriptor.Triangles.IndexCount                 = indexCount;
+        descriptor.Triangles.Transform3x4               = transformBuffer.IsSet() ? (transformBuffer.GetGPUVirtualAddress<ID3D12Resource>() + transformOffsetInBytes) : 0;
+        descriptor.Flags                                = isOpaque ? D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE : D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
 
         m_geometryBuffers.push_back(descriptor);
 
@@ -108,28 +88,22 @@ namespace nv_helpers_dx12
         // AABBs, with 2x3xf32 coordinates.
 
         D3D12_RAYTRACING_GEOMETRY_DESC descriptor = {};
-        descriptor.Type = D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
-        descriptor.AABBs.AABBs.StartAddress = boundsBuffer.GetGPUVirtualAddress<ID3D12Resource>() + boundsOffsetInBytes;
-        descriptor.AABBs.AABBs.StrideInBytes = boundsSizeInBytes;
-        descriptor.AABBs.AABBCount = boundsCount;
+        descriptor.Type                           = D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+        descriptor.AABBs.AABBs.StartAddress       = boundsBuffer.GetGPUVirtualAddress<ID3D12Resource>() + boundsOffsetInBytes;
+        descriptor.AABBs.AABBs.StrideInBytes      = boundsSizeInBytes;
+        descriptor.AABBs.AABBCount                = boundsCount;
 
         m_geometryBuffers.push_back(descriptor);
 
         m_usedResources.push_back(boundsBuffer);
     }
 
-    void BottomLevelASGenerator::ComputeASBufferSizes(
-        ID3D12Device5* device,
-        bool const     allowUpdate,
-        UINT64*        scratchSizeInBytes,
-        UINT64*        resultSizeInBytes)
+    void BottomLevelASGenerator::ComputeASBufferSizes(ID3D12Device5* device, bool const allowUpdate, UINT64* scratchSizeInBytes, UINT64* resultSizeInBytes)
     {
         // The generated AS can support iterative updates. This may change the final
         // size of the AS as well as the temporary memory requirements, and hence has
         // to be set before the actual build.
-        m_flags = allowUpdate
-                      ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
-                      : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        m_flags = allowUpdate ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc;
         prebuildDesc.Type           = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;

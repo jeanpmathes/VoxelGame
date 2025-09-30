@@ -19,7 +19,4 @@ void ShaderBuffer::SetData(std::byte const* data) const { TryDo(util::MapAndWrit
 
 D3D12_GPU_VIRTUAL_ADDRESS ShaderBuffer::GetGPUVirtualAddress() const { return m_constantBuffer.GetGPUVirtualAddress(); }
 
-ShaderResources::ConstantBufferViewDescriptor ShaderBuffer::GetDescriptor() const
-{
-    return {GetGPUVirtualAddress(), m_size};
-}
+ShaderResources::ConstantBufferViewDescriptor ShaderBuffer::GetDescriptor() const { return {GetGPUVirtualAddress(), m_size}; }

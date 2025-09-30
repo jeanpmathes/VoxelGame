@@ -44,7 +44,7 @@ public class PlayerDebugProperties : Group
             new Message("Disabled", "Use application arguments to enable integrated profiling.")
         ])
     ]) {}
-    
+
     private static IEnumerable<Property> CreateBlockTargetProperties(State block)
     {
         yield return new Message("Block ID", $"{block.Block.NamedID}[{block.Block.ID}]");
@@ -52,18 +52,18 @@ public class PlayerDebugProperties : Group
         yield return new Message("State Index", $"{block.Index} of {block.Block.States.Count}");
         yield return new Group("Attributes", block.CreateProperties());
     }
-    
+
     private static IEnumerable<Property> CreateFluidTargetProperties(FluidInstance instance)
     {
         yield return new Message("ID", $"{instance.Fluid.NamedID}[{instance.Fluid.ID}]");
         yield return new Message("Level", instance.Level.ToStringFast());
         yield return new Message("IsStatic", instance.IsStatic.ToString());
     }
-    
+
     private static String FormatObject(Object? obj)
     {
-        return obj != null 
-            ? $"{obj.GetType().Name} ({obj})" 
+        return obj != null
+            ? $"{obj.GetType().Name} ({obj})"
             : "null";
     }
 }

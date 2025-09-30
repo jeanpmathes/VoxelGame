@@ -21,9 +21,6 @@ public class ComplexBlock : Block
     private readonly Complex complex;
 
     private Complex.MeshData[] meshData = null!;
-    
-    /// <inheritdoc />
-    public override Meshable Meshable => Meshable.Complex;
 
     /// <inheritdoc />
     public ComplexBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
@@ -32,23 +29,24 @@ public class ComplexBlock : Block
     }
 
     /// <inheritdoc />
-    protected override void OnValidate()
-    {
-        
-    }
+    public override Meshable Meshable => Meshable.Complex;
+
+    /// <inheritdoc />
+    protected override void OnValidate() {}
 
     /// <inheritdoc />
     protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
     {
         meshData = new Complex.MeshData[States.Count];
-        
+
         foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
         {
             if (!Constraint.IsStateValid(state))
             {
                 BlockMesh.Quad[] quads = BlockModels.CreateFallback().CreateMesh(textureIndexProvider).GetMeshData(out UInt32 count); // todo: create a method to get fallback model easier and without texture provider, do it in static constructor instead of in loop
-                
+
                 meshData[index] = new Complex.MeshData(quads, count, ColorS.None, IsAnimated: false);
+
                 continue;
             }
 
@@ -57,7 +55,7 @@ public class ComplexBlock : Block
             meshData[index] = mesh;
         }
     }
-    
+
     private void BuildMeshData(Complex.MeshData mesh)
     {
         BlockMesh.Quad[] quads = mesh.Quads;
@@ -76,17 +74,17 @@ public class ComplexBlock : Block
     {
         Vector3 offset = position;
         IMeshing meshing = context.GetBasicMesh(IsOpaque);
-        
+
         ref readonly Complex.MeshData mesh = ref meshData[state.Index];
         BlockMesh.Quad[] quads = mesh.Quads;
-        
+
         for (var index = 0; index < mesh.QuadCount; index++)
         {
             ref readonly BlockMesh.Quad quad = ref quads[index];
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = quad.data;
-            
+
             Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
-            
+
             meshing.PushQuadWithOffset(quad.Positions, data, offset);
         }
     }

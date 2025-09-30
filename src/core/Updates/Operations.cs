@@ -88,10 +88,9 @@ public static class Operations
     private sealed class FutureOperationInternal
     #pragma warning restore S2931
     {
-        private Future? future;
-
         private CancellationTokenSource? cancellation;
         private Boolean cancelled;
+        private Future? future;
 
         public FutureOperationInternal()
         {
@@ -152,11 +151,10 @@ public static class Operations
 
     private sealed class FutureOperation : Operation
     {
-        private readonly OperationUpdateDispatch dispatch;
-        private readonly Func<Task> work;
-
         private readonly FutureOperationInternal current;
+        private readonly OperationUpdateDispatch dispatch;
         private readonly FutureOperationInternal? previous;
+        private readonly Func<Task> work;
 
         private Future? future;
 
@@ -222,11 +220,10 @@ public static class Operations
 
     private sealed class FutureOperation<T> : Operation<T>
     {
-        private readonly OperationUpdateDispatch dispatch;
-        private readonly Func<Task<T>> work;
-
         private readonly FutureOperationInternal current;
+        private readonly OperationUpdateDispatch dispatch;
         private readonly FutureOperationInternal? previous;
+        private readonly Func<Task<T>> work;
 
         private Future<T>? future;
 

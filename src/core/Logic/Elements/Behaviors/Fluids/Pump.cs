@@ -14,7 +14,7 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
 /// <summary>
-/// Elevates contained fluids upwards when interacted with.
+///     Elevates contained fluids upwards when interacted with.
 /// </summary>
 public class Pump : BlockBehavior, IBehavior<Pump, BlockBehavior, Block>
 {
@@ -23,14 +23,14 @@ public class Pump : BlockBehavior, IBehavior<Pump, BlockBehavior, Block>
         subject.Require<Fillable>().IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
         subject.Require<Fillable>().IsOutflowAllowed.ContributeFunction(GetIsOutflowAllowed);
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Pump Construct(Block input)
     {
         return new Pump(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteraction);
@@ -39,17 +39,17 @@ public class Pump : BlockBehavior, IBehavior<Pump, BlockBehavior, Block>
     private static Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {
         (World _, Vector3i _, State _, Side side, Fluid _) = context;
-        
+
         return side != Side.Top;
     }
-    
+
     private static Boolean GetIsOutflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {
         (World _, Vector3i _, State _, Side side, Fluid _) = context;
-        
+
         return side == Side.Top;
     }
-    
+
     private void OnActorInteraction(Block.ActorInteractionMessage message)
     {
         Fluid.Elevate(message.Actor.World, message.Position, distance: 16);

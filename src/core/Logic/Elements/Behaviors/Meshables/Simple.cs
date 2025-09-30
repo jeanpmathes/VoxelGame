@@ -27,7 +27,7 @@ public class Simple : BlockBehavior, IBehavior<Simple, BlockBehavior, Block>, IM
     {
         meshed = subject.Require<Meshed>();
         textured = subject.Require<CubeTextured>();
-        
+
         IsTextureRotated = Aspect<Boolean, (State, Side)>.New<Exclusive<Boolean, (State, Side)>>(nameof(IsTextureRotated), this);
     }
 
@@ -35,17 +35,15 @@ public class Simple : BlockBehavior, IBehavior<Simple, BlockBehavior, Block>, IM
     ///     Whether the texture is rotated.
     /// </summary>
     public Aspect<Boolean, (State state, Side side)> IsTextureRotated { get; }
-    
-    /// <inheritdoc />
-    public Meshable Type => Meshable.Simple; 
-    
-    // todo: run format and cleanup on whole project, but only after to commit to make sure it does not destroy field ordering
 
     /// <inheritdoc />
     public static Simple Construct(Block input)
     {
         return new Simple(input);
     }
+
+    /// <inheritdoc />
+    public Meshable Type => Meshable.Simple;
 
     /// <summary>
     ///     Get the mesh data for a given side and state of the block.

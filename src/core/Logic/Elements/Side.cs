@@ -98,7 +98,7 @@ public enum Sides
     ///     The top side.
     /// </summary>
     Top = 1 << 5,
-    
+
     /// <summary>
     ///     The lateral sides, meaning the front, back, left, and right sides.
     /// </summary>
@@ -107,7 +107,7 @@ public enum Sides
     /// <summary>
     ///     All sides.
     /// </summary>
-    All = Front | Back | Left | Right | Bottom | Top,
+    All = Front | Back | Left | Right | Bottom | Top
 }
 
 /// <summary>
@@ -220,18 +220,18 @@ public static class SideExtensions
     public static Sides Opposite(this Sides side)
     {
         if (side is Elements.Sides.None or Elements.Sides.All) return side;
-        
+
         var result = Elements.Sides.None;
-        
+
         if (side.HasFlag(Elements.Sides.Front)) result |= Elements.Sides.Back;
         if (side.HasFlag(Elements.Sides.Back)) result |= Elements.Sides.Front;
-        
+
         if (side.HasFlag(Elements.Sides.Left)) result |= Elements.Sides.Right;
         if (side.HasFlag(Elements.Sides.Right)) result |= Elements.Sides.Left;
-        
+
         if (side.HasFlag(Elements.Sides.Bottom)) result |= Elements.Sides.Top;
         if (side.HasFlag(Elements.Sides.Top)) result |= Elements.Sides.Bottom;
-        
+
         return result;
     }
 

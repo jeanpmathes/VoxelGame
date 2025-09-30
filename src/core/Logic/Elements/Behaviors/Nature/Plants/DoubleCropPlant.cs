@@ -17,27 +17,27 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants;
 
 /// <summary>
-/// A <see cref="Plant"/> that uses the <see cref="Foliage.LayoutType.Crop"/> layout and has double stages.
+///     A <see cref="Plant" /> that uses the <see cref="Foliage.LayoutType.Crop" /> layout and has double stages.
 /// </summary>
 public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBehavior, Block>
 {
-    private readonly GrowingPlant plant;
     private readonly Composite composite;
-    
+    private readonly GrowingPlant plant;
+
     private DoubleCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
         plant.StageCountInitializer.ContributeConstant(value: 5);
         plant.CanGrow.ContributeFunction(GetCanGrow);
-        
+
         composite = subject.Require<Composite>();
         composite.MaximumSizeInitializer.ContributeConstant((1, 2, 1));
         composite.Size.ContributeFunction(GetSize);
-        
+
         var foliage = subject.Require<Foliage>();
         foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Crop, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
-        
+
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
@@ -48,22 +48,22 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
     {
         return new DoubleCropPlant(input);
     }
-    
+
     private Boolean GetCanGrow(Boolean original, State state)
     {
         return composite.GetPartPosition(state).Y == 0;
     }
-    
+
     private Vector3i GetSize(Vector3i original, State state)
     {
         return IsDouble(state) ? (1, 2, 1) : (1, 1, 1);
     }
-    
+
     private Foliage.PartType GetPart(Foliage.PartType original, State state)
     {
-        if (!IsDouble(state)) 
+        if (!IsDouble(state))
             return Foliage.PartType.Single;
-        
+
         return composite.GetPartPosition(state).Y == 0 ? Foliage.PartType.DoubleLower : Foliage.PartType.DoubleUpper;
     }
 
@@ -71,25 +71,25 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
     {
         return plant.GetStage(state) > 1;
     }
-    
+
     private TID GetActiveTexture(TID original, State state)
     {
-        return original.Offset((Byte) (plant.GetStage(state) + 1 ?? 0), (Byte)(composite.GetPartPosition(state).Y == 0 ? 0 : 1));
+        return original.Offset((Byte) (plant.GetStage(state) + 1 ?? 0), (Byte) (composite.GetPartPosition(state).Y == 0 ? 0 : 1));
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         // todo: check that the colliders have good heights
-        
+
         Int32? currentStage = plant.GetStage(state);
         Boolean isLower = composite.GetPartPosition(state).Y == 0;
 
-        if (currentStage is not {} aliveStage) 
+        if (currentStage is not {} aliveStage)
             return BoundingVolume.BlockWithHeight(height: 15);
 
         Boolean isLowerAndStillGrowing = isLower && aliveStage == 0;
         Boolean isUpperAndStillGrowing = !isLower && aliveStage == 2;
-            
+
         if (isLowerAndStillGrowing || isUpperAndStillGrowing)
             return BoundingVolume.BlockWithHeight(height: 7);
 

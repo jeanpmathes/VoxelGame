@@ -14,28 +14,27 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
 /// <summary>
-/// Allows to modify the height by interacting with the block.
+///     Allows to modify the height by interacting with the block.
 /// </summary>
 public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBehavior, Block>
 {
-    private Modifiable(Block subject) : base(subject)
-    {
-        
-    }
-    
-    /// <inheritdoc/>
+    private Modifiable(Block subject) : base(subject) {}
+
+    [LateInitialization] private partial IEvent<ModifyHeightMessage> ModifyHeight { get; set; }
+
+    /// <inheritdoc />
     public static Modifiable Construct(Block input)
     {
         return new Modifiable(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
         ModifyHeight = registry.RegisterEvent<ModifyHeightMessage>();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteractions);
@@ -48,10 +47,10 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
             World = message.Actor.World,
             Position = message.Position,
             State = message.State
-        }); 
+        });
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
         if (!ModifyHeight.HasSubscribers)
@@ -59,26 +58,23 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
     }
 
     /// <summary>
-    /// Sent when the height of the block should be modified.
+    ///     Sent when the height of the block should be modified.
     /// </summary>
     public record ModifyHeightMessage(Object Sender) : IEventMessage
     {
         /// <summary>
-        /// The world in which the block is located.
+        ///     The world in which the block is located.
         /// </summary>
         public World World { get; set; } = null!;
-        
+
         /// <summary>
-        /// The position of the block in the world.
+        ///     The position of the block in the world.
         /// </summary>
         public Vector3i Position { get; set; }
-        
+
         /// <summary>
-        /// The current state of the block.
+        ///     The current state of the block.
         /// </summary>
         public State State { get; set; }
     }
-
-    [LateInitialization]
-    private partial IEvent<ModifyHeightMessage> ModifyHeight { get; set; } 
 }

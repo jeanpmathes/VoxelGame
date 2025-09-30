@@ -12,35 +12,35 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Siding;
 
 /// <summary>
-/// Unifying behavior for all blocks that have one or more main or front sides that depend on the block state.
+///     Unifying behavior for all blocks that have one or more main or front sides that depend on the block state.
 /// </summary>
-public class Sided  : BlockBehavior, IBehavior<Sided, BlockBehavior, Block>
-{ 
-    /// <summary>
-    /// Get the main or front sides of the block in a given state.
-    /// </summary>
-    public Aspect<Sides, State> Sides { get; }
-    
-    /// <summary>
-    /// Get a state set to the given sides, starting from a given other state.
-    /// May be <c>null</c> if the given side is not supported.
-    /// </summary>
-    public Aspect<State?, (State state, Sides side)> SidedState { get; }
-
+public class Sided : BlockBehavior, IBehavior<Sided, BlockBehavior, Block>
+{
     private Sided(Block subject) : base(subject)
     {
         Sides = Aspect<Sides, State>.New<Exclusive<Sides, State>>(nameof(Sides), this);
         SidedState = Aspect<State?, (State state, Sides side)>.New<Exclusive<State?, (State state, Sides side)>>(nameof(SidedState), this);
     }
-    
-    /// <inheritdoc/>
+
+    /// <summary>
+    ///     Get the main or front sides of the block in a given state.
+    /// </summary>
+    public Aspect<Sides, State> Sides { get; }
+
+    /// <summary>
+    ///     Get a state set to the given sides, starting from a given other state.
+    ///     May be <c>null</c> if the given side is not supported.
+    /// </summary>
+    public Aspect<State?, (State state, Sides side)> SidedState { get; }
+
+    /// <inheritdoc />
     public static Sided Construct(Block input)
     {
         return new Sided(input);
     }
-    
+
     /// <summary>
-    /// Get the current main or front sides of the block in the given state.
+    ///     Get the current main or front sides of the block in the given state.
     /// </summary>
     /// <param name="state">The state to get the sides from.</param>
     /// <returns>The main or front sides of the block in the given state.</returns>
@@ -48,9 +48,9 @@ public class Sided  : BlockBehavior, IBehavior<Sided, BlockBehavior, Block>
     {
         return Sides.GetValue(Elements.Sides.None, state);
     }
-    
+
     /// <summary>
-    /// Set the main or front sides of the block in the given state.
+    ///     Set the main or front sides of the block in the given state.
     /// </summary>
     /// <param name="state">The state to set the sides in.</param>
     /// <param name="sides">The sides to set.</param>

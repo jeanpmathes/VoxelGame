@@ -48,9 +48,9 @@ public class TermiteMoundDecoration : Decoration
             Vector3i current = center + offset;
 
             if (!shape.Contains(offset - extents)) continue;
-            
+
             Content? content = grid.GetContent(current);
-            
+
             if (content is not {Block: var block})
                 continue;
 

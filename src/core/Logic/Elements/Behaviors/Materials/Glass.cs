@@ -11,7 +11,7 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Connection;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Materials;
 
 /// <summary>
-/// Blocks made out of glass.
+///     Blocks made out of glass.
 /// </summary>
 public class Glass : BlockBehavior, IBehavior<Glass, BlockBehavior, Block>
 {
@@ -19,14 +19,14 @@ public class Glass : BlockBehavior, IBehavior<Glass, BlockBehavior, Block>
     {
         subject.Require<Connectable>().StrengthInitializer.ContributeConstant(Connectable.Strengths.Thin);
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Glass Construct(Block input)
     {
         return new Glass(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
         properties.IsOpaque.ContributeConstant(value: false);

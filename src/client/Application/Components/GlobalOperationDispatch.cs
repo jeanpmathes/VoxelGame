@@ -18,8 +18,7 @@ namespace VoxelGame.Client.Application.Components;
 /// </summary>
 public class GlobalOperationDispatch : OperationUpdateDispatch, IConstructible<Core.App.Application, GlobalOperationDispatch>
 {
-    private GlobalOperationDispatch(Core.App.Application application) : base(singleton: false, application) {
-    }
+    private GlobalOperationDispatch(Core.App.Application application) : base(singleton: false, application) {}
 
     /// <inheritdoc />
     public override String Name => "Global Operations";

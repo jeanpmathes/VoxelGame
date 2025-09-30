@@ -12,7 +12,7 @@ using VoxelGame.UI.UserInterfaces;
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-/// Updates the in-game performance data on the <see cref="InGameUserInterface"/>.
+///     Updates the in-game performance data on the <see cref="InGameUserInterface" />.
 /// </summary>
 public class UpdateInGamePerformanceData : SceneComponent, IConstructible<Scene, InGameUserInterface, UpdateInGamePerformanceData>
 {

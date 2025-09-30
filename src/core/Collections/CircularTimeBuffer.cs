@@ -20,9 +20,9 @@ public class CircularTimeBuffer
     private readonly Double[] buffer;
     private readonly Int32 capacity;
 
-    private Double total;
-
     private Int32 filledSlots;
+
+    private Double total;
     private Int32 writeIndex;
 
     /// <summary>

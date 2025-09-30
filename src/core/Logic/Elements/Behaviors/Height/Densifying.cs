@@ -14,29 +14,29 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Height;
 
 /// <summary>
-/// Allows inflow only if not above a certain height.
+///     Allows inflow only if not above a certain height.
 /// </summary>
 public class Densifying : BlockBehavior, IBehavior<Densifying, BlockBehavior, Block>
 {
     private readonly PartialHeight height;
-    
+
     private Densifying(Block subject) : base(subject)
     {
         subject.Require<Fillable>().IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
-        
+
         height = subject.Require<PartialHeight>();
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Densifying Construct(Block input)
     {
         return new Densifying(input);
     }
-    
+
     private Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {
         (World _, Vector3i _, State state, Side _, Fluid _) = context;
-        
+
         return height.GetHeight(state) < PartialHeight.HalfHeight;
     }
 }

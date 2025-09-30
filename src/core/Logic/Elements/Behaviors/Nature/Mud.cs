@@ -12,7 +12,7 @@ using VoxelGame.Core.Logic.Attributes;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Nature;
 
 /// <summary>
-/// When <see cref="Soil"/> gets filled with too much water, it turns into <see cref="Mud"/>.
+///     When <see cref="Soil" /> gets filled with too much water, it turns into <see cref="Mud" />.
 /// </summary>
 public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
 {
@@ -20,14 +20,14 @@ public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
     {
         subject.Require<Plantable>();
     }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public static Mud Construct(Block input)
     {
         return new Mud(input);
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Plantable.GrowthAttemptMessage>(OnGrowthAttempt);
@@ -38,6 +38,7 @@ public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
         if (message.Fluid != Elements.Fluids.Instance.FreshWater)
         {
             message.CanGrow = false;
+
             return;
         }
 

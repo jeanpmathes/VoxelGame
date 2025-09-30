@@ -51,10 +51,7 @@ float4 PSMain(PSInput const input, out float depth : SV_DEPTH) : SV_TARGET
         }
 
     float const  count      = POW2(kernel * 2 + 1);
-    float3 const background = float3(
-        sqrt(accumulator.r / count),
-        sqrt(accumulator.g / count),
-        sqrt(accumulator.b / count));
+    float3 const background = float3(sqrt(accumulator.r / count), sqrt(accumulator.g / count), sqrt(accumulator.b / count));
 
     float const  luminance = native::GetLuminance(background);
     float3 const color     = luminance > 0.2f ? cb.darkColor : cb.brightColor;

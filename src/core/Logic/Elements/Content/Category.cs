@@ -10,12 +10,12 @@ using VoxelGame.Core.Logic.Definitions;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// A category of content elements.
+///     A category of content elements.
 /// </summary>
 public class Category(BlockBuilder builder)
 {
     /// <summary>
-    /// All content elements in this category.
+    ///     All content elements in this category.
     /// </summary>
     public IEnumerable<IContent> Contents => builder.Registry.RetrieveContent();
 }

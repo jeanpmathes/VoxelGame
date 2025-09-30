@@ -24,62 +24,62 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
 /// <summary>
-/// A <see cref="Pipe"/> which connects to other pipes.
+///     A <see cref="Pipe" /> which connects to other pipes.
 /// </summary>
 public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBehavior, Block>
 {
     private readonly Piped piped;
     private readonly StoredMultiSided siding;
-    
+
     private ConnectingPipe(Block subject) : base(subject)
     {
         siding = subject.Require<StoredMultiSided>();
-        
+
         piped = subject.Require<Piped>();
-        
+
         subject.Require<Pipe>().OpenSides.ContributeFunction(GetOpenSides);
-        
+
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-        
+
         ModelsInitializer = Aspect<(RID, RID, RID), Block>.New<Exclusive<(RID, RID, RID), Block>>(nameof(ModelsInitializer), this);
 
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
-    
+
     /// <summary>
-    /// The models used for the block.
+    ///     The models used for the block.
     /// </summary>
     public (RID center, RID connector, RID surface) Models { get; private set; }
-    
+
     /// <summary>
-    /// Aspect used to initialize the <see cref="Models"/> property.
+    ///     Aspect used to initialize the <see cref="Models" /> property.
     /// </summary>
     public Aspect<(RID center, RID connector, RID surface), Block> ModelsInitializer { get; }
 
-    /// <inheritdoc/>
+    /// <inheritdoc />
     public static ConnectingPipe Construct(Block input)
     {
         return new ConnectingPipe(input);
     }
-    
-    /// <inheritdoc/>
-    public override void OnInitialize(BlockProperties properties)
-    {
-        Models = ModelsInitializer.GetValue(original: default, Subject);
-    }
-    
-    /// <inheritdoc/>
+
+    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
-    
+
+    /// <inheritdoc />
+    public override void OnInitialize(BlockProperties properties)
+    {
+        Models = ModelsInitializer.GetValue(original: default, Subject);
+    }
+
     private Sides GetOpenSides(Sides original, State state)
     {
         return siding.GetSides(state);
     }
-    
+
     private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
         (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration _) = context;
@@ -110,7 +110,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
             sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
             sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top);
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         List<BoundingVolume> connectors = new(capacity: 6);
@@ -137,27 +137,27 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
             new Vector3d(diameter, diameter, diameter),
             connectors.ToArray());
     }
-    
+
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
     {
         (World world, Vector3i position, Actor? _) = context;
-        
+
         Sides sides = DetermineOpenSides(world, position);
-        
+
         return siding.SetSides(original, sides);
     }
-    
+
     private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
     {
         Sides sides = DetermineOpenSides(message.World, message.Position);
 
-        if (sides == siding.GetSides(message.State)) 
+        if (sides == siding.GetSides(message.State))
             return;
 
         State newState = siding.SetSides(message.State, sides);
         message.World.SetBlock(newState, message.Position);
     }
-    
+
     private static Sides DetermineOpenSides(World world, Vector3i position)
     {
         var sides = Sides.None;
@@ -167,7 +167,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
             Vector3i otherPosition = side.Offset(position);
             State? otherBlock = world.GetBlock(otherPosition);
 
-            if (otherBlock?.Block.Get<Piped>() is {} otherPiped 
+            if (otherBlock?.Block.Get<Piped>() is {} otherPiped
                 && otherPiped.CanConnect(otherBlock.Value, side.Opposite(), otherPiped.Tier)) sides |= side.ToFlag();
         }
 

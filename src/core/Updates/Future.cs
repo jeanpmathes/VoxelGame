@@ -15,7 +15,8 @@ namespace VoxelGame.Core.Updates;
 /// <summary>
 ///     A future is an operation that will be completed at some point in the future.
 ///     This specific class is used to wrap a task that will be completed at some point.
-///     Prefer using <see cref="Operation"/> in most cases; future is to be used as a primitive when building complex systems.
+///     Prefer using <see cref="Operation" /> in most cases; future is to be used as a primitive when building complex
+///     systems.
 /// </summary>
 public class Future
 {
@@ -46,7 +47,7 @@ public class Future
     public Boolean IsFailedOrCancelled => task.IsFaulted || task.IsCanceled;
 
     /// <summary>
-    /// Get the result if completed, otherwise <c>null</c>.
+    ///     Get the result if completed, otherwise <c>null</c>.
     /// </summary>
     public Result? Result => IsCompleted ? Wait() : null;
 
@@ -219,7 +220,7 @@ public class Future<T> : Future
     }
 
     /// <summary>
-    /// Get the result if completed, otherwise null.
+    ///     Get the result if completed, otherwise null.
     /// </summary>
     public new Result<T>? Result => IsCompleted ? Wait() : null;
 
@@ -296,7 +297,7 @@ public static class FutureExtensions
     }
 
     /// <summary>
-    /// Configure a task to continue on the captured context.
+    ///     Configure a task to continue on the captured context.
     /// </summary>
     public static ConfiguredValueTaskAwaitable InThisContext(this ValueTask task)
     {

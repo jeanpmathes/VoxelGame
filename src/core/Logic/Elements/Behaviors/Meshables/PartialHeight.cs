@@ -27,16 +27,16 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
         meshed = subject.Require<Meshed>();
         textured = subject.Require<CubeTextured>();
     }
-    
-    /// <inheritdoc />
-    public Meshable Type => Meshable.PartialHeight;
-    
+
     /// <inheritdoc />
     public static PartialHeight Construct(Block input)
     {
         return new PartialHeight(input);
     }
-    
+
+    /// <inheritdoc />
+    public Meshable Type => Meshable.PartialHeight;
+
     /// <summary>
     ///     Get the mesh data for a given side and state of the block.
     /// </summary>
@@ -53,7 +53,7 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
 
         return new MeshData(textureIndex, tint, isAnimated && textureIndex != ITextureIndexProvider.MissingTextureIndex);
     }
-    
+
     /// <summary>
     ///     Get the size of a face with a given height, in world units.
     /// </summary>
@@ -61,7 +61,7 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
     /// <returns>The size of the face.</returns>
     public static Single GetSize(Int32 height)
     {
-        return (height + 1) / (Single) (Height.PartialHeight.MaximumHeight + 1); 
+        return (height + 1) / (Single) (Height.PartialHeight.MaximumHeight + 1);
     }
 
     /// <summary>
@@ -73,7 +73,7 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
     {
         return 1 - GetSize(height);
     }
-    
+
     /// <summary>
     ///     Get the bounds of a face with a given height.
     ///     The bounds can be used as texture coordinates.
@@ -96,7 +96,7 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
     public readonly record struct MeshData(Int32 TextureIndex, ColorS Tint, Boolean IsAnimated)
     {
         /// <summary>
-        /// Whether the texture is rotated.
+        ///     Whether the texture is rotated.
         /// </summary>
         public Boolean IsTextureRotated => false;
     }

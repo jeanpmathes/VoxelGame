@@ -198,9 +198,9 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
 
         UInt32 bits = 0;
 
-        bits |= (UInt32) (rounded.R >> shift) << (TintPrecision * 2);
-        bits |= (UInt32) (rounded.G >> shift) << (TintPrecision * 1);
-        bits |= (UInt32) (rounded.B >> shift) << (TintPrecision * 0);
+        bits |= (UInt32) (rounded.R >> shift) << TintPrecision * 2;
+        bits |= (UInt32) (rounded.G >> shift) << TintPrecision * 1;
+        bits |= (UInt32) (rounded.B >> shift) << TintPrecision * 0;
 
         return bits;
     }

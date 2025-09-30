@@ -21,14 +21,14 @@ namespace VoxelGame.Core.Logic.Definitions.Fluids;
 public class BasicFluid : Fluid, IOverlayTextureProvider
 {
     private readonly Boolean hasNeutralTint;
-    private readonly TextureLayout staticLayout;
     private readonly TextureLayout movingLayout;
+    private readonly TextureLayout staticLayout;
+    private ColorS dominantColor;
+
+    private Int32 mainTexture;
 
     private SideArray<Int32> movingTextures = null!;
     private SideArray<Int32> staticTextures = null!;
-
-    private Int32 mainTexture;
-    private ColorS dominantColor;
 
     /// <summary>
     ///     Create a new basic fluid.
@@ -108,23 +108,23 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
     private void InvalidLocationFlow(World world, Vector3i position, FluidLevel level)
     {
-        if ((FlowVertical(
+        if (FlowVertical(
                 world,
                 position,
                 currentFillable: null,
                 level,
                 Direction,
                 handleContact: false,
-                out Int32 remaining) && remaining == -1) ||
-            (FlowVertical(
-                 world,
-                 position,
-                 currentFillable: null,
-                 (FluidLevel) remaining,
-                 Direction.Opposite(),
-                 handleContact: false,
-                 out remaining) &&
-             remaining == -1)) return;
+                out Int32 remaining) && remaining == -1 ||
+            FlowVertical(
+                world,
+                position,
+                currentFillable: null,
+                (FluidLevel) remaining,
+                Direction.Opposite(),
+                handleContact: false,
+                out remaining) &&
+            remaining == -1) return;
 
         SpreadOrDestroyFluid(world, position, (FluidLevel) remaining);
     }
@@ -153,8 +153,8 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         Content? content = world.GetContent(
             position + flow.Direction());
-        
-        if (content?.Block.Block.Get<Fillable>() is not {} verticalFillable || content is not { Fluid: var fluidVertical }
+
+        if (content?.Block.Block.Get<Fillable>() is not {} verticalFillable || content is not {Fluid: var fluidVertical}
                                                                             || !verticalFillable.CanInflow(world, position + flow.Direction(), flow.EntrySide(), this)
                                                                             || !(currentFillable?.CanOutflow(world, position, flow.ExitSide(), this) ?? true))
         {
@@ -315,17 +315,17 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 Content? belowNeighborContent = world.GetContent(belowNeighborPosition);
 
                 if (belowNeighborContent?.Block.Block.Get<Fillable>() is {} belowNeighborFillable && belowNeighborContent is {Fluid: var belowNeighborFluid}
-                    && belowNeighborFluid.Fluid == Elements.Fluids.Instance.None
-                    && belowNeighborFillable.CanInflow(
-                        world,
-                        belowNeighborPosition,
-                        Direction.EntrySide(),
-                        this)
-                    && neighborFillable.CanOutflow(
-                        world,
-                        neighborPosition,
-                        Direction.ExitSide(),
-                        this))
+                                                                                                  && belowNeighborFluid.Fluid == Elements.Fluids.Instance.None
+                                                                                                  && belowNeighborFillable.CanInflow(
+                                                                                                      world,
+                                                                                                      belowNeighborPosition,
+                                                                                                      Direction.EntrySide(),
+                                                                                                      this)
+                                                                                                  && neighborFillable.CanOutflow(
+                                                                                                      world,
+                                                                                                      neighborPosition,
+                                                                                                      Direction.ExitSide(),
+                                                                                                      this))
                 {
                     world.SetFluid(this.AsInstance(level, isStatic: false), belowNeighborPosition);
 

@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Behaviors.Events;
 public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
 {
     private readonly Dictionary<Type, Event> events = new();
- 
+
     /// <inheritdoc />
     public void Subscribe<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : IEventMessage
     {
@@ -31,7 +31,7 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
         if (events.TryGetValue(typeof(TEventMessage), out Event? existingEvent))
         {
             var typedEvent = (Event<TEventMessage>) existingEvent;
-            
+
             if (typedEvent.IsSingle != single)
                 validator.ReportWarning($"Event {typeof(TEventMessage)} is already registered with single={typedEvent.IsSingle}, but tried to register with single={single}");
 
@@ -50,11 +50,15 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
     {
         private readonly List<Action<TEventMessage>> handlers = [];
 
+        public Boolean IsSingle => single;
+
         public void Publish(TEventMessage message)
         {
             foreach (Action<TEventMessage> handler in handlers)
                 handler(message);
         }
+
+        public Boolean HasSubscribers => handlers.Count > 0;
 
         public void Subscribe(Action<TEventMessage> handler, IValidator validator)
         {
@@ -63,9 +67,5 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
             else
                 handlers.Add(handler);
         }
-        
-        public Boolean HasSubscribers => handlers.Count > 0;
-        
-        public Boolean IsSingle => single;
     }
 }

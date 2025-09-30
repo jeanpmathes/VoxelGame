@@ -18,17 +18,14 @@ namespace VoxelGame.Client.Visuals.Textures;
 /// </summary>
 public class ImageSource : IIssueSource
 {
-    private readonly List<FileInfo> sheets = [];
     private readonly List<FileInfo> decks = [];
     private readonly List<FileInfo> parts = [];
+    private readonly List<FileInfo> sheets = [];
 
     private ImageSource(DirectoryInfo directory)
     {
         InstanceName = directory.Name;
     }
-    
-    /// <inheritdoc />
-    public String? InstanceName { get; }
 
     /// <summary>
     ///     Get all sheets in this source.
@@ -44,6 +41,9 @@ public class ImageSource : IIssueSource
     ///     Get all parts in this source.
     /// </summary>
     public IEnumerable<FileInfo> Parts => parts;
+
+    /// <inheritdoc />
+    public String? InstanceName { get; }
 
     /// <summary>
     ///     Scan a texture directory, detecting all files in it that can be used for texture creation.

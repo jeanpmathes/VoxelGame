@@ -52,8 +52,8 @@ public static class AxisExtensions
     }
 
     /// <summary>
-    /// Get the sides associated with the given axis.
-    /// These are the sides the axis passes through.
+    ///     Get the sides associated with the given axis.
+    ///     These are the sides the axis passes through.
     /// </summary>
     public static Sides Sides(this Axis axis)
     {

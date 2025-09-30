@@ -40,11 +40,7 @@ void Spatial::RecalculateTransform()
     DirectX::XMVECTOR const rotation = XMLoadFloat4(&m_rotation);
     DirectX::XMVECTOR const scale    = DirectX::XMVectorSet(1.0f, 1.0f, 1.0f, 0.0f);
 
-    DirectX::XMMATRIX const transform = DirectX::XMMatrixAffineTransformation(
-        scale,
-        DirectX::XMVectorZero(),
-        rotation,
-        position);
+    DirectX::XMMATRIX const transform = DirectX::XMMatrixAffineTransformation(scale, DirectX::XMVectorZero(), rotation, position);
 
     XMStoreFloat4x4(&m_transform, transform);
     m_transformDirty = true;

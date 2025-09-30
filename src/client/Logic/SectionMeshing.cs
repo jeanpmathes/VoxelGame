@@ -22,12 +22,18 @@ using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
 namespace VoxelGame.Client.Logic;
 
 /// <summary>
-/// Handles meshing of individual sections in the world.
+///     Handles meshing of individual sections in the world.
 /// </summary>
-public class SectionMeshing : WorldComponent, IConstructible<Core.Logic.World, SectionMeshing> 
+public class SectionMeshing : WorldComponent, IConstructible<Core.Logic.World, SectionMeshing>
 {
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionMeshing>();
+
+    #endregion LOGGING
+
     private readonly HashSet<(Chunk chunk, (Int32 x, Int32 y, Int32 z))> sectionsToMesh = [];
-    
+
     private SectionMeshing(Core.Logic.World subject) : base(subject)
     {
         Subject.SectionChanged += (_, args) =>
@@ -47,10 +53,10 @@ public class SectionMeshing : WorldComponent, IConstructible<Core.Logic.World, S
     {
         using (logger.BeginTimedSubScoped("Section Meshing", timer))
         {
-            MeshAndClearSectionList(); 
+            MeshAndClearSectionList();
         }
     }
-    
+
     private void MeshAndClearSectionList()
     {
         foreach ((Chunk chunk, (Int32 x, Int32 y, Int32 z)) in sectionsToMesh)
@@ -61,7 +67,7 @@ public class SectionMeshing : WorldComponent, IConstructible<Core.Logic.World, S
 
         sectionsToMesh.Clear();
     }
-    
+
     /// <summary>
     ///     Find all sections that need to be meshed because of a block change in a section.
     ///     If the block position is on the edge of a section, the neighbor is also considered to be affected.
@@ -78,7 +84,7 @@ public class SectionMeshing : WorldComponent, IConstructible<Core.Logic.World, S
 
         void CheckAxis(Int32 axis)
         {
-            Int32 axisSectionPosition = position[axis] & (Section.Size - 1);
+            Int32 axisSectionPosition = position[axis] & Section.Size - 1;
 
             Vector3i direction = new()
             {
@@ -109,15 +115,9 @@ public class SectionMeshing : WorldComponent, IConstructible<Core.Logic.World, S
             }
         }
     }
-    
+
     private void Enqueue(Chunk chunk, Vector3i blockPosition)
     {
         sectionsToMesh.Add((chunk, SectionPosition.From(blockPosition).Local));
     }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionMeshing>();
-
-    #endregion LOGGING
 }

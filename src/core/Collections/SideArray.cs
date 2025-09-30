@@ -152,6 +152,6 @@ public class SideArray<T> : IEnumerable<T>
 
         #endregion EQUALITY
     }
-    
+
     #endregion ENUMERABLE
 }

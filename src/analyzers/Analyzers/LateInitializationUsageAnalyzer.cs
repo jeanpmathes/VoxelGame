@@ -15,13 +15,13 @@ using VoxelGame.Annotations;
 namespace VoxelGame.Analyzers.Analyzers;
 
 /// <summary>
-/// Warns if the <see cref="LateInitializationAttribute"/> is used incorrectly.
+///     Warns if the <see cref="LateInitializationAttribute" /> is used incorrectly.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>
-    /// The ID of diagnostics produced by this analyzer.
+    ///     The ID of diagnostics produced by this analyzer.
     /// </summary>
     public const String DiagnosticID = "VG0003";
 
@@ -34,7 +34,7 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
         Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        description: "Properties marked with LateInitialization must be partial, non-nullable and non-static.");
+        "Properties marked with LateInitialization must be partial, non-nullable and non-static.");
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [rule];
@@ -44,7 +44,7 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
     {
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
-        
+
         context.RegisterSyntaxNodeAction(AnalyzeProperty, SyntaxKind.PropertyDeclaration);
     }
 
@@ -55,7 +55,7 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
 
         if (context.SemanticModel.GetDeclaredSymbol(propertyDeclarationSyntax) is not {} propertySymbol)
             return;
-        
+
         foreach (AttributeData? attribute in propertySymbol.GetAttributes())
         {
             if (attribute.AttributeClass is not {} attributeClass)
@@ -64,17 +64,17 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
             if (attributeClass.Name != nameof(LateInitializationAttribute) && attributeClass.ToDisplayString() != typeof(LateInitializationAttribute).FullName) continue;
 
             var isPartial = false;
-                
+
             foreach (SyntaxToken modifier in propertyDeclarationSyntax.Modifiers)
             {
-                if (!modifier.IsKind(SyntaxKind.PartialKeyword)) 
+                if (!modifier.IsKind(SyntaxKind.PartialKeyword))
                     continue;
 
                 isPartial = true;
-                    
+
                 break;
             }
-                
+
             if (!isPartial || propertySymbol.IsStatic || propertyDeclarationSyntax.Type is NullableTypeSyntax || propertySymbol.Type.NullableAnnotation == NullableAnnotation.Annotated)
             {
                 var diagnostic = Diagnostic.Create(rule, propertyDeclarationSyntax.Identifier.GetLocation(), propertySymbol.Name);
@@ -85,4 +85,3 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
         }
     }
 }
-

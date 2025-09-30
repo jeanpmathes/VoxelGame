@@ -21,7 +21,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements;
 
 /// <summary>
-/// Organic blocks are different plants and such which do not fit into other categories.
+///     Organic blocks are different plants and such which do not fit into other categories.
 /// </summary>
 /// <param name="builder"></param>
 public class Organic(BlockBuilder builder) : Category(builder)
@@ -48,7 +48,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
         .Complete();
-    
+
     /// <summary>
     ///     Vines grow downwards, and can hang freely. It is possible to climb them.
     /// </summary>
@@ -61,12 +61,12 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<Climbable>(climbable => climbable.ClimbingVelocityInitializer.ContributeConstant(value: 2.0))
         .WithBehavior<LateralRotatable>()
         .WithBehavior<Attached, SingleSided>((attached, siding) =>
-        { 
+        {
             attached.AttachmentSidesInitializer.ContributeConstant(Sides.Lateral);
-            
+
             attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).ToFlag());
             attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single())); // todo: handling if not single as this allows null, maybe a new extension for sides
-        }) 
+        })
         .WithBehavior<Vine>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
@@ -75,23 +75,23 @@ public class Organic(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     Lichen is a plant that grows on rocks and trees.
     /// </summary>
-    public Block Lichen { get; } = builder 
+    public Block Lichen { get; } = builder
         .BuildComplexBlock(nameof(Lichen), Language.Lichen)
         .WithBehavior<FlatModel>()
         .WithBehavior<SingleTextured>(textured => textured.DefaultTextureInitializer.ContributeConstant(TID.Block("lichen")))
         .WithBehavior<Attached, StoredMultiSided>((attached, siding) =>
-        { 
+        {
             attached.AttachmentSidesInitializer.ContributeConstant(Sides.All);
             attached.ModeInitializer.ContributeConstant(Attached.AttachmentMode.Multi);
-            
+
             attached.AttachedSides.ContributeFunction((_, state) => siding.GetSides(state));
             attached.AttachedState.ContributeFunction((_, context) => siding.SetSides(context.state, context.sides));
-        }) 
+        })
         .WithBehavior<StoredMultiSided, Constraint>((siding, constraint) => constraint.IsValid.ContributeFunction((_, state) => siding.GetSides(state) != Sides.None))
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
         .Complete();
-    
+
     /// <summary>
     ///     Moss is a covering that grows flatly on the ground.
     /// </summary>
@@ -102,7 +102,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<DestroyOnLiquid>(destroy => destroy.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
         .WithBehavior<Combustible>()
         .Complete();
-    
+
     /// <summary>
     ///     A fern, a plant that grows in shady areas.
     /// </summary>
@@ -114,7 +114,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
         .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
         .Complete();
-    
+
     /// <summary>
     ///     A chanterelle, a type of mushroom.
     /// </summary>
@@ -124,7 +124,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.25))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
         .Complete();
-    
+
     /// <summary>
     ///     An aloe vera plant - a succulent.
     /// </summary>
@@ -134,7 +134,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.5))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
         .Complete();
-    
+
     /// <summary>
     ///     This block is part of a termite mound.
     /// </summary>

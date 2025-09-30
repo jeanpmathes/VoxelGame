@@ -27,9 +27,9 @@ public sealed class TextureList : IDisposable
     private readonly Dictionary<String, Int32> availableTextures = new();
 
     private readonly Client client;
+    private readonly PooledList<Image> images = new();
 
     private readonly Bag<Texture> textures;
-    private readonly PooledList<Image> images = new();
     private readonly PooledList<Int32> usage = new();
 
     /// <summary>

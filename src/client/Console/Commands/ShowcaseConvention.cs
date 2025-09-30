@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Console.Commands;
 ///     Showcases all content of a convention by placing it in the world around the player.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class ShowcaseConvention : Command 
+public class ShowcaseConvention : Command
 {
     /// <inheritdoc />
     public override String Name => "showcase-convention";
@@ -34,30 +34,37 @@ public class ShowcaseConvention : Command
         {
             case nameof(Coal):
                 ShowcaseCoal();
+
                 break;
 
             case nameof(Crop):
                 ShowcaseCrops();
+
                 break;
-            
+
             case nameof(Flower):
                 ShowcaseFlowers();
+
                 break;
-            
+
             case nameof(Metal):
                 ShowcaseMetals();
+
                 break;
 
             case nameof(Stone):
                 ShowcaseStones();
+
                 break;
-            
+
             case nameof(Wood):
                 ShowcaseWoods();
+
                 break;
 
             default:
                 Context.Output.WriteError($"No known convention '{convention}'.");
+
                 return;
         }
     }
@@ -65,11 +72,11 @@ public class ShowcaseConvention : Command
     private void ShowcaseCoal()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
-        
+
         foreach (IContent content in Blocks.Instance.Coals.Contents)
         {
             if (content is not Coal coal) continue;
-            
+
             position += Vector3i.UnitX;
 
             coal.Block.Place(Context.Player.World, position);
@@ -88,12 +95,12 @@ public class ShowcaseConvention : Command
             position += Vector3i.UnitX * 3;
 
             Vector3i farmland = position;
-            
+
             Blocks.Instance.Core.Dev.Place(world, farmland.Below());
             Blocks.Instance.Environment.Farmland.Place(world, farmland);
-            
+
             crop.Plant.Place(world, farmland.Above());
-            
+
             for (Int32 x = -1; x <= 1; x++)
             for (Int32 z = -1; z <= 1; z++)
             {
@@ -110,7 +117,7 @@ public class ShowcaseConvention : Command
             crop.Fruit.Place(world, fruit);
         }
     }
-    
+
     private void ShowcaseFlowers()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
@@ -124,12 +131,12 @@ public class ShowcaseConvention : Command
 
             Blocks.Instance.Environment.Grass.Place(world, position.Below());
             flower.Short.Place(world, position);
-            
+
             Blocks.Instance.Environment.Grass.Place(world, position.Below() + Vector3i.UnitZ);
             flower.Tall.Place(world, position + Vector3i.UnitZ);
         }
     }
-    
+
     private void ShowcaseMetals()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
@@ -140,7 +147,7 @@ public class ShowcaseConvention : Command
             if (content is not Metal metal) continue;
 
             position += Vector3i.UnitX;
-            
+
             Vector3i orePosition = position;
             Vector3i nativePosition = position + Vector3i.UnitZ;
 
@@ -197,7 +204,7 @@ public class ShowcaseConvention : Command
             wood.Planks.Place(world, position + Vector3i.UnitY * 2);
             wood.Fence.Place(world, position + Vector3i.UnitY * 3);
             wood.FenceGate.Place(world, position + Vector3i.UnitY * 3 + Vector3i.UnitZ);
-            
+
             wood.Pipe.Place(world, position + Vector3i.UnitY * 4);
             wood.Pipe.Place(world, position + Vector3i.UnitY * 5);
 

@@ -17,9 +17,9 @@ namespace VoxelGame.Core.Logic.Attributes.Implementations;
 internal class Vector3iAttribute(Vector3i max) : AttributeImplementation<Vector3i>
 {
     private readonly Int32 maxXY = max.X * max.Y;
-    
+
     public override Int32 Multiplicity { get; } = max.X * max.Y * max.Z;
-    
+
     public override Vector3i Retrieve(Int32 index)
     {
         Int32 z = index / maxXY;
@@ -28,6 +28,7 @@ internal class Vector3iAttribute(Vector3i max) : AttributeImplementation<Vector3
 
         return new Vector3i(x, y, z);
     }
+
     public override Int32 Provide(Vector3i value)
     {
         Debug.Assert(value.X >= 0 && value.X < max.X);
@@ -36,9 +37,11 @@ internal class Vector3iAttribute(Vector3i max) : AttributeImplementation<Vector3
 
         return value.Z * maxXY + value.Y * max.X + value.X;
     }
+
     public override Property RetrieveRepresentation(Int32 index)
     {
-        return new Group(Name, [
+        return new Group(Name,
+        [
             new Integer("X", Retrieve(index).X),
             new Integer("Y", Retrieve(index).Y),
             new Integer("Z", Retrieve(index).Z)
@@ -48,15 +51,17 @@ internal class Vector3iAttribute(Vector3i max) : AttributeImplementation<Vector3
     public override JsonNode GetValues(State state)
     {
         Vector3i vector = state.Get(this);
+
         JsonObject obj = new()
         {
             ["X"] = vector.X,
             ["Y"] = vector.Y,
             ["Z"] = vector.Z
         };
+
         return obj;
     }
-    
+
     public override State SetValues(State state, JsonNode values)
     {
         if (values is not JsonObject obj) return state;

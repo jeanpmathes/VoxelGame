@@ -287,10 +287,7 @@ NATIVE void NativeSetDrawableEnabledState(Drawable* object, bool const enabled)
     } CATCH();
 }
 
-NATIVE RasterPipeline* NativeCreateRasterPipeline(
-    NativeClient*                   client,
-    RasterPipelineDescription const description,
-    NativeErrorFunc const           callback)
+NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client, RasterPipelineDescription const description, NativeErrorFunc const callback)
 {
     TRY
     {
@@ -330,11 +327,7 @@ NATIVE void NativeSetShaderBufferData(ShaderBuffer const* buffer, std::byte cons
     } CATCH();
 }
 
-NATIVE UINT NativeAddDraw2DPipeline(
-    NativeClient*          client,
-    RasterPipeline*        pipeline,
-    INT const              priority,
-    draw2d::Callback const callback)
+NATIVE UINT NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeline, INT const priority, draw2d::Callback const callback)
 {
     TRY
     {

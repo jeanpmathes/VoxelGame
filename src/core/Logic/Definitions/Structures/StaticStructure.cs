@@ -192,7 +192,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
 
             block = Blocks.Instance.Core.Air;
         }
-        
+
         content.Block = block.States.SetJson(placement.State);
 
         Fluid? fluid = Elements.Fluids.Instance.TranslateNamedID(placement.Fluid);
@@ -205,7 +205,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
             fluid = Elements.Fluids.Instance.None;
         }
 
-        content.Fluid = new FluidInstance(fluid, (FluidLevel) ((((UInt32) placement.Level << Section.LevelShift) & Section.LevelMask) >> Section.LevelShift), placement.IsStatic);
+        content.Fluid = new FluidInstance(fluid, (FluidLevel) (((UInt32) placement.Level << Section.LevelShift & Section.LevelMask) >> Section.LevelShift), placement.IsStatic);
 
         contents[position.X, position.Y, position.Z] = content;
     }

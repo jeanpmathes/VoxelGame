@@ -92,7 +92,7 @@ public abstract class Chainable
 
         return this;
     }
-    
+
     /// <summary>
     ///     Add a subsection to this chainable.
     /// </summary>

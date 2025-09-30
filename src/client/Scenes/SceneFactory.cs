@@ -21,9 +21,9 @@ namespace VoxelGame.Client.Scenes;
 public partial class SceneFactory
 {
     private readonly Application.Client client;
+    private CommandInvoker? commands;
 
     private Engine? engine;
-    private CommandInvoker? commands;
 
     private UserInterfaceResources? uiResources;
 

@@ -12,21 +12,20 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-/// Controls the screenshot functionality in a <see cref="SessionScene"/>.
+///     Controls the screenshot functionality in a <see cref="SessionScene" />.
 /// </summary>
 public class ScreenshotController : SceneComponent, IConstructible<SessionScene, ScreenshotController>
 {
-    private readonly SessionScene scene;
-    
     private readonly PushButton button;
-    
+    private readonly SessionScene scene;
+
     private ScreenshotController(SessionScene scene) : base(scene)
     {
         this.scene = scene;
-        
+
         button = scene.Client.Keybinds.GetPushButton(scene.Client.Keybinds.Screenshot);
     }
-    
+
     /// <inheritdoc />
     public static ScreenshotController Construct(SessionScene input)
     {

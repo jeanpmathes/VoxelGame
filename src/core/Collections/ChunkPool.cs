@@ -19,11 +19,11 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 public sealed class ChunkPool : IDisposable
 {
-    private readonly NativeAllocator allocator = new();
     private readonly Stack<Allocation> allocations = new();
+    private readonly NativeAllocator allocator = new();
+    private readonly ObjectPool<Chunk> chunks;
 
     private readonly Func<NativeSegment<UInt32>, Chunk> factory;
-    private readonly ObjectPool<Chunk> chunks;
 
     /// <summary>
     ///     Create a new chunk pool.

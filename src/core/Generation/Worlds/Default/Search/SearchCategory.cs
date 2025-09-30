@@ -11,7 +11,7 @@ using OpenTK.Mathematics;
 namespace VoxelGame.Core.Generation.Worlds.Default.Search;
 
 /// <summary>
-/// Base class for all search categories.
+///     Base class for all search categories.
 /// </summary>
 /// <param name="searcher">The searcher that owns this category.</param>
 public abstract class SearchCategory(Searcher searcher)
@@ -60,7 +60,7 @@ public abstract class SearchCategory<T>(Dictionary<String, T> elements, List<Str
     }
 
     /// <summary>
-    /// Searches for the element in the world.
+    ///     Searches for the element in the world.
     /// </summary>
     /// <param name="element">The element to search for.</param>
     /// <param name="modifier">The search modifier.</param>

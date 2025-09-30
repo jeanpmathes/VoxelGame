@@ -28,7 +28,7 @@ public static class Serialize
     };
 
     /// <summary>
-    /// Save an object to a JSON file.
+    ///     Save an object to a JSON file.
     /// </summary>
     /// <param name="obj">The object to save.</param>
     /// <param name="file">The file to save to.</param>

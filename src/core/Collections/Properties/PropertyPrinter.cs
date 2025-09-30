@@ -75,7 +75,7 @@ public static class PropertyPrinter
         {
             builder.AppendLine($"{Indent}{truth.Name}: {(truth.Value ? "true" : "false")}");
         }
-        
+
         public override void Visit(Color color)
         {
             builder.AppendLine($"{Indent}{color.Name}: {color.Value.R:P}, {color.Value.G:P}, {color.Value.B:P}, {color.Value.A:P}");

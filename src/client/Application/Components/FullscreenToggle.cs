@@ -17,10 +17,9 @@ namespace VoxelGame.Client.Application.Components;
 /// </summary>
 public class FullscreenToggle : ApplicationComponent, IConstructible<Client, FullscreenToggle>
 {
+    private readonly ToggleButton button;
     private readonly Client client;
 
-    private readonly ToggleButton button;
-    
     private FullscreenToggle(Client client) : base(client)
     {
         this.client = client;

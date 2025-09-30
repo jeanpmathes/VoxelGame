@@ -16,15 +16,15 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Palettes;
 public sealed class Palette : IResource
 {
     private readonly Content granite = new(Blocks.Instance.Stones.Granite.Base);
-    private readonly Content limestone = new(Blocks.Instance.Stones.Limestone.Base);
-    private readonly Content marble = new(Blocks.Instance.Stones.Marble.Base);
-    private readonly Content sandstone = new(Blocks.Instance.Stones.Sandstone.Base);
-
-    private readonly Content sand = new(Blocks.Instance.Environment.Sand);
-    private readonly Content sandGroundwater = new(Blocks.Instance.Environment.Sand, Fluids.Instance.FreshWater);
 
     private readonly Content gravel = new(Blocks.Instance.Environment.Gravel);
     private readonly Content gravelGroundwater = new(Blocks.Instance.Environment.Gravel, Fluids.Instance.FreshWater);
+    private readonly Content limestone = new(Blocks.Instance.Stones.Limestone.Base);
+    private readonly Content marble = new(Blocks.Instance.Stones.Marble.Base);
+
+    private readonly Content sand = new(Blocks.Instance.Environment.Sand);
+    private readonly Content sandGroundwater = new(Blocks.Instance.Environment.Sand, Fluids.Instance.FreshWater);
+    private readonly Content sandstone = new(Blocks.Instance.Stones.Sandstone.Base);
 
     /// <inheritdoc />
     public RID Identifier { get; } = RID.Named<Palette>("Default");

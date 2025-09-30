@@ -27,12 +27,12 @@ internal sealed class GameGui : IGwenGui
 {
     private readonly List<SkinBase> skins = [];
 
-    private List<Action> inputEvents = [];
+    private Canvas canvas = null!;
 
     private InputTranslator input = null!;
-    private DirectXRenderer renderer = null!;
 
-    private Canvas canvas = null!;
+    private List<Action> inputEvents = [];
+    private DirectXRenderer renderer = null!;
 
     internal GameGui(Client parent, GwenGuiSettings settings)
     {

@@ -18,11 +18,11 @@ namespace VoxelGame.Core.Visuals;
 public partial class BlockModelProvider : ResourceProvider<BlockModel>, IBlockModelProvider
 {
     private readonly Dictionary<RID, BlockModel[,,]> parts = [];
-    
+
     /// <inheritdoc />
     public BlockModel GetModel(RID identifier, Vector3i? part = null)
     {
-        if (part is not {} position) 
+        if (part is not {} position)
             return GetResource(identifier);
 
         BlockModel[,,]? modelParts = parts.GetValueOrDefault(identifier);
@@ -30,12 +30,12 @@ public partial class BlockModelProvider : ResourceProvider<BlockModel>, IBlockMo
         if (modelParts != null &&
             position.X >= 0 && position.X < modelParts.GetLength(0) &&
             position.Y >= 0 && position.Y < modelParts.GetLength(1) &&
-            position.Z >= 0 && position.Z < modelParts.GetLength(2)) 
+            position.Z >= 0 && position.Z < modelParts.GetLength(2))
             return modelParts[position.X, position.Y, position.Z];
 
         if (part != (0, 0, 0))
             LogPartDoesNotExist(logger, identifier, position);
-                
+
         return GetResource(identifier);
 
     }
@@ -60,14 +60,14 @@ public partial class BlockModelProvider : ResourceProvider<BlockModel>, IBlockMo
         foreach ((RID id, BlockModel original) in GetAllResources())
         {
             Box3d bounds = original.GetBounds();
-            
-            if (bounds.Size is {X: <= 1, Y: <= 1, Z: <= 1}) 
+
+            if (bounds.Size is {X: <= 1, Y: <= 1, Z: <= 1})
                 continue;
-            
+
             parts.Add(id, original.PartitionByBlocks());
         }
     }
-    
+
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModelProvider>();

@@ -11,7 +11,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 
 /// <summary>
-/// Transforms the layer into the no-tint variant, changing the alpha channel to a fitting value.
+///     Transforms the layer into the no-tint variant, changing the alpha channel to a fitting value.
 /// </summary>
 [UsedImplicitly]
 public class NoTint() : Modifier("no-tint")

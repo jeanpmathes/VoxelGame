@@ -195,11 +195,6 @@ public sealed partial class ResourceCatalogLoader
         {
             return content.GetAll<T>();
         }
-        
-        private static String GetSourceName(IIssueSource source)
-        {
-            return source.InstanceName is {} name ? Reflections.GetLongName(source.GetType(), name) : Reflections.GetLongName(source.GetType());
-        }
 
         public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null)
         {
@@ -210,7 +205,7 @@ public sealed partial class ResourceCatalogLoader
 
             warningCount++;
         }
-        
+
         public void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null)
         {
             currentReport!.Add(new Error(GetSourceName(source), message, isCritical: true));
@@ -238,6 +233,11 @@ public sealed partial class ResourceCatalogLoader
         }
 
         public event EventHandler? Completed;
+
+        private static String GetSourceName(IIssueSource source)
+        {
+            return source.InstanceName is {} name ? Reflections.GetLongName(source.GetType(), name) : Reflections.GetLongName(source.GetType());
+        }
 
         public void AddCatalogEntry(ICatalogEntry entry)
         {

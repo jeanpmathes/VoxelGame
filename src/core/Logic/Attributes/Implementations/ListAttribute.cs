@@ -40,13 +40,13 @@ internal class ListAttribute<TElement>(IEnumerable<TElement> elements) : Attribu
     {
         return state.Get(this).ToString() ?? "";
     }
-    
+
     public override State SetValues(State state, JsonNode values)
     {
         foreach (TElement element in elements)
             if (element.ToString() == values.GetValue<String>())
                 return state.With(this, element);
-        
+
         return state;
     }
 }
