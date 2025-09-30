@@ -602,7 +602,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             World = world,
             Position = position,
             OldState = oldContent,
-            NewState = newContent // todo: also, use that the old content is avaialble to improve that one fluid event so no false positives occur 
+                        NewState = newContent 
         };
 
         StateUpdate.Publish(message);

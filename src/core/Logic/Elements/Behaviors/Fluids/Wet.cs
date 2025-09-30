@@ -44,7 +44,10 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     {
         if (!BecomeWet.HasSubscribers) return;
 
-        if (IsWet(message.NewState.Block) || message.NewState.Fluid.Fluid.IsLiquid)
+        Boolean wasWet = IsWet(message.OldState.Block) || message.OldState.Fluid.Fluid.IsLiquid;
+        Boolean isWet = IsWet(message.NewState.Block) || message.NewState.Fluid.Fluid.IsLiquid;
+        
+        if (!wasWet && isWet)
         {
             BecomeWet.Publish(new BecomeWetMessage(this)
             {
