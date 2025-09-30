@@ -123,7 +123,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
         bus.Subscribe<Block.PlacementMessage>(OnPlacement);
         bus.Subscribe<Block.DestructionMessage>(OnDestruction);
-        bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
+        bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
         bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
 
@@ -200,7 +200,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         }
     }
     
-    private void OnContentUpdate(Block.ContentUpdateMessage message)
+    private void OnStateUpdate(Block.StateUpdateMessage message)
     {
         State oldState = message.OldContent.Block.State;
         State newState = message.NewContent.Block.State;

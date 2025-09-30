@@ -381,7 +381,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
         
         section.SetContent(position, newValue);
         
-        newContent.Block.Block.DoContentUpdate(this, position, oldContent, newContent);
+        newContent.Block.Block.DoStateUpdate(this, position, oldContent, newContent);
         if (updateFluid) newContent.Fluid.Fluid.UpdateNow(this, position, newContent.Fluid);
 
         foreach (Side side in Side.All.Sides())

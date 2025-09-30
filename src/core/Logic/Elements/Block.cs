@@ -89,7 +89,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     private partial IEvent<DestructionCompletedMessage> DestructionCompleted { get; set; }
 
     [LateInitialization]
-    private partial IEvent<ContentUpdateMessage> ContentUpdate { get; set; } // todo: rename to StateUpdate
+    private partial IEvent<StateUpdateMessage> StateUpdate { get; set; }
 
     [LateInitialization]
     private partial IEvent<NeighborUpdateMessage> NeighborUpdate { get; set; }
@@ -212,7 +212,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <returns>The number of states this block has.</returns>
     internal UInt32 Initialize(UInt32 offset, IValidator validator)
     {
-        // todo: call EnsureNotBaked() on behavior system through method on base class
+        EnsureNotBaked();
 
         InitializeProperties();
 
@@ -238,7 +238,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         Destruction = registry.RegisterEvent<DestructionMessage>(single: true);
         DestructionCompleted = registry.RegisterEvent<DestructionCompletedMessage>();
 
-        ContentUpdate = registry.RegisterEvent<ContentUpdateMessage>();
+        StateUpdate = registry.RegisterEvent<StateUpdateMessage>();
         NeighborUpdate = registry.RegisterEvent<NeighborUpdateMessage>();
         RandomUpdate = registry.RegisterEvent<RandomUpdateMessage>();
         ScheduledUpdate = registry.RegisterEvent<ScheduledUpdateMessage>();
@@ -247,9 +247,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
     /// <inheritdoc />
     public sealed override void SubscribeToEvents(IEventBus bus) {}
-
-    // todo: move some of the extensions used into this class
-
+    
     private void InitializeProperties()
     {
         BlockProperties properties = new(this);
@@ -604,13 +602,13 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         chunk?.ScheduleBlockUpdate(new BlockUpdate(position, this, UpdateOperation.Destroy), ScheduledDestroyOffset);
     }
 
-    /// <inheritdoc cref="ContentUpdate" />
-    public void DoContentUpdate(World world, Vector3i position, Content oldContent, Content newContent)
+    /// <inheritdoc cref="StateUpdate" />
+    public void DoStateUpdate(World world, Vector3i position, Content oldContent, Content newContent)
     {
         if (oldContent.Block.Block != this)
             return;
 
-        ContentUpdateMessage message = new(this)
+        StateUpdateMessage message = new(this)
         {
             World = world,
             Position = position,
@@ -618,7 +616,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             NewContent = newContent // todo: also, use that the old content is avaialble to improve that one fluid event so no false positives occur 
         };
 
-        ContentUpdate.Publish(message);
+        StateUpdate.Publish(message);
     }
 
     /// <inheritdoc cref="NeighborUpdate" />
@@ -894,11 +892,10 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     }
 
     /// <summary>
-    ///     Sent when the content at a position changes.
-    ///     Can be used to react to state and fluid changes.
+    ///     Sent when the state of a block changes, including when the fluid at its position changes.
     /// </summary>
     /// <param name="Sender">The block that sent the message.</param>
-    public record ContentUpdateMessage(Object Sender) : IEventMessage // todo: maybe rename to StateUpdate
+    public record StateUpdateMessage(Object Sender) : IEventMessage
     {
         /// <summary>
         ///     The world in which the content update occurs.

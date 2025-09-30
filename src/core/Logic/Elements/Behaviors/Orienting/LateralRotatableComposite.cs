@@ -58,7 +58,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     {
         bus.Subscribe<Block.PlacementMessage>(OnPlacement);
         bus.Subscribe<Block.DestructionMessage>(OnDestruction);
-        bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
+        bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
         bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
     }
 
@@ -137,7 +137,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         }
     }
 
-    private void OnContentUpdate(Block.ContentUpdateMessage message)
+    private void OnStateUpdate(Block.StateUpdateMessage message)
     {
         State oldState = message.OldContent.Block.State;
         State newState = message.NewContent.Block.State;

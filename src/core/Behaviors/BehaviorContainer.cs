@@ -142,6 +142,12 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     /// <inheritdoc />
     public event EventHandler<IAspectable.ValidationEventArgs>? Validation;
 
+    /// <inheritdoc cref="BehaviorSystem{TSelf,TBehavior}.EnsureNotBaked"/>
+    public void EnsureNotBaked()
+    {
+        BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
+    }
+    
     /// <inheritdoc />
     public void Bake(TBehavior?[] array)
     {

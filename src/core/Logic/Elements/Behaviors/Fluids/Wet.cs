@@ -35,10 +35,10 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     /// <inheritdoc/>
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
+        bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
     }
 
-    private void OnContentUpdate(Block.ContentUpdateMessage message)
+    private void OnStateUpdate(Block.StateUpdateMessage message)
     {
         if (!BecomeWet.HasSubscribers) return;
         

@@ -25,11 +25,11 @@ public class DestroyOnFluid : BlockBehavior, IBehavior<DestroyOnFluid, BlockBeha
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ContentUpdateMessage>(OnContentUpdate);
+        bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
         bus.Subscribe<Block.PlacementCompletedMessage>(OnPlacementCompleted);
     }
 
-    private void OnContentUpdate(Block.ContentUpdateMessage message)
+    private void OnStateUpdate(Block.StateUpdateMessage message)
     {
         if (!message.NewContent.Fluid.IsEmpty) 
             Subject.ScheduleDestroy(message.World, message.Position);
