@@ -17,10 +17,12 @@ namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 /// <summary>
 ///     Core behavior for blocks that can be rotated in some way.
 /// </summary>
-public class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Block> // todo: use the Orientable behavior as a step above this, as it is more general
+public class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Block>
 {
     private Rotatable(Block subject) : base(subject)
     {
+        subject.Require<Orientable>();
+        
         subject.RequireIfPresent<RotatableSimpleBlock, Simple>();
 
         Axis = Aspect<Axis, State>.New<Exclusive<Axis, State>>(nameof(Axis), this);

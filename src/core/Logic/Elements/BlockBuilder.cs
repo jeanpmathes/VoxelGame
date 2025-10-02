@@ -23,7 +23,6 @@ namespace VoxelGame.Core.Logic.Elements;
 public class BlockBuilder
 {
     private readonly BlockFactory factory;
-    // todo: make sure there are ZERO compiler warnings
 
     private BlockBuilder()
     {

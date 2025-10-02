@@ -8,6 +8,7 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Siding;
 
@@ -18,6 +19,8 @@ public class Sided : BlockBehavior, IBehavior<Sided, BlockBehavior, Block>
 {
     private Sided(Block subject) : base(subject)
     {
+        subject.Require<Orientable>();
+        
         Sides = Aspect<Sides, State>.New<Exclusive<Sides, State>>(nameof(Sides), this);
         SidedState = Aspect<State?, (State state, Sides side)>.New<Exclusive<State?, (State state, Sides side)>>(nameof(SidedState), this);
     }

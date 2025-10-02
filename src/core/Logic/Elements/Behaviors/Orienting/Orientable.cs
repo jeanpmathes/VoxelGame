@@ -4,11 +4,20 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Core.Behaviors;
+
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 
-public class Orientable
+/// <summary>
+/// Blocks that can be oriented in some way, e.g. by rotation or siding.
+/// </summary>
+public class Orientable : BlockBehavior, IBehavior<Orientable, BlockBehavior, Block>
 {
-    // todo: implement, is similar to Rotatable but more general, no Orientation aspect, just a marker for later steps to allow rotating structures
-    // todo: work through the Orientation note in the planning and adapt it to refer to this behavior
-    // todo: also look through all other planning notes and ensure that they refer to behaviors and not interfaces
+    private Orientable(Block subject) : base(subject) {}
+    
+    /// <inheritdoc />
+    public static Orientable Construct(Block input)
+    {
+        return new Orientable(input);
+    }
 }
