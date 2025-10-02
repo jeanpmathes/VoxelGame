@@ -42,7 +42,7 @@ public partial class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Bloc
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteraction);
+        bus.Subscribe<Block.IActorInteractionMessage>(OnActorInteraction);
     }
 
     /// <inheritdoc />
@@ -70,7 +70,7 @@ public partial class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Bloc
         return IsValveOpen(state);
     }
 
-    private void OnActorInteraction(Block.ActorInteractionMessage message)
+    private void OnActorInteraction(Block.IActorInteractionMessage message)
     {
         message.Actor.World.SetBlock(message.State.With(IsOpen, !message.State.Get(IsOpen)), message.Position);
     }

@@ -34,11 +34,11 @@ public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.RandomUpdateMessage>(OnRandomUpdate);
-        bus.Subscribe<Combustible.BurnMessage>(OnBurn);
+        bus.Subscribe<Block.IRandomUpdateMessage>(OnRandomUpdate);
+        bus.Subscribe<Combustible.IBurnMessage>(OnBurn);
     }
 
-    private void OnRandomUpdate(Block.RandomUpdateMessage message)
+    private void OnRandomUpdate(Block.IRandomUpdateMessage message)
     {
         for (Int32 yOffset = -1; yOffset <= 1; yOffset++)
             foreach (Orientation orientation in Orientations.All)
@@ -50,7 +50,7 @@ public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
             }
     }
 
-    private static void OnBurn(Combustible.BurnMessage message)
+    private static void OnBurn(Combustible.IBurnMessage message)
     {
         message.World.SetBlock(new State(Blocks.Instance.Environment.AshCoveredSoil), message.Position);
         message.Fire.Place(message.World, message.Position.Above());

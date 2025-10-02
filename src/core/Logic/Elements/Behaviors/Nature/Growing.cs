@@ -54,8 +54,8 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
-        bus.Subscribe<Block.RandomUpdateMessage>(OnRandomUpdate);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.IRandomUpdateMessage>(OnRandomUpdate);
     }
 
     /// <inheritdoc />
@@ -94,7 +94,7 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
         return ground == requiredGround || ground == Subject;
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         if (message.Side != Side.Bottom)
             return;
@@ -105,7 +105,7 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
             Subject.ScheduleDestroy(message.World, message.Position);
     }
 
-    private void OnRandomUpdate(Block.RandomUpdateMessage message)
+    private void OnRandomUpdate(Block.IRandomUpdateMessage message)
     {
         Int32 currentAge = message.State.Get(Age);
 

@@ -29,8 +29,8 @@ public class CompositeGrounded : BlockBehavior, IBehavior<CompositeGrounded, Blo
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Composite.PlacementCompletedMessage>(OnPlacementCompleted);
-        bus.Subscribe<Composite.NeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Composite.IPlacementCompletedMessage>(OnPlacementCompleted);
+        bus.Subscribe<Composite.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     private static Boolean GetIsPlacementAllowed(Boolean original, (World world, Vector3i position, Vector3i part, Actor? actor) context)
@@ -40,7 +40,7 @@ public class CompositeGrounded : BlockBehavior, IBehavior<CompositeGrounded, Blo
         return part.Y != 0 || Grounded.IsGrounded(world, position);
     }
 
-    private static void OnPlacementCompleted(Composite.PlacementCompletedMessage message)
+    private static void OnPlacementCompleted(Composite.IPlacementCompletedMessage message)
     {
         Vector3i positionBelow = message.Position.Below();
         State blockBelow = message.World.GetBlock(positionBelow) ?? Content.DefaultState;
@@ -52,7 +52,7 @@ public class CompositeGrounded : BlockBehavior, IBehavior<CompositeGrounded, Blo
             completableGround.BecomeComplete(message.World, positionBelow);
     }
 
-    private void OnNeighborUpdate(Composite.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Composite.INeighborUpdateMessage message)
     {
         if (message.Part.Y != 0 || message.Side != Side.Bottom) return;
 

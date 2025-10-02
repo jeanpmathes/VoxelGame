@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
@@ -52,28 +51,32 @@ public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, Block
     {
         if (!AshCover.HasSubscribers) return;
 
-        AshCoverMessage message = new(this)
-        {
-            World = world,
-            Position = position
-        };
+        AshCoverMessage ashCover = IEventMessage<AshCoverMessage>.Pool.Get();
 
-        AshCover.Publish(message);
+        {
+            ashCover.World = world;
+            ashCover.Position = position;
+        }
+
+        AshCover.Publish(ashCover);
+        
+        IEventMessage<AshCoverMessage>.Pool.Return(ashCover);
     }
 
     /// <summary>
     ///     Sent when a block should be covered with ash.
     /// </summary>
-    public record AshCoverMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IAshCoverMessage : IEventMessage
     {
         /// <summary>
         ///     The world the block is in.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position of the block to cover with ash.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
     }
 }

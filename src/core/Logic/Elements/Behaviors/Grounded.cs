@@ -41,8 +41,8 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
     {
         if (isComposite) return;
 
-        bus.Subscribe<Block.PlacementCompletedMessage>(OnPlacementCompleted);
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.IPlacementCompletedMessage>(OnPlacementCompleted);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
@@ -54,7 +54,7 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
         return IsGrounded(world, position);
     }
 
-    private static void OnPlacementCompleted(Block.PlacementCompletedMessage message)
+    private static void OnPlacementCompleted(Block.IPlacementCompletedMessage message)
     {
         Vector3i positionBelow = message.Position.Below();
         State blockBelow = message.World.GetBlock(positionBelow) ?? Content.DefaultState;
@@ -66,7 +66,7 @@ public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
             completableGround.BecomeComplete(message.World, positionBelow);
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         if (message.Side != Side.Bottom || IsGrounded(message.World, message.Position)) return;
 

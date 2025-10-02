@@ -37,24 +37,28 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
+        bus.Subscribe<Block.IStateUpdateMessage>(OnStateUpdate);
     }
 
-    private void OnStateUpdate(Block.StateUpdateMessage message)
+    private void OnStateUpdate(Block.IStateUpdateMessage message)
     {
         if (!BecomeWet.HasSubscribers) return;
 
         Boolean wasWet = IsWet(message.OldState.Block) || message.OldState.Fluid.Fluid.IsLiquid;
         Boolean isWet = IsWet(message.NewState.Block) || message.NewState.Fluid.Fluid.IsLiquid;
-        
-        if (!wasWet && isWet)
+
+        if (wasWet || !isWet) return;
+
+        BecomeWetMessage becomeWet = IEventMessage<BecomeWetMessage>.Pool.Get();
+            
         {
-            BecomeWet.Publish(new BecomeWetMessage(this)
-            {
-                World = message.World,
-                Position = message.Position
-            });
+            becomeWet.World = message.World;
+            becomeWet.Position = message.Position;
         }
+            
+        BecomeWet.Publish(becomeWet);
+            
+        IEventMessage<BecomeWetMessage>.Pool.Return(becomeWet);
     }
 
     /// <summary>
@@ -70,16 +74,17 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     /// <summary>
     ///     Sent when a block becomes wet.
     /// </summary>
-    public record BecomeWetMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IBecomeWetMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the block is located.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
     }
 }

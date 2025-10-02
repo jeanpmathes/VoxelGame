@@ -42,7 +42,7 @@ public class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ActorCollisionMessage>(OnActorCollision);
+        bus.Subscribe<Block.IActorCollisionMessage>(OnActorCollision);
     }
 
     /// <inheritdoc />
@@ -51,7 +51,7 @@ public class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, Block>
         MaxVelocity = MaxVelocityInitializer.GetValue(original: 1.0, Subject);
     }
 
-    private void OnActorCollision(Block.ActorCollisionMessage message)
+    private void OnActorCollision(Block.IActorCollisionMessage message)
     {
         // todo: multiply by height of the block if it has a height
 

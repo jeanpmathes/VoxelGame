@@ -74,9 +74,9 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.PlacementCompletedMessage>(OnPlacementCompleted);
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
-        bus.Subscribe<Block.ScheduledUpdateMessage>(OnScheduledUpdate);
+        bus.Subscribe<Block.IPlacementCompletedMessage>(OnPlacementCompleted);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.IScheduledUpdateMessage>(OnScheduledUpdate);
     }
 
     /// <inheritdoc />
@@ -183,12 +183,12 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         return GetPlacementSides(world, position) != Sides.None;
     }
 
-    private void OnPlacementCompleted(Block.PlacementCompletedMessage message)
+    private void OnPlacementCompleted(Block.IPlacementCompletedMessage message)
     {
         Subject.ScheduleUpdate(message.World, message.Position, GetDelay(message.Position));
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         if (message.Side == Side.Bottom)
         {
@@ -224,7 +224,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         }
     }
 
-    private void OnScheduledUpdate(Block.ScheduledUpdateMessage message)
+    private void OnScheduledUpdate(Block.IScheduledUpdateMessage message)
     {
         var canBurn = false;
 

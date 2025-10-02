@@ -5,16 +5,19 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Linq;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using VoxelGame.SourceGenerators.Generators;
+using VoxelGame.SourceGenerators.Tests.Utilities;
 using Xunit;
 
 namespace VoxelGame.SourceGenerators.Tests.Generators;
 
 public class EnumUtilityGeneratorTests
 {
+    private static String RunGenerator(String source)
+    {
+        return TestTools.RunGenerator<EnumUtilityGenerator>(source, "_EnumUtility.g.cs");
+    }
+    
     [Fact]
     public void EnumUtilityGenerator_ShouldGenerateExtensionMethodForEnum()
     {
@@ -57,18 +60,7 @@ public class EnumUtilityGeneratorTests
 
                                """;
 
-        EnumUtilityGenerator generator = new();
-        var driver = CSharpGeneratorDriver.Create(generator);
-
-        var compilation = CSharpCompilation.Create(nameof(EnumUtilityGeneratorTests),
-            [CSharpSyntaxTree.ParseText(oldText)],
-            [MetadataReference.CreateFromFile(typeof(Object).Assembly.Location)]);
-
-        GeneratorDriverRunResult runResult = driver.RunGenerators(compilation).GetRunResult();
-        SyntaxTree generatedFileSyntax = runResult.GeneratedTrees.Single(t => t.FilePath.EndsWith("TestEnum.g.cs"));
-
-        Assert.Equal(newText,
-            generatedFileSyntax.GetText().ToString(),
+        Assert.Equal(newText, RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }

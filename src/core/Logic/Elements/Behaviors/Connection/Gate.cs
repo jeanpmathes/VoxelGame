@@ -55,8 +55,8 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
-        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteraction);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.IActorInteractionMessage>(OnActorInteraction);
     }
 
     /// <inheritdoc />
@@ -243,7 +243,7 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
         return rotatable.SetOrientation(original, orientation);
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         Orientation orientation = rotatable.GetOrientation(message.State);
 
@@ -257,7 +257,7 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
             Subject.ScheduleDestroy(message.World, message.Position);
     }
 
-    private void OnActorInteraction(Block.ActorInteractionMessage message)
+    private void OnActorInteraction(Block.IActorInteractionMessage message)
     {
         Orientation orientation = rotatable.GetOrientation(message.State);
         Boolean isClosed = !message.State.Get(IsOpen);

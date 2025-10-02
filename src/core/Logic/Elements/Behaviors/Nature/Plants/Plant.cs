@@ -52,7 +52,7 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
     public override void SubscribeToEvents(IEventBus bus)
     {
         if (!isComposite)
-            bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+            bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     /// <inheritdoc />
@@ -89,7 +89,7 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
         return state;
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         if (message.Side != Side.Bottom)
             return;

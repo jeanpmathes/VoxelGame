@@ -33,7 +33,7 @@ public class Salt : BlockBehavior, IBehavior<Salt, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
+        bus.Subscribe<Block.IStateUpdateMessage>(OnStateUpdate);
     }
 
     private static Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
@@ -43,7 +43,7 @@ public class Salt : BlockBehavior, IBehavior<Salt, BlockBehavior, Block>
         return fluid.IsLiquid;
     }
 
-    private void OnStateUpdate(Block.StateUpdateMessage message)
+    private void OnStateUpdate(Block.IStateUpdateMessage message)
     {
         if (message.NewState.Fluid.IsEmpty) return;
 

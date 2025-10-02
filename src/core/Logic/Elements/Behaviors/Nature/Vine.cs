@@ -48,8 +48,8 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.RandomUpdateMessage>(OnRandomUpdate);
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.IRandomUpdateMessage>(OnRandomUpdate);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     /// <inheritdoc />
@@ -73,7 +73,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
         return siding.GetSide(state) == above.Value.Block.Get<Vine>()?.siding.GetSide(above.Value);
     }
 
-    private void OnRandomUpdate(Block.RandomUpdateMessage message)
+    private void OnRandomUpdate(Block.IRandomUpdateMessage message)
     {
         Int32 currentAge = message.State.Get(Age);
 
@@ -88,7 +88,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
         }
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         if (message.Side != Side.Top)
             return;

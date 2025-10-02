@@ -53,7 +53,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteract);
+        bus.Subscribe<Block.IActorInteractionMessage>(OnActorInteract);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
@@ -131,7 +131,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         return leftSided;
     }
 
-    private void OnActorInteract(Block.ActorInteractionMessage message)
+    private void OnActorInteract(Block.IActorInteractionMessage message)
     {
         ToggleDoor(message.Actor.World, message.Position, message.State);
 

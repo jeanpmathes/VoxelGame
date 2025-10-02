@@ -66,7 +66,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.RandomUpdateMessage>(OnRandomUpdate);
+        bus.Subscribe<Block.IRandomUpdateMessage>(OnRandomUpdate);
     }
 
     /// <inheritdoc />
@@ -81,7 +81,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
         Stage = builder.Define(nameof(Stage)).Int32(min: 0, StageCount).NullableAttribute(placementDefault: 0, generationDefault: 0);
     }
 
-    private void OnRandomUpdate(Block.RandomUpdateMessage message)
+    private void OnRandomUpdate(Block.IRandomUpdateMessage message)
     {
         if (!CanGrow.GetValue(original: true, message.State))
             return;
@@ -98,14 +98,21 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
 
         if (aliveStage == MatureStage)
         {
-            MatureUpdate.Publish(new MatureUpdateMessage(this)
-            {
-                World = message.World,
-                Position = message.Position,
-                State = message.State,
-                Ground = plantable
-            });
+            if (!MatureUpdate.HasSubscribers) return;
+            
+            MatureUpdateMessage matureUpdate = IEventMessage<MatureUpdateMessage>.Pool.Get();
 
+            {
+                matureUpdate.World = message.World;
+                matureUpdate.Position = message.Position;
+                matureUpdate.State = message.State;
+                matureUpdate.Ground = plantable;
+            }
+            
+            MatureUpdate.Publish(matureUpdate);
+            
+            IEventMessage<MatureUpdateMessage>.Pool.Return(matureUpdate);
+            
             return;
         }
 
@@ -151,26 +158,27 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     /// <summary>
     ///     Sent when the plant receives a random update and has already reached the last stage.
     /// </summary>
-    public record MatureUpdateMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IMatureUpdateMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the plant is located.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position of the plant in the world.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the plant block.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
 
         /// <summary>
         ///     The plantable ground this plant is growing on.
         /// </summary>
-        public Plantable Ground { get; set; } = null!;
+        public Plantable Ground { get; }
     }
 }

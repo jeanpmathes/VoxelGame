@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
+using VoxelGame.Core.Collections;
 
 namespace VoxelGame.Core.Behaviors.Events;
 
@@ -12,12 +12,16 @@ namespace VoxelGame.Core.Behaviors.Events;
 ///     Core interface for event messages.
 /// </summary>
 public interface IEventMessage
-    // todo: allow simple pooling of event messages, add to analyzer note that there should be an attribute for pooled messages for which analysis exists so they are not kept, do same for SectionChangedEventArgs
-    // todo: the pooling storage should use the pool class so it is thread-safe instead of a single static instance
-    // todo: go through all publish calls and use pooling there
+{
+}
+
+/// <summary>
+///     Core interface for event messages, with pooling support.
+/// </summary>
+public interface IEventMessage<TSelf> : IEventMessage where TSelf : class, IEventMessage<TSelf>, new()
 {
     /// <summary>
-    ///     Get the sender of the event message.
+    ///    A simple pool for this event message type.
     /// </summary>
-    public Object Sender { get; }
+    public static SimpleObjectPool<TSelf> Pool { get; } = new();
 }

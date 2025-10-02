@@ -22,6 +22,12 @@ public static class SourceCodeTools
         SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions & ~SymbolDisplayMiscellaneousOptions.UseSpecialTypes
         | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier
         | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
+    
+    /// <summary>
+    ///     The <see cref="SymbolDisplayFormat"/>, adapted to not include generic type arguments.
+    /// </summary>
+    public static SymbolDisplayFormat SymbolDisplayFormatWithoutGenericTypeArguments { get; } = SymbolDisplayFormat.WithGenericsOptions(
+        SymbolDisplayFormat.FullyQualifiedFormat.GenericsOptions & ~SymbolDisplayGenericsOptions.IncludeTypeParameters);
 
     /// <summary>
     ///     Generate a nested class structure based on the provided containing type information.

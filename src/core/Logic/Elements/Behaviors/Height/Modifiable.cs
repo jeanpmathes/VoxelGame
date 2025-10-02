@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
@@ -37,17 +36,22 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteractions);
+        bus.Subscribe<Block.IActorInteractionMessage>(OnActorInteractions);
     }
 
-    private void OnActorInteractions(Block.ActorInteractionMessage message)
+    private void OnActorInteractions(Block.IActorInteractionMessage message)
     {
-        ModifyHeight.Publish(new ModifyHeightMessage(this) // todo: check that subject is correct for all events, should be the actual behavior
+        if (!ModifyHeight.HasSubscribers) return;
+
+        ModifyHeightMessage modifyHeight = IEventMessage<ModifyHeightMessage>.Pool.Get();
+
         {
-            World = message.Actor.World,
-            Position = message.Position,
-            State = message.State
-        });
+            modifyHeight.World = message.Actor.World;
+            modifyHeight.Position = message.Position;
+            modifyHeight.State = message.State;
+        }
+
+        ModifyHeight.Publish(modifyHeight);
     }
 
     /// <inheritdoc />
@@ -60,21 +64,22 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
     /// <summary>
     ///     Sent when the height of the block should be modified.
     /// </summary>
-    public record ModifyHeightMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IModifyHeightMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the block is located.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position of the block in the world.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The current state of the block.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
     }
 }

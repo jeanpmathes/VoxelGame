@@ -37,8 +37,8 @@ public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.PlacementMessage>(OnPlacement);
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.IPlacementMessage>(OnPlacement);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     private static Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
@@ -48,7 +48,7 @@ public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, 
         return CanHaveCover(world, position) == false || Blocks.Instance.Environment.Soil.CanPlace(world, position, actor);
     }
 
-    private void OnPlacement(Block.PlacementMessage message)
+    private void OnPlacement(Block.IPlacementMessage message)
     {
         if (CanHaveCover(message.World, message.Position) == false)
             message.World.SetBlock(Subject.States.PlacementDefault, message.Position);
@@ -56,7 +56,7 @@ public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, 
             Blocks.Instance.Environment.Soil.Place(message.World, message.Position, message.Actor);
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         if (message.Side == Side.Top && CanHaveCover(message.World, message.Position) != false)
             RemoveCover(message.World, message.Position);

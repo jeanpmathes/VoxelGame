@@ -395,14 +395,17 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         if (potentialBlock?.Block != this) return;
 
-        ActorCollisionMessage message = new(this)
-        {
-            Body = body,
-            Position = position,
-            State = potentialBlock.Value
-        };
+        ActorCollisionMessage actorCollision = IEventMessage<ActorCollisionMessage>.Pool.Get();
 
-        ActorCollision.Publish(message);
+        {
+            actorCollision.Body = body;
+            actorCollision.Position = position;
+            actorCollision.State = potentialBlock.Value;
+        }
+
+        ActorCollision.Publish(actorCollision);
+        
+        IEventMessage<ActorCollisionMessage>.Pool.Return(actorCollision);
     }
 
     /// <summary>
@@ -419,14 +422,17 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         if (potentialBlock?.Block != this) return;
 
-        ActorInteractionMessage message = new(this)
-        {
-            Actor = actor,
-            Position = position,
-            State = potentialBlock.Value
-        };
+        ActorInteractionMessage actorInteraction = IEventMessage<ActorInteractionMessage>.Pool.Get();
 
-        ActorInteraction.Publish(message);
+        {
+            actorInteraction.Actor = actor;
+            actorInteraction.Position = position;
+            actorInteraction.State = potentialBlock.Value;
+        }
+
+        ActorInteraction.Publish(actorInteraction);
+        
+        IEventMessage<ActorInteractionMessage>.Pool.Return(actorInteraction);
     }
 
     /// <summary>
@@ -464,26 +470,34 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         if (Placement.HasSubscribers)
         {
-            PlacementMessage placement = new(this)
+            PlacementMessage placement = IEventMessage<PlacementMessage>.Pool.Get();
+
             {
-                World = world,
-                Position = position,
-                Actor = actor
-            };
+                placement.World = world;
+                placement.Position = position;
+                placement.Actor = actor;
+            }
 
             Placement.Publish(placement);
+            
+            IEventMessage<PlacementMessage>.Pool.Return(placement);
         }
         else
         {
             world.SetBlock(GetPlacementState(world, position, actor), position);
         }
 
-        PlacementCompleted.Publish(new PlacementCompletedMessage(this)
+        PlacementCompletedMessage placementCompleted = IEventMessage<PlacementCompletedMessage>.Pool.Get();
+
         {
-            World = world,
-            Position = position,
-            Actor = actor
-        });
+            placementCompleted.World = world;
+            placementCompleted.Position = position;
+            placementCompleted.Actor = actor;
+        }
+        
+        PlacementCompleted.Publish(placementCompleted);
+        
+        IEventMessage<PlacementCompletedMessage>.Pool.Return(placementCompleted);
 
         return true;
     }
@@ -537,28 +551,36 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         if (Destruction.HasSubscribers)
         {
-            DestructionMessage destruction = new(this)
+            DestructionMessage destruction = IEventMessage<DestructionMessage>.Pool.Get();
+            
             {
-                World = world,
-                Position = position,
-                State = block,
-                Actor = actor
-            };
+                destruction.World = world;
+                destruction.Position = position;
+                destruction.State = block;
+                destruction.Actor = actor;
+            }
 
             Destruction.Publish(destruction);
+            
+            IEventMessage<DestructionMessage>.Pool.Return(destruction);
         }
         else
         {
             world.SetDefaultBlock(position);
         }
-
-        DestructionCompleted.Publish(new DestructionCompletedMessage(this)
+        
+        DestructionCompletedMessage destructionCompleted = IEventMessage<DestructionCompletedMessage>.Pool.Get();
+        
         {
-            World = world,
-            Position = position,
-            State = block,
-            Actor = actor
-        });
+            destructionCompleted.World = world;
+            destructionCompleted.Position = position;
+            destructionCompleted.State = block;
+            destructionCompleted.Actor = actor;
+        }
+        
+        DestructionCompleted.Publish(destructionCompleted);
+        
+        IEventMessage<DestructionCompletedMessage>.Pool.Return(destructionCompleted);
 
         return true;
     }
@@ -594,69 +616,96 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <inheritdoc cref="StateUpdate" />
     public void DoStateUpdate(World world, Vector3i position, Content oldContent, Content newContent)
     {
+        if (!StateUpdate.HasSubscribers) return;
+        
         if (oldContent.Block.Block != this)
             return;
+        
+        StateUpdateMessage stateUpdate = IEventMessage<StateUpdateMessage>.Pool.Get();
 
-        StateUpdateMessage message = new(this)
         {
-            World = world,
-            Position = position,
-            OldState = oldContent,
-                        NewState = newContent 
-        };
-
-        StateUpdate.Publish(message);
+            stateUpdate.World = world;
+            stateUpdate.Position = position;
+            stateUpdate.OldState = oldContent;
+            stateUpdate.NewState = newContent;
+        }
+        
+        StateUpdate.Publish(stateUpdate);
+        
+        IEventMessage<StateUpdateMessage>.Pool.Return(stateUpdate);
     }
 
     /// <inheritdoc cref="NeighborUpdate" />
     public void DoNeighborUpdate(World world, Vector3i position, State state, Side side)
     {
-        NeighborUpdateMessage message = new(this)
-        {
-            World = world,
-            Position = position,
-            State = state,
-            Side = side
-        };
+        if (!NeighborUpdate.HasSubscribers) return;
+        
+        NeighborUpdateMessage neighborUpdate = IEventMessage<NeighborUpdateMessage>.Pool.Get();
 
-        NeighborUpdate.Publish(message);
+        {
+            neighborUpdate.World = world;
+            neighborUpdate.Position = position;
+            neighborUpdate.State = state;
+            neighborUpdate.Side = side;
+        }
+        
+        NeighborUpdate.Publish(neighborUpdate);
+        
+        IEventMessage<NeighborUpdateMessage>.Pool.Return(neighborUpdate);
     }
 
     /// <inheritdoc cref="RandomUpdate" />
     public void DoRandomUpdate(World world, Vector3i position, State state)
     {
-        RandomUpdateMessage message = new(this)
-        {
-            World = world,
-            Position = position,
-            State = state
-        };
+        if (!RandomUpdate.HasSubscribers) return;
 
-        RandomUpdate.Publish(message);
+        RandomUpdateMessage randomUpdate = IEventMessage<RandomUpdateMessage>.Pool.Get();
+
+        {
+            randomUpdate.World = world;
+            randomUpdate.Position = position;
+            randomUpdate.State = state;
+        }
+
+        RandomUpdate.Publish(randomUpdate);
+            
+        IEventMessage<RandomUpdateMessage>.Pool.Return(randomUpdate);
     }
 
     /// <inheritdoc cref="ScheduledUpdate" />
     public void DoScheduledUpdate(World world, Vector3i position, State state)
     {
-        ScheduledUpdateMessage message = new(this)
-        {
-            World = world,
-            Position = position,
-            State = state
-        };
+        if (!ScheduledUpdate.HasSubscribers) return;
 
-        ScheduledUpdate.Publish(message);
+        ScheduledUpdateMessage scheduledUpdate = IEventMessage<ScheduledUpdateMessage>.Pool.Get();
+
+        {
+            scheduledUpdate.World = world;
+            scheduledUpdate.Position = position;
+            scheduledUpdate.State = state;
+        }
+
+        ScheduledUpdate.Publish(scheduledUpdate);
+            
+        IEventMessage<ScheduledUpdateMessage>.Pool.Return(scheduledUpdate);
     }
 
     /// <inheritdoc cref="GeneratorUpdate" />
     public Content DoGeneratorUpdate(Content content)
     {
-        GeneratorUpdateMessage message = new(this)
-        {
-            Content = content
-        };
+        if (!GeneratorUpdate.HasSubscribers) return content;
 
-        GeneratorUpdate.Publish(message);
+        GeneratorUpdateMessage generatorUpdate = IEventMessage<GeneratorUpdateMessage>.Pool.Get();
+
+        {
+            generatorUpdate.Content = content;
+        }
+
+        GeneratorUpdate.Publish(generatorUpdate);
+        
+        content = generatorUpdate.Content;
+        
+        IEventMessage<GeneratorUpdateMessage>.Pool.Return(generatorUpdate);
 
         return content;
     }
@@ -740,110 +789,111 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <summary>
     ///     Sent when an actor collides with this block.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record ActorCollisionMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IActorCollisionMessage : IEventMessage
     {
         /// <summary>
         ///     The body of the actor that collided with the block.
         /// </summary>
-        public Body Body { get; set; } = null!;
+        public Body Body { get; }
 
         /// <summary>
         ///     The position of the block in the world.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block at the position.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
     }
 
     /// <summary>
     ///     Sent when an actor interacts with this block.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record ActorInteractionMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IActorInteractionMessage : IEventMessage
     {
         /// <summary>
         ///     The actor that interacted with the block.
         /// </summary>
-        public Actor Actor { get; set; } = null!;
+        public Actor Actor { get; }
 
         /// <summary>
         ///     The position of the block in the world.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block at the position.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
     }
 
     /// <summary>
     ///     Sent when the block is actually placed in the world.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record PlacementMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IPlacementMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the placement occurs.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position at which the placement is requested.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The actor that performs placement.
         /// </summary>
-        public Actor? Actor { get; set; }
+        public Actor? Actor { get; }
     }
 
     /// <summary>
     ///     Sent after the block was placed in the world successfully.
     /// </summary>
-    public record PlacementCompletedMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IPlacementCompletedMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the placement was completed.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position at which the block was placed.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The actor that placed the block.
         /// </summary>
-        public Actor? Actor { get; set; }
+        public Actor? Actor { get; }
     }
 
     /// <summary>
     ///     Sent when the block is actually destroyed in the world.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record DestructionMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IDestructionMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the destruction occurs.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position at which the destruction is requested.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block at the position.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
 
         /// <summary>
         ///     The actor that performs destruction.
@@ -854,139 +904,136 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <summary>
     ///     Sent after the block was destroyed in the world successfully.
     /// </summary>
-    public record DestructionCompletedMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IDestructionCompletedMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the destruction was completed.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position at which the block was destroyed.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block that was destroyed.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
 
         /// <summary>
         ///     The actor that destroyed the block.
         /// </summary>
-        public Actor? Actor { get; set; }
-
-        // todo: find a way to prevent setters being uses outside of this class, maybe interfaces could be used (code generator?)
-        // todo: also go through interfaces that have setters that should be used (e.g. Combustible, Plantable) and use Methods there instead, if not better an aspect
+        public Actor? Actor { get; }
     }
 
     /// <summary>
     ///     Sent when the state of a block changes, including when the fluid at its position changes.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record StateUpdateMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IStateUpdateMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the content update occurs.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The old state of this block at the position.
         /// </summary>
-        public Content OldState { get; set; }
+        public Content OldState { get; }
 
         /// <summary>
         ///     The new state of this block at the position.
         /// </summary>
-        public Content NewState { get; set; }
+        public Content NewState { get; }
     }
 
     /// <summary>
     ///     Sent when a neighboring position is changed.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record NeighborUpdateMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface INeighborUpdateMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the neighbor update occurs.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The state of this, unchanged, block at the position.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
 
         /// <summary>
         ///     The side of the block where the change happened.
         /// </summary>
-        public Side Side { get; set; }
+        public Side Side { get; }
     }
 
     /// <summary>
     ///     Sent for random updates.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record RandomUpdateMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IRandomUpdateMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the random update occurs.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
     }
 
     /// <summary>
     ///     Sent for scheduled updates.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record ScheduledUpdateMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IScheduledUpdateMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the scheduled update occurs.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block.
         /// </summary>
-        public State State { get; set; }
+        public State State { get; }
     }
 
     /// <summary>
     ///     Sent after the chunk the block is in has been generated.
     /// </summary>
-    /// <param name="Sender">The block that sent the message.</param>
-    public record GeneratorUpdateMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IGeneratorUpdateMessage : IEventMessage
     {
         /// <summary>
         ///     The content that is generated, containing this block.
-        ///     Subscribers can modify this content.
         /// </summary>
         public Content Content { get; set; }
     }

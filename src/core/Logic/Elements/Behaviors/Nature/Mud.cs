@@ -30,17 +30,12 @@ public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Plantable.GrowthAttemptMessage>(OnGrowthAttempt);
+        bus.Subscribe<Plantable.IGrowthAttemptMessage>(OnGrowthAttempt);
     }
 
-    private static void OnGrowthAttempt(Plantable.GrowthAttemptMessage message)
+    private static void OnGrowthAttempt(Plantable.IGrowthAttemptMessage message)
     {
-        if (message.Fluid != Elements.Fluids.Instance.FreshWater)
-        {
-            message.CanGrow = false;
-
-            return;
-        }
+        if (message.Fluid != Elements.Fluids.Instance.FreshWater) return;
 
         FluidLevel remaining = FluidLevel.Eight - (Int32) message.Level; // todo: add a fluid level struct
 
@@ -49,6 +44,6 @@ public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
                 : new Content(Blocks.Instance.Environment.Soil),
             message.Position);
 
-        message.CanGrow = true;
+        message.MarkAsSuccessful();
     }
 }

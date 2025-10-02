@@ -33,10 +33,10 @@ public class WashableCoveredSoil : BlockBehavior, IBehavior<WashableCoveredSoil,
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Wet.BecomeWetMessage>(OnBecomeWet);
+        bus.Subscribe<Wet.IBecomeWetMessage>(OnBecomeWet);
     }
 
-    private void OnBecomeWet(Wet.BecomeWetMessage message)
+    private void OnBecomeWet(Wet.IBecomeWetMessage message)
     {
         soil.RemoveCover(message.World, message.Position);
     }

@@ -36,7 +36,7 @@ public partial class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavi
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteract);
+        bus.Subscribe<Block.IActorInteractionMessage>(OnActorInteract);
     }
 
     /// <inheritdoc />
@@ -50,7 +50,7 @@ public partial class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavi
         return state.Get(Color).ToColorS();
     }
 
-    private void OnActorInteract(Block.ActorInteractionMessage message)
+    private void OnActorInteract(Block.IActorInteractionMessage message)
     {
         NamedColor currentColor = message.State.Get(Color);
 

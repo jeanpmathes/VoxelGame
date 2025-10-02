@@ -28,11 +28,11 @@ public class EternallyBurning : BlockBehavior, IBehavior<EternallyBurning, Block
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Combustible.BurnMessage>(OnBurn);
+        bus.Subscribe<Combustible.IBurnMessage>(OnBurn);
     }
 
-    private static void OnBurn(Combustible.BurnMessage message)
+    private static void OnBurn(Combustible.IBurnMessage message)
     {
-        message.Burned = false;
+        // Nothing to do, subscription just prevents fall-back behavior.
     }
 }

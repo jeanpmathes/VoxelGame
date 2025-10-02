@@ -41,9 +41,17 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     /// </summary>
     public Aspect<State, (State state, Vector3i part)> PartState { get; }
 
-    [LateInitialization] private partial IEvent<Composite.NeighborUpdateMessage> NeighborUpdate { get; set; }
+    /// <summary>
+    /// Is set by <see cref="Composite"/> and allows this behavior to publish placement completion events.
+    /// </summary>
+    [LateInitialization] 
+    public partial Action<World, Vector3i, Vector3i, Actor?> PublishPlacementCompleted { private get; set; }
 
-    [LateInitialization] private partial IEvent<Composite.PlacementCompletedMessage> PlacementCompleted { get; set; }
+    /// <summary>
+    /// Is set by <see cref="Composite"/> and allows this behavior to publish neighbor update events.
+    /// </summary>
+    [LateInitialization] 
+    public partial Action<World, Vector3i, Vector3i, State, Side> PublishNeighborUpdate { private get; set; }
 
     /// <inheritdoc />
     public static LateralRotatableComposite Construct(Block input)
@@ -52,19 +60,12 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     }
 
     /// <inheritdoc />
-    public override void DefineEvents(IEventRegistry registry)
-    {
-        NeighborUpdate = registry.RegisterEvent<Composite.NeighborUpdateMessage>();
-        PlacementCompleted = registry.RegisterEvent<Composite.PlacementCompletedMessage>();
-    }
-
-    /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.PlacementMessage>(OnPlacement);
-        bus.Subscribe<Block.DestructionMessage>(OnDestruction);
-        bus.Subscribe<Block.StateUpdateMessage>(OnStateUpdate);
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.IPlacementMessage>(OnPlacement);
+        bus.Subscribe<Block.IDestructionMessage>(OnDestruction);
+        bus.Subscribe<Block.IStateUpdateMessage>(OnStateUpdate);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
@@ -95,7 +96,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         return true;
     }
 
-    private void OnPlacement(Block.PlacementMessage message)
+    private void OnPlacement(Block.IPlacementMessage message)
     {
         State state = Subject.GetPlacementState(message.World, message.Position, message.Actor);
         Vector3i size = composite.GetSize(state);
@@ -113,18 +114,12 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             state = SetPartPosition(state, part);
 
             message.World.SetBlock(state, position);
-
-            PlacementCompleted.Publish(new Composite.PlacementCompletedMessage(Subject)
-            {
-                World = message.World,
-                Position = position,
-                Part = part,
-                Actor = message.Actor
-            });
+            
+            PublishPlacementCompleted(message.World, position, part, message.Actor);
         }
     }
 
-    private void OnDestruction(Block.DestructionMessage message)
+    private void OnDestruction(Block.IDestructionMessage message)
     {
         Vector3i size = composite.GetSize(message.State);
         Vector3i currentPart = composite.GetPartPosition(message.State);
@@ -142,7 +137,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         }
     }
 
-    private void OnStateUpdate(Block.StateUpdateMessage message)
+    private void OnStateUpdate(Block.IStateUpdateMessage message)
     {
         State oldState = message.OldState.Block;
         State newState = message.NewState.Block;
@@ -163,7 +158,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             SetStateOnAllParts(message.World, newSize, root, currentPart, orientation, newState);
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         Vector3i size = composite.GetSize(message.State);
         Vector3i currentPart = composite.GetPartPosition(message.State);
@@ -175,17 +170,10 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         Boolean isPartOfComposite = updatedPart is {X: >= 0, Y: >= 0, Z: >= 0}
                                     && updatedPart.X < size.X && updatedPart.Y < size.Y && updatedPart.Z < size.Z;
-
+        
         if (isPartOfComposite) return;
-
-        NeighborUpdate.Publish(new Composite.NeighborUpdateMessage(Subject)
-        {
-            World = message.World,
-            Position = message.Position,
-            Part = currentPart,
-            State = message.State,
-            Side = message.Side
-        });
+        
+        PublishNeighborUpdate(message.World, message.Position, currentPart, message.State, message.Side);
     }
 
     private void ResizeComposite(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, Orientation orientation, State state)

@@ -71,48 +71,68 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
         if (!GrowthAttempt.HasSubscribers)
             return fluid.TryTakeExact(world, position, level);
 
-        GrowthAttemptMessage message = new(this)
+        GrowthAttemptMessage growthAttempt = IEventMessage<GrowthAttemptMessage>.Pool.Get();
+        
         {
-            World = world,
-            Position = position,
-            Fluid = fluid,
-            Level = level
-        };
-
-        GrowthAttempt.Publish(message);
-
-        return message.CanGrow;
+            growthAttempt.World = world;
+            growthAttempt.Position = position;
+            growthAttempt.Fluid = fluid;
+            growthAttempt.Level = level;
+            growthAttempt.CanGrow = false;
+        }
+        
+        GrowthAttempt.Publish(growthAttempt);
+        
+        Boolean canGrow = growthAttempt.CanGrow;
+        
+        IEventMessage<GrowthAttemptMessage>.Pool.Return(growthAttempt);
+        
+        return canGrow;
     }
 
     /// <summary>
     ///     Sent when a plant attempts to grow on this block.
     /// </summary>
-    public record GrowthAttemptMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IGrowthAttemptMessage : IEventMessage
     {
         /// <summary>
         ///     The world in which the placement was completed.
         /// </summary>
-        public World World { get; set; } = null!;
+        public World World { get; } 
 
         /// <summary>
         ///     The position at which the block was placed.
         /// </summary>
-        public Vector3i Position { get; set; }
+        public Vector3i Position { get; }
 
         /// <summary>
         ///     The fluid that is required by the plant.
         /// </summary>
-        public Fluid Fluid { get; set; } = null!;
+        public Fluid Fluid { get; }
 
         /// <summary>
         ///     The amount of fluid required by the plant.
         /// </summary>
-        public FluidLevel Level { get; set; }
+        public FluidLevel Level { get; }
 
         /// <summary>
         ///     Whether the plant can grow on this block.
-        ///     If this is set to <c>true</c> by a subscriber, it must remove the fluid from the world.
         /// </summary>
-        public Boolean CanGrow { get; set; } = false;
+        public Boolean CanGrow { get; }
+        
+        /// <summary>
+        /// Mark that the growth attempt succeeded.
+        /// A caller calling this must remove the required fluid from the world.
+        /// </summary>
+        public void MarkAsSuccessful();
+    }
+    
+    private partial record GrowthAttemptMessage
+    {
+        public void MarkAsSuccessful()
+        {
+            CanGrow = true;
+        }
     }
 }

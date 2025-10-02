@@ -68,7 +68,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<GrowingPlant.MatureUpdateMessage>(OnMatureUpdate);
+        bus.Subscribe<GrowingPlant.IMatureUpdateMessage>(OnMatureUpdate);
     }
 
     /// <inheritdoc />
@@ -98,7 +98,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
             validator.ReportWarning($"The fruit block '{Fruit}' could not be found");
     }
 
-    private void OnMatureUpdate(GrowingPlant.MatureUpdateMessage message)
+    private void OnMatureUpdate(GrowingPlant.IMatureUpdateMessage message)
     {
         Int32 currentAge = message.State.Get(Age);
 

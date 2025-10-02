@@ -58,7 +58,7 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Modifiable.ModifyHeightMessage>(OnModifyHeight);
+        bus.Subscribe<Modifiable.IModifyHeightMessage>(OnModifyHeight);
     }
 
     /// <inheritdoc />
@@ -86,7 +86,7 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
         PlacementHeight = MinimumHeight;
     }
 
-    private void OnModifyHeight(Modifiable.ModifyHeightMessage message)
+    private void OnModifyHeight(Modifiable.IModifyHeightMessage message)
     {
         State newState = message.State.With(Height, (message.State.Get(Height) + 1) % MaximumHeight);
         message.World.SetBlock(newState, message.Position);

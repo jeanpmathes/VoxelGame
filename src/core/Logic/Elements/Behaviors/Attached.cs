@@ -100,7 +100,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     /// <inheritdoc />
@@ -160,7 +160,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
         return AttachedState.GetValue(original, (original, attachableSides)) ?? original;
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         Sides sides = AttachedSides.GetValue(Sides.None, message.State);
 

@@ -48,7 +48,7 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.NeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     /// <inheritdoc />
@@ -77,7 +77,7 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
         return state;
     }
 
-    private void OnNeighborUpdate(Block.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         if (!message.Side.IsLateral()) return;
 

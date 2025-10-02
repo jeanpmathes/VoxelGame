@@ -46,43 +46,58 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
         if (!Burn.HasSubscribers)
             return Subject.Destroy(world, position);
 
-        BurnMessage message = new(this)
+        BurnMessage burn = IEventMessage<BurnMessage>.Pool.Get();
+
         {
-            World = world,
-            Position = position,
-            Fire = fire,
-            Burned = false
-        };
+            burn.World = world;
+            burn.Position = position;
+            burn.Fire = fire;
+            burn.Burned = false;
+        }
 
-        Burn.Publish(message);
+        Burn.Publish(burn);
 
-        return message.Burned;
+        return burn.Burned;
     }
-
+    
     /// <summary>
     ///     Sent when a block is burned.
     /// </summary>
-    public record BurnMessage(Object Sender) : IEventMessage
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IBurnMessage : IEventMessage
     {
         /// <summary>
         ///     The world the block is in.
         /// </summary>
-        public World World { get; set; } = null!;
-
+        public World World { get; }
+        
         /// <summary>
         ///     The position of the block that is burning.
         /// </summary>
-        public Vector3i Position { get; set; }
-
+        public Vector3i Position { get; }
+        
         /// <summary>
         ///     The fire block that caused the burning.
         /// </summary>
-        public Block Fire { get; set; } = null!;
-
+        public Block Fire { get; }
+        
         /// <summary>
         ///     Whether the block has been destroyed by the burn operation.
-        ///     Subscribers can set this.
         /// </summary>
-        public Boolean Burned { get; set; }
+        public Boolean Burned { get; }
+
+        /// <summary>
+        /// Set that the block has been burned (destroyed or changed).
+        /// This will set <see cref="Burned"/> to <c>true</c>.
+        /// </summary>
+        public void Burn();
+    }
+    
+    private partial record BurnMessage
+    {
+        public void Burn()
+        {
+            Burned = true;
+        }
     }
 }

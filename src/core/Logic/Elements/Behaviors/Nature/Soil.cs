@@ -35,13 +35,13 @@ public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.RandomUpdateMessage>(OnRandomUpdate);
-        bus.Subscribe<Block.GeneratorUpdateMessage>(OnGeneratorUpdate);
+        bus.Subscribe<Block.IRandomUpdateMessage>(OnRandomUpdate);
+        bus.Subscribe<Block.IGeneratorUpdateMessage>(OnGeneratorUpdate);
 
-        bus.Subscribe<AshCoverable.AshCoverMessage>(OnAshCover);
+        bus.Subscribe<AshCoverable.IAshCoverMessage>(OnAshCover);
     }
 
-    private static void OnRandomUpdate(Block.RandomUpdateMessage message)
+    private static void OnRandomUpdate(Block.IRandomUpdateMessage message)
     {
         FluidInstance? fluid = message.World.GetFluid(message.Position);
 
@@ -49,13 +49,13 @@ public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
             message.World.SetContent(new Content(Blocks.Instance.Environment.Mud, Elements.Fluids.Instance.None), message.Position);
     }
 
-    private static void OnGeneratorUpdate(Block.GeneratorUpdateMessage message)
+    private static void OnGeneratorUpdate(Block.IGeneratorUpdateMessage message)
     {
         if (message.Content.Fluid is {IsAnyWater: true, Level: FluidLevel.Eight})
             message.Content = new Content(Blocks.Instance.Environment.Mud);
     }
 
-    private static void OnAshCover(AshCoverable.AshCoverMessage message)
+    private static void OnAshCover(AshCoverable.IAshCoverMessage message)
     {
         message.World.SetBlock(new State(Blocks.Instance.Environment.AshCoveredSoil), message.Position);
     }

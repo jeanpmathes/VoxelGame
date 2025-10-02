@@ -34,7 +34,7 @@ public class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBeha
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Composite.NeighborUpdateMessage>(OnNeighborUpdate);
+        bus.Subscribe<Composite.INeighborUpdateMessage>(OnNeighborUpdate);
     }
 
     private static Boolean GetIsPlacementAllowed(Boolean original, (World world, Vector3i position, Vector3i part, Actor? actor) context)
@@ -48,7 +48,7 @@ public class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBeha
         return ground?.Block.Is<Plantable>() == true;
     }
 
-    private void OnNeighborUpdate(Composite.NeighborUpdateMessage message)
+    private void OnNeighborUpdate(Composite.INeighborUpdateMessage message)
     {
         if (message.Part.Y != 0)
             return;

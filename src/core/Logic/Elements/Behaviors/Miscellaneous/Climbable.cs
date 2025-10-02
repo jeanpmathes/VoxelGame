@@ -53,7 +53,7 @@ public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Bloc
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ActorCollisionMessage>(OnActorCollision);
+        bus.Subscribe<Block.IActorCollisionMessage>(OnActorCollision);
     }
 
     /// <inheritdoc />
@@ -67,7 +67,7 @@ public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Bloc
     // todo: if no, create one 
     // todo: add to the animation system note that climbing should not use the physics system but instead be an animation sort of, with the ladder serving as a rail
 
-    private void OnActorCollision(Block.ActorCollisionMessage message)
+    private void OnActorCollision(Block.IActorCollisionMessage message)
     {
         Vector3d forwardMovement = Vector3d.Dot(message.Body.Movement, message.Body.Transform.Forward) * message.Body.Transform.Forward;
         Vector3d newVelocity;

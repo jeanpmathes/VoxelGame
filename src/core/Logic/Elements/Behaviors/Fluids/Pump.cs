@@ -33,7 +33,7 @@ public class Pump : BlockBehavior, IBehavior<Pump, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteraction);
+        bus.Subscribe<Block.IActorInteractionMessage>(OnActorInteraction);
     }
 
     private static Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
@@ -50,7 +50,7 @@ public class Pump : BlockBehavior, IBehavior<Pump, BlockBehavior, Block>
         return side == Side.Top;
     }
 
-    private void OnActorInteraction(Block.ActorInteractionMessage message)
+    private void OnActorInteraction(Block.IActorInteractionMessage message)
     {
         Fluid.Elevate(message.Actor.World, message.Position, distance: 16);
     }

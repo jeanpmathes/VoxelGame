@@ -42,7 +42,7 @@ public class Bed : BlockBehavior, IBehavior<Bed, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.PlacementCompletedMessage>(OnPlacementCompleted);
+        bus.Subscribe<Block.IPlacementCompletedMessage>(OnPlacementCompleted);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
@@ -111,7 +111,7 @@ public class Bed : BlockBehavior, IBehavior<Bed, BlockBehavior, Block>
             legs);
     }
 
-    private void OnPlacementCompleted(Block.PlacementCompletedMessage message)
+    private void OnPlacementCompleted(Block.IPlacementCompletedMessage message)
     {
         message.World.SpawnPosition = new Vector3d(message.Position.X, message.Position.Y + 1f, message.Position.Z);
     }

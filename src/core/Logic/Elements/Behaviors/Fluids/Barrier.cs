@@ -37,7 +37,7 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        bus.Subscribe<Block.ActorInteractionMessage>(OnActorInteraction);
+        bus.Subscribe<Block.IActorInteractionMessage>(OnActorInteraction);
     }
 
     /// <inheritdoc />
@@ -60,7 +60,7 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
         return IsBarrierOpen(state);
     }
 
-    private void OnActorInteraction(Block.ActorInteractionMessage message)
+    private void OnActorInteraction(Block.IActorInteractionMessage message)
     {
         message.Actor.World.SetBlock(message.State.With(IsOpen, !message.State.Get(IsOpen)), message.Position);
     }

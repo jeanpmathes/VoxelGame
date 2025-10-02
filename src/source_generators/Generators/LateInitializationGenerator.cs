@@ -70,8 +70,11 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         String type = propertySymbol.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
         String accessibility = SyntaxFacts.GetText(propertySymbol.DeclaredAccessibility);
         String name = propertySymbol.Name;
+        
+        String getAccessibility = propertySymbol.GetMethod != null ? SyntaxFacts.GetText(propertySymbol.GetMethod.DeclaredAccessibility) : accessibility;
+        String setAccessibility = propertySymbol.SetMethod != null ? SyntaxFacts.GetText(propertySymbol.SetMethod.DeclaredAccessibility) : accessibility;
 
-        return new PropertyModel(containingType, declaringType, @namespace, accessibility, type, name);
+        return new PropertyModel(containingType, declaringType, @namespace, accessibility, type, name, getAccessibility, setAccessibility);
     }
 
     private static void Execute(PropertyModel? model, SourceProductionContext context)
@@ -90,6 +93,9 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         sb.AppendPreamble<LateInitializationGenerator>().AppendNamespace(model.Namespace);
 
         var backingFieldName = $"@__{NameTools.ConvertPascalCaseToCamelCase(model.Name)}";
+        
+        String getAccessibility = model.GetAccessibility != model.Accessibility ? $"{model.GetAccessibility} " : "";
+        String setAccessibility = model.SetAccessibility != model.Accessibility ? $"{model.SetAccessibility} " : "";
 
         sb.AppendNestedClass(model.ContainingType,
             (c, i) =>
@@ -99,8 +105,8 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
 
                            {{i}}{{model.Accessibility}} partial {{model.Type}} {{model.Name}}
                            {{i}}{
-                           {{i}}    get => {{backingFieldName}} ?? throw new global::System.InvalidOperationException($"Property '{nameof({{model.Name}})}' is used before being initialized.");
-                           {{i}}    set
+                           {{i}}    {{getAccessibility}}get => {{backingFieldName}} ?? throw new global::System.InvalidOperationException($"Property '{nameof({{model.Name}})}' is used before being initialized.");
+                           {{i}}    {{setAccessibility}}set
                            {{i}}    {
                            {{i}}        if ({{backingFieldName}} is not null)
                            {{i}}            throw new global::System.InvalidOperationException($"Property '{nameof({{model.Name}})}' is already initialized.");
@@ -114,5 +120,5 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         return sb.ToString();
     }
 
-    private record struct PropertyModel(ContainingType? ContainingType, String DeclaringType, String Namespace, String Accessibility, String Type, String Name);
+    private record struct PropertyModel(ContainingType? ContainingType, String DeclaringType, String Namespace, String Accessibility, String Type, String Name, String GetAccessibility, String SetAccessibility);
 }

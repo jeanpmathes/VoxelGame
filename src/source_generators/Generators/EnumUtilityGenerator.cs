@@ -108,7 +108,7 @@ public class EnumUtilityGenerator : IIncrementalGenerator
 
         String result = GenerateSourceCode(value);
 
-        context.AddSource($"EnumUtility.{NameTools.SanitizeForIO(value.Name)}.g.cs", SourceText.From(result, Encoding.UTF8));
+        context.AddSource($"{NameTools.SanitizeForIO(value.Name)}_EnumUtility.g.cs", SourceText.From(result, Encoding.UTF8));
     }
 
     private static String GenerateSourceCode(EnumModel model)
