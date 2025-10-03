@@ -70,27 +70,27 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// </summary>
     public StateSet States { get; private set; } = null!;
 
-    [LateInitialization] private partial IEvent<ActorCollisionMessage> ActorCollision { get; set; }
+    [LateInitialization] private partial IEvent<IActorCollisionMessage> ActorCollision { get; set; }
 
-    [LateInitialization] private partial IEvent<ActorInteractionMessage> ActorInteraction { get; set; }
+    [LateInitialization] private partial IEvent<IActorInteractionMessage> ActorInteraction { get; set; }
 
-    [LateInitialization] private partial IEvent<PlacementMessage> Placement { get; set; }
+    [LateInitialization] private partial IEvent<IPlacementMessage> Placement { get; set; }
 
-    [LateInitialization] private partial IEvent<PlacementCompletedMessage> PlacementCompleted { get; set; }
+    [LateInitialization] private partial IEvent<IPlacementCompletedMessage> PlacementCompleted { get; set; }
 
-    [LateInitialization] private partial IEvent<DestructionMessage> Destruction { get; set; }
+    [LateInitialization] private partial IEvent<IDestructionMessage> Destruction { get; set; }
 
-    [LateInitialization] private partial IEvent<DestructionCompletedMessage> DestructionCompleted { get; set; }
+    [LateInitialization] private partial IEvent<IDestructionCompletedMessage> DestructionCompleted { get; set; }
 
-    [LateInitialization] private partial IEvent<StateUpdateMessage> StateUpdate { get; set; }
+    [LateInitialization] private partial IEvent<IStateUpdateMessage> StateUpdate { get; set; }
 
-    [LateInitialization] private partial IEvent<NeighborUpdateMessage> NeighborUpdate { get; set; }
+    [LateInitialization] private partial IEvent<INeighborUpdateMessage> NeighborUpdate { get; set; }
 
-    [LateInitialization] private partial IEvent<RandomUpdateMessage> RandomUpdate { get; set; }
+    [LateInitialization] private partial IEvent<IRandomUpdateMessage> RandomUpdate { get; set; }
 
-    [LateInitialization] private partial IEvent<ScheduledUpdateMessage> ScheduledUpdate { get; set; }
+    [LateInitialization] private partial IEvent<IScheduledUpdateMessage> ScheduledUpdate { get; set; }
 
-    [LateInitialization] private partial IEvent<GeneratorUpdateMessage> GeneratorUpdate { get; set; }
+    [LateInitialization] private partial IEvent<IGeneratorUpdateMessage> GeneratorUpdate { get; set; }
 
     /// <summary>
     ///     Whether the block is always full, meaning it occupies the entire voxel space it is in,
@@ -199,7 +199,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <param name="offset">The number of already existing block states.</param>
     /// <param name="validator">The validator to use for validation.</param>
     /// <returns>The number of states this block has.</returns>
-    internal UInt32 Initialize(UInt32 offset, IValidator validator)
+    internal UInt32 Initialize(UInt32 offset, Validator validator)
     {
         EnsureNotBaked();
 
@@ -208,7 +208,12 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         StateBuilder builder = new(validator);
 
         foreach (BlockBehavior behavior in Behaviors)
+        {
+            validator.SetScope(behavior);
             builder.Enclose(Reflections.GetLongName(behavior.GetType()), behavior.DefineState);
+        }
+        
+        validator.SetScope(this);
 
         States = builder.Build(this, offset);
 
@@ -218,20 +223,20 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <inheritdoc />
     public sealed override void DefineEvents(IEventRegistry registry)
     {
-        ActorCollision = registry.RegisterEvent<ActorCollisionMessage>();
-        ActorInteraction = registry.RegisterEvent<ActorInteractionMessage>();
+        ActorCollision = registry.RegisterEvent<IActorCollisionMessage>();
+        ActorInteraction = registry.RegisterEvent<IActorInteractionMessage>();
 
-        Placement = registry.RegisterEvent<PlacementMessage>(single: true);
-        PlacementCompleted = registry.RegisterEvent<PlacementCompletedMessage>();
+        Placement = registry.RegisterEvent<IPlacementMessage>(single: true);
+        PlacementCompleted = registry.RegisterEvent<IPlacementCompletedMessage>();
 
-        Destruction = registry.RegisterEvent<DestructionMessage>(single: true);
-        DestructionCompleted = registry.RegisterEvent<DestructionCompletedMessage>();
+        Destruction = registry.RegisterEvent<IDestructionMessage>(single: true);
+        DestructionCompleted = registry.RegisterEvent<IDestructionCompletedMessage>();
 
-        StateUpdate = registry.RegisterEvent<StateUpdateMessage>();
-        NeighborUpdate = registry.RegisterEvent<NeighborUpdateMessage>();
-        RandomUpdate = registry.RegisterEvent<RandomUpdateMessage>();
-        ScheduledUpdate = registry.RegisterEvent<ScheduledUpdateMessage>();
-        GeneratorUpdate = registry.RegisterEvent<GeneratorUpdateMessage>(single: true);
+        StateUpdate = registry.RegisterEvent<IStateUpdateMessage>();
+        NeighborUpdate = registry.RegisterEvent<INeighborUpdateMessage>();
+        RandomUpdate = registry.RegisterEvent<IRandomUpdateMessage>();
+        ScheduledUpdate = registry.RegisterEvent<IScheduledUpdateMessage>();
+        GeneratorUpdate = registry.RegisterEvent<IGeneratorUpdateMessage>(single: true);
     }
 
     /// <inheritdoc />

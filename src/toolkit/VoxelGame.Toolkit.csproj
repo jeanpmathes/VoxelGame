@@ -41,6 +41,7 @@
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
         <ProjectReference Include="..\native_toolkit\NativeToolkit.vcxproj"/>
         <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj"/>
+        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
         <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
         <ProjectReference Include="..\analyzers\VoxelGame.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
     </ItemGroup>

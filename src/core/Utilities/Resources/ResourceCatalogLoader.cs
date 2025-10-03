@@ -139,7 +139,8 @@ public sealed partial class ResourceCatalogLoader
 
     private static void LoadCatalogEntries(IEnumerable<ICatalogEntry> entries, String hierarchy, Group report, Timer? timer, Context context)
     {
-        foreach (ICatalogEntry entry in entries) LoadCatalogEntry(entry, hierarchy, report, timer, context);
+        foreach (ICatalogEntry entry in entries) 
+            LoadCatalogEntry(entry, hierarchy, report, timer, context);
     }
 
     private static void LoadResources(IEnumerable<IResource> resources, String hierarchy, Context context)

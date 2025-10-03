@@ -49,7 +49,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
 
     private Int32 MatureStage => StageCount - 1;
 
-    [LateInitialization] private partial IEvent<MatureUpdateMessage> MatureUpdate { get; set; }
+    [LateInitialization] private partial IEvent<IMatureUpdateMessage> MatureUpdate { get; set; }
 
     /// <inheritdoc />
     public static GrowingPlant Construct(Block input)
@@ -60,7 +60,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
-        MatureUpdate = registry.RegisterEvent<MatureUpdateMessage>();
+        MatureUpdate = registry.RegisterEvent<IMatureUpdateMessage>();
     }
 
     /// <inheritdoc />

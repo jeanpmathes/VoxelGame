@@ -19,7 +19,7 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
 {
     private Combustible(Block subject) : base(subject) {}
 
-    [LateInitialization] private partial IEvent<BurnMessage> Burn { get; set; }
+    [LateInitialization] private partial IEvent<IBurnMessage> Burn { get; set; }
 
     /// <inheritdoc />
     public static Combustible Construct(Block input)
@@ -30,7 +30,7 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
-        Burn = registry.RegisterEvent<BurnMessage>();
+        Burn = registry.RegisterEvent<IBurnMessage>();
     }
 
     /// <summary>

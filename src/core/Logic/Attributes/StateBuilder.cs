@@ -49,7 +49,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
     {
         if (isAttribute && !AttributeNameRegex().IsMatch(name))
         {
-            validator.ReportWarning($"Attribute names must be alphanumeric and start with a lowercase letter, '{name}' is not valid");
+            validator.ReportWarning($"Attribute names must be alphanumeric and start with an uppercase letter, '{name}' is not valid");
             name = "!unnamed";
         }
         else if (!isAttribute && !ScopeNameRegex().IsMatch(name))
@@ -153,7 +153,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         return new StateSet(block, setOffset, (UInt32) stateCount, (Int32) placementDefaultState, (Int32) generationDefaultState, entries);
     }
 
-    [GeneratedRegex("^[a-z][a-zA-Z0-9]*$")]
+    [GeneratedRegex("^[A-Z][a-zA-Z0-9]*$")]
     private static partial Regex AttributeNameRegex();
 
     [GeneratedRegex("^[a-zA-Z0-9.]+$")]

@@ -45,6 +45,11 @@ public class BlockBuilder
     ///     Get a dictionary mapping the named block IDs to the blocks.
     /// </summary>
     public IReadOnlyDictionary<String, Block> BlocksByNamedID => factory.BlocksByNamedID;
+    
+    /// <summary>
+    ///     Get a set of blocks that had a collision on their named ID during creation.
+    /// </summary>
+    public IReadOnlySet<Block> BlocksWithCollisionOnID => factory.BlocksWithCollisionOnID;
 
     /// <summary>
     ///     Get the registry in which all content is registered, which is mainly the blocks but also conventions and other

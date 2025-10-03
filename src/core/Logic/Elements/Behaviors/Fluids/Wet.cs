@@ -20,7 +20,7 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
 {
     private Wet(Block subject) : base(subject) {}
 
-    [LateInitialization] private partial IEvent<BecomeWetMessage> BecomeWet { get; set; }
+    [LateInitialization] private partial IEvent<IBecomeWetMessage> BecomeWet { get; set; }
 
     /// <inheritdoc />
     public static Wet Construct(Block input)
@@ -31,7 +31,7 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
-        BecomeWet = registry.RegisterEvent<BecomeWetMessage>();
+        BecomeWet = registry.RegisterEvent<IBecomeWetMessage>();
     }
 
     /// <inheritdoc />

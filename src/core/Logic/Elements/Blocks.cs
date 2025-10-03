@@ -24,11 +24,8 @@ namespace VoxelGame.Core.Logic.Elements;
 /// <summary>
 ///     Contains all block definitions of the core game.
 /// </summary>
-public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
+public partial class Blocks(BlockBuilder builder, Registry<Category> categories) : IIssueSource
 {
-    private const Int32 BlockLimit = (Int32) Section.BlockMask;
-    // todo: make sure that block IDs are unique across all blocks, even if they are in different categories
-
     private readonly List<State> states = [];
 
     /// <summary>
@@ -87,12 +84,18 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     /// <param name="visuals">The visual configuration to use.</param>
     /// <param name="context">The resource context in which loading is done.</param>
     /// <returns>All content defined in this class.</returns>
-    public IEnumerable<IContent> Initialize(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals, IResourceContext context) // todo: should call initialize on all blocks and be called by the loader
+    public IEnumerable<IContent> Initialize(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals, IResourceContext context)
     {
         states.Clear();
-
+        
         Validator validator = new(context);
-
+        
+        foreach (Block block in builder.BlocksWithCollisionOnID)
+        {
+            validator.SetScope(block);
+            validator.ReportError($"Block with natural name '{block.Name}' ({block.ID}) is part of a named ID collision");
+        }
+        
         UInt32 offset = 0;
 
         foreach (Block block in builder.BlocksByID)
@@ -101,21 +104,22 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
 
             states.AddRange(block.States.GetAllStates());
         }
-
-        if (validator.HasError) return []; // todo: test triggering an error to see if this prevents loading the world
-
+        
         BehaviorSystem<Block, BlockBehavior>.Bake(validator);
-
-        if (validator.HasError) return []; // todo: test triggering an error to see if this prevents loading the world
-
+        
         foreach (Block block in builder.BlocksByID)
             block.Activate(textureIndexProvider, blockModelProvider, visuals);
 
-        // todo: find a way to handle max number of states - add them to a temp list and check if temp + states exceeds the limit
-        // todo: but when any block fails that block would still be in use in other and such, so fail the whole loading process in that case
-        // todo: this means no selective return of only the first N ones but either all or none
+        if (validator.HasError) return [];
+        
+        const Int64 maxNumberOfState = Section.BlockStateMask + 1;
 
-        return builder.Registry.RetrieveContent();
+        if (states.Count <= maxNumberOfState) 
+            return builder.Registry.RetrieveContent();
+
+        context.ReportError(this, $"The total number of block states ({states.Count}) exceeds the maximum allowed ({maxNumberOfState})");
+            
+        return [];
     }
 
     /// <summary>

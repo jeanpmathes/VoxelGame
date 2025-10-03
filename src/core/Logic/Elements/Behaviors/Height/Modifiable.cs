@@ -19,7 +19,7 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
 {
     private Modifiable(Block subject) : base(subject) {}
 
-    [LateInitialization] private partial IEvent<ModifyHeightMessage> ModifyHeight { get; set; }
+    [LateInitialization] private partial IEvent<IModifyHeightMessage> ModifyHeight { get; set; }
 
     /// <inheritdoc />
     public static Modifiable Construct(Block input)
@@ -30,7 +30,7 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
-        ModifyHeight = registry.RegisterEvent<ModifyHeightMessage>();
+        ModifyHeight = registry.RegisterEvent<IModifyHeightMessage>();
     }
 
     /// <inheritdoc />
@@ -52,6 +52,8 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
         }
 
         ModifyHeight.Publish(modifyHeight);
+        
+        IEventMessage<ModifyHeightMessage>.Pool.Return(modifyHeight);
     }
 
     /// <inheritdoc />

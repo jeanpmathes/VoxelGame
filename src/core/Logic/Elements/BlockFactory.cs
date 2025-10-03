@@ -19,7 +19,10 @@ public class BlockFactory
 {
     private readonly List<Block> blocksByID = [];
     private readonly Dictionary<String, Block> blocksByNamedID = [];
-
+    
+    private readonly HashSet<Block> blocksWithCollisionOnID = [];
+    private Int32 idCollisionCounter;
+ 
     /// <summary>
     ///     Get a container associating block IDs to blocks.
     /// </summary>
@@ -29,6 +32,11 @@ public class BlockFactory
     ///     Get a container associating block named IDs to blocks.
     /// </summary>
     public IReadOnlyDictionary<String, Block> BlocksByNamedID => blocksByNamedID;
+    
+    /// <summary>
+    ///     Get a set of blocks that had a collision on their named ID during creation.
+    /// </summary>
+    public IReadOnlySet<Block> BlocksWithCollisionOnID => blocksWithCollisionOnID;
 
     /// <summary>
     ///     Create a new block.
@@ -38,17 +46,25 @@ public class BlockFactory
     /// <param name="meshable">The type of meshing this block uses.</param>
     public Block Create(String namedID, String name, Meshable meshable)
     {
-        Block block = CreateBlock(namedID, name, meshable);
-
-        if (blocksByNamedID.ContainsKey(namedID))
+        var idCollision = false;
+        
+        if (blocksByNamedID.TryGetValue(namedID, out Block? collidedBlock))
         {
             Debugger.Break();
-
-            // todo: think about how to handle this
+            idCollision = true;
+            
+            blocksWithCollisionOnID.Add(collidedBlock);
+            
+            namedID = $"{namedID}_collision_{idCollisionCounter++}";
         }
+        
+        Block block = CreateBlock(namedID, name, meshable);
 
         blocksByID.Add(block);
         blocksByNamedID.Add(namedID, block);
+        
+        if (idCollision) 
+            blocksWithCollisionOnID.Add(block);
 
         return block;
     }

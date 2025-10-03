@@ -75,9 +75,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     /// </summary>
     public Aspect<Boolean, (World world, Vector3i position, Vector3i part, Actor? actor)> IsPlacementAllowed { get; }
 
-    [LateInitialization] private partial IEvent<NeighborUpdateMessage> NeighborUpdate { get; set; }
+    [LateInitialization] private partial IEvent<INeighborUpdateMessage> NeighborUpdate { get; set; }
 
-    [LateInitialization] private partial IEvent<PlacementCompletedMessage> PlacementCompleted { get; set; }
+    [LateInitialization] private partial IEvent<IPlacementCompletedMessage> PlacementCompleted { get; set; }
 
     /// <inheritdoc />
     public static Composite Construct(Block input)
@@ -88,8 +88,8 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
-        NeighborUpdate = registry.RegisterEvent<NeighborUpdateMessage>();
-        PlacementCompleted = registry.RegisterEvent<PlacementCompletedMessage>();
+        NeighborUpdate = registry.RegisterEvent<INeighborUpdateMessage>();
+        PlacementCompleted = registry.RegisterEvent<IPlacementCompletedMessage>();
     }
 
     /// <inheritdoc />

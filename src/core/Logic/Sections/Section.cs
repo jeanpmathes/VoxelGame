@@ -50,12 +50,9 @@ public class Section : IDisposable
     public const Int32 StaticShift = 26;
 
     /// <summary>
-    ///     Mask to get only the block.
+    ///     Mask to get only the block state.
     /// </summary>
-    public const UInt32 BlockMask = 0b0000_0000_0000_0011_1111_1111_1111_1111;
-
-    // todo: use the masks or associated constants to determine the max number of block states and use in validation
-    // todo: also make sure that the limit calculations have overflow checks or work in a much larger range than (U)Int32
+    public const UInt32 BlockStateMask = 0b0000_0000_0000_0011_1111_1111_1111_1111;
 
     /// <summary>
     ///     Mask to get only the fluid.
@@ -277,7 +274,7 @@ public class Section : IDisposable
         out State state,
         out Fluid fluid, out FluidLevel level, out Boolean isStatic)
     {
-        state = Blocks.Instance.TranslateStateID(value & BlockMask);
+        state = Blocks.Instance.TranslateStateID(value & BlockStateMask);
 
         fluid = Fluids.Instance.TranslateID((value & FluidMask) >> FluidShift);
         level = (FluidLevel) ((value & LevelMask) >> LevelShift);
@@ -304,7 +301,7 @@ public class Section : IDisposable
         return (UInt32) ((isStatic ? 1 : 0) << StaticShift & StaticMask
                          | (UInt32) level << LevelShift & LevelMask
                          | fluid.ID << FluidShift & FluidMask
-                         | state.ID & BlockMask);
+                         | state.ID & BlockStateMask);
     }
 
     /// <summary>
@@ -326,9 +323,9 @@ public class Section : IDisposable
     {
         Throw.IfDisposed(disposed);
 
-        UInt32 value = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z) & BlockMask;
+        UInt32 value = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z) & BlockStateMask;
 
-        return Blocks.Instance.TranslateStateID(value & BlockMask);
+        return Blocks.Instance.TranslateStateID(value & BlockStateMask);
     }
 
     /// <summary>

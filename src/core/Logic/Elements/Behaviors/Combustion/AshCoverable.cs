@@ -18,7 +18,7 @@ public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, Block
 {
     private AshCoverable(Block subject) : base(subject) {}
 
-    [LateInitialization] private partial IEvent<AshCoverMessage> AshCover { get; set; }
+    [LateInitialization] private partial IEvent<IAshCoverMessage> AshCover { get; set; }
 
     /// <inheritdoc />
     public static AshCoverable Construct(Block input)
@@ -29,7 +29,7 @@ public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, Block
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
-        AshCover = registry.RegisterEvent<AshCoverMessage>();
+        AshCover = registry.RegisterEvent<IAshCoverMessage>();
     }
 
     /// <inheritdoc />

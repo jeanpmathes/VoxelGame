@@ -35,7 +35,7 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
     /// </summary>
     public Aspect<Boolean, Block> SupportsFullGrowthInitializer { get; }
 
-    [LateInitialization] private partial IEvent<GrowthAttemptMessage> GrowthAttempt { get; set; }
+    [LateInitialization] private partial IEvent<IGrowthAttemptMessage> GrowthAttempt { get; set; }
 
     // todo: when visualizing aspects, maybe filter out by type of second argument
     // todo: so if it is Block then this are init-only aspects, all others are runtime aspects
@@ -49,7 +49,7 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
-        GrowthAttempt = registry.RegisterEvent<GrowthAttemptMessage>(single: true);
+        GrowthAttempt = registry.RegisterEvent<IGrowthAttemptMessage>(single: true);
     }
 
     /// <inheritdoc />
