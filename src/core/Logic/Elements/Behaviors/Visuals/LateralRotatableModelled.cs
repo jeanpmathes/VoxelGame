@@ -43,10 +43,10 @@ public class LateralRotatableModelled : BlockBehavior, IBehavior<LateralRotatabl
         return new LateralRotatableModelled(input);
     }
 
-    private BlockModel GetModel(BlockModel original, State state)
+    private Model GetModel(Model original, State state)
     {
         // todo: use a new method on BlockModel to get just the needed model 
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) models = original.CreateAllOrientations(rotateTopAndBottomTexture: true);
+        (Model north, Model east, Model south, Model west) models = original.CreateAllOrientations(rotateTopAndBottomTexture: true);
 
         Orientation orientation = rotatable.GetOrientation(state);
 

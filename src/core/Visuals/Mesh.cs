@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockMesh.cs" company="VoxelGame">
+﻿// <copyright file="Mesh.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -12,18 +12,18 @@ using VoxelGame.Core.Visuals.Meshables;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     A mesh for a complex block, capable of defining more complex shapes than just a cube.
+///     A mesh, capable of defining more complex shapes than just a cube.
 ///     The mesh is defined by a set of quads.
 /// </summary>
-public class BlockMesh // todo: rename to mesh
+public class Mesh
 {
     private readonly Quad[] quads;
 
     /// <summary>
-    ///     Create a new block mesh.
+    ///     Create a new mesh.
     /// </summary>
     /// <param name="quads">The quads defining the mesh.</param>
-    public BlockMesh(Quad[] quads)
+    public Mesh(Quad[] quads)
     {
         this.quads = quads;
     }
@@ -33,9 +33,9 @@ public class BlockMesh // todo: rename to mesh
     /// </summary>
     /// <param name="offset">The offset to apply.</param>
     /// <returns>The new mesh.</returns>
-    public BlockMesh WithOffset(Vector3 offset)
+    public Mesh WithOffset(Vector3 offset)
     {
-        BlockMesh mesh = new(new Quad[quads.Length]);
+        Mesh mesh = new(new Quad[quads.Length]);
 
         for (var quad = 0; quad < quads.Length; quad++)
             mesh.quads[quad] = new Quad
@@ -54,7 +54,7 @@ public class BlockMesh // todo: rename to mesh
     ///     Subdivide the mesh in the U direction, which is the horizontal direction.
     /// </summary>
     /// <returns>The new mesh.</returns>
-    public BlockMesh SubdivideU()
+    public Mesh SubdivideU()
     {
         return Subdivide(DivideAlongU);
     }
@@ -63,14 +63,14 @@ public class BlockMesh // todo: rename to mesh
     ///     Subdivide the mesh in the V direction, which is the vertical direction.
     /// </summary>
     /// <returns>The new mesh.</returns>
-    public BlockMesh SubdivideV()
+    public Mesh SubdivideV()
     {
         return Subdivide(DivideAlongV);
     }
 
-    private BlockMesh Subdivide(Action<Int32, BlockMesh> divider)
+    private Mesh Subdivide(Action<Int32, Mesh> divider)
     {
-        BlockMesh mesh = new(new Quad[quads.Length * 2]);
+        Mesh mesh = new(new Quad[quads.Length * 2]);
 
         for (var quad = 0; quad < quads.Length; quad++)
         {
@@ -86,7 +86,7 @@ public class BlockMesh // todo: rename to mesh
         return mesh;
     }
 
-    private void DivideAlongU(Int32 quad, BlockMesh mesh)
+    private void DivideAlongU(Int32 quad, Mesh mesh)
     {
         Int32 first = quad * 2;
         Int32 second = quad * 2 + 1;
@@ -108,7 +108,7 @@ public class BlockMesh // todo: rename to mesh
         Meshing.SetUVs(ref mesh.quads[second].data, midLeftUV, uv.b, uv.c, midRightUV);
     }
 
-    private void DivideAlongV(Int32 quad, BlockMesh mesh)
+    private void DivideAlongV(Int32 quad, Mesh mesh)
     {
         Int32 first = quad * 2;
         Int32 second = quad * 2 + 1;
@@ -133,13 +133,13 @@ public class BlockMesh // todo: rename to mesh
     /// <summary>
     ///     Combine multiple meshes into one.
     /// </summary>
-    public static BlockMesh Combine(params IEnumerable<BlockMesh> meshes)
+    public static Mesh Combine(params IEnumerable<Mesh> meshes)
     {
         List<Quad> quads = [];
 
-        foreach (BlockMesh mesh in meshes) quads.AddRange(mesh.quads);
+        foreach (Mesh mesh in meshes) quads.AddRange(mesh.quads);
 
-        return new BlockMesh(quads.ToArray());
+        return new Mesh(quads.ToArray());
     }
 
     /// <summary>

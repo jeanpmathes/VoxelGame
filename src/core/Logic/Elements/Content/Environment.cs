@@ -239,7 +239,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block Fire { get; } = builder
         .BuildComplexBlock(nameof(Fire), Language.Fire)
-        .WithBehavior<Fire>(fire => fire.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("fire_complete"), RID.File<BlockModel>("fire_side"), RID.File<BlockModel>("fire_top"))))
+        .WithBehavior<Fire>(fire => fire.ModelsInitializer.ContributeConstant((RID.File<Model>("fire_complete"), RID.File<Model>("fire_side"), RID.File<Model>("fire_top"))))
         .WithBehavior<DestroyOnLiquid>()
         .Complete();
 

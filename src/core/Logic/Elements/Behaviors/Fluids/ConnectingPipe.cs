@@ -80,19 +80,19 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         return siding.GetSides(state);
     }
 
-    private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration _) = context;
+        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
 
-        BlockModel center = blockModelProvider.GetModel(Models.center);
+        Model center = blockModelProvider.GetModel(Models.center);
 
-        BlockModel frontConnector = blockModelProvider.GetModel(Models.connector);
-        BlockModel frontSurface = blockModelProvider.GetModel(Models.surface);
+        Model frontConnector = blockModelProvider.GetModel(Models.connector);
+        Model frontSurface = blockModelProvider.GetModel(Models.surface);
 
-        (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+        (Model front, Model back, Model left, Model right, Model bottom, Model top)
             connectors = frontConnector.CreateAllSides();
 
-        (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+        (Model front, Model back, Model left, Model right, Model bottom, Model top)
             surfaces = frontSurface.CreateAllSides();
 
         center.Lock(textureIndexProvider);
@@ -101,7 +101,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
 
         Sides sides = siding.GetSides(state);
 
-        return BlockModel.GetCombinedMesh(textureIndexProvider, // todo: use Subject.Get<TextureOverride>()?.Textures
+        return Model.GetCombinedMesh(textureIndexProvider, // todo: use Subject.Get<TextureOverride>()?.Textures
             center,
             sides.HasFlag(Sides.Front) ? connectors.front : surfaces.front,
             sides.HasFlag(Sides.Back) ? connectors.back : surfaces.back,

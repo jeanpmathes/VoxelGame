@@ -64,9 +64,9 @@ public class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Bloc
         return BoundingVolume.FlatBlock(sides, Width, depth: 0.1);
     }
 
-    private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider _, VisualConfiguration _) = context; // todo: create struct for this tuple
+        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider _, VisualConfiguration _) = context; // todo: create struct for this tuple
 
         Sides sides = siding.GetSides(state);
         Int32 textureIndex = texture.GetTextureIndex(state, textureIndexProvider, isBlock: true);

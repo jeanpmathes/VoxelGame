@@ -1,4 +1,4 @@
-﻿// <copyright file="Models.cs" company="VoxelGame">
+﻿// <copyright file="ModelLoader.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     Loads all models.
 /// </summary>
-public class BlockModelLoader : IResourceLoader
+public class ModelLoader : IResourceLoader
 {
     /// <inheritdoc />
     public String? Instance => null;
@@ -24,13 +24,13 @@ public class BlockModelLoader : IResourceLoader
     /// <inheritdoc />
     public IEnumerable<IResource> Load(IResourceContext context)
     {
-        DirectoryInfo directory = FileSystem.GetResourceDirectory<BlockModel>();
+        DirectoryInfo directory = FileSystem.GetResourceDirectory<Model>();
 
         FileInfo[] files;
 
         try
         {
-            files = directory.GetFiles(FileSystem.GetResourceSearchPattern<BlockModel>());
+            files = directory.GetFiles(FileSystem.GetResourceSearchPattern<Model>());
         }
         catch (DirectoryNotFoundException exception)
         {
@@ -43,14 +43,14 @@ public class BlockModelLoader : IResourceLoader
         {
             foreach (FileInfo file in files)
             {
-                Result<BlockModel> result = await BlockModel.LoadAsync(file, token).InAnyContext();
+                Result<Model> result = await Model.LoadAsync(file, token).InAnyContext();
 
                 result.Switch(
                     model => loaded.Add(model),
                     exception => loaded.Add(new MissingResource(ResourceTypes.Model, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception)))
                 );
             }
-        }).Wait();
+        }).Wait().ThrowIfError();
 
         return loaded;
     }

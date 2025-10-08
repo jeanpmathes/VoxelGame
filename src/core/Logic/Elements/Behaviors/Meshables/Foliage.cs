@@ -135,7 +135,7 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
 
         Int32 textureIndex = textured.GetTextureIndex(state, textureIndexProvider, isBlock: true);
 
-        BlockMesh mesh = Layout switch
+        Mesh mesh = Layout switch
         {
             LayoutType.Cross => BlockMeshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, isLowered),
             LayoutType.Crop => BlockMeshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: false, textureIndex, isLowered),
@@ -143,7 +143,7 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
             _ => throw Exceptions.UnsupportedEnumValue(Layout)
         };
 
-        BlockMesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);
+        Mesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);
 
         return new MeshData(quads, quadCount, tint, part, isAnimated && textureIndex != ITextureIndexProvider.MissingTextureIndex);
     }
@@ -156,5 +156,5 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
     /// <param name="Tint">The tint color to apply to the mesh.</param>
     /// <param name="IsAnimated">Whether the texture is animated.</param>
     /// <param name="Part">What part of a foliage block this mesh represents.</param>
-    public readonly record struct MeshData(BlockMesh.Quad[] Quads, UInt32 QuadCount, ColorS Tint, PartType Part, Boolean IsAnimated);
+    public readonly record struct MeshData(Mesh.Quad[] Quads, UInt32 QuadCount, ColorS Tint, PartType Part, Boolean IsAnimated);
 }

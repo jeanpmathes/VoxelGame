@@ -26,13 +26,13 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
     {
         meshed = subject.Require<Meshed>();
 
-        Mesh = Aspect<BlockMesh, (State, ITextureIndexProvider, IBlockModelProvider, VisualConfiguration)>.New<Exclusive<BlockMesh, (State, ITextureIndexProvider, IBlockModelProvider, VisualConfiguration)>>(nameof(Mesh), this);
+        Mesh = Aspect<Mesh, (State, ITextureIndexProvider, IModelProvider, VisualConfiguration)>.New<Exclusive<Mesh, (State, ITextureIndexProvider, IModelProvider, VisualConfiguration)>>(nameof(Mesh), this);
     }
 
     /// <summary>
     ///     Get the state dependent mesh for the block.
     /// </summary>
-    public Aspect<BlockMesh, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)> Mesh { get; }
+    public Aspect<Mesh, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals)> Mesh { get; }
 
     /// <inheritdoc />
     public static Complex Construct(Block input)
@@ -48,16 +48,16 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
     /// </summary>
     /// <param name="state">The state to get the mesh data for.</param>
     /// <param name="textureIndexProvider">Provides texture indices for the block.</param>
-    /// <param name="blockModelProvider">Provides block models for the block.</param>
+    /// <param name="modelProvider">Provides models for the block.</param>
     /// <param name="visuals">The visual configuration for the block.</param>
     /// <returns>The mesh data for the given state.</returns>
-    public MeshData GetMeshData(State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
+    public MeshData GetMeshData(State state, ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
     {
         ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
 
-        BlockMesh mesh = Mesh.GetValue(BlockMeshes.CreateFallback(), (state, textureIndexProvider, blockModelProvider, visuals));
-        BlockMesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);
+        Mesh mesh = Mesh.GetValue(BlockMeshes.CreateFallback(), (state, textureIndexProvider, modelProvider, visuals));
+        Mesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);
 
         return new MeshData(quads, quadCount, tint, isAnimated);
     }
@@ -69,5 +69,5 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
     /// <param name="QuadCount">Number of quads in the mesh.</param>
     /// <param name="Tint">The tint color to apply to the mesh.</param>
     /// <param name="IsAnimated">Whether the texture is animated.</param>
-    public readonly record struct MeshData(BlockMesh.Quad[] Quads, UInt32 QuadCount, ColorS Tint, Boolean IsAnimated);
+    public readonly record struct MeshData(Mesh.Quad[] Quads, UInt32 QuadCount, ColorS Tint, Boolean IsAnimated);
 }

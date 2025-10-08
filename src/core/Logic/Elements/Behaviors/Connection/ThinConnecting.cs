@@ -58,23 +58,23 @@ public class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, BlockBeha
         Models = ModelsInitializer.GetValue(original: default, Subject);
     }
 
-    private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration _) = context;
+        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
 
         (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(state);
 
-        BlockModel post = blockModelProvider.GetModel(Models.post);
+        Model post = blockModelProvider.GetModel(Models.post);
 
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) sides =
+        (Model north, Model east, Model south, Model west) sides =
             blockModelProvider.GetModel(Models.side).CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
+        (Model north, Model east, Model south, Model west) extensions =
             blockModelProvider.GetModel(Models.extension).CreateAllOrientations(rotateTopAndBottomTexture: false);
 
         // todo: why no locking here? maybe do the locking in the model provider, or remove it completely?
 
-        return BlockModel.GetCombinedMesh(textureIndexProvider,
+        return Model.GetCombinedMesh(textureIndexProvider,
             post,
             north ? extensions.north : sides.north,
             east ? extensions.east : sides.east,

@@ -317,12 +317,12 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     This completes the set-up of the block and its behaviors.
     /// </summary>
     /// <param name="textureIndexProvider">The texture index provider to use for the block.</param>
-    /// <param name="blockModelProvider">The block model provider to use for the block.</param>
+    /// <param name="modelProvider">The model provider to use for the block.</param>
     /// <param name="visuals">The visual configuration to use for the block.</param>
-    public void Activate(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
+    public void Activate(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
     {
         BuildBoundingVolumes();
-        BuildMeshes(textureIndexProvider, blockModelProvider, visuals);
+        BuildMeshes(textureIndexProvider, modelProvider, visuals);
     }
 
     /// <summary>
@@ -773,9 +773,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Build all meshes for this block.
     /// </summary>
     /// <param name="textureIndexProvider">The texture index provider to use for the block.</param>
-    /// <param name="blockModelProvider">The block model provider to use for the block.</param>
+    /// <param name="modelProvider">The model provider to use for the block.</param>
     /// <param name="visuals">The visual configuration to use for the block.</param>
-    protected abstract void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals);
+    protected abstract void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals);
 
     /// <summary>
     ///     Mesh this block and add the created mesh data to the context.

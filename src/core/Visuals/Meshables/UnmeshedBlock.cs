@@ -36,7 +36,7 @@ public class UnmeshedBlock : Block
     }
 
     /// <inheritdoc />
-    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
+    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
     {
         // Intentionally left empty.
     }

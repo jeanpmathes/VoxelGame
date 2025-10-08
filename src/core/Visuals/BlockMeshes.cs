@@ -25,15 +25,15 @@ public static class BlockMeshes
     private static readonly Int32[][] rotatedBlockUVs =
         [[0, 1], [1, 1], [1, 0], [0, 0]];
 
-    private static BlockMesh.Quad[] CreateDoubleSidedQuads(BlockMesh.Quad[] quads)
+    private static Mesh.Quad[] CreateDoubleSidedQuads(Mesh.Quad[] quads)
     {
-        List<BlockMesh.Quad> newQuads = [];
+        List<Mesh.Quad> newQuads = [];
 
-        foreach (BlockMesh.Quad quad in quads)
+        foreach (Mesh.Quad quad in quads)
         {
             newQuads.Add(quad);
 
-            newQuads.Add(new BlockMesh.Quad
+            newQuads.Add(new Mesh.Quad
             {
                 A = quad.D,
                 B = quad.C,
@@ -50,9 +50,9 @@ public static class BlockMeshes
     /// </summary>
     /// <param name="textureIndex">The texture index to use.</param>
     /// <returns>The created mesh.</returns>
-    public static BlockMesh CreateCrossMesh(Int32 textureIndex)
+    public static Mesh CreateCrossMesh(Int32 textureIndex)
     {
-        BlockMesh.Quad[] quads =
+        Mesh.Quad[] quads =
         [
             new()
             {
@@ -78,7 +78,7 @@ public static class BlockMeshes
             Meshing.SetFullUVs(ref quads[quad].data, quad % 2 != 0);
         }
 
-        return new BlockMesh(quads);
+        return new Mesh(quads);
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public static class BlockMeshes
     /// <param name="offset">The offset from the block side.</param>
     /// <param name="textureIndex">The texture index to use.</param>
     /// <returns>The created mesh.</returns>
-    public static BlockMesh CreateFlatModel(Side side, Single offset, Int32 textureIndex)
+    public static Mesh CreateFlatModel(Side side, Single offset, Int32 textureIndex)
     {
         side.Corners(out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d);
 
@@ -100,7 +100,7 @@ public static class BlockMeshes
         Vector3 v3 = (c[0], c[1], c[2]) + vOffset;
         Vector3 v4 = (d[0], d[1], d[2]) + vOffset;
 
-        BlockMesh.Quad[] quads =
+        Mesh.Quad[] quads =
         [
             new()
             {
@@ -119,7 +119,7 @@ public static class BlockMeshes
             Meshing.SetFullUVs(ref quads[quad].data, quad % 2 != 0);
         }
 
-        return new BlockMesh(quads);
+        return new Mesh(quads);
     }
 
     /// <summary>
@@ -129,9 +129,9 @@ public static class BlockMeshes
     /// <param name="offset">The offset from the block side.</param>
     /// <param name="textureIndex">The texture index to use.</param>
     /// <returns>The created mesh.</returns>
-    public static BlockMesh CreateFlatModel(Sides sides, Single offset, Int32 textureIndex)
+    public static Mesh CreateFlatModel(Sides sides, Single offset, Int32 textureIndex)
     {
-        List<BlockMesh> meshes = [];
+        List<Mesh> meshes = [];
 
         foreach (Side side in Side.All.Sides())
         {
@@ -140,7 +140,7 @@ public static class BlockMeshes
             meshes.Add(CreateFlatModel(side, offset, textureIndex));
         }
 
-        return BlockMesh.Combine(meshes.ToArray());
+        return Mesh.Combine(meshes.ToArray());
     }
 
     /// <summary>
@@ -150,7 +150,7 @@ public static class BlockMeshes
     /// <param name="textureIndex">The texture index to use.</param>
     /// <param name="lowered">Whether the plant is lowered by one 16th of a block.</param>
     /// <returns>The model data.</returns>
-    public static BlockMesh CreateCrossPlantMesh(Quality quality, Int32 textureIndex, Boolean lowered)
+    public static Mesh CreateCrossPlantMesh(Quality quality, Int32 textureIndex, Boolean lowered)
     {
         Vector3 offset = lowered ? new Vector3(x: 0, -1 * (1 / 16f), z: 0) : Vector3.Zero;
 
@@ -175,7 +175,7 @@ public static class BlockMeshes
     /// <param name="textureIndex">The texture index to use.</param>
     /// <param name="lowered">Whether the plant is lowered.</param>
     /// <returns>The model data.</returns>
-    public static BlockMesh CreateCropPlantMesh(Quality quality, Boolean createMiddlePiece, Int32 textureIndex, Boolean lowered)
+    public static Mesh CreateCropPlantMesh(Quality quality, Boolean createMiddlePiece, Int32 textureIndex, Boolean lowered)
     {
         Vector3 offset = lowered ? new Vector3(x: 0, -1 * (1 / 16f), z: 0) : Vector3.Zero;
 
@@ -189,9 +189,9 @@ public static class BlockMeshes
         };
     }
 
-    private static BlockMesh CreateCropPlantMesh(Int32 textureIndex, Boolean addMiddlePiece)
+    private static Mesh CreateCropPlantMesh(Int32 textureIndex, Boolean addMiddlePiece)
     {
-        BlockMesh.Quad[] quads = CreateCropPlantQuads(addMiddlePiece);
+        Mesh.Quad[] quads = CreateCropPlantQuads(addMiddlePiece);
 
         quads = CreateDoubleSidedQuads(quads);
 
@@ -201,12 +201,12 @@ public static class BlockMeshes
             Meshing.SetFullUVs(ref quads[quad].data, quad % 2 != 0);
         }
 
-        return new BlockMesh(quads);
+        return new Mesh(quads);
     }
 
-    private static BlockMesh.Quad[] CreateCropPlantQuads(Boolean addMiddlePiece)
+    private static Mesh.Quad[] CreateCropPlantQuads(Boolean addMiddlePiece)
     {
-        List<BlockMesh.Quad> list =
+        List<Mesh.Quad> list =
         [
             new()
             {
@@ -243,7 +243,7 @@ public static class BlockMeshes
 
         if (!addMiddlePiece) return list.ToArray();
 
-        list.Add(new BlockMesh.Quad
+        list.Add(new Mesh.Quad
         {
             A = new Vector3(x: 0.5f, y: 0f, z: 0.0f),
             B = new Vector3(x: 0.5f, y: 1f, z: 0.0f),
@@ -251,7 +251,7 @@ public static class BlockMeshes
             D = new Vector3(x: 0.5f, y: 0f, z: 1.0f)
         });
 
-        list.Add(new BlockMesh.Quad
+        list.Add(new Mesh.Quad
         {
             A = new Vector3(x: 0.0f, y: 0f, z: 0.5f),
             B = new Vector3(x: 0.0f, y: 1f, z: 0.5f),
@@ -276,9 +276,9 @@ public static class BlockMeshes
     ///     Create a fallback mesh. It does not depend on any loaded textures and can be used as a placeholder.
     /// </summary>
     /// <returns>The created mesh.</returns>
-    public static BlockMesh CreateFallback()
+    public static Mesh CreateFallback()
     {
-        return BlockModels.CreateFallback().CreateMesh(FallbackTextureIndexProvider.Instance);
+        return Models.CreateFallback().CreateMesh(FallbackTextureIndexProvider.Instance);
     }
 
     private class FallbackTextureIndexProvider : ITextureIndexProvider

@@ -136,14 +136,14 @@ public static class StoneConvention // todo: check language for unused strings a
                 Wall = builder
                     .BuildComplexBlock($"{namedID}{nameof(Stone.Wall)}", $"{Language.Wall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
                     .Complete(),
 
                 BrickWall = builder
                     .BuildComplexBlock($"{namedID}{nameof(Stone.BrickWall)}", $"{Language.BrickWall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<BlockModel>("wall_post"), RID.File<BlockModel>("wall_extension"), RID.File<BlockModel>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))
                     .Complete()
             };

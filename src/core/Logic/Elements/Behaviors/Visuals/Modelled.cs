@@ -20,7 +20,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
 /// <summary>
-///     A <see cref="Complex" /> block which uses <see cref="BlockModel" />s to define its mesh.
+///     A <see cref="Complex" /> block which uses <see cref="VoxelGame.Core.Visuals.Model" />s to define its mesh.
 /// </summary>
 public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
 {
@@ -29,7 +29,7 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
         LayersInitializer = Aspect<IReadOnlyList<RID>, Block>.New<Exclusive<IReadOnlyList<RID>, Block>>(nameof(LayersInitializer), this);
 
         Selector = Aspect<Selector, State>.New<Chaining<Selector, State>>(nameof(Selector), this);
-        Model = Aspect<BlockModel, State>.New<Exclusive<BlockModel, State>>(nameof(Model), this);
+        Model = Aspect<Model, State>.New<Exclusive<Model, State>>(nameof(Model), this);
 
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
 
@@ -53,9 +53,9 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     public Aspect<Selector, State> Selector { get; }
 
     /// <summary>
-    ///     The actually used block model used for a given state of the block.
+    ///     The actually used model used for a given state of the block.
     /// </summary>
-    public Aspect<BlockModel, State> Model { get; }
+    public Aspect<Model, State> Model { get; }
 
     /// <inheritdoc />
     public static Modelled Construct(Block input)
@@ -81,15 +81,15 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
         Layers = Layers.Take(Visuals.Selector.MaxLayerCount).ToArray();
     }
 
-    private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration _) = context;
+        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
 
         Selector selector = Selector.GetValue(original: default, state);
 
         RID layer = Layers[selector.Layer]; // todo: handle out of bounds access
 
-        BlockModel model = blockModelProvider.GetModel(layer, selector.Part);
+        Model model = blockModelProvider.GetModel(layer, selector.Part);
 
         model = Model.GetValue(model, state);
 

@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// </summary>
 public class FoliageBlock : Block
 {
-    private static readonly BlockMesh.Quad[] errorQuads;
+    private static readonly Mesh.Quad[] errorQuads;
     private static readonly UInt32 errorQuadCount;
 
     private readonly Foliage foliage;
@@ -43,7 +43,7 @@ public class FoliageBlock : Block
     protected override void OnValidate() {}
 
     /// <inheritdoc />
-    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
+    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
     {
         meshData = new Foliage.MeshData[States.Count];
 
@@ -64,11 +64,11 @@ public class FoliageBlock : Block
 
     private void BuildMeshData(Foliage.MeshData mesh)
     {
-        BlockMesh.Quad[] quads = mesh.Quads;
+        Mesh.Quad[] quads = mesh.Quads;
 
         for (var index = 0; index < mesh.QuadCount; index++)
         {
-            ref BlockMesh.Quad quad = ref quads[index];
+            ref Mesh.Quad quad = ref quads[index];
 
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsUnshaded, IsUnshaded);
@@ -85,11 +85,11 @@ public class FoliageBlock : Block
         IMeshing meshing = context.GetFoliageMesh();
 
         ref readonly Foliage.MeshData mesh = ref meshData[state.Index]; // todo: use ref readonly in the other Mesh overrides as well
-        BlockMesh.Quad[] quads = mesh.Quads;
+        Mesh.Quad[] quads = mesh.Quads;
 
         for (var index = 0; index < mesh.QuadCount; index++)
         {
-            ref readonly BlockMesh.Quad quad = ref quads[index];
+            ref readonly Mesh.Quad quad = ref quads[index];
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = quad.data;
 
             Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));

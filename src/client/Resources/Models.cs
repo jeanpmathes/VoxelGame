@@ -18,7 +18,7 @@ public class Models : ResourceCatalog
     ///     Create a new instance of the models catalog.
     /// </summary>
     public Models() : base([
-        new BlockModelLoader(),
-        new BlockModelProvider()
+        new ModelLoader(),
+        new ModelProvider()
     ]) {}
 }

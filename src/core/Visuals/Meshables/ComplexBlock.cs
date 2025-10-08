@@ -35,7 +35,7 @@ public class ComplexBlock : Block
     protected override void OnValidate() {}
 
     /// <inheritdoc />
-    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals)
+    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
     {
         meshData = new Complex.MeshData[States.Count];
 
@@ -43,14 +43,14 @@ public class ComplexBlock : Block
         {
             if (!Constraint.IsStateValid(state))
             {
-                BlockMesh.Quad[] quads = BlockModels.CreateFallback().CreateMesh(textureIndexProvider).GetMeshData(out UInt32 count); // todo: create a method to get fallback model easier and without texture provider, do it in static constructor instead of in loop
+                Mesh.Quad[] quads = Models.CreateFallback().CreateMesh(textureIndexProvider).GetMeshData(out UInt32 count); // todo: create a method to get fallback model easier and without texture provider, do it in static constructor instead of in loop
 
                 meshData[index] = new Complex.MeshData(quads, count, ColorS.None, IsAnimated: false);
 
                 continue;
             }
 
-            Complex.MeshData mesh = complex.GetMeshData(state, textureIndexProvider, blockModelProvider, visuals);
+            Complex.MeshData mesh = complex.GetMeshData(state, textureIndexProvider, modelProvider, visuals);
             BuildMeshData(mesh);
             meshData[index] = mesh;
         }
@@ -58,11 +58,11 @@ public class ComplexBlock : Block
 
     private void BuildMeshData(Complex.MeshData mesh)
     {
-        BlockMesh.Quad[] quads = mesh.Quads;
+        Mesh.Quad[] quads = mesh.Quads;
 
         for (var index = 0; index < mesh.QuadCount; index++)
         {
-            ref BlockMesh.Quad quad = ref quads[index];
+            ref Mesh.Quad quad = ref quads[index];
 
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
             Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsUnshaded, IsUnshaded);
@@ -76,11 +76,11 @@ public class ComplexBlock : Block
         IMeshing meshing = context.GetBasicMesh(IsOpaque);
 
         ref readonly Complex.MeshData mesh = ref meshData[state.Index];
-        BlockMesh.Quad[] quads = mesh.Quads;
+        Mesh.Quad[] quads = mesh.Quads;
 
         for (var index = 0; index < mesh.QuadCount; index++)
         {
-            ref readonly BlockMesh.Quad quad = ref quads[index];
+            ref readonly Mesh.Quad quad = ref quads[index];
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = quad.data;
 
             Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));

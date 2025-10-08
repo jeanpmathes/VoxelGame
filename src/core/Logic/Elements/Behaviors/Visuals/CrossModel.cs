@@ -35,9 +35,9 @@ public class CrossModel : BlockBehavior, IBehavior<CrossModel, BlockBehavior, Bl
         return new CrossModel(input);
     }
 
-    private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) = context; // todo: create struct for this tuple
+        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) = context; // todo: create struct for this tuple
 
         Int32 textureIndex = texture.GetTextureIndex(state, textureIndexProvider, isBlock: true);
 

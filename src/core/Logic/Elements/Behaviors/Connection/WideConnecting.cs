@@ -57,28 +57,28 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
         Models = ModelsInitializer.GetValue(original: default, Subject);
     }
 
-    private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration _) = context;
+        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
 
         (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(state);
 
-        BlockModel post = blockModelProvider.GetModel(Models.post);
-        BlockModel extension = blockModelProvider.GetModel(Models.extension);
+        Model post = blockModelProvider.GetModel(Models.post);
+        Model extension = blockModelProvider.GetModel(Models.extension);
 
         // todo: when doing caching on model provider, the returned model should be read only (interface)
 
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) extensions =
+        (Model north, Model east, Model south, Model west) extensions =
             extension.CreateAllOrientations(rotateTopAndBottomTexture: false);
 
-        List<BlockModel> models = new(capacity: 5);
+        List<Model> models = new(capacity: 5);
 
         Boolean useStraightZ = north && south && !east && !west;
         Boolean useStraightX = !north && !south && east && west;
 
         if (Models.straight is {} straight && (useStraightX || useStraightZ))
         {
-            BlockModel straightZ = blockModelProvider.GetModel(straight);
+            Model straightZ = blockModelProvider.GetModel(straight);
 
             if (useStraightZ)
             {
@@ -86,7 +86,7 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
             }
             else if (useStraightX)
             {
-                BlockModel straightX = straightZ.Copy();
+                Model straightX = straightZ.Copy();
                 straightX.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
 
                 models.Add(straightX);
@@ -102,6 +102,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
             if (west) models.Add(extensions.west);
         }
 
-        return BlockModel.GetCombinedMesh(textureIndexProvider, models.ToArray()); // todo: use Subject.Get<TextureOverride>()?.Textures
+        return Model.GetCombinedMesh(textureIndexProvider, models.ToArray()); // todo: use Subject.Get<TextureOverride>()?.Textures
     }
 }

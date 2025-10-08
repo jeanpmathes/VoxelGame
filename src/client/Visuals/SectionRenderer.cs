@@ -15,6 +15,7 @@ using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Graphics.Raytracing;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Utilities;
+using Mesh = VoxelGame.Graphics.Objects.Mesh;
 
 namespace VoxelGame.Client.Visuals;
 

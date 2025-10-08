@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockModel.cs" company="VoxelGame">
+﻿// <copyright file="Model.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -27,24 +27,24 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     A block model for complex blocks, can be loaded from disk.
+///     A model for complex blocks and other modelled things, can be loaded from disk.
 /// </summary>
-public sealed partial class BlockModel : IResource, ILocated // todo: rename to Model, check all usages of the word block in here
+public sealed partial class Model : IResource, ILocated
 {
-    private const String BlockModelIsLockedMessage = "This block model is locked and can no longer be modified.";
+    private const String ModelIsLockedMessage = "This model is locked and can no longer be modified.";
 
-    private BlockMesh.Quad[]? lockedQuads;
+    private Mesh.Quad[]? lockedQuads;
 
     /// <summary>
-    ///     Create an empty block model.
+    ///     Create an empty model.
     /// </summary>
-    public BlockModel() {}
+    public Model() {}
 
     /// <summary>
     ///     Copy-constructor.
     /// </summary>
     /// <param name="original">The original model to copy.</param>
-    private BlockModel(BlockModel original)
+    private Model(Model original)
     {
         TextureNames = (String[]) original.TextureNames.Clone();
         Quads = (Quad[]) original.Quads.Clone();
@@ -91,19 +91,19 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     #endregion DISPOSABLE
 
     /// <summary>
-    ///     Create a block mesh from this model.
+    ///     Create a mesh from this model.
     /// </summary>
     /// <param name="textureIndexProvider">A texture index provider.</param>
     /// <param name="textureOverrides">
     ///     Optional texture overrides, using by-index substitution. A minus one key will replace
     ///     all textures that are not explicitly named.
     /// </param>
-    /// <returns>The block mesh.</returns>
-    public BlockMesh CreateMesh(ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
+    /// <returns>The mesh.</returns>
+    public Mesh CreateMesh(ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
-        ToData(out BlockMesh.Quad[] quads, textureIndexProvider, textureOverrides);
+        ToData(out Mesh.Quad[] quads, textureIndexProvider, textureOverrides);
 
-        return new BlockMesh(quads);
+        return new Mesh(quads);
     }
 
     /// <summary>
@@ -136,7 +136,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     ///     Quads are also moved so that the part they belong to has its origin at (0,0,0).
     /// </summary>
     /// <returns>The parts of the model.</returns>
-    public BlockModel[,,] PartitionByBlocks()
+    public Model[,,] PartitionByBlocks()
     {
         // todo: this is a bit ugly and could maybe sometimes put quads into the wrong part
         // todo: so add to the note for the custom editor that models should already define the separation in the format
@@ -166,7 +166,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
             partQuads[x, y, z].Add(quad);
         }
 
-        var parts = new BlockModel[sizeX, sizeY, sizeZ];
+        var parts = new Model[sizeX, sizeY, sizeZ];
 
         for (var x = 0; x < sizeX; x++)
         for (var y = 0; y < sizeY; y++)
@@ -181,7 +181,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
                 quads[index] = quads[index].ApplyMatrix(translation);
             }
 
-            parts[x, y, z] = new BlockModel
+            parts[x, y, z] = new Model
             {
                 TextureNames = TextureNames.ToArray(),
                 Quads = quads.ToArray()
@@ -199,7 +199,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     public void RotateY(Int32 rotations, Boolean rotateTopAndBottomTexture = true)
     {
         if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
 
         if (rotations == 0) return;
 
@@ -217,13 +217,13 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     ///     Creates six models, one for each block side, from a north oriented model.
     /// </summary>
     /// <returns> The six models.</returns>
-    public (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+    public (Model front, Model back, Model left, Model right, Model bottom, Model top)
         CreateAllSides()
     {
         if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
 
-        (BlockModel front, BlockModel back, BlockModel left, BlockModel right, BlockModel bottom, BlockModel top)
+        (Model front, Model back, Model left, Model right, Model bottom, Model top)
             result;
 
         result.front = this;
@@ -241,9 +241,9 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     ///     Create versions of this model for each axis.
     /// </summary>
     /// <returns>The model versions.</returns>
-    public (BlockModel x, BlockModel y, BlockModel z) CreateAllAxis()
+    public (Model x, Model y, Model z) CreateAllAxis()
     {
-        (BlockModel x, BlockModel y, BlockModel z) result;
+        (Model x, Model y, Model z) result;
 
         result.z = this;
 
@@ -260,31 +260,31 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     /// </summary>
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom textures should be rotated.</param>
     /// <returns>All model versions.</returns>
-    public (BlockModel north, BlockModel east, BlockModel south, BlockModel west) CreateAllOrientations(
+    public (Model north, Model east, Model south, Model west) CreateAllOrientations(
             Boolean rotateTopAndBottomTexture)
         // todo: find out when and why this parameter is used, maybe an abstraction is possible
         // todo: probably for all blocks that use Modelled it can be true and for all that combine meshes on their own it can be false
     {
-        BlockModel north = this;
+        Model north = this;
 
-        BlockModel east = new(north);
+        Model east = new(north);
         east.RotateY(rotations: 1, rotateTopAndBottomTexture);
 
-        BlockModel south = new(east);
+        Model south = new(east);
         south.RotateY(rotations: 1, rotateTopAndBottomTexture);
 
-        BlockModel west = new(south);
+        Model west = new(south);
         west.RotateY(rotations: 1, rotateTopAndBottomTexture);
 
         return (north, east, south, west);
     }
 
-    private BlockModel CreateSideModel(Side side)
+    private Model CreateSideModel(Side side)
     {
         if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
 
-        BlockModel copy = new(this);
+        Model copy = new(this);
 
         Matrix4 rotation;
         Vector3d axis;
@@ -346,7 +346,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     private void ApplyMatrix(Matrix4 xyz)
     {
         if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
@@ -354,7 +354,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     private void RotateTextureCoordinates(Vector3d axis, Int32 rotations)
     {
         if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
 
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].RotateTextureCoordinates(axis, rotations);
     }
@@ -368,7 +368,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     ///     Optional texture overrides, using by-index substitution. A minus one key will replace
     ///     all textures that are not explicitly named.
     /// </param>
-    public void ToData(out BlockMesh.Quad[] quads, ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
+    public void ToData(out Mesh.Quad[] quads, ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
         if (lockedQuads != null)
         {
@@ -395,7 +395,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
             textureIndexLookup[texture] = textureIndexProvider.GetTextureIndex(id);
         }
 
-        quads = new BlockMesh.Quad[Quads.Length];
+        quads = new Mesh.Quad[Quads.Length];
 
         for (var index = 0; index < Quads.Length; index++)
         {
@@ -422,7 +422,7 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     public void Lock(ITextureIndexProvider textureIndexProvider) // todo: remove this whole thing
     {
         if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
 
         ToData(out lockedQuads, textureIndexProvider);
 
@@ -438,35 +438,35 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     public async Task SaveAsync(DirectoryInfo directory, String name, CancellationToken token = default)
     {
         if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(BlockModelIsLockedMessage);
+            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
 
-        Result result = await Serialize.SaveJsonAsync(this, directory.GetFile(FileSystem.GetResourceFileName<BlockModel>(name)), token).InAnyContext();
+        Result result = await Serialize.SaveJsonAsync(this, directory.GetFile(FileSystem.GetResourceFileName<Model>(name)), token).InAnyContext();
 
         result.Switch(
             () => {},
-            exception => LogFailedToSaveBlockModel(logger, exception));
+            exception => LogFailedToSaveModel(logger, exception));
     }
 
     /// <summary>
     ///     Get a copy of this model.
     /// </summary>
     /// <returns>The copy.</returns>
-    public BlockModel Copy()
+    public Model Copy()
     {
-        return new BlockModel(this);
+        return new Model(this);
     }
 
     #region STATIC METHODS
 
     /// <summary>
-    ///     Load a block model from a file.
+    ///     Load a model from a file.
     /// </summary>
     /// <param name="file">The file to load the model from.</param>
     /// <param name="token">The cancellation token.</param>
     /// <returns>The result of the operation.</returns>
-    public static async Task<Result<BlockModel>> LoadAsync(FileInfo file, CancellationToken token = default)
+    public static async Task<Result<Model>> LoadAsync(FileInfo file, CancellationToken token = default)
     {
-        Result<BlockModel> result = await Serialize.LoadJsonAsync<BlockModel>(file, token).InAnyContext();
+        Result<Model> result = await Serialize.LoadJsonAsync<Model>(file, token).InAnyContext();
 
         return result.Map(model =>
         {
@@ -477,23 +477,23 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
     }
 
     /// <summary>
-    ///     Get the combined mesh of multiple block models.
+    ///     Get the combined mesh of multiple models.
     /// </summary>
     /// <param name="models">The models to combine.</param>
     /// <param name="textureIndexProvider">The texture index provider.</param>
     /// <returns>The combined mesh.</returns>
-    public static BlockMesh GetCombinedMesh(ITextureIndexProvider textureIndexProvider, params BlockModel[] models) // todo: should return model and not mesh, use override then
+    public static Mesh GetCombinedMesh(ITextureIndexProvider textureIndexProvider, params Model[] models) // todo: should return model and not mesh, use override then
     {
         Int32 totalQuadCount = models.Sum(model => model.Quads.Length);
         Boolean locked = models.Aggregate(seed: true, (current, model) => current && model.lockedQuads != null);
 
         if (locked)
         {
-            var quads = new BlockMesh.Quad[totalQuadCount];
+            var quads = new Mesh.Quad[totalQuadCount];
 
             var copiedQuads = 0;
 
-            foreach (BlockMesh.Quad[]? modelQuads in models.Select(model => model.lockedQuads))
+            foreach (Mesh.Quad[]? modelQuads in models.Select(model => model.lockedQuads))
             {
                 Debug.Assert(modelQuads != null);
 
@@ -507,29 +507,29 @@ public sealed partial class BlockModel : IResource, ILocated // todo: rename to 
                 copiedQuads += modelQuads.Length;
             }
 
-            return new BlockMesh(quads);
+            return new Mesh(quads);
         }
 
 
-        List<BlockMesh.Quad> vertices = new(totalQuadCount);
+        List<Mesh.Quad> vertices = new(totalQuadCount);
 
-        foreach (BlockModel model in models)
+        foreach (Model model in models)
         {
-            model.ToData(out BlockMesh.Quad[] modelQuads, textureIndexProvider);
+            model.ToData(out Mesh.Quad[] modelQuads, textureIndexProvider);
             vertices.AddRange(modelQuads);
         }
 
-        return new BlockMesh(vertices.ToArray());
+        return new Mesh(vertices.ToArray());
     }
 
     #endregion STATIC METHODS
 
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModel>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<Model>();
 
-    [LoggerMessage(EventId = LogID.BlockModel + 0, Level = LogLevel.Warning, Message = "Failed to save block model")]
-    private static partial void LogFailedToSaveBlockModel(ILogger logger, Exception exception);
+    [LoggerMessage(EventId = LogID.Model + 0, Level = LogLevel.Warning, Message = "Failed to save model")]
+    private static partial void LogFailedToSaveModel(ILogger logger, Exception exception);
 
     #endregion LOGGING
 }

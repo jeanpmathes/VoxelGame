@@ -80,11 +80,11 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     ///     Initialize all blocks. This should be called exactly once during loading.
     /// </summary>
     /// <param name="textureIndexProvider">The texture index provider to use for resolving textures.</param>
-    /// <param name="blockModelProvider">The block model provider to use for resolving block models.</param>
+    /// <param name="modelProvider">The model provider to use for resolving block models.</param>
     /// <param name="visuals">The visual configuration to use.</param>
     /// <param name="context">The resource context in which loading is done.</param>
     /// <returns>All content defined in this class.</returns>
-    public IEnumerable<IContent> Initialize(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals, IResourceContext context)
+    public IEnumerable<IContent> Initialize(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IResourceContext context)
     {
         states.Clear();
         
@@ -108,7 +108,7 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         BehaviorSystem<Block, BlockBehavior>.Bake(validator);
         
         foreach (Block block in builder.BlocksByID)
-            block.Activate(textureIndexProvider, blockModelProvider, visuals);
+            block.Activate(textureIndexProvider, modelProvider, visuals);
 
         if (validator.HasError) return [];
         

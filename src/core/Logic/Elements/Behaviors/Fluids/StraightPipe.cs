@@ -61,9 +61,9 @@ public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior
         return rotation.GetAxis(state).Sides();
     }
 
-    private BlockModel GetModel(BlockModel original, State state)
+    private Model GetModel(Model original, State state)
     {
-        (BlockModel x, BlockModel y, BlockModel z) = original.CreateAllAxis(); // todo: only create the one needed
+        (Model x, Model y, Model z) = original.CreateAllAxis(); // todo: only create the one needed
 
         Axis axis = rotation.GetAxis(state);
 

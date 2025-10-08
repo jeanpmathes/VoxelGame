@@ -18,7 +18,7 @@ public class MockBlock() : Block(id: 0, nameof(MockBlock), "Mock Block")
 
     protected override void OnValidate() {}
 
-    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) {}
+    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals) {}
 
     public override void Mesh(Vector3i position, State state, MeshingContext context) {}
 }

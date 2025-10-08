@@ -99,23 +99,23 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         Top = builder.Define(nameof(Top)).Boolean().Attribute();
     }
 
-    private BlockMesh GetMesh(BlockMesh original, (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IBlockModelProvider blockModelProvider, VisualConfiguration _) = context;
+        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
 
-        BlockModel complete = blockModelProvider.GetModel(Models.complete);
+        Model complete = blockModelProvider.GetModel(Models.complete);
 
-        BlockModel side = blockModelProvider.GetModel(Models.side);
-        BlockModel up = blockModelProvider.GetModel(Models.top);
+        Model side = blockModelProvider.GetModel(Models.side);
+        Model up = blockModelProvider.GetModel(Models.top);
 
-        (BlockModel north, BlockModel east, BlockModel south, BlockModel west) =
+        (Model north, Model east, Model south, Model west) =
             side.CreateAllOrientations(rotateTopAndBottomTexture: true); // todo: do not create all orientations, or at least only crete the other parts on demand
 
         Boolean any = IsAnySideBurning(state);
 
         if (!any) return complete.CreateMesh(textureIndexProvider);
 
-        List<BlockModel> requiredModels = new(capacity: 5);
+        List<Model> requiredModels = new(capacity: 5);
 
         if (state.Get(Front))
             requiredModels.Add(south);
@@ -132,7 +132,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         if (state.Get(Top))
             requiredModels.Add(up);
 
-        return BlockModel.GetCombinedMesh(textureIndexProvider, requiredModels.ToArray());
+        return Model.GetCombinedMesh(textureIndexProvider, requiredModels.ToArray());
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

@@ -22,7 +22,7 @@ public sealed class BlockLoader : IResourceLoader
     public IEnumerable<IResource> Load(IResourceContext context)
     {
         return context.Require<ITextureIndexProvider>(textureIndexProvider =>
-            context.Require<IBlockModelProvider>(blockModelProvider =>
+            context.Require<IModelProvider>(blockModelProvider =>
                 context.Require<VisualConfiguration>(visualConfiguration =>
                     Blocks.Instance.Initialize(
                         textureIndexProvider,

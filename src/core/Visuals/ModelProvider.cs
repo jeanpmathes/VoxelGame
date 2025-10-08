@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockModelProvider.cs" company="VoxelGame">
+﻿// <copyright file="ModelProvider.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -13,19 +13,19 @@ using VoxelGame.Logging;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     Provides loaded block models.
+///     Provides loaded models.
 /// </summary>
-public partial class BlockModelProvider : ResourceProvider<BlockModel>, IBlockModelProvider
+public partial class ModelProvider : ResourceProvider<Model>, IModelProvider
 {
-    private readonly Dictionary<RID, BlockModel[,,]> parts = [];
+    private readonly Dictionary<RID, Model[,,]> parts = [];
 
     /// <inheritdoc />
-    public BlockModel GetModel(RID identifier, Vector3i? part = null)
+    public Model GetModel(RID identifier, Vector3i? part = null)
     {
         if (part is not {} position)
             return GetResource(identifier);
 
-        BlockModel[,,]? modelParts = parts.GetValueOrDefault(identifier);
+        Model[,,]? modelParts = parts.GetValueOrDefault(identifier);
 
         if (modelParts != null &&
             position.X >= 0 && position.X < modelParts.GetLength(0) &&
@@ -41,13 +41,13 @@ public partial class BlockModelProvider : ResourceProvider<BlockModel>, IBlockMo
     }
 
     /// <inheritdoc />
-    protected override BlockModel CreateFallback()
+    protected override Model CreateFallback()
     {
-        return BlockModels.CreateFallback();
+        return Models.CreateFallback();
     }
 
     /// <inheritdoc />
-    protected override BlockModel Copy(BlockModel resource)
+    protected override Model Copy(Model resource)
     {
         return resource.Copy();
     }
@@ -57,7 +57,7 @@ public partial class BlockModelProvider : ResourceProvider<BlockModel>, IBlockMo
     {
         parts.Clear();
 
-        foreach ((RID id, BlockModel original) in GetAllResources())
+        foreach ((RID id, Model original) in GetAllResources())
         {
             Box3d bounds = original.GetBounds();
 
@@ -70,7 +70,7 @@ public partial class BlockModelProvider : ResourceProvider<BlockModel>, IBlockMo
 
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<BlockModelProvider>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<ModelProvider>();
 
     [LoggerMessage(EventId = LogID.GroupProvider + 0, Level = LogLevel.Warning, Message = "Model {Model} does not have a part {Part}, returning full model instead")]
     private static partial void LogPartDoesNotExist(ILogger logger, RID model, Vector3i part);

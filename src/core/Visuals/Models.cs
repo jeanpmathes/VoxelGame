@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockModels.cs" company="VoxelGame">
+﻿// <copyright file="Models.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -11,16 +11,16 @@ using VoxelGame.Core.Logic.Elements;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-///     Utility class for block models.
+///     Utility class for models.
 /// </summary>
-public static class BlockModels
+public static class Models
 {
     /// <summary>
-    ///     Create a fallback block model.
+    ///     Create a fallback model.
     ///     It does not rely on any textures and can be safely used when resources are not available.
     /// </summary>
-    /// <returns>The fallback block model.</returns>
-    public static BlockModel CreateFallback()
+    /// <returns>The fallback model.</returns>
+    public static Model CreateFallback()
     {
         const Single begin = 0.275f;
         const Single size = 0.5f;
@@ -53,7 +53,7 @@ public static class BlockModels
             };
         }
 
-        return new BlockModel
+        return new Model
         {
             TextureNames = ["missing_texture"],
             Quads =
@@ -75,12 +75,12 @@ public static class BlockModels
     /// <param name="textureIndexProvider">A texture index provider.</param>
     public static void Lock(
         this (
-            BlockModel front,
-            BlockModel back,
-            BlockModel left,
-            BlockModel right,
-            BlockModel bottom,
-            BlockModel top)
+            Model front,
+            Model back,
+            Model left,
+            Model right,
+            Model bottom,
+            Model top)
             group, ITextureIndexProvider textureIndexProvider)
     {
         group.front.Lock(textureIndexProvider);
@@ -96,7 +96,7 @@ public static class BlockModels
     /// </summary>
     /// <param name="group">The group to lock.</param>
     /// <param name="textureIndexProvider">A texture index provider.</param>
-    public static void Lock(this (BlockModel north, BlockModel east, BlockModel south, BlockModel west) group, ITextureIndexProvider textureIndexProvider)
+    public static void Lock(this (Model north, Model east, Model south, Model west) group, ITextureIndexProvider textureIndexProvider)
     {
         group.north.Lock(textureIndexProvider);
         group.east.Lock(textureIndexProvider);
