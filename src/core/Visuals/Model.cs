@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Text.Json.Serialization;
@@ -38,35 +38,32 @@ public sealed partial class Model : IResource, ILocated
     /// <summary>
     ///     Create an empty model.
     /// </summary>
-    public Model() {}
+    public Model() : this([], []) {}
 
     /// <summary>
     ///     Copy-constructor.
     /// </summary>
     /// <param name="original">The original model to copy.</param>
-    private Model(Model original)
+    private Model(Model original) : this(original.TextureNames, original.Quads) {}
+    
+    [JsonConstructor]
+    private Model(ImmutableArray<String> textureNames, ImmutableArray<Quad> quads)
     {
-        TextureNames = (String[]) original.TextureNames.Clone();
-        Quads = (Quad[]) original.Quads.Clone();
+        TextureNames = textureNames.IsDefault ? [] : textureNames;
+        Quads = quads.IsDefault ? [] : quads;
     }
 
     /// <summary>
     ///     The names of the textures used by this model.
     /// </summary>
-    [SuppressMessage(
-        "Performance",
-        "CA1819:Properties should not return arrays",
-        Justification = "This class is meant for data storage.")]
-    public String[] TextureNames { get; set; } = [];
+    [JsonInclude]
+    public ImmutableArray<String> TextureNames { get; private set; }
 
     /// <summary>
     ///     The quads that make up this model.
     /// </summary>
-    [SuppressMessage(
-        "Performance",
-        "CA1819:Properties should not return arrays",
-        Justification = "This class is meant for data storage.")]
-    public Quad[] Quads { get; set; } = [];
+    [JsonInclude]
+    public ImmutableArray<Quad> Quads { get; private set; }
 
     /// <inheritdoc />
     public static String[] Path { get; } = ["Models"];
@@ -138,41 +135,41 @@ public sealed partial class Model : IResource, ILocated
     /// <returns>The parts of the model.</returns>
     public Model[,,] PartitionByBlocks()
     {
-        // todo: this is a bit ugly and could maybe sometimes put quads into the wrong part
-        // todo: so add to the note for the custom editor that models should already define the separation in the format
-        // todo: so the format would be changed and the editor would help with displaying and configuring that
-
         Box3d bounds = GetBounds();
 
-        var sizeX = (Int32) Math.Ceiling(bounds.Size.X);
-        var sizeY = (Int32) Math.Ceiling(bounds.Size.Y);
-        var sizeZ = (Int32) Math.Ceiling(bounds.Size.Z);
+        Vector3i size = bounds.Size.Ceiling();
 
-        var partQuads = new List<Quad>[sizeX, sizeY, sizeZ];
+        if (size.X <= 0 || size.Y <= 0 || size.Z <= 0)
+            return new Model[0, 0, 0];
 
-        for (var x = 0; x < sizeX; x++)
-        for (var y = 0; y < sizeY; y++)
-        for (var z = 0; z < sizeZ; z++)
+        var partQuads = new List<Quad>[size.X, size.Y, size.Z];
+
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
             partQuads[x, y, z] = [];
 
         foreach (Quad quad in Quads)
         {
-            Vector3i target = quad.Center.Floor();
+            Vector3i target = DetermineTargetCell(quad, size);
 
-            Int32 x = Math.Clamp(target.X, min: 0, sizeX - 1);
-            Int32 y = Math.Clamp(target.Y, min: 0, sizeY - 1);
-            Int32 z = Math.Clamp(target.Z, min: 0, sizeZ - 1);
-
-            partQuads[x, y, z].Add(quad);
+            partQuads[target.X, target.Y, target.Z].Add(quad);
         }
 
-        var parts = new Model[sizeX, sizeY, sizeZ];
+        var parts = new Model[size.X, size.Y, size.Z];
 
-        for (var x = 0; x < sizeX; x++)
-        for (var y = 0; y < sizeY; y++)
-        for (var z = 0; z < sizeZ; z++)
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
         {
             List<Quad> quads = partQuads[x, y, z];
+
+            if (quads.Count == 0)
+            {
+                parts[x, y, z] = new Model(TextureNames, []);
+
+                continue;
+            }
 
             var translation = Matrix4.CreateTranslation(-x, -y, -z);
 
@@ -180,15 +177,63 @@ public sealed partial class Model : IResource, ILocated
             {
                 quads[index] = quads[index].ApplyMatrix(translation);
             }
-
-            parts[x, y, z] = new Model
-            {
-                TextureNames = TextureNames.ToArray(),
-                Quads = quads.ToArray()
-            };
+            
+            parts[x, y, z] = new Model(TextureNames, [..quads]);
         }
 
         return parts;
+    }
+
+    private static Vector3i DetermineTargetCell(Quad quad, Vector3i size)
+    {
+        const Double tolerance = 1e-6;
+
+        ReadOnlySpan<Vertex> vertices =
+        [
+            quad.Vert0,
+            quad.Vert1,
+            quad.Vert2,
+            quad.Vert3
+        ];
+
+        Vector3d min = vertices[0].Position;
+        Vector3d max = min;
+
+        for (var index = 1; index < vertices.Length; index++)
+        {
+            Vector3d position = vertices[index].Position;
+
+            min = Vector3d.ComponentMin(min, position);
+            max = Vector3d.ComponentMax(max, position);
+        }
+
+        Vector3i start = min.Floor();
+        Vector3i end = max.Floor();
+
+        for (Int32 x = start.X; x <= end.X; x++)
+        for (Int32 y = start.Y; y <= end.Y; y++)
+        for (Int32 z = start.Z; z <= end.Z; z++)
+            if (IsQuadWithinCell(vertices, (x, y, z), tolerance))
+                return new Vector3i(x, y, z).ClampComponents(Vector3i.Zero, size - Vector3i.One);
+        
+        return quad.Center.Floor().ClampComponents(Vector3i.Zero, size - Vector3i.One);
+    }
+
+    private static Boolean IsQuadWithinCell(ReadOnlySpan<Vertex> vertices, Vector3i cell, Double tolerance)
+    {
+        Vector3d min = cell - new Vector3d(tolerance);
+        Vector3d max = cell + new Vector3d(1 + tolerance);
+
+        foreach (Vertex vertex in vertices)
+        {
+            Vector3d position = vertex.Position;
+
+            if (position.X < min.X || position.X > max.X) return false;
+            if (position.Y < min.Y || position.Y > max.Y) return false;
+            if (position.Z < min.Z || position.Z > max.Z) return false;
+        }
+
+        return true;
     }
 
     /// <summary>
@@ -313,12 +358,20 @@ public sealed partial class Model : IResource, ILocated
 
     private void ApplyMatrix(Matrix4 xyz)
     {
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
+        ImmutableArray<Quad>.Builder builder = Quads.ToBuilder();
+
+        for (var i = 0; i < builder.Count; i++) builder[i] = builder[i].ApplyMatrix(xyz);
+
+        Quads = builder.ToImmutable();
     }
 
     private void RotateTextureCoordinates(Vector3d axis, Int32 rotations)
     {
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].RotateTextureCoordinates(axis, rotations);
+        ImmutableArray<Quad>.Builder builder = Quads.ToBuilder();
+
+        for (var i = 0; i < builder.Count; i++) builder[i] = builder[i].RotateTextureCoordinates(axis, rotations);
+
+        Quads = builder.ToImmutable();
     }
 
     /// <summary>
@@ -330,7 +383,7 @@ public sealed partial class Model : IResource, ILocated
     ///     Optional texture overrides, using by-index substitution. A minus one key will replace
     ///     all textures that are not explicitly named.
     /// </param>
-    public void ToData(out Mesh.Quad[] quads, ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
+    private void ToData(out Mesh.Quad[] quads, ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
         var textureIndexLookup = new Int32[TextureNames.Length];
 
@@ -407,19 +460,14 @@ public sealed partial class Model : IResource, ILocated
 
         Int32[][] uvs = Meshes.GetBlockUVs(isRotated: false);
 
-        return new Model
-        {
-            TextureNames = [TID.MissingTextureKey],
-            Quads =
-            [
+        return new Model([TID.MissingTextureKey], [
                 BuildQuad(Side.Front),
                 BuildQuad(Side.Back),
                 BuildQuad(Side.Left),
                 BuildQuad(Side.Right),
                 BuildQuad(Side.Bottom),
                 BuildQuad(Side.Top)
-            ]
-        };
+            ]);
 
         Quad BuildQuad(Side side)
         {
@@ -511,11 +559,7 @@ public sealed partial class Model : IResource, ILocated
             }
         }
         
-        return new Model
-        {
-            TextureNames = textureNames.ToArray(),
-            Quads = quads.ToArray()
-        };
+        return new Model([..textureNames], [..quads]);
     }
 
     #region LOGGING
