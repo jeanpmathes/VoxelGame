@@ -43,7 +43,7 @@ public partial class ModelProvider : ResourceProvider<Model>, IModelProvider
     /// <inheritdoc />
     protected override Model CreateFallback()
     {
-        return Models.CreateFallback();
+        return Model.CreateFallback();
     }
 
     /// <inheritdoc />

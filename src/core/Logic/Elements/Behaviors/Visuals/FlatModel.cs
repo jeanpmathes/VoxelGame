@@ -71,7 +71,7 @@ public class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Bloc
         Sides sides = siding.GetSides(state);
         Int32 textureIndex = texture.GetTextureIndex(state, textureIndexProvider, isBlock: true);
 
-        return BlockMeshes.CreateFlatModel(
+        return Meshes.CreateFlatMesh(
             sides,
             offset: 0.01f,
             textureIndex);

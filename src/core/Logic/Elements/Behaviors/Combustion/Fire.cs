@@ -132,7 +132,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         if (state.Get(Top))
             requiredModels.Add(up);
 
-        return Model.GetCombinedMesh(textureIndexProvider, requiredModels.ToArray());
+        return Model.Combine(requiredModels).CreateMesh(textureIndexProvider);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

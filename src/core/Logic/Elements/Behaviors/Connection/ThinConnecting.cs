@@ -71,15 +71,13 @@ public class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, BlockBeha
 
         (Model north, Model east, Model south, Model west) extensions =
             blockModelProvider.GetModel(Models.extension).CreateAllOrientations(rotateTopAndBottomTexture: false);
-
-        // todo: why no locking here? maybe do the locking in the model provider, or remove it completely?
-
-        return Model.GetCombinedMesh(textureIndexProvider,
-            post,
+        
+        return Model.Combine(post,
             north ? extensions.north : sides.north,
             east ? extensions.east : sides.east,
             south ? extensions.south : sides.south,
-            west ? extensions.west : sides.west);
+            west ? extensions.west : sides.west)
+            .CreateMesh(textureIndexProvider);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

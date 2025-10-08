@@ -102,6 +102,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
             if (west) models.Add(extensions.west);
         }
 
-        return Model.GetCombinedMesh(textureIndexProvider, models.ToArray()); // todo: use Subject.Get<TextureOverride>()?.Textures
+        return Model.Combine(models).CreateMesh(textureIndexProvider); // todo: use Subject.Get<TextureOverride>()?.Textures
     }
 }

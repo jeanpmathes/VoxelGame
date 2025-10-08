@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
@@ -28,13 +27,12 @@ namespace VoxelGame.Core.Visuals;
 
 /// <summary>
 ///     A model for complex blocks and other modelled things, can be loaded from disk.
+///     Models support many operations to create variants of a base model.
+///     These operations can be costly and should be done during loading, not during gameplay.
+///     At the end of loading, all models should be converted to meshes using <see cref="CreateMesh" />.
 /// </summary>
 public sealed partial class Model : IResource, ILocated
 {
-    private const String ModelIsLockedMessage = "This model is locked and can no longer be modified.";
-
-    private Mesh.Quad[]? lockedQuads;
-
     /// <summary>
     ///     Create an empty model.
     /// </summary>
@@ -198,9 +196,6 @@ public sealed partial class Model : IResource, ILocated
     /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
     public void RotateY(Int32 rotations, Boolean rotateTopAndBottomTexture = true)
     {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
-
         if (rotations == 0) return;
 
         Single angle = rotations * MathHelper.PiOver2 * -1f;
@@ -220,9 +215,6 @@ public sealed partial class Model : IResource, ILocated
     public (Model front, Model back, Model left, Model right, Model bottom, Model top)
         CreateAllSides()
     {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
-
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
             result;
 
@@ -281,9 +273,6 @@ public sealed partial class Model : IResource, ILocated
 
     private Model CreateSideModel(Side side)
     {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
-
         Model copy = new(this);
 
         Matrix4 rotation;
@@ -345,17 +334,11 @@ public sealed partial class Model : IResource, ILocated
 
     private void ApplyMatrix(Matrix4 xyz)
     {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
-
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyMatrix(xyz);
     }
 
     private void RotateTextureCoordinates(Vector3d axis, Int32 rotations)
     {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
-
         for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].RotateTextureCoordinates(axis, rotations);
     }
 
@@ -370,13 +353,6 @@ public sealed partial class Model : IResource, ILocated
     /// </param>
     public void ToData(out Mesh.Quad[] quads, ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
-        if (lockedQuads != null)
-        {
-            quads = lockedQuads;
-
-            return;
-        }
-
         var textureIndexLookup = new Int32[TextureNames.Length];
 
         for (var texture = 0; texture < TextureNames.Length; texture++)
@@ -417,19 +393,6 @@ public sealed partial class Model : IResource, ILocated
     }
 
     /// <summary>
-    ///     Lock the model. This will prevent modifications to the model, but combining with other models will be faster.
-    /// </summary>
-    public void Lock(ITextureIndexProvider textureIndexProvider) // todo: remove this whole thing
-    {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
-
-        ToData(out lockedQuads, textureIndexProvider);
-
-        Debug.Assert(lockedQuads != null);
-    }
-
-    /// <summary>
     ///     Save this model to a file.
     /// </summary>
     /// <param name="directory">The directory to save the file to.</param>
@@ -437,9 +400,6 @@ public sealed partial class Model : IResource, ILocated
     /// <param name="token">The cancellation token.</param>
     public async Task SaveAsync(DirectoryInfo directory, String name, CancellationToken token = default)
     {
-        if (lockedQuads != null)
-            throw Exceptions.InvalidOperation(ModelIsLockedMessage);
-
         Result result = await Serialize.SaveJsonAsync(this, directory.GetFile(FileSystem.GetResourceFileName<Model>(name)), token).InAnyContext();
 
         result.Switch(
@@ -455,9 +415,60 @@ public sealed partial class Model : IResource, ILocated
     {
         return new Model(this);
     }
+    
+    /// <summary>
+    ///     Create a fallback model.
+    ///     It does not rely on any textures and can be safely used when resources are not available.
+    /// </summary>
+    /// <returns>The fallback model.</returns>
+    public static Model CreateFallback()
+    {
+        const Single begin = 0.275f;
+        const Single size = 0.5f;
 
-    #region STATIC METHODS
+        Int32[][] uvs = Meshes.GetBlockUVs(isRotated: false);
 
+        return new Model
+        {
+            TextureNames = [TID.MissingTextureKey],
+            Quads =
+            [
+                BuildQuad(Side.Front),
+                BuildQuad(Side.Back),
+                BuildQuad(Side.Left),
+                BuildQuad(Side.Right),
+                BuildQuad(Side.Bottom),
+                BuildQuad(Side.Top)
+            ]
+        };
+
+        Quad BuildQuad(Side side)
+        {
+            side.Corners(out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d);
+
+            return new Quad
+            {
+                TextureId = 0,
+                Vert0 = BuildVertex(a, uvs[0]),
+                Vert1 = BuildVertex(b, uvs[1]),
+                Vert2 = BuildVertex(c, uvs[2]),
+                Vert3 = BuildVertex(d, uvs[3])
+            };
+
+            Vertex BuildVertex(IReadOnlyList<Int32> corner, IReadOnlyList<Int32> uv)
+            {
+                return new Vertex
+                {
+                    X = begin + corner[index: 0] * size,
+                    Y = begin + corner[index: 1] * size,
+                    Z = begin + corner[index: 2] * size,
+                    U = begin + uv[index: 0] * size,
+                    V = begin + uv[index: 1] * size
+                };
+            }
+        }
+    }
+    
     /// <summary>
     ///     Load a model from a file.
     /// </summary>
@@ -475,54 +486,58 @@ public sealed partial class Model : IResource, ILocated
             return model;
         });
     }
-
+    
     /// <summary>
-    ///     Get the combined mesh of multiple models.
+    /// Combine a set of models into a single model.
+    /// If only a single model is provided, it is simply returned without copying.
+    /// If no models are provided, an empty model is returned.
     /// </summary>
-    /// <param name="models">The models to combine.</param>
-    /// <param name="textureIndexProvider">The texture index provider.</param>
-    /// <returns>The combined mesh.</returns>
-    public static Mesh GetCombinedMesh(ITextureIndexProvider textureIndexProvider, params Model[] models) // todo: should return model and not mesh, use override then
+    /// <param name="models">All models to combine.</param>
+    /// <returns>The combined model.</returns>
+    public static Model Combine(params IEnumerable<Model> models)
     {
-        Int32 totalQuadCount = models.Sum(model => model.Quads.Length);
-        Boolean locked = models.Aggregate(seed: true, (current, model) => current && model.lockedQuads != null);
-
-        if (locked)
+        Model[] array = models.ToArray();
+        
+        switch (array)
         {
-            var quads = new Mesh.Quad[totalQuadCount];
+            case []:
+                return new Model();
+            
+            case [var model]:
+                return model;
+        }
 
-            var copiedQuads = 0;
-
-            foreach (Mesh.Quad[]? modelQuads in models.Select(model => model.lockedQuads))
+        Dictionary<String, Int32> textureNameToIndex = new();
+        List<String> textureNames = [];
+        
+        List<Quad> quads = [];
+        
+        foreach (Model model in array)
+        {
+            foreach (String textureName in model.TextureNames)
             {
-                Debug.Assert(modelQuads != null);
-
-                Array.Copy(
-                    modelQuads,
-                    sourceIndex: 0,
-                    quads,
-                    copiedQuads,
-                    modelQuads.Length);
-
-                copiedQuads += modelQuads.Length;
+                if (textureNameToIndex.TryAdd(textureName, textureNames.Count))
+                {
+                    textureNames.Add(textureName);
+                }
             }
+            
+            foreach (Quad quad in model.Quads)
+            {
+                Quad newQuad = quad;
 
-            return new Mesh(quads);
+                newQuad.TextureId = textureNameToIndex[model.TextureNames[quad.TextureId]];
+
+                quads.Add(newQuad);
+            }
         }
-
-
-        List<Mesh.Quad> vertices = new(totalQuadCount);
-
-        foreach (Model model in models)
+        
+        return new Model
         {
-            model.ToData(out Mesh.Quad[] modelQuads, textureIndexProvider);
-            vertices.AddRange(modelQuads);
-        }
-
-        return new Mesh(vertices.ToArray());
+            TextureNames = textureNames.ToArray(),
+            Quads = quads.ToArray()
+        };
     }
-
-    #endregion STATIC METHODS
 
     #region LOGGING
 

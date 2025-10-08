@@ -43,7 +43,7 @@ public class ComplexBlock : Block
         {
             if (!Constraint.IsStateValid(state))
             {
-                Mesh.Quad[] quads = Models.CreateFallback().CreateMesh(textureIndexProvider).GetMeshData(out UInt32 count); // todo: create a method to get fallback model easier and without texture provider, do it in static constructor instead of in loop
+                Mesh.Quad[] quads = Meshes.CreateFallback().GetMeshData(out UInt32 count);
 
                 meshData[index] = new Complex.MeshData(quads, count, ColorS.None, IsAnimated: false);
 

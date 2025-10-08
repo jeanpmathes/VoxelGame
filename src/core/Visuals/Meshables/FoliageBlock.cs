@@ -27,7 +27,7 @@ public class FoliageBlock : Block
 
     static FoliageBlock()
     {
-        errorQuads = BlockMeshes.CreateCrossMesh(ITextureIndexProvider.MissingTextureIndex).GetMeshData(out errorQuadCount);
+        errorQuads = Meshes.CreateCrossMesh(ITextureIndexProvider.MissingTextureIndex).GetMeshData(out errorQuadCount);
     }
 
     /// <inheritdoc />

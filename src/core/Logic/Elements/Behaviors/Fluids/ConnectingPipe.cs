@@ -95,20 +95,16 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
             surfaces = frontSurface.CreateAllSides();
 
-        center.Lock(textureIndexProvider);
-        connectors.Lock(textureIndexProvider);
-        surfaces.Lock(textureIndexProvider);
-
         Sides sides = siding.GetSides(state);
 
-        return Model.GetCombinedMesh(textureIndexProvider, // todo: use Subject.Get<TextureOverride>()?.Textures
-            center,
+        return Model.Combine(center,
             sides.HasFlag(Sides.Front) ? connectors.front : surfaces.front,
             sides.HasFlag(Sides.Back) ? connectors.back : surfaces.back,
             sides.HasFlag(Sides.Left) ? connectors.left : surfaces.left,
             sides.HasFlag(Sides.Right) ? connectors.right : surfaces.right,
             sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
-            sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top);
+            sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top)
+            .CreateMesh(textureIndexProvider); // todo: use Subject.Get<TextureOverride>()?.Textures
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

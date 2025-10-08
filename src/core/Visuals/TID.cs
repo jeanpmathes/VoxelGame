@@ -20,7 +20,7 @@ public readonly partial struct TID : IEquatable<TID>
     /// <summary>
     ///     Use this texture name to get the fallback texture without causing a warning.
     /// </summary>
-    private const String MissingTextureKey = "missing_texture";
+    public const String MissingTextureKey = "missing_texture";
 
     /// <summary>
     ///     The zero offset.

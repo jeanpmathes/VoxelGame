@@ -41,6 +41,6 @@ public class CrossModel : BlockBehavior, IBehavior<CrossModel, BlockBehavior, Bl
 
         Int32 textureIndex = texture.GetTextureIndex(state, textureIndexProvider, isBlock: true);
 
-        return BlockMeshes.CreateCrossMesh(textureIndex);
+        return Meshes.CreateCrossMesh(textureIndex);
     }
 }

@@ -56,7 +56,7 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
         ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
 
-        Mesh mesh = Mesh.GetValue(BlockMeshes.CreateFallback(), (state, textureIndexProvider, modelProvider, visuals));
+        Mesh mesh = Mesh.GetValue(Meshes.CreateFallback(), (state, textureIndexProvider, modelProvider, visuals));
         Mesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);
 
         return new MeshData(quads, quadCount, tint, isAnimated);

@@ -137,9 +137,9 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
 
         Mesh mesh = Layout switch
         {
-            LayoutType.Cross => BlockMeshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, isLowered),
-            LayoutType.Crop => BlockMeshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: false, textureIndex, isLowered),
-            LayoutType.DenseCrop => BlockMeshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: true, textureIndex, isLowered),
+            LayoutType.Cross => Meshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, isLowered),
+            LayoutType.Crop => Meshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: false, textureIndex, isLowered),
+            LayoutType.DenseCrop => Meshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: true, textureIndex, isLowered),
             _ => throw Exceptions.UnsupportedEnumValue(Layout)
         };
 

@@ -1,4 +1,4 @@
-﻿// <copyright file="BlockMeshes.cs" company="VoxelGame">
+﻿// <copyright file="Meshes.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,7 +17,7 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     Utility methods to get different commonly used meshes.
 /// </summary>
-public static class BlockMeshes
+public static class Meshes
 {
     private static readonly Int32[][] defaultBlockUVs =
         [[0, 0], [0, 1], [1, 1], [1, 0]];
@@ -88,7 +88,7 @@ public static class BlockMeshes
     /// <param name="offset">The offset from the block side.</param>
     /// <param name="textureIndex">The texture index to use.</param>
     /// <returns>The created mesh.</returns>
-    public static Mesh CreateFlatModel(Side side, Single offset, Int32 textureIndex)
+    public static Mesh CreateFlatMesh(Side side, Single offset, Int32 textureIndex)
     {
         side.Corners(out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d);
 
@@ -129,7 +129,7 @@ public static class BlockMeshes
     /// <param name="offset">The offset from the block side.</param>
     /// <param name="textureIndex">The texture index to use.</param>
     /// <returns>The created mesh.</returns>
-    public static Mesh CreateFlatModel(Sides sides, Single offset, Int32 textureIndex)
+    public static Mesh CreateFlatMesh(Sides sides, Single offset, Int32 textureIndex)
     {
         List<Mesh> meshes = [];
 
@@ -137,7 +137,7 @@ public static class BlockMeshes
         {
             if (!sides.HasFlag(side.ToFlag())) continue;
 
-            meshes.Add(CreateFlatModel(side, offset, textureIndex));
+            meshes.Add(CreateFlatMesh(side, offset, textureIndex));
         }
 
         return Mesh.Combine(meshes.ToArray());
@@ -278,7 +278,7 @@ public static class BlockMeshes
     /// <returns>The created mesh.</returns>
     public static Mesh CreateFallback()
     {
-        return Models.CreateFallback().CreateMesh(FallbackTextureIndexProvider.Instance);
+        return Model.CreateFallback().CreateMesh(FallbackTextureIndexProvider.Instance);
     }
 
     private class FallbackTextureIndexProvider : ITextureIndexProvider
