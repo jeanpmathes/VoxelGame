@@ -44,6 +44,6 @@ public class Transform : ActorComponent, IConstructible<Actor, Transform>, IOrie
     public Vector3d Position
     {
         get => actualPosition;
-        set => actualPosition = MathTools.ClampComponents(value, -Subject.World.Extents, Subject.World.Extents);
+        set => actualPosition = value.ClampComponents(-Subject.World.Extents, Subject.World.Extents);
     }
 }

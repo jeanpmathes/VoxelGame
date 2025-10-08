@@ -183,7 +183,7 @@ public class MeshFaceHolder
     /// <param name="pos">The position of the face, relative to the section origin.</param>
     /// <param name="data">The binary encoded data of the quad.</param>
     /// <param name="isRotated">True if the face is rotated.</param>
-    /// <param name="isSingleSided">True if the face is single sided, false if double sided.</param>
+    /// <param name="isSingleSided">True if the face is single sided, false if double-sided.</param>
     public void AddFace(Vector3i pos, (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, Boolean isRotated, Boolean isSingleSided)
     {
         AddFace(pos, (PartialHeight.MaximumHeight, PartialHeight.NoHeight), data, isSingleSided, isFull: true, isRotated, DefaultDirection);

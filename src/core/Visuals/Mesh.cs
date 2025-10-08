@@ -57,7 +57,7 @@ public class Mesh
     /// <returns>A new, subdivided mesh.</returns>
     public Mesh SubdivideU()
     {
-        return Subdivide(DivideAlongU);
+        return Subdivide(quads, DivideAlongU);
     }
 
     /// <summary>
@@ -66,34 +66,36 @@ public class Mesh
     /// <returns>A new, subdivided mesh.</returns>
     public Mesh SubdivideV()
     {
-        return Subdivide(DivideAlongV);
+        return Subdivide(quads, DivideAlongV);
     }
 
-    private Mesh Subdivide(Action<Int32, Mesh> divider)
+    private static Mesh Subdivide(Quad[] original, Action<Int32, Mesh, Quad> divider)
     {
-        Mesh mesh = new(new Quad[quads.Length * 2]);
+        Mesh mesh = new(new Quad[original.Length * 2]);
 
-        for (var quad = 0; quad < quads.Length; quad++)
+        for (var index = 0; index < original.Length; index++)
         {
-            Int32 first = quad * 2;
-            mesh.quads[first] = quads[quad];
+            Quad quad = original[index];
+            
+            Int32 first = index * 2;
+            mesh.quads[first] = quad;
 
-            Int32 second = quad * 2 + 1;
-            mesh.quads[second] = quads[quad];
+            Int32 second = index * 2 + 1;
+            mesh.quads[second] = quad;
 
-            divider(quad, mesh);
+            divider(index, mesh, quad);
         }
 
         return mesh;
     }
 
-    private void DivideAlongU(Int32 quad, Mesh mesh)
+    private static void DivideAlongU(Int32 target, Mesh mesh, Quad original)
     {
-        Int32 first = quad * 2;
-        Int32 second = quad * 2 + 1;
+        Int32 first = target * 2;
+        Int32 second = target * 2 + 1;
 
-        Vector3 midLeftPosition = (quads[quad].A + quads[quad].B) / 2;
-        Vector3 midRightPosition = (quads[quad].D + quads[quad].C) / 2;
+        Vector3 midLeftPosition = (original.A + original.B) / 2;
+        Vector3 midRightPosition = (original.D + original.C) / 2;
 
         mesh.quads[first].B = midLeftPosition;
         mesh.quads[first].C = midRightPosition;
@@ -101,7 +103,7 @@ public class Mesh
         mesh.quads[second].A = midLeftPosition;
         mesh.quads[second].D = midRightPosition;
 
-        (Vector2 a, Vector2 b, Vector2 c, Vector2 d) uv = Meshing.GetUVs(ref quads[quad].data);
+        (Vector2 a, Vector2 b, Vector2 c, Vector2 d) uv = Meshing.GetUVs(ref original.data);
         Vector2 midLeftUV = (uv.a + uv.b) / 2;
         Vector2 midRightUV = (uv.d + uv.c) / 2;
 
@@ -109,13 +111,13 @@ public class Mesh
         Meshing.SetUVs(ref mesh.quads[second].data, midLeftUV, uv.b, uv.c, midRightUV);
     }
 
-    private void DivideAlongV(Int32 quad, Mesh mesh)
+    private static void DivideAlongV(Int32 target, Mesh mesh, Quad original)
     {
-        Int32 first = quad * 2;
-        Int32 second = quad * 2 + 1;
+        Int32 first = target * 2;
+        Int32 second = target * 2 + 1;
 
-        Vector3 midBottomPosition = (quads[quad].A + quads[quad].D) / 2;
-        Vector3 midTopPosition = (quads[quad].B + quads[quad].C) / 2;
+        Vector3 midBottomPosition = (original.A + original.D) / 2;
+        Vector3 midTopPosition = (original.B + original.C) / 2;
 
         mesh.quads[first].C = midTopPosition;
         mesh.quads[first].D = midBottomPosition;
@@ -123,7 +125,7 @@ public class Mesh
         mesh.quads[second].A = midBottomPosition;
         mesh.quads[second].B = midTopPosition;
 
-        (Vector2 a, Vector2 b, Vector2 c, Vector2 d) uv = Meshing.GetUVs(ref quads[quad].data);
+        (Vector2 a, Vector2 b, Vector2 c, Vector2 d) uv = Meshing.GetUVs(ref original.data);
         Vector2 midBottomUV = (uv.a + uv.d) / 2;
         Vector2 midTopUV = (uv.b + uv.c) / 2;
 

@@ -120,7 +120,7 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
 
         Vector3d requiredForce = (movement - Velocity) * mass;
         requiredForce -= force;
-        AddForce(MathTools.ClampComponents(requiredForce, -maxForce, maxForce));
+        AddForce(requiredForce.ClampComponents(-maxForce, maxForce));
     }
 
     /// <inheritdoc />

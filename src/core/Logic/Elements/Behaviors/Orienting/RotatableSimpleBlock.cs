@@ -37,12 +37,6 @@ public class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSimpleBloc
         return new RotatableSimpleBlock(input);
     }
 
-    // todo: use conditionals to rotate texture 
-    // Boolean isLeftOrRightSide = info.Side is Side.Left or Side.Right;
-    // Boolean onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
-    // Boolean onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
-    // Boolean rotated = onXAndRotated || onZAndRotated;
-
     private Boolean GetIsTextureRotated(Boolean original, (State state, Side side) context)
     {
         (State state, Side side) = context;
@@ -53,8 +47,8 @@ public class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSimpleBloc
         if (turns == 0 || turns == 2 || axis == Axis.Y) return false;
 
         Boolean isLeftOrRightSide = side is Side.Left or Side.Right;
-        Boolean onXAndRotated = axis == Axis.X && !isLeftOrRightSide;
-        Boolean onZAndRotated = axis == Axis.Z && isLeftOrRightSide;
+        Boolean onXAndRotated = axis == Axis.X && isLeftOrRightSide;
+        Boolean onZAndRotated = axis == Axis.Z && !isLeftOrRightSide;
 
         return onXAndRotated || onZAndRotated;
     }
