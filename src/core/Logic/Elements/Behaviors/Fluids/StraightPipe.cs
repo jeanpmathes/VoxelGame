@@ -16,7 +16,6 @@ using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
 
@@ -63,17 +62,9 @@ public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior
 
     private Model GetModel(Model original, State state)
     {
-        (Model x, Model y, Model z) = original.CreateAllAxis(); // todo: only create the one needed
-
         Axis axis = rotation.GetAxis(state);
 
-        return axis switch
-        {
-            Axis.X => x,
-            Axis.Y => y,
-            Axis.Z => z,
-            _ => throw Exceptions.UnsupportedEnumValue(axis)
-        };
+        return original.CreateModelForAxis(axis, Model.TransformationMode.Reshape);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

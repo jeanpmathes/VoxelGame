@@ -30,6 +30,8 @@ namespace VoxelGame.Core.Visuals;
 ///     Models support many operations to create variants of a base model.
 ///     These operations can be costly and should be done during loading, not during gameplay.
 ///     At the end of loading, all models should be converted to meshes using <see cref="CreateMesh" />.
+///
+///     This class should not be mutated as it may be shared through caching.
 /// </summary>
 public sealed partial class Model : IResource, ILocated
 {
@@ -190,88 +192,62 @@ public sealed partial class Model : IResource, ILocated
     }
 
     /// <summary>
-    ///     Rotates the model on the y-axis in steps of ninety degrees.
+    /// How model transformations, e.g. <see cref="CreateModelForSide(Side, TransformationMode)"/>, should be performed.
     /// </summary>
-    /// <param name="rotations">Number of rotations.</param>
-    /// <param name="rotateTopAndBottomTexture">Whether the top and bottom texture should be rotated.</param>
-    public void RotateY(Int32 rotations, Boolean rotateTopAndBottomTexture = true)
+    public enum TransformationMode
     {
-        if (rotations == 0) return;
-
-        Single angle = rotations * MathHelper.PiOver2 * -1f;
-
-        Matrix4 xyz = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * Matrix4.CreateRotationY(angle) *
-                      Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
-
-        rotations = rotateTopAndBottomTexture ? 0 : rotations;
-
-        for (var i = 0; i < Quads.Length; i++) Quads[i] = Quads[i].ApplyRotationMatrixY(xyz, rotations);
+        /// <summary>
+        /// The object is rotated, meaning the texture seems to visually rotate with the object.
+        /// To achieve this, the texture coordinates are kept unchanged while the vertex positions are rotated.
+        /// This solution is preferable for most cases, especially when the model represents a complete object.
+        /// </summary>
+        Rotate,
+        
+        /// <summary>
+        /// The object is reshaped, meaning the texture seems to stay in place while the object is rotated.
+        /// To achieve this, the texture coordinates are rotated accordingly.
+        /// This solution is used in some special cases, e.g. when the model represents a part of a larger object and is combined with other models.
+        /// </summary>
+        Reshape
+    }
+    
+    /// <summary>
+    /// Create a model for the given orientation, under the assumption that the original model is aligned with the north orientation.
+    /// </summary>
+    /// <param name="orientation">The orientation to create the model for.</param>
+    /// <param name="mode">The transformation mode to use.</param>
+    /// <returns>The model for the given orientation.</returns>
+    public Model CreateModelForOrientation(Orientation orientation, TransformationMode mode = TransformationMode.Rotate)
+    {
+        return CreateModelForSide(orientation.ToSide().Opposite(), mode);
     }
 
     /// <summary>
-    ///     Creates six models, one for each block side, from a north oriented model.
+    /// Create a model for the given axis, under the assumption that the original model is aligned with the Z axis.
     /// </summary>
-    /// <returns> The six models.</returns>
-    public (Model front, Model back, Model left, Model right, Model bottom, Model top)
-        CreateAllSides()
+    /// <param name="axis">The axis to create the model for.</param>
+    /// <param name="mode">The transformation mode to use.</param>
+    /// <returns>The model for the given axis.</returns>
+    public Model CreateModelForAxis(Axis axis, TransformationMode mode = TransformationMode.Rotate)
     {
-        (Model front, Model back, Model left, Model right, Model bottom, Model top)
-            result;
-
-        result.front = this;
-
-        result.back = CreateSideModel(Side.Back);
-        result.left = CreateSideModel(Side.Left);
-        result.right = CreateSideModel(Side.Right);
-        result.bottom = CreateSideModel(Side.Bottom);
-        result.top = CreateSideModel(Side.Top);
-
-        return result;
+        return axis switch
+        {
+            Axis.Z => this,
+            
+            Axis.X => CreateModelForSide(Side.Left, mode),
+            Axis.Y => CreateModelForSide(Side.Bottom, mode),
+            
+            _ => throw Exceptions.UnsupportedEnumValue(axis)
+        };
     }
-
+    
     /// <summary>
-    ///     Create versions of this model for each axis.
+    /// Create a model for the given side, under the assumption that the original model is for the front side.
     /// </summary>
-    /// <returns>The model versions.</returns>
-    public (Model x, Model y, Model z) CreateAllAxis()
-    {
-        (Model x, Model y, Model z) result;
-
-        result.z = this;
-
-        result.x = CreateSideModel(Side.Left);
-        result.y = CreateSideModel(Side.Bottom);
-
-        return result;
-    }
-
-    // todo: unify the orientation based and the side based rotations, sided might be better overall but needs param whether to rotate textures too
-
-    /// <summary>
-    ///     Create models for each orientation.
-    /// </summary>
-    /// <param name="rotateTopAndBottomTexture">Whether the top and bottom textures should be rotated.</param>
-    /// <returns>All model versions.</returns>
-    public (Model north, Model east, Model south, Model west) CreateAllOrientations(
-            Boolean rotateTopAndBottomTexture)
-        // todo: find out when and why this parameter is used, maybe an abstraction is possible
-        // todo: probably for all blocks that use Modelled it can be true and for all that combine meshes on their own it can be false
-    {
-        Model north = this;
-
-        Model east = new(north);
-        east.RotateY(rotations: 1, rotateTopAndBottomTexture);
-
-        Model south = new(east);
-        south.RotateY(rotations: 1, rotateTopAndBottomTexture);
-
-        Model west = new(south);
-        west.RotateY(rotations: 1, rotateTopAndBottomTexture);
-
-        return (north, east, south, west);
-    }
-
-    private Model CreateSideModel(Side side)
+    /// <param name="side">The side to create the model for.</param>
+    /// <param name="mode">The transformation mode to use.</param>
+    /// <returns>The model for the given side.</returns>
+    public Model CreateModelForSide(Side side, TransformationMode mode = TransformationMode.Rotate)
     {
         Model copy = new(this);
 
@@ -325,6 +301,9 @@ public sealed partial class Model : IResource, ILocated
 
         Matrix4 matrix = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * rotation *
                          Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
+        
+        if (mode == TransformationMode.Rotate && axis == Vector3d.UnitY)
+            rotations = 0;
 
         copy.ApplyMatrix(matrix);
         copy.RotateTextureCoordinates(axis, rotations);

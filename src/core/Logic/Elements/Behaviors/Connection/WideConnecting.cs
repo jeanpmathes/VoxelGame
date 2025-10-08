@@ -11,6 +11,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
+using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 
@@ -65,11 +66,9 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
 
         Model post = blockModelProvider.GetModel(Models.post);
         Model extension = blockModelProvider.GetModel(Models.extension);
-
-        // todo: when doing caching on model provider, the returned model should be read only (interface)
-
-        (Model north, Model east, Model south, Model west) extensions =
-            extension.CreateAllOrientations(rotateTopAndBottomTexture: false);
+        
+        (Model north, Model east, Model south, Model west) extensions 
+            = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(extension, Model.TransformationMode.Reshape);
 
         List<Model> models = new(capacity: 5);
 
@@ -86,9 +85,7 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
             }
             else if (useStraightX)
             {
-                Model straightX = straightZ.Copy();
-                straightX.RotateY(rotations: 1, rotateTopAndBottomTexture: false);
-
+                Model straightX = straightZ.CreateModelForSide(Side.Left, Model.TransformationMode.Reshape);
                 models.Add(straightX);
             }
         }
@@ -102,6 +99,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
             if (west) models.Add(extensions.west);
         }
 
-        return Model.Combine(models).CreateMesh(textureIndexProvider); // todo: use Subject.Get<TextureOverride>()?.Textures
+        return Model.Combine(models).CreateMesh(textureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
     }
 }

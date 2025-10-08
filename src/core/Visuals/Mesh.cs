@@ -54,7 +54,7 @@ public class Mesh
     /// <summary>
     ///     Subdivide the mesh in the U direction, which is the horizontal direction.
     /// </summary>
-    /// <returns>The new mesh.</returns>
+    /// <returns>A new, subdivided mesh.</returns>
     public Mesh SubdivideU()
     {
         return Subdivide(DivideAlongU);
@@ -63,7 +63,7 @@ public class Mesh
     /// <summary>
     ///     Subdivide the mesh in the V direction, which is the vertical direction.
     /// </summary>
-    /// <returns>The new mesh.</returns>
+    /// <returns>A new, subdivided mesh.</returns>
     public Mesh SubdivideV()
     {
         return Subdivide(DivideAlongV);

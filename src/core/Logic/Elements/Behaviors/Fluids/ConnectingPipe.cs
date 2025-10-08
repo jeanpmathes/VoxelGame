@@ -15,6 +15,7 @@ using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Elements.Behaviors.Siding;
+using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -90,10 +91,10 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         Model frontSurface = blockModelProvider.GetModel(Models.surface);
 
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
-            connectors = frontConnector.CreateAllSides();
+            connectors = VoxelGame.Core.Visuals.Models.CreateModelsForAllSides(frontConnector, Model.TransformationMode.Reshape);
 
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
-            surfaces = frontSurface.CreateAllSides();
+            surfaces = VoxelGame.Core.Visuals.Models.CreateModelsForAllSides(frontSurface, Model.TransformationMode.Reshape);
 
         Sides sides = siding.GetSides(state);
 
@@ -104,7 +105,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
             sides.HasFlag(Sides.Right) ? connectors.right : surfaces.right,
             sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
             sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top)
-            .CreateMesh(textureIndexProvider); // todo: use Subject.Get<TextureOverride>()?.Textures
+            .CreateMesh(textureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

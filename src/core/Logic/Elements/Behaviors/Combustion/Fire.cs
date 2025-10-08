@@ -107,10 +107,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
         Model side = blockModelProvider.GetModel(Models.side);
         Model up = blockModelProvider.GetModel(Models.top);
-
-        (Model north, Model east, Model south, Model west) =
-            side.CreateAllOrientations(rotateTopAndBottomTexture: true); // todo: do not create all orientations, or at least only crete the other parts on demand
-
+        
         Boolean any = IsAnySideBurning(state);
 
         if (!any) return complete.CreateMesh(textureIndexProvider);
@@ -118,16 +115,16 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         List<Model> requiredModels = new(capacity: 5);
 
         if (state.Get(Front))
-            requiredModels.Add(south);
+            requiredModels.Add(side.CreateModelForSide(Side.Front));
 
         if (state.Get(Back))
-            requiredModels.Add(north);
+            requiredModels.Add(side.CreateModelForSide(Side.Back));
 
         if (state.Get(Left))
-            requiredModels.Add(west);
+            requiredModels.Add(side.CreateModelForSide(Side.Left));
 
         if (state.Get(Right))
-            requiredModels.Add(east);
+            requiredModels.Add(side.CreateModelForSide(Side.Right));
 
         if (state.Get(Top))
             requiredModels.Add(up);

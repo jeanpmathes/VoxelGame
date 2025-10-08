@@ -11,7 +11,6 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Elements.Behaviors.Orienting;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
 
@@ -45,20 +44,10 @@ public class LateralRotatableModelled : BlockBehavior, IBehavior<LateralRotatabl
 
     private Model GetModel(Model original, State state)
     {
-        // todo: use a new method on BlockModel to get just the needed model 
-        (Model north, Model east, Model south, Model west) models = original.CreateAllOrientations(rotateTopAndBottomTexture: true);
-
         Orientation orientation = rotatable.GetOrientation(state);
 
         orientation = OrientationOverride.GetValue(orientation, state);
 
-        return orientation switch
-        {
-            Orientation.North => models.north,
-            Orientation.East => models.east,
-            Orientation.South => models.south,
-            Orientation.West => models.west,
-            _ => throw Exceptions.UnsupportedEnumValue(orientation)
-        };
+        return original.CreateModelForOrientation(orientation);
     }
 }
