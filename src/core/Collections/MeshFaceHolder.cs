@@ -7,9 +7,9 @@
 using System;
 using System.Buffers;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Behaviors.Height;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Toolkit.Utilities;
@@ -370,8 +370,8 @@ public class MeshFaceHolder
         Vector3 bottomOffset;
         Vector3 topOffset;
 
-        Single gap = Logic.Elements.Behaviors.Meshables.PartialHeight.GetGap(face.size);
-        Single skip = Logic.Elements.Behaviors.Meshables.PartialHeight.GetSize(face.skip);
+        Single gap = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetGap(face.size);
+        Single skip = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetSize(face.skip);
 
         if (face.direction)
         {
@@ -392,7 +392,7 @@ public class MeshFaceHolder
 
     private void ApplyVaryingHeightToVerticalSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
-        Single gap = Logic.Elements.Behaviors.Meshables.PartialHeight.GetGap(face.size);
+        Single gap = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetGap(face.size);
         Vector3 offset = inset;
 
         if (face.direction && side == Side.Top) offset += (0, -gap, 0);

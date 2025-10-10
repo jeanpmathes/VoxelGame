@@ -7,8 +7,8 @@
 using System;
 using System.Diagnostics;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Generation.Worlds.Default;

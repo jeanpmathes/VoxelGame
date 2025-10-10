@@ -6,7 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
@@ -59,9 +59,9 @@ public static class AxisExtensions
     {
         return axis switch
         {
-            Axis.X => Logic.Elements.Sides.Left | Logic.Elements.Sides.Right,
-            Axis.Y => Logic.Elements.Sides.Top | Logic.Elements.Sides.Bottom,
-            Axis.Z => Logic.Elements.Sides.Front | Logic.Elements.Sides.Back,
+            Axis.X => Logic.Voxels.Sides.Left | Logic.Voxels.Sides.Right,
+            Axis.Y => Logic.Voxels.Sides.Top | Logic.Voxels.Sides.Bottom,
+            Axis.Z => Logic.Voxels.Sides.Front | Logic.Voxels.Sides.Back,
             _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }

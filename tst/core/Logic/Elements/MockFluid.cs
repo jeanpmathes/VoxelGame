@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Core.Logic.Definitions.Fluids;
+using VoxelGame.Core.Logic.Contents.Fluids;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Tests.Logic.Elements;

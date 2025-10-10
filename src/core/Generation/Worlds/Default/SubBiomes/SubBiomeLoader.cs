@@ -10,8 +10,8 @@ using JetBrains.Annotations;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
 using VoxelGame.Core.Generation.Worlds.Default.Palettes;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Conventions;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 

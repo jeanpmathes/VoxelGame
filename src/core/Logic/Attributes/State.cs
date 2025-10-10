@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Text.Json;
 using VoxelGame.Core.Collections.Properties;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Behaviors.Fluids;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
 namespace VoxelGame.Core.Logic.Attributes;
 

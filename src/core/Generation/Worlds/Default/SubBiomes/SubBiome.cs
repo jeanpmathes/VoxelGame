@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Toolkit.Noise;

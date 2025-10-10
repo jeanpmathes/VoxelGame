@@ -14,7 +14,7 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes.Implementations;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Attributes;

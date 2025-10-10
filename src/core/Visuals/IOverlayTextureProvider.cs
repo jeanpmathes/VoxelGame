@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Visuals;
 

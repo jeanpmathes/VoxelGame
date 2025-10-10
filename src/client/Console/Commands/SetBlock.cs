@@ -8,7 +8,7 @@ using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Client.Console.Commands;
 

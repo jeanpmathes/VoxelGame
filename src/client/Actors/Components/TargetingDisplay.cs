@@ -12,7 +12,7 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
 using VoxelGame.Toolkit.Utilities;
 

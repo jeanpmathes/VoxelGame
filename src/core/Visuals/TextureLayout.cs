@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 

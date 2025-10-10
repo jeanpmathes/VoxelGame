@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
-using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Logic.Contents.Structures;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;

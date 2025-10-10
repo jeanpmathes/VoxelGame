@@ -7,9 +7,9 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Behaviors;
-using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 

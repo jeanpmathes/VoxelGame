@@ -6,7 +6,7 @@
 
 using System;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Visuals;
 

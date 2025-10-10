@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Generation.Worlds;
 

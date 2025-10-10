@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Visuals;

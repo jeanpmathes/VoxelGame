@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;

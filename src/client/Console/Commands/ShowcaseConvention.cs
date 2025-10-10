@@ -8,9 +8,9 @@ using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Definitions;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Conventions;
+using VoxelGame.Core.Logic.Contents;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;

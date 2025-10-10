@@ -7,9 +7,9 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Structures;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Conventions;
+using VoxelGame.Core.Logic.Contents.Structures;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;

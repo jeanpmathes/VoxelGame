@@ -8,8 +8,8 @@ using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;

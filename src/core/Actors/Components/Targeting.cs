@@ -7,7 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Actors.Components;
@@ -26,7 +26,7 @@ public class Targeting : ActorComponent, IConstructible<Actor, Targeting>
     public Boolean HasTarget { get; set; }
 
     /// <summary>
-    ///     The targeted side, or <see cref="Logic.Elements.Side.All" /> if no side is targeted.
+    ///     The targeted side, or <see cref="Logic.Voxels.Side.All" /> if no side is targeted.
     /// </summary>
     public Side Side { get; set; }
 

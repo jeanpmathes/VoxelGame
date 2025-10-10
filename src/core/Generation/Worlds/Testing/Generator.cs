@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 

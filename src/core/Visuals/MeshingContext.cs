@@ -10,8 +10,8 @@ using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Visuals;
 

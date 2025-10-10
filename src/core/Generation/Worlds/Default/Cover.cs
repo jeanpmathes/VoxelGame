@@ -6,8 +6,8 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Behaviors.Height;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics;
@@ -20,7 +20,7 @@ namespace VoxelGame.Core.Physics;
 public static class Raycast
 {
     /// <summary>
-    ///     Checks if a ray intersects with a block that is not <see cref="Logic.Elements.Core.Air" />.
+    ///     Checks if a ray intersects with a block that is not <see cref="Logic.Voxels.Core.Air" />.
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>

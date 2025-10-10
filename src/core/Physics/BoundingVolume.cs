@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -109,7 +109,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     public Int32 ChildCount => children.Length;
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Elements.Block" />.
+    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Voxels.Block" />.
     /// </summary>
     public static BoundingVolume Block =>
         new(new Vector3d(x: 0.5, y: 0.5, z: 0.5), new Vector3d(x: 0.5, y: 0.5, z: 0.5));

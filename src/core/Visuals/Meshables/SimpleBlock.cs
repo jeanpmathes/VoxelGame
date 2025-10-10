@@ -10,20 +10,17 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Behaviors;
-using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
-using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
-using Block = VoxelGame.Core.Logic.Elements.Block;
-using Content = VoxelGame.Core.Logic.Elements.Content;
-using Elements_Block = VoxelGame.Core.Logic.Elements.Block;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
 /// <summary>
 ///     Blocks which use simple meshing which only supports full blocks.
 /// </summary>
-public class SimpleBlock : Elements_Block, IOverlayTextureProvider
+public class SimpleBlock : Logic.Voxels.Block, IOverlayTextureProvider
 {
     private readonly SideArray<Simple.MeshData[]> meshData = new();
     private readonly Simple simple;

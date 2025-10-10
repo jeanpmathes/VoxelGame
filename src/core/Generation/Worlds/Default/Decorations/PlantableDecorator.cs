@@ -7,7 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements.Behaviors.Nature;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;

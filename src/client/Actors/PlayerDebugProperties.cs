@@ -9,8 +9,8 @@ using System.Collections.Generic;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 

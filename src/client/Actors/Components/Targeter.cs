@@ -10,7 +10,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
 using VoxelGame.Toolkit.Utilities;
 

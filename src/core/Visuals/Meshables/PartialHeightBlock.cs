@@ -11,10 +11,10 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Elements.Behaviors;
-using VoxelGame.Core.Logic.Elements.Behaviors.Meshables;
-using VoxelGame.Core.Logic.Elements.Behaviors.Visuals;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -24,14 +24,14 @@ namespace VoxelGame.Core.Visuals.Meshables;
 public class PartialHeightBlock : Block, IOverlayTextureProvider
 {
     private readonly SideArray<PartialHeight.MeshData[]> meshData = new();
-    private readonly Logic.Elements.Behaviors.Height.PartialHeight partialHeightBehavior;
+    private readonly Logic.Voxels.Behaviors.Height.PartialHeight partialHeightBehavior;
     private readonly PartialHeight partialHeightMeshable;
 
     /// <inheritdoc />
     public PartialHeightBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
     {
         partialHeightMeshable = Require<PartialHeight>();
-        partialHeightBehavior = Require<Logic.Elements.Behaviors.Height.PartialHeight>();
+        partialHeightBehavior = Require<Logic.Voxels.Behaviors.Height.PartialHeight>();
 
         Require<Overlay>().OverlayTextureProvider.ContributeConstant(this);
     }
@@ -87,7 +87,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
             if (blockToCheck == null) return;
 
             Int32 height = partialHeightBehavior.GetHeight(state); // todo: maybe use a struct for height instead of Int32
-            Boolean isFullHeight = height == Logic.Elements.Behaviors.Height.PartialHeight.MaximumHeight;
+            Boolean isFullHeight = height == Logic.Voxels.Behaviors.Height.PartialHeight.MaximumHeight;
 
             if ((side != Side.Top || isFullHeight) && SimpleBlock.IsHiddenFace(this, blockToCheck.Value, side)) return;
 
@@ -128,7 +128,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] State? blockToCheck, Int32 height, PartialHeight.MeshData mesh, MeshingContext context)
     {
-        if (side != Side.Top && blockToCheck.Value.Block.Get<Logic.Elements.Behaviors.Height.PartialHeight>() is {} toCheck &&
+        if (side != Side.Top && blockToCheck.Value.Block.Get<Logic.Voxels.Behaviors.Height.PartialHeight>() is {} toCheck &&
             toCheck.GetHeight(blockToCheck.Value) == height) return;
 
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
@@ -151,10 +151,10 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         context.GetVaryingHeightBlockMeshFaceHolder(side, IsOpaque).AddFace(
             position,
             height,
-            Logic.Elements.Behaviors.Height.PartialHeight.NoHeight,
+            Logic.Voxels.Behaviors.Height.PartialHeight.NoHeight,
             MeshFaceHolder.DefaultDirection,
             data,
             isSingleSided: true,
-            height == Logic.Elements.Behaviors.Height.PartialHeight.MaximumHeight);
+            height == Logic.Voxels.Behaviors.Height.PartialHeight.MaximumHeight);
     }
 }
