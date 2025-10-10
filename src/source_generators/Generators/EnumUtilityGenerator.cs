@@ -120,7 +120,7 @@ public class EnumUtilityGenerator : IIncrementalGenerator
         (String? typeParameters, String? constraints) = GetTypeParameterAndConstraints(model.ContainingType);
 
         sb.Append($$"""
-                    /// <ignore />
+                    /// <summary />
                     public static partial class EnumExtensions
                     {
                         /// <summary>

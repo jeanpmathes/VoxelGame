@@ -41,7 +41,7 @@ public class EnumUtilityGeneratorTests
 
                                namespace TestNamespace;
 
-                               /// <ignore />
+                               /// <summary />
                                public static partial class EnumExtensions
                                {
                                    /// <summary>
