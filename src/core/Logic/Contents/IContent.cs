@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Logic.Contents;
 public interface IContent : IResource
 {
     /// <summary>
-    ///     An unlocalized string that identifies this content.
+    ///     The identifier of this content.
     /// </summary>
-    public String NamedID { get; }
+    public CID ID { get; }
 }

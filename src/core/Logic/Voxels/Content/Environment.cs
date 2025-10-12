@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
@@ -30,7 +31,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     The grass can burn, creating ash.
     /// </summary>
     public Block Grass { get; } = builder
-        .BuildSimpleBlock(nameof(Grass), Language.Grass)
+        .BuildSimpleBlock(new CID(nameof(Grass)), Language.Grass)
         .WithTextureLayout(TextureLayout.UniqueColumn(TID.Block("grass_side"), TID.Block("soil"), TID.Block("grass")))
         .WithWetTextureLayout(TextureLayout.UniqueColumn(TID.Block("grass_side_wet"), TID.Block("soil_wet"), TID.Block("grass_wet")))
         .WithBehavior<NeutralTint>()
@@ -41,7 +42,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Soil covered with ash. Water can wash the ash away.
     /// </summary>
     public Block AshCoveredSoil { get; } = builder
-        .BuildSimpleBlock(nameof(AshCoveredSoil), Language.AshCoveredSoil)
+        .BuildSimpleBlock(new CID(nameof(AshCoveredSoil)), Language.AshCoveredSoil)
         .WithTextureLayout(TextureLayout.UniqueColumn(TID.Block("ash_side"), TID.Block("soil"), TID.Block("ash")))
         .WithBehavior<WashableCoveredSoil>()
         .WithBehavior<GrassSpreadable>()
@@ -51,7 +52,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Simple soil. Grass next to it can spread over it.
     /// </summary>
     public Block Soil { get; } = builder
-        .BuildSimpleBlock(nameof(Soil), Language.Soil)
+        .BuildSimpleBlock(new CID(nameof(Soil)), Language.Soil)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("soil")))
         .WithWetTextureLayout(TextureLayout.Uniform(TID.Block("soil_wet")))
         .WithBehavior<NeutralTint>()
@@ -63,7 +64,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Mud is created when water and soil mix.
     /// </summary>
     public Block Mud { get; } = builder
-        .BuildSimpleBlock(nameof(Mud), Language.Mud)
+        .BuildSimpleBlock(new CID(nameof(Mud)), Language.Mud)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("mud")))
         .WithBehavior<Mud>()
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.1))
@@ -73,7 +74,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Mud, but dried out and cracked.
     /// </summary>
     public Block CrackedDriedMud { get; } = builder
-        .BuildSimpleBlock(nameof(CrackedDriedMud), Language.CrackedDriedMud)
+        .BuildSimpleBlock(new CID(nameof(CrackedDriedMud)), Language.CrackedDriedMud)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("mud_cracked")))
         .Complete();
 
@@ -81,7 +82,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Peat is naturally created from organic matter and can be found in bogs.
     /// </summary>
     public Block Peat { get; } = builder
-        .BuildSimpleBlock(nameof(Peat), Language.Peat)
+        .BuildSimpleBlock(new CID(nameof(Peat)), Language.Peat)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("peat")))
         .WithBehavior<Mud>()
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.1))
@@ -92,11 +93,11 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     While plants can also grow on normal soil, this block allows full growth.
     /// </summary>
     public Block Farmland { get; } = builder
-        .BuildPartialHeightBlock(nameof(Farmland), Language.Farmland)
+        .BuildPartialHeightBlock(new CID(nameof(Farmland)), Language.Farmland)
         .WithTextureLayout(TextureLayout.UniqueTop(TID.Block("soil"), TID.Block("farmland")))
         .WithWetTextureLayout(TextureLayout.UniqueTop(TID.Block("soil_wet"), TID.Block("farmland_wet")))
         .WithBehavior<ConstantHeight>(height => height.HeightInitializer.ContributeConstant(PartialHeight.MaximumHeight - 1))
-        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(nameof(Soil)))
+        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(new CID(nameof(Soil))))
         .WithBehavior<CoveredSoil>()
         .WithBehavior<Plantable>(plantable => plantable.SupportsFullGrowthInitializer.ContributeConstant(value: true))
         .Complete();
@@ -105,7 +106,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Clay is found beneath the ground and blocks groundwater flow.
     /// </summary>
     public Block Clay { get; } = builder
-        .BuildSimpleBlock(nameof(Clay), Language.Clay)
+        .BuildSimpleBlock(new CID(nameof(Clay)), Language.Clay)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("clay")))
         .Complete();
 
@@ -113,7 +114,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Permafrost is a type of soil that is frozen solid.
     /// </summary>
     public Block Permafrost { get; } = builder
-        .BuildSimpleBlock(nameof(Permafrost), Language.Permafrost)
+        .BuildSimpleBlock(new CID(nameof(Permafrost)), Language.Permafrost)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("permafrost")))
         .Complete();
 
@@ -121,11 +122,11 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     The path is a soil block with its top layer trampled.
     /// </summary>
     public Block Path { get; } = builder
-        .BuildPartialHeightBlock(nameof(Path), Language.Path)
+        .BuildPartialHeightBlock(new CID(nameof(Path)), Language.Path)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("soil")))
         .WithWetTextureLayout(TextureLayout.Uniform(TID.Block("soil_wet")))
         .WithBehavior<ConstantHeight>(height => height.HeightInitializer.ContributeConstant(PartialHeight.MaximumHeight - 1))
-        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(nameof(Soil)))
+        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(new CID(nameof(Soil))))
         .WithBehavior<CoveredSoil>()
         .WithBehavior<Plantable>()
         .Complete();
@@ -134,7 +135,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Sand naturally forms and allows water to flow through it.
     /// </summary>
     public Block Sand { get; } = builder
-        .BuildSimpleBlock(nameof(Sand), Language.Sand)
+        .BuildSimpleBlock(new CID(nameof(Sand)), Language.Sand)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("sand")))
         .WithWetTint()
         .WithBehavior<Loose>()
@@ -144,7 +145,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Gravel, which is made out of small pebbles, allows water to flow through it.
     /// </summary>
     public Block Gravel { get; } = builder
-        .BuildSimpleBlock(nameof(Gravel), Language.Gravel)
+        .BuildSimpleBlock(new CID(nameof(Gravel)), Language.Gravel)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("gravel")))
         .WithWetTint()
         .WithBehavior<Loose>()
@@ -154,7 +155,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     A tall grassy plant. Fluids will destroy it if the level is too high.
     /// </summary>
     public Block TallGrass { get; } = builder
-        .BuildFoliageBlock(nameof(TallGrass), Language.TallGrass)
+        .BuildFoliageBlock(new CID(nameof(TallGrass)), Language.TallGrass)
         .WithTexture(TID.Block("grass_tall"))
         .WithBehavior<NeutralTint>()
         .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.5))
@@ -166,7 +167,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     A somewhat taller version of the normal tall grass.
     /// </summary>
     public Block TallerGrass { get; } = builder
-        .BuildFoliageBlock(nameof(TallerGrass), Language.TallerGrass)
+        .BuildFoliageBlock(new CID(nameof(TallerGrass)), Language.TallerGrass)
         .WithTexture(TID.Block("grass_taller"))
         .WithBehavior<NeutralTint>()
         .WithBehavior<CrossPlant>()
@@ -179,7 +180,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Truly the tallest grass in the game.
     /// </summary>
     public Block TallestGrass { get; } = builder
-        .BuildFoliageBlock(nameof(TallestGrass), Language.TallestGrass)
+        .BuildFoliageBlock(new CID(nameof(TallestGrass)), Language.TallestGrass)
         .WithTexture(TID.Block("grass_tallest"))
         .WithBehavior<NeutralTint>()
         .WithBehavior<DoubleCrossPlant>()
@@ -190,7 +191,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Snow covers the ground and can have different heights.
     /// </summary>
     public Block Snow { get; } = builder
-        .BuildPartialHeightBlock(nameof(Snow), Language.Snow)
+        .BuildPartialHeightBlock(new CID(nameof(Snow)), Language.Snow)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("snow")))
         .WithBehavior<StoredHeight16>()
         .WithBehavior<Modifiable>()
@@ -203,7 +204,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Loose snow allows entities to sink into it.
     /// </summary>
     public Block LooseSnow { get; } = builder // todo: rename to PulverizedSnow
-        .BuildPartialHeightBlock(nameof(LooseSnow), Language.LooseSnow)
+        .BuildPartialHeightBlock(new CID(nameof(LooseSnow)), Language.LooseSnow)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("snow_loose")))
         .WithBehavior<StoredHeight16>()
         .WithBehavior<Modifiable>()
@@ -218,7 +219,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     A block made out of frozen water.
     /// </summary>
     public Block Ice { get; } = builder
-        .BuildPartialHeightBlock(nameof(Ice), Language.Ice)
+        .BuildPartialHeightBlock(new CID(nameof(Ice)), Language.Ice)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("ice")))
         .WithBehavior<StoredHeight16>()
         .WithBehavior<Modifiable>()
@@ -228,7 +229,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Ahs is the remainder of burning processes.
     /// </summary>
     public Block Ash { get; } = builder
-        .BuildSimpleBlock(nameof(Ash), Language.Ash)
+        .BuildSimpleBlock(new CID(nameof(Ash)), Language.Ash)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("ash")))
         .WithBehavior<DestroyOnFluid>()
         .Complete();
@@ -238,7 +239,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     When spreading, fire burns blocks which can destroy them.
     /// </summary>
     public Block Fire { get; } = builder
-        .BuildComplexBlock(nameof(Fire), Language.Fire)
+        .BuildComplexBlock(new CID(nameof(Fire)), Language.Fire)
         .WithBehavior<Fire>(fire => fire.ModelsInitializer.ContributeConstant((RID.File<Model>("fire_complete"), RID.File<Model>("fire_side"), RID.File<Model>("fire_top"))))
         .WithBehavior<DestroyOnLiquid>()
         .Complete();
@@ -247,7 +248,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Roots grow at the bottom of trees.
     /// </summary>
     public Block Roots { get; } = builder
-        .BuildSimpleBlock(nameof(Roots), Language.Roots)
+        .BuildSimpleBlock(new CID(nameof(Roots)), Language.Roots)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("roots")))
         .WithBehavior<Fillable>()
         .WithBehavior<Combustible>()
@@ -257,7 +258,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     ///     Salt is contained in seawater, it becomes usable after the water evaporates.
     /// </summary>
     public Block Salt { get; } = builder
-        .BuildPartialHeightBlock(nameof(Salt), Language.Salt)
+        .BuildPartialHeightBlock(new CID(nameof(Salt)), Language.Salt)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("salt")))
         .WithBehavior<StoredHeight16>()
         .WithBehavior<Modifiable>()

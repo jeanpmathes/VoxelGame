@@ -62,7 +62,7 @@ public sealed class DecorationLoader : IResourceLoader
         {
             Wood.Tree treeDefinition = wood.Trees;
 
-            var name = $"{wood.NamedID}";
+            var name = $"{wood.ID}";
 
             Int32 height = GetTrunkHeight(treeDefinition.Height);
             Shape3D crownShape = GetCrownShape(treeDefinition.Shape, height);

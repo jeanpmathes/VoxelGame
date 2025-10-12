@@ -142,10 +142,10 @@ public static partial class ManualBuilder
                     table
                         .Row(row => row
                             .Cell(cell => cell.Text("Named ID"))
-                            .Cell(cell => cell.Text(block.NamedID, TextStyle.Monospace)))
+                            .Cell(cell => cell.Text(block.ContentID.ToString(), TextStyle.Monospace)))
                         .Row(row => row
                             .Cell(cell => cell.Text("ID"))
-                            .Cell(cell => cell.Text(block.ID.ToString(CultureInfo.InvariantCulture), TextStyle.Monospace)))
+                            .Cell(cell => cell.Text(block.BlockID.ToString(CultureInfo.InvariantCulture), TextStyle.Monospace)))
                         .Row(row => row
                             .Cell(cell => cell.Text("State Count"))
                             .Cell(cell => cell.Text(block.States.Count.ToString(CultureInfo.InvariantCulture))));

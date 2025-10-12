@@ -95,7 +95,7 @@ public class SubBiomeLoader : IResourceLoader
         #pragma warning disable S3242 // Types have meaning.
         private static RID Get(Wood wood)
         {
-            return RID.Named<Decoration>(wood.NamedID);
+            return RID.Named<Decoration>(wood.ID.Identifier);
         }
         #pragma warning restore S3242
 

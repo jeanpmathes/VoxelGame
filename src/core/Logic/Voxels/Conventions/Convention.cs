@@ -14,16 +14,16 @@ namespace VoxelGame.Core.Logic.Voxels.Conventions;
 /// <summary>
 ///     Abstract base class for conventions.
 /// </summary>
-/// <param name="namedID">The named ID of the convention.</param>
+/// <param name="contentID">The content ID of the convention.</param>
 /// <param name="builder">The block builder used to build the blocks in the convention.</param>
 /// <typeparam name="TConvention">The concrete type of the convention.</typeparam>
-public abstract class Convention<TConvention>(String namedID, BlockBuilder builder) : IConvention where TConvention : IConvention
+public abstract class Convention<TConvention>(CID contentID, BlockBuilder builder) : IConvention where TConvention : IConvention
 {
     /// <inheritdoc />
-    public String NamedID { get; } = namedID;
+    public CID ID { get; } = contentID;
 
     /// <inheritdoc />
-    public RID Identifier { get; } = RID.Named<TConvention>(namedID);
+    public RID Identifier { get; } = contentID.GetResourceID<TConvention>();
 
     /// <inheritdoc />
     public IEnumerable<IContent> Content => builder.Registry.RetrieveContent();

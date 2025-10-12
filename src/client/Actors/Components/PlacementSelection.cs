@@ -109,7 +109,7 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
 
         if (IsBlockMode)
         {
-            Int64 nextBlockId = ActiveBlock.ID + change;
+            Int64 nextBlockId = ActiveBlock.BlockID + change;
             nextBlockId = MathTools.ClampRotating(nextBlockId, min: 1, Blocks.Instance.Count);
             ActiveBlock = Blocks.Instance.TranslateBlockID((UInt32) nextBlockId);
         }

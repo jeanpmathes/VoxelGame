@@ -4,11 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
+using VoxelGame.Core.Logic.Contents;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 
@@ -22,18 +22,18 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
 
     private CompletableGround(Block subject) : base(subject)
     {
-        ReplacementInitializer = Aspect<String?, Block>.New<Exclusive<String?, Block>>(nameof(ReplacementInitializer), this);
+        ReplacementInitializer = Aspect<CID?, Block>.New<Exclusive<CID?, Block>>(nameof(ReplacementInitializer), this);
     }
 
     /// <summary>
     ///     The block that will replace this block to complete it.
     /// </summary>
-    public String? Replacement { get; private set; }
+    public CID? Replacement { get; private set; }
 
     /// <summary>
     ///     Aspect used to initialize the <see cref="Replacement" /> property.
     /// </summary>
-    public Aspect<String?, Block> ReplacementInitializer { get; }
+    public Aspect<CID?, Block> ReplacementInitializer { get; }
 
     /// <inheritdoc />
     public static CompletableGround Construct(Block input)
@@ -53,12 +53,12 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
         if (Replacement == null)
             validator.ReportWarning("Replacement block is not set");
 
-        if (Replacement == Subject.NamedID)
+        if (Replacement == Subject.ContentID)
             validator.ReportWarning("Replacement block cannot be the same as the block itself");
 
-        replacement = Blocks.Instance.SafelyTranslateNamedID(Replacement);
+        replacement = Blocks.Instance.SafelyTranslateContentID(Replacement);
 
-        if (replacement == Blocks.Instance.Core.Error && Replacement != Blocks.Instance.Core.Error.NamedID)
+        if (replacement == Blocks.Instance.Core.Error && Replacement != Blocks.Instance.Core.Error.ContentID)
             validator.ReportWarning($"The replacement block '{Replacement}' could not be found");
 
         if (!replacement.IsFullySolid(replacement.States.Default))

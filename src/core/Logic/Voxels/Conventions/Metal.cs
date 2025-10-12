@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic.Voxels.Conventions;
 /// <summary>
 ///     A metal type, as defined by the <see cref="MetalConvention" />.
 /// </summary>
-public class Metal(String namedID, BlockBuilder builder) : Convention<Metal>(namedID, builder)
+public class Metal(CID contentID, BlockBuilder builder) : Convention<Metal>(contentID, builder)
 {
     /// <summary>
     ///     Ores of this metal type which can be mined in the world.
@@ -36,24 +37,24 @@ public static class MetalConvention
     ///     Builds a new metal type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="namedID">The named ID of the metal, used to create the block IDs.</param>
+    /// <param name="contentID">The content ID of the metal, used to create the block CIDs.</param>
     /// <param name="oreBlocks">The ore blocks, with their natural names and named IDs.</param>
     /// <param name="nativeMetalBlocks">The native metal blocks, with their natural names and named IDs.</param>
     /// <returns>The created metal type.</returns>
-    public static Metal BuildMetal(this BlockBuilder b, String namedID, IEnumerable<(String name, String namedID)> oreBlocks, IEnumerable<(String name, String namedID)> nativeMetalBlocks)
+    public static Metal BuildMetal(this BlockBuilder b, CID contentID, IEnumerable<(CID contentID, String name)> oreBlocks, IEnumerable<(CID contentID, String name)> nativeMetalBlocks)
     {
         return b.BuildConvention<Metal>(builder =>
         {
             List<Block> ores = [];
 
-            String texture = namedID.PascalCaseToSnakeCase();
+            String texture = contentID.Identifier.PascalCaseToSnakeCase();
 
-            foreach ((String blockName, String blockNamedID) in oreBlocks)
+            foreach ((CID blockContentIDs, String blockName) in oreBlocks)
             {
-                var blockTexture = $"{texture}_{blockNamedID.PascalCaseToSnakeCase()}";
+                var blockTexture = $"{texture}_{blockContentIDs.Identifier.PascalCaseToSnakeCase()}";
 
                 ores.Add(
-                    builder.BuildSimpleBlock(blockNamedID, blockName)
+                    builder.BuildSimpleBlock(blockContentIDs, blockName)
                         .WithTextureLayout(TextureLayout.Uniform(TID.Block(blockTexture)))
                         .Complete()
                 );
@@ -61,18 +62,18 @@ public static class MetalConvention
 
             List<Block> nativeMetals = [];
 
-            foreach ((String blockName, String blockNamedID) in nativeMetalBlocks)
+            foreach ((CID blockContentIDs, String blockName) in nativeMetalBlocks)
             {
-                var blockTexture = $"{texture}_{blockNamedID.PascalCaseToSnakeCase()}";
+                var blockTexture = $"{texture}_{blockContentIDs.Identifier.PascalCaseToSnakeCase()}";
 
                 nativeMetals.Add(
-                    builder.BuildSimpleBlock(blockNamedID, blockName)
+                    builder.BuildSimpleBlock(blockContentIDs, blockName)
                         .WithTextureLayout(TextureLayout.Uniform(TID.Block(blockTexture)))
                         .Complete()
                 );
             }
 
-            return new Metal(namedID, builder)
+            return new Metal(contentID, builder)
             {
                 Ores = ores,
                 NativeMetals = nativeMetals

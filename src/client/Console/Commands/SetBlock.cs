@@ -8,6 +8,7 @@ using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -25,21 +26,21 @@ public class SetBlock : Command
     public override String HelpText => "Sets the block at the target position. Can cause invalid block state.";
 
     /// <exclude />
-    public void Invoke(String namedID, Int32 x, Int32 y, Int32 z)
+    public void Invoke(String contentID, Int32 x, Int32 y, Int32 z)
     {
-        Set(namedID, (x, y, z));
+        Set(new CID(contentID), (x, y, z));
     }
 
     /// <exclude />
-    public void Invoke(String namedID)
+    public void Invoke(String contentID)
     {
-        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(namedID, targetPosition);
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(new CID(contentID), targetPosition);
         else Context.Output.WriteError("No position targeted.");
     }
 
-    private void Set(String namedID, Vector3i position)
+    private void Set(CID contentID, Vector3i position)
     {
-        Block? block = Blocks.Instance.TranslateNamedID(namedID);
+        Block? block = Blocks.Instance.TranslateContentID(contentID);
 
         if (block == null)
         {

@@ -91,7 +91,7 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         foreach (Block block in builder.BlocksWithCollisionOnID)
         {
             validator.SetScope(block);
-            validator.ReportError($"Block with natural name '{block.Name}' ({block.ID}) is part of a named ID collision");
+            validator.ReportError($"Block with natural name '{block.Name}' ({block.BlockID}) is part of a named ID collision");
         }
         
         UInt32 offset = 0;
@@ -129,16 +129,9 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         if (id < states.Count)
             return states[(Int32) id];
 
-        LogUnknownStateID(logger, id, Core.Error.NamedID);
+        LogUnknownStateID(logger, id, Core.Error.ContentID);
 
         return Core.Error.States.Default;
-
-        // todo: check memory usage of the new block system, especially of the state list used here
-        // todo: compare memory usage to before the new block system
-        // todo: if memory usage is too high and the list is a big part of that, consider this alternative:
-        // todo:    a list of ranges, each entry containing only the end ID (as start is previous entry + 1)
-        // todo:    then, a simple binary search can be used
-        // todo: if memory usage is fine for now, add a new note in far future to check it again
     }
 
     /// <summary>
@@ -152,7 +145,7 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         if (id < builder.BlocksByID.Count)
             return builder.BlocksByID[(Int32) id];
 
-        LogUnknownBlockID(logger, id, Core.Error.NamedID);
+        LogUnknownBlockID(logger, id, Core.Error.ContentID);
 
         return Core.Error;
     }
@@ -160,31 +153,31 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     /// <summary>
     ///     Translate a named ID to the block that has that ID.
     /// </summary>
-    /// <param name="namedID">The named ID to translate.</param>
+    /// <param name="contentID">The content ID to translate.</param>
     /// <returns>The block, or null if no block with the ID exists.</returns>
-    public Block? TranslateNamedID(String namedID)
+    public Block? TranslateContentID(CID contentID)
     {
-        return builder.BlocksByNamedID.GetValueOrDefault(namedID);
+        return builder.BlocksByContentID.GetValueOrDefault(contentID);
     }
 
     /// <summary>
-    ///     Translate a named ID to the block that has that ID. If the ID is not valid, the error block is returned.
+    ///     Translate a content ID to the block that has that ID. If the ID is not valid, the error block is returned.
     /// </summary>
-    /// <param name="namedID">The named ID of the block to return.</param>
+    /// <param name="contentID">The content ID of the block to return.</param>
     /// <returns>The block with the ID or error if the ID is not valid.</returns>
-    public Block SafelyTranslateNamedID(String? namedID) // todo: maybe make this method use resource identifiers ?
+    public Block SafelyTranslateContentID(CID? contentID)
     {
-        if (String.IsNullOrEmpty(namedID))
+        if (contentID is not {} id)
         {
-            LogUnknownNamedBlockID(logger, "", Core.Error.NamedID);
+            LogUnknownNamedBlockID(logger, new CID(""), Core.Error.ContentID);
 
             return Core.Error;
         }
 
-        if (builder.BlocksByNamedID.TryGetValue(namedID, out Block? block))
+        if (builder.BlocksByContentID.TryGetValue(id, out Block? block))
             return block;
 
-        LogUnknownNamedBlockID(logger, namedID, Core.Error.NamedID);
+        LogUnknownNamedBlockID(logger, id, Core.Error.ContentID);
 
         return Core.Error;
     }
@@ -194,13 +187,13 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Blocks>();
 
     [LoggerMessage(EventId = LogID.Blocks + 0, Level = LogLevel.Warning, Message = "No Block with ID {ID} could be found, returning {Fallback} instead")]
-    private static partial void LogUnknownBlockID(ILogger logger, UInt32 id, String fallback); // todo: remove if unused
+    private static partial void LogUnknownBlockID(ILogger logger, UInt32 id, CID fallback);
 
-    [LoggerMessage(EventId = LogID.Blocks + 1, Level = LogLevel.Warning, Message = "No Block with named ID {NamedID} could be found, returning {Fallback} instead")]
-    private static partial void LogUnknownNamedBlockID(ILogger logger, String namedID, String fallback);
+    [LoggerMessage(EventId = LogID.Blocks + 1, Level = LogLevel.Warning, Message = "No Block with named ID {ContentID} could be found, returning {Fallback} instead")]
+    private static partial void LogUnknownNamedBlockID(ILogger logger, CID contentID, CID fallback);
 
     [LoggerMessage(EventId = LogID.Blocks + 2, Level = LogLevel.Warning, Message = "No State with ID {ID} could be found, returning {Fallback} instead")]
-    private static partial void LogUnknownStateID(ILogger logger, UInt32 id, String fallback);
+    private static partial void LogUnknownStateID(ILogger logger, UInt32 id, CID fallback);
 
     #endregion LOGGING
 }

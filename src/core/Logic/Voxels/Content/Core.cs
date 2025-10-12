@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Resources.Language;
@@ -22,7 +23,7 @@ public class Core(BlockBuilder builder) : Category(builder)
     ///     The air block that fills the world. Could also be interpreted as "no block".
     /// </summary>
     public Block Air { get; } = builder
-        .BuildUnmeshedBlock(nameof(Air), Language.Air)
+        .BuildUnmeshedBlock(new CID(nameof(Air)), Language.Air)
         .WithBehavior<Static>()
         .WithBehavior<Fillable>()
         .WithProperties(flags => flags.IsSolid.ContributeConstant(value: false))
@@ -34,7 +35,7 @@ public class Core(BlockBuilder builder) : Category(builder)
     ///     An error block, used as fallback when structure operations fail.
     /// </summary>
     public Block Error { get; } = builder
-        .BuildSimpleBlock(nameof(Error), Language.Error)
+        .BuildSimpleBlock(new CID(nameof(Error)), Language.Error)
         .WithTextureLayout(TextureLayout.Uniform(TID.MissingTexture))
         .Complete();
 
@@ -42,7 +43,7 @@ public class Core(BlockBuilder builder) : Category(builder)
     ///     The core of the world, which is found at the lowest level.
     /// </summary>
     public Block CoreBlock { get; } = builder
-        .BuildSimpleBlock(nameof(CoreBlock), Language.Core)
+        .BuildSimpleBlock(new CID(nameof(CoreBlock)), Language.Core)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("core")))
         .Complete();
 
@@ -50,7 +51,7 @@ public class Core(BlockBuilder builder) : Category(builder)
     ///     A block that serves as a neutral choice for development purposes.
     /// </summary>
     public Block Dev { get; } = builder
-        .BuildSimpleBlock(nameof(Dev), Language.DevBlock)
+        .BuildSimpleBlock(new CID(nameof(Dev)), Language.DevBlock)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("dev")))
         .Complete();
 }

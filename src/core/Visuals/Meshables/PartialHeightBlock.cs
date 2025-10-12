@@ -11,6 +11,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
@@ -28,7 +29,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     private readonly PartialHeight partialHeightMeshable;
 
     /// <inheritdoc />
-    public PartialHeightBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
+    public PartialHeightBlock(UInt32 blockID, CID contentID, String name) : base(blockID, contentID, name)
     {
         partialHeightMeshable = Require<PartialHeight>();
         partialHeightBehavior = Require<Logic.Voxels.Behaviors.Height.PartialHeight>();

@@ -123,7 +123,7 @@ public record struct State(StateSet Owner, Int32 Index)
     /// <inheritdoc />
     public override String ToString()
     {
-        return $"{Block.NamedID}:{Index} [{Owner.GetJson(this).ToJsonString(new JsonSerializerOptions
+        return $"{Block.ContentID}:{Index} [{Owner.GetJson(this).ToJsonString(new JsonSerializerOptions
         {
             WriteIndented = false
         })}]";

@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Toolkit.Utilities;
 
@@ -17,8 +18,8 @@ namespace VoxelGame.Core.Logic.Voxels;
 /// </summary>
 public class BlockFactory
 {
-    private readonly List<Block> blocksByID = [];
-    private readonly Dictionary<String, Block> blocksByNamedID = [];
+    private readonly List<Block> blocksByBlockID = [];
+    private readonly Dictionary<CID, Block> blocksByContentID = [];
     
     private readonly HashSet<Block> blocksWithCollisionOnID = [];
     private Int32 idCollisionCounter;
@@ -26,12 +27,12 @@ public class BlockFactory
     /// <summary>
     ///     Get a container associating block IDs to blocks.
     /// </summary>
-    public IReadOnlyList<Block> BlocksByID => blocksByID;
+    public IReadOnlyList<Block> BlocksByBlockID => blocksByBlockID;
 
     /// <summary>
-    ///     Get a container associating block named IDs to blocks.
+    ///     Get a container associating block content IDs to blocks.
     /// </summary>
-    public IReadOnlyDictionary<String, Block> BlocksByNamedID => blocksByNamedID;
+    public IReadOnlyDictionary<CID, Block> BlocksByContentID => blocksByContentID;
     
     /// <summary>
     ///     Get a set of blocks that had a collision on their named ID during creation.
@@ -41,27 +42,27 @@ public class BlockFactory
     /// <summary>
     ///     Create a new block.
     /// </summary>
-    /// <param name="namedID">The named ID of the block. A unique and unlocalized identifier.</param>
+    /// <param name="contentID">The content ID of the block. Must be unique.</param>
     /// <param name="name">The name of the block. Can be localized.</param>
     /// <param name="meshable">The type of meshing this block uses.</param>
-    public Block Create(String namedID, String name, Meshable meshable)
+    public Block Create(CID contentID, String name, Meshable meshable)
     {
         var idCollision = false;
         
-        if (blocksByNamedID.TryGetValue(namedID, out Block? collidedBlock))
+        if (blocksByContentID.TryGetValue(contentID, out Block? collidedBlock))
         {
             Debugger.Break();
             idCollision = true;
             
             blocksWithCollisionOnID.Add(collidedBlock);
             
-            namedID = $"{namedID}_collision_{idCollisionCounter++}";
+            contentID = new CID($"{contentID}_collision_{idCollisionCounter++}");
         }
         
-        Block block = CreateBlock(namedID, name, meshable);
+        Block block = CreateBlock(contentID, name, meshable);
 
-        blocksByID.Add(block);
-        blocksByNamedID.Add(namedID, block);
+        blocksByBlockID.Add(block);
+        blocksByContentID.Add(contentID, block);
         
         if (idCollision) 
             blocksWithCollisionOnID.Add(block);
@@ -69,17 +70,17 @@ public class BlockFactory
         return block;
     }
 
-    private Block CreateBlock(String namedID, String name, Meshable meshable)
+    private Block CreateBlock(CID contentID, String name, Meshable meshable)
     {
-        var id = (UInt32) blocksByID.Count;
+        var id = (UInt32) blocksByBlockID.Count;
 
         return meshable switch
         {
-            Meshable.Simple => new SimpleBlock(id, namedID, name),
-            Meshable.Foliage => new FoliageBlock(id, namedID, name),
-            Meshable.Complex => new ComplexBlock(id, namedID, name),
-            Meshable.PartialHeight => new PartialHeightBlock(id, namedID, name),
-            Meshable.Unmeshed => new UnmeshedBlock(id, namedID, name),
+            Meshable.Simple => new SimpleBlock(id, contentID, name),
+            Meshable.Foliage => new FoliageBlock(id, contentID, name),
+            Meshable.Complex => new ComplexBlock(id, contentID, name),
+            Meshable.PartialHeight => new PartialHeightBlock(id, contentID, name),
+            Meshable.Unmeshed => new UnmeshedBlock(id, contentID, name),
             _ => throw Exceptions.UnsupportedEnumValue(meshable)
         };
     }

@@ -183,7 +183,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
 
         var content = Content.Default;
 
-        Block? block = Blocks.Instance.TranslateNamedID(placement.Block);
+        Block? block = Blocks.Instance.TranslateContentID(new CID(placement.Block));
 
         if (block == null)
         {
@@ -256,7 +256,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
             placements.Add(new Placement
             {
                 Position = new Vector {Values = [x, y, z]},
-                Block = content.Block.Block.NamedID,
+                Block = content.Block.Block.ContentID.ToString(),
                 State = content.Block.Owner.GetJson(content.Block),
                 Fluid = content.Fluid.Fluid.NamedID,
                 Level = (Int32) content.Fluid.Level,

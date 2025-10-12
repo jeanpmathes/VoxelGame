@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
@@ -20,7 +21,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 public class UnmeshedBlock : Block
 {
     /// <inheritdoc />
-    public UnmeshedBlock(UInt32 id, String namedID, String name) : base(id, namedID, name)
+    public UnmeshedBlock(UInt32 blockID, CID contentID, String name) : base(blockID, contentID, name)
     {
         Require<Unmeshed>();
     }

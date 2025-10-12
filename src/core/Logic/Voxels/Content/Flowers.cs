@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Resources.Language;
 
@@ -17,10 +18,10 @@ public class Flowers(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     A simple red flower.
     /// </summary>
-    public Flower FlowerRed { get; } = builder.BuildFlower(nameof(FlowerRed), Language.FlowerRed); // todo: rename to Red when separate class and adapt naming in convention to include flower
+    public Flower FlowerRed { get; } = builder.BuildFlower(new CID(nameof(FlowerRed)), Language.FlowerRed); // todo: rename to Red when separate class and adapt naming in convention to include flower
 
     /// <summary>
     ///     A simple yellow flower.
     /// </summary>
-    public Flower FlowerYellow { get; } = builder.BuildFlower(nameof(FlowerYellow), Language.FlowerYellow); // todo: rename to Yellow when separate class and adapt naming in convention to include flower
+    public Flower FlowerYellow { get; } = builder.BuildFlower(new CID(nameof(FlowerYellow)), Language.FlowerYellow); // todo: rename to Yellow when separate class and adapt naming in convention to include flower
 }

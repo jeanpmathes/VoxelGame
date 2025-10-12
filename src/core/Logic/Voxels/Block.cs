@@ -35,7 +35,7 @@ namespace VoxelGame.Core.Logic.Voxels;
 ///     Blocks use the flyweight pattern, the world data only stores a state ID.
 ///     The state ID can be used to retrieve both the type of the block and its state.
 /// </summary>
-public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifiable<String>, IIdentifiable<UInt32>, IContent
+public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, IIdentifiable<CID>, IIdentifiable<UInt32>, IContent
 {
     private const Int32 ScheduledDestroyOffset = 5;
 
@@ -48,15 +48,14 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <summary>
     ///     Create a new block.
     /// </summary>
-    /// <param name="id">The unique integer ID of the block.</param>
-    /// <param name="namedID">The named ID of the block. A unique and unlocalized identifier.</param>
+    /// <param name="blockID">The unique integer ID of the block.</param>
+    /// <param name="contentID">The content ID of the block. Must be unique.</param>
     /// <param name="name">The name of the block. Can be localized.</param>
-    protected Block(UInt32 id, String namedID, String name)
+    protected Block(UInt32 blockID, CID contentID, String name)
     {
         Name = name;
-        ID = id;
-        NamedID = namedID;
-        Identifier = RID.Named<Block>(namedID);
+        BlockID = blockID;
+        ContentID = contentID;
 
         BoundingVolume = Aspect<BoundingVolume, State>.New<Exclusive<BoundingVolume, State>>(nameof(BoundingVolume), this);
         PlacementState = Aspect<State, (World, Vector3i, Actor?)>.New<Chaining<State, (World, Vector3i, Actor?)>>(nameof(PlacementState), this);
@@ -143,7 +142,12 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <summary>
     ///     Gets the unique integer ID of the block.
     /// </summary>
-    public UInt32 ID { get; }
+    public UInt32 BlockID { get; }
+    
+    /// <summary>
+    /// The named ID of the block.
+    /// </summary>
+    public CID ContentID { get; }
 
     /// <summary>
     ///     Aspect to determine the actual placement state of a block.
@@ -178,19 +182,19 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     public abstract Meshable Meshable { get; }
 
     /// <inheritdoc />
-    public String NamedID { get; }
-
-    /// <inheritdoc />
-    public RID Identifier { get; }
+    public RID Identifier => ContentID.GetResourceID<Block>();
 
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Block;
 
     /// <inheritdoc />
-    String IIdentifiable<String>.ID => NamedID;
+    CID IIdentifiable<CID>.ID => ContentID;
 
     /// <inheritdoc />
-    UInt32 IIdentifiable<UInt32>.ID => ID;
+    UInt32 IIdentifiable<UInt32>.ID => BlockID;
+    
+    /// <inheritdoc />
+    CID IContent.ID => ContentID;
 
     /// <summary>
     ///     Initialize the block with its states and internal values.
@@ -788,7 +792,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <inheritdoc />
     public override String ToString()
     {
-        return NamedID;
+        return ContentID.Identifier;
     }
 
     /// <summary>
@@ -1067,7 +1071,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         private Int32 y = position.Y;
         private Int32 z = position.Z;
 
-        private UInt32 target = target.ID;
+        private UInt32 target = target.BlockID;
         private UpdateOperation operation = operation;
 
         public void Update(World world)
@@ -1075,7 +1079,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             State? potentialBlock = world.GetBlock((x, y, z));
 
             if (potentialBlock is not {} block) return;
-            if (block.Block.ID != target) return;
+            if (block.Block.BlockID != target) return;
 
             switch (operation)
             {

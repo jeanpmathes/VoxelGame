@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
@@ -26,7 +27,7 @@ namespace VoxelGame.Core.Logic.Voxels.Conventions;
 /// <summary>
 ///     A wood, as defined by the <see cref="WoodConvention" />.
 /// </summary>
-public sealed class Wood(String namedID, BlockBuilder builder) : Convention<Wood>(namedID, builder)
+public sealed class Wood(CID contentID, BlockBuilder builder) : Convention<Wood>(contentID, builder)
 {
     /// <summary>
     ///     The tree that grows this wood.
@@ -195,22 +196,22 @@ public static class WoodConvention
     ///     Build a new wood type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="namedID">The named ID of the wood type, used to create the block IDs.</param>
+    /// <param name="contentID">The content ID of the wood type, used to create the block CIDs.</param>
     /// <param name="name">The names of the associated blocks, used for display purposes.</param>
     /// <param name="tree">The tree that grows this wood.</param>
     /// <returns>The created wood type.</returns>
-    public static Wood BuildWood(this BlockBuilder b, String namedID, (String leaves, String log, String wood) name, Wood.Tree tree)
+    public static Wood BuildWood(this BlockBuilder b, CID contentID, (String leaves, String log, String wood) name, Wood.Tree tree)
     {
         return b.BuildConvention<Wood>(builder =>
         {
-            String texture = namedID.PascalCaseToSnakeCase();
+            String texture = contentID.Identifier.PascalCaseToSnakeCase();
 
-            return new Wood(namedID, builder)
+            return new Wood(contentID, builder)
             {
                 Trees = tree,
 
                 Leaves = builder
-                    .BuildSimpleBlock($"{namedID}{nameof(Wood.Leaves)}", name.leaves)
+                    .BuildSimpleBlock(new CID($"{contentID}{nameof(Wood.Leaves)}"), name.leaves)
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_leaves")))
                     .WithBehavior<Combustible>()
                     .WithConditionalDefinition(!tree.Needles, definition => definition.WithBehavior<NeutralTint>())
@@ -222,21 +223,21 @@ public static class WoodConvention
                     .Complete(),
 
                 Log = builder
-                    .BuildSimpleBlock($"{namedID}{nameof(Wood.Log)}", name.log)
+                    .BuildSimpleBlock(new CID($"{contentID}{nameof(Wood.Log)}"), name.log)
                     .WithTextureLayout(TextureLayout.Column(TID.Block($"{texture}_log", x: 0), TID.Block($"{texture}_log", x: 1)))
                     .WithBehavior<AxisRotatable>()
                     .WithBehavior<Combustible>()
                     .Complete(),
 
                 Planks = builder
-                    .BuildSimpleBlock($"{namedID}{nameof(Wood.Planks)}", $"{Language.Planks} ({name.wood})")
+                    .BuildSimpleBlock(new CID($"{contentID}{nameof(Wood.Planks)}"), $"{Language.Planks} ({name.wood})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_planks")))
                     .WithBehavior<Combustible>()
                     .WithBehavior<ConstructionMaterial>()
                     .Complete(),
 
                 Fence = builder
-                    .BuildComplexBlock($"{namedID}{nameof(Wood.Fence)}", $"{Language.Fence} ({name.wood})")
+                    .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Fence)}"), $"{Language.Fence} ({name.wood})")
                     .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<Model>("fence_post"), RID.File<Model>("fence_extension"), null)))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Fence>()
@@ -244,7 +245,7 @@ public static class WoodConvention
                     .Complete(),
 
                 FenceGate = builder
-                    .BuildComplexBlock($"{namedID}{nameof(Wood.FenceGate)}", $"{Language.Gate} ({name.wood})")
+                    .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.FenceGate)}"), $"{Language.Gate} ({name.wood})")
                     .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<Model>("gate_closed"), RID.File<Model>("gate_open")]))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Combustible>()
@@ -253,14 +254,14 @@ public static class WoodConvention
                     .Complete(),
 
                 Door = builder
-                    .BuildComplexBlock($"{namedID}{nameof(Wood.Door)}", $"{Language.Door} ({name.wood})")
+                    .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Door)}"), $"{Language.Door} ({name.wood})")
                     .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<Model>("door_wood_closed"), RID.File<Model>("door_wood_open")]))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_door")))
                     .WithBehavior<Door>()
                     .Complete(),
 
                 Pipe = builder
-                    .BuildComplexBlock($"{namedID}{nameof(Wood.Pipe)}", $"{Language.Pipe} ({name.wood})")
+                    .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Pipe)}"), $"{Language.Pipe} ({name.wood})")
                     .WithBehavior<Piped>(piped => piped.TierInitializer.ContributeConstant(Piped.PipeTier.Primitive))
                     .WithBehavior<ConnectingPipe>(pipe => pipe.ModelsInitializer.ContributeConstant((RID.File<Model>("wood_pipe_center"), RID.File<Model>("wood_pipe_connector"), RID.File<Model>("wood_pipe_surface"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture)))
@@ -268,7 +269,7 @@ public static class WoodConvention
                     .Complete(),
 
                 Bed = builder
-                    .BuildComplexBlock($"{namedID}{nameof(Wood.Bed)}", $"{Language.Bed} ({name.wood})")
+                    .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Bed)}"), $"{Language.Bed} ({name.wood})")
                     .WithBehavior<LateralRotatable>()
                     .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<Model>("bed")]))
                     .WithTextureOverride(new Dictionary<Int32, TID>

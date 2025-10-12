@@ -39,12 +39,12 @@ public class BlockBuilder
     /// <summary>
     ///     Get a list mapping the (numerical) block IDs to the blocks.
     /// </summary>
-    public IReadOnlyList<Block> BlocksByID => factory.BlocksByID;
+    public IReadOnlyList<Block> BlocksByID => factory.BlocksByBlockID;
 
     /// <summary>
-    ///     Get a dictionary mapping the named block IDs to the blocks.
+    ///     Get a dictionary mapping the content IDs to the blocks.
     /// </summary>
-    public IReadOnlyDictionary<String, Block> BlocksByNamedID => factory.BlocksByNamedID;
+    public IReadOnlyDictionary<CID, Block> BlocksByContentID => factory.BlocksByContentID;
     
     /// <summary>
     ///     Get a set of blocks that had a collision on their named ID during creation.
@@ -93,9 +93,9 @@ public class BlockBuilder
     /// <summary>
     ///     Defines a new <see cref="Meshable.Simple" /> block.
     /// </summary>
-    public SimpleBlockDefinition BuildSimpleBlock(String namedID, String name)
+    public SimpleBlockDefinition BuildSimpleBlock(CID contentID, String name)
     {
-        Block block = factory.Create(namedID, name, Meshable.Simple);
+        Block block = factory.Create(contentID, name, Meshable.Simple);
 
         return new SimpleBlockDefinition(block, Registry);
     }
@@ -103,9 +103,9 @@ public class BlockBuilder
     /// <summary>
     ///     Defines a new <see cref="Meshable.Complex" /> block.
     /// </summary>
-    public FoliageBlockDefinition BuildFoliageBlock(String namedID, String name)
+    public FoliageBlockDefinition BuildFoliageBlock(CID contentID, String name)
     {
-        Block block = factory.Create(namedID, name, Meshable.Foliage);
+        Block block = factory.Create(contentID, name, Meshable.Foliage);
 
         return new FoliageBlockDefinition(block, Registry);
     }
@@ -113,9 +113,9 @@ public class BlockBuilder
     /// <summary>
     ///     Defines a new <see cref="Meshable.Complex" /> block.
     /// </summary>
-    public ComplexBlockDefinition BuildComplexBlock(String namedID, String name)
+    public ComplexBlockDefinition BuildComplexBlock(CID contentID, String name)
     {
-        Block block = factory.Create(namedID, name, Meshable.Complex);
+        Block block = factory.Create(contentID, name, Meshable.Complex);
 
         return new ComplexBlockDefinition(block, Registry);
     }
@@ -123,9 +123,9 @@ public class BlockBuilder
     /// <summary>
     ///     Defines a new <see cref="Meshable.PartialHeight" /> block.
     /// </summary>
-    public PartialHeightBlockDefinition BuildPartialHeightBlock(String namedID, String name)
+    public PartialHeightBlockDefinition BuildPartialHeightBlock(CID contentID, String name)
     {
-        Block block = factory.Create(namedID, name, Meshable.PartialHeight);
+        Block block = factory.Create(contentID, name, Meshable.PartialHeight);
 
         return new PartialHeightBlockDefinition(block, Registry);
     }
@@ -133,9 +133,9 @@ public class BlockBuilder
     /// <summary>
     ///     Defines a new <see cref="Meshable.Unmeshed" /> block.
     /// </summary>
-    public UnmeshedBlockDefinition BuildUnmeshedBlock(String namedID, String name)
+    public UnmeshedBlockDefinition BuildUnmeshedBlock(CID contentID, String name)
     {
-        Block block = factory.Create(namedID, name, Meshable.Unmeshed);
+        Block block = factory.Create(contentID, name, Meshable.Unmeshed);
 
         return new UnmeshedBlockDefinition(block, Registry);
     }

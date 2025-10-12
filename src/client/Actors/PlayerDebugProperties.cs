@@ -47,7 +47,7 @@ public class PlayerDebugProperties : Group
 
     private static IEnumerable<Property> CreateBlockTargetProperties(State block)
     {
-        yield return new Message("Block ID", $"{block.Block.NamedID}[{block.Block.ID}]");
+        yield return new Message("Block ID", $"{block.Block.ContentID}[{block.Block.BlockID}]");
         yield return new Message("State ID", $"{block.ID}");
         yield return new Message("State Index", $"{block.Index} of {block.Block.States.Count}");
         yield return new Group("Attributes", block.CreateProperties());

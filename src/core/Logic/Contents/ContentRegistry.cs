@@ -17,7 +17,7 @@ public class ContentRegistry
 {
     private readonly ContentRegistry? parent;
 
-    private readonly Registry<IContent> registry = new(i => i.NamedID);
+    private readonly Registry<IContent> registry = new(i => i.ID.Identifier);
 
     private ContentRegistry(ContentRegistry? parent = null)
     {

@@ -6,6 +6,7 @@
 
 using System;
 using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
@@ -18,7 +19,7 @@ namespace VoxelGame.Core.Logic.Voxels.Conventions;
 /// <summary>
 ///     A flower, as defined by the <see cref="FlowerConvention" />.
 /// </summary>
-public sealed class Flower(String namedID, BlockBuilder builder) : Convention<Flower>(namedID, builder)
+public sealed class Flower(CID contentID, BlockBuilder builder) : Convention<Flower>(contentID, builder)
 {
     /// <summary>
     ///     The short variant of this flower.
@@ -40,19 +41,19 @@ public static class FlowerConvention
     ///     Build a new flower.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="namedID">The named ID of the flower, used to create the block IDs.</param>
+    /// <param name="contentID">The content ID of the flower, used to create the block CIDs.</param>
     /// <param name="name">The name of the flower, used for display purposes.</param>
     /// <returns>The created flower.</returns>
-    public static Flower BuildFlower(this BlockBuilder b, String namedID, String name)
+    public static Flower BuildFlower(this BlockBuilder b, CID contentID, String name)
     {
         return b.BuildConvention<Flower>(builder =>
         {
-            String texture = namedID.PascalCaseToSnakeCase();
+            String texture = contentID.Identifier.PascalCaseToSnakeCase();
 
-            return new Flower(namedID, builder)
+            return new Flower(contentID, builder)
             {
                 Short = builder
-                    .BuildFoliageBlock($"{namedID}{nameof(Flower.Short)}", name)
+                    .BuildFoliageBlock(new CID($"{contentID}{nameof(Flower.Short)}"), name)
                     .WithTexture(TID.Block(texture))
                     .WithBehavior<NeutralTint>()
                     .WithBehavior<CrossPlant>(plant =>
@@ -65,7 +66,7 @@ public static class FlowerConvention
                     .Complete(),
 
                 Tall = builder
-                    .BuildFoliageBlock($"{namedID}{nameof(Flower.Tall)}", $"{name} ({nameof(Language.Tall)})")
+                    .BuildFoliageBlock(new CID($"{contentID}{nameof(Flower.Tall)}"), $"{name} ({nameof(Language.Tall)})")
                     .WithTexture(TID.Block($"{texture}_tall"))
                     .WithBehavior<NeutralTint>()
                     .WithBehavior<DoubleCrossPlant>()

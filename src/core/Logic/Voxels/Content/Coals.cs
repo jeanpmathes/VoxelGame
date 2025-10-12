@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Resources.Language;
 
@@ -18,17 +19,17 @@ public class Coals(BlockBuilder builder) : Category(builder)
     ///     Lignite is a type of coal.
     ///     It is the lowest rank of coal but can be found near the surface.
     /// </summary>
-    public Coal Lignite { get; } = builder.BuildCoal(nameof(Lignite), Language.CoalLignite);
+    public Coal Lignite { get; } = builder.BuildCoal(new CID(nameof(Lignite)), Language.CoalLignite);
 
     /// <summary>
     ///     Bituminous coal is a type of coal.
     ///     It is of medium rank and is the most abundant type of coal.
     /// </summary>
-    public Coal BituminousCoal { get; } = builder.BuildCoal(nameof(BituminousCoal), Language.CoalBituminous);
+    public Coal BituminousCoal { get; } = builder.BuildCoal(new CID(nameof(BituminousCoal)), Language.CoalBituminous);
 
     /// <summary>
     ///     Anthracite is a type of coal.
     ///     It is the highest rank of coal and is the hardest and most carbon-rich.
     /// </summary>
-    public Coal Anthracite { get; } = builder.BuildCoal(nameof(Anthracite), Language.CoalAnthracite);
+    public Coal Anthracite { get; } = builder.BuildCoal(new CID(nameof(Anthracite)), Language.CoalAnthracite);
 }

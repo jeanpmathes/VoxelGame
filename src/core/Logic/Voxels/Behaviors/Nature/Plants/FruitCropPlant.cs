@@ -12,6 +12,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
@@ -44,7 +45,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
 
-        FruitInitializer = Aspect<String?, Block>.New<Exclusive<String?, Block>>(nameof(FruitInitializer), this);
+        FruitInitializer = Aspect<CID?, Block>.New<Exclusive<CID?, Block>>(nameof(FruitInitializer), this);
     }
 
     [LateInitialization] private partial IAttribute<Int32> Age { get; set; }
@@ -52,12 +53,12 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     /// <summary>
     ///     The fruit block.
     /// </summary>
-    public String? Fruit { get; private set; }
+    public CID? Fruit { get; private set; }
 
     /// <summary>
     ///     Aspect used to initialize the <see cref="Fruit" /> property.
     /// </summary>
-    public Aspect<String?, Block> FruitInitializer { get; }
+    public Aspect<CID?, Block> FruitInitializer { get; }
 
     /// <inheritdoc />
     public static FruitCropPlant Construct(Block input)
@@ -89,12 +90,12 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
         if (Fruit == null)
             validator.ReportWarning("No fruit block is set");
 
-        if (Fruit == Subject.NamedID)
+        if (Fruit == Subject.ContentID)
             validator.ReportWarning("The fruit block cannot be the same as the growing block itself");
 
-        fruit = Blocks.Instance.SafelyTranslateNamedID(Fruit);
+        fruit = Blocks.Instance.SafelyTranslateContentID(Fruit);
 
-        if (fruit == Blocks.Instance.Core.Error && Fruit != Blocks.Instance.Core.Error.NamedID)
+        if (fruit == Blocks.Instance.Core.Error && Fruit != Blocks.Instance.Core.Error.ContentID)
             validator.ReportWarning($"The fruit block '{Fruit}' could not be found");
     }
 

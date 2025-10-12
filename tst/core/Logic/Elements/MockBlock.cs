@@ -6,13 +6,14 @@
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Tests.Logic.Elements;
 
-public class MockBlock() : Block(id: 0, nameof(MockBlock), "Mock Block")
+public class MockBlock() : Block(blockID: 0, new CID(nameof(MockBlock)), "Mock Block")
 {
     public override Meshable Meshable => Meshable.Unmeshed;
 

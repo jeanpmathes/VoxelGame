@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -14,7 +15,7 @@ namespace VoxelGame.Core.Logic.Voxels.Conventions;
 /// <summary>
 ///     A coal type, as defined by the <see cref="CoalConvention" />.
 /// </summary>
-public class Coal(String namedID, BlockBuilder builder) : Convention<Coal>(namedID, builder)
+public class Coal(CID contentID, BlockBuilder builder) : Convention<Coal>(contentID, builder)
 {
     /// <summary>
     ///     The block that represents this coal type.
@@ -31,19 +32,19 @@ public static class CoalConvention
     ///     Builds a new coal type.
     /// </summary>
     /// <param name="b">The block builder to use.</param>
-    /// <param name="namedID">The named ID of the coal, used to create the block IDs.</param>
+    /// <param name="contentID">The content ID of the coal, used to create the block CIDs.</param>
     /// <param name="name">The name of the coal, used for display purposes.</param>
     /// <returns>The created coal type.</returns>
-    public static Coal BuildCoal(this BlockBuilder b, String namedID, String name)
+    public static Coal BuildCoal(this BlockBuilder b, CID contentID, String name)
     {
         return b.BuildConvention<Coal>(builder =>
         {
-            String texture = namedID.PascalCaseToSnakeCase();
+            String texture = contentID.Identifier.PascalCaseToSnakeCase();
 
-            return new Coal(namedID, builder)
+            return new Coal(contentID, builder)
             {
                 Block = builder
-                    .BuildSimpleBlock(namedID, name)
+                    .BuildSimpleBlock(contentID, name)
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"coal_{texture}")))
                     .WithBehavior<Combustible>()
                     .Complete()
