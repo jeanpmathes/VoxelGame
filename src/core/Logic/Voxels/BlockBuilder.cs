@@ -262,6 +262,20 @@ public class BlockBuilder
 
             return this;
         }
+        
+        /// <summary>
+        ///     Adds validation to the block.
+        /// </summary>
+        /// <param name="action">The action to perform during validation, will be called when the block is validated.</param>
+        public BlockDefinition WithValidation(Action<Block, IValidator> action)
+        {
+            block.Validation += (sender, args) =>
+            {
+                action(block, args.Validator);
+            };
+            
+            return this;
+        }
 
         /// <summary>
         ///     Completes the block definition and registers it in the content registry.

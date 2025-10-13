@@ -196,6 +196,16 @@ public static class SideExtensions
     /// <returns>The single side.</returns>
     public static Side Single(this Sides side)
     {
+        return side.SingleOrDefault() ?? throw Exceptions.UnsupportedEnumValue(side);
+    }
+
+    /// <summary>
+    /// Get the block side flags as a single side, or null if no or multiple sides are set.
+    /// </summary>
+    /// <param name="side">The block side flags, only one bit should be set.</param>
+    /// <returns>The single side, or null.</returns>
+    public static Side? SingleOrDefault(this Sides side)
+    {
         return side switch
         {
             Voxels.Sides.Front => Side.Front,
@@ -204,9 +214,9 @@ public static class SideExtensions
             Voxels.Sides.Right => Side.Right,
             Voxels.Sides.Bottom => Side.Bottom,
             Voxels.Sides.Top => Side.Top,
-            Voxels.Sides.None => throw Exceptions.UnsupportedEnumValue(side),
+            Voxels.Sides.None => null,
             Voxels.Sides.All => Side.All,
-            _ => throw Exceptions.UnsupportedEnumValue(side)
+            _ => null
         };
     }
 

@@ -28,7 +28,11 @@ public class Core(BlockBuilder builder) : Category(builder)
         .WithBehavior<Fillable>()
         .WithProperties(flags => flags.IsSolid.ContributeConstant(value: false))
         .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
-        // todo: add validation that this block receives ID 0 and the only state has state ID 0
+        .WithValidation((block, validator) =>
+        {
+            if (block.BlockID != 0) 
+                validator.ReportError($"Block {block} must have block ID 0");
+        })
         .Complete();
 
     /// <summary>

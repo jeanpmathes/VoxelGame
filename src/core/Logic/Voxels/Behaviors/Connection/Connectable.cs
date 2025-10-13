@@ -31,13 +31,13 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
 
         /// <summary>
         ///     The block allows thin connectable blocks.
-        ///     Thin connectable blocks are two sixteenth wide.
+        ///     Thin connectable blocks are at least two sixteenth wide.
         /// </summary>
-        Thin = 1 << 0, // todo: check that the measurement given here and below is correct
+        Thin = 1 << 0,
 
         /// <summary>
         ///     The block allows wide connectable blocks.
-        ///     Wide connectable blocks are four sixteenth wide.
+        ///     Wide connectable blocks are at least four sixteenth wide.
         ///     Note that the connecting block might require this block to close of the connection surface.
         /// </summary>
         Wide = 1 << 1,
