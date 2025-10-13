@@ -40,6 +40,10 @@ public class ConcreteFluid : BasicFluid
 
         world.SetDefaultFluid(position);
 
-        Blocks.Instance.Construction.Concrete.Place(world, position); // todo: find a way to set the level of the concrete on placement, similar problem as with world gen and snow and such
+        Blocks.Instance.Construction.Concrete.Place(world, position); 
+        
+        // todo: find a way to set the level of the concrete on placement, similar problem as with world gen and snow and such
+        // todo: easiest method: a behavior extensions static class, with utilities to do this
+        // todo: for height, add a stored height behavior that is required by both height 16 and 8 and has method to get appropriate state
     }
 }
