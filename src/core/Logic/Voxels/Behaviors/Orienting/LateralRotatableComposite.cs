@@ -178,6 +178,9 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void ResizeComposite(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, Orientation orientation, State state)
     {
+        if (!IsGrowthPossible(world, position, oldSize, newSize, orientation))
+            return;
+        
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 
         for (var x = 0; x < size.X; x++)
@@ -203,6 +206,32 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
                 world.SetBlock(state, position + Rotate(part, orientation));
             }
         }
+    }
+    
+    private Boolean IsGrowthPossible(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, Orientation orientation)
+    {
+        Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
+
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            Vector3i part = (x, y, z);
+            
+            Boolean inOld = x < oldSize.X && y < oldSize.Y && z < oldSize.Z;
+            Boolean inNew = x < newSize.X && y < newSize.Y && z < newSize.Z;
+
+            if (inOld || !inNew) continue;
+
+            Vector3i current = position + Rotate(part, orientation);
+                
+            State? block = world.GetBlock(current);
+
+            if (block?.IsReplaceable != true)
+                return false;
+        }
+
+        return true;
     }
 
     private void SetStateOnAllParts(World world, Vector3i size, Vector3i root, Vector3i exclude, Orientation orientation, State state)

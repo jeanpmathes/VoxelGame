@@ -36,7 +36,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
         subject.Require<Constraint>().IsValid.ContributeFunction(GetIsValid);
 
-        subject.RequireIfPresent<LateralRotatableComposite, LateralRotatable>(rotatable => // todo: also ensure that oak door unaffected by the addition of this behavior
+        subject.RequireIfPresent<LateralRotatableComposite, LateralRotatable>(rotatable =>
         {
             isRotatable = true;
             
@@ -277,10 +277,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private void ResizeComposite(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, State state)
     {
+        if (!IsGrowthPossible(world, position, oldSize, newSize)) return;
+        
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
-
-        // todo: check if growing larger in at least one dimension, if so check if new positions can be replaced
-        // todo: if not, restore the old state and then destroy the composite block
 
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
@@ -306,6 +305,30 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
                 world.SetBlock(state, current);
             }
         }
+    }
+    
+    private Boolean IsGrowthPossible(World world, Vector3i position, Vector3i oldSize, Vector3i newSize)
+    {
+        Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
+
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            Vector3i current = position + (x, y, z);
+
+            Boolean inOld = x < oldSize.X && y < oldSize.Y && z < oldSize.Z;
+            Boolean inNew = x < newSize.X && y < newSize.Y && z < newSize.Z;
+
+            if (inOld || !inNew) continue;
+
+            State? block = world.GetBlock(current);
+
+            if (block?.IsReplaceable != true)
+                return false;
+        }
+
+        return true;
     }
 
     private void SetStateOnAllParts(World world, Vector3i size, Vector3i root, Vector3i exclude, State state)

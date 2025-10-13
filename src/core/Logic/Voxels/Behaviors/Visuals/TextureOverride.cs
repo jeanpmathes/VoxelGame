@@ -26,7 +26,7 @@ public class TextureOverride : BlockBehavior, IBehavior<TextureOverride, BlockBe
     /// <summary>
     ///     Optional textures to override the texture provided by a model.
     /// </summary>
-    public IReadOnlyDictionary<Int32, TID>? Textures { get; private set; } // todo: replace with texture override behavior
+    public IReadOnlyDictionary<Int32, TID>? Textures { get; private set; }
 
     /// <summary>
     ///     Aspect used to initialize the <see cref="Textures" /> property.

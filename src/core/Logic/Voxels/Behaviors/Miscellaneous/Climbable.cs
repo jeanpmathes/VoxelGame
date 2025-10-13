@@ -62,11 +62,7 @@ public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Bloc
         ClimbingVelocity = ClimbingVelocityInitializer.GetValue(original: 1.0, Subject);
         SlidingVelocity = SlidingVelocityInitializer.GetValue(original: 1.0, Subject);
     }
-
-    // todo: check if there is an animation system note in the extended plan
-    // todo: if no, create one 
-    // todo: add to the animation system note that climbing should not use the physics system but instead be an animation sort of, with the ladder serving as a rail
-
+    
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
         Vector3d forwardMovement = Vector3d.Dot(message.Body.Movement, message.Body.Transform.Forward) * message.Body.Transform.Forward;
