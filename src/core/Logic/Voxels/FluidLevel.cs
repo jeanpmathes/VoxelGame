@@ -70,7 +70,7 @@ public static class FluidLevels
 /// <summary>
 ///     Extension methods for <see cref="FluidLevel" />.
 /// </summary>
-public static class FluidLevelExtensions
+public static class FluidLevelExtensions // todo: make these members when making fluid levels a struct
 {
     /// <summary>
     ///     Get the fluid level as block height.

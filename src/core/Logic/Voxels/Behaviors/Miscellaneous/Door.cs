@@ -13,6 +13,7 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
@@ -32,6 +33,8 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
         subject.Require<Composite>().MaximumSizeInitializer.ContributeConstant((1, 2, 1));
         subject.Require<Grounded>();
+
+        subject.Require<Fillable>();
 
         rotatable = subject.Require<LateralRotatable>();
         subject.Require<LateralRotatableModelled>().OrientationOverride.ContributeFunction(GetOrientationOverride);

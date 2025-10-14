@@ -8,6 +8,7 @@ using System;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Siding;
@@ -139,6 +140,7 @@ public static class StoneConvention // todo: check language for unused strings a
                     .WithBehavior<Wall>()
                     .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
+                    .WithBehavior<Fillable>()
                     .Complete(),
 
                 BrickWall = builder
@@ -146,6 +148,7 @@ public static class StoneConvention // todo: check language for unused strings a
                     .WithBehavior<Wall>()
                     .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))
+                    .WithBehavior<Fillable>()
                     .Complete()
             };
         });

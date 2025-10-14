@@ -6,7 +6,9 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
@@ -35,9 +37,15 @@ public class SaltWaterFluid : BasicFluid
     {
         if (!isStatic || level != FluidLevel.One) return;
         if (world.GetBlock(position.Below())?.IsFullySolid != true) return;
-
+        
         world.SetDefaultFluid(position);
+        
+        if (!Blocks.Instance.Environment.Salt.CanPlace(world, position)) return;
 
-        Blocks.Instance.Environment.Salt.Place(world, position); // todo: find a way to set the level of the concrete on placement, similar problem as with world gen and snow and such
+        State state = Blocks.Instance.Environment.Salt.GetPlacementState(world, position);
+        
+        state = state.WithHeight(level.GetBlockHeight());
+        
+        world.SetBlock(state, position);
     }
 }

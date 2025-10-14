@@ -18,6 +18,8 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// </summary>
 public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
 {
+    // todo: go through all blocks and determine whether they should be fillable
+    
     private Fillable(Block subject) : base(subject)
     {
         IsFluidRenderedInitializer = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(IsFluidRenderedInitializer), this);

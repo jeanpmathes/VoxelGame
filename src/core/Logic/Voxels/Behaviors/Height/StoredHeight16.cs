@@ -23,6 +23,7 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
     private StoredHeight16(Block subject) : base(subject)
     {
         subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => state.Get(Height), exclusive: true);
+        subject.Require<StoredHeight>().HeightedState.ContributeFunction(GetHeightedState);
 
         PlacementHeightInitializer = Aspect<Int32, Block>.New<Exclusive<Int32, Block>>(nameof(PlacementHeightInitializer), this);
     }
@@ -83,5 +84,12 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
         Int32 newHeight = (state.Get(Height) + 1) % (PartialHeight.MaximumHeight + 1);
 
         message.World.SetBlock(state.With(Height, newHeight), message.Position);
+    }
+
+    private State GetHeightedState(State original, Int32 height)
+    {
+        Int32 clampedHeight = Math.Clamp(height, PartialHeight.MinimumHeight, PartialHeight.MaximumHeight);
+
+        return original.With(Height, clampedHeight);
     }
 }

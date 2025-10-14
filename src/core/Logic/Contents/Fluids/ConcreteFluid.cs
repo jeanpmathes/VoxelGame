@@ -6,7 +6,9 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
@@ -37,13 +39,14 @@ public class ConcreteFluid : BasicFluid
     internal override void DoRandomUpdate(World world, Vector3i position, FluidLevel level, Boolean isStatic)
     {
         if (!isStatic) return;
+        if (!Blocks.Instance.Construction.Concrete.CanPlace(world, position)) return;
 
         world.SetDefaultFluid(position);
-
-        Blocks.Instance.Construction.Concrete.Place(world, position); 
         
-        // todo: find a way to set the level of the concrete on placement, similar problem as with world gen and snow and such
-        // todo: easiest method: a behavior extensions static class, with utilities to do this
-        // todo: for height, add a stored height behavior that is required by both height 16 and 8 and has method to get appropriate state
+        State state = Blocks.Instance.Construction.Concrete.GetPlacementState(world, position);
+
+        state = state.WithHeight(level.GetBlockHeight());
+
+        world.SetBlock(state, position);
     }
 }

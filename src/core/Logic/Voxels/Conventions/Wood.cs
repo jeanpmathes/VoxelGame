@@ -242,6 +242,7 @@ public static class WoodConvention
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Fence>()
                     .WithBehavior<Combustible>()
+                    .WithBehavior<Fillable>()
                     .Complete(),
 
                 FenceGate = builder
