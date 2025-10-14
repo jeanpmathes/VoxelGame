@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -74,10 +75,7 @@ public abstract class Cover
                 ? Blocks.Instance.Environment.LooseSnow
                 : Blocks.Instance.Environment.Snow;
 
-            // todo: think about a way to get the height to the block, maybe through an event or a utility function and an aspect on PartialHeight
-            // todo: also probably use the GenerationState by default instead of the default state
-
-            return new Content(snow.States.Default, FluidInstance.Default);
+            return new Content(snow.States.GenerationDefault.WithHeight(height), FluidInstance.Default);
         }
 
         return GetCover(position, climate);
