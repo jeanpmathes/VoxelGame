@@ -7,7 +7,6 @@
 using System;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
-using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
@@ -35,11 +34,9 @@ public class CrossModel : BlockBehavior, IBehavior<CrossModel, BlockBehavior, Bl
         return new CrossModel(input);
     }
 
-    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, MeshContext context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) = context; // todo: create struct for this tuple
-
-        Int32 textureIndex = texture.GetTextureIndex(state, textureIndexProvider, isBlock: true);
+        Int32 textureIndex = texture.GetTextureIndex(context.State, context.TextureIndexProvider, isBlock: true);
 
         return Meshes.CreateCrossMesh(textureIndex);
     }

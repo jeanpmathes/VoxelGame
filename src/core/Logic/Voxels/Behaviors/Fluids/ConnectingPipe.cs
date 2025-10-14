@@ -81,14 +81,12 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         return siding.GetSides(state);
     }
 
-    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, MeshContext context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
+        Model center = context.ModelProvider.GetModel(Models.center);
 
-        Model center = blockModelProvider.GetModel(Models.center);
-
-        Model frontConnector = blockModelProvider.GetModel(Models.connector);
-        Model frontSurface = blockModelProvider.GetModel(Models.surface);
+        Model frontConnector = context.ModelProvider.GetModel(Models.connector);
+        Model frontSurface = context.ModelProvider.GetModel(Models.surface);
 
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
             connectors = VoxelGame.Core.Visuals.Models.CreateModelsForAllSides(frontConnector, Model.TransformationMode.Reshape);
@@ -96,7 +94,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
             surfaces = VoxelGame.Core.Visuals.Models.CreateModelsForAllSides(frontSurface, Model.TransformationMode.Reshape);
 
-        Sides sides = siding.GetSides(state);
+        Sides sides = siding.GetSides(context.State);
 
         return Model.Combine(center,
             sides.HasFlag(Sides.Front) ? connectors.front : surfaces.front,
@@ -105,7 +103,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
             sides.HasFlag(Sides.Right) ? connectors.right : surfaces.right,
             sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
             sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top)
-            .CreateMesh(textureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
+            .CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

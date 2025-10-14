@@ -81,19 +81,19 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
         Layers = Layers.Take(Visuals.Selector.MaxLayerCount).ToArray();
     }
 
-    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, MeshContext context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
+        State state = context.State;
 
         Selector selector = Selector.GetValue(original: default, state);
 
         RID layer = Layers[selector.Layer]; // todo: handle out of bounds access
 
-        Model model = blockModelProvider.GetModel(layer, selector.Part);
+        Model model = context.ModelProvider.GetModel(layer, selector.Part);
 
         model = Model.GetValue(model, state);
 
-        return model.CreateMesh(textureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
+        return model.CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
     }
 }
 

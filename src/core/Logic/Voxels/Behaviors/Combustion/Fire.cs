@@ -99,18 +99,18 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         Top = builder.Define(nameof(Top)).Boolean().Attribute();
     }
 
-    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, MeshContext context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
+        State state = context.State;
 
-        Model complete = blockModelProvider.GetModel(Models.complete);
+        Model complete = context.ModelProvider.GetModel(Models.complete);
 
-        Model side = blockModelProvider.GetModel(Models.side);
-        Model up = blockModelProvider.GetModel(Models.top);
+        Model side = context.ModelProvider.GetModel(Models.side);
+        Model up = context.ModelProvider.GetModel(Models.top);
         
         Boolean any = IsAnySideBurning(state);
 
-        if (!any) return complete.CreateMesh(textureIndexProvider);
+        if (!any) return complete.CreateMesh(context.TextureIndexProvider);
 
         List<Model> requiredModels = new(capacity: 5);
 
@@ -129,7 +129,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         if (state.Get(Top))
             requiredModels.Add(up);
 
-        return Model.Combine(requiredModels).CreateMesh(textureIndexProvider);
+        return Model.Combine(requiredModels).CreateMesh(context.TextureIndexProvider);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

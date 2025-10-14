@@ -12,6 +12,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
@@ -58,26 +59,21 @@ public class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, BlockBeha
         Models = ModelsInitializer.GetValue(original: default, Subject);
     }
 
-    private Mesh GetMesh(Mesh original, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals) context)
+    private Mesh GetMesh(Mesh original, MeshContext context)
     {
-        (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration _) = context;
+        (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(context.State);
 
-        (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(state);
+        Model post = context.ModelProvider.GetModel(Models.post);
 
-        Model post = blockModelProvider.GetModel(Models.post);
+        (Model north, Model east, Model south, Model west) sides = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(context.ModelProvider.GetModel(Models.side), Model.TransformationMode.Reshape);
+        (Model north, Model east, Model south, Model west) extensions = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(context.ModelProvider.GetModel(Models.extension), Model.TransformationMode.Reshape);
 
-        (Model north, Model east, Model south, Model west) sides =
-            VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(blockModelProvider.GetModel(Models.side), Model.TransformationMode.Reshape);
-
-        (Model north, Model east, Model south, Model west) extensions =
-            VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(blockModelProvider.GetModel(Models.extension), Model.TransformationMode.Reshape);
-        
         return Model.Combine(post,
             north ? extensions.north : sides.north,
             east ? extensions.east : sides.east,
             south ? extensions.south : sides.south,
             west ? extensions.west : sides.west)
-            .CreateMesh(textureIndexProvider);
+            .CreateMesh(context.TextureIndexProvider);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

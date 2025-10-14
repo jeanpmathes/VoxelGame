@@ -26,13 +26,13 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
     {
         meshed = subject.Require<Meshed>();
 
-        Mesh = Aspect<Mesh, (State, ITextureIndexProvider, IModelProvider, VisualConfiguration)>.New<Exclusive<Mesh, (State, ITextureIndexProvider, IModelProvider, VisualConfiguration)>>(nameof(Mesh), this);
+        Mesh = Aspect<Mesh, MeshContext>.New<Exclusive<Mesh, MeshContext>>(nameof(Mesh), this);
     }
 
     /// <summary>
     ///     Get the state dependent mesh for the block.
     /// </summary>
-    public Aspect<Mesh, (State state, ITextureIndexProvider textureIndexProvider, IModelProvider blockModelProvider, VisualConfiguration visuals)> Mesh { get; }
+    public Aspect<Mesh, MeshContext> Mesh { get; }
 
     /// <inheritdoc />
     public static Complex Construct(Block input)
@@ -56,7 +56,7 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
         ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
 
-        Mesh mesh = Mesh.GetValue(Meshes.CreateFallback(), (state, textureIndexProvider, modelProvider, visuals));
+        Mesh mesh = Mesh.GetValue(Meshes.CreateFallback(), new MeshContext(state, textureIndexProvider, modelProvider));
         Mesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);
 
         return new MeshData(quads, quadCount, tint, isAnimated);
