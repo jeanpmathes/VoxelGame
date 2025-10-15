@@ -56,7 +56,7 @@ public class PlayerDebugProperties : Group
     private static IEnumerable<Property> CreateFluidTargetProperties(FluidInstance instance)
     {
         yield return new Message("ID", $"{instance.Fluid.NamedID}[{instance.Fluid.ID}]");
-        yield return new Message("Level", instance.Level.ToStringFast());
+        yield return new Message("Level", instance.Level.ToString());
         yield return new Message("IsStatic", instance.IsStatic.ToString());
     }
 

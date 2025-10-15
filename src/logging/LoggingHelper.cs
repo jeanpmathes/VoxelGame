@@ -17,7 +17,10 @@ namespace VoxelGame.Logging;
 /// </summary>
 public static class LoggingHelper
 {
-    private static ILoggerFactory LoggerFactory { get; set; } = null!;
+    /// <summary>
+    /// Get the logger factory.
+    /// </summary>
+    public static ILoggerFactory LoggerFactory { get; set; } = null!;
 
     /// <summary>
     ///     Create a logger.

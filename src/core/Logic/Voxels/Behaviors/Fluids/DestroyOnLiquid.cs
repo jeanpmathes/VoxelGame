@@ -18,9 +18,7 @@ public class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBe
 {
     private DestroyOnLiquid(Block subject) : base(subject)
     {
-        ThresholdInitializer = Aspect<FluidLevel, Block>.New<Exclusive<FluidLevel, Block>>(nameof(ThresholdInitializer), this);
-        // todo: the fluid level struct should be written in a way so that it supports the Minimum strategy being used here instead of Exclusive
-        // todo: maybe FluidLevel struct should also have a -1 value for no level but the method to get the UInt32 should assert that this does not get returned
+        ThresholdInitializer = Aspect<FluidLevel, Block>.New<Minimum<FluidLevel, Block>>(nameof(ThresholdInitializer), this);
     }
 
     /// <summary>

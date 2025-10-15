@@ -128,6 +128,8 @@ internal static partial class Program
 
     private static Int32 Run(ILogger logger, Func<Int32> runnable)
     {
+        using ILoggerFactory factory = LoggingHelper.LoggerFactory;
+        
         if (IsDebug) return runnable();
 
         try

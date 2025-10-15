@@ -12,7 +12,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
-using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -156,12 +155,12 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Fluid;
-
+    
     private static BoundingVolume[] CreateVolumes()
     {
         BoundingVolume CreateVolume(FluidLevel level)
         {
-            Single halfHeight = ((Int32) level + 1) * 0.0625f;
+            Double halfHeight = level.Fraction / 2.0;
 
             return new BoundingVolume(
                 new Vector3d(x: 0.5f, halfHeight, z: 0.5f),
@@ -170,7 +169,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
         var fluidVolumes = new BoundingVolume[8];
 
-        for (var i = 0; i < 8; i++) fluidVolumes[i] = CreateVolume((FluidLevel) i);
+        for (var i = 0; i < 8; i++) fluidVolumes[i] = CreateVolume(FluidLevel.FromInt32(i));
 
         return fluidVolumes;
     }
@@ -243,17 +242,17 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             Boolean isNeighborFluidMeshed = blockToCheck.Block.Get<Fillable>()?.IsFluidRendered == true;
 
-            var sideHeight = (Int32) fluidToCheck.Level;
+            FluidLevel neighborLevel = fluidToCheck.Level;
 
-            if (fluidToCheck.Fluid != this || !isNeighborFluidMeshed) sideHeight = FluidLevels.None;
+            if (fluidToCheck.Fluid != this || !isNeighborFluidMeshed) neighborLevel = FluidLevel.None;
 
             Boolean flowsTowardsFace = side == Side.Top
                 ? Direction == VerticalFlow.Upwards
                 : Direction == VerticalFlow.Downwards;
 
-            Boolean meshAtSide = (Int32) info.Level > sideHeight && !blockToCheck.IsFullyOpaque;
+            Boolean meshAtSide = info.Level > neighborLevel && !blockToCheck.IsFullyOpaque;
 
-            Boolean meshAtDrainEnd = sideHeight != 7 && !blockToCheck.IsFullyOpaque;
+            Boolean meshAtDrainEnd = !neighborLevel.IsFull && !blockToCheck.IsFullyOpaque;
             Boolean meshAtSourceEnd = info.Level != FluidLevel.Eight || fluidToCheck.Fluid != this && !blockToCheck.IsFullyOpaque;
 
             Boolean meshAtEnd = flowsTowardsFace ? meshAtDrainEnd : meshAtSourceEnd;
@@ -271,7 +270,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             if (side is not (Side.Top or Side.Bottom))
             {
-                (Vector2 min, Vector2 max) uvs = info.Level.GetUVs(sideHeight, Direction);
+                (Vector2 min, Vector2 max) uvs = info.Level.GetUVs(neighborLevel, Direction);
                 Meshing.SetUVs(ref data, uvs.min, (uvs.min.X, uvs.max.Y), uvs.max, (uvs.max.X, uvs.min.Y));
             }
             else
@@ -285,7 +284,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             fluidMeshFaceHolders[side].AddFace(
                 position,
                 info.Level.GetBlockHeight(),
-                PartialHeight.GetBlockHeightFromFluidHeight(sideHeight),
+                neighborLevel.GetBlockHeight(),
                 Direction != VerticalFlow.Upwards,
                 data,
                 singleSided,
@@ -306,7 +305,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <returns>The collider.</returns>
     public static BoxCollider GetCollider(Vector3i position, FluidLevel level)
     {
-        return volumes[(Int32) level].GetColliderAt(position);
+        return volumes[level.ToInt32()].GetColliderAt(position);
     }
 
     /// <summary>
@@ -331,7 +330,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     ///     Tries to fill a position with the specified amount of fluid. The remaining fluid is specified, it can be
     ///     converted to <see cref="FluidLevel" /> if it is not <c>-1</c>.
     /// </summary>
-    public Boolean Fill(World world, Vector3i position, FluidLevel level, Side entrySide, out Int32 remaining)
+    public Boolean Fill(World world, Vector3i position, FluidLevel level, Side entrySide, out FluidLevel remaining)
     {
         Content? content = world.GetContent(position);
 
@@ -340,13 +339,12 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         {
             if (target.Fluid == this && target.Level != FluidLevel.Eight)
             {
-                Int32 filled = (Int32) target.Level + (Int32) level + 1;
-                filled = filled > 7 ? 7 : filled;
+                FluidLevel filled = target.Level + level;
 
-                world.SetFluid(this.AsInstance((FluidLevel) filled, isStatic: false), position);
+                world.SetFluid(this.AsInstance(filled, isStatic: false), position);
                 if (target.IsStatic) ScheduleUpdate(world, position);
 
-                remaining = (Int32) level - (filled - (Int32) target.Level);
+                remaining = level - (filled - target.Level);
 
                 return true;
             }
@@ -356,13 +354,13 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
                 world.SetFluid(this.AsInstance(level, isStatic: false), position);
                 ScheduleUpdate(world, position);
 
-                remaining = -1;
+                remaining = FluidLevel.None;
 
                 return true;
             }
         }
 
-        remaining = (Int32) level;
+        remaining = level;
 
         return false;
     }
@@ -382,7 +380,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         }
         else
         {
-            world.SetFluid(this.AsInstance((FluidLevel) ((Int32) fluid.Level - (Int32) level - 1), isStatic: false), position);
+            FluidLevel resultingLevel = fluid.Level - level;
+
+            world.SetFluid(this.AsInstance(resultingLevel, isStatic: false), position);
 
             if (fluid.IsStatic) ScheduleUpdate(world, position);
         }
@@ -410,7 +410,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         }
         else
         {
-            world.SetFluid(this.AsInstance((FluidLevel) ((Int32) fluid.Level - (Int32) level - 1), isStatic: false), position);
+            FluidLevel resultingLevel = fluid.Level - level;
+
+            world.SetFluid(this.AsInstance(resultingLevel, isStatic: false), position);
 
             if (fluid.IsStatic) ScheduleUpdate(world, position);
         }
@@ -430,7 +432,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// </summary>
     protected Boolean HasNeighborWithLevel(World world, FluidLevel level, Vector3i position)
     {
-        if ((Int32) level == -1) return false;
+        if (level == FluidLevel.None) return false;
 
         if (world.GetBlock(position)?.Block.Get<Fillable>() is not {} currentFillable) return false;
 
@@ -572,12 +574,12 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         if (content is not var (start, toElevate)) return;
         if (toElevate.Fluid == Fluids.Instance.None || toElevate.Fluid.IsGas) return;
 
-        var currentLevel = (Int32) toElevate.Level;
+        FluidLevel currentLevel = toElevate.Level;
 
         if (start.Block.Get<Fillable>() is not {} startFillable ||
             !startFillable.CanOutflow(world, position, Side.Top, toElevate.Fluid)) return;
 
-        for (var offset = 1; offset <= distance && currentLevel > -1; offset++)
+        for (var offset = 1; offset <= distance && currentLevel > FluidLevel.None; offset++)
         {
             Vector3i elevatedPosition = position + (0, offset, 0);
 
@@ -588,14 +590,14 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             toElevate.Fluid.Fill(
                 world,
                 elevatedPosition,
-                (FluidLevel) currentLevel,
+                currentLevel,
                 Side.Bottom,
                 out currentLevel);
 
             if (!currentBlock.CanOutflow(world, elevatedPosition, Side.Top, toElevate.Fluid)) break;
         }
 
-        FluidLevel elevated = toElevate.Level - (currentLevel + 1);
+        FluidLevel elevated = toElevate.Level - currentLevel;
         toElevate.Fluid.Take(world, position, ref elevated);
     }
 

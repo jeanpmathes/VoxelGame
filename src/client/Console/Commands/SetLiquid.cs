@@ -48,9 +48,7 @@ public class SetFluid : Command
             return;
         }
 
-        var level = (FluidLevel) levelData;
-
-        if (level is < FluidLevel.One or > FluidLevel.Eight)
+        if (!FluidLevel.TryFromInt32(levelData, out FluidLevel level))
         {
             Context.Output.WriteError("Invalid level.");
 

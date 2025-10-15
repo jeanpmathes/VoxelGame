@@ -24,7 +24,7 @@ public partial class StaticStructure
         public String Block { get; set; } = nameof(Blocks.Instance.Core.Air);
         public JsonNode State { get; set; } = new JsonObject();
         public String Fluid { get; set; } = nameof(Voxels.Fluids.Instance.None);
-        public Int32 Level { get; set; } = (Int32) FluidLevel.Eight;
+        public Int32 Level { get; set; } = FluidLevel.Eight.ToInt32();
         public Boolean IsStatic { get; set; } = true;
     }
 

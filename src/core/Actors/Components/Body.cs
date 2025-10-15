@@ -168,7 +168,7 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
         {
             var useFluidDrag = false;
             var noGas = false;
-            var maxLevel = 0;
+            FluidLevel maxLevel = FluidLevel.None;
 
             foreach ((Vector3i position, Fluid fluid, FluidLevel level) in fluidIntersections)
             {
@@ -176,10 +176,10 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
 
                 useFluidDrag |= fluid.IsLiquid;
                 noGas = fluid.IsLiquid;
-                maxLevel = Math.Max(maxLevel, (Int32) level);
+                maxLevel = FluidLevel.Max(maxLevel, level);
             }
 
-            if (useFluidDrag) drag = MathHelper.Lerp(AirDrag, FluidDrag, (maxLevel + 1) / 8.0);
+            if (useFluidDrag) drag = MathHelper.Lerp(AirDrag, FluidDrag, maxLevel.Fraction);
 
 #pragma warning disable S2589 // IsGrounded is set in DoPhysicsStep
             if (!IsGrounded && noGas) IsSwimming = true;

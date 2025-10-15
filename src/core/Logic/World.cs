@@ -368,7 +368,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(in Content newContent, Vector3i position, Boolean updateFluid)
+    private void SetContent(Content newContent, Vector3i position, Boolean updateFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
@@ -379,6 +379,9 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
         UInt32 oldValue = section.GetContent(position);
         UInt32 newValue = Section.Encode(newContent);
         Section.Decode(oldValue, out Content oldContent);
+
+        if (newContent.Fluid.Level == FluidLevel.None)
+            newContent.Fluid = FluidInstance.Default;
 
         section.SetContent(position, newValue);
 

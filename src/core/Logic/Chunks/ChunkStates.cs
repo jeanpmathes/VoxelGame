@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
@@ -132,11 +133,13 @@ public partial class Chunk
 
                 generating.Result?.Switch(
                     TryActivation,
-                    exception =>
+                    e =>
                     {
-                        LogChunkGenerationError(logger, exception, Chunk.Position);
+                        LogChunkGenerationError(logger, e, Chunk.Position);
 
-                        throw exception;
+                        ExceptionDispatchInfo.Capture(e).Throw();
+                        
+                        return false;
                     }
                 );
             }
@@ -210,11 +213,13 @@ public partial class Chunk
 
                 decorating.Result?.Switch(
                     TryActivation,
-                    exception =>
+                    e =>
                     {
-                        LogChunkDecorationError(logger, exception, Chunk.Position);
+                        LogChunkDecorationError(logger, e, Chunk.Position);
 
-                        throw exception;
+                        ExceptionDispatchInfo.Capture(e).Throw();
+                        
+                        return false;
                     }
                 );
             }

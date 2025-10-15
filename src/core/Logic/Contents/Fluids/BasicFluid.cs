@@ -115,18 +115,19 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 level,
                 Direction,
                 handleContact: false,
-                out Int32 remaining) && remaining == -1 ||
-            FlowVertical(
+                out FluidLevel remaining) && remaining == FluidLevel.None) return;
+
+        if (FlowVertical(
                 world,
                 position,
                 currentFillable: null,
-                (FluidLevel) remaining,
+                remaining,
                 Direction.Opposite(),
                 handleContact: false,
                 out remaining) &&
-            remaining == -1) return;
+            remaining == FluidLevel.None) return;
 
-        SpreadOrDestroyFluid(world, position, (FluidLevel) remaining);
+        SpreadOrDestroyFluid(world, position, remaining);
     }
 
     private void ValidLocationFlow(World world, Vector3i position, FluidLevel level, Fillable current)
@@ -149,7 +150,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     }
 
     private Boolean FlowVertical(World world, Vector3i position, Fillable? currentFillable, FluidLevel level,
-        VerticalFlow flow, Boolean handleContact, out Int32 remaining)
+        VerticalFlow flow, Boolean handleContact, out FluidLevel remaining)
     {
         Content? content = world.GetContent(
             position + flow.Direction());
@@ -158,7 +159,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                                                                             || !verticalFillable.CanInflow(world, position + flow.Direction(), flow.EntrySide(), this)
                                                                             || !(currentFillable?.CanOutflow(world, position, flow.ExitSide(), this) ?? true))
         {
-            remaining = (Int32) level;
+            remaining = level;
 
             return false;
         }
@@ -171,39 +172,39 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
             ScheduleUpdate(world, position + flow.Direction());
 
-            remaining = -1;
+            remaining = FluidLevel.None;
 
             return true;
         }
 
         if (fluidVertical.Fluid == this)
         {
-            if (fluidVertical.Level == FluidLevel.Eight)
+            if (fluidVertical.Level.IsFull)
             {
-                remaining = (Int32) level;
+                remaining = level;
 
                 return false;
             }
 
-            Int32 volume = FluidLevel.Eight - fluidVertical.Level - 1;
+            FluidLevel volume = FluidLevel.Full - fluidVertical.Level;
 
-            if (volume >= (Int32) level)
+            if (volume >= level)
             {
                 Vector3i position1 = position + flow.Direction();
 
-                world.SetFluid(this.AsInstance(fluidVertical.Level + (Int32) level + 1, isStatic: false), position1);
+                world.SetFluid(this.AsInstance(fluidVertical.Level + level, isStatic: false), position1);
                 world.SetFluid(Voxels.Fluids.Instance.None.AsInstance(), position);
 
-                remaining = -1;
+                remaining = FluidLevel.None;
             }
             else
             {
                 Vector3i position1 = position + flow.Direction();
 
                 world.SetFluid(this.AsInstance(isStatic: false), position1);
-                world.SetFluid(this.AsInstance(level - volume - 1, isStatic: false), position);
+                world.SetFluid(this.AsInstance(level - volume, isStatic: false), position);
 
-                remaining = (Int32) (level - volume - 1);
+                remaining = level - volume;
 
                 ScheduleUpdate(world, position);
             }
@@ -215,7 +216,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         if (handleContact)
         {
-            remaining = (Int32) level;
+            remaining = level;
 
             return Voxels.Fluids.ContactManager.HandleContact(
                 world,
@@ -225,7 +226,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
                 position + flow.Direction());
         }
 
-        remaining = (Int32) level;
+        remaining = level;
 
         return false;
     }
@@ -274,7 +275,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         Vector3i horizontalPosition = position;
         var isHorStatic = false;
-        var levelHorizontal = FluidLevel.Eight;
+        FluidLevel levelHorizontal = FluidLevel.Eight;
 
         if (Orientations.ShuffledStart(position)
             .Any(orientation => CheckNeighbor(
@@ -284,7 +285,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         if (horizontalPosition == position) return false;
 
-        world.SetFluid(this.AsInstance(levelHorizontal + 1, isStatic: false), horizontalPosition);
+        world.SetFluid(this.AsInstance(levelHorizontal + FluidLevel.One, isStatic: false), horizontalPosition);
 
         if (isHorStatic) ScheduleUpdate(world, horizontalPosition);
 
@@ -292,7 +293,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         Boolean isStatic1 = !hasRemaining;
 
-        world.SetFluid((hasRemaining ? this : Voxels.Fluids.Instance.None).AsInstance(hasRemaining ? level - 1 : FluidLevel.Eight, isStatic1), position);
+        world.SetFluid((hasRemaining ? this : Voxels.Fluids.Instance.None).AsInstance(hasRemaining ? level - FluidLevel.One : FluidLevel.Eight, isStatic1), position);
 
         if (hasRemaining) ScheduleUpdate(world, position);
 
@@ -343,7 +344,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
                     Boolean isStatic2 = !remaining;
 
-                    world.SetFluid((remaining ? this : Voxels.Fluids.Instance.None).AsInstance(remaining ? level - 1 : FluidLevel.Eight, isStatic2), position);
+                    world.SetFluid((remaining ? this : Voxels.Fluids.Instance.None).AsInstance(remaining ? level - FluidLevel.One : FluidLevel.Eight, isStatic2), position);
 
                     if (remaining) ScheduleUpdate(world, position);
                 }
@@ -363,15 +364,15 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
             else if (neighborFluid.Fluid == this && level > neighborFluid.Level &&
                      neighborFluid.Level < levelHorizontal)
             {
-                Boolean neighborHasSignificantlyLowerLevel = neighborFluid.Level != level - 1;
+                Boolean neighborHasSignificantlyLowerLevel = neighborFluid.Level != level - FluidLevel.One;
 
-                Boolean neighborHasLessPressure = level == FluidLevel.Eight && !IsAtSurface(world, position) &&
+                Boolean neighborHasLessPressure = level.IsFull && !IsAtSurface(world, position) &&
                                                   IsAtSurface(world, neighborPosition);
 
                 Boolean directNeighborAllowsFlow = neighborHasSignificantlyLowerLevel || neighborHasLessPressure;
 
                 Boolean allowsFlow = directNeighborAllowsFlow
-                                     || HasNeighborWithLevel(world, level - 2, neighborPosition)
+                                     || HasNeighborWithLevel(world, level - FluidLevel.Two, neighborPosition)
                                      || HasNeighborWithEmpty(world, neighborPosition);
 
                 if (!allowsFlow) return false;
@@ -391,16 +392,16 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         if (level < FluidLevel.Three) return false;
 
         (Vector3i position, FluidInstance fluid, Fillable fillable)? potentialTarget =
-            SearchFlowTarget(world, position, level - 2, range: 4);
+            SearchFlowTarget(world, position, level - FluidLevel.Two, range: 4);
 
         if (potentialTarget == null) return false;
 
         var target = ((Vector3i position, FluidInstance fluid, Fillable fillable)) potentialTarget;
 
-        world.SetFluid(this.AsInstance(target.fluid.Level + 1, isStatic: false), target.position);
+        world.SetFluid(this.AsInstance(target.fluid.Level + FluidLevel.One, isStatic: false), target.position);
         if (target.fluid.IsStatic) ScheduleUpdate(world, target.position);
 
-        world.SetFluid(this.AsInstance(level - 1, isStatic: false), position);
+        world.SetFluid(this.AsInstance(level - FluidLevel.One, isStatic: false), position);
         ScheduleUpdate(world, position);
 
         return true;
@@ -408,19 +409,19 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
     private void SpreadOrDestroyFluid(World world, Vector3i position, FluidLevel level)
     {
-        var remaining = (Int32) level;
+        FluidLevel remaining = level;
 
         foreach (Orientation orientation in Orientations.All)
         {
             FillNeighbor(world, orientation.Offset(position), orientation.ToSide(), ref remaining);
 
-            if (remaining == -1) break;
+            if (remaining == FluidLevel.None) break;
         }
 
         world.SetDefaultFluid(position);
     }
 
-    private void FillNeighbor(World world, Vector3i neighborPosition, Side side, ref Int32 remaining)
+    private void FillNeighbor(World world, Vector3i neighborPosition, Side side, ref FluidLevel remaining)
     {
         Content? neighborContent = world.GetContent(neighborPosition);
 
@@ -429,29 +430,31 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         Boolean isStatic = neighborFluid.IsStatic;
 
+        if (remaining == FluidLevel.None) return;
+
         if (neighborFluid.Fluid == Voxels.Fluids.Instance.None)
         {
-            world.SetFluid(this.AsInstance((FluidLevel) remaining, isStatic: false), neighborPosition);
+            world.SetFluid(this.AsInstance(remaining, isStatic: false), neighborPosition);
 
-            remaining = -1;
+            remaining = FluidLevel.None;
 
             ScheduleUpdate(world, neighborPosition);
         }
         else if (neighborFluid.Fluid == this)
         {
-            Int32 volume = FluidLevel.Eight - neighborFluid.Level - 1;
+            FluidLevel volume = FluidLevel.Eight - neighborFluid.Level;
 
             if (volume >= remaining)
             {
-                world.SetFluid(this.AsInstance(neighborFluid.Level + remaining + 1, isStatic: false), neighborPosition);
+                world.SetFluid(this.AsInstance(neighborFluid.Level + remaining, isStatic: false), neighborPosition);
 
-                remaining = -1;
+                remaining = FluidLevel.None;
             }
             else
             {
                 world.SetFluid(this.AsInstance(isStatic: false), neighborPosition);
 
-                remaining = remaining - volume - 1;
+                remaining = remaining - volume;
             }
 
             if (isStatic) ScheduleUpdate(world, neighborPosition);

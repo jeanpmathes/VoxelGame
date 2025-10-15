@@ -84,10 +84,9 @@ public static class ContentExtensions
     /// <summary>
     ///     Get a fluid as instance.
     /// </summary>
-    public static FluidInstance AsInstance(this Fluid? fluid, FluidLevel level = FluidLevel.Eight,
-        Boolean isStatic = true)
+    public static FluidInstance AsInstance(this Fluid? fluid, FluidLevel? level = null, Boolean isStatic = true)
     {
-        return fluid is null ? FluidInstance.Default : new FluidInstance(fluid, level, isStatic);
+        return fluid is null ? FluidInstance.Default : new FluidInstance(fluid, level ?? FluidLevel.Full, isStatic);
     }
     #pragma warning restore S4226
 }

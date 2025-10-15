@@ -156,7 +156,7 @@ public class FluidContactManager
 
         SetFluid(world, aboveLightPosition, light.fluid, light.level);
         SetFluid(world, light.position, dense.fluid, FluidLevel.One);
-        SetFluid(world, dense.position, dense.fluid, dense.level - 1);
+        SetFluid(world, dense.position, dense.fluid, dense.level - FluidLevel.One);
 
         return true;
 
@@ -255,7 +255,7 @@ public class FluidContactManager
 
         public override Int32 GetHashCode()
         {
-            return HashCode.Combine(fluid, position, (Int32) level, isStatic);
+            return HashCode.Combine(fluid, position, level, isStatic);
         }
 
         public static Boolean operator ==(ContactInformation left, ContactInformation right)

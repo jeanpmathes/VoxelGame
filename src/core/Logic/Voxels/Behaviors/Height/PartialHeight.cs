@@ -104,14 +104,4 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
     {
         return GetHeight(state) == MaximumHeight;
     }
-
-    /// <summary>
-    ///     Convert a fluid height to a block height.
-    /// </summary>
-    /// <param name="fluidHeight">The fluid height, in the range [-1, 7].</param>
-    /// <returns>The block height, in the range [-1, 15].</returns>
-    public static Int32 GetBlockHeightFromFluidHeight(Int32 fluidHeight)
-    {
-        return fluidHeight * 2 + 1;
-    }
 }

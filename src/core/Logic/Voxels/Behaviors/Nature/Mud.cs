@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
@@ -36,8 +35,8 @@ public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
     private static void OnGrowthAttempt(Plantable.IGrowthAttemptMessage message)
     {
         if (message.Fluid != Voxels.Fluids.Instance.FreshWater) return;
-
-        FluidLevel remaining = FluidLevel.Eight - (Int32) message.Level; // todo: add a fluid level struct
+        
+        FluidLevel remaining = FluidLevel.Full - message.Level;
 
         message.World.SetContent(remaining >= FluidLevel.One
                 ? new Content(new State(Blocks.Instance.Environment.Soil), Voxels.Fluids.Instance.FreshWater.AsInstance(remaining))

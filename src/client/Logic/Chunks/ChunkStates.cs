@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
@@ -97,7 +98,7 @@ public partial class Chunk
                     {
                         LogChunkMeshingError(logger, e, Chunk.Position);
 
-                        throw e;
+                        ExceptionDispatchInfo.Capture(e).Throw();
                     }
                 );
             }

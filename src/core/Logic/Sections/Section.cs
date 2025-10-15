@@ -276,7 +276,7 @@ public class Section : IDisposable
         state = Blocks.Instance.TranslateStateID(value & BlockStateMask);
 
         fluid = Fluids.Instance.TranslateID((value & FluidMask) >> FluidShift);
-        level = (FluidLevel) ((value & LevelMask) >> LevelShift);
+        level = FluidLevel.FromInt32((Int32) ((value & LevelMask) >> LevelShift));
         isStatic = (value & StaticMask) != 0;
     }
 
@@ -298,7 +298,7 @@ public class Section : IDisposable
     public static UInt32 Encode(State state, Fluid fluid, FluidLevel level, Boolean isStatic)
     {
         return (UInt32) ((isStatic ? 1 : 0) << StaticShift & StaticMask
-                         | (UInt32) level << LevelShift & LevelMask
+                         | (UInt32) level.ToInt32() << LevelShift & LevelMask
                          | fluid.ID << FluidShift & FluidMask
                          | state.ID & BlockStateMask);
     }
@@ -339,7 +339,7 @@ public class Section : IDisposable
 
         UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 
-        var level = (FluidLevel) ((val & LevelMask) >> LevelShift);
+        FluidLevel level = FluidLevel.FromInt32((Int32) ((val & LevelMask) >> LevelShift));
 
         return Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
     }

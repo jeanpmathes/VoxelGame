@@ -12,7 +12,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
@@ -204,8 +203,8 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
 
             fluid = Voxels.Fluids.Instance.None;
         }
-
-        content.Fluid = new FluidInstance(fluid, (FluidLevel) (((UInt32) placement.Level << Section.LevelShift & Section.LevelMask) >> Section.LevelShift), placement.IsStatic);
+        
+        content.Fluid = new FluidInstance(fluid, FluidLevel.FromInt32(placement.Level), placement.IsStatic);
 
         contents[position.X, position.Y, position.Z] = content;
     }
@@ -259,7 +258,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
                 Block = content.Block.Block.ContentID.ToString(),
                 State = content.Block.Owner.GetJson(content.Block),
                 Fluid = content.Fluid.Fluid.NamedID,
-                Level = (Int32) content.Fluid.Level,
+                Level = content.Fluid.Level.ToInt32(),
                 IsStatic = content.Fluid.IsStatic
             });
         }
