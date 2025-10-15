@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
@@ -197,15 +198,16 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Modifiable>()
         .WithBehavior<Grounded>()
         .WithBehavior<Densifying>()
+        .WithBehavior<CoverPreserving, PartialHeight>((preserving, height) => preserving.Preservation.ContributeFunction((_, state) => height.GetHeight(state) < PartialHeight.MaximumHeight - 2))
         .WithBehavior<DestroyOnFluid>()
         .Complete();
 
     /// <summary>
-    ///     Loose snow allows entities to sink into it.
+    ///     Pulverized snow allows entities to sink into it.
     /// </summary>
-    public Block LooseSnow { get; } = builder // todo: rename to PulverizedSnow
-        .BuildPartialHeightBlock(new CID(nameof(LooseSnow)), Language.LooseSnow)
-        .WithTextureLayout(TextureLayout.Uniform(TID.Block("snow_loose")))
+    public Block PulverizedSnow { get; } = builder
+        .BuildPartialHeightBlock(new CID(nameof(PulverizedSnow)), Language.PulverizedSnow)
+        .WithTextureLayout(TextureLayout.Uniform(TID.Block("snow_pulverized")))
         .WithBehavior<StoredHeight16>()
         .WithBehavior<Modifiable>()
         .WithBehavior<Grounded>()
@@ -213,6 +215,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<DestroyOnFluid>()
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.01))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
+        .WithBehavior<CoverPreserving, PartialHeight>((preserving, height) => preserving.Preservation.ContributeFunction((_, state) => height.GetHeight(state) < PartialHeight.MaximumHeight))
         .Complete();
 
     /// <summary>
@@ -264,5 +267,6 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Modifiable>()
         .WithBehavior<Salt>()
         .WithBehavior<Grounded>()
+        .WithBehavior<CoverPreserving>()
         .Complete();
 }

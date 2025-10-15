@@ -33,7 +33,7 @@ public class GrassSpreadable : BlockBehavior, IBehavior<GrassSpreadable, BlockBe
     /// <returns>True when the grass block successfully spread.</returns>
     public Boolean SpreadGrass(World world, Vector3i position, Block grass)
     {
-        if (world.GetBlock(position)?.Block != Subject || CoveredSoil.CanHaveCover(world, position) != false) return false;
+        if (world.GetBlock(position)?.Block != Subject || CoveredSoil.CanHaveCover(world, position) != true) return false;
 
         world.SetBlock(new State(grass), position);
 

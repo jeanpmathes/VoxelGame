@@ -327,11 +327,11 @@ public class SubBiomeLoader : IResourceLoader
         /// <summary>
         ///     Flat fields with loose snow, where one can sink into the snow.
         /// </summary>
-        public SubBiomeDefinition PolarDesertLooseSnow { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesertLooseSnow), palette)
+        public SubBiomeDefinition PolarDesertPulverizedSnow { get; } = subBiomes.Register(new SubBiomeDefinition(nameof(PolarDesertPulverizedSnow), palette)
         {
             Amplitude = 4f,
             Frequency = 0.03f,
-            Cover = new Cover.NoVegetation(isSnowLoose: true),
+            Cover = new Cover.NoVegetation(isSnowPulverized: true),
             Layers =
             [
                 Layer.CreateSnow(width: 3, loose: true),

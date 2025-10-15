@@ -477,6 +477,8 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (!CanPlace(world, position, actor))
             return false;
 
+        State placementState = GetPlacementState(world, position, actor);
+        
         if (Placement.HasSubscribers)
         {
             PlacementMessage placement = IEventMessage<PlacementMessage>.Pool.Get();
@@ -485,6 +487,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
                 placement.World = world;
                 placement.Position = position;
                 placement.Actor = actor;
+                placement.PlacementState = placementState;
             }
 
             Placement.Publish(placement);
@@ -493,7 +496,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         }
         else
         {
-            world.SetBlock(GetPlacementState(world, position, actor), position);
+            world.SetBlock(placementState, position);
         }
 
         PlacementCompletedMessage placementCompleted = IEventMessage<PlacementCompletedMessage>.Pool.Get();
@@ -859,6 +862,11 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         ///     The actor that performs placement.
         /// </summary>
         public Actor? Actor { get; }
+        
+        /// <summary>
+        /// The state this block would be placed as if there were no event subscribers.
+        /// </summary>
+        public State PlacementState { get; }
     }
 
     /// <summary>

@@ -48,17 +48,17 @@ public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, 
         return CanHaveCover(world, position) == false || Blocks.Instance.Environment.Soil.CanPlace(world, position, actor);
     }
 
-    private void OnPlacement(Block.IPlacementMessage message)
+    private static void OnPlacement(Block.IPlacementMessage message)
     {
-        if (CanHaveCover(message.World, message.Position) == false)
-            message.World.SetBlock(Subject.States.PlacementDefault, message.Position);
+        if (CanHaveCover(message.World, message.Position) == true)
+            message.World.SetBlock(message.PlacementState, message.Position);
         else
             Blocks.Instance.Environment.Soil.Place(message.World, message.Position, message.Actor);
     }
 
     private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
-        if (message.Side == Side.Top && CanHaveCover(message.World, message.Position) != false)
+        if (message.Side == Side.Top && CanHaveCover(message.World, message.Position) != true)
             RemoveCover(message.World, message.Position);
     }
 
@@ -72,11 +72,18 @@ public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, 
     {
         State? top = world.GetBlock(position.Above());
 
-        if (top is null) return null;
+        if (top == null) 
+            return null;
 
-        // todo: add a new behavior for blocks that do not destroy cover despite being solid and opaque, e.g. snow
+        State state = top.Value;
+        
+        if (state.Block.Get<CoverPreserving>() is {} coverPreserving)
+            return coverPreserving.IsPreserving(state);
 
-        return top.Value.Block is {IsOpaque: true, IsSolid: true} && top.Value.IsSideFull(Side.Bottom);
+        if (state.IsSideFull(Side.Bottom))
+            return false;
+        
+        return state.Block is not {IsOpaque: true, IsSolid: true};
     }
 
     /// <summary>

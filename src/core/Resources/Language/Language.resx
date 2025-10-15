@@ -1009,7 +1009,7 @@
         <value>Mahogany Leaves</value>
     </data>
     <data name="MahoganyLog" xml:space="preserve">
-        <value>Mahagony Log</value>
+                <value>Mahogany Log</value>
     </data>
     <data name="MahoganyWood" xml:space="preserve">
         <value>Mahogany Wood</value>
@@ -1110,8 +1110,8 @@
     <data name="Pipe" xml:space="preserve">
         <value>Pipe</value>
     </data>
-    <data name="LooseSnow" xml:space="preserve">
-        <value>Loose Snow</value>
+    <data name="PulverizedSnow" xml:space="preserve">
+        <value>Pulverized Snow</value>
     </data>
     <data name="Lichen" xml:space="preserve">
         <value>Lichen</value>

@@ -98,7 +98,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void OnPlacement(Block.IPlacementMessage message)
     {
-        State state = Subject.GetPlacementState(message.World, message.Position, message.Actor);
+        State state = message.PlacementState;
         Vector3i size = composite.GetSize(state);
 
         Orientation orientation = rotatable.GetOrientation(state);

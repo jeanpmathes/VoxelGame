@@ -1110,8 +1110,8 @@
     <data name="Pipe" xml:space="preserve">
         <value>Rohr</value>
     </data>
-    <data name="LooseSnow" xml:space="preserve">
-        <value>Loser Schnee</value>
+    <data name="PulverizedSnow" xml:space="preserve">
+        <value>Pulverschnee</value>
     </data>
     <data name="Lichen" xml:space="preserve">
         <value>Flechten</value>

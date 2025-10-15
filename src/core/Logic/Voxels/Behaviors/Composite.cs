@@ -173,7 +173,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private void OnPlacement(Block.IPlacementMessage message)
     {
-        State state = Subject.GetPlacementState(message.World, message.Position, message.Actor);
+        State state = message.PlacementState;
         Vector3i size = GetSize(state);
 
         for (var x = 0; x < size.X; x++)

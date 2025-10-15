@@ -102,6 +102,8 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<ConstantHeight>(height => height.HeightInitializer.ContributeConstant(value: 0))
         .WithBehavior<DestroyOnLiquid>(destroy => destroy.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
         .WithBehavior<Combustible>()
+        .WithBehavior<CoverPreserving>()
+        .WithBehavior<Grounded>()
         .Complete();
 
     /// <summary>

@@ -265,7 +265,7 @@ public abstract class Layer
             Width = width;
 
             Block block = loose
-                ? Blocks.Instance.Environment.LooseSnow
+                ? Blocks.Instance.Environment.PulverizedSnow
                 : Blocks.Instance.Environment.Snow;
 
             // todo: see Cover for the same issue with height

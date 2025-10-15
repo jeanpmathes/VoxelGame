@@ -35,9 +35,9 @@ public abstract class Cover
         Normal,
 
         /// <summary>
-        ///     Loose snow is generated.
+        ///     Pulverized snow is generated.
         /// </summary>
-        Loose
+        Pulverized
     }
 
     private readonly Snow snowMode;
@@ -71,8 +71,8 @@ public abstract class Cover
 
             height = Math.Clamp(height, min: 0, PartialHeight.MaximumHeight);
 
-            Block snow = snowMode == Snow.Loose
-                ? Blocks.Instance.Environment.LooseSnow
+            Block snow = snowMode == Snow.Pulverized
+                ? Blocks.Instance.Environment.PulverizedSnow
                 : Blocks.Instance.Environment.Snow;
 
             return new Content(snow.States.GenerationDefault.WithHeight(height), FluidInstance.Default);
@@ -101,7 +101,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with no vegetation.
     /// </summary>
-    public class NoVegetation(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class NoVegetation(Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
@@ -113,7 +113,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with (tall) grass and flowers.
     /// </summary>
-    public class GrassAndFlowers(Boolean isSnowLoose = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class GrassAndFlowers(Boolean isSnowPulverized = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
@@ -144,7 +144,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with (tall) grass.
     /// </summary>
-    public class Grass(Boolean isSnowLoose = false, Boolean hasSucculents = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Grass(Boolean isSnowPulverized = false, Boolean hasSucculents = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
@@ -170,7 +170,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with lichen.
     /// </summary>
-    public class Lichen(Lichen.Density density, Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Lichen(Lichen.Density density, Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <summary>
         ///     How dense the lichen is.
@@ -207,7 +207,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with moss and some lichen.
     /// </summary>
-    public class Moss(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Moss(Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
@@ -226,7 +226,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with salt and no vegetation.
     /// </summary>
-    public class Salt(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Salt(Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
@@ -240,7 +240,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with fern, and some moss.
     /// </summary>
-    public class Fern(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Fern(Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)

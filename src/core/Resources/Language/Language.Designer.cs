@@ -1401,15 +1401,6 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Loose Snow.
-        /// </summary>
-        public static string LooseSnow {
-            get {
-                return ResourceManager.GetString("LooseSnow", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Mahogany Leaves.
         /// </summary>
         public static string MahoganyLeaves {
@@ -1419,7 +1410,7 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Mahagony Log.
+        ///   Looks up a localized string similar to Mahogany Log.
         /// </summary>
         public static string MahoganyLog {
             get {
@@ -2243,6 +2234,15 @@ namespace VoxelGame.Core.Resources.Language {
         public static string PulsatingBlock {
             get {
                 return ResourceManager.GetString("PulsatingBlock", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Pulverized Snow.
+        /// </summary>
+        public static string PulverizedSnow {
+            get {
+                return ResourceManager.GetString("PulverizedSnow", resourceCulture);
             }
         }
         
