@@ -62,7 +62,7 @@ public abstract class Cover
         {
             Int32 height = MathTools.RoundedToInt(PartialHeight.MaximumHeight * heightFraction * 0.75);
 
-            height += BlockUtilities.GetPositionDependentNumber(position, mod: 5) switch
+            height += NumberGenerator.GetPositionDependentNumber(position, mod: 5) switch
             {
                 0 => 1,
                 1 => -1,
@@ -118,7 +118,7 @@ public abstract class Cover
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 100);
             Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
@@ -149,7 +149,7 @@ public abstract class Cover
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 100);
             Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
@@ -198,7 +198,7 @@ public abstract class Cover
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            return BlockUtilities.GetPositionDependentNumber(position, draw.mod) > draw.threshold
+            return NumberGenerator.GetPositionDependentNumber(position, draw.mod) > draw.threshold
                 ? new Content(Blocks.Instance.Organic.Lichen)
                 : Content.Default;
         }
@@ -212,7 +212,7 @@ public abstract class Cover
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 10);
 
             return value switch
             {
@@ -231,7 +231,7 @@ public abstract class Cover
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 10);
 
             return value < 6 ? new Content(Blocks.Instance.Environment.Salt) : Content.Default;
         }
@@ -245,7 +245,7 @@ public abstract class Cover
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 10);
 
             return value switch
             {

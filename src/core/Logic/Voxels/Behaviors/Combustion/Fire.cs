@@ -345,7 +345,6 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
     private static UInt32 GetDelay(Vector3i position)
     {
-        return UpdateOffset +
-               (BlockUtilities.GetPositionDependentNumber(position, UpdateVariation * 2) - UpdateVariation);
+        return UpdateOffset + (NumberGenerator.GetPositionDependentNumber(position, UpdateVariation * 2) - UpdateVariation);
     }
 }

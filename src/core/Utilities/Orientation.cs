@@ -59,7 +59,7 @@ public static class Orientations
     /// <returns>All orientations.</returns>
     public static IEnumerable<Orientation> ShuffledStart(Vector3i position)
     {
-        Int32 start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
+        Int32 start = NumberGenerator.GetPositionDependentNumber(position, mod: 4);
 
         for (Int32 i = start; i < start + 4; i++) yield return orientations[i % 4];
     }
