@@ -31,7 +31,7 @@ public class Stone(CID contentID, BlockBuilder builder) : Convention<Stone>(cont
     public required Block Base { get; init; }
 
     /// <summary>
-    ///     When braking the base stone, it will break into rubble.
+        ///     When breaking the base stone, it will break into rubble.
     ///     The block is loose and as such allows water to flow through it.
     /// </summary>
     public required Block Rubble { get; init; }
@@ -78,7 +78,7 @@ public class Stone(CID contentID, BlockBuilder builder) : Convention<Stone>(cont
 /// <summary>
 ///     A convention on stone types.
 /// </summary>
-public static class StoneConvention // todo: check language for unused strings and remove them, most of the stone stuff would be unused
+public static class StoneConvention
 {
     /// <summary>
     ///     Build a new stone type.

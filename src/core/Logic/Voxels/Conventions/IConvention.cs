@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Logic.Voxels.Conventions;
 /// <summary>
 ///     A convention defines a group of content that is used in the game.
 /// </summary>
-public interface IConvention : IContent // todo: think about how to handle conventions in the manual
+public interface IConvention : IContent
 {
     /// <summary>
     ///     The content that is part of this convention instance.

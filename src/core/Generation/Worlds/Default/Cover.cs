@@ -132,12 +132,12 @@ public abstract class Cover
             if (mushrooms)
                 return (value % 3) switch
                 {
-                    0 => new Content(Blocks.Instance.Flowers.FlowerRed.Short),
-                    1 => new Content(Blocks.Instance.Flowers.FlowerYellow.Short),
+                    0 => new Content(Blocks.Instance.Flowers.RedFlower.Short),
+                    1 => new Content(Blocks.Instance.Flowers.YellowFlower.Short),
                     _ => new Content(Blocks.Instance.Organic.Chanterelle)
                 };
 
-            return new Content(value % 2 == 0 ? Blocks.Instance.Flowers.FlowerRed.Short : Blocks.Instance.Flowers.FlowerYellow.Short);
+            return new Content(value % 2 == 0 ? Blocks.Instance.Flowers.RedFlower.Short : Blocks.Instance.Flowers.YellowFlower.Short);
         }
     }
 

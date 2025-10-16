@@ -178,7 +178,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         /// </summary>
         /// <param name="min">The minimum value.</param>
         /// <param name="max">The maximum value, which must be greater than the minimum value.</param>
-        public AttributeDefinition<Int32> Int32(Int32 min, Int32 max) // todo: change to be inclusive for both bounds
+        public AttributeDefinition<Int32> Int32(Int32 min, Int32 max)
         {
             Debug.Assert(min < max);
 

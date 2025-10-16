@@ -79,8 +79,6 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
-        // todo: check that the colliders have good heights
-
         Int32? currentStage = plant.GetStage(state);
         Boolean isLower = composite.GetPartPosition(state).Y == 0;
 

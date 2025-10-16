@@ -43,14 +43,13 @@ public class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, BlockBeha
     private TID GetActiveTexture(TID original, State state)
     {
         // todo: aspect with number of textures which is then used to determine the number of stages (subtract one because of dead stage)
+        // todo: check the relevant textures for duplication
 
         return original.Offset((Byte) (plant.GetStage(state) ?? 5));
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
-        // todo: check that the colliders have good heights
-
         Int32? currentStage = plant.GetStage(state);
 
         if (currentStage is {} aliveStage)
