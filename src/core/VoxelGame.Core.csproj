@@ -73,6 +73,7 @@
         <None Update="Resources\Structures\tall_flower_yellow.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <Compile Remove="Visuals\NamedColor.cs" />
     </ItemGroup>
     <ItemGroup>
         <None Update="Settings.settings">

@@ -202,14 +202,15 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         ///     Define the attribute as an element from a list of values.
         /// </summary>
         /// <param name="elements">The valid elements for this attribute.</param>
+        /// <param name="representation"> An optional function to provide a custom string representation for each element, given its index in the list.</param>
         /// <typeparam name="TElement">The element type of the list.</typeparam>
-        public AttributeDefinition<TElement> List<TElement>(IEnumerable<TElement> elements) where TElement : struct
+        public AttributeDefinition<TElement> List<TElement>(IEnumerable<TElement> elements, Func<Int32, String>? representation = null) where TElement : struct
         {
             List<TElement> list = elements.ToList();
 
             Debug.Assert(list.Count > 0);
 
-            return new AttributeDefinition<TElement>(new ListAttribute<TElement>(list), name, builder);
+            return new AttributeDefinition<TElement>(new ListAttribute<TElement>(list, representation), name, builder);
         }
 
         /// <summary>

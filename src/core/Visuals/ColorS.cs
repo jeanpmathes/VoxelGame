@@ -5,8 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Core.Visuals;
@@ -540,6 +542,71 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     public static ColorS SaddleBrown => new(red: 0.55f, green: 0.25f, blue: 0.05f);
 
     #endregion PREDEFINED COLORS
+
+    #region NAMED COLORS
+
+    private static readonly (String name, ColorS color)[] namedColorEntries =
+    [
+        ("Default", None),
+        (nameof(Red), Red),
+        (nameof(Green), Green),
+        (nameof(Blue), Blue),
+        (nameof(Yellow), Yellow),
+        (nameof(Cyan), Cyan),
+        (nameof(Magenta), Magenta),
+        (nameof(Orange), Orange),
+        (nameof(DarkGreen), DarkGreen),
+        (nameof(Lime), Lime),
+        (nameof(Gray), Gray),
+        (nameof(Indigo), Indigo),
+        (nameof(Maroon), Maroon),
+        (nameof(Olive), Olive),
+        (nameof(Brown), Brown),
+        (nameof(Navy), Navy),
+        (nameof(Amaranth), Amaranth),
+        (nameof(Amber), Amber),
+        (nameof(Apricot), Apricot),
+        (nameof(Aquamarine), Aquamarine),
+        (nameof(Beige), Beige),
+        (nameof(Coffee), Coffee),
+        (nameof(Coral), Coral),
+        (nameof(Crimson), Crimson),
+        (nameof(Emerald), Emerald),
+        (nameof(Lilac), Lilac),
+        (nameof(Mauve), Mauve),
+        (nameof(Periwinkle), Periwinkle),
+        (nameof(PrussianBlue), PrussianBlue),
+        (nameof(SlateGray), SlateGray),
+        (nameof(Taupe), Taupe),
+        (nameof(Viridian), Viridian)
+    ];
+    
+    /// <summary>
+    ///     Gets the palette of named colors without their display names.
+    /// </summary>
+    public static IReadOnlyList<ColorS> NamedColors { get; } = Array.AsReadOnly(namedColorEntries.Select(e => e.color).ToArray());
+
+    /// <summary>
+    ///     Gets the named color value at the specified index.
+    /// </summary>
+    /// <param name="index">The zero-based index of the color.</param>
+    /// <returns>The color.</returns>
+    public static ColorS GetNamedColorByIndex(Int32 index)
+    {
+        return namedColorEntries[index].color;
+    }
+    
+    /// <summary>
+    ///     Gets the name of the named color at the specified index.
+    /// </summary>
+    /// <param name="index">The zero-based index of the color.</param>
+    /// <returns>The name of the color.</returns>
+    public static String GetNameOfNamedColorByIndex(Int32 index)
+    {
+        return namedColorEntries[index].name;
+    }
+
+    #endregion NAMED COLORS
 
     #region EQUALITY
 

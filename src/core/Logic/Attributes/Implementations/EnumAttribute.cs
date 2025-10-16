@@ -9,7 +9,7 @@ using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class EnumAttribute<TEnum>() : ListAttribute<TEnum>(Enum.GetValues<TEnum>()) where TEnum : struct, Enum
+internal class EnumAttribute<TEnum>() : ListAttribute<TEnum>(Enum.GetValues<TEnum>(), representation: null) where TEnum : struct, Enum
 {
     public override Property RetrieveRepresentation(Int32 index)
     {

@@ -25,7 +25,7 @@ public partial class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavi
         subject.Require<Meshed>().Tint.ContributeFunction(GetTint);
     }
 
-    [LateInitialization] private partial IAttribute<NamedColor> Color { get; set; }
+    [LateInitialization] private partial IAttribute<ColorS> Color { get; set; }
 
     /// <inheritdoc />
     public static Paintable Construct(Block input)
@@ -42,19 +42,20 @@ public partial class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavi
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        Color = builder.Define(nameof(Color)).Enum<NamedColor>().Attribute();
+        Color = builder.Define(nameof(Color)).List(ColorS.NamedColors, ColorS.GetNameOfNamedColorByIndex).Attribute();
     }
 
     private ColorS GetTint(ColorS original, State state)
     {
-        return state.Get(Color).ToColorS();
+        return state.Get(Color);
     }
 
     private void OnActorInteract(Block.IActorInteractionMessage message)
     {
-        NamedColor currentColor = message.State.Get(Color);
+        Int32 currentIndex = message.State.GetValueIndex(Color);
+        Int32 nextIndex = (currentIndex + 1) % ColorS.NamedColors.Count;
 
-        State newState = message.State.With(Color, (NamedColor) (((Int32) currentColor + 1) % (Int32) (NamedColor.Viridian + 1)));
+        State newState = message.State.With(Color, ColorS.GetNamedColorByIndex(nextIndex));
 
         message.Actor.World.SetBlock(newState, message.Position);
     }

@@ -81,6 +81,17 @@ public record struct State(StateSet Owner, Int32 Index)
     {
         return attribute.Get(Index);
     }
+    
+    /// <summary>
+    /// Get the value index of the given attribute for this state.
+    /// Do not confuse the value index with the state index.
+    /// </summary>
+    /// <param name="attribute">The attribute to get the value index for.</param>
+    /// <returns>The value index of the attribute for this state.</returns>
+    public Int32 GetValueIndex(IAttribute attribute)
+    {
+        return attribute.GetValueIndex(Index);
+    }
 
     /// <summary>
     ///     Set the value of the given attribute for this state.

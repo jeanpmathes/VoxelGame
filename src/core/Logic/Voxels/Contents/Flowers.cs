@@ -18,10 +18,10 @@ public class Flowers(BlockBuilder builder) : Category(builder)
     /// <summary>
     ///     A simple red flower.
     /// </summary>
-    public Flower RedFlower { get; } = builder.BuildFlower(new CID(nameof(RedFlower)), Language.FlowerRed);
+    public Flower FlowerRed { get; } = builder.BuildFlower(new CID(nameof(FlowerRed)), Language.FlowerRed);
 
     /// <summary>
     ///     A simple yellow flower.
     /// </summary>
-    public Flower YellowFlower { get; } = builder.BuildFlower(new CID(nameof(YellowFlower)), Language.FlowerYellow);
+    public Flower FlowerYellow { get; } = builder.BuildFlower(new CID(nameof(FlowerYellow)), Language.FlowerYellow);
 }

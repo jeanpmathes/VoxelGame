@@ -11,7 +11,7 @@ using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
 
-internal class ListAttribute<TElement>(IEnumerable<TElement> elements) : AttributeImplementation<TElement> where TElement : struct
+internal class ListAttribute<TElement>(IEnumerable<TElement> elements, Func<Int32, String>? representation) : AttributeImplementation<TElement> where TElement : struct
 {
     private readonly TElement[] elements = [..elements];
 
@@ -33,7 +33,7 @@ internal class ListAttribute<TElement>(IEnumerable<TElement> elements) : Attribu
 
     public override Property RetrieveRepresentation(Int32 index)
     {
-        return new Message(Name, $"[{index}] = {elements[index]}");
+        return new Message(Name, $"[{index}] = {(representation != null ? representation(index) : elements[index].ToString())}");
     }
 
     public override JsonNode GetValues(State state)
