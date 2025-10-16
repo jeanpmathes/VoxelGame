@@ -1,4 +1,4 @@
-﻿// <copyright file="Minimum.cs" company="VoxelGame">
+﻿﻿// <copyright file="Maximum.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -10,9 +10,9 @@ using System.Numerics;
 namespace VoxelGame.Core.Behaviors.Aspects.Strategies;
 
 /// <summary>
-///     Uses the minimum contribution from multiple contributors to determine the final value.
+///     Uses the maximum contribution from multiple contributors to determine the final value.
 /// </summary>
-public class Minimum<TValue, TContext> : IContributionStrategy<TValue, TContext>
+public class Maximum<TValue, TContext> : IContributionStrategy<TValue, TContext>
     where TValue : IComparisonOperators<TValue, TValue, Boolean>
 {
     /// <inheritdoc />
@@ -23,14 +23,14 @@ public class Minimum<TValue, TContext> : IContributionStrategy<TValue, TContext>
     {
         if (contributors.Length == 0) return original;
 
-        TValue min = contributors[0].Contribute(original, context);
+        TValue max = contributors[0].Contribute(original, context);
 
         for (var index = 1; index < contributors.Length; index++)
         {
             TValue contribution = contributors[index].Contribute(original, context);
-            if (contribution < min) min = contribution;
+            if (contribution > max) max = contribution;
         }
 
-        return min;
+        return max;
     }
 }
