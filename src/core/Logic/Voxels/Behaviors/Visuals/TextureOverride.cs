@@ -10,6 +10,7 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Visuals;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
@@ -20,18 +21,12 @@ public class TextureOverride : BlockBehavior, IBehavior<TextureOverride, BlockBe
 {
     private TextureOverride(Block subject) : base(subject)
     {
-        TexturesInitializer = Aspect<IReadOnlyDictionary<Int32, TID>?, Block>.New<Exclusive<IReadOnlyDictionary<Int32, TID>?, Block>>(nameof(TexturesInitializer), this);
     }
 
     /// <summary>
     ///     Optional textures to override the texture provided by a model.
     /// </summary>
-    public IReadOnlyDictionary<Int32, TID>? Textures { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Textures" /> property.
-    /// </summary>
-    public Aspect<IReadOnlyDictionary<Int32, TID>?, Block> TexturesInitializer { get; }
+    public ResolvedProperty<IReadOnlyDictionary<Int32, TID>?> Textures { get; } = ResolvedProperty<IReadOnlyDictionary<Int32, TID>?>.New<Exclusive<IReadOnlyDictionary<Int32, TID>?, Void>>(nameof(Textures));
 
     /// <inheritdoc />
     public static TextureOverride Construct(Block input)
@@ -63,6 +58,6 @@ public class TextureOverride : BlockBehavior, IBehavior<TextureOverride, BlockBe
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Textures = TexturesInitializer.GetValue(original: null, Subject);
+        Textures.Initialize(this);
     }
 }

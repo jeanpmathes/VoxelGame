@@ -138,7 +138,7 @@ public static class StoneConvention
                 Wall = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Stone.Wall)}"), $"{Language.Wall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
                     .WithBehavior<Fillable>()
                     .Complete(),
@@ -146,7 +146,7 @@ public static class StoneConvention
                 BrickWall = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Stone.BrickWall)}"), $"{Language.BrickWall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))
                     .WithBehavior<Fillable>()
                     .Complete()

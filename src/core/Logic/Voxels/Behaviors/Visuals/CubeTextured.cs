@@ -10,6 +10,8 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
@@ -21,7 +23,6 @@ public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior
 {
     private CubeTextured(Block subject) : base(subject)
     {
-        DefaultTextureInitializer = Aspect<TextureLayout, Block>.New<Exclusive<TextureLayout, Block>>(nameof(DefaultTextureInitializer), this);
         ActiveTexture = Aspect<TextureLayout, State>.New<Exclusive<TextureLayout, State>>(nameof(ActiveTexture), this);
     }
 
@@ -29,12 +30,7 @@ public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior
     ///     The default texture layout to use for the block.
     ///     This should be set through the <see cref="BlockBuilder" /> when defining the block.
     /// </summary>
-    public TextureLayout DefaultTexture { get; private set; } = TextureLayout.Uniform(TID.MissingTexture);
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="DefaultTexture" /> property.
-    /// </summary>
-    public Aspect<TextureLayout, Block> DefaultTextureInitializer { get; }
+    public ResolvedProperty<TextureLayout> DefaultTexture { get; } = ResolvedProperty<TextureLayout>.New<Exclusive<TextureLayout, Void>>(nameof(DefaultTexture), TextureLayout.Uniform(TID.MissingTexture));
 
     /// <summary>
     ///     The actually used, state dependent texture layout.
@@ -50,7 +46,7 @@ public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        DefaultTexture = DefaultTextureInitializer.GetValue(TextureLayout.Uniform(TID.MissingTexture), Subject);
+        DefaultTexture.Initialize(this);
     }
 
     /// <summary>
@@ -63,6 +59,6 @@ public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior
     /// <returns>The texture index for the given state and side.</returns>
     public Int32 GetTextureIndex(State state, Side side, ITextureIndexProvider textureIndexProvider, Boolean isBlock)
     {
-        return ActiveTexture.GetValue(DefaultTexture, state).GetTextureIndex(side, textureIndexProvider, isBlock);
+        return ActiveTexture.GetValue(DefaultTexture.Get(), state).GetTextureIndex(side, textureIndexProvider, isBlock);
     }
 }

@@ -33,7 +33,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block Cactus { get; } = builder
         .BuildSimpleBlock(new CID(nameof(Cactus)), Language.Cactus)
         .WithTextureLayout(TextureLayout.Column(TID.Block("cactus", x: 0), TID.Block("cactus", x: 1)))
-        .WithBehavior<Growing>(growing => growing.RequiredGroundInitializer.ContributeConstant(new CID(nameof(Blocks.Instance.Environment.Sand))))
+        .WithBehavior<Growing>(growing => growing.RequiredGround.Initializer.ContributeConstant(new CID(nameof(Blocks.Instance.Environment.Sand))))
         .Complete();
 
     /// <summary>
@@ -42,8 +42,8 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block Spiderweb { get; } = builder
         .BuildComplexBlock(new CID(nameof(Spiderweb)), Language.SpiderWeb)
         .WithBehavior<CrossModel>()
-        .WithBehavior<SingleTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TID.Block("spider_web")))
-        .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(0.01))
+        .WithBehavior<SingleTextured>(texture => texture.DefaultTexture.Initializer.ContributeConstant(TID.Block("spider_web")))
+        .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(0.01))
         .WithBehavior<DestroyOnLiquid>() // todo: currently is only destroyed with level > 1, but should be destroyed on any liquid
         .WithBehavior<Combustible>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
@@ -55,15 +55,15 @@ public class Organic(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block Vines { get; } = builder
         .BuildComplexBlock(new CID(nameof(Vines)), Language.Vines)
-        .WithBehavior<FlatModel>(model => model.WidthInitializer.ContributeConstant(value: 0.9))
-        .WithBehavior<SingleTextured>(texture => texture.DefaultTextureInitializer.ContributeConstant(TID.Block("vines")))
+        .WithBehavior<FlatModel>(model => model.Width.Initializer.ContributeConstant(value: 0.9))
+        .WithBehavior<SingleTextured>(texture => texture.DefaultTexture.Initializer.ContributeConstant(TID.Block("vines")))
         .WithBehavior<NeutralTint>()
-        .WithBehavior<DestroyOnLiquid>(destroy => destroy.ThresholdInitializer.ContributeConstant(FluidLevel.Two))
-        .WithBehavior<Climbable>(climbable => climbable.ClimbingVelocityInitializer.ContributeConstant(value: 2.0))
+        .WithBehavior<DestroyOnLiquid>(destroy => destroy.Threshold.Initializer.ContributeConstant(FluidLevel.Two))
+        .WithBehavior<Climbable>(climbable => climbable.ClimbingVelocity.Initializer.ContributeConstant(value: 2.0))
         .WithBehavior<LateralRotatable>()
         .WithBehavior<Attached, SingleSided>((attached, siding) =>
         {
-            attached.AttachmentSidesInitializer.ContributeConstant(Sides.Lateral);
+            attached.AttachmentSides.Initializer.ContributeConstant(Sides.Lateral);
 
             attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).ToFlag());
             attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single())); // todo: handling if not single as this allows null, maybe a new extension for sides
@@ -79,11 +79,11 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block Lichen { get; } = builder
         .BuildComplexBlock(new CID(nameof(Lichen)), Language.Lichen)
         .WithBehavior<FlatModel>()
-        .WithBehavior<SingleTextured>(textured => textured.DefaultTextureInitializer.ContributeConstant(TID.Block("lichen")))
+        .WithBehavior<SingleTextured>(textured => textured.DefaultTexture.Initializer.ContributeConstant(TID.Block("lichen")))
         .WithBehavior<Attached, StoredMultiSided>((attached, siding) =>
         {
-            attached.AttachmentSidesInitializer.ContributeConstant(Sides.All);
-            attached.ModeInitializer.ContributeConstant(Attached.AttachmentMode.Multi);
+            attached.AttachmentSides.Initializer.ContributeConstant(Sides.All);
+            attached.Mode.Initializer.ContributeConstant(Attached.AttachmentMode.Multi);
 
             attached.AttachedSides.ContributeFunction((_, state) => siding.GetSides(state));
             attached.AttachedState.ContributeFunction((_, context) => siding.SetSides(context.state, context.sides));
@@ -99,8 +99,8 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block Moss { get; } = builder
         .BuildPartialHeightBlock(new CID(nameof(Moss)), Language.Moss)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("moss")))
-        .WithBehavior<ConstantHeight>(height => height.HeightInitializer.ContributeConstant(value: 0))
-        .WithBehavior<DestroyOnLiquid>(destroy => destroy.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
+        .WithBehavior<ConstantHeight>(height => height.Height.Initializer.ContributeConstant(value: 0))
+        .WithBehavior<DestroyOnLiquid>(destroy => destroy.Threshold.Initializer.ContributeConstant(FluidLevel.Three))
         .WithBehavior<Combustible>()
         .WithBehavior<CoverPreserving>()
         .WithBehavior<Grounded>()
@@ -113,8 +113,8 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .BuildFoliageBlock(new CID(nameof(Fern)), Language.Fern)
         .WithTexture(TID.Block("fern"))
         .WithBehavior<NeutralTint>()
-        .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.6))
-        .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
+        .WithBehavior<CrossPlant>(plant => plant.Height.Initializer.ContributeConstant(value: 0.6))
+        .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
         .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
         .Complete();
 
@@ -124,8 +124,8 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block Chanterelle { get; } = builder
         .BuildFoliageBlock(new CID(nameof(Chanterelle)), Language.Chanterelle)
         .WithTexture(TID.Block("chanterelle"))
-        .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.25))
-        .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
+        .WithBehavior<CrossPlant>(plant => plant.Height.Initializer.ContributeConstant(value: 0.25))
+        .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
         .Complete();
 
     /// <summary>
@@ -134,8 +134,8 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block AloeVera { get; } = builder
         .BuildFoliageBlock(new CID(nameof(AloeVera)), Language.AloeVera)
         .WithTexture(TID.Block("aloe_vera"))
-        .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.5))
-        .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
+        .WithBehavior<CrossPlant>(plant => plant.Height.Initializer.ContributeConstant(value: 0.5))
+        .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
         .Complete();
 
     /// <summary>

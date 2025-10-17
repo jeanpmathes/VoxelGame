@@ -16,6 +16,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
@@ -26,8 +28,6 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
 {
     private Modelled(Block subject) : base(subject)
     {
-        LayersInitializer = Aspect<IReadOnlyList<RID>, Block>.New<Exclusive<IReadOnlyList<RID>, Block>>(nameof(LayersInitializer), this);
-
         Selector = Aspect<Selector, State>.New<Chaining<Selector, State>>(nameof(Selector), this);
         Model = Aspect<Model, State>.New<Exclusive<Model, State>>(nameof(Model), this);
 
@@ -40,12 +40,7 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     /// <summary>
     ///     The resource IDs of the models that define the mesh of this block.
     /// </summary>
-    public IReadOnlyList<RID> Layers { get; private set; } = [];
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Layers" /> property.
-    /// </summary>
-    public Aspect<IReadOnlyList<RID>, Block> LayersInitializer { get; }
+    public ResolvedProperty<IReadOnlyList<RID>> Layers { get; } = ResolvedProperty<IReadOnlyList<RID>>.New<Exclusive<IReadOnlyList<RID>, Void>>(nameof(Layers), []);
 
     /// <summary>
     ///     Selector to choose which layer and model part is used for a specific state of the block.
@@ -66,19 +61,19 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Layers = LayersInitializer.GetValue(new List<RID>(), Subject);
+        Layers.Initialize(this);
     }
 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (Layers.Count == 0)
+        if (Layers.Get().Count == 0)
             validator.ReportWarning("No layers defined for modelled block");
 
-        if (Layers.Count > Visuals.Selector.MaxLayerCount)
-            validator.ReportWarning($"Too many layers defined for modelled block (max {Visuals.Selector.MaxLayerCount}, got {Layers.Count})");
+        if (Layers.Get().Count > Visuals.Selector.MaxLayerCount)
+            validator.ReportWarning($"Too many layers defined for modelled block (max {Visuals.Selector.MaxLayerCount}, got {Layers.Get().Count})");
 
-        Layers = Layers.Take(Visuals.Selector.MaxLayerCount).ToArray();
+        Layers.Override(Layers.Get().Take(Visuals.Selector.MaxLayerCount).ToArray());
     }
 
     private Mesh GetMesh(Mesh original, MeshContext context)
@@ -87,13 +82,13 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
 
         Selector selector = Selector.GetValue(original: default, state);
 
-        RID layer = Layers[selector.Layer]; // todo: handle out of bounds access
+        RID layer = Layers.Get()[selector.Layer]; // todo: handle out of bounds access
 
         Model model = context.ModelProvider.GetModel(layer, selector.Part);
 
         model = Model.GetValue(model, state);
 
-        return model.CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
+        return model.CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures.Get());
     }
 }
 

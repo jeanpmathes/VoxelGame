@@ -10,6 +10,8 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
@@ -22,21 +24,14 @@ public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
     
     private Fillable(Block subject) : base(subject)
     {
-        IsFluidRenderedInitializer = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(IsFluidRenderedInitializer), this);
-
         IsInflowAllowed = Aspect<Boolean, (World, Vector3i, State, Side, Fluid)>.New<ANDing<(World, Vector3i, State, Side, Fluid)>>(nameof(IsInflowAllowed), this);
         IsOutflowAllowed = Aspect<Boolean, (World, Vector3i, State, Side, Fluid)>.New<ANDing<(World, Vector3i, State, Side, Fluid)>>(nameof(IsOutflowAllowed), this);
     }
 
     /// <summary>
-    ///     Whether the fluid filling this block should be rendered.
+    ///     Whether the fluid filling this block should be meshed.
     /// </summary>
-    public Boolean IsFluidRendered { get; private set; } // todo: rename to IsFluidMeshed
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="IsFluidRendered" /> property.
-    /// </summary>
-    public Aspect<Boolean, Block> IsFluidRenderedInitializer { get; }
+    public ResolvedProperty<Boolean> IsFluidMeshed { get; } = ResolvedProperty<Boolean>.New<ORing<Void>>(nameof(IsFluidMeshed));
 
     /// <summary>
     ///     Whether inflow is allowed through a certain side.
@@ -57,7 +52,7 @@ public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        IsFluidRendered = IsFluidRenderedInitializer.GetValue(original: true, Subject);
+        IsFluidMeshed.Initialize(this);
     }
 
     /// <summary>

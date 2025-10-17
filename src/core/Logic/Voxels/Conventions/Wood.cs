@@ -238,7 +238,7 @@ public static class WoodConvention
 
                 Fence = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Fence)}"), $"{Language.Fence} ({name.wood})")
-                    .WithBehavior<WideConnecting>(connecting => connecting.ModelsInitializer.ContributeConstant((RID.File<Model>("fence_post"), RID.File<Model>("fence_extension"), null)))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("fence_post"), RID.File<Model>("fence_extension"), null)))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Fence>()
                     .WithBehavior<Combustible>()
@@ -247,7 +247,7 @@ public static class WoodConvention
 
                 FenceGate = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.FenceGate)}"), $"{Language.Gate} ({name.wood})")
-                    .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<Model>("gate_closed"), RID.File<Model>("gate_open")]))
+                    .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("gate_closed"), RID.File<Model>("gate_open")]))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Combustible>()
                     .WithBehavior<LateralRotatable>()
@@ -256,15 +256,15 @@ public static class WoodConvention
 
                 Door = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Door)}"), $"{Language.Door} ({name.wood})")
-                    .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<Model>("door_wood_closed"), RID.File<Model>("door_wood_open")]))
+                    .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("door_wood_closed"), RID.File<Model>("door_wood_open")]))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_door")))
                     .WithBehavior<Door>()
                     .Complete(),
 
                 Pipe = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Pipe)}"), $"{Language.Pipe} ({name.wood})")
-                    .WithBehavior<Piped>(piped => piped.TierInitializer.ContributeConstant(Piped.PipeTier.Primitive))
-                    .WithBehavior<ConnectingPipe>(pipe => pipe.ModelsInitializer.ContributeConstant((RID.File<Model>("wood_pipe_center"), RID.File<Model>("wood_pipe_connector"), RID.File<Model>("wood_pipe_surface"))))
+                    .WithBehavior<Piped>(piped => piped.Tier.Initializer.ContributeConstant(Piped.PipeTier.Primitive))
+                    .WithBehavior<ConnectingPipe>(pipe => pipe.Models.Initializer.ContributeConstant((RID.File<Model>("wood_pipe_center"), RID.File<Model>("wood_pipe_connector"), RID.File<Model>("wood_pipe_surface"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture)))
                     .WithBehavior<Combustible>()
                     .Complete(),
@@ -272,7 +272,7 @@ public static class WoodConvention
                 Bed = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Bed)}"), $"{Language.Bed} ({name.wood})")
                     .WithBehavior<LateralRotatable>()
-                    .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<Model>("bed")]))
+                    .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("bed")]))
                     .WithTextureOverride(new Dictionary<Int32, TID>
                     {
                         [0] = TID.Block($"{texture}_bed", x: 0, y: 1),
@@ -282,7 +282,7 @@ public static class WoodConvention
                     })
                     .WithBehavior<Bed>()
                     .WithBehavior<DirectionalSidePlacement>()
-                    .WithBehavior<Composite>(composite => composite.MaximumSizeInitializer.ContributeConstant((1, 1, 2)))
+                    .WithBehavior<Composite>(composite => composite.MaximumSize.Initializer.ContributeConstant((1, 1, 2)))
                     .WithBehavior<Grounded>()
                     .WithBehavior<Paintable>()
                     .WithBehavior<Combustible>()

@@ -11,6 +11,8 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 
@@ -24,8 +26,6 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
     {
         subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => state.Get(Height), exclusive: true);
         subject.Require<StoredHeight>().HeightedState.ContributeFunction(GetHeightedState);
-
-        PlacementHeightInitializer = Aspect<Int32, Block>.New<Exclusive<Int32, Block>>(nameof(PlacementHeightInitializer), this);
     }
 
     [LateInitialization] private partial IAttribute<Int32> Height { get; set; }
@@ -33,12 +33,7 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
     /// <summary>
     ///     The preferred height of the block at placement.
     /// </summary>
-    public Int32 PlacementHeight { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="PlacementHeight" /> property.
-    /// </summary>
-    public Aspect<Int32, Block> PlacementHeightInitializer { get; }
+    public ResolvedProperty<Int32> PlacementHeight { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(PlacementHeight));
 
     /// <inheritdoc />
     public static StoredHeight16 Construct(Block input)
@@ -64,17 +59,17 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        PlacementHeight = PlacementHeightInitializer.GetValue(original: 0, Subject);
+        PlacementHeight.Initialize(this);
     }
 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (PlacementHeight is >= PartialHeight.MinimumHeight and <= PartialHeight.MaximumHeight)
+        if (PlacementHeight.Get() is >= PartialHeight.MinimumHeight and <= PartialHeight.MaximumHeight)
             return;
 
         validator.ReportWarning("Placement height is out of bounds");
-        PlacementHeight = PartialHeight.MinimumHeight;
+        PlacementHeight.Override(PartialHeight.MinimumHeight);
     }
 
     private void OnModifyHeight(Modifiable.IModifyHeightMessage message)

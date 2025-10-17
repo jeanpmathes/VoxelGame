@@ -18,6 +18,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 
@@ -35,17 +37,15 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     private FruitCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
-        plant.StageCountInitializer.ContributeConstant(value: 2);
+        plant.StageCount.Initializer.ContributeConstant(value: 2);
 
         var foliage = subject.Require<Foliage>();
-        foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
+        foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
         foliage.Part.ContributeConstant(Foliage.PartType.Single);
 
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-
-        FruitInitializer = Aspect<CID?, Block>.New<Exclusive<CID?, Block>>(nameof(FruitInitializer), this);
     }
 
     [LateInitialization] private partial IAttribute<Int32> Age { get; set; }
@@ -53,12 +53,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     /// <summary>
     ///     The fruit block.
     /// </summary>
-    public CID? Fruit { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Fruit" /> property.
-    /// </summary>
-    public Aspect<CID?, Block> FruitInitializer { get; }
+    public ResolvedProperty<CID?> Fruit { get; } = ResolvedProperty<CID?>.New<Exclusive<CID?, Void>>(nameof(Fruit));
 
     /// <inheritdoc />
     public static FruitCropPlant Construct(Block input)
@@ -75,7 +70,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Fruit = FruitInitializer.GetValue(original: null, Subject);
+        Fruit.Initialize(this);
     }
 
     /// <inheritdoc />
@@ -87,15 +82,15 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (Fruit == null)
+        if (Fruit.Get() == null)
             validator.ReportWarning("No fruit block is set");
 
-        if (Fruit == Subject.ContentID)
+        if (Fruit.Get() == Subject.ContentID)
             validator.ReportWarning("The fruit block cannot be the same as the growing block itself");
 
-        fruit = Blocks.Instance.SafelyTranslateContentID(Fruit);
+        fruit = Blocks.Instance.SafelyTranslateContentID(Fruit.Get());
 
-        if (fruit == Blocks.Instance.Core.Error && Fruit != Blocks.Instance.Core.Error.ContentID)
+        if (fruit == Blocks.Instance.Core.Error && Fruit.Get() != Blocks.Instance.Core.Error.ContentID)
             validator.ReportWarning($"The fruit block '{Fruit}' could not be found");
     }
 
@@ -109,7 +104,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
         {
             var placed = false;
 
-            if (message.Ground.SupportsFullGrowth && message.Ground.TryGrow(
+            if (message.Ground.SupportsFullGrowth.Get() && message.Ground.TryGrow(
                     message.World,
                     message.Position.Below(),
                     Voxels.Fluids.Instance.FreshWater,

@@ -9,6 +9,8 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 
@@ -51,20 +53,13 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
 
     private Connectable(Block subject) : base(subject)
     {
-        StrengthInitializer = Aspect<Strengths, Block>.New<Exclusive<Strengths, Block>>(nameof(StrengthInitializer), this);
-
         IsConnectionAllowed = Aspect<Boolean, (Side, State)>.New<ANDing<(Side, State)>>(nameof(IsConnectionAllowed), this);
     }
 
     /// <summary>
     ///     The strength of the connection of this block.
     /// </summary>
-    public Strengths Strength { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Strength" /> property.
-    /// </summary>
-    public Aspect<Strengths, Block> StrengthInitializer { get; }
+    public ResolvedProperty<Strengths> Strength { get; } = ResolvedProperty<Strengths>.New<Exclusive<Strengths, Void>>(nameof(Strength));
 
     /// <summary>
     ///     Whether connection to this block is allowed in the given state.
@@ -80,13 +75,13 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Strength = StrengthInitializer.GetValue(Strengths.None, Subject);
+        Strength.Initialize(this);
     }
 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (Strength == Strengths.None)
+        if (Strength.Get() == Strengths.None)
             validator.ReportWarning("Connectable blocks should have at least one connection strength defined");
     }
 
@@ -101,8 +96,8 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
     {
         if (!IsConnectionAllowed.GetValue(original: true, (side, state))) return false;
 
-        Strengths a = Strength;
-        Strengths b = other.Strength;
+        Strengths a = Strength.Get();
+        Strengths b = other.Strength.Get();
 
         return (a & b) != Strengths.None;
     }

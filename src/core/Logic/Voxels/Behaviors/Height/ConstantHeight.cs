@@ -8,6 +8,8 @@ using System;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 
@@ -19,20 +21,13 @@ public class ConstantHeight : BlockBehavior, IBehavior<ConstantHeight, BlockBeha
 {
     private ConstantHeight(Block subject) : base(subject)
     {
-        HeightInitializer = Aspect<Int32, Block>.New<Exclusive<Int32, Block>>(nameof(HeightInitializer), this);
-
-        subject.Require<PartialHeight>().Height.ContributeFunction((_, _) => Height, exclusive: true);
+        subject.Require<PartialHeight>().Height.ContributeFunction((_, _) => Height.Get(), exclusive: true);
     }
 
     /// <summary>
     ///     The constant height of the block.
     /// </summary>
-    public Int32 Height { get; private set; } = PartialHeight.MaximumHeight;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Height" /> property.
-    /// </summary>
-    public Aspect<Int32, Block> HeightInitializer { get; }
+    public ResolvedProperty<Int32> Height { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(Height), PartialHeight.MaximumHeight);
 
     /// <inheritdoc />
     public static ConstantHeight Construct(Block input)
@@ -43,24 +38,24 @@ public class ConstantHeight : BlockBehavior, IBehavior<ConstantHeight, BlockBeha
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Height = HeightInitializer.GetValue(PartialHeight.MaximumHeight, Subject);
+        Height.Initialize(this);
     }
 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (Height < PartialHeight.MinimumHeight)
+        if (Height.Get() < PartialHeight.MinimumHeight)
         {
             validator.ReportWarning("Constant partial height value is below the minimum valid value");
 
-            Height = PartialHeight.MinimumHeight;
+            Height.Override(PartialHeight.MinimumHeight);
         }
 
-        if (Height > PartialHeight.MaximumHeight)
+        if (Height.Get() > PartialHeight.MaximumHeight)
         {
             validator.ReportWarning("Constant partial height value is above the maximum valid value");
 
-            Height = PartialHeight.MaximumHeight;
+            Height.Override(PartialHeight.MaximumHeight);
         }
     }
 }

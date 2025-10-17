@@ -13,6 +13,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 
@@ -30,26 +32,19 @@ public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, Block
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
 
         composite = subject.Require<Composite>();
-        composite.MaximumSizeInitializer.ContributeConstant((1, 2, 1));
+        composite.MaximumSize.Initializer.ContributeConstant((1, 2, 1));
 
         var foliage = subject.Require<Foliage>();
-        foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
+        foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
 
-        subject.BoundingVolume.ContributeFunction((_, _) => BoundingVolume.CrossBlock(height: 1.0, Width));
-
-        WidthInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(WidthInitializer), this);
+        subject.BoundingVolume.ContributeFunction((_, _) => BoundingVolume.CrossBlock(height: 1.0, Width.Get()));
     }
 
     /// <summary>
     ///     The width of the plant, used for the bounding volume.
     /// </summary>
-    public Double Width { get; private set; } = 0.71;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Width" /> property.
-    /// </summary>
-    public Aspect<Double, Block> WidthInitializer { get; }
+    public ResolvedProperty<Double> Width { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(Width), initial: 0.71);
 
     /// <inheritdoc />
     public static DoubleCrossPlant Construct(Block input)
@@ -60,7 +55,7 @@ public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, Block
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Width = WidthInitializer.GetValue(original: 0.71, Subject);
+        Width.Initialize(this);
     }
 
     private TID GetActiveTexture(TID original, State state)

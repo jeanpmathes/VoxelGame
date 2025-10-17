@@ -10,6 +10,8 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 
@@ -20,18 +22,12 @@ public class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, Block>
 {
     private Slowing(Block subject) : base(subject)
     {
-        MaxVelocityInitializer = Aspect<Double, Block>.New<Minimum<Double, Block>>(nameof(MaxVelocityInitializer), this);
     }
 
     /// <summary>
     ///     The maximum velocity that entities can have when in contact with this block.
     /// </summary>
-    public Double MaxVelocity { get; set; } = 1f;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="MaxVelocity" /> property.
-    /// </summary>
-    public Aspect<Double, Block> MaxVelocityInitializer { get; }
+    public ResolvedProperty<Double> MaxVelocity { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(MaxVelocity), initial: 1.0);
 
     /// <inheritdoc />
     public static Slowing Construct(Block input)
@@ -48,13 +44,13 @@ public class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, Block>
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        MaxVelocity = MaxVelocityInitializer.GetValue(original: 1.0, Subject);
+        MaxVelocity.Initialize(this);
     }
 
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
         // todo: multiply by height of the block if it has a height
 
-        message.Body.Velocity = MathTools.Clamp(message.Body.Velocity, min: -1.0, MaxVelocity);
+        message.Body.Velocity = MathTools.Clamp(message.Body.Velocity, min: -1.0, MaxVelocity.Get());
     }
 }

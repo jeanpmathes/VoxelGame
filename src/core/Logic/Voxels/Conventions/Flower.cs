@@ -58,10 +58,10 @@ public static class FlowerConvention
                     .WithBehavior<NeutralTint>()
                     .WithBehavior<CrossPlant>(plant =>
                     {
-                        plant.HeightInitializer.ContributeConstant(value: 0.5);
-                        plant.WidthInitializer.ContributeConstant(value: 0.35);
+                        plant.Height.Initializer.ContributeConstant(value: 0.5);
+                        plant.Width.Initializer.ContributeConstant(value: 0.35);
                     })
-                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
+                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
                     .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
                     .Complete(),
 
@@ -70,7 +70,7 @@ public static class FlowerConvention
                     .WithTexture(TID.Block($"{texture}_tall"))
                     .WithBehavior<NeutralTint>()
                     .WithBehavior<DoubleCrossPlant>()
-                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Five))
+                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Five))
                     .Complete()
             };
         });

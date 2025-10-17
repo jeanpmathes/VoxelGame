@@ -13,6 +13,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 
@@ -26,11 +28,9 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
     private WideConnecting(Block subject) : base(subject)
     {
         connecting = subject.Require<Connecting>();
-        subject.Require<Connectable>().StrengthInitializer.ContributeConstant(Connectable.Strengths.Wide);
+        subject.Require<Connectable>().Strength.Initializer.ContributeConstant(Connectable.Strengths.Wide);
 
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
-
-        ModelsInitializer = Aspect<(RID, RID, RID?), Block>.New<Exclusive<(RID, RID, RID?), Block>>(nameof(ModelsInitializer), this);
     }
 
     /// <summary>
@@ -38,12 +38,7 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
     ///     An optional straight extension can be provided, which is used in the case if and only if there are exactly two
     ///     opposite connections - the post will not be used then.
     /// </summary>
-    public (RID post, RID extension, RID? straight) Models { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Models" /> property.
-    /// </summary>
-    public Aspect<(RID post, RID extension, RID? straight), Block> ModelsInitializer { get; }
+    public ResolvedProperty<(RID post, RID extension, RID? straight)> Models { get; } = ResolvedProperty<(RID, RID, RID?)>.New<Exclusive<(RID, RID, RID?), Void>>(nameof(Models));
 
     /// <inheritdoc />
     public static WideConnecting Construct(Block input)
@@ -54,15 +49,15 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Models = ModelsInitializer.GetValue(original: default, Subject);
+        Models.Initialize(this);
     }
 
     private Mesh GetMesh(Mesh original, MeshContext context)
     {
         (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(context.State);
 
-        Model post = context.ModelProvider.GetModel(Models.post);
-        Model extension = context.ModelProvider.GetModel(Models.extension);
+        Model post = context.ModelProvider.GetModel(Models.Get().post);
+        Model extension = context.ModelProvider.GetModel(Models.Get().extension);
         
         (Model north, Model east, Model south, Model west) extensions = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(extension, Model.TransformationMode.Reshape);
 
@@ -71,7 +66,7 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
         Boolean useStraightZ = north && south && !east && !west;
         Boolean useStraightX = !north && !south && east && west;
 
-        if (Models.straight is {} straight && (useStraightX || useStraightZ))
+        if (Models.Get().straight is {} straight && (useStraightX || useStraightZ))
         {
             Model straightZ = context.ModelProvider.GetModel(straight);
 
@@ -95,6 +90,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
             if (west) models.Add(extensions.west);
         }
 
-        return Model.Combine(models).CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
+        return Model.Combine(models).CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures.Get());
     }
 }

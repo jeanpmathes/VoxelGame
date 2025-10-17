@@ -11,6 +11,8 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 
@@ -21,24 +23,15 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
 {
     private Plantable(Block subject) : base(subject)
     {
-        SupportsFullGrowthInitializer = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(SupportsFullGrowthInitializer), this);
     }
 
     /// <summary>
     ///     Whether this block supports full plant growth.
     ///     This means that plants can reach all growth stages and are not limited to only the first few stages.
     /// </summary>
-    public Boolean SupportsFullGrowth { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="SupportsFullGrowth" /> property.
-    /// </summary>
-    public Aspect<Boolean, Block> SupportsFullGrowthInitializer { get; }
+    public ResolvedProperty<Boolean> SupportsFullGrowth { get; } = ResolvedProperty<Boolean>.New<ORing<Void>>(nameof(SupportsFullGrowth));
 
     [LateInitialization] private partial IEvent<IGrowthAttemptMessage> GrowthAttempt { get; set; }
-
-    // todo: when visualizing aspects, maybe filter out by type of second argument
-    // todo: so if it is Block then this are init-only aspects, all others are runtime aspects
 
     /// <inheritdoc />
     public static Plantable Construct(Block input)
@@ -55,7 +48,7 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        SupportsFullGrowth = SupportsFullGrowthInitializer.GetValue(original: false, Subject);
+        SupportsFullGrowth.Initialize(this);
     }
 
     /// <summary>

@@ -22,8 +22,8 @@ public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     private Soil(Block subject) : base(subject)
     {
         subject.Require<Plantable>();
-        subject.Require<Membrane>().MaxViscosityInitializer.ContributeConstant(value: 100);
-        subject.Require<Fillable>().IsFluidRenderedInitializer.ContributeConstant(value: false);
+        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(value: 100);
+        subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);
     }
 
     /// <inheritdoc />

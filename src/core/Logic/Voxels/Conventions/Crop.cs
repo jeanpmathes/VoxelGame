@@ -55,7 +55,7 @@ public static class CropConvention
                     .BuildFoliageBlock(new CID($"{contentID}{nameof(Crop.Plant)}"), name)
                     .WithTexture(TID.Block(texture))
                     .WithBehavior<DenseCropPlant>()
-                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
+                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Three))
                     .Complete(),
 
                 Fruit = null
@@ -82,7 +82,7 @@ public static class CropConvention
                     .BuildFoliageBlock(new CID($"{contentID}{nameof(Crop.Plant)}"), name)
                     .WithTexture(TID.Block(texture))
                     .WithBehavior<DoubleCropPlant>()
-                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
+                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Three))
                     .Complete(),
 
                 Fruit = null
@@ -110,8 +110,8 @@ public static class CropConvention
                 Plant = builder
                     .BuildFoliageBlock(new CID($"{contentID}{nameof(Crop.Plant)}"), names.plant)
                     .WithTexture(TID.Block($"{texture}_plant"))
-                    .WithBehavior<FruitCropPlant>(plant => plant.FruitInitializer.ContributeConstant(fruitID))
-                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Three))
+                    .WithBehavior<FruitCropPlant>(plant => plant.Fruit.Initializer.ContributeConstant(fruitID))
+                    .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Three))
                     .Complete(),
 
                 Fruit = builder

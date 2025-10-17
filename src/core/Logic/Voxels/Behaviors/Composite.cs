@@ -15,6 +15,8 @@ using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors;
 
@@ -27,8 +29,6 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private Composite(Block subject) : base(subject)
     {
-        MaximumSizeInitializer = Aspect<Vector3i, Block>.New<Exclusive<Vector3i, Block>>(nameof(MaximumSizeInitializer), this);
-
         Size = Aspect<Vector3i, State>.New<Exclusive<Vector3i, State>>(nameof(Size), this);
         IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Vector3i, Actor?)>.New<ANDing<(World, Vector3i, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
 
@@ -58,12 +58,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     ///     If the block can be rotated, this size is interpreted as for the default orientation (north).
     ///     The size must be greater than zero in every dimension and not exceed the section size.
     /// </summary>
-    public Vector3i MaximumSize { get; private set; } = Vector3i.One;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="MaximumSize" /> property.
-    /// </summary>
-    public Aspect<Vector3i, Block> MaximumSizeInitializer { get; }
+    public ResolvedProperty<Vector3i> MaximumSize { get; } = ResolvedProperty<Vector3i>.New<Exclusive<Vector3i, Void>>(nameof(MaximumSize), initial: Vector3i.One);
 
     /// <summary>
     ///     The actual size of a given state of the block.
@@ -106,7 +101,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        MaximumSize = MaximumSizeInitializer.GetValue(Vector3i.One, Subject);
+        MaximumSize.Initialize(this);
 
         properties.IsReplaceable.ContributeConstant(value: false, exclusive: true);
     }
@@ -114,28 +109,32 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (MaximumSize.X <= 0 || MaximumSize.Y <= 0 || MaximumSize.Z <= 0)
+        Vector3i maxSize = MaximumSize.Get();
+        
+        if (maxSize.X <= 0 || maxSize.Y <= 0 || maxSize.Z <= 0)
         {
             validator.ReportWarning("Composite block size must be greater than zero in every dimension");
         }
 
-        if (MaximumSize.X > Section.Size || MaximumSize.Y > Section.Size || MaximumSize.Z > Section.Size)
+        if (maxSize.X > Section.Size || maxSize.Y > Section.Size || maxSize.Z > Section.Size)
         {
             validator.ReportWarning("Composite block size must not exceed section size in any dimension");
         }
 
-        MaximumSize = Vector3i.Clamp(MaximumSize, Vector3i.One, new Vector3i(Section.Size));
+        maxSize = Vector3i.Clamp(maxSize, Vector3i.One, new Vector3i(Section.Size));
 
-        if (MaximumSize == Vector3i.One)
+        if (maxSize == Vector3i.One)
         {
             validator.ReportWarning("Composite block size is set to one, which is equivalent to a normal block");
         }
+        
+        MaximumSize.Override(maxSize);
     }
 
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        Part = builder.Define(nameof(Part)).Vector3i(MaximumSize).Attribute();
+        Part = builder.Define(nameof(Part)).Vector3i(MaximumSize.Get()).Attribute();
     }
 
     private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
@@ -364,7 +363,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     /// <returns>The size of the composite in the given state.</returns>
     public Vector3i GetSize(State state)
     {
-        return Size.GetValue(MaximumSize, state);
+        return Size.GetValue(MaximumSize.Get(), state);
     }
 
     /// <summary>

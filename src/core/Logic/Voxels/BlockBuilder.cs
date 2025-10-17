@@ -227,7 +227,7 @@ public class BlockBuilder
         /// <param name="color">The color to use as tint when the block is wet.</param>
         public BlockDefinition WithWetTint(ColorS? color = null)
         {
-            block.Require<WetTint>().WetColorInitializer.ContributeConstant(color ?? ColorS.LightGray);
+            block.Require<WetTint>().WetColor.Initializer.ContributeConstant(color ?? ColorS.LightGray);
 
             return this;
         }
@@ -243,7 +243,7 @@ public class BlockBuilder
         /// <returns>The current <see cref="BlockDefinition" /> instance.</returns>
         public BlockDefinition WithTextureOverride(IReadOnlyDictionary<Int32, TID> overrides)
         {
-            block.Require<TextureOverride>().TexturesInitializer.ContributeConstant(overrides);
+            block.Require<TextureOverride>().Textures.Initializer.ContributeConstant(overrides);
 
             return this;
         }
@@ -300,7 +300,7 @@ public class BlockBuilder
         /// <param name="textureLayout">The texture layout to set.</param>
         public SimpleBlockDefinition WithTextureLayout(TextureLayout textureLayout)
         {
-            block.Require<CubeTextured>().DefaultTextureInitializer.ContributeConstant(textureLayout);
+            block.Require<CubeTextured>().DefaultTexture.Initializer.ContributeConstant(textureLayout);
 
             return this;
         }
@@ -312,7 +312,7 @@ public class BlockBuilder
         /// <param name="wetTextureLayout">The texture layout to use when the block is wet.</param>
         public SimpleBlockDefinition WithWetTextureLayout(TextureLayout wetTextureLayout)
         {
-            block.Require<WetCubeTexture>().WetTextureInitializer.ContributeConstant(wetTextureLayout);
+            block.Require<WetCubeTexture>().WetTexture.Initializer.ContributeConstant(wetTextureLayout);
 
             return this;
         }
@@ -330,7 +330,7 @@ public class BlockBuilder
         public FoliageBlockDefinition WithTexture(TID texture)
         {
             if (block.Get<SingleTextured>() is {} textured)
-                textured.DefaultTextureInitializer.ContributeConstant(texture);
+                textured.DefaultTexture.Initializer.ContributeConstant(texture);
 
             return this;
         }
@@ -353,7 +353,7 @@ public class BlockBuilder
         public PartialHeightBlockDefinition WithTextureLayout(TextureLayout textureLayout)
         {
             if (block.Get<CubeTextured>() is {} texture)
-                texture.DefaultTextureInitializer.ContributeConstant(textureLayout);
+                texture.DefaultTexture.Initializer.ContributeConstant(textureLayout);
 
             return this;
         }
@@ -365,7 +365,7 @@ public class BlockBuilder
         /// <param name="wetTextureLayout">The texture layout to use when the block is wet.</param>
         public PartialHeightBlockDefinition WithWetTextureLayout(TextureLayout wetTextureLayout)
         {
-            block.Require<WetCubeTexture>().WetTextureInitializer.ContributeConstant(wetTextureLayout);
+            block.Require<WetCubeTexture>().WetTexture.Initializer.ContributeConstant(wetTextureLayout);
 
             return this;
         }

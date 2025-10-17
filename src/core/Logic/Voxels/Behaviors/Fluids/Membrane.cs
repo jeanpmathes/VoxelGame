@@ -10,6 +10,8 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
@@ -21,19 +23,12 @@ public class Membrane : BlockBehavior, IBehavior<Membrane, BlockBehavior, Block>
     private Membrane(Block subject) : base(subject)
     {
         subject.Require<Fillable>().IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
-
-        MaxViscosityInitializer = Aspect<Int32, Block>.New<Minimum<Int32, Block>>(nameof(MaxViscosityInitializer), this);
     }
 
     /// <summary>
     ///     Only fluids with a viscosity less than this value can flow into the block.
     /// </summary>
-    public Int32 MaxViscosity { get; private set; } = 1000;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="MaxViscosity" /> property.
-    /// </summary>
-    public Aspect<Int32, Block> MaxViscosityInitializer { get; }
+    public ResolvedProperty<Int32> MaxViscosity { get; } = ResolvedProperty<Int32>.New<Minimum<Int32, Void>>(nameof(MaxViscosity), initial: 1000);
 
     /// <inheritdoc />
     public static Membrane Construct(Block input)
@@ -44,13 +39,13 @@ public class Membrane : BlockBehavior, IBehavior<Membrane, BlockBehavior, Block>
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        MaxViscosity = MaxViscosityInitializer.GetValue(original: 1000, Subject);
+        MaxViscosity.Initialize(this);
     }
 
     private Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {
         (World _, Vector3i _, State _, Side _, Fluid fluid) = context;
 
-        return fluid.Viscosity < MaxViscosity;
+        return fluid.Viscosity < MaxViscosity.Get();
     }
 }

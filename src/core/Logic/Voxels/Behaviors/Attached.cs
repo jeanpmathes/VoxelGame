@@ -13,6 +13,8 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors;
 
@@ -42,9 +44,6 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
 
     private Attached(Block subject) : base(subject)
     {
-        AttachmentSidesInitializer = Aspect<Sides, Block>.New<Exclusive<Sides, Block>>(nameof(AttachmentSidesInitializer), this);
-        ModeInitializer = Aspect<AttachmentMode, Block>.New<Exclusive<AttachmentMode, Block>>(nameof(ModeInitializer), this);
-
         AttachedSides = Aspect<Sides, State>.New<Exclusive<Sides, State>>(nameof(AttachedSides), this);
         AttachedState = Aspect<State?, (State, Sides)>.New<Exclusive<State?, (State, Sides)>>(nameof(AttachedState), this);
 
@@ -57,12 +56,12 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     /// <summary>
     ///     Which sides of the block can be attached to other blocks.
     /// </summary>
-    public Sides AttachmentSides { get; private set; } = Sides.All;
-
+    public ResolvedProperty<Sides> AttachmentSides { get; } = ResolvedProperty<Sides>.New<Exclusive<Sides, Void>>(nameof(AttachmentSides), Sides.All);
+    
     /// <summary>
-    ///     Aspect used to initialize the <see cref="AttachmentSides" /> property.
+    ///     The attachment mode of the block.
     /// </summary>
-    public Aspect<Sides, Block> AttachmentSidesInitializer { get; }
+    public ResolvedProperty<AttachmentMode> Mode { get; } = ResolvedProperty<AttachmentMode>.New<Exclusive<AttachmentMode, Void>>(nameof(Mode));
 
     /// <summary>
     ///     Get the sides the block is currently attached at in a given state.
@@ -81,16 +80,6 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     /// </summary>
     public Aspect<Boolean, (World world, Vector3i position, State state)> IsOtherwiseAttached { get; }
 
-    /// <summary>
-    ///     The attachment mode of the block.
-    /// </summary>
-    public AttachmentMode Mode { get; private set; } = AttachmentMode.Single;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Mode" /> property.
-    /// </summary>
-    public Aspect<AttachmentMode, Block> ModeInitializer { get; }
-
     /// <inheritdoc />
     public static Attached Construct(Block input)
     {
@@ -106,14 +95,14 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        AttachmentSides = AttachmentSidesInitializer.GetValue(Sides.All, Subject);
-        Mode = ModeInitializer.GetValue(AttachmentMode.Single, Subject);
+        AttachmentSides.Initialize(this);
+        Mode.Initialize(this);
     }
 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (AttachmentSides == Sides.None)
+        if (AttachmentSides.Get() == Sides.None)
             validator.ReportWarning("Block cannot be placed as it has no sides allowing attachment");
     }
 
@@ -126,7 +115,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
         if (side == null)
             return false;
 
-        if (!AttachmentSides.HasFlag(side.Value.ToFlag()))
+        if (!AttachmentSides.Get().HasFlag(side.Value.ToFlag()))
             return false;
 
         return world.GetBlock(side.Value.Offset(position))?.IsFullySolid == true;
@@ -138,9 +127,9 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
 
         Side? side = actor?.GetTargetedSide()?.Opposite();
 
-        if (Mode == AttachmentMode.Single)
+        if (Mode.Get() == AttachmentMode.Single)
         {
-            if (side == null || !AttachmentSides.HasFlag(side.Value.ToFlag()))
+            if (side == null || !AttachmentSides.Get().HasFlag(side.Value.ToFlag()))
                 return original;
 
             return AttachedState.GetValue(original, (original, side.Value.ToFlag())) ?? original;
@@ -150,7 +139,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
 
         foreach (Side possibleSide in Side.All.Sides())
         {
-            if (AttachmentSides.HasFlag(possibleSide.ToFlag()) &&
+            if (AttachmentSides.Get().HasFlag(possibleSide.ToFlag()) &&
                 context.world.GetBlock(possibleSide.Offset(context.position))?.IsFullySolid == true)
             {
                 attachableSides |= possibleSide.ToFlag();
@@ -168,7 +157,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
             message.World.GetBlock(message.Side.Offset(message.Position))?.IsFullySolid == true)
             return;
 
-        if (Mode == AttachmentMode.Single)
+        if (Mode.Get() == AttachmentMode.Single)
         {
             if (IsOtherwiseAttached.GetValue(original: false, (message.World, message.Position, message.State)))
                 return;
@@ -202,7 +191,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     {
         Sides sides = AttachedSides.GetValue(Sides.None, state);
 
-        if (Mode == AttachmentMode.Single)
+        if (Mode.Get() == AttachmentMode.Single)
         {
             if (IsOtherwiseAttached.GetValue(original: false, (world, position, state)))
                 return;

@@ -26,9 +26,9 @@ public class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, BlockBeha
     private DenseCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
-        plant.StageCountInitializer.ContributeConstant(value: 5);
+        plant.StageCount.Initializer.ContributeConstant(value: 5);
 
-        subject.Require<Foliage>().LayoutInitializer.ContributeConstant(Foliage.LayoutType.DenseCrop, exclusive: true);
+        subject.Require<Foliage>().Layout.Initializer.ContributeConstant(Foliage.LayoutType.DenseCrop, exclusive: true);
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);

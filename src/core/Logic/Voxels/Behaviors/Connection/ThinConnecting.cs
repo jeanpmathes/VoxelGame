@@ -16,6 +16,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 
@@ -29,23 +31,16 @@ public class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, BlockBeha
     private ThinConnecting(Block subject) : base(subject)
     {
         connecting = subject.Require<Connecting>();
-        subject.Require<Connectable>().StrengthInitializer.ContributeConstant(Connectable.Strengths.Thin);
+        subject.Require<Connectable>().Strength.Initializer.ContributeConstant(Connectable.Strengths.Thin);
 
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-
-        ModelsInitializer = Aspect<(RID, RID, RID), Block>.New<Exclusive<(RID, RID, RID), Block>>(nameof(ModelsInitializer), this);
     }
 
     /// <summary>
     ///     The models used for the block.
     /// </summary>
-    public (RID post, RID side, RID extension) Models { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Models" /> property.
-    /// </summary>
-    public Aspect<(RID post, RID side, RID extension), Block> ModelsInitializer { get; }
+    public ResolvedProperty<(RID post, RID side, RID extension)> Models { get; } = ResolvedProperty<(RID, RID, RID)>.New<Exclusive<(RID, RID, RID), Void>>(nameof(Models));
 
     /// <inheritdoc />
     public static ThinConnecting Construct(Block input)
@@ -56,17 +51,17 @@ public class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, BlockBeha
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Models = ModelsInitializer.GetValue(original: default, Subject);
+        Models.Initialize(this);
     }
 
     private Mesh GetMesh(Mesh original, MeshContext context)
     {
         (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(context.State);
 
-        Model post = context.ModelProvider.GetModel(Models.post);
+        Model post = context.ModelProvider.GetModel(Models.Get().post);
 
-        (Model north, Model east, Model south, Model west) sides = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(context.ModelProvider.GetModel(Models.side), Model.TransformationMode.Reshape);
-        (Model north, Model east, Model south, Model west) extensions = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(context.ModelProvider.GetModel(Models.extension), Model.TransformationMode.Reshape);
+        (Model north, Model east, Model south, Model west) sides = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(context.ModelProvider.GetModel(Models.Get().side), Model.TransformationMode.Reshape);
+        (Model north, Model east, Model south, Model west) extensions = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(context.ModelProvider.GetModel(Models.Get().extension), Model.TransformationMode.Reshape);
 
         return Model.Combine(post,
             north ? extensions.north : sides.north,

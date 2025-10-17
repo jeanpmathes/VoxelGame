@@ -33,7 +33,7 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
 
         connectable = subject.Require<Connectable>();
-        connectable.StrengthInitializer.ContributeConstant(Connectable.Strengths.Wide);
+        connectable.Strength.Initializer.ContributeConstant(Connectable.Strengths.Wide);
         connectable.IsConnectionAllowed.ContributeFunction(IsConnectionAllowed);
 
         rotatable = subject.Require<LateralRotatable>();

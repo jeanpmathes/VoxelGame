@@ -48,7 +48,7 @@ public class Fabricated(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block Carpet { get; } = builder
         .BuildComplexBlock(new CID(nameof(Carpet)), Language.Carpet)
-        .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<Model>("carpet")]))
+        .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("carpet")]))
         .WithBoundingVolume(new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f)))
         .WithBehavior<Fillable>()
         .WithBehavior<Paintable>()
@@ -59,7 +59,7 @@ public class Fabricated(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block CarpetDecorated { get; } = builder
         .BuildComplexBlock(new CID(nameof(CarpetDecorated)), Language.CarpetDecorated)
-        .WithBehavior<Modelled>(modelled => modelled.LayersInitializer.ContributeConstant([RID.File<Model>("carpet_decorated")]))
+        .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("carpet_decorated")]))
         .WithBoundingVolume(new BoundingVolume(new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f), new Vector3d(x: 0.5f, y: 0.03125f, z: 0.5f)))
         .WithBehavior<Fillable>()
         .WithBehavior<Paintable>()

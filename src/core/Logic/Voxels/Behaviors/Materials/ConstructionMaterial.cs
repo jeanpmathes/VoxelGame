@@ -17,7 +17,7 @@ public class ConstructionMaterial : BlockBehavior, IBehavior<ConstructionMateria
 {
     private ConstructionMaterial(Block subject) : base(subject)
     {
-        subject.Require<Connectable>().StrengthInitializer.ContributeConstant(Connectable.Strengths.All);
+        subject.Require<Connectable>().Strength.Initializer.ContributeConstant(Connectable.Strengths.All);
     }
 
     /// <inheritdoc />

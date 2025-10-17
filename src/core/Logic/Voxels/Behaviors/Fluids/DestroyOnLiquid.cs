@@ -8,6 +8,7 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
@@ -18,18 +19,12 @@ public class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBe
 {
     private DestroyOnLiquid(Block subject) : base(subject)
     {
-        ThresholdInitializer = Aspect<FluidLevel, Block>.New<Minimum<FluidLevel, Block>>(nameof(ThresholdInitializer), this);
     }
 
     /// <summary>
     ///     The threshold above which the block breaks when filled with liquid.
     /// </summary>
-    public FluidLevel Threshold { get; private set; } = FluidLevel.One;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Threshold" /> property.
-    /// </summary>
-    public Aspect<FluidLevel, Block> ThresholdInitializer { get; }
+    public ResolvedProperty<FluidLevel> Threshold { get; } = ResolvedProperty<FluidLevel>.New<Minimum<FluidLevel, Void>>(nameof(Threshold), FluidLevel.One);
 
     /// <inheritdoc />
     public static DestroyOnLiquid Construct(Block input)
@@ -47,12 +42,12 @@ public class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBe
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Threshold = ThresholdInitializer.GetValue(FluidLevel.One, Subject);
+        Threshold.Initialize(this);
     }
 
     private void OnStateUpdate(Block.IStateUpdateMessage message)
     {
-        if (message.NewState.Fluid.Fluid.IsLiquid && message.NewState.Fluid.Level > Threshold)
+        if (message.NewState.Fluid.Fluid.IsLiquid && message.NewState.Fluid.Level > Threshold.Get())
             Subject.ScheduleDestroy(message.World, message.Position);
     }
 
@@ -60,7 +55,7 @@ public class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBe
     {
         Content? content = message.World.GetContent(message.Position);
 
-        if (content is {Fluid.Fluid.IsLiquid: true} && content.Value.Fluid.Level > Threshold)
+        if (content is {Fluid.Fluid.IsLiquid: true} && content.Value.Fluid.Level > Threshold.Get())
             Subject.ScheduleDestroy(message.World, message.Position);
     }
 }

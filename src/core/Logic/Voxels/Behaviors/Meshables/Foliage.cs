@@ -13,6 +13,7 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 
@@ -74,7 +75,6 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
         meshed = subject.Require<Meshed>();
         textured = subject.Require<SingleTextured>();
 
-        LayoutInitializer = Aspect<LayoutType, Block>.New<Exclusive<LayoutType, Block>>(nameof(LayoutInitializer), this);
         Part = Aspect<PartType, State>.New<Exclusive<PartType, State>>(nameof(Part), this);
         IsLowered = Aspect<Boolean, State>.New<Exclusive<Boolean, State>>(nameof(IsLowered), this);
     }
@@ -82,12 +82,7 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
     /// <summary>
     ///     The mesh layout of the foliage.
     /// </summary>
-    public LayoutType Layout { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Layout" /> property.
-    /// </summary>
-    public Aspect<LayoutType, Block> LayoutInitializer { get; } // todo: add to code gen note that initializer aspects could also be generated 
+    public ResolvedProperty<LayoutType> Layout { get; } = ResolvedProperty<LayoutType>.New<Exclusive<LayoutType, Void>>(nameof(Layout));
 
     /// <summary>
     ///     The part of the foliage a block in a certain state represents.
@@ -116,7 +111,7 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
     {
         properties.IsOpaque.ContributeConstant(value: false);
 
-        Layout = LayoutInitializer.GetValue(LayoutType.Cross, Subject);
+        Layout.Initialize(this);
     }
 
     /// <summary>
@@ -135,12 +130,12 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
 
         Int32 textureIndex = textured.GetTextureIndex(state, textureIndexProvider, isBlock: true);
 
-        Mesh mesh = Layout switch
+        Mesh mesh = Layout.Get() switch
         {
             LayoutType.Cross => Meshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, isLowered),
             LayoutType.Crop => Meshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: false, textureIndex, isLowered),
             LayoutType.DenseCrop => Meshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: true, textureIndex, isLowered),
-            _ => throw Exceptions.UnsupportedEnumValue(Layout)
+            _ => throw Exceptions.UnsupportedEnumValue(Layout.Get())
         };
 
         Mesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);

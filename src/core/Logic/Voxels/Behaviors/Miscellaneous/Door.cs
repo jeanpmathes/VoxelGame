@@ -31,7 +31,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
     private Door(Block subject) : base(subject)
     {
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
-        subject.Require<Composite>().MaximumSizeInitializer.ContributeConstant((1, 2, 1));
+        subject.Require<Composite>().MaximumSize.Initializer.ContributeConstant((1, 2, 1));
         subject.Require<Grounded>();
 
         subject.Require<Fillable>();

@@ -10,6 +10,8 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
@@ -20,7 +22,6 @@ public class SingleTextured : BlockBehavior, IBehavior<SingleTextured, BlockBeha
 {
     private SingleTextured(Block subject) : base(subject)
     {
-        DefaultTextureInitializer = Aspect<TID, Block>.New<Exclusive<TID, Block>>(nameof(DefaultTextureInitializer), this);
         ActiveTexture = Aspect<TID, State>.New<Exclusive<TID, State>>(nameof(ActiveTexture), this);
     }
 
@@ -28,12 +29,7 @@ public class SingleTextured : BlockBehavior, IBehavior<SingleTextured, BlockBeha
     ///     The default texture to use for the block.
     ///     This should be set through the <see cref="BlockBuilder" /> when defining the block.
     /// </summary>
-    public TID DefaultTexture { get; private set; } = TID.MissingTexture;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="DefaultTexture" /> property.
-    /// </summary>
-    public Aspect<TID, Block> DefaultTextureInitializer { get; }
+    public ResolvedProperty<TID> DefaultTexture { get; } = ResolvedProperty<TID>.New<Exclusive<TID, Void>>(nameof(DefaultTexture), TID.MissingTexture);
 
     /// <summary>
     ///     The actually used, state dependent texture.
@@ -49,7 +45,7 @@ public class SingleTextured : BlockBehavior, IBehavior<SingleTextured, BlockBeha
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        DefaultTexture = DefaultTextureInitializer.GetValue(TID.MissingTexture, Subject);
+        DefaultTexture.Initialize(this);
     }
 
     /// <summary>
@@ -61,6 +57,6 @@ public class SingleTextured : BlockBehavior, IBehavior<SingleTextured, BlockBeha
     /// <returns>The texture index for the given state and side.</returns>
     public Int32 GetTextureIndex(State state, ITextureIndexProvider textureIndexProvider, Boolean isBlock)
     {
-        return textureIndexProvider.GetTextureIndex(ActiveTexture.GetValue(DefaultTexture, state));
+        return textureIndexProvider.GetTextureIndex(ActiveTexture.GetValue(DefaultTexture.Get(), state));
     }
 }

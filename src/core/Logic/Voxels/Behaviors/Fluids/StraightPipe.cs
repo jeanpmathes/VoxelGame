@@ -69,7 +69,7 @@ public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
-        Double diameter = Piped.GetPipeDiameter(piped.Tier);
+        Double diameter = Piped.GetPipeDiameter(piped.Tier.Get());
 
         Axis axis = rotation.GetAxis(state);
 

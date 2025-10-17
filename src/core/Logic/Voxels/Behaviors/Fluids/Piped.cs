@@ -10,6 +10,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
@@ -36,20 +37,13 @@ public class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Block>
 
     private Piped(Block subject) : base(subject)
     {
-        TierInitializer = Aspect<PipeTier, Block>.New<Exclusive<PipeTier, Block>>(nameof(TierInitializer), this);
-
         IsConnectionAllowed = Aspect<Boolean, (State state, Side side)>.New<ANDing<(State, Side)>>(nameof(IsConnectionAllowed), this);
     }
 
     /// <summary>
     ///     The tier of this block, which determines what pipes can connect to it.
     /// </summary>
-    public PipeTier Tier { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Tier" /> property.
-    /// </summary>
-    public Aspect<PipeTier, Block> TierInitializer { get; }
+    public ResolvedProperty<PipeTier> Tier { get; } = ResolvedProperty<PipeTier>.New<Exclusive<PipeTier, Void>>(nameof(Tier));
 
     /// <summary>
     ///     Whether connection to this block is allowed in the given state from the given side.
@@ -65,7 +59,7 @@ public class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Block>
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Tier = TierInitializer.GetValue(PipeTier.Primitive, Subject);
+        Tier.Initialize(this);
     }
 
     /// <summary>
@@ -92,6 +86,6 @@ public class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Block>
     /// <returns><c>true</c> if the pipe can connect, <c>false</c> otherwise.</returns>
     public Boolean CanConnect(State state, Side side, PipeTier tier)
     {
-        return tier == Tier && IsConnectionAllowed.GetValue(original: true, (state, side));
+        return tier == Tier.Get() && IsConnectionAllowed.GetValue(original: true, (state, side));
     }
 }

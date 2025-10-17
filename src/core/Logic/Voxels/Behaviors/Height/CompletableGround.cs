@@ -9,6 +9,7 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Contents;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 
@@ -22,18 +23,12 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
 
     private CompletableGround(Block subject) : base(subject)
     {
-        ReplacementInitializer = Aspect<CID?, Block>.New<Exclusive<CID?, Block>>(nameof(ReplacementInitializer), this);
     }
 
     /// <summary>
     ///     The block that will replace this block to complete it.
     /// </summary>
-    public CID? Replacement { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Replacement" /> property.
-    /// </summary>
-    public Aspect<CID?, Block> ReplacementInitializer { get; }
+    public ResolvedProperty<CID?> Replacement { get; } = ResolvedProperty<CID?>.New<Exclusive<CID?, Void>>(nameof(Replacement));
 
     /// <inheritdoc />
     public static CompletableGround Construct(Block input)
@@ -44,21 +39,21 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Replacement = ReplacementInitializer.GetValue(original: null, Subject);
+        Replacement.Initialize(this);
     }
 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (Replacement == null)
+        if (Replacement.Get() == null)
             validator.ReportWarning("Replacement block is not set");
 
-        if (Replacement == Subject.ContentID)
+        if (Replacement.Get() == Subject.ContentID)
             validator.ReportWarning("Replacement block cannot be the same as the block itself");
 
-        replacement = Blocks.Instance.SafelyTranslateContentID(Replacement);
+        replacement = Blocks.Instance.SafelyTranslateContentID(Replacement.Get());
 
-        if (replacement == Blocks.Instance.Core.Error && Replacement != Blocks.Instance.Core.Error.ContentID)
+        if (replacement == Blocks.Instance.Core.Error && Replacement.Get() != Blocks.Instance.Core.Error.ContentID)
             validator.ReportWarning($"The replacement block '{Replacement}' could not be found");
 
         if (!replacement.IsFullySolid(replacement.States.Default))

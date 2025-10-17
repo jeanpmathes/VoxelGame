@@ -218,7 +218,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
         var fillable = info.Block.Block.Get<Fillable>();
 
-        if (fillable is not {IsFluidRendered: true} || info.Block.IsFullySolid) return;
+        if (fillable?.IsFluidMeshed.Get() != true || info.Block.IsFullySolid) return;
 
         SideArray<MeshFaceHolder> fluidMeshFaceHolders = context.GetFluidMeshFaceHolders();
 
@@ -240,7 +240,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             Boolean atVerticalEnd = side is Side.Top or Side.Bottom;
 
-            Boolean isNeighborFluidMeshed = blockToCheck.Block.Get<Fillable>()?.IsFluidRendered == true;
+            Boolean isNeighborFluidMeshed = blockToCheck.Block.Get<Fillable>()?.IsFluidMeshed.Get() == true;
 
             FluidLevel neighborLevel = fluidToCheck.Level;
 

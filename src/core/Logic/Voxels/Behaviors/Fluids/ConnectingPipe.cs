@@ -21,6 +21,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
@@ -43,20 +44,13 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
 
-        ModelsInitializer = Aspect<(RID, RID, RID), Block>.New<Exclusive<(RID, RID, RID), Block>>(nameof(ModelsInitializer), this);
-
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
     /// <summary>
     ///     The models used for the block.
     /// </summary>
-    public (RID center, RID connector, RID surface) Models { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Models" /> property.
-    /// </summary>
-    public Aspect<(RID center, RID connector, RID surface), Block> ModelsInitializer { get; }
+    public ResolvedProperty<(RID center, RID connector, RID surface)> Models { get; } = ResolvedProperty<(RID, RID, RID)>.New<Exclusive<(RID, RID, RID), Void>>(nameof(Models));
 
     /// <inheritdoc />
     public static ConnectingPipe Construct(Block input)
@@ -73,7 +67,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Models = ModelsInitializer.GetValue(original: default, Subject);
+        Models.Initialize(this);
     }
 
     private Sides GetOpenSides(Sides original, State state)
@@ -83,10 +77,10 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
 
     private Mesh GetMesh(Mesh original, MeshContext context)
     {
-        Model center = context.ModelProvider.GetModel(Models.center);
+        Model center = context.ModelProvider.GetModel(Models.Get().center);
 
-        Model frontConnector = context.ModelProvider.GetModel(Models.connector);
-        Model frontSurface = context.ModelProvider.GetModel(Models.surface);
+        Model frontConnector = context.ModelProvider.GetModel(Models.Get().connector);
+        Model frontSurface = context.ModelProvider.GetModel(Models.Get().surface);
 
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
             connectors = VoxelGame.Core.Visuals.Models.CreateModelsForAllSides(frontConnector, Model.TransformationMode.Reshape);
@@ -103,14 +97,14 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
             sides.HasFlag(Sides.Right) ? connectors.right : surfaces.right,
             sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
             sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top)
-            .CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures);
+            .CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures.Get());
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         List<BoundingVolume> connectors = new(capacity: 6);
 
-        Double diameter = Piped.GetPipeDiameter(piped.Tier);
+        Double diameter = Piped.GetPipeDiameter(piped.Tier.Get());
 
         Sides sides = siding.GetSides(state);
         Double connectorWidth = (0.5 - diameter) / 2.0;
@@ -163,7 +157,7 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
             State? otherBlock = world.GetBlock(otherPosition);
 
             if (otherBlock?.Block.Get<Piped>() is {} otherPiped
-                && otherPiped.CanConnect(otherBlock.Value, side.Opposite(), otherPiped.Tier)) sides |= side.ToFlag();
+                && otherPiped.CanConnect(otherBlock.Value, side.Opposite(), otherPiped.Tier.Get())) sides |= side.ToFlag();
         }
 
         if (sides.Count() == 1)

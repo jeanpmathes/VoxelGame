@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
@@ -68,7 +67,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildSimpleBlock(new CID(nameof(Mud)), Language.Mud)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("mud")))
         .WithBehavior<Mud>()
-        .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.1))
+        .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(value: 0.1))
         .Complete();
 
     /// <summary>
@@ -86,7 +85,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildSimpleBlock(new CID(nameof(Peat)), Language.Peat)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("peat")))
         .WithBehavior<Mud>()
-        .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.1))
+        .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(value: 0.1))
         .Complete();
 
     /// <summary>
@@ -97,10 +96,10 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildPartialHeightBlock(new CID(nameof(Farmland)), Language.Farmland)
         .WithTextureLayout(TextureLayout.UniqueTop(TID.Block("soil"), TID.Block("farmland")))
         .WithWetTextureLayout(TextureLayout.UniqueTop(TID.Block("soil_wet"), TID.Block("farmland_wet")))
-        .WithBehavior<ConstantHeight>(height => height.HeightInitializer.ContributeConstant(PartialHeight.MaximumHeight - 1))
-        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(new CID(nameof(Soil))))
+        .WithBehavior<ConstantHeight>(height => height.Height.Initializer.ContributeConstant(PartialHeight.MaximumHeight - 1))
+        .WithBehavior<CompletableGround>(ground => ground.Replacement.Initializer.ContributeConstant(new CID(nameof(Soil))))
         .WithBehavior<CoveredSoil>()
-        .WithBehavior<Plantable>(plantable => plantable.SupportsFullGrowthInitializer.ContributeConstant(value: true))
+        .WithBehavior<Plantable>(plantable => plantable.SupportsFullGrowth.Initializer.ContributeConstant(value: true))
         .Complete();
 
     /// <summary>
@@ -126,8 +125,8 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildPartialHeightBlock(new CID(nameof(Path)), Language.Path)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("soil")))
         .WithWetTextureLayout(TextureLayout.Uniform(TID.Block("soil_wet")))
-        .WithBehavior<ConstantHeight>(height => height.HeightInitializer.ContributeConstant(PartialHeight.MaximumHeight - 1))
-        .WithBehavior<CompletableGround>(ground => ground.ReplacementInitializer.ContributeConstant(new CID(nameof(Soil))))
+        .WithBehavior<ConstantHeight>(height => height.Height.Initializer.ContributeConstant(PartialHeight.MaximumHeight - 1))
+        .WithBehavior<CompletableGround>(ground => ground.Replacement.Initializer.ContributeConstant(new CID(nameof(Soil))))
         .WithBehavior<CoveredSoil>()
         .WithBehavior<Plantable>()
         .Complete();
@@ -159,8 +158,8 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildFoliageBlock(new CID(nameof(TallGrass)), Language.TallGrass)
         .WithTexture(TID.Block("grass_tall"))
         .WithBehavior<NeutralTint>()
-        .WithBehavior<CrossPlant>(plant => plant.HeightInitializer.ContributeConstant(value: 0.5))
-        .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
+        .WithBehavior<CrossPlant>(plant => plant.Height.Initializer.ContributeConstant(value: 0.5))
+        .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
         .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
         .Complete();
 
@@ -172,7 +171,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithTexture(TID.Block("grass_taller"))
         .WithBehavior<NeutralTint>()
         .WithBehavior<CrossPlant>()
-        .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Four))
+        .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
         .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
         .Complete();
 
@@ -185,7 +184,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithTexture(TID.Block("grass_tallest"))
         .WithBehavior<NeutralTint>()
         .WithBehavior<DoubleCrossPlant>()
-        .WithBehavior<DestroyOnLiquid>(breaking => breaking.ThresholdInitializer.ContributeConstant(FluidLevel.Five))
+        .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Five))
         .Complete();
 
     /// <summary>
@@ -213,7 +212,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Grounded>()
         .WithBehavior<Densifying>()
         .WithBehavior<DestroyOnFluid>()
-        .WithBehavior<Slowing>(slowing => slowing.MaxVelocityInitializer.ContributeConstant(value: 0.01))
+        .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(value: 0.01))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
         .WithBehavior<CoverPreserving, PartialHeight>((preserving, height) => preserving.Preservation.ContributeFunction((_, state) => height.GetHeight(state) < PartialHeight.MaximumHeight))
         .Complete();
@@ -243,7 +242,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block Fire { get; } = builder
         .BuildComplexBlock(new CID(nameof(Fire)), Language.Fire)
-        .WithBehavior<Fire>(fire => fire.ModelsInitializer.ContributeConstant((RID.File<Model>("fire_complete"), RID.File<Model>("fire_side"), RID.File<Model>("fire_top"))))
+        .WithBehavior<Fire>(fire => fire.Models.Initializer.ContributeConstant((RID.File<Model>("fire_complete"), RID.File<Model>("fire_side"), RID.File<Model>("fire_top"))))
         .WithBehavior<DestroyOnLiquid>()
         .Complete();
 

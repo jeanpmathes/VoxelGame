@@ -9,6 +9,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
@@ -20,21 +21,14 @@ public class WetCubeTexture : BlockBehavior, IBehavior<WetCubeTexture, BlockBeha
 {
     private WetCubeTexture(Block subject) : base(subject)
     {
-        WetTextureInitializer = Aspect<TextureLayout, Block>.New<Exclusive<TextureLayout, Block>>(nameof(WetTextureInitializer), this);
-
         subject.Require<Wet>();
-        subject.Require<CubeTextured>().ActiveTexture.ContributeFunction((original, state) => state.Fluid?.IsLiquid == true ? WetTexture : original);
+        subject.Require<CubeTextured>().ActiveTexture.ContributeFunction((original, state) => state.Fluid?.IsLiquid == true ? WetTexture.Get() : original);
     }
 
     /// <summary>
     ///     The texture layout to use when the block is wet.
     /// </summary>
-    public TextureLayout WetTexture { get; private set; } = TextureLayout.Uniform(TID.MissingTexture);
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="WetTexture" /> property.
-    /// </summary>
-    public Aspect<TextureLayout, Block> WetTextureInitializer { get; }
+    public ResolvedProperty<TextureLayout> WetTexture { get; } = ResolvedProperty<TextureLayout>.New<Exclusive<TextureLayout, Void>>(nameof(WetTexture), TextureLayout.Uniform(TID.MissingTexture));
 
     /// <inheritdoc />
     public static WetCubeTexture Construct(Block input)
@@ -45,6 +39,6 @@ public class WetCubeTexture : BlockBehavior, IBehavior<WetCubeTexture, BlockBeha
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        WetTexture = WetTextureInitializer.GetValue(TextureLayout.Uniform(TID.MissingTexture), Subject);
+        WetTexture.Initialize(this);
     }
 }

@@ -13,6 +13,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Siding;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
@@ -31,19 +33,12 @@ public class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Bloc
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
-
-        WidthInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(WidthInitializer), this);
     }
 
     /// <summary>
     ///     The width of the flat model, mainly used for collision.
     /// </summary>
-    public Double Width { get; private set; } = 1.0;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Width" /> property.
-    /// </summary>
-    public Aspect<Double, Block> WidthInitializer { get; }
+    public ResolvedProperty<Double> Width { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(Width), initial: 1.0);
 
     /// <inheritdoc />
     public static FlatModel Construct(Block input)
@@ -54,14 +49,14 @@ public class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Bloc
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Width = WidthInitializer.GetValue(original: 1.0, Subject);
+        Width.Initialize(this);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Sides sides = siding.GetSides(state);
 
-        return BoundingVolume.FlatBlock(sides, Width, depth: 0.1);
+        return BoundingVolume.FlatBlock(sides, Width.Get(), depth: 0.1);
     }
 
     private Mesh GetMesh(Mesh original, MeshContext context)

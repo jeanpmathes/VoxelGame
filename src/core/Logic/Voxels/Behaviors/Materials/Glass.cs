@@ -17,7 +17,7 @@ public class Glass : BlockBehavior, IBehavior<Glass, BlockBehavior, Block>
 {
     private Glass(Block subject) : base(subject)
     {
-        subject.Require<Connectable>().StrengthInitializer.ContributeConstant(Connectable.Strengths.Thin);
+        subject.Require<Connectable>().Strength.Initializer.ContributeConstant(Connectable.Strengths.Thin);
     }
 
     /// <inheritdoc />

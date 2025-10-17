@@ -27,15 +27,15 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
     private DoubleCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
-        plant.StageCountInitializer.ContributeConstant(value: 5);
+        plant.StageCount.Initializer.ContributeConstant(value: 5);
         plant.CanGrow.ContributeFunction(GetCanGrow);
 
         composite = subject.Require<Composite>();
-        composite.MaximumSizeInitializer.ContributeConstant((1, 2, 1));
+        composite.MaximumSize.Initializer.ContributeConstant((1, 2, 1));
         composite.Size.ContributeFunction(GetSize);
 
         var foliage = subject.Require<Foliage>();
-        foliage.LayoutInitializer.ContributeConstant(Foliage.LayoutType.Crop, exclusive: true);
+        foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Crop, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
 
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);

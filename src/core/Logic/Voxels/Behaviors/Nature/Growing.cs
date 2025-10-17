@@ -15,6 +15,8 @@ using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 
@@ -29,8 +31,6 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
 
     private Growing(Block subject) : base(subject)
     {
-        RequiredGroundInitializer = Aspect<CID?, Block>.New<Exclusive<CID?, Block>>(nameof(RequiredGroundInitializer), this);
-
         subject.IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
     }
 
@@ -39,12 +39,7 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
     /// <summary>
     ///     The required ground block.
     /// </summary>
-    public CID? RequiredGround { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="RequiredGround" /> property.
-    /// </summary>
-    public Aspect<CID?, Block> RequiredGroundInitializer { get; }
+    public ResolvedProperty<CID?> RequiredGround { get; } = ResolvedProperty<CID?>.New<Exclusive<CID?, Void>>(nameof(RequiredGround));
 
     /// <inheritdoc />
     public static Growing Construct(Block input)
@@ -62,7 +57,7 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        RequiredGround = RequiredGroundInitializer.GetValue(original: null, Subject);
+        RequiredGround.Initialize(this);
     }
 
     /// <inheritdoc />
@@ -74,15 +69,15 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (RequiredGround == null)
+        if (RequiredGround.Get() == null)
             validator.ReportWarning("No required ground block is set");
 
-        if (RequiredGround == Subject.ContentID)
+        if (RequiredGround.Get() == Subject.ContentID)
             validator.ReportWarning("The required ground block cannot be the same as the growing block itself");
 
-        requiredGround = Blocks.Instance.SafelyTranslateContentID(RequiredGround);
+        requiredGround = Blocks.Instance.SafelyTranslateContentID(RequiredGround.Get());
 
-        if (requiredGround == Blocks.Instance.Core.Error && RequiredGround != Blocks.Instance.Core.Error.ContentID)
+        if (requiredGround == Blocks.Instance.Core.Error && RequiredGround.Get() != Blocks.Instance.Core.Error.ContentID)
             validator.ReportWarning($"The required ground block '{RequiredGround}' could not be found");
     }
 

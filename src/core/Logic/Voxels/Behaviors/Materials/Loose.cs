@@ -17,8 +17,8 @@ public class Loose : BlockBehavior, IBehavior<Loose, BlockBehavior, Block>
 {
     private Loose(Block subject) : base(subject)
     {
-        subject.Require<Membrane>().MaxViscosityInitializer.ContributeConstant(value: 100);
-        subject.Require<Fillable>().IsFluidRenderedInitializer.ContributeConstant(value: false);
+        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(value: 100);
+        subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);
     }
 
     /// <inheritdoc />

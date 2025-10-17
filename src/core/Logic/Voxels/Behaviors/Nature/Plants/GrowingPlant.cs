@@ -13,6 +13,8 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 
@@ -24,9 +26,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     private GrowingPlant(Block subject) : base(subject)
     {
         subject.Require<Plant>();
-
-        StageCountInitializer = Aspect<Int32, Block>.New<Exclusive<Int32, Block>>(nameof(StageCountInitializer), this);
-
+        
         CanGrow = Aspect<Boolean, State>.New<ANDing<State>>(nameof(CanGrow), this);
     }
 
@@ -35,19 +35,14 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     /// <summary>
     ///     The number of growth stages this plant has.
     /// </summary>
-    public Int32 StageCount { get; private set; } = 1;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="StageCount" /> property.
-    /// </summary>
-    public Aspect<Int32, Block> StageCountInitializer { get; }
+    public ResolvedProperty<Int32> StageCount { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(StageCount), initial: 1);
 
     /// <summary>
     ///     Whether the plant can grow in the current state.
     /// </summary>
     public Aspect<Boolean, State> CanGrow { get; }
 
-    private Int32 MatureStage => StageCount - 1;
+    private Int32 MatureStage => StageCount.Get() - 1;
 
     [LateInitialization] private partial IEvent<IMatureUpdateMessage> MatureUpdate { get; set; }
 
@@ -72,13 +67,13 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        StageCount = StageCountInitializer.GetValue(original: 1, Subject);
+        StageCount.Initialize(this);
     }
 
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)
     {
-        Stage = builder.Define(nameof(Stage)).Int32(min: 0, StageCount).NullableAttribute(placementDefault: 0, generationDefault: 0);
+        Stage = builder.Define(nameof(Stage)).Int32(min: 0, StageCount.Get()).NullableAttribute(placementDefault: 0, generationDefault: 0);
     }
 
     private void OnRandomUpdate(Block.IRandomUpdateMessage message)
@@ -128,7 +123,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
             }
             else
             {
-                if (!plantable.SupportsFullGrowth) return;
+                if (!plantable.SupportsFullGrowth.Get()) return;
                 if (!plantable.TryGrow(message.World, message.Position.Below(), Voxels.Fluids.Instance.FreshWater, FluidLevel.One)) return;
 
                 newState.Set(Stage, aliveStage + 1);

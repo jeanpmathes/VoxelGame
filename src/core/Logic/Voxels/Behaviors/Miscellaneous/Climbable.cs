@@ -10,6 +10,8 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 
@@ -20,29 +22,17 @@ public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Bloc
 {
     private Climbable(Block subject) : base(subject)
     {
-        ClimbingVelocityInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(ClimbingVelocityInitializer), this);
-        SlidingVelocityInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(SlidingVelocityInitializer), this);
     }
 
     /// <summary>
     ///     The velocity at which an actor climbs up or down this block.
     /// </summary>
-    public Double ClimbingVelocity { get; private set; } = 1.0;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="ClimbingVelocity" /> property.
-    /// </summary>
-    public Aspect<Double, Block> ClimbingVelocityInitializer { get; }
+    public ResolvedProperty<Double> ClimbingVelocity { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(ClimbingVelocity), initial: 1.0);
 
     /// <summary>
     ///     The velocity at which an actor slides down this block when not climbing.
     /// </summary>
-    public Double SlidingVelocity { get; private set; } = 1.0;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="SlidingVelocity" /> property.
-    /// </summary>
-    public Aspect<Double, Block> SlidingVelocityInitializer { get; }
+    public ResolvedProperty<Double> SlidingVelocity { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(SlidingVelocity), initial: 1.0);
 
     /// <inheritdoc />
     public static Climbable Construct(Block input)
@@ -59,8 +49,8 @@ public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Bloc
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        ClimbingVelocity = ClimbingVelocityInitializer.GetValue(original: 1.0, Subject);
-        SlidingVelocity = SlidingVelocityInitializer.GetValue(original: 1.0, Subject);
+        ClimbingVelocity.Initialize(this);
+        SlidingVelocity.Initialize(this);
     }
     
     private void OnActorCollision(Block.IActorCollisionMessage message)
@@ -72,8 +62,8 @@ public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Bloc
             forwardMovement.LengthSquared > 0.1f)
         {
             Double yVelocity = Vector3d.CalculateAngle(message.Body.Subject.Head.Forward, Vector3d.UnitY) < MathHelper.PiOver2
-                ? ClimbingVelocity
-                : -ClimbingVelocity;
+                ? ClimbingVelocity.Get()
+                : -ClimbingVelocity.Get();
 
             newVelocity = new Vector3d(message.Body.Velocity.X, yVelocity, message.Body.Velocity.Z);
         }
@@ -81,7 +71,7 @@ public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Bloc
         {
             newVelocity = new Vector3d(
                 message.Body.Velocity.X,
-                MathHelper.Clamp(message.Body.Velocity.Y, -SlidingVelocity, Double.MaxValue),
+                MathHelper.Clamp(message.Body.Velocity.Y, -SlidingVelocity.Get(), Double.MaxValue),
                 message.Body.Velocity.Z);
         }
 

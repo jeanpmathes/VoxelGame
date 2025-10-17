@@ -21,6 +21,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 
@@ -41,8 +42,6 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
         subject.IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
         subject.PlacementState.ContributeFunction(GetPlacementState);
-
-        ModelsInitializer = Aspect<(RID, RID, RID), Block>.New<Exclusive<(RID, RID, RID), Block>>(nameof(ModelsInitializer), this);
     }
 
     [LateInitialization] private partial IAttribute<Boolean> Front { get; set; }
@@ -58,12 +57,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     /// <summary>
     ///     The models used for the block.
     /// </summary>
-    public (RID complete, RID side, RID top) Models { get; private set; }
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Models" /> property.
-    /// </summary>
-    public Aspect<(RID complete, RID side, RID top), Block> ModelsInitializer { get; }
+    public ResolvedProperty<(RID complete, RID side, RID top)> Models { get; } = ResolvedProperty<(RID, RID, RID)>.New<Exclusive<(RID, RID, RID), Void>>(nameof(Models));
 
     /// <inheritdoc />
     public static Fire Construct(Block input)
@@ -86,7 +80,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         properties.IsUnshaded.ContributeConstant(value: true);
         properties.IsOpaque.ContributeConstant(value: false);
 
-        Models = ModelsInitializer.GetValue(original: default, Subject);
+        Models.Initialize(this);
     }
 
     /// <inheritdoc />
@@ -103,10 +97,10 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     {
         State state = context.State;
 
-        Model complete = context.ModelProvider.GetModel(Models.complete);
+        Model complete = context.ModelProvider.GetModel(Models.Get().complete);
 
-        Model side = context.ModelProvider.GetModel(Models.side);
-        Model up = context.ModelProvider.GetModel(Models.top);
+        Model side = context.ModelProvider.GetModel(Models.Get().side);
+        Model up = context.ModelProvider.GetModel(Models.Get().top);
         
         Boolean any = IsAnySideBurning(state);
 

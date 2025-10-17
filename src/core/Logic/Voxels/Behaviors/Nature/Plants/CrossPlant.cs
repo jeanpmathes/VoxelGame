@@ -10,6 +10,8 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Physics;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 
@@ -22,33 +24,20 @@ public class CrossPlant : BlockBehavior, IBehavior<CrossPlant, BlockBehavior, Bl
     {
         subject.Require<Plant>();
 
-        subject.Require<Foliage>().LayoutInitializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
+        subject.Require<Foliage>().Layout.Initializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
 
-        subject.BoundingVolume.ContributeFunction((_, _) => BoundingVolume.CrossBlock(Height, Width));
-
-        HeightInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(HeightInitializer), this);
-        WidthInitializer = Aspect<Double, Block>.New<Exclusive<Double, Block>>(nameof(WidthInitializer), this);
+        subject.BoundingVolume.ContributeFunction((_, _) => BoundingVolume.CrossBlock(Height.Get(), Width.Get()));
     }
 
     /// <summary>
     ///     The height of the plant, used for the bounding volume.
     /// </summary>
-    public Double Height { get; private set; } = 1.0;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Height" /> property.
-    /// </summary>
-    public Aspect<Double, Block> HeightInitializer { get; }
+    public ResolvedProperty<Double> Height { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(Height), initial: 1.0);
 
     /// <summary>
     ///     The width of the plant, used for the bounding volume.
     /// </summary>
-    public Double Width { get; private set; } = 0.71;
-
-    /// <summary>
-    ///     Aspect used to initialize the <see cref="Width" /> property.
-    /// </summary>
-    public Aspect<Double, Block> WidthInitializer { get; }
+    public ResolvedProperty<Double> Width { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(Width), initial: 0.71);
 
     /// <inheritdoc />
     public static CrossPlant Construct(Block input)
@@ -59,7 +48,7 @@ public class CrossPlant : BlockBehavior, IBehavior<CrossPlant, BlockBehavior, Bl
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        Height = HeightInitializer.GetValue(original: 1.0, Subject);
-        Width = WidthInitializer.GetValue(original: 0.71, Subject);
+        Height.Initialize(this);
+        Width.Initialize(this);
     }
 }
