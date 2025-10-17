@@ -92,12 +92,12 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
 
             if ((side != Side.Top || isFullHeight) && SimpleBlock.IsHiddenFace(this, blockToCheck.Value, side)) return;
 
-            PartialHeight.MeshData mesh = meshData[side][state.Index];
+            ref readonly PartialHeight.MeshData mesh = ref meshData[side][state.Index];
 
             Boolean isModified = side != Side.Bottom && !isFullHeight;
 
-            if (isModified) MeshLikeFluid(position, side, blockToCheck, height, mesh, context);
-            else MeshLikeSimple(position, side, mesh, IsOpaque, IsUnshaded, context);
+            if (isModified) MeshLikeFluid(position, side, blockToCheck, height, in mesh, context);
+            else MeshLikeSimple(position, side, in mesh, IsOpaque, IsUnshaded, context);
         }
 
         MeshVaryingHeightSide(Side.Front);
@@ -110,7 +110,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void MeshLikeSimple(
-        Vector3i position, Side side, PartialHeight.MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
+        Vector3i position, Side side, ref readonly PartialHeight.MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
     {
         SimpleBlock.AddSimpleMesh(position,
             side,
@@ -127,7 +127,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] State? blockToCheck, Int32 height, PartialHeight.MeshData mesh, MeshingContext context)
+    private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] State? blockToCheck, Int32 height, ref readonly PartialHeight.MeshData mesh, MeshingContext context)
     {
         if (side != Side.Top && blockToCheck.Value.Block.Get<Logic.Voxels.Behaviors.Height.PartialHeight>() is {} toCheck &&
             toCheck.GetHeight(blockToCheck.Value) == height) return;

@@ -21,7 +21,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// <summary>
 ///     Blocks which use simple meshing which only supports full blocks.
 /// </summary>
-public class SimpleBlock : Logic.Voxels.Block, IOverlayTextureProvider
+public class SimpleBlock : Block, IOverlayTextureProvider
 {
     private readonly SideArray<Simple.MeshData[]> meshData = new();
     private readonly Simple simple;
@@ -90,8 +90,8 @@ public class SimpleBlock : Logic.Voxels.Block, IOverlayTextureProvider
             if (blockToCheck == null) return;
             if (IsHiddenFace(this, blockToCheck.Value, side)) return;
 
-            Simple.MeshData mesh = meshData[side][state.Index];
-            AddSimpleMesh(position, side, mesh, IsOpaque, IsUnshaded, context);
+            ref readonly Simple.MeshData mesh = ref meshData[side][state.Index];
+            AddSimpleMesh(position, side, in mesh, IsOpaque, IsUnshaded, context);
         }
 
         MeshSimpleSide(Side.Front);
@@ -104,7 +104,7 @@ public class SimpleBlock : Logic.Voxels.Block, IOverlayTextureProvider
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal static void AddSimpleMesh(
-        Vector3i position, Side side, Simple.MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
+        Vector3i position, Side side, ref readonly Simple.MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
     {
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 

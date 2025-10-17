@@ -85,7 +85,7 @@ public class FoliageBlock : Block
         Vector3 offset = position;
         IMeshing meshing = context.GetFoliageMesh();
 
-        ref readonly Foliage.MeshData mesh = ref meshData[state.Index]; // todo: use ref readonly in the other Mesh overrides as well
+        ref readonly Foliage.MeshData mesh = ref meshData[state.Index];
         Mesh.Quad[] quads = mesh.Quads;
 
         for (var index = 0; index < mesh.QuadCount; index++)
