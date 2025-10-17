@@ -21,19 +21,22 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 /// </summary>
 public class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, BlockBehavior, Block>
 {
+    private const Int32 StageCount = 5;
+    
     private readonly GrowingPlant plant;
 
     private DenseCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
-        plant.StageCount.Initializer.ContributeConstant(value: 5);
+        plant.StageCount.Initializer.ContributeConstant(StageCount);
+        plant.FirstFullStage.Initializer.ContributeConstant(value: 3);
 
         subject.Require<Foliage>().Layout.Initializer.ContributeConstant(Foliage.LayoutType.DenseCrop, exclusive: true);
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
     }
-
+    
     /// <inheritdoc />
     public static DenseCropPlant Construct(Block input)
     {
@@ -42,10 +45,7 @@ public class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, BlockBeha
 
     private TID GetActiveTexture(TID original, State state)
     {
-        // todo: aspect with number of textures which is then used to determine the number of stages (subtract one because of dead stage)
-        // todo: check the relevant textures for duplication
-
-        return original.Offset((Byte) (plant.GetStage(state) ?? 5));
+        return original.Offset((Byte) (plant.GetStage(state) ?? StageCount));
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

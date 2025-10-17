@@ -21,13 +21,22 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 /// </summary>
 public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBehavior, Block>
 {
+    private const Int32 StageCount = 5;
+    
+    /// <summary>
+    /// The first full stage is actually the one before reaching double height.
+    /// This is necessary to prevent reaching double height on soil that cannot support it.
+    /// </summary>
+    private const Int32 FirstFullStage = 1;
+    
     private readonly Composite composite;
     private readonly GrowingPlant plant;
 
     private DoubleCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
-        plant.StageCount.Initializer.ContributeConstant(value: 5);
+        plant.StageCount.Initializer.ContributeConstant(StageCount);
+        plant.FirstFullStage.Initializer.ContributeConstant(FirstFullStage);
         plant.CanGrow.ContributeFunction(GetCanGrow);
 
         composite = subject.Require<Composite>();
@@ -69,7 +78,7 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
 
     private Boolean IsDouble(State state)
     {
-        return plant.GetStage(state) > 1;
+        return plant.GetStage(state) > FirstFullStage;
     }
 
     private TID GetActiveTexture(TID original, State state)

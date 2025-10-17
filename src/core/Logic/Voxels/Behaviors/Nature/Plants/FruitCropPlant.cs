@@ -18,7 +18,6 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Toolkit.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
@@ -37,7 +36,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     private FruitCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
-        plant.StageCount.Initializer.ContributeConstant(value: 2);
+        plant.StageCount.Initializer.ContributeConstant(MaxAge - 1);
 
         var foliage = subject.Require<Foliage>();
         foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
@@ -136,8 +135,6 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
 
     private TID GetActiveTexture(TID original, State state)
     {
-        // todo: aspect with number of textures which is then used to determine the number of stages (subtract one because of dead stage)
-
         return original.Offset((Byte) (plant.GetStage(state) + 1 ?? 0));
     }
 

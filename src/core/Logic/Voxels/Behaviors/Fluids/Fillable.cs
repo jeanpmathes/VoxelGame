@@ -10,7 +10,6 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Toolkit.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
@@ -31,7 +30,7 @@ public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
     /// <summary>
     ///     Whether the fluid filling this block should be meshed.
     /// </summary>
-    public ResolvedProperty<Boolean> IsFluidMeshed { get; } = ResolvedProperty<Boolean>.New<ORing<Void>>(nameof(IsFluidMeshed));
+    public ResolvedProperty<Boolean> IsFluidMeshed { get; } = ResolvedProperty<Boolean>.New<ORing<Void>>(nameof(IsFluidMeshed), initial: true);
 
     /// <summary>
     ///     Whether inflow is allowed through a certain side.

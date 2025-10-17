@@ -13,7 +13,6 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
@@ -37,6 +36,11 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     /// </summary>
     public ResolvedProperty<Int32> StageCount { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(StageCount), initial: 1);
 
+    /// <summary>
+    ///     The index of the first stage considered a full growth stage.
+    /// </summary>
+    public ResolvedProperty<Int32> FirstFullStage { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(FirstFullStage));
+    
     /// <summary>
     ///     Whether the plant can grow in the current state.
     /// </summary>
@@ -68,6 +72,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     public override void OnInitialize(BlockProperties properties)
     {
         StageCount.Initialize(this);
+        FirstFullStage.Initialize(this);
     }
 
     /// <inheritdoc />
@@ -110,24 +115,21 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
             
             return;
         }
-
+        
         State newState = message.State;
 
-        if (currentStage > 2) // todo: use aspect for this, might need to be lower for double crop plants, must be lowered for fruit plant
+        FluidInstance? fluid = message.World.GetFluid(message.Position.Below());
+
+        if (fluid?.Fluid.IsLiquid == true && fluid.Value.Fluid != Voxels.Fluids.Instance.FreshWater)
         {
-            FluidInstance? fluid = message.World.GetFluid(message.Position.Below());
+            newState.Set(Stage, value: null);
+        }
+        else if (currentStage >= FirstFullStage.Get())
+        {
+            if (!plantable.SupportsFullGrowth.Get()) return;
+            if (!plantable.TryGrow(message.World, message.Position.Below(), Voxels.Fluids.Instance.FreshWater, FluidLevel.One)) return;
 
-            if (fluid?.Fluid == Voxels.Fluids.Instance.SeaWater) // todo: generalize this in some way, also, always die on sea water and not just when taller
-            {
-                newState.Set(Stage, value: null);
-            }
-            else
-            {
-                if (!plantable.SupportsFullGrowth.Get()) return;
-                if (!plantable.TryGrow(message.World, message.Position.Below(), Voxels.Fluids.Instance.FreshWater, FluidLevel.One)) return;
-
-                newState.Set(Stage, aliveStage + 1);
-            }
+            newState.Set(Stage, aliveStage + 1);
         }
         else
         {

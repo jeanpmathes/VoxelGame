@@ -127,7 +127,7 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
         if (value == NoneValue)
             return -1;
 
-        return value / (PartialHeight.MaximumHeight / MaxValue) + 1;
+        return value * (PartialHeight.MaximumHeight / MaxValue) + 1;
     }
 
     /// <summary>
