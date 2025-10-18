@@ -1,4 +1,4 @@
-﻿// <copyright file="FlatBlockDecoration.cs" company="VoxelGame">
+﻿// <copyright file="AttachedBlockDecoration.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -16,18 +16,18 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 /// <summary>
 ///     Places flat blocks at walls.
 /// </summary>
-public class FlatBlockDecoration : Decoration // todo: rename to attached block decoration or so
+public class AttachedBlockDecoration : Decoration
 {
     private readonly Block block;
     private readonly ISet<Block> filter;
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="FlatBlockDecoration" /> class.
+    ///     Creates a new instance of the <see cref="AttachedBlockDecoration" /> class.
     /// </summary>
     /// <param name="name">The name of the decoration. </param>
     /// <param name="block">The block to place.</param>
     /// <param name="filter">The blocks to place on.</param>
-    public FlatBlockDecoration(String name, Block block, ISet<Block> filter) : base(name, new WallDecorator())
+    public AttachedBlockDecoration(String name, Block block, ISet<Block> filter) : base(name, new WallDecorator())
     {
         this.block = block;
         this.filter = filter;
@@ -41,7 +41,7 @@ public class FlatBlockDecoration : Decoration // todo: rename to attached block 
     {
         foreach (Orientation orientation in Orientations.All)
         {
-            Content? neighbor = grid.GetContent(orientation.Offset(position));
+            Content? neighbor = grid.GetContent(position.Offset(orientation));
 
             if (neighbor is not {Block: {IsFullySolid: true} neighborBlock}) continue;
             if (!filter.Contains(neighborBlock.Block)) continue;

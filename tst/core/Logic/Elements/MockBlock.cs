@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
@@ -17,7 +18,7 @@ public class MockBlock() : Block(blockID: 0, new CID(nameof(MockBlock)), "Mock B
 {
     public override Meshable Meshable => Meshable.Unmeshed;
 
-    protected override void OnValidate() {}
+    protected override void OnValidate(IValidator validator) {}
 
     protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals) {}
 

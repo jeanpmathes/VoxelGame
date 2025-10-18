@@ -106,7 +106,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
             {
                 foreach (Orientation orientation in Orientations.ShuffledStart(message.Position))
                 {
-                    if (!fruit.Place(message.World, orientation.Offset(message.Position)))
+                    if (!fruit.Place(message.World, message.Position.Offset(orientation)))
                         continue;
 
                     placed = true;

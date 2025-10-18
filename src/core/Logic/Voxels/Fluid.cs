@@ -232,7 +232,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void MeshFluidSide(Side side)
         {
-            (State, FluidInstance)? content = context.GetBlockAndFluid(side.Offset(position), side);
+            (State, FluidInstance)? content = context.GetBlockAndFluid(position.Offset(side), side);
 
             if (content == null) return;
 
@@ -438,7 +438,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
         foreach (Orientation orientation in Orientations.All)
         {
-            Vector3i neighborPosition = orientation.Offset(position);
+            Vector3i neighborPosition = position.Offset(orientation);
 
             Content? neighborContent = world.GetContent(neighborPosition);
 
@@ -468,7 +468,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
         foreach (Orientation orientation in Orientations.All)
         {
-            Vector3i neighborPosition = orientation.Offset(position);
+            Vector3i neighborPosition = position.Offset(orientation);
 
             Content? content = world.GetContent(neighborPosition);
 
@@ -519,7 +519,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             foreach ((Vector3i position, Fillable fillable) e in queue)
             foreach (Orientation orientation in Orientations.All)
             {
-                Vector3i nextPosition = orientation.Offset(e.position);
+                Vector3i nextPosition = e.position.Offset(orientation);
 
                 if (IsMarked(nextPosition)) continue;
 

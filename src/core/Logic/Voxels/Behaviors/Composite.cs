@@ -240,7 +240,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         Vector3i size = GetSize(message.State);
 
         Vector3i currentPart = GetPartPosition(message.State);
-        Vector3i updatedPart = message.Side.Offset(currentPart);
+        Vector3i updatedPart = currentPart.Offset(message.Side);
 
         Boolean isPartOfComposite = updatedPart is {X: >= 0, Y: >= 0, Z: >= 0}
                                     && updatedPart.X < size.X && updatedPart.Y < size.Y && updatedPart.Z < size.Z;

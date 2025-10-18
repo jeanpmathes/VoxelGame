@@ -51,7 +51,7 @@ public class HotFluid : BasicFluid
     {
         foreach (Side side in Side.All.Sides())
         {
-            Vector3i offsetPosition = side.Offset(position);
+            Vector3i offsetPosition = position.Offset(side);
 
             if (world.GetBlock(offsetPosition)?.Block.Get<Combustible>() is {} combustible &&
                 combustible.DoBurn(world, offsetPosition, Blocks.Instance.Environment.Fire))

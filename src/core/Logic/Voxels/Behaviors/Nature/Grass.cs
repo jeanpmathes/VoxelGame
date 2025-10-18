@@ -39,7 +39,7 @@ public partial class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Bloc
         for (Int32 yOffset = -1; yOffset <= 1; yOffset++)
             foreach (Orientation orientation in Orientations.All)
             {
-                Vector3i position = orientation.Offset(message.Position) + Vector3i.UnitY * yOffset;
+                Vector3i position = message.Position.Offset(orientation) + Vector3i.UnitY * yOffset;
 
                 if (message.World.GetBlock(position)?.Block.Get<GrassSpreadable>() is {} spreadable)
                     spreadable.SpreadGrass(message.World, position, Subject);

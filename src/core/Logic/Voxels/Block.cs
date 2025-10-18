@@ -299,7 +299,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             validator.ReportWarning($"Meshable type {meshable.Type.ToStringFast()} does not match the declared meshable type {Meshable.ToStringFast()}");
         }
 
-        OnValidate();
+        OnValidate(validator);
 
         base.Validate(validator);
     }
@@ -307,7 +307,8 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <summary>
     ///     Override this method to perform additional validation.
     /// </summary>
-    protected abstract void OnValidate();
+    /// <param name="validator"></param>
+    protected abstract void OnValidate(IValidator validator);
 
     /// <inheritdoc />
     protected override void OnBake()

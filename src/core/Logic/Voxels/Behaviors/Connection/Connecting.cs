@@ -63,7 +63,7 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
 
         foreach (Orientation orientation in Orientations.All)
         {
-            Vector3i neighborPosition = orientation.Offset(position);
+            Vector3i neighborPosition = position.Offset(orientation);
 
             if (CanConnectTo(world, neighborPosition, orientation.ToSide()))
                 state.Set(GetDirection(orientation), value: true);
@@ -77,7 +77,7 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
         if (!message.Side.IsLateral()) return;
 
         IAttribute<Boolean> side = GetDirection(message.Side.ToOrientation());
-        Boolean canConnect = CanConnectTo(message.World, message.Side.Offset(message.Position), message.Side);
+        Boolean canConnect = CanConnectTo(message.World, message.Position.Offset(message.Side), message.Side);
 
         if (message.State.Get(side) == canConnect) return;
 

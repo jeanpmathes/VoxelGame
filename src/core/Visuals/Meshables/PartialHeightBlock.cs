@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
@@ -52,8 +53,9 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         };
     }
 
+    /// <param name="validator"></param>
     /// <inheritdoc />
-    protected override void OnValidate() {}
+    protected override void OnValidate(IValidator validator) {}
 
     /// <inheritdoc />
     protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
@@ -82,7 +84,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         void MeshVaryingHeightSide(Side side)
         {
-            Vector3i checkPosition = side.Offset(position);
+            Vector3i checkPosition = position.Offset(side);
             State? blockToCheck = context.GetBlock(checkPosition, side);
 
             if (blockToCheck == null) return;

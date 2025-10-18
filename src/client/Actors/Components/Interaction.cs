@@ -61,7 +61,7 @@ public partial class Interaction : ActorComponent
 
         if (input.IsInteractionBlocked || !targetedBlock.Block.IsInteractable)
         {
-            if (!targetedBlock.IsReplaceable) placePosition = targeting.Side.Offset(placePosition);
+            if (!targetedBlock.IsReplaceable) placePosition = placePosition.Offset(targeting.Side);
 
             // Prevent block placement if the block would intersect the player.
             if (selection is {IsBlockMode: true, ActiveBlock.IsSolid: true} && player.Body.Collider.Intersects(
@@ -95,7 +95,7 @@ public partial class Interaction : ActorComponent
             var level = FluidLevel.One;
 
             if (!targetedBlock.IsReplaceable)
-                position = targeting.Side.Offset(position);
+                position = position.Offset(targeting.Side);
 
             player.World.GetFluid(position)?.Fluid.Take(player.World, position, ref level);
         }

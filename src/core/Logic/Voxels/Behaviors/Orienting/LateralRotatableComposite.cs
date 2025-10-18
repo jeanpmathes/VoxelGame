@@ -160,7 +160,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         Orientation orientation = rotatable.GetOrientation(message.State);
         Vector3i currentOriented = Rotate(currentPart, orientation);
-        Vector3i updatedOriented = message.Side.Offset(currentOriented);
+        Vector3i updatedOriented = currentOriented.Offset(message.Side);
         Vector3i updatedPart = Derotate(updatedOriented, orientation);
 
         Boolean isPartOfComposite = updatedPart is {X: >= 0, Y: >= 0, Z: >= 0}

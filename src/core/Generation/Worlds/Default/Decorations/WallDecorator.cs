@@ -26,7 +26,7 @@ public class WallDecorator : Decorator
 
         foreach (Orientation orientation in Orientations.All)
         {
-            Content? neighbor = grid.GetContent(orientation.Offset(position));
+            Content? neighbor = grid.GetContent(position.Offset(orientation));
 
             if (neighbor?.Block.IsFullySolid == true) return true;
         }

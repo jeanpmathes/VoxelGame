@@ -356,29 +356,29 @@ public static class SideExtensions
     /// <summary>
     ///     Offset a vector by the direction of this side.
     /// </summary>
-    public static Vector3i Offset(this Side side, Vector3i v)
+    public static Vector3i Offset(this Vector3i vector, Side side)
     {
-        return v + side.Direction();
+        return vector + side.Direction();
     }
 
     /// <summary>
     ///     Offset a section position by the direction of this side.
     /// </summary>
-    public static SectionPosition Offset(this Side side, SectionPosition pos)
+    public static SectionPosition Offset(this SectionPosition position, Side side)
     {
         (Int32 x, Int32 y, Int32 z) = side.Direction();
 
-        return new SectionPosition(pos.X + x, pos.Y + y, pos.Z + z);
+        return new SectionPosition(position.X + x, position.Y + y, position.Z + z);
     }
 
     /// <summary>
     ///     Offset a chunk position by the direction of this side.
     /// </summary>
-    public static ChunkPosition Offset(this Side side, ChunkPosition pos)
+    public static ChunkPosition Offset(this ChunkPosition position, Side side)
     {
         (Int32 x, Int32 y, Int32 z) = side.Direction();
 
-        return new ChunkPosition(pos.X + x, pos.Y + y, pos.Z + z);
+        return new ChunkPosition(position.X + x, position.Y + y, position.Z + z);
     }
 
     /// <summary>

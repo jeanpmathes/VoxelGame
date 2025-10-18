@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
@@ -40,8 +41,9 @@ public class FoliageBlock : Block
     /// <inheritdoc />
     public override Meshable Meshable => Meshable.Foliage;
 
+    /// <param name="validator"></param>
     /// <inheritdoc />
-    protected override void OnValidate() {}
+    protected override void OnValidate(IValidator validator) {}
 
     /// <inheritdoc />
     protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)

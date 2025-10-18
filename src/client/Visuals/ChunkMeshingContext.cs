@@ -263,7 +263,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
         foreach (Side side in Side.All.Sides())
         {
-            Chunk? neighbor = chunk.World.GetActiveChunk(side.Offset(chunk.Position));
+            Chunk? neighbor = chunk.World.GetActiveChunk(chunk.Position.Offset(side));
 
             if (neighbor == null) continue;
             if (!neighbor.IsAbleToParticipateInMeshing()) continue;
@@ -284,7 +284,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
         foreach (Side side in Side.All.Sides())
         {
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor))
+            if (!chunk.World.TryGetChunk(chunk.Position.Offset(side), out Chunk? neighbor))
                 continue;
 
             neighbors?.Set(side, (neighbor, null));

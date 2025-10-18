@@ -5,8 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
@@ -29,11 +29,12 @@ public class UnmeshedBlock : Block
     /// <inheritdoc />
     public override Meshable Meshable => Meshable.Unmeshed;
 
+    /// <param name="validator"></param>
     /// <inheritdoc />
-    protected override void OnValidate()
+    protected override void OnValidate(IValidator validator)
     {
-        if (Is<Meshed>()) Debug.Fail("cringe bro");
-        // todo: use proper validation (through the resource context or whatever) here as meshed behavior does not make sense for unmeshed blocks
+        if (Is<Meshed>()) 
+            validator.ReportWarning("Unmeshed block should not have the Meshed behavior");
     }
 
     /// <inheritdoc />

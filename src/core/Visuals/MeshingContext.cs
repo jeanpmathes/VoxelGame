@@ -87,7 +87,7 @@ public class MeshingContext
         SideArray<Section?> neighborSections = new();
 
         foreach (Side side in Side.All.Sides())
-            neighborSections[side] = context.GetSection(side.Offset(position));
+            neighborSections[side] = context.GetSection(position.Offset(side));
 
         return neighborSections;
     }

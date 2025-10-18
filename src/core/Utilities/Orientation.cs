@@ -152,39 +152,9 @@ public static class OrientationExtensions
     /// <summary>
     ///     Offset a vector along an orientation.
     /// </summary>
-    public static Vector3i Offset(this Orientation orientation, Vector3i vector) // todo: maybe flip parameter order, same for side
+    public static Vector3i Offset(this Vector3i vector, Orientation orientation)
     {
         return vector + orientation.ToVector3i();
-    }
-
-    /// <summary>
-    ///     Pick an element from a tuple based on an orientation.
-    /// </summary>
-    public static T Pick<T>(this Orientation orientation, (T north, T east, T south, T west) tuple)
-    {
-        return orientation switch
-        {
-            Orientation.North => tuple.north,
-            Orientation.East => tuple.east,
-            Orientation.South => tuple.south,
-            Orientation.West => tuple.west,
-            _ => tuple.north
-        };
-    }
-
-    /// <summary>
-    ///     Convert an orientation to an integer flag.
-    /// </summary>
-    public static UInt32 ToFlag(this Orientation orientation)
-    {
-        return orientation switch
-        {
-            Orientation.North => 0b1000,
-            Orientation.East => 0b0100,
-            Orientation.South => 0b0010,
-            Orientation.West => 0b0001,
-            _ => 0b1000
-        };
     }
 
     /// <summary>

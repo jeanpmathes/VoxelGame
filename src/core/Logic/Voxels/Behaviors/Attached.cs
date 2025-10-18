@@ -114,7 +114,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
         if (!AttachmentSides.Get().HasFlag(side.Value.ToFlag()))
             return false;
 
-        return world.GetBlock(side.Value.Offset(position))?.IsFullySolid == true;
+        return world.GetBlock(position.Offset(side.Value))?.IsFullySolid == true;
     }
 
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
@@ -136,7 +136,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
         foreach (Side possibleSide in Side.All.Sides())
         {
             if (AttachmentSides.Get().HasFlag(possibleSide.ToFlag()) &&
-                context.world.GetBlock(possibleSide.Offset(context.position))?.IsFullySolid == true)
+                context.world.GetBlock(context.position.Offset(possibleSide))?.IsFullySolid == true)
             {
                 attachableSides |= possibleSide.ToFlag();
             }
@@ -150,7 +150,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
         Sides sides = AttachedSides.GetValue(Sides.None, message.State);
 
         if (!sides.HasFlag(message.Side.ToFlag()) ||
-            message.World.GetBlock(message.Side.Offset(message.Position))?.IsFullySolid == true)
+            message.World.GetBlock(message.Position.Offset(message.Side))?.IsFullySolid == true)
             return;
 
         if (Mode.Get() == AttachmentMode.Single)
@@ -197,7 +197,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
                 if (!sides.HasFlag(side.ToFlag()))
                     continue;
 
-                if (world.GetBlock(side.Offset(position))?.IsFullySolid == true)
+                if (world.GetBlock(position.Offset(side))?.IsFullySolid == true)
                     continue;
 
                 Subject.ScheduleDestroy(world, position);
@@ -212,7 +212,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
             foreach (Side side in Side.All.Sides())
             {
                 if (sides.HasFlag(side.ToFlag()) &&
-                    world.GetBlock(side.Offset(position))?.IsFullySolid == true)
+                    world.GetBlock(position.Offset(side))?.IsFullySolid == true)
                 {
                     remainingSides |= side.ToFlag();
                 }

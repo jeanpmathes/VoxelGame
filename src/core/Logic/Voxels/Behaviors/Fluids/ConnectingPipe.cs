@@ -149,7 +149,7 @@ public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, B
 
         foreach (Side side in Side.All.Sides())
         {
-            Vector3i otherPosition = side.Offset(position);
+            Vector3i otherPosition = position.Offset(side);
             State? otherBlock = world.GetBlock(otherPosition);
 
             if (otherBlock?.Block.Get<Piped>() is {} otherPiped

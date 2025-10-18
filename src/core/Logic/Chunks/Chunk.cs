@@ -792,7 +792,7 @@ public partial class Chunk : IDisposable, IEntity
         OnActivate();
 
         foreach (Side side in Side.All.Sides())
-            World.GetActiveChunk(side.Offset(Position))?.OnNeighborActivate();
+            World.GetActiveChunk(Position.Offset(side))?.OnNeighborActivate();
     }
 
     /// <summary>

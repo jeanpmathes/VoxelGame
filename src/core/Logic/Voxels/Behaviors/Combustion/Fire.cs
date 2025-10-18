@@ -187,7 +187,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         else
         {
             if (!IsSideBurning(message.State, message.Side)) return;
-            if (message.World.GetBlock(message.Side.Offset(message.Position))?.IsFullySolid == true) return;
+            if (message.World.GetBlock(message.Position.Offset(message.Side))?.IsFullySolid == true) return;
 
             Sides sides = GetSidesBurning(message.State);
 
@@ -228,7 +228,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
             if (sides.HasFlag(side.ToFlag()))
             {
-                canBurn |= BurnAt(side.Offset(message.Position));
+                canBurn |= BurnAt(message.Position.Offset(side));
             }
         }
 
@@ -294,7 +294,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
         Boolean CheckSide(Side side)
         {
-            State? neighbor = world.GetBlock(side.Offset(position));
+            State? neighbor = world.GetBlock(position.Offset(side));
 
             return neighbor is {IsFullySolid: true};
         }

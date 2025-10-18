@@ -390,7 +390,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         foreach (Side side in Side.All.Sides())
         {
-            Vector3i neighborPosition = side.Offset(position);
+            Vector3i neighborPosition = position.Offset(side);
 
             Content? neighborContent = GetContent(neighborPosition);
 

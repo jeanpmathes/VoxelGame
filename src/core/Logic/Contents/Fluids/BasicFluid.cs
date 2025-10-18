@@ -239,7 +239,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         {
             if (!currentFillable.CanOutflow(world, position, orientation.ToSide(), this)) continue;
 
-            Vector3i neighborPosition = orientation.Offset(position);
+            Vector3i neighborPosition = position.Offset(orientation);
 
             Content? content = world.GetContent(neighborPosition);
 
@@ -280,7 +280,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         if (Orientations.ShuffledStart(position)
             .Any(orientation => CheckNeighbor(
                 currentFillable.CanOutflow(world, position, orientation.ToSide(), this),
-                orientation.Offset(position),
+                position.Offset(orientation),
                 orientation.Opposite().ToSide()))) return true;
 
         if (horizontalPosition == position) return false;
@@ -413,7 +413,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         foreach (Orientation orientation in Orientations.All)
         {
-            FillNeighbor(world, orientation.Offset(position), orientation.ToSide(), ref remaining);
+            FillNeighbor(world, position.Offset(orientation), orientation.ToSide(), ref remaining);
 
             if (remaining == FluidLevel.None) break;
         }

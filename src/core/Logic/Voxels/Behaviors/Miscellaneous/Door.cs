@@ -116,7 +116,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 
         if (side == Side.Top)
         {
-            Vector3i neighborPosition = orientation.Rotate().Opposite().Offset(position);
+            Vector3i neighborPosition = position.Offset(orientation.Rotate().Opposite());
             State neighbor = world.GetBlock(neighborPosition) ?? Content.DefaultState;
 
             leftSided = neighbor.Block != Subject || rotatable.GetOrientation(neighbor) != orientation;
@@ -141,7 +141,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 
         Orientation orientation = rotatable.GetOrientation(message.State);
 
-        ToggleNeighbor((leftSided ? orientation : orientation.Opposite()).Rotate().Offset(message.Position));
+        ToggleNeighbor(message.Position.Offset((leftSided ? orientation : orientation.Opposite()).Rotate()));
 
         void ToggleNeighbor(Vector3i neighborPosition)
         {
