@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using VoxelGame.Toolkit.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
@@ -22,6 +21,13 @@ public class ResolvedProperty<TValue>
     private TValue value;
     private Boolean isInitialized;
     
+    /// <summary>
+    /// Creates a new resolved property with the given name and optional initial value.
+    /// </summary>
+    /// <param name="name">The name of the property. Use <c>nameof(...)</c> to get the correct name.</param>
+    /// <param name="initial">The initial value of the property before initialization.</param>
+    /// <typeparam name="TStrategy">The contribution strategy used to initialize the property. Use <see cref="Void"/> as the context type.</typeparam>
+    /// <returns>>The created resolved property.</returns>
     public static ResolvedProperty<TValue> New<TStrategy>(String name, TValue initial = default!) where TStrategy : IContributionStrategy<TValue, Void>, new()
     {
         AspectableProxy proxy = new();
@@ -53,14 +59,25 @@ public class ResolvedProperty<TValue>
     /// </summary>
     public Aspect<TValue, Void> Initializer { get; }
     
+    /// <summary>
+    /// Initializes the resolved property with the given owner.
+    /// Must be called before accessing the property.
+    /// </summary>
+    /// <param name="owner">The owner aspectable.</param>
     public void Initialize(IAspectable owner)
     {
+        if (isInitialized) return;
+        
         proxy.SetOwner(owner);
         
         value = Initializer.GetValue(value, Void.Instance);
         isInitialized = true;
     }
 
+    /// <summary>
+    /// Get the value of the resolved property. Make sure to call <see cref="Initialize(IAspectable)"/> before accessing the property.
+    /// </summary>
+    /// <returns>>The value of the resolved property.</returns>
     public TValue Get()
     {
         if (!isInitialized)
@@ -71,6 +88,11 @@ public class ResolvedProperty<TValue>
         return value;
     }
     
+    /// <summary>
+    /// Overrides the value of the resolved property.
+    /// Must be initialized before calling this method.
+    /// </summary>
+    /// <param name="newValue">The new value to set.</param>
     public void Override(TValue newValue)
     {
         if (!isInitialized)

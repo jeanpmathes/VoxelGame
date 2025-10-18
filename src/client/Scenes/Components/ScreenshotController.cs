@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Toolkit.Utilities;
@@ -14,22 +15,17 @@ namespace VoxelGame.Client.Scenes.Components;
 /// <summary>
 ///     Controls the screenshot functionality in a <see cref="SessionScene" />.
 /// </summary>
-public class ScreenshotController : SceneComponent, IConstructible<SessionScene, ScreenshotController>
+public partial class ScreenshotController : SceneComponent
 {
     private readonly PushButton button;
     private readonly SessionScene scene;
 
+    [Constructible]
     private ScreenshotController(SessionScene scene) : base(scene)
     {
         this.scene = scene;
 
         button = scene.Client.Keybinds.GetPushButton(scene.Client.Keybinds.Screenshot);
-    }
-
-    /// <inheritdoc />
-    public static ScreenshotController Construct(SessionScene input)
-    {
-        return new ScreenshotController(input);
     }
 
     /// <inheritdoc />

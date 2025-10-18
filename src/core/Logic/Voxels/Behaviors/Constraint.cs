@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -20,8 +21,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors;
 ///     But addressing those shortcomings would drastically increase the complexity of that system and would only be rarely
 ///     used.
 /// </summary>
-public class Constraint : BlockBehavior, IBehavior<Constraint, BlockBehavior, Block>
+public partial class Constraint : BlockBehavior, IBehavior<Constraint, BlockBehavior, Block>
 {
+    [Constructible]
     private Constraint(Block subject) : base(subject)
     {
         IsValid = Aspect<Boolean, State>.New<Exclusive<Boolean, State>>(nameof(IsValid), this);
@@ -31,12 +33,6 @@ public class Constraint : BlockBehavior, IBehavior<Constraint, BlockBehavior, Bl
     ///     Whether a certain state is valid.
     /// </summary>
     public Aspect<Boolean, State> IsValid { get; }
-
-    /// <inheritdoc />
-    public static Constraint Construct(Block input)
-    {
-        return new Constraint(input);
-    }
 
     /// <summary>
     ///     Check whether a given state is valid.

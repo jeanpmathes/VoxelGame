@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -18,8 +19,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 /// <summary>
 ///     Gives a block a texture defined by a single texture ID (<see cref="TID" />).
 /// </summary>
-public class SingleTextured : BlockBehavior, IBehavior<SingleTextured, BlockBehavior, Block>
+public partial class SingleTextured : BlockBehavior, IBehavior<SingleTextured, BlockBehavior, Block>
 {
+    [Constructible]
     private SingleTextured(Block subject) : base(subject)
     {
         ActiveTexture = Aspect<TID, State>.New<Exclusive<TID, State>>(nameof(ActiveTexture), this);
@@ -35,12 +37,6 @@ public class SingleTextured : BlockBehavior, IBehavior<SingleTextured, BlockBeha
     ///     The actually used, state dependent texture.
     /// </summary>
     public Aspect<TID, State> ActiveTexture { get; }
-
-    /// <inheritdoc />
-    public static SingleTextured Construct(Block input)
-    {
-        return new SingleTextured(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

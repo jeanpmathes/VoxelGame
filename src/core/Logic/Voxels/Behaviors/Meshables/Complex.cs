@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -18,10 +19,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 /// <summary>
 ///     Corresponds to <see cref="Meshable.Complex" />.
 /// </summary>
-public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, IMeshable
+public partial class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, IMeshable
 {
     private readonly Meshed meshed;
 
+    [Constructible]
     private Complex(Block subject) : base(subject)
     {
         meshed = subject.Require<Meshed>();
@@ -33,12 +35,6 @@ public class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, Block>, 
     ///     Get the state dependent mesh for the block.
     /// </summary>
     public Aspect<Mesh, MeshContext> Mesh { get; }
-
-    /// <inheritdoc />
-    public static Complex Construct(Block input)
-    {
-        return new Complex(input);
-    }
 
     /// <inheritdoc />
     public Meshable Type => Meshable.Complex;

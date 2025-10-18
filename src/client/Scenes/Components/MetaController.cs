@@ -5,9 +5,9 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Input.Actions;
-using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes.Components;
@@ -15,7 +15,7 @@ namespace VoxelGame.Client.Scenes.Components;
 /// <summary>
 ///     Responsible for handling all meta input in a <see cref="SessionScene" />.
 /// </summary>
-public class MetaController : SceneComponent, IConstructible<SessionScene, InGameUserInterface, MetaController>
+public partial class MetaController : SceneComponent
 {
     private readonly ToggleButton consoleToggle;
     private readonly PushButton escapeButton;
@@ -25,6 +25,7 @@ public class MetaController : SceneComponent, IConstructible<SessionScene, InGam
 
     private Boolean isMouseUnlockedByUserRequest;
 
+    [Constructible]
     private MetaController(SessionScene scene, InGameUserInterface ui) : base(scene)
     {
         this.scene = scene;
@@ -47,12 +48,6 @@ public class MetaController : SceneComponent, IConstructible<SessionScene, InGam
     ///     If sidelined, in-game input should not be handled.
     /// </summary>
     public Boolean IsSidelined { get; private set; }
-
-    /// <inheritdoc />
-    public static MetaController Construct(SessionScene input1, InGameUserInterface input2)
-    {
-        return new MetaController(input1, input2);
-    }
 
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)

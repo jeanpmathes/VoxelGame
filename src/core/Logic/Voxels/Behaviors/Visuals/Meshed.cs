@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -19,8 +20,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 ///     These are all blocks except those with <see cref="Meshable.Unmeshed" />.
 ///     The behavior provides aspects shared by all meshing types.
 /// </summary>
-public class Meshed : BlockBehavior, IBehavior<Meshed, BlockBehavior, Block>
+public partial class Meshed : BlockBehavior, IBehavior<Meshed, BlockBehavior, Block>
 {
+    [Constructible]
     private Meshed(Block subject) : base(subject)
     {
         Tint = Aspect<ColorS, State>.New<Mix<State>>(nameof(Tint), this);
@@ -38,10 +40,4 @@ public class Meshed : BlockBehavior, IBehavior<Meshed, BlockBehavior, Block>
     ///     If true, this poses special requirements to the used textures depending on the meshing type.
     /// </summary>
     public Aspect<Boolean, State> IsAnimated { get; }
-
-    /// <inheritdoc />
-    public static Meshed Construct(Block input)
-    {
-        return new Meshed(input);
-    }
 }

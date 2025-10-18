@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -15,13 +16,14 @@ namespace VoxelGame.Core.Actors.Components;
 /// <summary>
 ///     Loads chunks around an <see cref="Actor" />.
 /// </summary>
-public class ChunkLoader : ActorComponent, IConstructible<Actor, ChunkLoader>
+public partial class ChunkLoader : ActorComponent
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Transform transform;
 
     private Request? request;
 
+    [Constructible]
     private ChunkLoader(Actor subject) : base(subject)
     {
         transform = subject.GetRequiredComponent<Transform>();
@@ -36,12 +38,6 @@ public class ChunkLoader : ActorComponent, IConstructible<Actor, ChunkLoader>
     ///     The position of the current chunk the actor is in.
     /// </summary>
     public ChunkPosition Chunk => request?.Position ?? default;
-
-    /// <inheritdoc />
-    public static ChunkLoader Construct(Actor input)
-    {
-        return new ChunkLoader(input);
-    }
 
     /// <inheritdoc />
     public override void OnAdd()

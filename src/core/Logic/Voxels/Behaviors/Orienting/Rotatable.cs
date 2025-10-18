@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -17,8 +18,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 /// <summary>
 ///     Core behavior for blocks that can be rotated in some way.
 /// </summary>
-public class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Block>
+public partial class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Block>
 {
+    [Constructible]
     private Rotatable(Block subject) : base(subject)
     {
         subject.Require<Orientable>();
@@ -38,12 +40,6 @@ public class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavior, Bloc
     ///     Get the number of 90° clockwise turns the block has undergone from its original orientation in a given state.
     /// </summary>
     public Aspect<Int32, State> Turns { get; }
-
-    /// <inheritdoc />
-    public static Rotatable Construct(Block input)
-    {
-        return new Rotatable(input);
-    }
 
     /// <summary>
     ///     Get the current rotation axis of the block in the given state.

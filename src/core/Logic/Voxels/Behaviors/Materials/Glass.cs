@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
@@ -13,17 +14,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 /// <summary>
 ///     Blocks made out of glass.
 /// </summary>
-public class Glass : BlockBehavior, IBehavior<Glass, BlockBehavior, Block>
+public partial class Glass : BlockBehavior, IBehavior<Glass, BlockBehavior, Block>
 {
+    [Constructible]
     private Glass(Block subject) : base(subject)
     {
         subject.Require<Connectable>().Strength.Initializer.ContributeConstant(Connectable.Strengths.Thin);
-    }
-
-    /// <inheritdoc />
-    public static Glass Construct(Block input)
-    {
-        return new Glass(input);
     }
 
     /// <inheritdoc />

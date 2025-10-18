@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -14,8 +15,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Siding;
 /// <summary>
 ///     Unifying behavior for <see cref="Sided" /> blocks that have only one main or front side.
 /// </summary>
-public class SingleSided : BlockBehavior, IBehavior<SingleSided, BlockBehavior, Block>
+public partial class SingleSided : BlockBehavior, IBehavior<SingleSided, BlockBehavior, Block>
 {
+    [Constructible]
     private SingleSided(Block subject) : base(subject)
     {
         var sided = subject.Require<Sided>();
@@ -36,12 +38,6 @@ public class SingleSided : BlockBehavior, IBehavior<SingleSided, BlockBehavior, 
     ///     May be <c>null</c> if the given side is not supported.
     /// </summary>
     public Aspect<State?, (State state, Side side)> SidedState { get; }
-
-    /// <inheritdoc />
-    public static SingleSided Construct(Block input)
-    {
-        return new SingleSided(input);
-    }
 
     private Sides GetSides(Sides original, State state)
     {

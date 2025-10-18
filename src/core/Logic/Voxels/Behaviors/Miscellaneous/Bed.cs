@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
@@ -20,23 +21,18 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 /// <summary>
 ///     Implements basic functionality for beds.
 /// </summary>
-public class Bed : BlockBehavior, IBehavior<Bed, BlockBehavior, Block>
+public partial class Bed : BlockBehavior, IBehavior<Bed, BlockBehavior, Block>
 {
     private readonly Composite composite;
     private readonly LateralRotatable rotatable;
 
+    [Constructible]
     private Bed(Block subject) : base(subject)
     {
         rotatable = subject.Require<LateralRotatable>();
         composite = subject.Require<Composite>();
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-    }
-
-    /// <inheritdoc />
-    public static Bed Construct(Block input)
-    {
-        return new Bed(input);
     }
 
     /// <inheritdoc />

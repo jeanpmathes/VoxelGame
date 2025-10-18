@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Visuals.Meshables;
@@ -13,15 +14,10 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 /// <summary>
 ///     Corresponds to <see cref="Meshable.Simple" />
 /// </summary>
-public class Unmeshed : BlockBehavior, IBehavior<Unmeshed, BlockBehavior, Block>, IMeshable
+public partial class Unmeshed : BlockBehavior, IBehavior<Unmeshed, BlockBehavior, Block>, IMeshable
 {
+    [Constructible]
     private Unmeshed(Block subject) : base(subject) {}
-
-    /// <inheritdoc />
-    public static Unmeshed Construct(Block input)
-    {
-        return new Unmeshed(input);
-    }
 
     /// <inheritdoc />
     public Meshable Type => Meshable.Unmeshed;

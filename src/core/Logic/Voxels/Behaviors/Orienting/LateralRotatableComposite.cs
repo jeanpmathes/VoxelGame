@@ -26,6 +26,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     private readonly Composite composite;
     private readonly LateralRotatable rotatable;
 
+    [Constructible]
     private LateralRotatableComposite(Block subject) : base(subject)
     {
         composite = subject.Require<Composite>();
@@ -52,12 +53,6 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     /// </summary>
     [LateInitialization] 
     public partial Action<World, Vector3i, Vector3i, State, Side> PublishNeighborUpdate { private get; set; }
-
-    /// <inheritdoc />
-    public static LateralRotatableComposite Construct(Block input)
-    {
-        return new LateralRotatableComposite(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

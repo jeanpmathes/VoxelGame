@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
@@ -13,16 +14,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 /// <summary>
 ///     Blocks used for basic construction.
 /// </summary>
-public class ConstructionMaterial : BlockBehavior, IBehavior<ConstructionMaterial, BlockBehavior, Block>
+public partial class ConstructionMaterial : BlockBehavior, IBehavior<ConstructionMaterial, BlockBehavior, Block>
 {
+    [Constructible]
     private ConstructionMaterial(Block subject) : base(subject)
     {
         subject.Require<Connectable>().Strength.Initializer.ContributeConstant(Connectable.Strengths.All);
-    }
-
-    /// <inheritdoc />
-    public static ConstructionMaterial Construct(Block input)
-    {
-        return new ConstructionMaterial(input);
     }
 }

@@ -10,6 +10,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Application.Components;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
@@ -23,7 +24,7 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     Manages scenes, switching between them.
 /// </summary>
-public partial class SceneManager : ApplicationComponent, IConstructible<Core.App.Application, SceneManager>
+public partial class SceneManager : ApplicationComponent
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly SceneOperationDispatch? dispatch;
@@ -31,6 +32,7 @@ public partial class SceneManager : ApplicationComponent, IConstructible<Core.Ap
     private Scene? current;
     private (Scene? scene, Action completion)? next;
 
+    [Constructible]
     private SceneManager(Core.App.Application application) : base(application)
     {
         dispatch = application.GetComponent<SceneOperationDispatch>();
@@ -40,12 +42,6 @@ public partial class SceneManager : ApplicationComponent, IConstructible<Core.Ap
     ///     Whether a scene is currently loaded or is currently being loaded.
     /// </summary>
     public Boolean IsActive => current is not null || next is {scene: not null};
-
-    /// <inheritdoc />
-    public static SceneManager Construct(Core.App.Application input)
-    {
-        return new SceneManager(input);
-    }
 
     /// <summary>
     ///     Begin loading a new scene, unloading the current one if necessary.

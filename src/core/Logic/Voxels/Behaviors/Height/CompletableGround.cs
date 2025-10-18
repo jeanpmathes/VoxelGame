@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -17,10 +18,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 ///     A <see cref="PartialHeight" /> block which can be completed to serve as full ground for another block.
 ///     Other blocks can then for example use this when being placed and expecting full ground to be present.
 /// </summary>
-public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, BlockBehavior, Block>
+public partial class CompletableGround : BlockBehavior, IBehavior<CompletableGround, BlockBehavior, Block>
 {
     private Block replacement = null!;
 
+    [Constructible]
     private CompletableGround(Block subject) : base(subject)
     {
     }
@@ -29,12 +31,6 @@ public class CompletableGround : BlockBehavior, IBehavior<CompletableGround, Blo
     ///     The block that will replace this block to complete it.
     /// </summary>
     public ResolvedProperty<CID?> Replacement { get; } = ResolvedProperty<CID?>.New<Exclusive<CID?, Void>>(nameof(Replacement));
-
-    /// <inheritdoc />
-    public static CompletableGround Construct(Block input)
-    {
-        return new CompletableGround(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

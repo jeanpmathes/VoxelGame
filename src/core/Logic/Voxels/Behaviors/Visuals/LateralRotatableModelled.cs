@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -17,11 +18,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 /// <summary>
 ///     Rotates the models used by a <see cref="Modelled" /> block and changes the selection to match the rotation.
 /// </summary>
-public class LateralRotatableModelled : BlockBehavior, IBehavior<LateralRotatableModelled, BlockBehavior, Block>
+public partial class LateralRotatableModelled : BlockBehavior, IBehavior<LateralRotatableModelled, BlockBehavior, Block>
 // todo: make this class just RotatableModelled when the new API on BlockModel to get sided models is done
 {
     private readonly LateralRotatable rotatable;
 
+    [Constructible]
     private LateralRotatableModelled(Block subject) : base(subject)
     {
         OrientationOverride = Aspect<Orientation, State>.New<Exclusive<Orientation, State>>(nameof(OrientationOverride), this);
@@ -35,12 +37,6 @@ public class LateralRotatableModelled : BlockBehavior, IBehavior<LateralRotatabl
     ///     Used to override the orientation as provided by the <see cref="LateralRotatable" /> behavior.
     /// </summary>
     public Aspect<Orientation, State> OrientationOverride { get; }
-
-    /// <inheritdoc />
-    public static LateralRotatableModelled Construct(Block input)
-    {
-        return new LateralRotatableModelled(input);
-    }
 
     private Model GetModel(Model original, State state)
     {

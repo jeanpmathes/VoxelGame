@@ -5,30 +5,25 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
 ///     Displays the crosshair for the player.
 /// </summary>
-public class CrosshairDisplay : ActorComponent, IConstructible<Player, Engine, CrosshairDisplay>
+public partial class CrosshairDisplay : ActorComponent
 {
     private readonly Engine engine;
     private readonly Player player;
 
+    [Constructible]
     private CrosshairDisplay(Player player, Engine engine) : base(player)
     {
         this.player = player;
         this.engine = engine;
-    }
-
-    /// <inheritdoc />
-    public static CrosshairDisplay Construct(Player input1, Engine input2)
-    {
-        return new CrosshairDisplay(input1, input2);
     }
 
     /// <inheritdoc />

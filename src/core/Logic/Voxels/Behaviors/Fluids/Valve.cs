@@ -20,6 +20,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// </summary>
 public partial class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Block>
 {
+    [Constructible]
     private Valve(Block subject) : base(subject)
     {
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
@@ -28,16 +29,11 @@ public partial class Valve : BlockBehavior, IBehavior<Valve, BlockBehavior, Bloc
         fillable.IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
         fillable.IsOutflowAllowed.ContributeFunction(GetIsOutflowAllowed);
     }
+    
     // todo: valve and barrier do the same thing, merge both into a single behavior with conditonal require for Modelled or CubeTextured
     // todo: also fix that barrier does not change texture at all
 
     [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
-
-    /// <inheritdoc />
-    public static Valve Construct(Block input)
-    {
-        return new Valve(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

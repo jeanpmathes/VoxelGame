@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -19,21 +20,16 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors;
 /// <summary>
 ///     Makes a block require fully solid ground to be placed.
 /// </summary>
-public class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
+public partial class Grounded : BlockBehavior, IBehavior<Grounded, BlockBehavior, Block>
 {
     private Boolean isComposite;
 
+    [Constructible]
     private Grounded(Block subject) : base(subject)
     {
         subject.RequireIfPresent<CompositeGrounded, Composite>(_ => isComposite = true);
 
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
-    }
-
-    /// <inheritdoc />
-    public static Grounded Construct(Block input)
-    {
-        return new Grounded(input);
     }
 
     /// <inheritdoc />

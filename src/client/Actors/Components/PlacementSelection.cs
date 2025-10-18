@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Voxels;
@@ -18,7 +19,7 @@ namespace VoxelGame.Client.Actors.Components;
 /// <summary>
 ///     Decides which block or fluid the player is placing.
 /// </summary>
-public class PlacementSelection : ActorComponent, IConstructible<Player, PlacementSelection>
+public partial class PlacementSelection : ActorComponent
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlayerInput input;
@@ -28,6 +29,7 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
 
+    [Constructible]
     private PlacementSelection(Player player) : base(player)
     {
         this.player = player;
@@ -64,12 +66,6 @@ public class PlacementSelection : ActorComponent, IConstructible<Player, Placeme
     ///     Whether the current mode is block mode.
     /// </summary>
     internal Boolean IsBlockMode { get; private set; } = true;
-
-    /// <inheritdoc />
-    public static PlacementSelection Construct(Player input)
-    {
-        return new PlacementSelection(input);
-    }
 
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime)

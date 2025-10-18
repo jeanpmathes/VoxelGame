@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -28,11 +29,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     A <see cref="Pipe" /> which connects to other pipes.
 /// </summary>
-public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBehavior, Block>
+public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBehavior, Block>
 {
     private readonly Piped piped;
     private readonly StoredMultiSided siding;
 
+    [Constructible]
     private ConnectingPipe(Block subject) : base(subject)
     {
         siding = subject.Require<StoredMultiSided>();
@@ -51,12 +53,6 @@ public class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, BlockBeha
     ///     The models used for the block.
     /// </summary>
     public ResolvedProperty<(RID center, RID connector, RID surface)> Models { get; } = ResolvedProperty<(RID, RID, RID)>.New<Exclusive<(RID, RID, RID), Void>>(nameof(Models));
-
-    /// <inheritdoc />
-    public static ConnectingPipe Construct(Block input)
-    {
-        return new ConnectingPipe(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

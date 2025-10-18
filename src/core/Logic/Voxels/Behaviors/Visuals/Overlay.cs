@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -15,10 +16,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 ///     Allows blocks to provide an overlay texture.
 /// </summary>
 /// <seealso cref="IOverlayTextureProvider" />
-public class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, Block>
+public partial class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, Block>
 {
     private IOverlayTextureProvider? overlayTextureProvider;
 
+    [Constructible]
     private Overlay(Block subject) : base(subject)
     {
         OverlayTextureProvider = Aspect<IOverlayTextureProvider?, Block>.New<Exclusive<IOverlayTextureProvider?, Block>>(nameof(OverlayTextureProvider), this);
@@ -28,12 +30,6 @@ public class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, Block>
     ///     The overlay texture provider used by the block.
     /// </summary>
     public Aspect<IOverlayTextureProvider?, Block> OverlayTextureProvider { get; }
-
-    /// <inheritdoc />
-    public static Overlay Construct(Block input)
-    {
-        return new Overlay(input);
-    }
 
     /// <summary>
     ///     Get the overlay texture provider for this block.

@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
@@ -17,21 +18,16 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 /// <summary>
 ///     Corresponds to <see cref="Meshable.PartialHeight" />.
 /// </summary>
-public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavior, Block>, IMeshable
+public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavior, Block>, IMeshable
 {
     private readonly Meshed meshed;
     private readonly CubeTextured textured;
 
+    [Constructible]
     private PartialHeight(Block subject) : base(subject)
     {
         meshed = subject.Require<Meshed>();
         textured = subject.Require<CubeTextured>();
-    }
-
-    /// <inheritdoc />
-    public static PartialHeight Construct(Block input)
-    {
-        return new PartialHeight(input);
     }
 
     /// <inheritdoc />

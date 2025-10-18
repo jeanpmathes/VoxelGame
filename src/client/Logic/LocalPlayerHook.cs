@@ -4,17 +4,18 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Client.Actors;
 using VoxelGame.Core.Logic;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Logic;
 
 /// <summary>
 ///     Hooks the local player to the world logic.
 /// </summary>
-public class LocalPlayerHook : WorldComponent, IConstructible<Core.Logic.World, Player, LocalPlayerHook>
+public partial class LocalPlayerHook : WorldComponent
 {
+    [Constructible]
     private LocalPlayerHook(Core.Logic.World subject, Player player) : base(subject)
     {
         Player = player;
@@ -25,13 +26,7 @@ public class LocalPlayerHook : WorldComponent, IConstructible<Core.Logic.World, 
     ///     Get the local player of the world.
     /// </summary>
     public Player Player { get; }
-
-    /// <inheritdoc />
-    public static LocalPlayerHook Construct(Core.Logic.World input1, Player input2)
-    {
-        return new LocalPlayerHook(input1, input2);
-    }
-
+    
     /// <inheritdoc />
     public override void OnActivate()
     {

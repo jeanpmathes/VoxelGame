@@ -27,6 +27,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
 
     private readonly SingleSided siding;
 
+    [Constructible]
     private Vine(Block subject) : base(subject)
     {
         subject.Require<Combustible>();
@@ -38,13 +39,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
     }
 
     [LateInitialization] private partial IAttribute<Int32> Age { get; set; }
-
-    /// <inheritdoc />
-    public static Vine Construct(Block input)
-    {
-        return new Vine(input);
-    }
-
+    
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {

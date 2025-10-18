@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 
@@ -12,16 +13,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 /// <summary>
 ///     Makes a block use animated textures.
 /// </summary>
-public class Animated : BlockBehavior, IBehavior<Animated, BlockBehavior, Block>
+public partial class Animated : BlockBehavior, IBehavior<Animated, BlockBehavior, Block>
 {
+    [Constructible]
     private Animated(Block subject) : base(subject)
     {
         subject.Require<Meshed>().IsAnimated.ContributeConstant(value: true);
-    }
-
-    /// <inheritdoc />
-    public static Animated Construct(Block input)
-    {
-        return new Animated(input);
     }
 }

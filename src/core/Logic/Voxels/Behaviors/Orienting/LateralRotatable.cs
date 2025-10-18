@@ -20,6 +20,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 /// </summary>
 public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatable, BlockBehavior, Block>
 {
+    [Constructible]
     private LateralRotatable(Block subject) : base(subject)
     {
         subject.Require<Rotatable>().Turns.ContributeFunction(GetTurns);
@@ -30,12 +31,6 @@ public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatabl
     }
 
     [LateInitialization] private partial IAttribute<Orientation> Orientation { get; set; }
-
-    /// <inheritdoc />
-    public static LateralRotatable Construct(Block input)
-    {
-        return new LateralRotatable(input);
-    }
 
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)

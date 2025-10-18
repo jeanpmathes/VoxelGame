@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -17,10 +18,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     Makes a block able to be filled with fluids.
 /// </summary>
-public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
+public partial class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
 {
     // todo: go through all blocks and determine whether they should be fillable
     
+    [Constructible]
     private Fillable(Block subject) : base(subject)
     {
         IsInflowAllowed = Aspect<Boolean, (World, Vector3i, State, Side, Fluid)>.New<ANDing<(World, Vector3i, State, Side, Fluid)>>(nameof(IsInflowAllowed), this);
@@ -41,12 +43,6 @@ public class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
     ///     Whether outflow is allowed through a certain side.
     /// </summary>
     public Aspect<Boolean, (World world, Vector3i position, State state, Side side, Fluid fluid)> IsOutflowAllowed { get; }
-
-    /// <inheritdoc />
-    public static Fillable Construct(Block input)
-    {
-        return new Fillable(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

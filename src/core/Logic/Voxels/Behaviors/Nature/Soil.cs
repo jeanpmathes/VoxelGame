@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
@@ -17,19 +18,14 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 ///     Core behavior for all soil blocks.
 ///     Not only the soil block itself, but also blocks that contain significant amounts of soil.
 /// </summary>
-public class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
+public partial class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
 {
+    [Constructible]
     private Soil(Block subject) : base(subject)
     {
         subject.Require<Plantable>();
         subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(value: 100);
         subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);
-    }
-
-    /// <inheritdoc />
-    public static Soil Construct(Block input)
-    {
-        return new Soil(input);
     }
 
     /// <inheritdoc />

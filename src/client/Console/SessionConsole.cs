@@ -6,11 +6,11 @@
 
 using System;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Console.Commands;
 using VoxelGame.Client.Sessions;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -19,7 +19,7 @@ namespace VoxelGame.Client.Console;
 /// <summary>
 ///     The backend of the in-game console.
 /// </summary>
-public partial class SessionConsole : SessionComponent, IConsoleProvider, IConstructible<Session, CommandInvoker, SessionConsole>
+public partial class SessionConsole : SessionComponent, IConsoleProvider
 {
     /// <summary>
     ///     The name of the script to execute when the world is ready.
@@ -31,6 +31,7 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider, IConst
 
     private readonly Session session;
 
+    [Constructible]
     private SessionConsole(Session session, CommandInvoker commandInvoker) : base(session)
     {
         this.session = session;
@@ -65,12 +66,6 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider, IConst
 
     /// <inheritdoc />
     public event EventHandler? Cleared;
-
-    /// <inheritdoc />
-    public static SessionConsole Construct(Session input1, CommandInvoker input2)
-    {
-        return new SessionConsole(input1, input2);
-    }
 
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)

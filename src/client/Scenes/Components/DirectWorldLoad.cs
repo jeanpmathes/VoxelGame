@@ -7,10 +7,10 @@
 using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Scenes.Components;
@@ -18,23 +18,18 @@ namespace VoxelGame.Client.Scenes.Components;
 /// <summary>
 ///     Loads a world directly in the first logic update of the scene.
 /// </summary>
-public partial class DirectWorldLoad : SceneComponent, IConstructible<Scene, (IWorldProvider, Int32), DirectWorldLoad>
+public partial class DirectWorldLoad : SceneComponent
 {
     private readonly Int32 index;
     private readonly IWorldProvider worldProvider;
 
     private Boolean isLoadingPossible;
 
+    [Constructible]
     private DirectWorldLoad(Scene subject, IWorldProvider worldProvider, Int32 index) : base(subject)
     {
         this.worldProvider = worldProvider;
         this.index = index;
-    }
-
-    /// <inheritdoc />
-    public static DirectWorldLoad Construct(Scene input1, (IWorldProvider, Int32) input2)
-    {
-        return new DirectWorldLoad(input1, input2.Item1, input2.Item2);
     }
 
     /// <inheritdoc />

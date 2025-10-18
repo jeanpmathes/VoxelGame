@@ -8,24 +8,25 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
 ///     Controls the block / fluid overlay for the player.
 /// </summary>
-public class OverlayDisplay : ActorComponent, IConstructible<Player, Engine, OverlayDisplay>
+public partial class OverlayDisplay : ActorComponent
 {
     private readonly Engine engine;
     private readonly Player player;
 
+    [Constructible]
     private OverlayDisplay(Player player, Engine engine) : base(player)
     {
         this.player = player;
@@ -37,12 +38,6 @@ public class OverlayDisplay : ActorComponent, IConstructible<Player, Engine, Ove
     ///     not be rendered.
     /// </summary>
     public Boolean IsEnabled { get; set; } = true;
-
-    /// <inheritdoc />
-    public static OverlayDisplay Construct(Player input1, Engine input2)
-    {
-        return new OverlayDisplay(input1, input2);
-    }
 
     /// <inheritdoc />
     public override void OnActivate()

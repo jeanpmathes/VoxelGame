@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
@@ -24,28 +25,23 @@ namespace VoxelGame.Client.Logic;
 /// <summary>
 ///     Handles meshing of individual sections in the world.
 /// </summary>
-public class SectionMeshing : WorldComponent, IConstructible<Core.Logic.World, SectionMeshing>
+public partial class SectionMeshing : WorldComponent
 {
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionMeshing>();
 
     #endregion LOGGING
-
+    
     private readonly HashSet<(Chunk chunk, (Int32 x, Int32 y, Int32 z))> sectionsToMesh = [];
-
+    
+    [Constructible]
     private SectionMeshing(Core.Logic.World subject) : base(subject)
     {
         Subject.SectionChanged += (_, args) =>
         {
             EnqueueMeshingForAllAffectedSections(args.Chunk, args.Position);
         };
-    }
-
-    /// <inheritdoc />
-    public static SectionMeshing Construct(Core.Logic.World input)
-    {
-        return new SectionMeshing(input);
     }
 
     /// <inheritdoc />

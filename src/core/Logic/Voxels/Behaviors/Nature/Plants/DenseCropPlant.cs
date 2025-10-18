@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -19,12 +20,13 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 /// <summary>
 ///     A <see cref="Plant" /> that uses the <see cref="Foliage.LayoutType.DenseCrop" /> layout.
 /// </summary>
-public class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, BlockBehavior, Block>
+public partial class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, BlockBehavior, Block>
 {
     private const Int32 StageCount = 5;
     
     private readonly GrowingPlant plant;
 
+    [Constructible]
     private DenseCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
@@ -35,12 +37,6 @@ public class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, BlockBeha
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-    }
-    
-    /// <inheritdoc />
-    public static DenseCropPlant Construct(Block input)
-    {
-        return new DenseCropPlant(input);
     }
 
     private TID GetActiveTexture(TID original, State state)

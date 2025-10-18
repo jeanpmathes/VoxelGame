@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Behaviors;
@@ -16,21 +17,16 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Siding;
 /// <summary>
 ///     Places sided blocks based on the targeted side of the placing actor.
 /// </summary>
-public class TargetedSidePlacement : BlockBehavior, IBehavior<TargetedSidePlacement, BlockBehavior, Block>
+public partial class TargetedSidePlacement : BlockBehavior, IBehavior<TargetedSidePlacement, BlockBehavior, Block>
 {
     private readonly Sided siding;
 
+    [Constructible]
     private TargetedSidePlacement(Block subject) : base(subject)
     {
         siding = subject.Require<Sided>();
 
         subject.PlacementState.ContributeFunction(GetPlacementState);
-    }
-
-    /// <inheritdoc />
-    public static TargetedSidePlacement Construct(Block input)
-    {
-        return new TargetedSidePlacement(input);
     }
 
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)

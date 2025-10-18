@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -15,8 +16,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Siding;
 /// <summary>
 ///     Unifying behavior for all blocks that have one or more main or front sides that depend on the block state.
 /// </summary>
-public class Sided : BlockBehavior, IBehavior<Sided, BlockBehavior, Block>
+public partial class Sided : BlockBehavior, IBehavior<Sided, BlockBehavior, Block>
 {
+    [Constructible]
     private Sided(Block subject) : base(subject)
     {
         subject.Require<Orientable>();
@@ -35,12 +37,6 @@ public class Sided : BlockBehavior, IBehavior<Sided, BlockBehavior, Block>
     ///     May be <c>null</c> if the given side is not supported.
     /// </summary>
     public Aspect<State?, (State state, Sides side)> SidedState { get; }
-
-    /// <inheritdoc />
-    public static Sided Construct(Block input)
-    {
-        return new Sided(input);
-    }
 
     /// <summary>
     ///     Get the current main or front sides of the block in the given state.

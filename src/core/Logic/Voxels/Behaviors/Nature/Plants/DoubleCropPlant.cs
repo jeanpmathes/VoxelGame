@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 /// <summary>
 ///     A <see cref="Plant" /> that uses the <see cref="Foliage.LayoutType.Crop" /> layout and has double stages.
 /// </summary>
-public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBehavior, Block>
+public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBehavior, Block>
 {
     private const Int32 StageCount = 5;
     
@@ -32,6 +33,7 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
     private readonly Composite composite;
     private readonly GrowingPlant plant;
 
+    [Constructible]
     private DoubleCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
@@ -50,12 +52,6 @@ public class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBe
         subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-    }
-
-    /// <inheritdoc />
-    public static DoubleCropPlant Construct(Block input)
-    {
-        return new DoubleCropPlant(input);
     }
 
     private Boolean GetCanGrow(Boolean original, State state)

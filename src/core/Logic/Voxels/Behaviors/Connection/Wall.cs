@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -17,22 +18,17 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 /// <summary>
 ///     Provides the bounding volume for the <see cref="WideConnecting" /> wall block.
 /// </summary>
-public class Wall : BlockBehavior, IBehavior<Wall, BlockBehavior, Block>
+public partial class Wall : BlockBehavior, IBehavior<Wall, BlockBehavior, Block>
 {
     private readonly Connecting connecting;
 
+    [Constructible]
     private Wall(Block subject) : base(subject)
     {
         subject.Require<WideConnecting>();
         connecting = subject.Require<Connecting>();
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-    }
-
-    /// <inheritdoc />
-    public static Wall Construct(Block input)
-    {
-        return new Wall(input);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

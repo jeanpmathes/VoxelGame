@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Sends logic updates to all chunks in the world that require it.
 /// </summary>
-public class ChunkSimulator(World subject) : WorldComponent(subject), IConstructible<World, ChunkSimulator>
+public partial class ChunkSimulator : WorldComponent
 {
     #region LOGGING
 
@@ -27,12 +28,8 @@ public class ChunkSimulator(World subject) : WorldComponent(subject), IConstruct
 
     private readonly List<Chunk> chunksWithActors = [];
 
-    /// <inheritdoc />
-    /// 1
-    public static ChunkSimulator Construct(World input)
-    {
-        return new ChunkSimulator(input);
-    }
+    [Constructible]
+    private ChunkSimulator(World subject) : base(subject) {}
 
     /// <inheritdoc />
     public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? timer)

@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Behaviors;
@@ -21,7 +22,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors;
 /// <summary>
 ///     A block which must be attached to another block in order to exist.
 /// </summary>
-public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
+public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
 {
     /// <summary>
     ///     Describes how the block can be attached.
@@ -42,6 +43,7 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
         Multi
     }
 
+    [Constructible]
     private Attached(Block subject) : base(subject)
     {
         AttachedSides = Aspect<Sides, State>.New<Exclusive<Sides, State>>(nameof(AttachedSides), this);
@@ -79,12 +81,6 @@ public class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior, Block>
     ///     Does not have an effect if the mode is <see cref="AttachmentMode.Multi" />.
     /// </summary>
     public Aspect<Boolean, (World world, Vector3i position, State state)> IsOtherwiseAttached { get; }
-
-    /// <inheritdoc />
-    public static Attached Construct(Block input)
-    {
-        return new Attached(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -13,20 +14,15 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 /// <summary>
 ///     Performs part selection for a <see cref="Modelled" /> block based on the <see cref="Composite" /> parts.
 /// </summary>
-public class CompositeModelled : BlockBehavior, IBehavior<CompositeModelled, BlockBehavior, Block>
+public partial class CompositeModelled : BlockBehavior, IBehavior<CompositeModelled, BlockBehavior, Block>
 {
     private readonly Composite composite;
 
+    [Constructible]
     private CompositeModelled(Block subject) : base(subject)
     {
         composite = subject.Require<Composite>();
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
-    }
-
-    /// <inheritdoc />
-    public static CompositeModelled Construct(Block input)
-    {
-        return new CompositeModelled(input);
     }
 
     private Selector GetSelector(Selector original, State state)

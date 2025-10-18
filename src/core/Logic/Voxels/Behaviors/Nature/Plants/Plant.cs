@@ -28,6 +28,7 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
 {
     private Boolean isComposite;
 
+    [Constructible]
     private Plant(Block subject) : base(subject)
     {
         subject.Require<Combustible>();
@@ -41,12 +42,6 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
     }
 
     [LateInitialization] private partial IAttribute<Boolean> IsLowered { get; set; }
-
-    /// <inheritdoc />
-    public static Plant Construct(Block input)
-    {
-        return new Plant(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -17,7 +18,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     Allows pipes to connect to this block.
 /// </summary>
-public class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Block>
+public partial class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Block>
 {
     /// <summary>
     ///     The tier of the pipe.
@@ -35,6 +36,7 @@ public class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Block>
         Industrial
     }
 
+    [Constructible]
     private Piped(Block subject) : base(subject)
     {
         IsConnectionAllowed = Aspect<Boolean, (State state, Side side)>.New<ANDing<(State, Side)>>(nameof(IsConnectionAllowed), this);
@@ -49,12 +51,6 @@ public class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Block>
     ///     Whether connection to this block is allowed in the given state from the given side.
     /// </summary>
     public Aspect<Boolean, (State state, Side side)> IsConnectionAllowed { get; }
-
-    /// <inheritdoc />
-    public static Piped Construct(Block input)
-    {
-        return new Piped(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

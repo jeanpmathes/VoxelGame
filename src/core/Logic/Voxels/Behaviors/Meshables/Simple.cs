@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -18,11 +19,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 /// <summary>
 ///     Corresponds to <see cref="Meshable.Simple" />.
 /// </summary>
-public class Simple : BlockBehavior, IBehavior<Simple, BlockBehavior, Block>, IMeshable
+public partial class Simple : BlockBehavior, IBehavior<Simple, BlockBehavior, Block>, IMeshable
 {
     private readonly Meshed meshed;
     private readonly CubeTextured textured;
 
+    [Constructible]
     private Simple(Block subject) : base(subject)
     {
         meshed = subject.Require<Meshed>();
@@ -35,12 +37,6 @@ public class Simple : BlockBehavior, IBehavior<Simple, BlockBehavior, Block>, IM
     ///     Whether the texture is rotated.
     /// </summary>
     public Aspect<Boolean, (State state, Side side)> IsTextureRotated { get; }
-
-    /// <inheritdoc />
-    public static Simple Construct(Block input)
-    {
-        return new Simple(input);
-    }
 
     /// <inheritdoc />
     public Meshable Type => Meshable.Simple;

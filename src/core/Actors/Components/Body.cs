@@ -8,18 +8,18 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Actors.Components;
 
 /// <summary>
 ///     Adds physics capabilities to an <see cref="Actor" />.
 /// </summary>
-public partial class Body : ActorComponent, IConstructible<Actor, Body.Characteristics, Body>
+public partial class Body : ActorComponent
 {
     /// <summary>
     ///     The gravitational constant which accelerates all bodies.
@@ -37,13 +37,19 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
     private Vector3d force;
 
     private Boolean isEnabled = true;
-
+    
     private Body(Actor subject, Double mass, BoundingVolume boundingVolume) : base(subject)
     {
         this.mass = mass;
         this.boundingVolume = boundingVolume;
 
         Transform = subject.GetRequiredComponent<Transform>();
+    }
+    
+    [Constructible]
+    private Body(Actor actor, Characteristics characteristics) : this(actor, characteristics.Mass, characteristics.BoundingVolume)
+    {
+        
     }
 
     /// <summary>
@@ -92,12 +98,6 @@ public partial class Body : ActorComponent, IConstructible<Actor, Body.Character
 
             LogSetActorPhysics(logger, isEnabled);
         }
-    }
-
-    /// <inheritdoc />
-    public static Body Construct(Actor input1, Characteristics input2)
-    {
-        return new Body(input1, input2.Mass, input2.BoundingVolume);
     }
 
     /// <summary>

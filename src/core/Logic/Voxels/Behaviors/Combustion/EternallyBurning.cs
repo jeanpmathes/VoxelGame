@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 
@@ -12,17 +13,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 /// <summary>
 ///     Does not stop burning.
 /// </summary>
-public class EternallyBurning : BlockBehavior, IBehavior<EternallyBurning, BlockBehavior, Block>
+public partial class EternallyBurning : BlockBehavior, IBehavior<EternallyBurning, BlockBehavior, Block>
 {
+    [Constructible]
     private EternallyBurning(Block subject) : base(subject)
     {
         subject.Require<Combustible>();
-    }
-
-    /// <inheritdoc />
-    public static EternallyBurning Construct(Block input)
-    {
-        return new EternallyBurning(input);
     }
 
     /// <inheritdoc />

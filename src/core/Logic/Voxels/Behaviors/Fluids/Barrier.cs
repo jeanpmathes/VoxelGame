@@ -19,6 +19,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// </summary>
 public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, Block>
 {
+    [Constructible]
     private Barrier(Block subject) : base(subject)
     {
         var fillable = subject.Require<Fillable>();
@@ -27,12 +28,6 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
     }
 
     [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
-
-    /// <inheritdoc />
-    public static Barrier Construct(Block input)
-    {
-        return new Barrier(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

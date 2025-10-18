@@ -6,17 +6,17 @@
 
 using System;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Sessions;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
 ///     Attaches a <see cref="Session" /> to a <see cref="Scene" />.
 /// </summary>
-public class SessionHook : SceneComponent, IConstructible<Scene, Session, SessionHook>
+public partial class SessionHook : SceneComponent
 {
     #region LOGGING
 
@@ -26,15 +26,10 @@ public class SessionHook : SceneComponent, IConstructible<Scene, Session, Sessio
 
     private readonly Session session;
 
+    [Constructible]
     private SessionHook(Scene subject, Session session) : base(subject)
     {
         this.session = session;
-    }
-
-    /// <inheritdoc />
-    public static SessionHook Construct(Scene input1, Session input2)
-    {
-        return new SessionHook(input1, input2);
     }
 
     /// <inheritdoc />

@@ -22,6 +22,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 /// <seealso cref="PartialHeight" />
 public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, BlockBehavior, Block>
 {
+    [Constructible]
     private StoredHeight16(Block subject) : base(subject)
     {
         subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => state.Get(Height), exclusive: true);
@@ -34,12 +35,6 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
     ///     The preferred height of the block at placement.
     /// </summary>
     public ResolvedProperty<Int32> PlacementHeight { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(PlacementHeight));
-
-    /// <inheritdoc />
-    public static StoredHeight16 Construct(Block input)
-    {
-        return new StoredHeight16(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

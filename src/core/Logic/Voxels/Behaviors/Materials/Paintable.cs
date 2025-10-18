@@ -20,18 +20,13 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 /// </summary>
 public partial class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavior, Block>
 {
+    [Constructible]
     private Paintable(Block subject) : base(subject)
     {
         subject.Require<Meshed>().Tint.ContributeFunction(GetTint);
     }
 
     [LateInitialization] private partial IAttribute<ColorS> Color { get; set; }
-
-    /// <inheritdoc />
-    public static Paintable Construct(Block input)
-    {
-        return new Paintable(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

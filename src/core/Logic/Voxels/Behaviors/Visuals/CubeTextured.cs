@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -19,8 +20,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 ///     Gives a block a texture defined by a <see cref="TextureLayout" />.
 ///     The texture layout corresponds to texturing each side of a cube with a specific texture.
 /// </summary>
-public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior, Block>
+public partial class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior, Block>
 {
+    [Constructible]
     private CubeTextured(Block subject) : base(subject)
     {
         ActiveTexture = Aspect<TextureLayout, State>.New<Exclusive<TextureLayout, State>>(nameof(ActiveTexture), this);
@@ -36,12 +38,6 @@ public class CubeTextured : BlockBehavior, IBehavior<CubeTextured, BlockBehavior
     ///     The actually used, state dependent texture layout.
     /// </summary>
     public Aspect<TextureLayout, State> ActiveTexture { get; }
-
-    /// <inheritdoc />
-    public static CubeTextured Construct(Block input)
-    {
-        return new CubeTextured(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

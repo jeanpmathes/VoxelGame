@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
@@ -18,23 +19,17 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 /// <summary>
 ///     Glue behavior for blocks that are both <see cref="Rotatable" /> and meshed using <see cref="Simple" />.
 /// </summary>
-public class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSimpleBlock, BlockBehavior, Block>
+public partial class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSimpleBlock, BlockBehavior, Block>
 {
     private readonly Rotatable rotatable;
 
+    [Constructible]
     private RotatableSimpleBlock(Block subject) : base(subject)
     {
         rotatable = subject.Require<Rotatable>();
 
         subject.Require<CubeTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
         subject.Require<Simple>().IsTextureRotated.ContributeFunction(GetIsTextureRotated);
-    }
-
-
-    /// <inheritdoc />
-    public static RotatableSimpleBlock Construct(Block input)
-    {
-        return new RotatableSimpleBlock(input);
     }
 
     private Boolean GetIsTextureRotated(Boolean original, (State state, Side side) context)

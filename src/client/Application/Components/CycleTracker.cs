@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Profiling;
@@ -16,20 +17,15 @@ namespace VoxelGame.Client.Application.Components;
 /// <summary>
 ///     Tracks the update and render cycles to calculate FPS and UPS.
 /// </summary>
-public sealed class CycleTracker : ApplicationComponent, IConstructible<Core.App.Application, CycleTracker>, IPerformanceProvider
+public sealed partial class CycleTracker : ApplicationComponent, IPerformanceProvider
 {
     private const Int32 DeltaBufferCapacity = 50;
     private readonly CircularTimeBuffer logicDeltaBuffer = new(DeltaBufferCapacity);
 
     private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
 
+    [Constructible]
     private CycleTracker(Core.App.Application application) : base(application) {}
-
-    /// <inheritdoc />
-    public static CycleTracker Construct(Core.App.Application input)
-    {
-        return new CycleTracker(input);
-    }
 
     /// <summary>
     ///     Get the FPS of the screen, which are the frames per second.

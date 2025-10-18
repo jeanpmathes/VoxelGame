@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -18,7 +19,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 ///     Behavior associated with the <see cref="Meshable.PartialHeight" /> meshing.
 ///     It declares a state-dependent height aspect of a block.
 /// </summary>
-public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavior, Block>
+public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavior, Block>
 {
     /// <summary>
     ///     The (inclusive) minimum height of a block with variable height, is actually more than just a 2D plane.
@@ -36,6 +37,7 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
     /// </summary>
     public const Int32 NoHeight = -1;
 
+    [Constructible]
     private PartialHeight(Block subject) : base(subject)
     {
         Height = Aspect<Int32, State>.New<Exclusive<Int32, State>>(nameof(Height), this);
@@ -53,12 +55,6 @@ public class PartialHeight : BlockBehavior, IBehavior<PartialHeight, BlockBehavi
     ///     ].
     /// </summary>
     public Aspect<Int32, State> Height { get; }
-
-    /// <inheritdoc />
-    public static PartialHeight Construct(Block input)
-    {
-        return new PartialHeight(input);
-    }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {

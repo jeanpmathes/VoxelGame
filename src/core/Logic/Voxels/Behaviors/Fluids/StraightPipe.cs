@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Behaviors;
@@ -22,11 +23,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     A variant of a <see cref="Pipe" /> that only connects to other pipes in a straight line.
 /// </summary>
-public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior, Block>
+public partial class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior, Block>
 {
     private readonly Piped piped;
     private readonly AxisRotatable rotation;
 
+    [Constructible]
     private StraightPipe(Block subject) : base(subject)
     {
         rotation = subject.Require<AxisRotatable>();
@@ -40,12 +42,6 @@ public class StraightPipe : BlockBehavior, IBehavior<StraightPipe, BlockBehavior
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
 
         subject.PlacementState.ContributeFunction(GetPlacementState);
-    }
-
-    /// <inheritdoc />
-    public static StraightPipe Construct(Block input)
-    {
-        return new StraightPipe(input);
     }
 
     private Boolean GetIsConnectionAllowed(Boolean original, (State state, Side side) context)

@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Toolkit.Utilities;
@@ -14,15 +15,10 @@ namespace VoxelGame.Client.Logic;
 ///     Hides all sections in the world when the world is terminated.
 ///     This prevents rendering of the no longer needed sections.
 /// </summary>
-public class HideWorldOnTermination : WorldComponent, IConstructible<Core.Logic.World, HideWorldOnTermination>
+public partial class HideWorldOnTermination : WorldComponent
 {
+    [Constructible]
     private HideWorldOnTermination(Core.Logic.World subject) : base(subject) {}
-
-    /// <inheritdoc />
-    public static HideWorldOnTermination Construct(Core.Logic.World input)
-    {
-        return new HideWorldOnTermination(input);
-    }
 
     /// <inheritdoc />
     public override void OnTerminate()

@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
@@ -20,20 +21,15 @@ namespace VoxelGame.Client.Actors.Components;
 ///     Implements targeting functionality based on an actor's head position and orientation.
 ///     If an actor does not have a head, no targeting will be performed.
 /// </summary>
-public class Targeter : ActorComponent, IConstructible<Actor, Targeter>
+public partial class Targeter : ActorComponent
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
 
+    [Constructible]
     private Targeter(Actor subject) : base(subject)
     {
         targeting = Subject.GetRequiredComponent<Targeting>();
-    }
-
-    /// <inheritdoc />
-    public static Targeter Construct(Actor input)
-    {
-        return new Targeter(input);
     }
 
     /// <inheritdoc />

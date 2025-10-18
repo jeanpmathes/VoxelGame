@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
@@ -13,18 +14,13 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 /// <summary>
 ///     A block made from loose materials, creating a permeable surface.
 /// </summary>
-public class Loose : BlockBehavior, IBehavior<Loose, BlockBehavior, Block>
+public partial class Loose : BlockBehavior, IBehavior<Loose, BlockBehavior, Block>
 {
+    [Constructible]
     private Loose(Block subject) : base(subject)
     {
         subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(value: 100);
         subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);
-    }
-
-    /// <inheritdoc />
-    public static Loose Construct(Block input)
-    {
-        return new Loose(input);
     }
 
     /// <inheritdoc />

@@ -11,6 +11,9 @@ namespace VoxelGame.Toolkit.Utilities;
 /// <summary>
 ///     Allows construction of an object from an input argument.
 /// </summary>
+/// <remarks>
+///     The <c>ConstructibleGenerator</c> expects this interface to stay at <c>VoxelGame.Toolkit.Utilities</c>.
+/// </remarks>
 /// <typeparam name="TIn">The type of the input argument.</typeparam>
 /// <typeparam name="TOut">The type of the output object.</typeparam>
 public interface IConstructible<in TIn, out TOut>

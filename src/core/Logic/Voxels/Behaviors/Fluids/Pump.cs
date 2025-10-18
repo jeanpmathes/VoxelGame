@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
@@ -16,18 +17,13 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     Elevates contained fluids upwards when interacted with.
 /// </summary>
-public class Pump : BlockBehavior, IBehavior<Pump, BlockBehavior, Block>
+public partial class Pump : BlockBehavior, IBehavior<Pump, BlockBehavior, Block>
 {
+    [Constructible]
     private Pump(Block subject) : base(subject)
     {
         subject.Require<Fillable>().IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
         subject.Require<Fillable>().IsOutflowAllowed.ContributeFunction(GetIsOutflowAllowed);
-    }
-
-    /// <inheritdoc />
-    public static Pump Construct(Block input)
-    {
-        return new Pump(input);
     }
 
     /// <inheritdoc />

@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -18,8 +19,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 /// <summary>
 ///     Allows an actor to climb up and down on this block.
 /// </summary>
-public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Block>
+public partial class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Block>
 {
+    [Constructible]
     private Climbable(Block subject) : base(subject)
     {
     }
@@ -33,12 +35,6 @@ public class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Bloc
     ///     The velocity at which an actor slides down this block when not climbing.
     /// </summary>
     public ResolvedProperty<Double> SlidingVelocity { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(SlidingVelocity), initial: 1.0);
-
-    /// <inheritdoc />
-    public static Climbable Construct(Block input)
-    {
-        return new Climbable(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

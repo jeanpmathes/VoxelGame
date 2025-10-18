@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
@@ -11,13 +12,8 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 /// <summary>
 /// Blocks that can be oriented in some way, e.g. by rotation or siding.
 /// </summary>
-public class Orientable : BlockBehavior, IBehavior<Orientable, BlockBehavior, Block>
+public partial class Orientable : BlockBehavior, IBehavior<Orientable, BlockBehavior, Block>
 {
+    [Constructible]
     private Orientable(Block subject) : base(subject) {}
-    
-    /// <inheritdoc />
-    public static Orientable Construct(Block input)
-    {
-        return new Orientable(input);
-    }
 }

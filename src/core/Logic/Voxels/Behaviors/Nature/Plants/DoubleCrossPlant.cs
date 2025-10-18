@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -21,10 +22,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 /// <summary>
 ///     A <see cref="Plant" /> that uses the <see cref="Foliage.LayoutType.Cross" /> layout and consists of two parts.
 /// </summary>
-public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, BlockBehavior, Block>
+public partial class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, BlockBehavior, Block>
 {
     private readonly Composite composite;
 
+    [Constructible]
     private DoubleCrossPlant(Block subject) : base(subject)
     {
         subject.Require<Plant>();
@@ -45,12 +47,6 @@ public class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlant, Block
     ///     The width of the plant, used for the bounding volume.
     /// </summary>
     public ResolvedProperty<Double> Width { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(Width), initial: 0.71);
-
-    /// <inheritdoc />
-    public static DoubleCrossPlant Construct(Block input)
-    {
-        return new DoubleCrossPlant(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

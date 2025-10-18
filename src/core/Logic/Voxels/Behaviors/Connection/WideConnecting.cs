@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -21,10 +22,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 /// <summary>
 ///     A thin block that connects to other blocks along its lateral sides.
 /// </summary>
-public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBehavior, Block>
+public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBehavior, Block>
 {
     private readonly Connecting connecting;
 
+    [Constructible]
     private WideConnecting(Block subject) : base(subject)
     {
         connecting = subject.Require<Connecting>();
@@ -39,12 +41,6 @@ public class WideConnecting : BlockBehavior, IBehavior<WideConnecting, BlockBeha
     ///     opposite connections - the post will not be used then.
     /// </summary>
     public ResolvedProperty<(RID post, RID extension, RID? straight)> Models { get; } = ResolvedProperty<(RID, RID, RID?)>.New<Exclusive<(RID, RID, RID?), Void>>(nameof(Models));
-
-    /// <inheritdoc />
-    public static WideConnecting Construct(Block input)
-    {
-        return new WideConnecting(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

@@ -28,6 +28,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 {
     private readonly LateralRotatable rotatable;
 
+    [Constructible]
     private Door(Block subject) : base(subject)
     {
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
@@ -46,12 +47,6 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
     [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
 
     [LateInitialization] private partial IAttribute<Boolean> IsLeftSided { get; set; }
-
-    /// <inheritdoc />
-    public static Door Construct(Block input)
-    {
-        return new Door(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

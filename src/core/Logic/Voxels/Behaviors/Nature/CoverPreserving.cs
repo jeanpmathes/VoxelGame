@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -15,8 +16,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// <summary>
 ///     Marker behavior for blocks that can sit on covered soil without removing the cover.
 /// </summary>
-public class CoverPreserving : BlockBehavior, IBehavior<CoverPreserving, BlockBehavior, Block>
+public partial class CoverPreserving : BlockBehavior, IBehavior<CoverPreserving, BlockBehavior, Block>
 {
+    [Constructible]
     private CoverPreserving(Block subject) : base(subject)
     {
         Preservation = Aspect<Boolean, State>.New<ANDing<State>>(nameof(Preservation), this);
@@ -26,12 +28,6 @@ public class CoverPreserving : BlockBehavior, IBehavior<CoverPreserving, BlockBe
     ///     Aspect that determines whether the block preserves the cover for a given state.
     /// </summary>
     public Aspect<Boolean, State> Preservation { get; }
-
-    /// <inheritdoc />
-    public static CoverPreserving Construct(Block input)
-    {
-        return new CoverPreserving(input);
-    }
 
     /// <summary>
     ///     Check whether the block preserves cover for the supplied state.

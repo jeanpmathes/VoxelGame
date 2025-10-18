@@ -16,15 +16,10 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 /// </summary>
 public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, BlockBehavior, Block>
 {
+    [Constructible]
     private AshCoverable(Block subject) : base(subject) {}
 
     [LateInitialization] private partial IEvent<IAshCoverMessage> AshCover { get; set; }
-
-    /// <inheritdoc />
-    public static AshCoverable Construct(Block input)
-    {
-        return new AshCoverable(input);
-    }
 
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)

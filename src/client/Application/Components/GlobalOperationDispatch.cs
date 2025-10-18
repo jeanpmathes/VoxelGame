@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Updates;
 using VoxelGame.Toolkit.Utilities;
 
@@ -16,16 +17,11 @@ namespace VoxelGame.Client.Application.Components;
 ///     Using this dispatch is necessary when operations should continue even when the scene changes.
 ///     Otherwise, using the default dispatch is recommended.
 /// </summary>
-public class GlobalOperationDispatch : OperationUpdateDispatch, IConstructible<Core.App.Application, GlobalOperationDispatch>
+public partial class GlobalOperationDispatch : OperationUpdateDispatch
 {
+    [Constructible]
     private GlobalOperationDispatch(Core.App.Application application) : base(singleton: false, application) {}
 
     /// <inheritdoc />
     public override String Name => "Global Operations";
-
-    /// <inheritdoc />
-    public static GlobalOperationDispatch Construct(Core.App.Application input)
-    {
-        return new GlobalOperationDispatch(input);
-    }
 }

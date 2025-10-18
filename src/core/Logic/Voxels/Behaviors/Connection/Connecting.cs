@@ -24,6 +24,7 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
 {
     private readonly Connectable connectable;
 
+    [Constructible]
     private Connecting(Block subject) : base(subject)
     {
         connectable = subject.Require<Connectable>();
@@ -38,12 +39,6 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
     [LateInitialization] private partial IAttribute<Boolean> South { get; set; }
 
     [LateInitialization] private partial IAttribute<Boolean> West { get; set; }
-
-    /// <inheritdoc />
-    public static Connecting Construct(Block input)
-    {
-        return new Connecting(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

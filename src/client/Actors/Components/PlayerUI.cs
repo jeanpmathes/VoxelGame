@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Toolkit.Utilities;
@@ -16,7 +17,7 @@ namespace VoxelGame.Client.Actors.Components;
 /// <summary>
 ///     Controls the user interface for the player, such as HUD and other UI elements.
 /// </summary>
-public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterface, PlayerUI>
+public partial class PlayerUI : ActorComponent
 {
     private readonly Button debugViewButton;
 
@@ -26,6 +27,7 @@ public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterfa
     private readonly Player player;
     private readonly InGameUserInterface ui;
 
+    [Constructible]
     private PlayerUI(Player player, InGameUserInterface ui) : base(player)
     {
         this.player = player;
@@ -39,12 +41,6 @@ public class PlayerUI : ActorComponent, IConstructible<Player, InGameUserInterfa
         }
 
         debugViewButton = player.Scene.Client.Keybinds.GetPushButton(player.Scene.Client.Keybinds.DebugView);
-    }
-
-    /// <inheritdoc />
-    public static PlayerUI Construct(Player input1, InGameUserInterface input2)
-    {
-        return new PlayerUI(input1, input2);
     }
 
     /// <inheritdoc />

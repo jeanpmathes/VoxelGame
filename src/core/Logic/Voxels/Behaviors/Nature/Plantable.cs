@@ -21,6 +21,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// </summary>
 public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavior, Block>
 {
+    [Constructible]
     private Plantable(Block subject) : base(subject)
     {
     }
@@ -32,12 +33,6 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
     public ResolvedProperty<Boolean> SupportsFullGrowth { get; } = ResolvedProperty<Boolean>.New<ORing<Void>>(nameof(SupportsFullGrowth));
 
     [LateInitialization] private partial IEvent<IGrowthAttemptMessage> GrowthAttempt { get; set; }
-
-    /// <inheritdoc />
-    public static Plantable Construct(Block input)
-    {
-        return new Plantable(input);
-    }
 
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)

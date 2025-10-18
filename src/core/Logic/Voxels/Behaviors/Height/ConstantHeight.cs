@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -17,8 +18,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 ///     Defines the partial block height of a block as a constant value.
 /// </summary>
 /// <seealso cref="PartialHeight" />
-public class ConstantHeight : BlockBehavior, IBehavior<ConstantHeight, BlockBehavior, Block>
+public partial class ConstantHeight : BlockBehavior, IBehavior<ConstantHeight, BlockBehavior, Block>
 {
+    [Constructible]
     private ConstantHeight(Block subject) : base(subject)
     {
         subject.Require<PartialHeight>().Height.ContributeFunction((_, _) => Height.Get(), exclusive: true);
@@ -28,12 +30,6 @@ public class ConstantHeight : BlockBehavior, IBehavior<ConstantHeight, BlockBeha
     ///     The constant height of the block.
     /// </summary>
     public ResolvedProperty<Int32> Height { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(Height), PartialHeight.MaximumHeight);
-
-    /// <inheritdoc />
-    public static ConstantHeight Construct(Block input)
-    {
-        return new ConstantHeight(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

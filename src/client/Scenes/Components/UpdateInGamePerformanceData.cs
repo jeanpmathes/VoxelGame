@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.UserInterfaces;
@@ -14,19 +15,14 @@ namespace VoxelGame.Client.Scenes.Components;
 /// <summary>
 ///     Updates the in-game performance data on the <see cref="InGameUserInterface" />.
 /// </summary>
-public class UpdateInGamePerformanceData : SceneComponent, IConstructible<Scene, InGameUserInterface, UpdateInGamePerformanceData>
+public partial class UpdateInGamePerformanceData : SceneComponent
 {
     private readonly InGameUserInterface ui;
 
+    [Constructible]
     private UpdateInGamePerformanceData(Scene subject, InGameUserInterface ui) : base(subject)
     {
         this.ui = ui;
-    }
-
-    /// <inheritdoc />
-    public static UpdateInGamePerformanceData Construct(Scene input1, InGameUserInterface input2)
-    {
-        return new UpdateInGamePerformanceData(input1, input2);
     }
 
     /// <inheritdoc />

@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -16,8 +17,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     Guides the flow of fluids.
 /// </summary>
-public class Pipe : BlockBehavior, IBehavior<Pipe, BlockBehavior, Block>
+public partial class Pipe : BlockBehavior, IBehavior<Pipe, BlockBehavior, Block>
 {
+    [Constructible]
     private Pipe(Block subject) : base(subject)
     {
         subject.Require<Piped>();
@@ -34,12 +36,6 @@ public class Pipe : BlockBehavior, IBehavior<Pipe, BlockBehavior, Block>
     ///     Get the sides which are open in a given state.
     /// </summary>
     public Aspect<Sides, State> OpenSides { get; }
-
-    /// <inheritdoc />
-    public static Pipe Construct(Block input)
-    {
-        return new Pipe(input);
-    }
 
     private Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {

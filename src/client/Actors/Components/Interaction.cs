@@ -7,18 +7,18 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
 ///     Implements the interaction logic of the player.
 /// </summary>
-public class Interaction : ActorComponent, IConstructible<Player, Interaction>
+public partial class Interaction : ActorComponent
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlayerInput input;
@@ -31,6 +31,7 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
 
+    [Constructible]
     private Interaction(Player player) : base(player)
     {
         this.player = player;
@@ -38,12 +39,6 @@ public class Interaction : ActorComponent, IConstructible<Player, Interaction>
         targeting = player.GetRequiredComponent<Targeting>();
         input = player.GetRequiredComponent<PlayerInput, Player>();
         selection = player.GetRequiredComponent<PlacementSelection, Player>();
-    }
-
-    /// <inheritdoc />
-    public static Interaction Construct(Player input)
-    {
-        return new Interaction(input);
     }
 
     /// <inheritdoc />

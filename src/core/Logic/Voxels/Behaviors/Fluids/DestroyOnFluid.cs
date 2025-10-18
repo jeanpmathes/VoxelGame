@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 
@@ -12,15 +13,10 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     Breaks when filled with any fluid, both liquid and gas.
 /// </summary>
-public class DestroyOnFluid : BlockBehavior, IBehavior<DestroyOnFluid, BlockBehavior, Block>
+public partial class DestroyOnFluid : BlockBehavior, IBehavior<DestroyOnFluid, BlockBehavior, Block>
 {
+    [Constructible]
     private DestroyOnFluid(Block subject) : base(subject) {}
-
-    /// <inheritdoc />
-    public static DestroyOnFluid Construct(Block input)
-    {
-        return new DestroyOnFluid(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

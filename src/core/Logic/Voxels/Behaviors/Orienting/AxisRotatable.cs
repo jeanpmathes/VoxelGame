@@ -21,6 +21,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 /// </summary>
 public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, BlockBehavior, Block>
 {
+    [Constructible]
     private AxisRotatable(Block subject) : base(subject)
     {
         var rotatable = subject.Require<Rotatable>();
@@ -31,12 +32,6 @@ public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, Blo
     }
 
     [LateInitialization] private partial IAttribute<Axis> Axis { get; set; }
-
-    /// <inheritdoc />
-    public static AxisRotatable Construct(Block input)
-    {
-        return new AxisRotatable(input);
-    }
 
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)

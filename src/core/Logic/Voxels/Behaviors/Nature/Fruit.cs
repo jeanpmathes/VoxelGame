@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
@@ -11,16 +12,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// <summary>
 ///     A block that is grown by a plant as its fruit.
 /// </summary>
-public class Fruit : BlockBehavior, IBehavior<Fruit, BlockBehavior, Block>
+public partial class Fruit : BlockBehavior, IBehavior<Fruit, BlockBehavior, Block>
 {
+    [Constructible]
     private Fruit(Block subject) : base(subject)
     {
         subject.Require<Grounded>();
-    }
-
-    /// <inheritdoc />
-    public static Fruit Construct(Block input)
-    {
-        return new Fruit(input);
     }
 }

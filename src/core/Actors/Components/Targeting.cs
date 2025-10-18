@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Toolkit.Utilities;
@@ -16,8 +17,9 @@ namespace VoxelGame.Core.Actors.Components;
 ///     Contains the targeting information of an <see cref="Actor" />.
 ///     This does not perform any targeting logic, which requires other components.
 /// </summary>
-public class Targeting : ActorComponent, IConstructible<Actor, Targeting>
+public partial class Targeting : ActorComponent
 {
+    [Constructible]
     private Targeting(Actor subject) : base(subject) {}
 
     /// <summary>
@@ -45,12 +47,6 @@ public class Targeting : ActorComponent, IConstructible<Actor, Targeting>
     ///     The targeted fluid, or null if no fluid is targeted.
     /// </summary>
     public FluidInstance? Fluid { get; set; }
-
-    /// <inheritdoc />
-    public static Targeting Construct(Actor input)
-    {
-        return new Targeting(input);
-    }
 }
 
 /// <summary>

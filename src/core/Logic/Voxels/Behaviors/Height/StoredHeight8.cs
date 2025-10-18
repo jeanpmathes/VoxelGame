@@ -32,6 +32,7 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
     /// </summary>
     public const Int32 MaximumHeight = PartialHeight.MaximumHeight / 2;
 
+    [Constructible]
     private StoredHeight8(Block subject) : base(subject)
     {
         subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => state.Get(Height) * 2 + 1, exclusive: true);
@@ -44,13 +45,7 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
     ///     The preferred height of the block at placement.
     /// </summary>
     public ResolvedProperty<Int32> PlacementHeight { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(PlacementHeight));
-
-    /// <inheritdoc />
-    public static StoredHeight8 Construct(Block input)
-    {
-        return new StoredHeight8(input);
-    }
-
+    
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {

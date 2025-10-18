@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -21,11 +22,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 /// <summary>
 ///     For <see cref="Complex" /> blocks which use the predefined flat mesh.
 /// </summary>
-public class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Block>
+public partial class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Block>
 {
     private readonly Sided siding;
     private readonly SingleTextured texture;
 
+    [Constructible]
     private FlatModel(Block subject) : base(subject)
     {
         siding = subject.Require<Sided>();
@@ -39,12 +41,6 @@ public class FlatModel : BlockBehavior, IBehavior<FlatModel, BlockBehavior, Bloc
     ///     The width of the flat model, mainly used for collision.
     /// </summary>
     public ResolvedProperty<Double> Width { get; } = ResolvedProperty<Double>.New<Exclusive<Double, Void>>(nameof(Width), initial: 1.0);
-
-    /// <inheritdoc />
-    public static FlatModel Construct(Block input)
-    {
-        return new FlatModel(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

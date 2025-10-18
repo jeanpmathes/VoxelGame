@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -24,8 +25,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 /// <summary>
 ///     A <see cref="Complex" /> block which uses <see cref="VoxelGame.Core.Visuals.Model" />s to define its mesh.
 /// </summary>
-public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
+public partial class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
 {
+    [Constructible]
     private Modelled(Block subject) : base(subject)
     {
         Selector = Aspect<Selector, State>.New<Chaining<Selector, State>>(nameof(Selector), this);
@@ -51,12 +53,6 @@ public class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
     ///     The actually used model used for a given state of the block.
     /// </summary>
     public Aspect<Model, State> Model { get; }
-
-    /// <inheritdoc />
-    public static Modelled Construct(Block input)
-    {
-        return new Modelled(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -16,8 +17,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 ///     Provides utilities to work with stored height attributes.
 ///     Behaviors that store height information can contribute to the aspect defined here.
 /// </summary>
-public class StoredHeight : BlockBehavior, IBehavior<StoredHeight, BlockBehavior, Block>
+public partial class StoredHeight : BlockBehavior, IBehavior<StoredHeight, BlockBehavior, Block>
 {
+    [Constructible]
     private StoredHeight(Block subject) : base(subject)
     {
         HeightedState = Aspect<State, Int32>.New<Exclusive<State, Int32>>(nameof(HeightedState), this);
@@ -27,12 +29,6 @@ public class StoredHeight : BlockBehavior, IBehavior<StoredHeight, BlockBehavior
     ///     Aspect used to retrieve the state for a given height.
     /// </summary>
     public Aspect<State, Int32> HeightedState { get; }
-
-    /// <inheritdoc />
-    public static StoredHeight Construct(Block input)
-    {
-        return new StoredHeight(input);
-    }
 
     /// <summary>
     ///     Get the state with the given height applied.

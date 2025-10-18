@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -15,8 +16,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     Breaks when filled with more than a certain amount of liquid.
 /// </summary>
-public class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBehavior, Block>
+public partial class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBehavior, Block>
 {
+    [Constructible]
     private DestroyOnLiquid(Block subject) : base(subject)
     {
     }
@@ -25,12 +27,6 @@ public class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBe
     ///     The threshold above which the block breaks when filled with liquid.
     /// </summary>
     public ResolvedProperty<FluidLevel> Threshold { get; } = ResolvedProperty<FluidLevel>.New<Minimum<FluidLevel, Void>>(nameof(Threshold), FluidLevel.One);
-
-    /// <inheritdoc />
-    public static DestroyOnLiquid Construct(Block input)
-    {
-        return new DestroyOnLiquid(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

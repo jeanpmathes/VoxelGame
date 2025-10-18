@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
@@ -17,17 +18,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 /// <summary>
 ///     Salt is a solid material that can be put into fresh water to create salt water.
 /// </summary>
-public class Salt : BlockBehavior, IBehavior<Salt, BlockBehavior, Block>
+public partial class Salt : BlockBehavior, IBehavior<Salt, BlockBehavior, Block>
 {
+    [Constructible]
     private Salt(Block subject) : base(subject)
     {
         subject.Require<Fillable>().IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
-    }
-
-    /// <inheritdoc />
-    public static Salt Construct(Block input)
-    {
-        return new Salt(input);
     }
 
     /// <inheritdoc />

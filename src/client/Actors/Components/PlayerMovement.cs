@@ -7,15 +7,15 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
 ///     Implements the movement for the player.
 /// </summary>
-public class PlayerMovement : ActorComponent, IConstructible<Player, PlayerMovement>
+public partial class PlayerMovement : ActorComponent
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlayerInput input;
@@ -26,6 +26,7 @@ public class PlayerMovement : ActorComponent, IConstructible<Player, PlayerMovem
 
     private Targeter? targeter;
 
+    [Constructible]
     private PlayerMovement(Player player) : base(player)
     {
         this.player = player;
@@ -33,12 +34,6 @@ public class PlayerMovement : ActorComponent, IConstructible<Player, PlayerMovem
         input = player.GetRequiredComponent<PlayerInput, Player>();
 
         strategy = new DefaultMovement(player, input, flyingSpeed: 1.0);
-    }
-
-    /// <inheritdoc />
-    public static PlayerMovement Construct(Player input)
-    {
-        return new PlayerMovement(input);
     }
 
     /// <summary>

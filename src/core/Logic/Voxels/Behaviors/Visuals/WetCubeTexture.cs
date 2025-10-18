@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -17,8 +18,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 ///     Behavior that swaps out the texture of a block when it is wet.
 ///     Uses the <see cref="CubeTextured" /> behavior.
 /// </summary>
-public class WetCubeTexture : BlockBehavior, IBehavior<WetCubeTexture, BlockBehavior, Block>
+public partial class WetCubeTexture : BlockBehavior, IBehavior<WetCubeTexture, BlockBehavior, Block>
 {
+    [Constructible]
     private WetCubeTexture(Block subject) : base(subject)
     {
         subject.Require<Wet>();
@@ -29,12 +31,6 @@ public class WetCubeTexture : BlockBehavior, IBehavior<WetCubeTexture, BlockBeha
     ///     The texture layout to use when the block is wet.
     /// </summary>
     public ResolvedProperty<TextureLayout> WetTexture { get; } = ResolvedProperty<TextureLayout>.New<Exclusive<TextureLayout, Void>>(nameof(WetTexture), TextureLayout.Uniform(TID.MissingTexture));
-
-    /// <inheritdoc />
-    public static WetCubeTexture Construct(Block input)
-    {
-        return new WetCubeTexture(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

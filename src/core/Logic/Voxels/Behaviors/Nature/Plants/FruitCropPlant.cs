@@ -33,6 +33,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
 
     private Block fruit = null!;
 
+    [Constructible]
     private FruitCropPlant(Block subject) : base(subject)
     {
         plant = subject.Require<GrowingPlant>();
@@ -53,12 +54,6 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
     ///     The fruit block.
     /// </summary>
     public ResolvedProperty<CID?> Fruit { get; } = ResolvedProperty<CID?>.New<Exclusive<CID?, Void>>(nameof(Fruit));
-
-    /// <inheritdoc />
-    public static FruitCropPlant Construct(Block input)
-    {
-        return new FruitCropPlant(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

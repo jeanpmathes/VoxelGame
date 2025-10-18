@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
@@ -17,18 +18,13 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// <summary>
 ///     A special soil cover that spreads to blocks which are <see cref="GrassSpreadable" />.
 /// </summary>
-public class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
+public partial class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Block>
 {
+    [Constructible]
     private Grass(Block subject) : base(subject)
     {
         subject.Require<CoveredSoil>();
         subject.Require<Combustible>();
-    }
-
-    /// <inheritdoc />
-    public static Grass Construct(Block input)
-    {
-        return new Grass(input);
     }
 
     /// <inheritdoc />

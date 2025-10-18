@@ -33,6 +33,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     private const UInt32 UpdateOffset = 150;
     private const UInt32 UpdateVariation = 25;
 
+    [Constructible]
     private Fire(Block subject) : base(subject)
     {
         subject.Require<Meshed>().IsAnimated.ContributeConstant(value: true);
@@ -58,12 +59,6 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     ///     The models used for the block.
     /// </summary>
     public ResolvedProperty<(RID complete, RID side, RID top)> Models { get; } = ResolvedProperty<(RID, RID, RID)>.New<Exclusive<(RID, RID, RID), Void>>(nameof(Models));
-
-    /// <inheritdoc />
-    public static Fire Construct(Block input)
-    {
-        return new Fire(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

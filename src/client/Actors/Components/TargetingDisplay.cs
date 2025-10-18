@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
@@ -14,14 +15,13 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
 ///     Displays the information in <see cref="Targeting" /> in the world.
 /// </summary>
-public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, TargetingDisplay>
+public partial class TargetingDisplay : ActorComponent
 {
     private readonly TargetingBoxEffect effect;
     private readonly Player player;
@@ -29,6 +29,7 @@ public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, T
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
 
+    [Constructible]
     private TargetingDisplay(Player player, Engine engine) : base(player)
     {
         this.player = player;
@@ -36,12 +37,6 @@ public class TargetingDisplay : ActorComponent, IConstructible<Player, Engine, T
         effect = engine.TargetingBoxPipeline.CreateEffect();
 
         targeting = player.GetRequiredComponent<Targeting>();
-    }
-
-    /// <inheritdoc />
-    public static TargetingDisplay Construct(Player input1, Engine input2)
-    {
-        return new TargetingDisplay(input1, input2);
     }
 
     /// <inheritdoc />

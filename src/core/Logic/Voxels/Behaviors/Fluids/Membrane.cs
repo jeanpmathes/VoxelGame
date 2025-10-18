@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -18,8 +19,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// <summary>
 ///     Controls inflow into the block, allowing to filter out which fluids can pass through.
 /// </summary>
-public class Membrane : BlockBehavior, IBehavior<Membrane, BlockBehavior, Block>
+public partial class Membrane : BlockBehavior, IBehavior<Membrane, BlockBehavior, Block>
 {
+    [Constructible]
     private Membrane(Block subject) : base(subject)
     {
         subject.Require<Fillable>().IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
@@ -29,12 +31,6 @@ public class Membrane : BlockBehavior, IBehavior<Membrane, BlockBehavior, Block>
     ///     Only fluids with a viscosity less than this value can flow into the block.
     /// </summary>
     public ResolvedProperty<Int32> MaxViscosity { get; } = ResolvedProperty<Int32>.New<Minimum<Int32, Void>>(nameof(MaxViscosity), initial: 1000);
-
-    /// <inheritdoc />
-    public static Membrane Construct(Block input)
-    {
-        return new Membrane(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

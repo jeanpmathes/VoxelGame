@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
@@ -13,17 +14,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// <summary>
 ///     When <see cref="Soil" /> gets filled with too much water, it turns into <see cref="Mud" />.
 /// </summary>
-public class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
+public partial class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
 {
+    [Constructible]
     private Mud(Block subject) : base(subject)
     {
         subject.Require<Plantable>();
-    }
-
-    /// <inheritdoc />
-    public static Mud Construct(Block input)
-    {
-        return new Mud(input);
     }
 
     /// <inheritdoc />

@@ -17,6 +17,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Siding;
 /// </summary>
 public partial class StoredMultiSided : BlockBehavior, IBehavior<StoredMultiSided, BlockBehavior, Block>
 {
+    [Constructible]
     private StoredMultiSided(Block subject) : base(subject)
     {
         var sided = subject.Require<Sided>();
@@ -25,12 +26,6 @@ public partial class StoredMultiSided : BlockBehavior, IBehavior<StoredMultiSide
     }
 
     [LateInitialization] private partial IAttribute<Sides> Sides { get; set; }
-
-    /// <inheritdoc />
-    public static StoredMultiSided Construct(Block input)
-    {
-        return new StoredMultiSided(input);
-    }
 
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)

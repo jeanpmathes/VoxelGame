@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Core.Actors;
 using VoxelGame.Graphics.Input.Actions;
@@ -18,7 +19,7 @@ namespace VoxelGame.Client.Actors.Components;
 /// <summary>
 ///     Defines all player input actions and provides methods to easily retrieve information about the player's input.
 /// </summary>
-public sealed class PlayerInput : ActorComponent, IConstructible<Player, PlayerInput>
+public sealed partial class PlayerInput : ActorComponent
 {
     private const Single InteractionCooldown = 0.25f;
 
@@ -38,6 +39,7 @@ public sealed class PlayerInput : ActorComponent, IConstructible<Player, PlayerI
 
     private Double timer;
 
+    [Constructible]
     private PlayerInput(Player player) : base(player)
     {
         KeybindManager keybinds = player.Scene.Client.Keybinds;
@@ -84,12 +86,6 @@ public sealed class PlayerInput : ActorComponent, IConstructible<Player, PlayerI
     internal Boolean ShouldSelectTargeted => selectTargetedButton.IsDown;
 
     internal Boolean IsInteractionBlocked => blockInteractButton.IsDown;
-
-    /// <inheritdoc />
-    public static PlayerInput Construct(Player input)
-    {
-        return new PlayerInput(input);
-    }
 
     /// <summary>
     ///     Get the movement decided by the user input for an orientable object.

@@ -7,9 +7,9 @@
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes.Components;
@@ -17,7 +17,7 @@ namespace VoxelGame.Client.Scenes.Components;
 /// <summary>
 ///     Attaches a <see cref="UserInterface" /> to a <see cref="Scene" />.
 /// </summary>
-public class UserInterfaceHook : SceneComponent, IConstructible<Scene, UserInterface, UserInterfaceHook>
+public partial class UserInterfaceHook : SceneComponent
 {
     #region LOGGING
 
@@ -27,15 +27,10 @@ public class UserInterfaceHook : SceneComponent, IConstructible<Scene, UserInter
 
     private readonly UserInterface ui;
 
+    [Constructible]
     private UserInterfaceHook(Scene subject, UserInterface ui) : base(subject)
     {
         this.ui = ui;
-    }
-
-    /// <inheritdoc />
-    public static UserInterfaceHook Construct(Scene input1, UserInterface input2)
-    {
-        return new UserInterfaceHook(input1, input2);
     }
 
     /// <inheritdoc />

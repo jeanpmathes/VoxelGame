@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -24,10 +25,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 /// <summary>
 ///     A thin block that connects to other blocks along its lateral sides.
 /// </summary>
-public class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, BlockBehavior, Block>
+public partial class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, BlockBehavior, Block>
 {
     private readonly Connecting connecting;
 
+    [Constructible]
     private ThinConnecting(Block subject) : base(subject)
     {
         connecting = subject.Require<Connecting>();
@@ -41,12 +43,6 @@ public class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, BlockBeha
     ///     The models used for the block.
     /// </summary>
     public ResolvedProperty<(RID post, RID side, RID extension)> Models { get; } = ResolvedProperty<(RID, RID, RID)>.New<Exclusive<(RID, RID, RID), Void>>(nameof(Models));
-
-    /// <inheritdoc />
-    public static ThinConnecting Construct(Block input)
-    {
-        return new ThinConnecting(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

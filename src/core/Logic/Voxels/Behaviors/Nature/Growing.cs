@@ -29,6 +29,7 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
     private const Int32 MaxHeight = 4;
     private Block requiredGround = null!;
 
+    [Constructible]
     private Growing(Block subject) : base(subject)
     {
         subject.IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
@@ -40,12 +41,6 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
     ///     The required ground block.
     /// </summary>
     public ResolvedProperty<CID?> RequiredGround { get; } = ResolvedProperty<CID?>.New<Exclusive<CID?, Void>>(nameof(RequiredGround));
-
-    /// <inheritdoc />
-    public static Growing Construct(Block input)
-    {
-        return new Growing(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

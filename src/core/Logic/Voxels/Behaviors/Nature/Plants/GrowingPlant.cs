@@ -22,6 +22,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 /// </summary>
 public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, BlockBehavior, Block>
 {
+    [Constructible]
     private GrowingPlant(Block subject) : base(subject)
     {
         subject.Require<Plant>();
@@ -49,12 +50,6 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     private Int32 MatureStage => StageCount.Get() - 1;
 
     [LateInitialization] private partial IEvent<IMatureUpdateMessage> MatureUpdate { get; set; }
-
-    /// <inheritdoc />
-    public static GrowingPlant Construct(Block input)
-    {
-        return new GrowingPlant(input);
-    }
 
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)

@@ -7,18 +7,18 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Graphics.Objects;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
 /// <summary>
 ///     Rotates the player head and camera based on mouse input.
 /// </summary>
-public class PlayerRotator : ActorComponent, IConstructible<Player, PlayerRotator>
+public partial class PlayerRotator : ActorComponent
 {
     private readonly Camera camera;
 
@@ -28,6 +28,7 @@ public class PlayerRotator : ActorComponent, IConstructible<Player, PlayerRotato
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Transform transform;
 
+    [Constructible]
     private PlayerRotator(Player player) : base(player)
     {
         this.player = player;
@@ -36,12 +37,6 @@ public class PlayerRotator : ActorComponent, IConstructible<Player, PlayerRotato
         camera = player.Camera;
 
         transform = player.GetRequiredComponent<Transform>();
-    }
-
-    /// <inheritdoc />
-    public static PlayerRotator Construct(Player input)
-    {
-        return new PlayerRotator(input);
     }
 
     /// <inheritdoc />

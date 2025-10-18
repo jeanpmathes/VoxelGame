@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Input.Actions;
@@ -15,22 +16,17 @@ namespace VoxelGame.Client.Application.Components;
 /// <summary>
 ///     Toggles the fullscreen mode of the client.
 /// </summary>
-public class FullscreenToggle : ApplicationComponent, IConstructible<Client, FullscreenToggle>
+public partial class FullscreenToggle : ApplicationComponent
 {
     private readonly ToggleButton button;
     private readonly Client client;
 
+    [Constructible]
     private FullscreenToggle(Client client) : base(client)
     {
         this.client = client;
 
         button = client.Keybinds.GetToggle(client.Keybinds.Fullscreen);
-    }
-
-    /// <inheritdoc />
-    public static FullscreenToggle Construct(Client input)
-    {
-        return new FullscreenToggle(input);
     }
 
     /// <inheritdoc />

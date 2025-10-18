@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -17,8 +18,9 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 /// <summary>
 ///     Override the texture provided by models with custom textures.
 /// </summary>
-public class TextureOverride : BlockBehavior, IBehavior<TextureOverride, BlockBehavior, Block>
+public partial class TextureOverride : BlockBehavior, IBehavior<TextureOverride, BlockBehavior, Block>
 {
+    [Constructible]
     private TextureOverride(Block subject) : base(subject)
     {
     }
@@ -27,12 +29,6 @@ public class TextureOverride : BlockBehavior, IBehavior<TextureOverride, BlockBe
     ///     Optional textures to override the texture provided by a model.
     /// </summary>
     public ResolvedProperty<IReadOnlyDictionary<Int32, TID>?> Textures { get; } = ResolvedProperty<IReadOnlyDictionary<Int32, TID>?>.New<Exclusive<IReadOnlyDictionary<Int32, TID>?, Void>>(nameof(Textures));
-
-    /// <inheritdoc />
-    public static TextureOverride Construct(Block input)
-    {
-        return new TextureOverride(input);
-    }
 
     /// <summary>
     ///     Override all textures with the given replacement texture.

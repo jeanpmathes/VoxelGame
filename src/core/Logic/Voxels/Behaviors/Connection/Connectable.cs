@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -18,7 +19,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 ///     Allows blocks like fences, walls and such to connect to this block.
 ///     Connectivity may only occur on the lateral sides of the block.
 /// </summary>
-public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, Block>
+public partial class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, Block>
 {
     /// <summary>
     ///     The connection strength of this block.
@@ -51,6 +52,7 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
         All = Thin | Wide
     }
 
+    [Constructible]
     private Connectable(Block subject) : base(subject)
     {
         IsConnectionAllowed = Aspect<Boolean, (Side, State)>.New<ANDing<(Side, State)>>(nameof(IsConnectionAllowed), this);
@@ -65,12 +67,6 @@ public class Connectable : BlockBehavior, IBehavior<Connectable, BlockBehavior, 
     ///     Whether connection to this block is allowed in the given state.
     /// </summary>
     public Aspect<Boolean, (Side side, State state)> IsConnectionAllowed { get; }
-
-    /// <inheritdoc />
-    public static Connectable Construct(Block input)
-    {
-        return new Connectable(input);
-    }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

@@ -28,6 +28,7 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
     private readonly Connectable connectable;
     private readonly LateralRotatable rotatable;
 
+    [Constructible]
     private Gate(Block subject) : base(subject)
     {
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
@@ -45,12 +46,6 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
     }
 
     [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
-
-    /// <inheritdoc />
-    public static Gate Construct(Block input)
-    {
-        return new Gate(input);
-    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

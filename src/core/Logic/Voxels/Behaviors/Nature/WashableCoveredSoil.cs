@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
@@ -13,21 +14,16 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// <summary>
 ///     Extends <see cref="CoveredSoil" /> to remove the cover when becoming wet.
 /// </summary>
-public class WashableCoveredSoil : BlockBehavior, IBehavior<WashableCoveredSoil, BlockBehavior, Block>
+public partial class WashableCoveredSoil : BlockBehavior, IBehavior<WashableCoveredSoil, BlockBehavior, Block>
 {
     private readonly CoveredSoil soil;
 
+    [Constructible]
     private WashableCoveredSoil(Block subject) : base(subject)
     {
         subject.Require<Wet>();
 
         soil = subject.Require<CoveredSoil>();
-    }
-
-    /// <inheritdoc />
-    public static WashableCoveredSoil Construct(Block input)
-    {
-        return new WashableCoveredSoil(input);
     }
 
     /// <inheritdoc />

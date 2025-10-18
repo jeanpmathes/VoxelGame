@@ -1,5 +1,6 @@
 ﻿using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -13,17 +14,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors;
 /// <summary>
 ///     Adapts the Grounded behavior for composite blocks.
 /// </summary>
-public class CompositeGrounded : BlockBehavior, IBehavior<CompositeGrounded, BlockBehavior, Block>
+public partial class CompositeGrounded : BlockBehavior, IBehavior<CompositeGrounded, BlockBehavior, Block>
 {
+    [Constructible]
     private CompositeGrounded(Block subject) : base(subject)
     {
         subject.Require<Composite>().IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
-    }
-
-    /// <inheritdoc />
-    public static CompositeGrounded Construct(Block input)
-    {
-        return new CompositeGrounded(input);
     }
 
     /// <inheritdoc />

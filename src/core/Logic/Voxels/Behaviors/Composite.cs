@@ -27,6 +27,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 {
     private Boolean isRotatable;
 
+    [Constructible]
     private Composite(Block subject) : base(subject)
     {
         Size = Aspect<Vector3i, State>.New<Exclusive<Vector3i, State>>(nameof(Size), this);
@@ -73,12 +74,6 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     [LateInitialization] private partial IEvent<INeighborUpdateMessage> NeighborUpdate { get; set; }
 
     [LateInitialization] private partial IEvent<IPlacementCompletedMessage> PlacementCompleted { get; set; }
-
-    /// <inheritdoc />
-    public static Composite Construct(Block input)
-    {
-        return new Composite(input);
-    }
 
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)

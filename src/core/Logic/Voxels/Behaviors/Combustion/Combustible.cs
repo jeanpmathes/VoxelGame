@@ -17,15 +17,10 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 /// </summary>
 public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBehavior, Block>
 {
+    [Constructible]
     private Combustible(Block subject) : base(subject) {}
 
     [LateInitialization] private partial IEvent<IBurnMessage> Burn { get; set; }
-
-    /// <inheritdoc />
-    public static Combustible Construct(Block input)
-    {
-        return new Combustible(input);
-    }
 
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)

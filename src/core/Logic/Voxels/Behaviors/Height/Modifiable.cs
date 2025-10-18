@@ -17,15 +17,10 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 /// </summary>
 public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBehavior, Block>
 {
+    [Constructible]
     private Modifiable(Block subject) : base(subject) {}
 
     [LateInitialization] private partial IEvent<IModifyHeightMessage> ModifyHeight { get; set; }
-
-    /// <inheritdoc />
-    public static Modifiable Construct(Block input)
-    {
-        return new Modifiable(input);
-    }
 
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)

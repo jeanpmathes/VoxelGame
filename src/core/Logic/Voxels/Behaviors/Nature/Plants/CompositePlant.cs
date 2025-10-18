@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -18,17 +19,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 /// <summary>
 ///     Glue behavior for plants that are made up of multiple parts.
 /// </summary>
-public class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBehavior, Block>
+public partial class CompositePlant : BlockBehavior, IBehavior<CompositePlant, BlockBehavior, Block>
 {
+    [Constructible]
     private CompositePlant(Block subject) : base(subject)
     {
         subject.Require<Composite>().IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
-    }
-
-    /// <inheritdoc />
-    public static CompositePlant Construct(Block input)
-    {
-        return new CompositePlant(input);
     }
 
     /// <inheritdoc />

@@ -6,6 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
@@ -19,19 +20,14 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 ///     Blocks with this behavior are soil blocks that are covered with something.
 ///     Some conditions like placement of a block on top remove the covering, turning the block into a regular soil block.
 /// </summary>
-public class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, Block>
+public partial class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBehavior, Block>
 {
+    [Constructible]
     private CoveredSoil(Block subject) : base(subject)
     {
         subject.Require<Soil>();
 
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
-    }
-
-    /// <inheritdoc />
-    public static CoveredSoil Construct(Block input)
-    {
-        return new CoveredSoil(input);
     }
 
     /// <inheritdoc />

@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
@@ -20,7 +21,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 /// <summary>
 ///     Corresponds to <see cref="Meshable.Foliage" />.
 /// </summary>
-public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, IMeshable
+public partial class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, IMeshable
 {
     /// <summary>
     ///     Defines the layout of the foliage mesh.
@@ -70,6 +71,7 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
     private readonly Meshed meshed;
     private readonly SingleTextured textured;
 
+    [Constructible]
     private Foliage(Block subject) : base(subject)
     {
         meshed = subject.Require<Meshed>();
@@ -96,12 +98,6 @@ public class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, 
     ///     filling a full block position.
     /// </summary>
     public Aspect<Boolean, State> IsLowered { get; }
-
-    /// <inheritdoc />
-    public static Foliage Construct(Block input)
-    {
-        return new Foliage(input);
-    }
 
     /// <inheritdoc />
     public Meshable Type => Meshable.Foliage;
