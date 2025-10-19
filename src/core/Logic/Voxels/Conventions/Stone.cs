@@ -140,7 +140,6 @@ public static class StoneConvention
                     .WithBehavior<Wall>()
                     .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
-                    .WithBehavior<Fillable>()
                     .Complete(),
 
                 BrickWall = builder
@@ -148,7 +147,6 @@ public static class StoneConvention
                     .WithBehavior<Wall>()
                     .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))
-                    .WithBehavior<Fillable>()
                     .Complete()
             };
         });

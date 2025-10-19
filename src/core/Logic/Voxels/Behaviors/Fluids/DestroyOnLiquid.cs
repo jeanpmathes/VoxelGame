@@ -21,6 +21,7 @@ public partial class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid,
     [Constructible]
     private DestroyOnLiquid(Block subject) : base(subject)
     {
+        subject.Require<Fillable>();
     }
 
     /// <summary>

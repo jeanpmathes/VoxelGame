@@ -11,6 +11,7 @@ using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Physics;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
@@ -27,6 +28,8 @@ public partial class Fence : BlockBehavior, IBehavior<Fence, BlockBehavior, Bloc
     {
         subject.Require<WideConnecting>();
         connecting = subject.Require<Connecting>();
+
+        subject.Require<Fillable>();
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
     }

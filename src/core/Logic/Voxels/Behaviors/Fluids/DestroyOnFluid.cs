@@ -16,7 +16,10 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 public partial class DestroyOnFluid : BlockBehavior, IBehavior<DestroyOnFluid, BlockBehavior, Block>
 {
     [Constructible]
-    private DestroyOnFluid(Block subject) : base(subject) {}
+    private DestroyOnFluid(Block subject) : base(subject)
+    {
+        subject.Require<Fillable>();
+    }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

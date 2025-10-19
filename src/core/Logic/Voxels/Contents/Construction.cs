@@ -135,6 +135,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
             attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).ToFlag());
             attached.AttachedState.ContributeFunction((_, context) => context.sides.SingleOrDefault() is {} side ? siding.SetSide(context.state, side) : null);
         })
+        .WithBehavior<Fillable>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
         .Complete();
@@ -158,6 +159,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
         .BuildComplexBlock(new CID(nameof(GlassPane)), Language.GlassPane)
         .WithBehavior<Glass>()
         .WithBehavior<ThinConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("pane_glass_post"), RID.File<Model>("pane_glass_side"), RID.File<Model>("pane_glass_extension"))))
+        .WithBehavior<Fillable>()
         .Complete();
 
     /// <summary>
@@ -166,6 +168,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     public Block Bars { get; } = builder
         .BuildComplexBlock(new CID(nameof(Bars)), Language.Bars)
         .WithBehavior<ThinConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("bars_post"), RID.File<Model>("bars_side"), RID.File<Model>("bars_extension"))))
+        .WithBehavior<Fillable>()
         .Complete();
 
     /// <summary>

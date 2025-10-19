@@ -20,8 +20,6 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 /// </summary>
 public partial class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior, Block>
 {
-    // todo: go through all blocks and determine whether they should be fillable
-    
     [Constructible]
     private Fillable(Block subject) : base(subject)
     {
