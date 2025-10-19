@@ -160,7 +160,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<NeutralTint>()
         .WithBehavior<CrossPlant>(plant => plant.Height.Initializer.ContributeConstant(value: 0.5))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
-        .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
+        .WithProperties(flags => flags.Substance.ContributeConstant(Substance.Replaceable))
         .Complete();
 
     /// <summary>
@@ -172,7 +172,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<NeutralTint>()
         .WithBehavior<CrossPlant>()
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
-        .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
+        .WithProperties(flags => flags.Substance.ContributeConstant(Substance.Replaceable))
         .Complete();
 
     /// <summary>

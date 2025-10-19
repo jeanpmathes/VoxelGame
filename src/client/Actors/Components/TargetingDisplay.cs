@@ -68,7 +68,7 @@ public partial class TargetingDisplay : ActorComponent
             Boolean visualized = !state.Value.IsReplaceable;
 
             if (Core.App.Application.Instance.IsDebug)
-                visualized |= block != Blocks.Instance.Core.Air;
+                visualized |= !block.IsEmpty;
 
             collider = visualized ? block.GetCollider(world, position.Value) : null;
         }

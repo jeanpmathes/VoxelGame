@@ -39,7 +39,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 {
     private const Int32 ScheduledDestroyOffset = 5;
 
-    private Boolean isReplaceable;
+    private Substance substance;
 
     private BoundingVolume? placementBoundingVolume;
     private Boolean receivesCollisions;
@@ -258,7 +258,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         IsOpaque = properties.IsOpaque.GetValue(original: true, this);
         MeshFaceAtNonOpaques = properties.MeshFaceAtNonOpaques.GetValue(original: false, this);
         IsSolid = properties.IsSolid.GetValue(original: true, this);
-        isReplaceable = properties.IsReplaceable.GetValue(original: false, this);
+        substance = properties.Substance.GetValue(Substance.Normal, this);
         IsUnshaded = properties.IsUnshaded.GetValue(original: false, this);
     }
 
@@ -391,8 +391,14 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <returns><c>true</c> if the block can be replaced, <c>false</c> otherwise.</returns>
     public Boolean IsReplaceable(State state)
     {
-        return isReplaceable;
+        return substance is Substance.Replaceable or Substance.Empty;
     }
+    
+    /// <summary>
+    /// Get whether the block is fully empty, meaning it has no substance.
+    /// This also implies that the block is replaceable in any state.
+    /// </summary>
+    public Boolean IsEmpty => substance == Substance.Empty;
 
     /// <summary>
     ///     This method is called when an actor collides with this block.

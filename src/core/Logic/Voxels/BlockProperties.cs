@@ -32,14 +32,15 @@ public class BlockProperties(Block subject)
     ///     Whether this block hinders movement.
     /// </summary>
     public Aspect<Boolean, Block> IsSolid { get; } = Aspect<Boolean, Block>.New<ANDing<Block>>(nameof(IsSolid), subject);
-
-    /// <summary>
-    ///     Whether this block can be replaced when placing a block.
-    /// </summary>
-    public Aspect<Boolean, Block> IsReplaceable { get; } = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(IsReplaceable), subject);
-
+    
     /// <summary>
     ///     Gets whether this block is unshaded, which means it does not receive shadows.
     /// </summary>
     public Aspect<Boolean, Block> IsUnshaded { get; } = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(IsUnshaded), subject);
+    
+    /// <summary>
+    ///     Gets how replaceable this block is.
+    /// </summary>
+    public Aspect<Substance, Block> Substance { get; } = Aspect<Substance, Block>.New<Exclusive<Substance, Block>>(nameof(Substance), subject);
+
 }

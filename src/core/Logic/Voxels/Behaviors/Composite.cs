@@ -98,7 +98,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     {
         MaximumSize.Initialize(this);
 
-        properties.IsReplaceable.ContributeConstant(value: false, exclusive: true);
+        properties.Substance.ContributeConstant(Substance.Normal);
     }
 
     /// <inheritdoc />

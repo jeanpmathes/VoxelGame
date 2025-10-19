@@ -71,7 +71,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        properties.IsReplaceable.ContributeConstant(value: true);
+        properties.Substance.ContributeConstant(Substance.Replaceable);
         properties.IsUnshaded.ContributeConstant(value: true);
         properties.IsOpaque.ContributeConstant(value: false);
 

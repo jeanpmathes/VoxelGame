@@ -76,7 +76,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
         {
             message.World.SetBlock(message.State.With(Age, currentAge + 1), message.Position);
         }
-        else if (message.World.GetBlock(message.Position.Below())?.Block == Blocks.Instance.Core.Air) // todo: replace all air checks with checks for an empty behavior or maybe a new empty block flag, describe difference to replaceable
+        else if (message.World.GetBlock(message.Position.Below())?.Block.IsEmpty == true)
         {
             message.World.SetBlock(message.State.With(Age, value: 0), message.Position.Below());
             message.World.SetBlock(message.State.With(Age, value: 0), message.Position);

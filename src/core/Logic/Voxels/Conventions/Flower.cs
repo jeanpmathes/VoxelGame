@@ -62,7 +62,7 @@ public static class FlowerConvention
                         plant.Width.Initializer.ContributeConstant(value: 0.35);
                     })
                     .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
-                    .WithProperties(flags => flags.IsReplaceable.ContributeConstant(value: true))
+                    .WithProperties(flags => flags.Substance.ContributeConstant(Substance.Replaceable))
                     .Complete(),
 
                 Tall = builder
