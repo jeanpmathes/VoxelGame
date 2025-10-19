@@ -139,9 +139,9 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
         Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
+        
         Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
-
-        // todo: allow animation here, set the bit, add it to the wiki, check that shader supports it
+        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
 
         if (side is not (Side.Top or Side.Bottom))
         {
