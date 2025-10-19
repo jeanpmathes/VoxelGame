@@ -324,10 +324,11 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <param name="textureIndexProvider">The texture index provider to use for the block.</param>
     /// <param name="modelProvider">The model provider to use for the block.</param>
     /// <param name="visuals">The visual configuration to use for the block.</param>
-    public void Activate(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
+    /// <param name="validator">The validator to use for validation.</param>
+    public void Activate(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IValidator validator)
     {
         BuildBoundingVolumes();
-        BuildMeshes(textureIndexProvider, modelProvider, visuals);
+        BuildMeshes(textureIndexProvider, modelProvider, visuals, validator);
     }
 
     /// <summary>
@@ -789,7 +790,8 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <param name="textureIndexProvider">The texture index provider to use for the block.</param>
     /// <param name="modelProvider">The model provider to use for the block.</param>
     /// <param name="visuals">The visual configuration to use for the block.</param>
-    protected abstract void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals);
+    /// <param name="validator"></param>
+    protected abstract void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IValidator validator);
 
     /// <summary>
     ///     Mesh this block and add the created mesh data to the context.

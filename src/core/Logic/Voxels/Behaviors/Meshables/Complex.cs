@@ -40,19 +40,16 @@ public partial class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, 
     public Meshable Type => Meshable.Complex;
 
     /// <summary>
-    ///     Get the mesh data for a given state of the block.
+    ///     Get the mesh data in a given context.
     /// </summary>
-    /// <param name="state">The state to get the mesh data for.</param>
-    /// <param name="textureIndexProvider">Provides texture indices for the block.</param>
-    /// <param name="modelProvider">Provides models for the block.</param>
-    /// <param name="visuals">The visual configuration for the block.</param>
-    /// <returns>The mesh data for the given state.</returns>
-    public MeshData GetMeshData(State state, ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
+    /// <param name="context">The mesh context.</param>
+    /// <returns>The mesh data for the given context.</returns>
+    public MeshData GetMeshData(MeshContext context)
     {
-        ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
-        Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
+        ColorS tint = meshed.Tint.GetValue(ColorS.None, context.State);
+        Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, context.State);
 
-        Mesh mesh = Mesh.GetValue(Meshes.CreateFallback(), new MeshContext(state, textureIndexProvider, modelProvider));
+        Mesh mesh = Mesh.GetValue(Meshes.CreateFallback(), context);
         Mesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);
 
         return new MeshData(quads, quadCount, tint, isAnimated);

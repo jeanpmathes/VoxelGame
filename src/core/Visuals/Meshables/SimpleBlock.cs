@@ -60,7 +60,7 @@ public class SimpleBlock : Block, IOverlayTextureProvider
     protected override void OnValidate(IValidator validator) {}
 
     /// <inheritdoc />
-    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
+    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IValidator validator)
     {
         foreach (Side side in Side.All.Sides())
         {

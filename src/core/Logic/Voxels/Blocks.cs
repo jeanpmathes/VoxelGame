@@ -104,9 +104,12 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         }
         
         BehaviorSystem<Block, BlockBehavior>.Bake(validator);
-        
+
         foreach (Block block in builder.BlocksByID)
-            block.Activate(textureIndexProvider, modelProvider, visuals);
+        {
+            validator.SetScope(block);
+            block.Activate(textureIndexProvider, modelProvider, visuals, validator);
+        }
 
         if (validator.HasError) return [];
         

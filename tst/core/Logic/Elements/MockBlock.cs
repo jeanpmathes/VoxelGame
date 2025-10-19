@@ -20,7 +20,7 @@ public class MockBlock() : Block(blockID: 0, new CID(nameof(MockBlock)), "Mock B
 
     protected override void OnValidate(IValidator validator) {}
 
-    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals) {}
+    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IValidator validator) {}
 
     public override void Mesh(Vector3i position, State state, MeshingContext context) {}
 }

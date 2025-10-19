@@ -17,7 +17,6 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Toolkit.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
@@ -78,7 +77,28 @@ public partial class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior
 
         Selector selector = Selector.GetValue(original: default, state);
 
-        RID layer = Layers.Get()[selector.Layer]; // todo: handle out of bounds access
+        IReadOnlyList<RID> layers = Layers.Get();
+
+        if (layers.Count == 0)
+        {
+            // No layers defined; fallback to original mesh, see validation.
+            
+            return original;
+        }
+
+        Int32 layerIndex = selector.Layer;
+
+        if (layerIndex >= layers.Count)
+        {
+            const Int32 fallbackIndex = 0;
+            
+            // Note that GetMesh is called during initialization as all meshes are precomputed, so doing validation is fine.
+            context.Validator.ReportWarning($"Selected layer {layerIndex} out of range for modelled block (max {layers.Count - 1}), using layer {fallbackIndex} instead");
+
+            layerIndex = fallbackIndex;
+        }
+
+        RID layer = layers[layerIndex];
 
         Model model = context.ModelProvider.GetModel(layer, selector.Part);
 

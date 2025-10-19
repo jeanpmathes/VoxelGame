@@ -12,6 +12,7 @@ using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -38,7 +39,7 @@ public class ComplexBlock : Block
     protected override void OnValidate(IValidator validator) {}
 
     /// <inheritdoc />
-    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals)
+    protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IValidator validator)
     {
         meshData = new Complex.MeshData[States.Count];
 
@@ -53,7 +54,7 @@ public class ComplexBlock : Block
                 continue;
             }
 
-            Complex.MeshData mesh = complex.GetMeshData(state, textureIndexProvider, modelProvider, visuals);
+            Complex.MeshData mesh = complex.GetMeshData(new MeshContext(state, textureIndexProvider, modelProvider, validator));
             BuildMeshData(mesh);
             meshData[index] = mesh;
         }
