@@ -79,4 +79,18 @@ public static class AxisExtensions
             _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
+    
+    /// <summary>
+    ///     Get the unit vector of the axis as a <see cref="Vector3d" />.
+    /// </summary>
+    public static Vector3d ToVector3d(this Axis axis)
+    {
+        return axis switch
+        {
+            Axis.X => Vector3d.UnitX,
+            Axis.Y => Vector3d.UnitY,
+            Axis.Z => Vector3d.UnitZ,
+            _ => throw Exceptions.UnsupportedEnumValue(axis)
+        };
+    }
 }

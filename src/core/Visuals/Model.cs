@@ -264,7 +264,7 @@ public sealed partial class Model : IResource, ILocated
     /// <returns>The model for the given orientation.</returns>
     public Model CreateModelForOrientation(Orientation orientation, TransformationMode mode = TransformationMode.Rotate)
     {
-        return CreateModelForSide(orientation.ToSide().Opposite(), mode);
+        return CreateModelForSide(orientation.Rotate().Rotate().ToSide(), mode);
     }
 
     /// <summary>
@@ -278,10 +278,10 @@ public sealed partial class Model : IResource, ILocated
         return axis switch
         {
             Axis.Z => this,
-            
+
             Axis.X => CreateModelForSide(Side.Left, mode),
             Axis.Y => CreateModelForSide(Side.Bottom, mode),
-            
+
             _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
@@ -294,65 +294,52 @@ public sealed partial class Model : IResource, ILocated
     /// <returns>The model for the given side.</returns>
     public Model CreateModelForSide(Side side, TransformationMode mode = TransformationMode.Rotate)
     {
+        // Pretty sure this is correct, so if there is any issue it's probably the individual model.
+        
+        (Axis axis, Int32 turns) = side switch
+        {
+            Side.Front => (Axis.Y, 0),
+            Side.Back => (Axis.Y, 2),
+            Side.Left => (Axis.Y, 1),
+            Side.Right => (Axis.Y, 3),
+            Side.Bottom => (Axis.X, 3),
+            Side.Top => (Axis.X, 1),
+            _ => throw Exceptions.UnsupportedEnumValue(side)
+        };
+
+        return CreateModelFor(axis, turns, mode: mode);
+    }
+    
+    /// <summary>
+    /// Create a model for the given axis and turns, under the assumption that the original model is for the front side.
+    /// </summary>
+    /// <param name="axis">The axis to rotate around.</param>
+    /// <param name="turns">The number of 90° clockwise turns to apply.</param>
+    /// <param name="mode">The transformation mode to use.</param>
+    /// <returns>The rotated model.</returns>
+    public Model CreateModelFor(Axis axis, Int32 turns, TransformationMode mode = TransformationMode.Rotate)
+    {
+        turns = MathTools.Mod(turns, m: 4);
+        
         Model copy = new(this);
 
-        Matrix4 rotation;
-        Vector3d axis;
-        Int32 rotations;
-
-        switch (side)
+        Matrix4 rotation = axis switch
         {
-            case Side.Front:
-                return copy;
-
-            case Side.Back:
-                rotation = Matrix4.CreateRotationY(MathHelper.Pi);
-                axis = Vector3d.UnitY;
-                rotations = 2;
-
-                break;
-
-            case Side.Left:
-                rotation = Matrix4.CreateRotationY(MathHelper.ThreePiOver2);
-                axis = Vector3d.UnitY;
-                rotations = 1;
-
-                break;
-
-            case Side.Right:
-                rotation = Matrix4.CreateRotationY(MathHelper.PiOver2);
-                axis = Vector3d.UnitY;
-                rotations = 3;
-
-                break;
-
-            case Side.Bottom:
-                rotation = Matrix4.CreateRotationX(MathHelper.PiOver2);
-                axis = Vector3d.UnitX;
-                rotations = 1;
-
-                break;
-
-            case Side.Top:
-                rotation = Matrix4.CreateRotationX(MathHelper.ThreePiOver2);
-                axis = Vector3d.UnitX;
-                rotations = 1;
-
-                break;
-
-            default:
-                throw Exceptions.UnsupportedEnumValue(side);
-        }
+            Axis.X => Matrix4.CreateRotationX(MathHelper.PiOver2 * -turns),
+            Axis.Y => Matrix4.CreateRotationY(MathHelper.PiOver2 * -turns),
+            Axis.Z => Matrix4.CreateRotationZ(MathHelper.PiOver2 * -turns),
+            _ => throw Exceptions.UnsupportedEnumValue(axis)
+        };
 
         Matrix4 matrix = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * rotation *
                          Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
         
-        if (mode == TransformationMode.Rotate && axis == Vector3d.UnitY)
-            rotations = 0;
+        if (mode == TransformationMode.Rotate && axis == Axis.Y)
+            turns = 0;
 
         copy.ApplyMatrix(matrix);
-        copy.RotateTextureCoordinates(axis, rotations);
-
+        copy.RotateTextureCoordinates(axis.ToVector3d(), turns);
+        
         return copy;
     }
 

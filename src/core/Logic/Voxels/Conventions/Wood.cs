@@ -265,7 +265,7 @@ public static class WoodConvention
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Pipe)}"), $"{Language.Pipe} ({name.wood})")
                     .WithBehavior<Piped>(piped => piped.Tier.Initializer.ContributeConstant(Piped.PipeTier.Primitive))
                     .WithBehavior<ConnectingPipe>(pipe => pipe.Models.Initializer.ContributeConstant((RID.File<Model>("wood_pipe_center"), RID.File<Model>("wood_pipe_connector"), RID.File<Model>("wood_pipe_surface"))))
-                    .WithTextureOverride(TextureOverride.All(TID.Block(texture)))
+                    .WithTextureOverride(TextureOverride.All(TID.Block(texture))) // todo: do not override the black part
                     .WithBehavior<Combustible>()
                     .Complete(),
 

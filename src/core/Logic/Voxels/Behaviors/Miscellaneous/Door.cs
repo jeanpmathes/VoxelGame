@@ -38,7 +38,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         subject.Require<Fillable>();
 
         rotatable = subject.Require<LateralRotatable>();
-        subject.Require<LateralRotatableModelled>().OrientationOverride.ContributeFunction(GetOrientationOverride);
+        subject.Require<RotatableModelled>().RotationOverride.ContributeFunction(GetRotationOverride);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
         subject.PlacementState.ContributeFunction(GetPlacementState);
@@ -91,11 +91,18 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         return original.WithLayer(state.Get(IsOpen) ? 1 : 0);
     }
 
-    private Orientation GetOrientationOverride(Orientation original, State state)
+    private (Axis axis, Int32 turns) GetRotationOverride((Axis axis, Int32 turns) original, State state)
     {
-        if (!state.Get(IsOpen)) return original;
+        if (original.axis != Axis.Y) return original;
 
-        return state.Get(IsLeftSided) ? original.Opposite() : original;
+        Int32 turns = original.turns + 2; // Ugly fix because the model is not oriented correctly.
+        
+        if (state.Get(IsOpen) && state.Get(IsLeftSided))
+        {
+            turns += 2;
+        }
+
+        return (Axis.Y, turns);
     }
 
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)

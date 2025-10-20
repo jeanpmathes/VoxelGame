@@ -35,7 +35,7 @@ public partial class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior
         subject.Require<Complex>().Mesh.ContributeFunction(GetMesh);
 
         subject.RequireIfPresent<CompositeModelled, Composite>();
-        subject.RequireIfPresent<LateralRotatableModelled, LateralRotatable>();
+        subject.RequireIfPresent<RotatableModelled, Rotatable>();
     }
 
     /// <summary>
