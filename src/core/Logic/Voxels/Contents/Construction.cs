@@ -113,7 +113,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
     public Block Concrete { get; } = builder
         .BuildPartialHeightBlock(new CID(nameof(Concrete)), Language.Concrete)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("concrete")))
-        .WithBehavior<StoredHeight8>(height => height.PlacementHeight.Initializer.ContributeConstant(StoredHeight8.MaximumHeight))
+        .WithBehavior<StoredHeight8>(height => height.PlacementHeight.Initializer.ContributeConstant(BlockHeight.Maximum))
         .WithBehavior<Paintable>()
         .WithBehavior<Connectable>(connectable => connectable.Strength.Initializer.ContributeConstant(Connectable.Strengths.All))
         .WithBehavior<PartialHeight, Connectable>((height, connectable) => connectable.IsConnectionAllowed.ContributeFunction((_, context) => height.IsFull(context.state)))

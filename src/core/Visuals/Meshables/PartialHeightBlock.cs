@@ -89,8 +89,8 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
 
             if (blockToCheck == null) return;
 
-            Int32 height = partialHeightBehavior.GetHeight(state); // todo: maybe use a struct for height instead of Int32
-            Boolean isFullHeight = height == Logic.Voxels.Behaviors.Height.PartialHeight.MaximumHeight;
+            BlockHeight height = partialHeightBehavior.GetHeight(state);
+            Boolean isFullHeight = height.IsFull;
 
             if ((side != Side.Top || isFullHeight) && SimpleBlock.IsHiddenFace(this, blockToCheck.Value, side)) return;
 
@@ -131,7 +131,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] State? blockToCheck, Int32 height, ref readonly PartialHeight.MeshData mesh, MeshingContext context)
+    private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] State? blockToCheck, BlockHeight height, ref readonly PartialHeight.MeshData mesh, MeshingContext context)
     {
         if (side != Side.Top && blockToCheck.Value.Block.Get<Logic.Voxels.Behaviors.Height.PartialHeight>() is {} toCheck &&
             toCheck.GetHeight(blockToCheck.Value) == height) return;
@@ -155,11 +155,11 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
 
         context.GetVaryingHeightBlockMeshFaceHolder(side, IsOpaque).AddFace(
             position,
-            height,
-            Logic.Voxels.Behaviors.Height.PartialHeight.NoHeight,
+            height.ToInt32(),
+            BlockHeight.None.ToInt32(),
             MeshFaceHolder.DefaultDirection,
             data,
             isSingleSided: true,
-            height == Logic.Voxels.Behaviors.Height.PartialHeight.MaximumHeight);
+            height.IsFull);
     }
 }

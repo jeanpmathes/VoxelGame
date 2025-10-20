@@ -22,13 +22,13 @@ public partial class StoredHeight : BlockBehavior, IBehavior<StoredHeight, Block
     [Constructible]
     private StoredHeight(Block subject) : base(subject)
     {
-        HeightedState = Aspect<State, Int32>.New<Exclusive<State, Int32>>(nameof(HeightedState), this);
+        HeightedState = Aspect<State, BlockHeight>.New<Exclusive<State, BlockHeight>>(nameof(HeightedState), this);
     }
 
     /// <summary>
     ///     Aspect used to retrieve the state for a given height.
     /// </summary>
-    public Aspect<State, Int32> HeightedState { get; }
+    public Aspect<State, BlockHeight> HeightedState { get; }
 
     /// <summary>
     ///     Get the state with the given height applied.
@@ -36,7 +36,7 @@ public partial class StoredHeight : BlockBehavior, IBehavior<StoredHeight, Block
     /// <param name="state">The original state.</param>
     /// <param name="height">The desired height.</param>
     /// <returns>The state with the desired height applied.</returns>
-    public State SetHeight(State state, Int32 height)
+    public State SetHeight(State state, BlockHeight height)
     {
         return HeightedState.GetValue(state, height);
     }

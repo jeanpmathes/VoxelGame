@@ -11,7 +11,6 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Toolkit.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
@@ -25,17 +24,17 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
     /// <summary>
     ///     The minimum height that can be stored in this behavior.
     /// </summary>
-    public const Int32 MinimumHeight = PartialHeight.MinimumHeight / 2;
+    private static readonly Int32 minimumHeight = BlockHeight.Minimum.ToInt32() / 2;
 
     /// <summary>
     ///     The maximum height that can be stored in this behavior.
     /// </summary>
-    public const Int32 MaximumHeight = PartialHeight.MaximumHeight / 2;
+    private static readonly Int32 maximumHeight = BlockHeight.Maximum.ToInt32() / 2;
 
     [Constructible]
     private StoredHeight8(Block subject) : base(subject)
     {
-        subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => state.Get(Height) * 2 + 1, exclusive: true);
+        subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => BlockHeight.FromInt32(state.Get(Height) * 2 + 1), exclusive: true);
         subject.Require<StoredHeight>().HeightedState.ContributeFunction(GetHeightedState);
     }
 
@@ -44,7 +43,7 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
     /// <summary>
     ///     The preferred height of the block at placement.
     /// </summary>
-    public ResolvedProperty<Int32> PlacementHeight { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(PlacementHeight));
+    public ResolvedProperty<BlockHeight> PlacementHeight { get; } = ResolvedProperty<BlockHeight>.New<Exclusive<BlockHeight, Void>>(nameof(PlacementHeight));
     
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
@@ -63,31 +62,18 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
     {
         Height = builder
             .Define(nameof(Height))
-            .Int32(MinimumHeight, MaximumHeight + 1)
-            .Attribute(generationDefault: MaximumHeight);
-    }
-
-    /// <inheritdoc />
-    protected override void OnValidate(IValidator validator)
-    {
-        if (PlacementHeight.Get() is >= MinimumHeight and <= MaximumHeight)
-            return;
-
-        validator.ReportWarning("Placement height is out of bounds");
-        PlacementHeight.Override(MinimumHeight);
+            .Int32(minimumHeight, maximumHeight + 1)
+            .Attribute(generationDefault: maximumHeight);
     }
 
     private void OnModifyHeight(Modifiable.IModifyHeightMessage message)
     {
-        State newState = message.State.With(Height, (message.State.Get(Height) + 1) % MaximumHeight);
+        State newState = message.State.With(Height, (message.State.Get(Height) + 1) % (maximumHeight + 1));
         message.World.SetBlock(newState, message.Position);
     }
 
-    private State GetHeightedState(State original, Int32 height)
+    private State GetHeightedState(State original, BlockHeight height)
     {
-        Int32 clampedHeight = Math.Clamp(height, PartialHeight.MinimumHeight, PartialHeight.MaximumHeight);
-        Int32 storedHeight = Math.Clamp(clampedHeight / 2, MinimumHeight, MaximumHeight);
-
-        return original.With(Height, storedHeight);
+        return height.IsNone ? original : original.With(Height, height.ToInt32() / 2);
     }
 }

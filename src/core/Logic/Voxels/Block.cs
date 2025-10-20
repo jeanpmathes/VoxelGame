@@ -363,7 +363,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (IsAlwaysFull) return true;
 
         if (Get<PartialHeight>() is {} height)
-            return height.GetHeight(state) == PartialHeight.MaximumHeight;
+            return height.GetHeight(state).IsFull;
 
         return false;
     }
@@ -379,7 +379,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (IsAlwaysFull) return true;
 
         if (Get<PartialHeight>() is {} height)
-            return height.GetHeight(state) == PartialHeight.MaximumHeight || height.IsSideFull(side, state);
+            return height.GetHeight(state).IsFull || height.IsSideFull(side, state);
 
         return false;
     }

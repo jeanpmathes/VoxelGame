@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
-using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -60,7 +59,8 @@ public abstract class Cover
 
         if (climate.Temperature.IsFreezing && snowMode != Snow.None)
         {
-            Int32 height = MathTools.RoundedToInt(PartialHeight.MaximumHeight * heightFraction * 0.75);
+            var maximumHeight = BlockHeight.Maximum.ToInt32();
+            Int32 height = MathTools.RoundedToInt(maximumHeight * heightFraction * 0.75);
 
             height += NumberGenerator.GetPositionDependentNumber(position, mod: 5) switch
             {
@@ -68,14 +68,13 @@ public abstract class Cover
                 1 => -1,
                 _ => 0
             };
-
-            height = Math.Clamp(height, min: 0, PartialHeight.MaximumHeight);
+            
 
             Block snow = snowMode == Snow.Pulverized
                 ? Blocks.Instance.Environment.PulverizedSnow
                 : Blocks.Instance.Environment.Snow;
 
-            return new Content(snow.States.GenerationDefault.WithHeight(height), FluidInstance.Default);
+            return new Content(snow.States.GenerationDefault.WithHeight(BlockHeight.FromInt32(height)), FluidInstance.Default);
         }
 
         return GetCover(position, climate);

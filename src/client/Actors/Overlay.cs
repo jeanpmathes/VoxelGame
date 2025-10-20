@@ -93,7 +93,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
 
     private static (Double lower, Double upper)? GetOverlayBounds(State block, Vector3d position, Frustum frustum)
     {
-        var height = 15;
+        BlockHeight height = BlockHeight.Maximum;
 
         if (block.Block.Get<PartialHeight>() is {} partialHeight) height = partialHeight.GetHeight(block);
 
@@ -102,15 +102,15 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
 
     private static (Double lower, Double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Frustum frustum)
     {
-        Int32 height = fluid.Level.GetBlockHeight();
+        BlockHeight height = fluid.Level.GetBlockHeight();
 
         return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards, frustum);
     }
 
-    private static (Double lower, Double upper)? GetOverlayBounds(Int32 height, Vector3d position, Boolean inverted, Frustum frustum)
+    private static (Double lower, Double upper)? GetOverlayBounds(BlockHeight height, Vector3d position, Boolean inverted, Frustum frustum)
     {
-        Single actualHeight = (height + 1) * (1.0f / 16.0f);
-        if (inverted) actualHeight = 1.0f - actualHeight;
+        Double actualHeight = height.Ratio;
+        if (inverted) actualHeight = 1.0 - actualHeight;
 
         Plane topPlane = new(Vector3d.UnitY, position + Vector3d.UnitY * actualHeight);
         Plane viewPlane = frustum.Near;

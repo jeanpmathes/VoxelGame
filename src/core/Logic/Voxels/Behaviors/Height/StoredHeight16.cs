@@ -11,6 +11,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Toolkit.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
@@ -25,7 +26,7 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
     [Constructible]
     private StoredHeight16(Block subject) : base(subject)
     {
-        subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => state.Get(Height), exclusive: true);
+        subject.Require<PartialHeight>().Height.ContributeFunction((_, state) => BlockHeight.FromInt32(state.Get(Height)), exclusive: true);
         subject.Require<StoredHeight>().HeightedState.ContributeFunction(GetHeightedState);
     }
 
@@ -34,7 +35,7 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
     /// <summary>
     ///     The preferred height of the block at placement.
     /// </summary>
-    public ResolvedProperty<Int32> PlacementHeight { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(PlacementHeight));
+    public ResolvedProperty<BlockHeight> PlacementHeight { get; } = ResolvedProperty<BlockHeight>.New<Exclusive<BlockHeight, Void>>(nameof(PlacementHeight));
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
@@ -47,8 +48,8 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
     {
         Height = builder
             .Define(nameof(Height))
-            .Int32(PartialHeight.MinimumHeight, PartialHeight.MaximumHeight + 1)
-            .Attribute(generationDefault: PartialHeight.MaximumHeight);
+            .Int32(BlockHeight.Minimum.ToInt32(), BlockHeight.Maximum.ToInt32() + 1)
+            .Attribute(generationDefault: BlockHeight.Maximum.ToInt32());
     }
 
     /// <inheritdoc />
@@ -57,29 +58,17 @@ public partial class StoredHeight16 : BlockBehavior, IBehavior<StoredHeight16, B
         PlacementHeight.Initialize(this);
     }
 
-    /// <inheritdoc />
-    protected override void OnValidate(IValidator validator)
-    {
-        if (PlacementHeight.Get() is >= PartialHeight.MinimumHeight and <= PartialHeight.MaximumHeight)
-            return;
-
-        validator.ReportWarning("Placement height is out of bounds");
-        PlacementHeight.Override(PartialHeight.MinimumHeight);
-    }
-
     private void OnModifyHeight(Modifiable.IModifyHeightMessage message)
     {
         State state = message.State;
 
-        Int32 newHeight = (state.Get(Height) + 1) % (PartialHeight.MaximumHeight + 1);
+        Int32 newHeight = (state.Get(Height) + 1) % (BlockHeight.Maximum.ToInt32() + 1);
 
         message.World.SetBlock(state.With(Height, newHeight), message.Position);
     }
 
-    private State GetHeightedState(State original, Int32 height)
+    private State GetHeightedState(State original, BlockHeight height)
     {
-        Int32 clampedHeight = Math.Clamp(height, PartialHeight.MinimumHeight, PartialHeight.MaximumHeight);
-
-        return original.With(Height, clampedHeight);
+        return height.IsNone ? original : original.With(Height, height.ToInt32());
     }
 }

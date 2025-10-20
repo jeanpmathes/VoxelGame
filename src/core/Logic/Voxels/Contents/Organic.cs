@@ -99,7 +99,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
     public Block Moss { get; } = builder
         .BuildPartialHeightBlock(new CID(nameof(Moss)), Language.Moss)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("moss")))
-        .WithBehavior<ConstantHeight>(height => height.Height.Initializer.ContributeConstant(value: 0))
+        .WithBehavior<ConstantHeight>(height => height.Height.Initializer.ContributeConstant(BlockHeight.Minimum))
         .WithBehavior<DestroyOnLiquid>(destroy => destroy.Threshold.Initializer.ContributeConstant(FluidLevel.Three))
         .WithBehavior<Combustible>()
         .WithBehavior<CoverPreserving>()

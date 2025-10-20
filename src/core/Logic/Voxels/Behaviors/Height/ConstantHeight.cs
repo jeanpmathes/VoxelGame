@@ -4,12 +4,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
-using VoxelGame.Toolkit.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Height;
@@ -29,29 +27,11 @@ public partial class ConstantHeight : BlockBehavior, IBehavior<ConstantHeight, B
     /// <summary>
     ///     The constant height of the block.
     /// </summary>
-    public ResolvedProperty<Int32> Height { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(Height), PartialHeight.MaximumHeight);
+    public ResolvedProperty<BlockHeight> Height { get; } = ResolvedProperty<BlockHeight>.New<Exclusive<BlockHeight, Void>>(nameof(Height), BlockHeight.Minimum);
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
         Height.Initialize(this);
-    }
-
-    /// <inheritdoc />
-    protected override void OnValidate(IValidator validator)
-    {
-        if (Height.Get() < PartialHeight.MinimumHeight)
-        {
-            validator.ReportWarning("Constant partial height value is below the minimum valid value");
-
-            Height.Override(PartialHeight.MinimumHeight);
-        }
-
-        if (Height.Get() > PartialHeight.MaximumHeight)
-        {
-            validator.ReportWarning("Constant partial height value is above the maximum valid value");
-
-            Height.Override(PartialHeight.MaximumHeight);
-        }
     }
 }

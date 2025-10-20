@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 
@@ -21,7 +20,7 @@ public static class BehaviorExtensions
     /// <param name="state">The original state.</param>
     /// <param name="height">The desired height.</param>
     /// <returns>The state with the desired height if supported, otherwise the original state.</returns>
-    public static State WithHeight(this State state, Int32 height)
+    public static State WithHeight(this State state, BlockHeight height)
     {
         return state.Block.Get<StoredHeight>() is {} storedHeight ? storedHeight.SetHeight(state, height) : state;
     }

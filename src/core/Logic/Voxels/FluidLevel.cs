@@ -6,7 +6,6 @@
 
 using System;
 using System.Numerics;
-using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using Vector2 = OpenTK.Mathematics.Vector2;
 
 namespace VoxelGame.Core.Logic.Voxels;
@@ -120,14 +119,11 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     public Double Fraction => value != NoneValue ? (value + 1) / 8.0 : 0.0;
     
     /// <summary>
-    ///     Get the fluid level as block height, or <c>-1</c> if there is no fluid.
+    ///     Get the fluid level as block height, or <see cref="BlockHeight.None"/> if there is no fluid.
     /// </summary>
-    public Int32 GetBlockHeight()
+    public BlockHeight GetBlockHeight()
     {
-        if (value == NoneValue)
-            return -1;
-
-        return value * (PartialHeight.MaximumHeight / MaxValue) + 1;
+        return value == NoneValue ? BlockHeight.None : BlockHeight.FromInt32(value * (BlockHeight.Maximum.ToInt32() / MaxValue) + 1);
     }
 
     /// <summary>
@@ -138,8 +134,8 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     /// <returns>The texture coordinates.</returns>
     public (Vector2 min, Vector2 max) GetUVs(FluidLevel neighbor, VerticalFlow flow)
     {
-        Single size = Behaviors.Meshables.PartialHeight.GetSize(GetBlockHeight());
-        Single skipped = Behaviors.Meshables.PartialHeight.GetSize(neighbor.GetBlockHeight());
+        var size = (Single) GetBlockHeight().Ratio;
+        var skipped = (Single) neighbor.GetBlockHeight().Ratio;
 
         return flow != VerticalFlow.Upwards
             ? (new Vector2(x: 0, skipped), new Vector2(x: 1, size))

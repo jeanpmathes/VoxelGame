@@ -186,7 +186,13 @@ public class MeshFaceHolder
     /// <param name="isSingleSided">True if the face is single sided, false if double-sided.</param>
     public void AddFace(Vector3i pos, (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, Boolean isRotated, Boolean isSingleSided)
     {
-        AddFace(pos, (PartialHeight.MaximumHeight, PartialHeight.NoHeight), data, isSingleSided, isFull: true, isRotated, DefaultDirection);
+        AddFace(pos,
+            (BlockHeight.Maximum.ToInt32(), BlockHeight.None.ToInt32()),
+            data,
+            isSingleSided,
+            isFull: true,
+            isRotated,
+            DefaultDirection);
     }
 
     /// <summary>
