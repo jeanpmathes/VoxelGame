@@ -44,7 +44,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<CrossModel>()
         .WithBehavior<SingleTextured>(texture => texture.DefaultTexture.Initializer.ContributeConstant(TID.Block("spider_web")))
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(0.01))
-        .WithBehavior<DestroyOnLiquid>() // todo: currently is only destroyed with level > 1, but should be destroyed on any liquid
+        .WithBehavior<DestroyOnLiquid>()
         .WithBehavior<Combustible>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))

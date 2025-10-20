@@ -14,7 +14,7 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
 /// <summary>
-///     Breaks when filled with more than a certain amount of liquid.
+///     Breaks when filled with more than a certain amount of liquid, by default any amount causes breaking.
 /// </summary>
 public partial class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBehavior, Block>
 {
@@ -27,7 +27,7 @@ public partial class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid,
     /// <summary>
     ///     The threshold above which the block breaks when filled with liquid.
     /// </summary>
-    public ResolvedProperty<FluidLevel> Threshold { get; } = ResolvedProperty<FluidLevel>.New<Minimum<FluidLevel, Void>>(nameof(Threshold), FluidLevel.One);
+    public ResolvedProperty<FluidLevel> Threshold { get; } = ResolvedProperty<FluidLevel>.New<Minimum<FluidLevel, Void>>(nameof(Threshold), FluidLevel.None);
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
@@ -40,6 +40,13 @@ public partial class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid,
     public override void OnInitialize(BlockProperties properties)
     {
         Threshold.Initialize(this);
+    }
+
+    /// <inheritdoc />
+    protected override void OnValidate(IValidator validator)
+    {
+        if (Threshold.Get().IsFull)
+            validator.ReportWarning("The threshold is set to full fluid level, rendering the behavior useless");
     }
 
     private void OnStateUpdate(Block.IStateUpdateMessage message)
