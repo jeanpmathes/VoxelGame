@@ -164,7 +164,6 @@ public class FluidContactManager
         SetFluid(world, dense.position, dense.fluid, dense.level - FluidLevel.One);
 
         return true;
-
     }
 
     /// <summary>
@@ -182,11 +181,14 @@ public class FluidContactManager
     }
 
     /// <summary>
-    ///     Mixes fresh water with sea water, turning the fresh water into sea water.
+    ///     Mixes fresh water with seawater, turning the fresh water into seawater.
     /// </summary>
     private static Boolean MixWater(World world, ContactInformation a, ContactInformation b)
     {
-        Select(a, b, Fluids.Instance.FreshWater, out ContactInformation fresh, out _);
+        Select(a, b, Fluids.Instance.FreshWater, out ContactInformation fresh, out ContactInformation sea);
+        
+        sea.fluid.UpdateSoon(world, sea.position, sea.isStatic);
+        
         SetFluid(world, fresh.position, Fluids.Instance.SeaWater, fresh.level);
 
         return true;
