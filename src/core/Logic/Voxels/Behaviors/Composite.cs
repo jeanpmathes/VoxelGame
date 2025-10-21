@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
@@ -15,7 +16,7 @@ using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
-using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Core.Physics;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors;
@@ -25,7 +26,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors;
 /// </summary>
 public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavior, Block>
 {
-    private Boolean isRotatable;
+    private LateralRotatableComposite? rotatable;
 
     [Constructible]
     private Composite(Block subject) : base(subject)
@@ -37,17 +38,17 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
         subject.Require<Constraint>().IsValid.ContributeFunction(GetIsValid);
 
-        subject.RequireIfPresent<LateralRotatableComposite, LateralRotatable>(rotatable =>
+        subject.RequireIfPresent<LateralRotatableComposite, LateralRotatable>(lateralRotatableComposite =>
         {
-            isRotatable = true;
-            
-            rotatable.PartState.ContributeFunction((original, context) => original.With(Part, context.part), exclusive: true);
+            rotatable = lateralRotatableComposite;
+
+            lateralRotatableComposite.PartState.ContributeFunction((original, context) => original.With(Part, context.part), exclusive: true);
 
             // While it would be possible to use an aspect for this, there are a few reasons not to:
             // - Using aspects for delegates with side effects goes against the core idea of aspects, even if the delegates will not be run when the aspect is evaluated.
             // - This behavior is the only one intended to set these delegates.
-            rotatable.PublishPlacementCompleted = PublishPlacementCompletedMessage;
-            rotatable.PublishNeighborUpdate = PublishNeighborUpdateMessage;
+            lateralRotatableComposite.PublishPlacementCompleted = PublishPlacementCompletedMessage;
+            lateralRotatableComposite.PublishNeighborUpdate = PublishNeighborUpdateMessage;
         });
     }
 
@@ -85,7 +86,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
-        if (isRotatable) return;
+        if (rotatable != null) return;
 
         bus.Subscribe<Block.IPlacementMessage>(OnPlacement);
         bus.Subscribe<Block.IDestructionMessage>(OnDestruction);
@@ -134,7 +135,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private Boolean GetPlacementAllowed(Boolean original, (World world, Vector3i position, Actor? actor) context)
     {
-        if (isRotatable) return true;
+        if (rotatable != null) return true;
 
         (World world, Vector3i position, Actor? actor) = context;
 
@@ -359,6 +360,40 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     public Vector3i GetSize(State state)
     {
         return Size.GetValue(MaximumSize.Get(), state);
+    }
+
+    /// <summary>
+    ///     Get the collider that encompasses all parts of the composite block for the provided state.
+    /// </summary>
+    /// <param name="state">The state for which to calculate the collider.</param>
+    /// <param name="position">The world position of the queried part.</param>
+    /// <returns>A collider covering all parts of the composite block.</returns>
+    public BoxCollider GetFullCollider(State state, Vector3i position)
+    {
+        if (rotatable != null) return rotatable.GetFullCollider(state, position);
+        
+        Vector3i partPosition = GetPartPosition(state);
+        Vector3i rootPosition = position - partPosition;
+
+        Vector3i size = GetSize(state);
+
+        List<BoundingVolume> volumes = new(size.X * size.Y * size.Z);
+
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            Vector3i currentPart = (x, y, z);
+
+            State partState = state;
+            partState.Set(Part, currentPart);
+            
+            volumes.Add(Subject.GetBoundingVolume(partState).Translated(currentPart));
+        }
+
+        BoundingVolume combinedVolume = BoundingVolume.Combine(volumes);
+
+        return new BoxCollider(combinedVolume, new Vector3d(rootPosition.X, rootPosition.Y, rootPosition.Z));
     }
 
     /// <summary>

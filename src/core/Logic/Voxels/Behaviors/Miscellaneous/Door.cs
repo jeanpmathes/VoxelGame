@@ -26,13 +26,15 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 /// </summary>
 public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 {
+    private readonly Composite composite;
     private readonly LateralRotatable rotatable;
 
     [Constructible]
     private Door(Block subject) : base(subject)
     {
         subject.Require<Modelled>().Selector.ContributeFunction(GetSelector);
-        subject.Require<Composite>().MaximumSize.Initializer.ContributeConstant((1, 2, 1));
+        composite = subject.Require<Composite>();
+        composite.MaximumSize.Initializer.ContributeConstant((1, 2, 1));
         subject.Require<Grounded>();
 
         subject.Require<Fillable>();
@@ -138,13 +140,15 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
 
     private void OnActorInteract(Block.IActorInteractionMessage message)
     {
-        ToggleDoor(message.Actor.World, message.Position, message.State);
-
-        // if (message.Actor.GetComponent<Body>() is {} body && body.Collider.Intersects(collider)) return;
-        // todo: use composite and add a method to it to get the full collider for a given state, merging all parts
-
         Boolean leftSided = message.State.Get(IsLeftSided);
         Boolean wasOpen = message.State.Get(IsOpen);
+
+        var body = message.Actor.GetComponent<Body>();
+        
+        if (body != null && body.Collider.Intersects(composite.GetFullCollider(message.State.With(IsOpen, !wasOpen), message.Position)))
+            return;
+
+        ToggleDoor(message.Actor.World, message.Position, message.State);
 
         Orientation orientation = rotatable.GetOrientation(message.State);
 
@@ -153,11 +157,12 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         void ToggleNeighbor(Vector3i neighborPosition)
         {
             State neighbor = message.Actor.World.GetBlock(neighborPosition) ?? Content.DefaultState;
-
+            
             if (neighbor.Block == Subject
                 && neighbor.Get(IsLeftSided) != leftSided
                 && neighbor.Get(IsOpen) == wasOpen
-                && rotatable.GetOrientation(neighbor) == orientation)
+                && rotatable.GetOrientation(neighbor) == orientation
+                && body?.Collider.Intersects(composite.GetFullCollider(neighbor.With(IsOpen, !wasOpen), neighborPosition)) != true)
                 neighbor.Block.Get<Door>()?.ToggleDoor(message.Actor.World, neighborPosition, neighbor);
         }
     }

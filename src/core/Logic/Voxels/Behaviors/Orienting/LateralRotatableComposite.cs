@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations;
 using VoxelGame.Core.Actors;
@@ -13,6 +14,7 @@ using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
@@ -267,5 +269,36 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     private State SetPartPosition(State original, Vector3i part)
     {
         return PartState.GetValue(original, (original, part));
+    }
+    
+    /// <summary>
+    ///     Get the collider that encompasses all parts of the composite block for the provided state.
+    /// </summary>
+    /// <param name="state">The state for which to calculate the collider.</param>
+    /// <param name="position">The world position of the queried part.</param>
+    /// <returns>A collider covering all parts of the composite block.</returns>
+    public BoxCollider GetFullCollider(State state, Vector3i position)
+    {
+        Vector3i partPosition = composite.GetPartPosition(state);
+        Vector3i rootPosition = position - partPosition;
+
+        Vector3i size = composite.GetSize(state);
+
+        List<BoundingVolume> volumes = new(size.X * size.Y * size.Z);
+
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+        {
+            Vector3i currentPart = (x, y, z);
+            
+            State partState = SetPartPosition(state, currentPart);
+            
+            volumes.Add(Subject.GetBoundingVolume(partState).Translated(currentPart));
+        }
+
+        BoundingVolume combinedVolume = BoundingVolume.Combine(volumes);
+
+        return new BoxCollider(combinedVolume, new Vector3d(rootPosition.X, rootPosition.Y, rootPosition.Z));
     }
 }

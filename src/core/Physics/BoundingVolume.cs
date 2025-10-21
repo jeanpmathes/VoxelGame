@@ -125,36 +125,6 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     }
 
     /// <summary>
-    ///     Creates a flat block bounding volume with the given width and depth.
-    /// </summary>
-    /// <param name="orientation">The orientation of the bounding volume.</param>
-    /// <param name="width">The width of the bounding volume, meaning the distance perpendicular to the orientation.</param>
-    /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
-    /// <returns>The bounding volume with the given width and depth.</returns>
-    public static BoundingVolume FlatBlock(Orientation orientation, Double width, Double depth)
-    {
-        Double halfWidth = width / 2.0;
-        Double halfDepth = depth / 2.0;
-
-        return orientation switch
-        {
-            Orientation.North => new BoundingVolume(
-                new Vector3d(x: 0.5, y: 0.5, 1.0 - halfDepth),
-                new Vector3d(halfWidth, y: 0.5, halfDepth)),
-            Orientation.South => new BoundingVolume(
-                new Vector3d(x: 0.5, y: 0.5, halfDepth),
-                new Vector3d(halfWidth, y: 0.5, halfDepth)),
-            Orientation.West => new BoundingVolume(
-                new Vector3d(1.0 - halfDepth, y: 0.5, z: 0.5),
-                new Vector3d(halfDepth, y: 0.5, halfWidth)),
-            Orientation.East => new BoundingVolume(
-                new Vector3d(halfDepth, y: 0.5, z: 0.5),
-                new Vector3d(halfDepth, y: 0.5, halfWidth)),
-            _ => throw Exceptions.UnsupportedEnumValue(orientation)
-        };
-    }
-
-    /// <summary>
     ///     Creates a flat block bounding volume with the given depth.
     /// </summary>
     /// <param name="side">The side the bounding volume is on.</param>
@@ -201,6 +171,21 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         }
 
         return Combine(volumes);
+    }
+
+    /// <summary>
+    /// Translate this bounding volume by the given translation.
+    /// </summary>
+    /// <param name="translation">The translation to apply.</param>
+    /// <returns>>The translated bounding volume.</returns>
+    public BoundingVolume Translated(Vector3d translation)
+    {
+        var translated = new BoundingVolume[ChildCount];
+
+        for (var i = 0; i < ChildCount; i++)
+            translated[i] = this[i].Translated(translation);
+
+        return new BoundingVolume(Box.Translated(translation), translated);
     }
 
     /// <summary>
