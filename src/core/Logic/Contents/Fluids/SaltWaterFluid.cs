@@ -10,6 +10,7 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
@@ -22,7 +23,7 @@ public class SaltWaterFluid : BasicFluid
     /// <summary>
     ///     Create a new <see cref="SaltWaterFluid" />.
     /// </summary>
-    public SaltWaterFluid(String name, String namedID, Single density, Int32 viscosity, TID texture) :
+    public SaltWaterFluid(String name, String namedID, Density density, Viscosity viscosity, TID texture) :
         base(
             name,
             namedID,

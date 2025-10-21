@@ -5,14 +5,14 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Logic.Contents.Fluids;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Tests.Logic.Elements;
 
-public class MockFluid() : BasicFluid(
-    "Mock Fluid",
+public sealed class MockFluid() : BasicFluid("Mock Fluid",
     nameof(MockFluid),
-    density: 1.0,
-    viscosity: 1,
+    new Density { KilogramsPerCubicMeter = 1.0 },
+    new Viscosity { UpdateTicks = 1 },
     hasNeutralTint: false,
     TID.MissingTexture);

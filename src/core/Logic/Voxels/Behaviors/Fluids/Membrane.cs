@@ -11,7 +11,7 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Core.Utilities.Units;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
@@ -30,7 +30,7 @@ public partial class Membrane : BlockBehavior, IBehavior<Membrane, BlockBehavior
     /// <summary>
     ///     Only fluids with a viscosity less than this value can flow into the block.
     /// </summary>
-    public ResolvedProperty<Int32> MaxViscosity { get; } = ResolvedProperty<Int32>.New<Minimum<Int32, Void>>(nameof(MaxViscosity), initial: 1000);
+    public ResolvedProperty<Viscosity> MaxViscosity { get; } = ResolvedProperty<Viscosity>.New<Minimum<Viscosity, Void>>(nameof(MaxViscosity), new Viscosity { MilliPascalSeconds = 65 });
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

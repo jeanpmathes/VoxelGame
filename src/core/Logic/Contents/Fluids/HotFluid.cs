@@ -8,6 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
@@ -20,7 +21,7 @@ public class HotFluid : BasicFluid
     /// <summary>
     ///     Create a new <see cref="HotFluid" />.
     /// </summary>
-    public HotFluid(String name, String namedID, Single density, Int32 viscosity, Boolean hasNeutralTint,
+    public HotFluid(String name, String namedID, Density density, Viscosity viscosity, Boolean hasNeutralTint,
         TID texture, RenderType renderType = RenderType.Opaque) :
         base(
             name,

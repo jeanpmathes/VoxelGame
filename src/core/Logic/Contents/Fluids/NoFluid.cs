@@ -7,6 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
@@ -26,7 +27,7 @@ public class NoFluid : Fluid
             name,
             namedID,
             AirDensity,
-            viscosity: 1,
+            new Viscosity { UpdateTicks = 1 },
             checkContact: false,
             receiveContact: false,
             RenderType.NotRendered) {}

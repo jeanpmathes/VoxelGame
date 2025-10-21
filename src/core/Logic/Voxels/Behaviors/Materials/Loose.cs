@@ -8,6 +8,7 @@ using VoxelGame.Annotations;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 
@@ -19,7 +20,7 @@ public partial class Loose : BlockBehavior, IBehavior<Loose, BlockBehavior, Bloc
     [Constructible]
     private Loose(Block subject) : base(subject)
     {
-        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(value: 100);
+        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(new Viscosity { MilliPascalSeconds = 6.5 });
         subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);
     }
 

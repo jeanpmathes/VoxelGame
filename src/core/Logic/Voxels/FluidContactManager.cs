@@ -121,12 +121,15 @@ public class FluidContactManager
     /// </summary>
     private static Boolean SwapByDensity(World world, ContactInformation a, ContactInformation b)
     {
-        if (MathTools.NearlyEqual(a.fluid.Density, b.fluid.Density)) return false;
+        if (MathTools.NearlyEqual(a.fluid.Density.KilogramsPerCubicMeter, b.fluid.Density.KilogramsPerCubicMeter)) return false;
 
         if (a.position.Y == b.position.Y) return DensityLift(world, a, b);
 
-        if ((a.position.Y <= b.position.Y || a.fluid.Density <= b.fluid.Density) &&
-            (a.position.Y >= b.position.Y || a.fluid.Density >= b.fluid.Density)) return false;
+        Double densityA = a.fluid.Density.KilogramsPerCubicMeter;
+        Double densityB = b.fluid.Density.KilogramsPerCubicMeter;
+
+        if ((a.position.Y <= b.position.Y || densityA <= densityB) &&
+            (a.position.Y >= b.position.Y || densityA >= densityB)) return false;
 
         if (!IsFlowAllowed(world, b.position, a.position)) return false;
 
@@ -141,7 +144,9 @@ public class FluidContactManager
     /// </summary>
     private static Boolean DensityLift(World world, ContactInformation a, ContactInformation b)
     {
-        (ContactInformation light, ContactInformation dense) = MathTools.ArgMinMax((a.fluid.Density, a), (b.fluid.Density, b));
+        (ContactInformation light, ContactInformation dense) = MathTools.ArgMinMax(
+            (a.fluid.Density.KilogramsPerCubicMeter, a),
+            (b.fluid.Density.KilogramsPerCubicMeter, b));
 
         if (dense.level == FluidLevel.One) return false;
 

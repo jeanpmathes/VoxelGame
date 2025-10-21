@@ -9,6 +9,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
@@ -26,7 +27,7 @@ public class ConcreteFluid : BasicFluid
     /// <param name="density">The density of the fluid.</param>
     /// <param name="viscosity">The viscosity of the fluid.</param>
     /// <param name="texture">The texture of the fluid.</param>
-    public ConcreteFluid(String name, String namedID, Single density, Int32 viscosity, TID texture) :
+    public ConcreteFluid(String name, String namedID, Density density, Viscosity viscosity, TID texture) :
         base(
             name,
             namedID,

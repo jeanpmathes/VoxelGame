@@ -125,8 +125,8 @@ public static partial class ManualBuilder
                         .Text(s.description).NewLine()
                         .List(list => list
                             .Item("ID:").Text(s.fluid.NamedID, TextStyle.Monospace)
-                            .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
-                            .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture)))));
+                            .Item("Viscosity:").Text(s.fluid.Viscosity.ToString())
+                            .Item("Density:").Text(s.fluid.Density.ToString()))));
 
         fluids.Generate();
 

@@ -20,7 +20,7 @@ public partial class Fluid
     protected void ScheduleUpdate(World world, Vector3i position)
     {
         Chunk? chunk = world.GetActiveChunk(position);
-        chunk?.ScheduleFluidUpdate(new FluidUpdate(position, this), (UInt32) Viscosity);
+        chunk?.ScheduleFluidUpdate(new FluidUpdate(position, this), Viscosity.ToUpdateDelay());
     }
 
     /// <summary>

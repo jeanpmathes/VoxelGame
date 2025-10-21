@@ -11,6 +11,7 @@ using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 
@@ -24,7 +25,7 @@ public partial class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     private Soil(Block subject) : base(subject)
     {
         subject.Require<Plantable>();
-        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(value: 100);
+        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(new Viscosity { MilliPascalSeconds = 6.5 });
         subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);
     }
 

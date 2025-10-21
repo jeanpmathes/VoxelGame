@@ -15,6 +15,7 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Toolkit.Utilities;
@@ -30,9 +31,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <summary>
     ///     The density of air.
     /// </summary>
-    protected const Double AirDensity = 1.2f;
+    protected static readonly Density AirDensity = new() { KilogramsPerCubicMeter = 1.2f };
 
-    private const Double GasFluidThreshold = 10f;
+    private static readonly Density gasFluidThreshold = new() { KilogramsPerCubicMeter = 10f };
 
     private const UInt32 InvalidID = UInt32.MaxValue;
 
@@ -48,10 +49,10 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <param name="checkContact">Whether actor contact must be checked.</param>
     /// <param name="receiveContact">Whether actor contact should be passed to the fluid.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    protected Fluid(String name, String namedID, Double density, Int32 viscosity,
+    protected Fluid(String name, String namedID, Density density, Viscosity viscosity,
         Boolean checkContact, Boolean receiveContact, RenderType renderType)
     {
-        Debug.Assert(density > 0);
+        Debug.Assert(density.KilogramsPerCubicMeter > 0);
 
         Name = name;
         NamedID = namedID;
@@ -59,7 +60,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
         Density = density;
 
-        Direction = (density - AirDensity) switch
+        Direction = (density.KilogramsPerCubicMeter - AirDensity.KilogramsPerCubicMeter) switch
         {
             > +0.001f => VerticalFlow.Downwards,
             < -0.001f => VerticalFlow.Upwards,
@@ -73,8 +74,8 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         }
         else
         {
-            IsLiquid = density > GasFluidThreshold;
-            IsGas = density <= GasFluidThreshold;
+            IsLiquid = density > gasFluidThreshold;
+            IsGas = density <= gasFluidThreshold;
         }
 
         Viscosity = viscosity;
@@ -104,7 +105,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     /// <summary>
     ///     Gets the density of this fluid.
     /// </summary>
-    public Double Density { get; }
+    public Density Density { get; }
 
     /// <summary>
     ///     Gets the flowing direction of this fluid.
@@ -112,9 +113,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     public VerticalFlow Direction { get; }
 
     /// <summary>
-    ///     Gets the viscosity of this fluid, meaning the update offset between two scheduled updates.
+    ///     Gets the viscosity of this fluid. The value also determines the update offset between two scheduled updates.
     /// </summary>
-    public Int32 Viscosity { get; }
+    public Viscosity Viscosity { get; }
 
     /// <summary>
     ///     Gets whether actor contacts have to be checked.

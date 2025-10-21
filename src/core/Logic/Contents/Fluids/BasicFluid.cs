@@ -11,6 +11,7 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
@@ -40,7 +41,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     /// <param name="hasNeutralTint">Whether this fluid has a neutral tint.</param>
     /// <param name="texture">The texture of the fluid.</param>
     /// <param name="renderType">The render type of the fluid.</param>
-    public BasicFluid(String name, String namedID, Double density, Int32 viscosity, Boolean hasNeutralTint,
+    public BasicFluid(String name, String namedID, Density density, Viscosity viscosity, Boolean hasNeutralTint,
         TID texture, RenderType renderType = RenderType.Opaque) :
         base(
             name,

@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Contents.Fluids;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 
@@ -23,9 +23,6 @@ namespace VoxelGame.Core.Logic.Voxels;
 /// </summary>
 public sealed partial class Fluids(Registry<Fluid> registry)
 {
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    private const Int32 mPas = 15; // todo: use measure class for viscosity and density
-
     private static FluidContactManager? contactManager;
 
     /// <summary>
@@ -44,8 +41,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid FreshWater { get; } = registry.Register(new BasicFluid(
         Language.FreshWater,
         nameof(FreshWater),
-        density: 997f,
-        1 * mPas,
+        new Density { KilogramsPerCubicMeter = 997f },
+        new Viscosity { MilliPascalSeconds = 1 },
         hasNeutralTint: false,
         TID.Fluid("fresh_water"),
         RenderType.Transparent));
@@ -56,8 +53,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid SeaWater { get; } = registry.Register(new SaltWaterFluid(
         Language.SeaWater,
         nameof(SeaWater),
-        density: 1023f,
-        1 * mPas,
+        new Density { KilogramsPerCubicMeter = 1023f },
+        new Viscosity { MilliPascalSeconds = 1 },
         TID.Fluid("sea_water")));
 
     /// <summary>
@@ -66,8 +63,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid Milk { get; } = registry.Register(new BasicFluid(
         Language.Milk,
         nameof(Milk),
-        density: 1033f,
-        2 * mPas,
+        new Density { KilogramsPerCubicMeter = 1033f },
+        new Viscosity { MilliPascalSeconds = 2 },
         hasNeutralTint: false,
         TID.Fluid("milk")));
 
@@ -77,8 +74,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid Steam { get; } = registry.Register(new BasicFluid(
         Language.Steam,
         nameof(Steam),
-        density: 0.5f,
-        (Int32) (0.25 * mPas),
+        new Density { KilogramsPerCubicMeter = 0.5f },
+        new Viscosity { MilliPascalSeconds = 0.25 },
         hasNeutralTint: false,
         TID.Fluid("steam"),
         RenderType.Transparent));
@@ -89,8 +86,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid Lava { get; } = registry.Register(new HotFluid(
         Language.Lava,
         nameof(Lava),
-        density: 3100f,
-        15 * mPas,
+        new Density { KilogramsPerCubicMeter = 3100f },
+        new Viscosity { MilliPascalSeconds = 15 },
         hasNeutralTint: false,
         TID.Fluid("lava")));
 
@@ -100,8 +97,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid CrudeOil { get; } = registry.Register(new BasicFluid(
         Language.CrudeOil,
         nameof(CrudeOil),
-        density: 870f,
-        8 * mPas,
+        new Density { KilogramsPerCubicMeter = 870f },
+        new Viscosity { MilliPascalSeconds = 8 },
         hasNeutralTint: false,
         TID.Fluid("oil")));
 
@@ -111,8 +108,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid NaturalGas { get; } = registry.Register(new BasicFluid(
         Language.NaturalGas,
         nameof(NaturalGas),
-        density: 0.8f,
-        (Int32) (0.5 * mPas),
+        new Density { KilogramsPerCubicMeter = 0.8f },
+        new Viscosity { MilliPascalSeconds = 0.5 },
         hasNeutralTint: false,
         TID.Fluid("gas"),
         RenderType.Transparent));
@@ -123,8 +120,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid Concrete { get; } = registry.Register(new ConcreteFluid(
         Language.Concrete,
         nameof(Concrete),
-        density: 2400f,
-        10 * mPas,
+        new Density { KilogramsPerCubicMeter = 2400f },
+        new Viscosity { MilliPascalSeconds = 10 },
         TID.Fluid("concrete")));
 
     /// <summary>
@@ -133,8 +130,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid Honey { get; } = registry.Register(new BasicFluid(
         Language.Honey,
         nameof(Honey),
-        density: 1450f,
-        20 * mPas,
+        new Density { KilogramsPerCubicMeter = 1450f },
+        new Viscosity { MilliPascalSeconds = 20 },
         hasNeutralTint: false,
         TID.Fluid("honey"),
         RenderType.Transparent));
@@ -145,8 +142,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid Petrol { get; } = registry.Register(new BasicFluid(
         Language.Petrol,
         nameof(Petrol),
-        density: 740f,
-        (Int32) (0.9 * mPas),
+        new Density { KilogramsPerCubicMeter = 740f },
+        new Viscosity { MilliPascalSeconds = 0.9 },
         hasNeutralTint: false,
         TID.Fluid("petrol"),
         RenderType.Transparent));
@@ -157,8 +154,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid Wine { get; } = registry.Register(new BasicFluid(
         Language.Wine,
         nameof(Wine),
-        density: 1090f,
-        (Int32) (1.4 * mPas),
+        new Density { KilogramsPerCubicMeter = 1090f },
+        new Viscosity { MilliPascalSeconds = 1.4 },
         hasNeutralTint: false,
         TID.Fluid("wine"),
         RenderType.Transparent));
@@ -169,8 +166,8 @@ public sealed partial class Fluids(Registry<Fluid> registry)
     public Fluid Beer { get; } = registry.Register(new BasicFluid(
         Language.Beer,
         nameof(Beer),
-        density: 1030f,
-        (Int32) (1.5 * mPas),
+        new Density { KilogramsPerCubicMeter = 1030f },
+        new Viscosity { MilliPascalSeconds = 1.5 },
         hasNeutralTint: false,
         TID.Fluid("beer"),
         RenderType.Transparent));
