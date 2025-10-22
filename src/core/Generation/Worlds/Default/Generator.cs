@@ -471,7 +471,7 @@ public sealed partial class Generator : IWorldGenerator
 
     private Content GenerateContent(Vector3i position, in Context context)
     {
-        if (position.Y == -World.BlockLimit) return new Content(Blocks.Instance.Core.CoreBlock);
+        if (position.Y == -World.BlockLimit) return Content.CreateGenerated(Blocks.Instance.Core.CoreBlock);
 
         Int32 groundDepth = context.Ground.Height - position.Y;
         Boolean isFilled = position.Y <= SeaLevel;

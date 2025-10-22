@@ -22,9 +22,9 @@ namespace VoxelGame.Core.Generation.Worlds.Water;
 /// </summary>
 public sealed class Generator : IWorldGenerator
 {
-    private readonly Content core = new(Blocks.Instance.Core.CoreBlock);
-    private readonly Content empty = Content.Default;
-    private readonly Content water = new(fluid: Fluids.Instance.SeaWater);
+    private readonly Content core = Content.CreateGenerated(Blocks.Instance.Core.CoreBlock);
+    private readonly Content empty = Content.GenerationDefault;
+    private readonly Content water = Content.CreateGenerated(fluid: Fluids.Instance.SeaWater);
 
     private readonly Int32 waterLevel;
 

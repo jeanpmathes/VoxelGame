@@ -43,13 +43,13 @@ public partial class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
         FluidInstance? fluid = message.World.GetFluid(message.Position);
 
         if (fluid is {IsAnyWater: true, Level.IsFull: true})
-            message.World.SetContent(new Content(Blocks.Instance.Environment.Mud, Voxels.Fluids.Instance.None), message.Position);
+            message.World.SetContent(Content.Create(Blocks.Instance.Environment.Mud), message.Position);
     }
 
     private static void OnGeneratorUpdate(Block.IGeneratorUpdateMessage message)
     {
         if (message.Content.Fluid is {IsAnyWater: true, Level.IsFull: true})
-            message.Content = new Content(Blocks.Instance.Environment.Mud);
+            message.Content = Content.Create(Blocks.Instance.Environment.Mud);
     }
 
     private static void OnAshCover(AshCoverable.IAshCoverMessage message)

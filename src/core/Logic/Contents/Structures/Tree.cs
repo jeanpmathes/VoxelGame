@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic.Contents.Structures;
@@ -41,11 +42,9 @@ public class Tree : DynamicStructure
         this.crownRandomization = crownRandomization;
         this.crownShape = crownShape;
 
-        trunk = new Content(log);
-        leaf = new Content(leaves);
-        roots = new Content(Blocks.Instance.Environment.Roots);
-
-        // todo: find a way to rotate the log block to align with Y axis
+        trunk = new Content(log.States.Default.WithAxis(Axis.Y), FluidInstance.Default);
+        leaf = Content.Create(leaves);
+        roots = Content.Create(Blocks.Instance.Environment.Roots);
 
         Box3d box = crownShape.BoundingBox;
         Vector3i min = box.Min.Floor();

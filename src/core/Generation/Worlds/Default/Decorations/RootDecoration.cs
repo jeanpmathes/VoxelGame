@@ -50,7 +50,7 @@ public class RootDecoration : Decoration
 
             if (grid.GetContent(current)?.Block.Block != Blocks.Instance.Environment.Soil) continue;
 
-            grid.SetContent(new Content(Blocks.Instance.Environment.Roots), current);
+            grid.SetContent(Content.CreateGenerated(Blocks.Instance.Environment.Roots), current);
         }
     }
 }

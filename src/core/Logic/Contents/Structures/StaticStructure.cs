@@ -165,7 +165,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
     public static StaticStructure CreateFallback()
     {
         var fallback = new Content?[1, 1, 1];
-        fallback[0, 0, 0] = new Content(Blocks.Instance.Core.Error);
+        fallback[0, 0, 0] = Content.Create(Blocks.Instance.Core.Error);
 
         return new StaticStructure(fallback, Vector3i.One);
     }

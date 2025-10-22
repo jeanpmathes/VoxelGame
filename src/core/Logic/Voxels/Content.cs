@@ -41,22 +41,44 @@ public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, Boole
 public record struct Content(State Block, FluidInstance Fluid)
 {
     /// <summary>
-    ///     Create a new content instance.
+    /// Create a new content value. Do not use this within world generator code.
     /// </summary>
-    /// <param name="block">The block instance. The data is assumed to be 0.</param>
-    /// <param name="fluid">The fluid instance. The level is assumed to be maximal and the fluid is assumed to be static.</param>
-    public Content(Block? block = null, Fluid? fluid = null) : this(block?.States.Default ?? DefaultState, fluid.AsInstance()) {}
-
+    /// <param name="block">The block, or the default block if not provided.</param>
+    /// <param name="fluid">The fluid, or an empty fluid if not provided. Will have maximal level and be static.</param>
+    /// <returns>>The created content.</returns>
+    public static Content Create(Block? block = null, Fluid? fluid = null)
+    {
+        return new Content(block?.States.Default ?? DefaultState, fluid.AsInstance());
+    }
+    
+    /// <summary>
+    /// Create a new content value for world generation. Do not use this outside of world generator code.
+    /// </summary>
+    /// <param name="block">The block, or the generation default block if not provided.</param>
+    /// <param name="fluid">The fluid, or an empty fluid if not provided. Will have maximal level and be static.</param>
+    /// <returns>>The created content.</returns>
+    public static Content CreateGenerated(Block? block = null, Fluid? fluid = null)
+    {
+        return new Content(block?.States.GenerationDefault ?? DefaultState, fluid.AsInstance());
+    }
+    
+    private static Block DefaultBlock => Blocks.Instance.Core.Air;
+    
     /// <summary>
     ///     Get the default state, which is always air.
     /// </summary>
-    public static State DefaultState => Blocks.Instance.Core.Air.States.Default;
+    public static State DefaultState => DefaultBlock.States.Default;
 
     /// <summary>
     ///     Get the default content.
     /// </summary>
-    public static Content Default => new(DefaultState, FluidInstance.Default);
+    public static Content Default => new(DefaultBlock.States.Default, FluidInstance.Default);
 
+    /// <summary>
+    ///     Get the generation default content.
+    /// </summary>
+    public static Content GenerationDefault => new(DefaultBlock.States.GenerationDefault, FluidInstance.Default);
+    
     /// <summary>
     ///     Whether the content is empty.
     /// </summary>

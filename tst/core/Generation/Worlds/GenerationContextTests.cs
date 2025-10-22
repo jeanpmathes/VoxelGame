@@ -39,7 +39,7 @@ public class GenerationContextTests : ContextTestBase
 
     private sealed class MockGenerationContext : IGenerationContext
     {
-        private readonly Content content = new(new MockBlock(), new MockFluid());
+        private readonly Content content = Content.CreateGenerated(new MockBlock(), new MockFluid());
         private readonly HashSet<Vector3i> generatedBlocks = [];
         private readonly HashSet<SectionPosition> generatedSections = [];
 

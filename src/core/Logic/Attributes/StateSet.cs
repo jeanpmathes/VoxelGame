@@ -18,7 +18,7 @@ namespace VoxelGame.Core.Logic.Attributes;
 public class StateSet
 {
     private readonly IReadOnlyList<IScoped> entries;
-    private readonly Int32 generationDefault; // todo: use this in world generation
+    private readonly Int32 generationDefault;
     private readonly Int32 placementDefault;
     private readonly UInt32 setOffset;
 

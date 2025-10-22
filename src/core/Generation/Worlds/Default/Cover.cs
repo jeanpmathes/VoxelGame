@@ -126,17 +126,17 @@ public abstract class Cover
             Double flowerFactor = isBlooming ? 0.10 : 0.05;
 
             if (value >= humidity * flowerFactor)
-                return value % 2 == 0 ? new Content(Blocks.Instance.Environment.TallGrass) : new Content(Blocks.Instance.Environment.TallerGrass);
+                return value % 2 == 0 ? Content.CreateGenerated(Blocks.Instance.Environment.TallGrass) : Content.CreateGenerated(Blocks.Instance.Environment.TallerGrass);
 
             if (mushrooms)
                 return (value % 3) switch
                 {
-                    0 => new Content(Blocks.Instance.Flowers.FlowerRed.Short),
-                    1 => new Content(Blocks.Instance.Flowers.FlowerYellow.Short),
-                    _ => new Content(Blocks.Instance.Organic.Chanterelle)
+                    0 => Content.CreateGenerated(Blocks.Instance.Flowers.FlowerRed.Short),
+                    1 => Content.CreateGenerated(Blocks.Instance.Flowers.FlowerYellow.Short),
+                    _ => Content.CreateGenerated(Blocks.Instance.Organic.Chanterelle)
                 };
 
-            return new Content(value % 2 == 0 ? Blocks.Instance.Flowers.FlowerRed.Short : Blocks.Instance.Flowers.FlowerYellow.Short);
+            return Content.CreateGenerated(value % 2 == 0 ? Blocks.Instance.Flowers.FlowerRed.Short : Blocks.Instance.Flowers.FlowerYellow.Short);
         }
     }
 
@@ -157,12 +157,12 @@ public abstract class Cover
             if (hasSucculents)
                 return (value % 3) switch
                 {
-                    0 => new Content(Blocks.Instance.Organic.AloeVera),
-                    1 => new Content(Blocks.Instance.Environment.TallGrass),
-                    _ => new Content(Blocks.Instance.Environment.TallerGrass)
+                    0 => Content.CreateGenerated(Blocks.Instance.Organic.AloeVera),
+                    1 => Content.CreateGenerated(Blocks.Instance.Environment.TallGrass),
+                    _ => Content.CreateGenerated(Blocks.Instance.Environment.TallerGrass)
                 };
 
-            return value % 2 == 0 ? new Content(Blocks.Instance.Environment.TallGrass) : new Content(Blocks.Instance.Environment.TallerGrass);
+            return value % 2 == 0 ? Content.CreateGenerated(Blocks.Instance.Environment.TallGrass) : Content.CreateGenerated(Blocks.Instance.Environment.TallerGrass);
         }
     }
 
@@ -198,7 +198,7 @@ public abstract class Cover
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             return NumberGenerator.GetPositionDependentNumber(position, draw.mod) > draw.threshold
-                ? new Content(Blocks.Instance.Organic.Lichen)
+                ? Content.CreateGenerated(Blocks.Instance.Organic.Lichen)
                 : Content.Default;
         }
     }
@@ -215,8 +215,8 @@ public abstract class Cover
 
             return value switch
             {
-                0 => new Content(Blocks.Instance.Organic.Lichen),
-                < 7 => new Content(Blocks.Instance.Organic.Moss),
+                0 => Content.CreateGenerated(Blocks.Instance.Organic.Lichen),
+                < 7 => Content.CreateGenerated(Blocks.Instance.Organic.Moss),
                 _ => Content.Default
             };
         }
@@ -232,7 +232,7 @@ public abstract class Cover
         {
             Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 10);
 
-            return value < 6 ? new Content(Blocks.Instance.Environment.Salt) : Content.Default;
+            return value < 6 ? Content.CreateGenerated(Blocks.Instance.Environment.Salt) : Content.Default;
         }
     }
 
@@ -248,9 +248,9 @@ public abstract class Cover
 
             return value switch
             {
-                < 2 => new Content(Blocks.Instance.Organic.Moss),
-                < 7 => new Content(Blocks.Instance.Organic.Fern),
-                _ => Content.Default
+                < 2 => Content.CreateGenerated(Blocks.Instance.Organic.Moss),
+                < 7 => Content.CreateGenerated(Blocks.Instance.Organic.Fern),
+                _ => Content.GenerationDefault
             };
         }
     }

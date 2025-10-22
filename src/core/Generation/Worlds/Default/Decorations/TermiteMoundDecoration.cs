@@ -55,7 +55,7 @@ public class TermiteMoundDecoration : Decoration
                 continue;
 
             if (block.IsReplaceable || block.Block.Is<Soil>())
-                grid.SetContent(new Content(Blocks.Instance.Organic.TermiteMound), current);
+                grid.SetContent(Content.CreateGenerated(Blocks.Instance.Organic.TermiteMound), current);
         }
     }
 }

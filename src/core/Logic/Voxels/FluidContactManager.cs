@@ -94,7 +94,7 @@ public class FluidContactManager
         State lavaBlock = world.GetBlock(lava.position) ?? Content.DefaultState;
 
         if (lavaBlock.IsReplaceable || lavaBlock.Block.Destroy(world, lava.position))
-            world.SetContent(new Content(Blocks.Instance.Stones.Pumice.Base), lava.position);
+            world.SetContent(Content.Create(Blocks.Instance.Stones.Pumice.Base), lava.position);
 
         SetFluid(world, coolant.position, Fluids.Instance.Steam, coolant.level);
 

@@ -228,4 +228,30 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
             }
         }
     }
+    
+    /// <summary>
+    /// Set the attachment on the given side, returning the new state.
+    /// </summary>
+    /// <param name="state">The original state.</param>
+    /// <param name="attachment">The side to attach to.</param>
+    /// <returns>The new state with the attachment applied, or the original state if the attachment could not be applied.</returns>
+    public State SetAttachment(State state, Side attachment)
+    {
+        Sides attachmentFlag = attachment.ToFlag();
+
+        if (!AttachmentSides.Get().HasFlag(attachmentFlag))
+            return state;
+
+        if (Mode.Get() == AttachmentMode.Single)
+        {
+            return AttachedState.GetValue(state, (state, attachmentFlag)) ?? state;
+        }
+        else
+        {
+            Sides currentSides = AttachedSides.GetValue(Sides.None, state);
+            Sides newSides = currentSides | attachmentFlag;
+
+            return AttachedState.GetValue(state, (state, newSides)) ?? state;
+        }
+    }
 }

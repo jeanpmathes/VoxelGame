@@ -27,6 +27,6 @@ public class Cactus : DynamicStructure
     /// <inheritdoc />
     protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset, Single random)
     {
-        return (new Content(Blocks.Instance.Organic.Cactus), true);
+        return (Content.CreateGenerated(Blocks.Instance.Organic.Cactus), true);
     }
 }

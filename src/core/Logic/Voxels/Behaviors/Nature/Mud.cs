@@ -36,7 +36,7 @@ public partial class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
 
         message.World.SetContent(remaining >= FluidLevel.One
                 ? new Content(new State(Blocks.Instance.Environment.Soil), Voxels.Fluids.Instance.FreshWater.AsInstance(remaining))
-                : new Content(Blocks.Instance.Environment.Soil),
+                : Content.Create(Blocks.Instance.Environment.Soil),
             message.Position);
 
         message.MarkAsSuccessful();
