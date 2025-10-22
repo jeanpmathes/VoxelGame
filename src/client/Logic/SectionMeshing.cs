@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
@@ -17,7 +17,6 @@ using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Client.Logic;

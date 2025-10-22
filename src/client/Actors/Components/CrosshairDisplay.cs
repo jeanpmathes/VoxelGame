@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
 

@@ -6,10 +6,9 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Actors.Components;
 

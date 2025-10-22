@@ -6,7 +6,7 @@
 
 using System;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Console.Commands;
 using VoxelGame.Client.Sessions;
 using VoxelGame.Core.Profiling;

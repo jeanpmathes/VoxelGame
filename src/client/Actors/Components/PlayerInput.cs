@@ -6,13 +6,12 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Core.Actors;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Input.Composite;
 using VoxelGame.Toolkit;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 

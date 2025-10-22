@@ -8,16 +8,8 @@ using System;
 
 namespace VoxelGame.Core.Utilities.Units;
 
-/// <summary>
-///     A real-time duration. Do not use this for time spans or time intervals.
-/// </summary>
-public readonly struct Duration : IMeasure, IEquatable<Duration>
+public readonly partial struct Duration
 {
-    /// <summary>
-    ///     Get the duration, in seconds.
-    /// </summary>
-    public Double Seconds { get; init; }
-
     /// <summary>
     ///     Get the duration, in milliseconds.
     /// </summary>
@@ -25,64 +17,5 @@ public readonly struct Duration : IMeasure, IEquatable<Duration>
     {
         get => Seconds * 1000;
         init => Seconds = value / 1000;
-    }
-
-    /// <inheritdoc />
-    public static Unit Unit => Unit.Second;
-
-    /// <inheritdoc />
-    public static Prefix.AllowedPrefixes Prefixes
-        => Prefix.AllowedPrefixes.Unprefixed | Prefix.AllowedPrefixes.Milli | Prefix.AllowedPrefixes.Micro | Prefix.AllowedPrefixes.Nano;
-
-    Double IMeasure.Value => Seconds;
-
-    /// <inheritdoc />
-    public Boolean Equals(Duration other)
-    {
-        return Seconds.Equals(other.Seconds);
-    }
-
-    /// <inheritdoc />
-    public override Boolean Equals(Object? obj)
-    {
-        return obj is Duration other && Equals(other);
-    }
-
-    /// <inheritdoc />
-    public override Int32 GetHashCode()
-    {
-        return Seconds.GetHashCode();
-    }
-
-    /// <summary>
-    ///     Equality operator.
-    /// </summary>
-    public static Boolean operator ==(Duration left, Duration right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Inequality operator.
-    /// </summary>
-    public static Boolean operator !=(Duration left, Duration right)
-    {
-        return !left.Equals(right);
-    }
-
-    /// <inheritdoc />
-    public override String ToString()
-    {
-        return IMeasure.ToString(this, format: null);
-    }
-
-    /// <summary>
-    ///     Convert the duration to a string.
-    /// </summary>
-    /// <param name="format">The format provider.</param>
-    /// <returns>The string representation of the duration.</returns>
-    public String ToString(IFormatProvider? format)
-    {
-        return IMeasure.ToString(this, format);
     }
 }

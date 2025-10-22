@@ -7,13 +7,12 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace VoxelGame.Annotations;
+namespace VoxelGame.Annotations.Attributes;
 
 /// <summary>
 ///     Marks an interface so a record implementation is generated.

@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations.Definitions;
 
 namespace VoxelGame.Core.Utilities.Units;
 
@@ -21,7 +22,7 @@ public interface IMeasure
     /// <summary>
     ///     All allowed prefixes for the measure.
     /// </summary>
-    static abstract Prefix.AllowedPrefixes Prefixes { get; }
+    static abstract AllowedPrefixes Prefixes { get; }
 
     /// <summary>
     ///     The value of the measures.

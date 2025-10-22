@@ -13,7 +13,6 @@ using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Graphics.Raytracing;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Utilities;
 using Mesh = VoxelGame.Graphics.Objects.Mesh;
 

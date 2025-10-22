@@ -10,7 +10,7 @@ using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using VoxelGame.Analyzers.Analyzers;
 using VoxelGame.Analyzers.Tests.Utilities;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using Xunit;
 using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<VoxelGame.Analyzers.Analyzers.ConstructibleUsageAnalyzer, Microsoft.CodeAnalysis.Testing.DefaultVerifier>;
 

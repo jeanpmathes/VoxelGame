@@ -8,3 +8,4 @@
  VG0004  | Usage    | Warning  | Hidden fields (created by generators) should not be used outside of generated code.      
  VG0005  | Usage    | Warning  | The GenerateRecord attribute must be applied to interfaces only.
  VG0006  | Usage    | Warning  | The Constructible attribute must be applied to supported constructors.
+ VG0007  | Usage    | Warning  | The GenerateMeasure attribute must be applied to static Unit properties.

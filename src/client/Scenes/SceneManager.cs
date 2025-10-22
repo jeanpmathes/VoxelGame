@@ -10,13 +10,12 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Application.Components;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 using Activity = VoxelGame.Core.Updates.Activity;
 
 namespace VoxelGame.Client.Scenes;

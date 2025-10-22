@@ -6,7 +6,7 @@
 
 using System;
 
-namespace VoxelGame.Annotations;
+namespace VoxelGame.Annotations.Attributes;
 
 /// <summary>
 ///     Marks a constructor so a constructible implementation is generated.

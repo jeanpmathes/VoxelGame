@@ -5,9 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes.Components;

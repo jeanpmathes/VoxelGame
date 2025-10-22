@@ -74,6 +74,8 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <Compile Remove="Visuals\NamedColor.cs" />
+        <Compile Remove="Utilities\Units\Length.cs" />
+        <Compile Remove="Utilities\Units\Memory.cs" />
     </ItemGroup>
     <ItemGroup>
         <None Update="Settings.settings">

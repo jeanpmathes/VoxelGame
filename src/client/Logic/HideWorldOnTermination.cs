@@ -4,10 +4,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Logic;
 

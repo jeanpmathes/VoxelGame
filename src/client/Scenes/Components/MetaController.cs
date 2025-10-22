@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.UI.UserInterfaces;

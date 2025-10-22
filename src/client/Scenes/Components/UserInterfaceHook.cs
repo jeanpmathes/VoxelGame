@@ -7,7 +7,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;

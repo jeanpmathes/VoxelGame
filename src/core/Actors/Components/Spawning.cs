@@ -4,8 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Annotations;
-using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Core.Actors.Components;
 

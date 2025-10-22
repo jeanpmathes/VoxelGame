@@ -6,6 +6,7 @@
 
 using System;
 using JetBrains.Annotations;
+using VoxelGame.Annotations.Definitions;
 using VoxelGame.Core.Utilities.Units;
 using Xunit;
 
@@ -41,8 +42,8 @@ public class PrefixTests
     [Fact]
     public void Prefix_FindBest_ShouldOnlyReturnAllowedPrefix()
     {
-        Assert.Equal(Prefix.Hecto, Prefix.FindBest(value: 1e6, Prefix.AllowedPrefixes.Hecto));
-        Assert.Equal(Prefix.Unprefixed, Prefix.FindBest(value: 1e6, Prefix.AllowedPrefixes.Unprefixed));
-        Assert.Equal(Prefix.Unprefixed, Prefix.FindBest(value: 1e6, Prefix.AllowedPrefixes.None));
+        Assert.Equal(Prefix.Hecto, Prefix.FindBest(value: 1e6, AllowedPrefixes.Hecto));
+        Assert.Equal(Prefix.Unprefixed, Prefix.FindBest(value: 1e6, AllowedPrefixes.Unprefixed));
+        Assert.Equal(Prefix.Unprefixed, Prefix.FindBest(value: 1e6, AllowedPrefixes.None));
     }
 }

@@ -6,7 +6,7 @@
 
 using System;
 
-namespace VoxelGame.Annotations;
+namespace VoxelGame.Annotations.Attributes;
 
 /// <summary>
 ///     Marks a property to be initialized late, i.e., not in the constructor.

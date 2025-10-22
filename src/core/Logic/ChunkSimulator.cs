@@ -7,11 +7,10 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic;
 

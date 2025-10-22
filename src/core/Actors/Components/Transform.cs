@@ -5,9 +5,8 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Actors.Components;
 

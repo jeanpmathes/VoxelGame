@@ -10,7 +10,6 @@ using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Physics;
 

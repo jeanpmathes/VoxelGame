@@ -7,7 +7,7 @@
 using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;

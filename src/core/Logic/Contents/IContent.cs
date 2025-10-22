@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Logic.Contents;

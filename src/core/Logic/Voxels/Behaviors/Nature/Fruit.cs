@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
