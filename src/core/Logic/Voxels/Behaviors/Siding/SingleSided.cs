@@ -67,8 +67,8 @@ public partial class SingleSided : BlockBehavior, IBehavior<SingleSided, BlockBe
     /// <param name="state">The state to set the side in.</param>
     /// <param name="side">The side to set.</param>
     /// <returns>The state with the updated side, or <c>null</c> if the side is not supported.</returns>
-    public State? SetSide(State state, Side side)
+    public State? SetSide(State state, Side? side)
     {
-        return SidedState.GetValue(state, (state, side));
+        return side == null ? null : SidedState.GetValue(state, (state, side.Value));
     }
 }

@@ -66,7 +66,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
             attached.AttachmentSides.Initializer.ContributeConstant(Sides.Lateral);
 
             attached.AttachedSides.ContributeFunction((_, state) => siding.GetSide(state).ToFlag());
-            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.Single())); // todo: handling if not single as this allows null, maybe a new extension for sides
+            attached.AttachedState.ContributeFunction((_, context) => siding.SetSide(context.state, context.sides.SingleOrDefault()));
         })
         .WithBehavior<Vine>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))

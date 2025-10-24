@@ -5,11 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
@@ -44,8 +46,15 @@ public partial class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, 
 
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
-        // todo: multiply by height of the block if it has a height
+        var factor = 1.0;
+        
+        if (Subject.Get<PartialHeight>() is {} height)
+        {
+            factor = height.GetHeight(message.State).Ratio;
+        }
 
-        message.Body.Velocity = MathTools.Clamp(message.Body.Velocity, min: -1.0, MaxVelocity.Get());
+        Vector3d newVelocity = MathTools.Clamp(message.Body.Velocity, min: -1.0, MaxVelocity.Get());
+        
+        message.Body.Velocity = Vector3d.Lerp(message.Body.Velocity, newVelocity, factor);
     }
 }
