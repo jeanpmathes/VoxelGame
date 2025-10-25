@@ -230,7 +230,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
         .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("steel_pipe_valve_open"), RID.File<Model>("steel_pipe_valve_closed")]))
         .WithBehavior<Piped>(piped => piped.Tier.Initializer.ContributeConstant(Piped.PipeTier.Industrial))
         .WithBehavior<StraightPipe>()
-        .WithBehavior<Valve>()
+        .WithBehavior<Barrier, Modelled>((barrier, modelled) => modelled.Selector.ContributeFunction((original, state) => original.WithLayer(barrier.IsBarrierOpen(state) ? 0 : 1)))
         .Complete();
 
     /// <summary>

@@ -50,6 +50,6 @@ public class RotatableModelled : BlockBehavior, IBehavior<RotatableModelled, Blo
 
         (axis, turns) = RotationOverride.GetValue((axis, turns), state);
 
-        return original.CreateModelFor(axis, turns);
+        return original.CreateModelForRotation(axis, turns);
     }
 }

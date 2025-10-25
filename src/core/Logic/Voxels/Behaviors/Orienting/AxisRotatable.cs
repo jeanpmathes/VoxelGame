@@ -43,9 +43,9 @@ public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, Blo
     {
         return state.Get(Axis) switch
         {
-            Utilities.Axis.Y => Utilities.Axis.Y,
-            Utilities.Axis.X => Utilities.Axis.Z,
-            Utilities.Axis.Z => Utilities.Axis.X,
+            Utilities.Axis.Y => Utilities.Axis.X,
+            Utilities.Axis.X => Utilities.Axis.Y,
+            Utilities.Axis.Z => Utilities.Axis.Y,
             _ => original
         };
     }
@@ -55,8 +55,8 @@ public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, Blo
         return state.Get(Axis) switch
         {
             Utilities.Axis.X => 1,
-            Utilities.Axis.Y => 0,
-            Utilities.Axis.Z => 1,
+            Utilities.Axis.Y => 1,
+            Utilities.Axis.Z => 0,
             _ => original
         };
     }

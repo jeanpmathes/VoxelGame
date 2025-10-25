@@ -38,9 +38,7 @@ public partial class StraightPipe : BlockBehavior, IBehavior<StraightPipe, Block
 
         subject.Require<Pipe>().OpenSides.ContributeFunction(GetOpenSides);
 
-        subject.Require<Modelled>().Model.ContributeFunction(GetModel);
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
-
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
@@ -54,13 +52,6 @@ public partial class StraightPipe : BlockBehavior, IBehavior<StraightPipe, Block
     private Sides GetOpenSides(Sides original, State state)
     {
         return rotation.GetAxis(state).Sides();
-    }
-
-    private Model GetModel(Model original, State state)
-    {
-        Axis axis = rotation.GetAxis(state);
-
-        return original.CreateModelForAxis(axis, Model.TransformationMode.Reshape);
     }
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)

@@ -49,8 +49,8 @@ public sealed partial class Model : IResource, ILocated
     [JsonConstructor]
     private Model(ImmutableArray<String> textureNames, ImmutableArray<Quad> quads)
     {
-        TextureNames = textureNames.IsDefault ? [] : textureNames;
-        Quads = quads.IsDefault ? [] : quads;
+        TextureNames = textureNames.IsDefault ? [] : [..textureNames];
+        Quads = quads.IsDefault ? [] : [..quads];
     }
 
     /// <summary>
@@ -279,8 +279,8 @@ public sealed partial class Model : IResource, ILocated
         {
             Axis.Z => this,
 
-            Axis.X => CreateModelForSide(Side.Left, mode),
-            Axis.Y => CreateModelForSide(Side.Bottom, mode),
+            Axis.Y => CreateModelForRotation(Axis.X, turns: 1, mode),
+            Axis.X => CreateModelForRotation(Axis.Z, turns: 1, mode),
 
             _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
@@ -307,7 +307,7 @@ public sealed partial class Model : IResource, ILocated
             _ => throw Exceptions.UnsupportedEnumValue(side)
         };
 
-        return CreateModelFor(axis, turns, mode: mode);
+        return CreateModelForRotation(axis, turns, mode: mode);
     }
     
     /// <summary>
@@ -317,7 +317,7 @@ public sealed partial class Model : IResource, ILocated
     /// <param name="turns">The number of 90° clockwise turns to apply.</param>
     /// <param name="mode">The transformation mode to use.</param>
     /// <returns>The rotated model.</returns>
-    public Model CreateModelFor(Axis axis, Int32 turns, TransformationMode mode = TransformationMode.Rotate)
+    public Model CreateModelForRotation(Axis axis, Int32 turns, TransformationMode mode = TransformationMode.Rotate)
     {
         turns = MathTools.Mod(turns, m: 4);
         

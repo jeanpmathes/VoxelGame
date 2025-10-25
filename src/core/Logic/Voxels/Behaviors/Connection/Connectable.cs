@@ -60,7 +60,7 @@ public partial class Connectable : BlockBehavior, IBehavior<Connectable, BlockBe
     /// <summary>
     ///     The strength of the connection of this block.
     /// </summary>
-    public ResolvedProperty<Strengths> Strength { get; } = ResolvedProperty<Strengths>.New<Exclusive<Strengths, Void>>(nameof(Strength));
+    public ResolvedProperty<Strengths> Strength { get; } = ResolvedProperty<Strengths>.New<Masking<Strengths, Void>>(nameof(Strength), Strengths.All);
 
     /// <summary>
     ///     Whether connection to this block is allowed in the given state.

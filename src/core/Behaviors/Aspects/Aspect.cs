@@ -82,7 +82,7 @@ public class Aspect<TValue, TContext>
         }
         else
         {
-            if (usedContributors.Count > maxContributors)
+            if (usedContributors.Count >= maxContributors)
             {
                 rejectedContributors.Add(contributor);
 
