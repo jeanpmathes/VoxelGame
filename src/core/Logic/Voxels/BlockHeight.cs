@@ -19,7 +19,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
 {
     private const Int32 NoneValue = -1;
     private const Int32 MinValue = 0;
-        private const Int32 MaxValue = 15; // Don't even think about changing this without checking implicit dependencies, e.g. from StoredHeight8 and StoredHeight16, or FluidLevel.
+    private const Int32 MaxValue = 15; // Don't even think about changing this without checking implicit dependencies, e.g. from StoredHeight8 and StoredHeight16, or FluidLevel.
 
     private readonly SByte value;
 
@@ -57,12 +57,23 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     ///     Gets whether this value represents a full block.
     /// </summary>
     public Boolean IsFull => value == MaxValue;
-    
+
     /// <summary>
     /// Get the ratio of this height to the maximum height of a block.
     /// As a block is exactly 1 meter tall, this is also the height in meters.
     /// </summary>
-    public Double Ratio => IsNone ? 0.0 : (Double) (value + 1) / (MaxValue + 1);
+    public Double Ratio => IsNone ? 0.0 : GetRatio(value);
+    
+    /// <summary>
+    /// Get the ratio of a given height to the maximum height of a block.
+    /// Note that using this is not equivalent to using <see cref="FromInt32"/> first, as that method clamps the value.
+    /// </summary>
+    /// <param name="height">The height to get the ratio for.</param>
+    /// <returns>>The ratio of the given height.</returns>
+    public static Double GetRatio(Int32 height)
+    {
+        return (Double) (height + 1) / (MaxValue + 1);
+    }
 
     /// <summary>
     ///     Create a height value from an integer representation.
@@ -71,7 +82,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     /// <returns>The created height value.</returns>
     public static BlockHeight FromInt32(Int32 value)
     {
-        return value == NoneValue ? None : new BlockHeight(Math.Clamp(value, MinValue, MaxValue));
+        return new BlockHeight(Math.Clamp(value, MinValue, MaxValue));
     }
 
     /// <summary>
@@ -82,6 +93,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
         if (value is < NoneValue or > MaxValue)
         {
             height = None;
+
             return false;
         }
 
@@ -118,7 +130,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     }
 
     #region EQUALITY AND COMPARISON
-    
+
     /// <inheritdoc />
     public Boolean Equals(BlockHeight other)
     {
@@ -166,7 +178,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     {
         return left.value > right.value;
     }
-    
+
     /// <summary>
     ///     The greater than or equal operator.
     /// </summary>
@@ -174,7 +186,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     {
         return left.value >= right.value;
     }
-    
+
     /// <summary>
     ///     The less than operator.
     /// </summary>
@@ -182,7 +194,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     {
         return left.value < right.value;
     }
-    
+
     /// <summary>
     ///     The less than or equal operator.
     /// </summary>

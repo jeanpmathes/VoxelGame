@@ -57,17 +57,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     /// <returns>The size of the face.</returns>
     public static Single GetSize(Int32 height)
     {
-        return (Single) BlockHeight.FromInt32(height).Ratio;
-    }
-
-    /// <summary>
-    ///     Get the gap of a face, which is the space between the end of the face and the end of the block, in world units.
-    /// </summary>
-    /// <param name="height">The height of the face.</param>
-    /// <returns>The gap of the face.</returns>
-    public static Single GetGap(BlockHeight height)
-    {
-        return 1 - (Single) height.Ratio;
+        return (Single) BlockHeight.GetRatio(height);
     }
 
     /// <summary>
@@ -77,7 +67,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     /// <returns>The gap of the face.</returns>
     public static Single GetGap(Int32 height)
     {
-        return GetGap(BlockHeight.FromInt32(height));
+        return 1.0f - GetSize(height);
     }
 
     /// <summary>

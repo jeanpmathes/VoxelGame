@@ -25,7 +25,7 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
-using Generator = VoxelGame.Core.Generation.Worlds.Testing.Generator;
+using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
 
 namespace VoxelGame.Core.Logic;
 
@@ -230,7 +230,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
         Chunks.Unload(chunk);
     }
 
-    private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
+    private static IWorldGenerator? GetAndInitializeGenerator(World world, Timer? timer)
     {
         return Generator.Create(new WorldGeneratorContext(world, timer));
     }
