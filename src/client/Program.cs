@@ -11,6 +11,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Microsoft.Extensions.Logging;
 using Properties;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Application.Settings;
 using VoxelGame.Core.Profiling;
@@ -31,32 +32,38 @@ internal static partial class Program
     /// <summary>
     ///     Get the version of the program.
     /// </summary>
-    private static Version Version { get; set; } = null!;
+    [LateInitialization]
+    private static partial Version Version { get; set; } 
 
     /// <summary>
     ///     Get whether the program is running with code that was compiled in debug mode.
     /// </summary>
-    private static Boolean IsDebug { get; set; }
+    [LateInitialization]
+    private static partial Boolean IsDebug { get; set; }
 
     /// <summary>
     ///     Get the app data directory.
     /// </summary>
-    private static DirectoryInfo AppDataDirectory { get; set; } = null!;
+    [LateInitialization]
+    private static partial DirectoryInfo AppDataDirectory { get; set; }
 
     /// <summary>
     ///     Get the screenshot directory.
     /// </summary>
-    internal static DirectoryInfo ScreenshotDirectory { get; private set; } = null!;
+    [LateInitialization]
+    internal static partial DirectoryInfo ScreenshotDirectory { get; private set; }
 
     /// <summary>
     ///     Get the directory structures are exported to.
     /// </summary>
-    internal static DirectoryInfo StructureDirectory { get; private set; } = null!;
+    [LateInitialization]
+    internal static partial DirectoryInfo StructureDirectory { get; private set; } 
 
     /// <summary>
     ///     Get the world directory.
     /// </summary>
-    internal static DirectoryInfo WorldsDirectory { get; private set; } = null!;
+    [LateInitialization]
+    internal static partial DirectoryInfo WorldsDirectory { get; private set; } 
 
     [STAThread]
     private static Int32 Main(String[] commandLineArguments)

@@ -108,7 +108,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
     ///     Get the cover of the sub-biome.
     ///     Cover is placed on top of the highest layer in the sub-biome.
     /// </summary>
-    public Cover Cover { get; init; } = null!;
+    public required Cover Cover { get; init; }
 
     /// <summary>
     ///     Get the stuffer of the sub-biome.

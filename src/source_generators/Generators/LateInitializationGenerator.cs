@@ -49,19 +49,8 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
     {
         if (ModelExtensions.GetDeclaredSymbol(semanticModel, propertyDeclarationSyntax) is not IPropertySymbol propertySymbol)
             return null;
-
-        var isPartial = false;
-
-        foreach (SyntaxToken modifier in propertyDeclarationSyntax.Modifiers)
-        {
-            if (modifier.IsKind(SyntaxKind.StaticKeyword))
-                return null;
-
-            if (modifier.IsKind(SyntaxKind.PartialKeyword))
-                isPartial = true;
-        }
-
-        if (!isPartial)
+        
+        if (!propertySymbol.IsPartialDefinition)
             return null;
 
         ContainingType? containingType = SyntaxTools.GetContainingType(propertyDeclarationSyntax, semanticModel);
@@ -71,10 +60,12 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         String accessibility = SyntaxFacts.GetText(propertySymbol.DeclaredAccessibility);
         String name = propertySymbol.Name;
         
+        Boolean isStatic = propertySymbol.IsStatic;
+        
         String getAccessibility = propertySymbol.GetMethod != null ? SyntaxFacts.GetText(propertySymbol.GetMethod.DeclaredAccessibility) : accessibility;
         String setAccessibility = propertySymbol.SetMethod != null ? SyntaxFacts.GetText(propertySymbol.SetMethod.DeclaredAccessibility) : accessibility;
 
-        return new PropertyModel(containingType, declaringType, @namespace, accessibility, type, name, getAccessibility, setAccessibility);
+        return new PropertyModel(containingType, declaringType, @namespace, accessibility, type, name, isStatic, getAccessibility, setAccessibility);
     }
 
     private static void Execute(PropertyModel? model, SourceProductionContext context)
@@ -94,6 +85,8 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
 
         var backingFieldName = $"@__{NameTools.ConvertPascalCaseToCamelCase(model.Name)}";
         
+        String staticModifier = model.IsStatic ? "static " : "";
+        
         String getAccessibility = model.GetAccessibility != model.Accessibility ? $"{model.GetAccessibility} " : "";
         String setAccessibility = model.SetAccessibility != model.Accessibility ? $"{model.SetAccessibility} " : "";
 
@@ -101,9 +94,9 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
             (c, i) =>
             {
                 c.Append($$"""
-                           {{i}}private {{model.Type}}? {{backingFieldName}};
+                           {{i}}private {{staticModifier}}{{model.Type}}? {{backingFieldName}};
 
-                           {{i}}{{model.Accessibility}} partial {{model.Type}} {{model.Name}}
+                           {{i}}{{model.Accessibility}} {{staticModifier}}partial {{model.Type}} {{model.Name}}
                            {{i}}{
                            {{i}}    {{getAccessibility}}get => {{backingFieldName}} ?? throw new global::System.InvalidOperationException($"Property '{nameof({{model.Name}})}' is used before being initialized.");
                            {{i}}    {{setAccessibility}}set
@@ -120,5 +113,5 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         return sb.ToString();
     }
 
-    private record struct PropertyModel(ContainingType? ContainingType, String DeclaringType, String Namespace, String Accessibility, String Type, String Name, String GetAccessibility, String SetAccessibility);
+    private record struct PropertyModel(ContainingType? ContainingType, String DeclaringType, String Namespace, String Accessibility, String Type, String Name, Boolean IsStatic, String GetAccessibility, String SetAccessibility);
 }

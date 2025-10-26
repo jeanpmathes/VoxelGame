@@ -9,18 +9,20 @@ using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Logging;
 
 /// <summary>
 ///     Utility class to create loggers.
 /// </summary>
-public static class LoggingHelper
+public static partial class LoggingHelper
 {
     /// <summary>
     /// Get the logger factory.
     /// </summary>
-    public static ILoggerFactory LoggerFactory { get; set; } = null!;
+    [LateInitialization]
+    public static partial ILoggerFactory LoggerFactory { get; set; } 
 
     /// <summary>
     ///     Create a logger.

@@ -30,11 +30,11 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
     private static readonly DiagnosticDescriptor rule = new(
         DiagnosticID,
         "Property with LateInitialization must be partial",
-        "Property '{0}' is marked with LateInitialization but is not partial, non-nullable or non-static",
+        "Property '{0}' is marked with LateInitialization but is not partial or non-nullable",
         Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        "Properties marked with LateInitialization must be partial, non-nullable and non-static.");
+        "Properties marked with LateInitialization must be partial or non-nullable.");
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [rule];
@@ -63,19 +63,7 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
 
             if (attributeClass.Name != nameof(LateInitializationAttribute) && attributeClass.ToDisplayString() != typeof(LateInitializationAttribute).FullName) continue;
 
-            var isPartial = false;
-
-            foreach (SyntaxToken modifier in propertyDeclarationSyntax.Modifiers)
-            {
-                if (!modifier.IsKind(SyntaxKind.PartialKeyword))
-                    continue;
-
-                isPartial = true;
-
-                break;
-            }
-
-            if (!isPartial || propertySymbol.IsStatic || propertyDeclarationSyntax.Type is NullableTypeSyntax || propertySymbol.Type.NullableAnnotation == NullableAnnotation.Annotated)
+            if (!propertySymbol.IsPartialDefinition || propertyDeclarationSyntax.Type is NullableTypeSyntax || propertySymbol.Type.NullableAnnotation == NullableAnnotation.Annotated)
             {
                 var diagnostic = Diagnostic.Create(rule, propertyDeclarationSyntax.Identifier.GetLocation(), propertySymbol.Name);
                 context.ReportDiagnostic(diagnostic);

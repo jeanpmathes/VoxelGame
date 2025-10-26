@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
@@ -162,8 +163,11 @@ public sealed partial class Map : IMap, IDisposable
         this.biomes = biomes;
     }
 
-    internal SamplingNoise SamplingNoise { get; private set; } = null!;
-    internal GeneratingNoise GeneratingNoise { get; private set; } = null!;
+    [LateInitialization]
+    internal partial SamplingNoise SamplingNoise { get; private set; }
+    
+    [LateInitialization]
+    internal partial GeneratingNoise GeneratingNoise { get; private set; }
 
     /// <inheritdoc />
     public Property GetPositionDebugData(Vector3d position)

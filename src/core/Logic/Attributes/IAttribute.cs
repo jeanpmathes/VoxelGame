@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.Text.Json.Nodes;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes;
@@ -116,16 +117,18 @@ public interface IAttribute<TValue> : IAttribute
 ///     Abstract base class for attributes.
 /// </summary>
 /// <typeparam name="TValue">The type of the value.</typeparam>
-public abstract class AttributeImplementation<TValue> : IAttribute<TValue>
+public abstract partial class AttributeImplementation<TValue> : IAttribute<TValue>
 {
     /// <inheritdoc />
-    public String Name { get; private set; } = null!;
+    [LateInitialization]
+    public partial String Name { get; private set; }
 
     /// <inheritdoc />
     public Boolean IsEmpty => false;
 
     /// <inheritdoc />
-    public Int32 Divisor { get; private set; }
+    [LateInitialization]
+    public partial Int32 Divisor { get; private set; }
 
     /// <inheritdoc />
     public abstract Int32 Multiplicity { get; }

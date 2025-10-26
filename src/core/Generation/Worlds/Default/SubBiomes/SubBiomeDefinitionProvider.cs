@@ -41,6 +41,7 @@ public class SubBiomeDefinitionProvider : ResourceProvider<SubBiomeDefinition>, 
     {
         fallback = new SubBiomeDefinition("Fallback", palette)
         {
+            Cover  = new Cover.Nothing(),
             Layers =
             [
                 Layer.CreateStone(width: 1),

@@ -7,6 +7,7 @@
 using System;
 using System.IO;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -21,27 +22,31 @@ namespace VoxelGame.Client.Visuals;
 /// <summary>
 ///     Renders a <see cref="Section" />.
 /// </summary>
-public sealed class SectionRenderer : IDisposable
+public sealed partial class SectionRenderer : IDisposable
 {
     /// <summary>
     ///     The basic raytracing material for opaque section parts.
     /// </summary>
-    private static Material basicOpaqueMaterial = null!;
+    [LateInitialization]
+    private static partial Material BasicOpaqueMaterial { get; set; }
 
     /// <summary>
     ///     The basic raytracing material for transparent section parts.
     /// </summary>
-    private static Material basicTransparentMaterial = null!;
+    [LateInitialization]
+    private static partial Material BasicTransparentMaterial { get; set; }
 
     /// <summary>
     ///     The raytracing material used for foliage.
     /// </summary>
-    private static Material foliageMaterial = null!;
+    [LateInitialization]
+    private static partial Material FoliageMaterial { get; set; }
 
     /// <summary>
     ///     The raytracing material used for opaque fluids.
     /// </summary>
-    private static Material fluidMaterial = null!;
+    [LateInitialization]
+    private static partial Material FluidMaterial { get; set; }
 
     private readonly Vector3d position;
 
@@ -98,30 +103,30 @@ public sealed class SectionRenderer : IDisposable
         builder.AddShaderFile(directory.GetFile("Foliage.hlsl"), [foliageSectionHitGroup, foliageShadowHitGroup]);
         builder.AddShaderFile(directory.GetFile("Fluid.hlsl"), [fluidSectionHitGroup, fluidShadowHitGroup]);
 
-        basicOpaqueMaterial = builder.AddMaterial(
-            nameof(basicOpaqueMaterial),
+        BasicOpaqueMaterial = builder.AddMaterial(
+            nameof(BasicOpaqueMaterial),
             PipelineBuilder.Groups.Default,
             isOpaque: true,
             basicOpaqueSectionHitGroup,
             basicOpaqueShadowHitGroup);
 
-        basicTransparentMaterial = builder.AddMaterial(
-            nameof(basicTransparentMaterial),
+        BasicTransparentMaterial = builder.AddMaterial(
+            nameof(BasicTransparentMaterial),
             PipelineBuilder.Groups.Default,
             isOpaque: false,
             basicTransparentSectionHitGroup,
             basicTransparentShadowHitGroup);
 
-        foliageMaterial = builder.AddMaterial(
-            nameof(foliageMaterial),
+        FoliageMaterial = builder.AddMaterial(
+            nameof(FoliageMaterial),
             PipelineBuilder.Groups.Default,
             isOpaque: false,
             foliageSectionHitGroup,
             foliageShadowHitGroup,
             visuals.FoliageQuality > Quality.Low ? builder.AddAnimation(directory.GetFile("FoliageAnimation.hlsl")) : null);
 
-        fluidMaterial = builder.AddMaterial(
-            nameof(fluidMaterial),
+        FluidMaterial = builder.AddMaterial(
+            nameof(FluidMaterial),
             PipelineBuilder.Groups.NoShadow,
             isOpaque: true, // Despite having transparency, no any-hit shader is used, so it is considered opaque.
             fluidSectionHitGroup,
@@ -163,25 +168,25 @@ public sealed class SectionRenderer : IDisposable
 
         if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
         {
-            basic.opaque ??= CreateMesh(basicOpaqueMaterial);
+            basic.opaque ??= CreateMesh(BasicOpaqueMaterial);
             basic.opaque.SetVertices((meshData.BasicMeshing.opaque as SpatialMeshing)!.Span);
         }
 
         if (meshData.BasicMeshing.transparent.Count > 0 || basic.transparent != null)
         {
-            basic.transparent ??= CreateMesh(basicTransparentMaterial);
+            basic.transparent ??= CreateMesh(BasicTransparentMaterial);
             basic.transparent.SetVertices((meshData.BasicMeshing.transparent as SpatialMeshing)!.Span);
         }
 
         if (meshData.FoliageMeshing.Count > 0 || foliage != null)
         {
-            foliage ??= CreateMesh(foliageMaterial);
+            foliage ??= CreateMesh(FoliageMaterial);
             foliage.SetVertices((meshData.FoliageMeshing as SpatialMeshing)!.Span);
         }
 
         if (meshData.FluidMeshing.Count > 0 || fluid != null)
         {
-            fluid ??= CreateMesh(fluidMaterial);
+            fluid ??= CreateMesh(FluidMaterial);
             fluid.SetVertices((meshData.FluidMeshing as SpatialMeshing)!.Span);
         }
     }
