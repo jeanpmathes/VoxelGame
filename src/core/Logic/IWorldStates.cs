@@ -38,6 +38,7 @@ public interface IWorldStates
 
     /// <summary>
     ///     Fired when the world enters an active state.
+    ///     Note that this is also fired after saving is complete.
     /// </summary>
     public event EventHandler<EventArgs>? Activating;
 
