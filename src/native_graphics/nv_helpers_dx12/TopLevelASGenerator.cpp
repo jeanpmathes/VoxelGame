@@ -1,4 +1,4 @@
-/*-----------------------------------------------------------------------
+﻿/*-----------------------------------------------------------------------
 Copyright (c) 2014-2018, NVIDIA. All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
@@ -84,6 +84,8 @@ namespace nv_helpers_dx12
                       ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE
                       : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
+        m_flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc = {};
         prebuildDesc.Type = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
         prebuildDesc.DescsLayout = D3D12_ELEMENTS_LAYOUT_ARRAY;
@@ -162,9 +164,7 @@ namespace nv_helpers_dx12
 
         if (flags == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly) flags =
             D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
-
-        flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
-
+        
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;
         buildDesc.Inputs.Type                      = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
         buildDesc.Inputs.DescsLayout               = D3D12_ELEMENTS_LAYOUT_ARRAY;
