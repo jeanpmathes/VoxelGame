@@ -150,11 +150,7 @@ public abstract partial class AttributeImplementation<TValue> : IAttribute<TValu
 
     internal void Initialize(String name, Int32 divisor)
     {
-        Debug.Assert(Divisor == 0);
-        Debug.Assert(divisor != 0);
-
         Name = name;
-
         Divisor = divisor;
     }
 }

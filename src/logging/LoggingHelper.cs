@@ -53,8 +53,6 @@ public static partial class LoggingHelper
     /// <returns></returns>
     public static ILogger SetUpLogging(String category, Boolean logDebug, FileSystemInfo appDataDirectory)
     {
-        Debug.Assert(LoggerFactory == null);
-
         LogLevel level = logDebug ? LogLevel.Debug : LogLevel.Information;
 
         LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>

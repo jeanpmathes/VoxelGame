@@ -38,8 +38,7 @@ internal static partial class Program
     /// <summary>
     ///     Get whether the program is running with code that was compiled in debug mode.
     /// </summary>
-    [LateInitialization]
-    private static partial Boolean IsDebug { get; set; }
+    private static Boolean IsDebug { get; set; }
 
     /// <summary>
     ///     Get the app data directory.
