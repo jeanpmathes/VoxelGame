@@ -68,7 +68,6 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
 
         ContainingType? containingType = SyntaxTools.GetContainingType(typeDeclaration, context.SemanticModel);
         String @namespace = SyntaxTools.GetNamespace(typeDeclaration);
-
         
         ImmutableArray<ParameterModel>.Builder parameterBuilder = ImmutableArray.CreateBuilder<ParameterModel>();
         foreach (IParameterSymbol parameter in constructorSymbol.Parameters)

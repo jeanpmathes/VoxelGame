@@ -8,16 +8,16 @@ using System;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
 using VoxelGame.Toolkit.Components;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Core.Actors;
 
 /// <summary>
 ///     An actor is anything that can be added to a world, but is not the world itself.
 /// </summary>
-public abstract class Actor : Composed<Actor, ActorComponent>
+[ComponentSubject(typeof(ActorComponent))]
+public abstract partial class Actor : Composed<Actor, ActorComponent>
 {
-    /// <inheritdoc />
-    protected override Actor Self => this;
 
     /// <summary>
     ///     Gets the world in which this actor is located.
@@ -40,46 +40,50 @@ public abstract class Actor : Composed<Actor, ActorComponent>
     {
         World = world;
 
-        foreach (ActorComponent component in Components)
-        {
-            component.OnAdd();
-        }
+        OnAddComponents();
     }
+
+    /// <inheritdoc cref="Actor.OnAdd" />
+    [ComponentEvent(nameof(ActorComponent.OnAdd))]
+    private partial void OnAddComponents();
 
     /// <summary>
     ///     Called when this actor is removed from a world.
     /// </summary>
     public void OnRemove()
     {
-        foreach (ActorComponent component in Components)
-        {
-            component.OnRemove();
-        }
+        OnRemoveComponents();
 
         World = null!;
     }
+
+    /// <inheritdoc cref="Actor.OnRemove" />
+    [ComponentEvent(nameof(ActorComponent.OnRemove))]
+    private partial void OnRemoveComponents();
 
     /// <summary>
     ///     Call to activate this actor.
     /// </summary>
     public void Activate()
     {
-        foreach (ActorComponent component in Components)
-        {
-            component.OnActivate();
-        }
+        OnActivateComponents();
     }
+
+    /// <inheritdoc cref="Actor.Activate" />
+    [ComponentEvent(nameof(ActorComponent.OnActivate))]
+    private partial void OnActivateComponents();
 
     /// <summary>
     ///     Call to deactivate this actor.
     /// </summary>
     public void Deactivate()
     {
-        foreach (ActorComponent component in Components)
-        {
-            component.OnDeactivate();
-        }
+        OnDeactivateComponents();
     }
+
+    /// <inheritdoc cref="Actor.Deactivate" />
+    [ComponentEvent(nameof(ActorComponent.OnDeactivate))]
+    private partial void OnDeactivateComponents();
 
     /// <summary>
     ///     Update this actor.
@@ -89,11 +93,12 @@ public abstract class Actor : Composed<Actor, ActorComponent>
     {
         OnLogicUpdate(deltaTime);
 
-        foreach (ActorComponent component in Components)
-        {
-            component.OnLogicUpdate(deltaTime);
-        }
+        OnLogicUpdateComponents(deltaTime);
     }
+
+    /// <inheritdoc cref="Actor.LogicUpdate" />
+    [ComponentEvent(nameof(ActorComponent.OnLogicUpdate))]
+    private partial void OnLogicUpdateComponents(Double deltaTime);
 
     /// <summary>
     ///     Called when the actor receives a logic update.

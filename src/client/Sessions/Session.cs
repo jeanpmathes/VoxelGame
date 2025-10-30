@@ -10,13 +10,15 @@ using VoxelGame.Client.Logic;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Client.Sessions;
 
 /// <summary>
 ///     Represents a running session, which means a player is playing in a world.
 /// </summary>
-public sealed class Session : Composed<Session, SessionComponent>
+[ComponentSubject(typeof(SessionComponent))]
+public sealed partial class Session : Composed<Session, SessionComponent>
 {
     /// <summary>
     ///     Create a new session.
@@ -28,9 +30,6 @@ public sealed class Session : Composed<Session, SessionComponent>
         World = world;
         Player = player;
     }
-
-    /// <inheritdoc />
-    protected override Session Self => this;
 
     /// <summary>
     ///     The player of the session.
@@ -51,13 +50,14 @@ public sealed class Session : Composed<Session, SessionComponent>
     {
         Throw.IfDisposed(disposed);
 
-        foreach (SessionComponent component in Components)
-        {
-            component.OnLogicUpdate(deltaTime, timer);
-        }
+        OnLogicUpdate(deltaTime, timer);
 
         World.LogicUpdate(deltaTime, timer);
     }
+
+    /// <inheritdoc cref="Session.LogicUpdate" />
+    [ComponentEvent(nameof(SessionComponent.OnLogicUpdate))]
+    private partial void OnLogicUpdate(Double deltaTime, Timer? timer);
 
     /// <summary>
     ///     Perform one render update cycle.
@@ -68,13 +68,14 @@ public sealed class Session : Composed<Session, SessionComponent>
     {
         Throw.IfDisposed(disposed);
 
-        foreach (SessionComponent component in Components)
-        {
-            component.OnRenderUpdate(deltaTime, timer);
-        }
+        OnRenderUpdate(deltaTime, timer);
 
         World.RenderUpdate();
     }
+
+    /// <inheritdoc cref="Session.RenderUpdate" />
+    [ComponentEvent(nameof(SessionComponent.OnRenderUpdate))]
+    private partial void OnRenderUpdate(Double deltaTime, Timer? timer);
 
     #region DISPOSABLE
 

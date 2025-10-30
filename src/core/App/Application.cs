@@ -10,6 +10,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Annotations.Attributes;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.Core.App;
@@ -18,7 +19,8 @@ namespace VoxelGame.Core.App;
 ///     Represents the running application.
 ///     There will always be exactly one instance of this class.
 /// </summary>
-public abstract class Application : Composed<Application, ApplicationComponent>
+[ComponentSubject(typeof(ApplicationComponent))]
+public abstract partial class Application : Composed<Application, ApplicationComponent>
 {
     /// <summary>
     ///     Create a new application instance.
@@ -88,10 +90,12 @@ public abstract class Application : Composed<Application, ApplicationComponent>
     protected void DoInitialization(Timer? timer)
     {
         OnInitialization(timer);
-
-        foreach (ApplicationComponent component in Components)
-            component.OnInitialization(timer);
+        OnInitializationComponents(timer);
     }
+
+    /// <inheritdoc cref="OnInitialization" />
+    [ComponentEvent(nameof(ApplicationComponent.OnInitialization))]
+    private partial void OnInitializationComponents(Timer? timer);
 
     /// <summary>
     ///     Called on initialization of the application.
@@ -103,10 +107,12 @@ public abstract class Application : Composed<Application, ApplicationComponent>
     protected void DoLogicUpdate(Double delta, Timer? timer)
     {
         OnLogicUpdate(delta, timer);
-
-        foreach (ApplicationComponent component in Components)
-            component.OnLogicUpdate(delta, timer);
+        OnLogicUpdateComponents(delta, timer);
     }
+
+    /// <inheritdoc cref="OnLogicUpdate" />
+    [ComponentEvent(nameof(ApplicationComponent.OnLogicUpdate))]
+    private partial void OnLogicUpdateComponents(Double delta, Timer? timer);
 
     /// <summary>
     ///     Called for each fixed update step.
@@ -119,10 +125,12 @@ public abstract class Application : Composed<Application, ApplicationComponent>
     protected void DoRenderUpdate(Double delta, Timer? timer)
     {
         OnRenderUpdate(delta, timer);
-
-        foreach (ApplicationComponent component in Components)
-            component.OnRenderUpdate(delta, timer);
+        OnRenderUpdateComponents(delta, timer);
     }
+
+    /// <inheritdoc cref="OnRenderUpdate" />
+    [ComponentEvent(nameof(ApplicationComponent.OnRenderUpdate))]
+    private partial void OnRenderUpdateComponents(Double delta, Timer? timer);
 
     /// <summary>
     ///     Called for each render update step.
@@ -136,10 +144,11 @@ public abstract class Application : Composed<Application, ApplicationComponent>
     protected void DoDestroy(Timer? timer)
     {
         OnDestroy(timer);
-
-        foreach (ApplicationComponent component in Components)
-            component.OnDestroy(timer);
+        OnDestroyComponents(timer);
     }
+
+    [ComponentEvent(nameof(ApplicationComponent.OnDestroy))]
+    private partial void OnDestroyComponents(Timer? timer);
 
     /// <summary>
     ///     Called when the application is destroyed.

@@ -10,22 +10,21 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Client.Scenes;
 
 /// <summary>
 ///     The base class for all scenes.
 /// </summary>
-public abstract class Scene(Application.Client client) : Composed<Scene, SceneComponent>
+[ComponentSubject(typeof(SceneComponent))]
+public abstract partial class Scene(Application.Client client) : Composed<Scene, SceneComponent>
 {
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Scene>();
 
     #endregion LOGGING
-
-    /// <inheritdoc />
-    protected override Scene Self => this;
 
     /// <summary>
     ///     Get the client that this scene belongs to.
@@ -38,12 +37,12 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     public void Load()
     {
         OnLoad();
-
-        foreach (SceneComponent component in Components)
-        {
-            component.OnLoad();
-        }
+        OnLoadComponents();
     }
+    
+    /// <inheritdoc cref="Scene.OnLoad" />
+    [ComponentEvent(nameof(SceneComponent.OnLoad))]
+    private partial void OnLoadComponents();
 
     /// <summary>
     ///     Called when the scene is loaded.
@@ -60,12 +59,12 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
         using Timer? subTimer = logger.BeginTimedSubScoped("Scene LogicUpdate", timer);
 
         OnLogicUpdate(deltaTime, subTimer);
-
-        foreach (SceneComponent component in Components)
-        {
-            component.OnLogicUpdate(deltaTime, subTimer);
-        }
+        OnLogicUpdateComponents(deltaTime, subTimer);
     }
+
+    /// <inheritdoc cref="Scene.OnLogicUpdate" />
+    [ComponentEvent(nameof(SceneComponent.OnLogicUpdate))]
+    private partial void OnLogicUpdateComponents(Double deltaTime, Timer? timer);
 
     /// <summary>
     ///     Called each logic update cycle.
@@ -84,12 +83,12 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
         using Timer? subTimer = logger.BeginTimedSubScoped("Scene RenderUpdate", timer);
 
         OnRenderUpdate(deltaTime, subTimer);
-
-        foreach (SceneComponent component in Components)
-        {
-            component.OnRenderUpdate(deltaTime, subTimer);
-        }
+        OnRenderUpdateComponents(deltaTime, subTimer);
     }
+
+    /// <inheritdoc cref="Scene.OnRenderUpdate" />
+    [ComponentEvent(nameof(SceneComponent.OnRenderUpdate))]
+    private partial void OnRenderUpdateComponents(Double deltaTime, Timer? timer);
 
     /// <summary>
     ///     Called each render update cycle.
@@ -105,12 +104,12 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     public void Resize(Vector2i size)
     {
         OnResize(size);
-
-        foreach (SceneComponent component in Components)
-        {
-            component.OnResize(size);
-        }
+        OnResizeComponents(size);
     }
+
+    /// <inheritdoc cref="Scene.OnResize" />
+    [ComponentEvent(nameof(SceneComponent.OnResize))]
+    private partial void OnResizeComponents(Vector2i size);
 
     /// <summary>
     ///     Handle a game resize.
@@ -124,12 +123,12 @@ public abstract class Scene(Application.Client client) : Composed<Scene, SceneCo
     public void Unload()
     {
         OnUnload();
-
-        foreach (SceneComponent component in Components)
-        {
-            component.OnUnload();
-        }
+        OnUnloadComponents();
     }
+
+    /// <inheritdoc cref="Scene.OnUnload" />
+    [ComponentEvent(nameof(SceneComponent.OnUnload))]
+    private partial void OnUnloadComponents();
 
     /// <summary>
     ///     Called when the scene is unloaded.

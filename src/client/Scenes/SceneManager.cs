@@ -77,7 +77,7 @@ public partial class SceneManager : ApplicationComponent
 
     private void Load(Scene scene)
     {
-        LogLoadingScene(logger, current);
+        LogLoadingScene(logger, scene);
 
         current = scene;
         current.Load();

@@ -68,7 +68,7 @@ public static class SyntaxTools
     /// <param name="node">The type declaration syntax node.</param>
     /// <param name="semanticModel">The semantic model to use for symbol information.</param>
     /// <returns>The chain of containing type.</returns>
-    public static ContainingType? GetContainingType(BaseTypeDeclarationSyntax node, SemanticModel semanticModel)
+    public static ContainingType? GetContainingType(TypeDeclarationSyntax node, SemanticModel semanticModel)
     {
         return GetContainingType(node, first: null, semanticModel);
     }
@@ -84,7 +84,7 @@ public static class SyntaxTools
         return node.Parent is TypeDeclarationSyntax first ? GetContainingType(first, first, semanticModel) : null;
     }
 
-    private static ContainingType? GetContainingType(BaseTypeDeclarationSyntax node, TypeDeclarationSyntax? first, SemanticModel semanticModel)
+    private static ContainingType? GetContainingType(TypeDeclarationSyntax node, TypeDeclarationSyntax? first, SemanticModel semanticModel)
     {
         var parentSyntax = node.Parent as TypeDeclarationSyntax;
         ContainingType? containingInfo = first != null ? CreateContainingType(first, child: null, semanticModel) : null;

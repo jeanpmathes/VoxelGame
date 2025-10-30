@@ -42,7 +42,7 @@ public class Cache<TK, TV>
     {
         this.cleanup = cleanup;
     }
-
+    
     /// <summary>
     ///     The capacity of the cache.
     ///     This is the maximum number of objects that can be stored.

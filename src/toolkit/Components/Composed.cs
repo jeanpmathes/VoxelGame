@@ -63,6 +63,8 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
 
         components.Add(typeof(TConcrete), component);
 
+        OnComponentAdded(component);
+
         return component;
     }
 
@@ -77,6 +79,8 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
         var component = TConcrete.Construct((TConcreteSelf) Self);
 
         components.Add(typeof(TConcrete), component);
+
+        OnComponentAdded(component);
 
         return component;
     }
@@ -93,6 +97,8 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
 
         components.Add(typeof(TConcrete), component);
 
+        OnComponentAdded(component);
+
         return component;
     }
 
@@ -108,6 +114,8 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
 
         components.Add(typeof(TConcrete), component);
 
+        OnComponentAdded(component);
+
         return component;
     }
 
@@ -118,11 +126,18 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
     {
         if (!components.TryGetValue(typeof(TConcrete), out TComponent? component)) return false;
 
-        components.Remove(typeof(TConcrete));
-
-        component.Dispose();
+        RemoveComponent(typeof(TConcrete), component);
 
         return true;
+    }
+
+    private void RemoveComponent(Type type, TComponent component)
+    {
+        components.Remove(type);
+
+        OnComponentRemoved(component);
+
+        component.Dispose();
     }
 
     /// <summary>
@@ -177,6 +192,18 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
         return components.ContainsKey(typeof(TConcrete));
     }
 
+    /// <summary>
+    ///     Called when a component has been added to this container.
+    /// </summary>
+    /// <param name="component">The component that was added.</param>
+    protected virtual void OnComponentAdded(TComponent component) {}
+
+    /// <summary>
+    ///     Called when a component has been removed from this container.
+    /// </summary>
+    /// <param name="component">The component that was removed.</param>
+    protected virtual void OnComponentRemoved(TComponent component) {}
+
     #region DISPOSABLE
 
     /// <summary>
@@ -188,7 +215,11 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
         if (!disposing)
             return;
 
-        foreach (TComponent component in components.Values) component.Dispose();
+        foreach (TComponent component in components.Values)
+        {
+            OnComponentRemoved(component);
+            component.Dispose();
+        }
 
         components.Clear();
     }

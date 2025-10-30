@@ -25,6 +25,7 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Annotations.Attributes;
 using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
 
 namespace VoxelGame.Core.Logic;
@@ -32,6 +33,7 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Represents the world. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
+[ComponentSubject(typeof(WorldComponent))]
 public abstract partial class World : Composed<World, WorldComponent>, IGrid
 {
     /// <summary>
@@ -108,9 +110,6 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         AddComponent<ChunkSimulator>();
     }
-
-    /// <inheritdoc />
-    protected override World Self => this;
 
     /// <summary>
     ///     Access to the world state.
@@ -210,20 +209,23 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
         SetContent(content, position, updateFluid: true);
     }
 
-    private void OnActivate(Object? sender, EventArgs e)
-    {
-        foreach (WorldComponent component in Components) component.OnActivate();
-    }
+    /// <summary>
+    /// Called when the world becomes active.
+    /// </summary>
+    [ComponentEvent(nameof(WorldComponent.OnActivate))]
+    private partial void OnActivate(Object? sender, EventArgs e);
 
-    private void OnDeactivate(Object? sender, EventArgs e)
-    {
-        foreach (WorldComponent component in Components) component.OnDeactivate();
-    }
+    /// <summary>
+    /// Called when the world becomes inactive.
+    /// </summary>
+    [ComponentEvent(nameof(WorldComponent.OnDeactivate))]
+    private partial void OnDeactivate(Object? sender, EventArgs e);
 
-    private void OnTerminate(Object? sender, EventArgs e)
-    {
-        foreach (WorldComponent component in Components) component.OnTerminate();
-    }
+    /// <summary>
+    /// Called when the world is terminated, which means it begins unloading. Disposal will happen later, when unloading is complete.
+    /// </summary>
+    [ComponentEvent(nameof(WorldComponent.OnTerminate))]
+    private partial void OnTerminate(Object? sender, EventArgs e);
 
     private void UnloadChunk(Chunk chunk)
     {
@@ -638,11 +640,8 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
-    {
-        foreach (WorldComponent component in Components)
-            component.OnLogicUpdateInActiveState(deltaTime, updateTimer);
-    }
+    [ComponentEvent(nameof(WorldComponent.OnLogicUpdateInActiveState))]
+    public partial void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer);
 
     /// <summary>
     ///     Event arguments for the <see cref="SectionChanged" /> event.

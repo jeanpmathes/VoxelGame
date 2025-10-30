@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Actors;
 using VoxelGame.Core.Logic;
@@ -28,19 +29,19 @@ public partial class LocalPlayerHook : WorldComponent
     public Player Player { get; }
     
     /// <inheritdoc />
-    public override void OnActivate()
+    public override void OnActivate(Object? sender, EventArgs e)
     {
         Player.Activate();
     }
 
     /// <inheritdoc />
-    public override void OnDeactivate()
+    public override void OnDeactivate(Object? sender, EventArgs e)
     {
         Player.Deactivate();
     }
 
     /// <inheritdoc />
-    public override void OnTerminate()
+    public override void OnTerminate(Object? sender, EventArgs e)
     {
         Player.OnRemove();
     }

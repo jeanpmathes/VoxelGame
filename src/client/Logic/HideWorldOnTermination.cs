@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
@@ -20,7 +21,7 @@ public partial class HideWorldOnTermination : WorldComponent
     private HideWorldOnTermination(Core.Logic.World subject) : base(subject) {}
 
     /// <inheritdoc />
-    public override void OnTerminate()
+    public override void OnTerminate(Object? sender, EventArgs e)
     {
         foreach (Chunk chunk in Subject.Chunks.All)
             chunk.Cast().HideAllSections();
