@@ -146,8 +146,6 @@ public sealed class SessionScene : Scene
             if (!world.State.IsActive) return;
 
             world.State.BeginTerminating()?.Then(() => Client.ExitGame(args.ExitToOS));
-
-            world.State.Terminating += (_, _) => world.RemoveComponent<LocalPlayerHook>();
         };
     }
 }

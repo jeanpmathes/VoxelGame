@@ -12,6 +12,48 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Toolkit.Components;
 
 /// <summary>
+/// Abstract base class for non-generic methods of <see cref="Composed{TSelf,TComponent}"/>.
+/// </summary>
+public abstract class Composed : IDisposable
+{
+    /// <summary>
+    /// Remove a specified component by providing the component instance.
+    /// This should generally not be used directly.
+    /// If the component is not attached to this container, nothing happens.
+    /// </summary>
+    /// <param name="component">The component to remove.</param>
+    public abstract void RemoveComponent(Object component);
+    
+    #region DISPOSABLE
+
+    /// <summary>
+    ///     Called by the finalizer or Dispose method.
+    /// </summary>
+    /// <param name="disposing"><c>true</c> if called from Dispose, <c>false</c> if called from the finalizer.</param>
+    protected virtual void Dispose(Boolean disposing)
+    {
+        
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~Composed()
+    {
+        Dispose(disposing: false);
+    }
+
+    #endregion DISPOSABLE
+}
+
+/// <summary>
 ///     Base class for objects that can hold components.
 ///     <para>
 ///         Components are simple objects that extend the functionality of their
@@ -35,7 +77,7 @@ namespace VoxelGame.Toolkit.Components;
 /// </summary>
 /// <typeparam name="TSelf">The type of the container itself.</typeparam>
 /// <typeparam name="TComponent">The base type of components stored in this container.</typeparam>
-public abstract class Composed<TSelf, TComponent> : IDisposable
+public abstract class Composed<TSelf, TComponent> : Composed
     where TSelf : Composed<TSelf, TComponent>
     where TComponent : Component<TSelf>
 {
@@ -131,6 +173,17 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
         return true;
     }
 
+    /// <inheritdoc />
+    public override void RemoveComponent(Object component)
+    {
+        Type type = component.GetType();
+
+        if (!components.TryGetValue(type, out TComponent? existing) || !ReferenceEquals(existing, component))
+            return;
+
+        RemoveComponent(type, existing);
+    }
+
     private void RemoveComponent(Type type, TComponent component)
     {
         components.Remove(type);
@@ -203,14 +256,11 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
     /// </summary>
     /// <param name="component">The component that was removed.</param>
     protected virtual void OnComponentRemoved(TComponent component) {}
-
+    
     #region DISPOSABLE
 
-    /// <summary>
-    ///     Called by the finalizer or Dispose method.
-    /// </summary>
-    /// <param name="disposing"><c>true</c> if called from Dispose, <c>false</c> if called from the finalizer.</param>
-    protected virtual void Dispose(Boolean disposing)
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
     {
         if (!disposing)
             return;
@@ -222,21 +272,6 @@ public abstract class Composed<TSelf, TComponent> : IDisposable
         }
 
         components.Clear();
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~Composed()
-    {
-        Dispose(disposing: false);
     }
 
     #endregion DISPOSABLE

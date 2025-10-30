@@ -44,15 +44,9 @@ public partial class DirectWorldLoad : SceneComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)
     {
-        if (!isLoadingPossible) return;
+        if (!isLoadingPossible) 
+            return;
 
-        LoadWorldDirectly();
-
-        isLoadingPossible = false;
-    }
-
-    private void LoadWorldDirectly()
-    {
         Result result = worldProvider.Refresh().Wait();
 
         result.Switch(() =>
@@ -74,6 +68,8 @@ public partial class DirectWorldLoad : SceneComponent
             {
                 LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
             });
+
+        RemoveSelf();
     }
 
     #region LOGGING

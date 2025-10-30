@@ -44,5 +44,7 @@ public partial class LocalPlayerHook : WorldComponent
     public override void OnTerminate(Object? sender, EventArgs e)
     {
         Player.OnRemove();
+
+        RemoveSelf();
     }
 }

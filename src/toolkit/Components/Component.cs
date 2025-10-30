@@ -14,12 +14,20 @@ namespace VoxelGame.Toolkit.Components;
 /// </summary>
 /// <param name="subject">The subject that this component belongs to.</param>
 /// <typeparam name="TSubject">The type of the subject.</typeparam>
-public abstract class Component<TSubject>(TSubject subject) : IDisposable
+public abstract class Component<TSubject>(TSubject subject) : IDisposable where TSubject : Composed
 {
     /// <summary>
     ///     Get the subject of this component.
     /// </summary>
     public TSubject Subject { get; } = subject;
+    
+    /// <summary>
+    /// Remove this component from its subject.
+    /// </summary>
+    public void RemoveSelf()
+    {
+        Subject.RemoveComponent(this);
+    }
 
     #region DISPOSABLE
 
