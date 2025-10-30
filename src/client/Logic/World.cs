@@ -28,9 +28,9 @@ public class World : Core.Logic.World
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    internal World(Application.Client client, DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) : base(path, name, seed)
+    internal World(Space space, DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) : base(path, name, seed)
     {
-        Space = client.Space;
+        Space = space;
 
         SetUp();
     }
@@ -38,9 +38,9 @@ public class World : Core.Logic.World
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    internal World(Application.Client client, WorldData data) : base(data)
+    internal World(Space space, WorldData data) : base(data)
     {
-        Space = client.Space;
+        Space = space;
 
         SetUp();
     }

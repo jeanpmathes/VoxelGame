@@ -44,7 +44,7 @@ public partial class Interaction : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime)
     {
-        if (!player.Scene.CanHandleGameInput)
+        if (!player.Input.CanHandleGameInput)
             return;
 
         if (!targeting.HasTarget) return;

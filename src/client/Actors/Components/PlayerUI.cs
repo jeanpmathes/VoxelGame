@@ -40,7 +40,7 @@ public partial class PlayerUI : ActorComponent
             placement.SelectionChanged += UpdatePlayerData;
         }
 
-        debugViewButton = player.Scene.Client.Keybinds.GetPushButton(player.Scene.Client.Keybinds.DebugView);
+        debugViewButton = player.Input.Keybinds.GetPushButton(player.Input.Keybinds.DebugView);
     }
 
     /// <inheritdoc />
@@ -65,7 +65,7 @@ public partial class PlayerUI : ActorComponent
     {
         Throw.IfDisposed(disposed);
 
-        if (player.Scene.CanHandleMetaInput && debugViewButton.IsDown)
+        if (player.Input.CanHandleMetaInput && debugViewButton.IsDown)
             ui.ToggleDebugDataView();
 
         ui.UpdatePlayerDebugData();

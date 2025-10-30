@@ -133,7 +133,7 @@ public partial class WorldProvider : IWorldProvider
     {
         Debug.Assert(Status == Status.Ok);
 
-        World world = new(client, GetData(info));
+        World world = new(client.Space, GetData(info));
         ActivateWorld(world);
     }
 
@@ -144,7 +144,7 @@ public partial class WorldProvider : IWorldProvider
 
         DirectoryInfo worldDirectory = FileSystem.GetUniqueDirectory(WorldsDirectory, name);
 
-        World world = new(client, worldDirectory, name, seed);
+        World world = new(client.Space, worldDirectory, name, seed);
         ActivateWorld(world);
     }
 

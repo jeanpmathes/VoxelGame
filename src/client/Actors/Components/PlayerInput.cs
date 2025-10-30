@@ -41,7 +41,7 @@ public sealed partial class PlayerInput : ActorComponent
     [Constructible]
     private PlayerInput(Player player) : base(player)
     {
-        KeybindManager keybinds = player.Scene.Client.Keybinds;
+        KeybindManager keybinds = player.Input.Keybinds;
 
         Button forwardsButton = keybinds.GetButton(keybinds.Forwards);
         Button backwardsButton = keybinds.GetButton(keybinds.Backwards);

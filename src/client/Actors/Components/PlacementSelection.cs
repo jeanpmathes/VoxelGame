@@ -69,7 +69,7 @@ public partial class PlacementSelection : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime)
     {
-        if (!player.Scene.CanHandleGameInput)
+        if (!player.Input.CanHandleGameInput)
             return;
 
         var changed = false;

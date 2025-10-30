@@ -33,7 +33,7 @@ public partial class PlayerRotator : ActorComponent
     {
         this.player = player;
 
-        input = player.Scene.Client.Keybinds.LookBind;
+        input = player.Input.Keybinds.LookBind;
         camera = player.Camera;
 
         transform = player.GetRequiredComponent<Transform>();
@@ -42,7 +42,7 @@ public partial class PlayerRotator : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime)
     {
-        if (!player.Scene.CanHandleGameInput)
+        if (!player.Input.CanHandleGameInput)
             return;
 
         (Double yaw, Double pitch) = input.Value;

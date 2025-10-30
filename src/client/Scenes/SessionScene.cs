@@ -11,6 +11,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Client.Actors;
 using VoxelGame.Client.Application.Components;
 using VoxelGame.Client.Console;
+using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes.Components;
 using VoxelGame.Client.Sessions;
@@ -27,7 +28,7 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     The scene that is active when a session is played.
 /// </summary>
-public sealed class SessionScene : Scene
+public sealed class SessionScene : Scene, IInputControl
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly MetaController meta;
@@ -75,6 +76,9 @@ public sealed class SessionScene : Scene
     ///     Whether it is OK to handle meta input currently.
     /// </summary>
     public Boolean CanHandleMetaInput => Client.IsFocused;
+    
+    /// <inheritdoc />
+    public KeybindManager Keybinds => Client.Keybinds;
 
     /// <inheritdoc />
     protected override void OnLoad()

@@ -66,7 +66,7 @@ public partial class PlayerMovement : ActorComponent
         targeter ??= player.GetComponent<Targeter>();
         targeter?.Update();
 
-        if (player.Scene.CanHandleGameInput)
+        if (player.Input.CanHandleGameInput)
         {
             player.Body.Movement = strategy.ApplyMovement(deltaTime);
         }

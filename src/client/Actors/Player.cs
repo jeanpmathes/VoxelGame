@@ -29,6 +29,8 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlacementSelection selector;
 
+    private readonly IInputControl input;
+
     /// <summary>
     ///     Create a client player.
     /// </summary>
@@ -37,16 +39,16 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="camera">The camera to use for this player.</param>
     /// <param name="ui">The user interface used for the game.</param>
     /// <param name="engine">The graphics engine to use for rendering.</param>
-    /// <param name="scene">The scene in which the player is placed.</param>
+    /// <param name="input">The input control to use for this player.</param>
     public Player(Double mass, BoundingVolume boundingVolume, Camera camera,
-        InGameUserInterface ui, Engine engine, SessionScene scene) : base(mass, boundingVolume)
+        InGameUserInterface ui, Engine engine, IInputControl input) : base(mass, boundingVolume)
     {
         Camera = camera;
 
         Head = new PlayerHead(camera, Body.Transform);
         camera.Position = Head.Position;
-
-        Scene = scene;
+        
+        this.input = input;
 
         AddComponent<PlayerInput, Player>();
         AddComponent<PlayerMovement, Player>(); // Also updates the targeter.
@@ -74,11 +76,11 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     ///     Get access to the camera of the player.
     /// </summary>
     internal Camera Camera { get; }
-
+    
     /// <summary>
-    ///     Get access to the current scene in which the player is placed.
+    /// Get the input control used by this player.
     /// </summary>
-    internal SessionScene Scene { get; }
+    public IInputControl Input => input;
 
     /// <inheritdoc />
     public Property DebugData => new PlayerDebugProperties(this);
