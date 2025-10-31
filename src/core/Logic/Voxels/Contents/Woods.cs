@@ -111,14 +111,14 @@ public class Woods(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Wood CoconutPalm { get; } = builder.BuildWood(new CID(nameof(CoconutPalm)),
         (Language.CoconutPalmLeaves, Language.CoconutPalmLog, Language.CoconutPalmWood),
-        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Ground: Wood.Tree.GroundType.Sand));
+        new Wood.Tree(Wood.Tree.Growth.Tall, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Terrain: Wood.Tree.TerrainType.Sand));
 
     /// <summary>
     ///     Date palm wood.
     /// </summary>
     public Wood DatePalm { get; } = builder.BuildWood(new CID(nameof(DatePalm)),
         (Language.DatePalmLeaves, Language.DatePalmLog, Language.DatePalmWood),
-        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Ground: Wood.Tree.GroundType.Sand));
+        new Wood.Tree(Wood.Tree.Growth.Medium, Wood.Tree.CrownShape.Palm, Wood.Tree.CrownDensity.Sparse, Terrain: Wood.Tree.TerrainType.Sand));
 
     /// <summary>
     ///     Acacia wood.

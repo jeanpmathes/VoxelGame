@@ -24,6 +24,7 @@ public partial class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     [Constructible]
     private Soil(Block subject) : base(subject)
     {
+        subject.Require<Regolith>();
         subject.Require<Plantable>();
         subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(new Viscosity { MilliPascalSeconds = 6.5 });
         subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);

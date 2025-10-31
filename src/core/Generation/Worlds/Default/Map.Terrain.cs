@@ -1,4 +1,4 @@
-﻿// <copyright file="Map.Terrain.cs" company="VoxelGame">
+﻿// <copyright file="Map.Regolith.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

@@ -8,7 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Voxels;
-using VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
@@ -54,7 +54,7 @@ public class TermiteMoundDecoration : Decoration
             if (content is not {Block: var block})
                 continue;
 
-            if (block.IsReplaceable || block.Block.Is<Soil>())
+            if (block.IsReplaceable || block.Block.Is<Regolith>())
                 grid.SetContent(Content.CreateGenerated(Blocks.Instance.Organic.TermiteMound), current);
         }
     }

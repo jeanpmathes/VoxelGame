@@ -139,6 +139,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("sand")))
         .WithWetTint()
         .WithBehavior<Loose>()
+        .WithBehavior<Regolith>()
         .Complete();
 
     /// <summary>
@@ -149,6 +150,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("gravel")))
         .WithWetTint()
         .WithBehavior<Loose>()
+        .WithBehavior<Regolith>()
         .Complete();
 
     /// <summary>
