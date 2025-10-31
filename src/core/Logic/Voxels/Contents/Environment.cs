@@ -138,7 +138,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .BuildSimpleBlock(new CID(nameof(Sand)), Language.Sand)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("sand")))
         .WithWetTint()
-        .WithBehavior<Loose>()
+        .WithBehavior<Sandy>()
         .WithBehavior<Regolith>()
         .Complete();
 
@@ -230,7 +230,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .Complete();
 
     /// <summary>
-    ///     Ahs is the remainder of burning processes.
+        ///     Ash is the remainder of burning processes.
     /// </summary>
     public Block Ash { get; } = builder
         .BuildSimpleBlock(new CID(nameof(Ash)), Language.Ash)

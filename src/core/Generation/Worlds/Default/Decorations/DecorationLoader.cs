@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Contents.Structures;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Utilities;
@@ -43,10 +44,10 @@ public sealed class DecorationLoader : IResourceLoader
     {
         return
         [
-            new StructureDecoration("TallGrass", structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new PlantableDecorator()),
-            new StructureDecoration("TallRedFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_red")), new PlantableDecorator()),
-            new StructureDecoration("TallYellowFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_yellow")), new PlantableDecorator()),
-            new StructureDecoration("Cactus", new Cactus(), new CoverDecorator(Blocks.Instance.Environment.Sand, Vector3i.Zero, width: 3)),
+            new StructureDecoration("TallGrass", structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new SurfaceDecorator<Plantable>()),
+            new StructureDecoration("TallRedFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_red")), new SurfaceDecorator<Plantable>()),
+            new StructureDecoration("TallYellowFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_yellow")), new SurfaceDecorator<Plantable>()),
+            new StructureDecoration("Cactus", new Cactus(), new SurfaceDecorator<Sandy>(Vector3i.Zero, width: 3)),
             new RootDecoration("Roots", new DepthDecorator(minDepth: 5, maxDepth: 15)),
             new AttachedBlockDecoration<TreePart>("Vines", Blocks.Instance.Organic.Vines)
         ];
@@ -68,8 +69,8 @@ public sealed class DecorationLoader : IResourceLoader
 
             Decorator decorator = treeDefinition.Terrain switch
             {
-                Wood.Tree.TerrainType.Earth => new PlantableDecorator(Vector3i.UnitY, width: 3),
-                Wood.Tree.TerrainType.Sand => new CoverDecorator(Blocks.Instance.Environment.Sand, Vector3i.UnitY, width: 3),
+                Wood.Tree.TerrainType.Earth => new SurfaceDecorator<Plantable>(Vector3i.UnitY, width: 3),
+                Wood.Tree.TerrainType.Sand => new SurfaceDecorator<Sandy>(Vector3i.UnitY, width: 3),
                 _ => throw Exceptions.UnsupportedEnumValue(treeDefinition.Terrain)
             };
 
