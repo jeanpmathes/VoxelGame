@@ -321,6 +321,9 @@ public sealed partial class KeybindManager : ISettingsProvider, IDisposable
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Finalizer.
+    /// </summary>
     ~KeybindManager()
     {
         Dispose(disposing: false);

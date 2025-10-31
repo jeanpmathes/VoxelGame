@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Contents.Structures;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -47,12 +48,7 @@ public sealed class DecorationLoader : IResourceLoader
             new StructureDecoration("TallYellowFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_yellow")), new PlantableDecorator()),
             new StructureDecoration("Cactus", new Cactus(), new CoverDecorator(Blocks.Instance.Environment.Sand, Vector3i.Zero, width: 3)),
             new RootDecoration("Roots", new DepthDecorator(minDepth: 5, maxDepth: 15)),
-            new AttachedBlockDecoration("Vines",
-                Blocks.Instance.Organic.Vines,
-                new HashSet<Block>
-                {
-                    Blocks.Instance.Woods.Mahogany.Log, Blocks.Instance.Woods.Mahogany.Leaves, Blocks.Instance.Woods.Teak.Log, Blocks.Instance.Woods.Teak.Leaves
-                })
+            new AttachedBlockDecoration<TreePart>("Vines", Blocks.Instance.Organic.Vines)
         ];
     }
 

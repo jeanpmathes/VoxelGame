@@ -14,6 +14,7 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Siding;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
@@ -214,6 +215,7 @@ public static class WoodConvention
                     .BuildSimpleBlock(new CID($"{contentID}{nameof(Wood.Leaves)}"), name.leaves)
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_leaves")))
                     .WithBehavior<Combustible>()
+                    .WithBehavior<TreePart>()
                     .WithConditionalDefinition(!tree.Needles, definition => definition.WithBehavior<NeutralTint>())
                     .WithProperties(properties =>
                     {
@@ -227,6 +229,7 @@ public static class WoodConvention
                     .WithTextureLayout(TextureLayout.Column(TID.Block($"{texture}_log", x: 0), TID.Block($"{texture}_log", x: 1)))
                     .WithBehavior<AxisRotatable>()
                     .WithBehavior<Combustible>()
+                    .WithBehavior<TreePart>()
                     .Complete(),
 
                 Planks = builder

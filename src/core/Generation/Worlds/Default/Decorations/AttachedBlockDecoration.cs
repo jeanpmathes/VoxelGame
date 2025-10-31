@@ -5,8 +5,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
@@ -17,21 +17,19 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
 /// <summary>
 ///     Places flat blocks at walls.
 /// </summary>
-public class AttachedBlockDecoration : Decoration
+/// <typeparam name="TFilter">The block behavior type to filter on.</typeparam>
+public class AttachedBlockDecoration<TFilter> : Decoration where TFilter : BlockBehavior, IBehavior<TFilter, BlockBehavior, Block>
 {
     private readonly Block block;
-    private readonly ISet<Block> filter;
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="AttachedBlockDecoration" /> class.
+    ///     Creates a new instance of the <see cref="AttachedBlockDecoration{TFilter}" /> class.
     /// </summary>
     /// <param name="name">The name of the decoration. </param>
     /// <param name="block">The block to place.</param>
-    /// <param name="filter">The blocks to place on.</param>
-    public AttachedBlockDecoration(String name, Block block, ISet<Block> filter) : base(name, new WallDecorator())
+    public AttachedBlockDecoration(String name, Block block) : base(name, new WallDecorator())
     {
         this.block = block;
-        this.filter = filter;
     }
 
     /// <inheritdoc />
@@ -45,7 +43,7 @@ public class AttachedBlockDecoration : Decoration
             Content? neighbor = grid.GetContent(position.Offset(orientation));
 
             if (neighbor is not {Block: {IsFullySolid: true} neighborBlock}) continue;
-            if (!filter.Contains(neighborBlock.Block)) continue;
+            if (!neighborBlock.Block.Is<TFilter>()) continue;
             
             grid.SetContent(new Content(block.States.GenerationDefault.WithAttachment(orientation.ToSide()), FluidInstance.Default), position);
 
