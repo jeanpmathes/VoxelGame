@@ -17,6 +17,7 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors;
@@ -124,8 +125,19 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         
         MaximumSize.Override(maxSize);
         
-        // todo: validate for all states that if not unit-sized then not replaceable
-        // todo: add a new ForAllStates method
+        ValidateForAllStatesOrError(validator, state =>
+        {
+            Vector3i size = GetSize(state);
+
+            return size.X > 0 && size is {Y: > 0, Z: > 0}
+                              && size.X <= MaximumSize.Get().X
+                              && size.Y <= MaximumSize.Get().Y
+                              && size.Z <= MaximumSize.Get().Z;
+        }, "Composite block sizes must never exceed the maximum size");
+        
+        ValidateForAllStatesOrWarn(validator, 
+            state => state.IsReplaceable.Implies(GetSize(state) == Vector3i.One), 
+            "Only composite blocks of size one can be marked as replaceable");
     }
 
     /// <inheritdoc />
