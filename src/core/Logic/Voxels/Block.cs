@@ -174,13 +174,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Aspect to determine whether the block is replaceable in a given state.
     /// </summary>
     public Aspect<Boolean, State> Replaceability { get; }
-
-    /// <summary>
-    ///     Get the placement bounding volume of the block.
-    ///     It is the bounding volume used for the placement state.
-    /// </summary>
-    public BoundingVolume PlacementBoundingVolume => placementBoundingVolume ?? Physics.BoundingVolume.Block; // todo: check if there is already something that prevents placing blocks inside of oneself, if no add, otherwise, use this there
-
+    
     /// <summary>
     ///     Defines the type of meshing this block uses.
     /// </summary>
