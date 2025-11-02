@@ -219,7 +219,7 @@ public class BlockBuilder
 
             return this;
         }
-
+        
         /// <summary>
         ///     Set the wet tint color for the block. This will make the block able to be wet, changing its tint when that is the
         ///     case.
@@ -276,7 +276,7 @@ public class BlockBuilder
             
             return this;
         }
-
+        
         /// <summary>
         ///     Completes the block definition and registers it in the content registry.
         /// </summary>

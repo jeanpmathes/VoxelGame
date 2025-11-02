@@ -39,8 +39,6 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 {
     private const Int32 ScheduledDestroyOffset = 5;
 
-    private Substance substance;
-
     private BoundingVolume? placementBoundingVolume;
     private Boolean receivesCollisions;
     private BoundingVolume[]? stateBoundingVolumes;
@@ -62,6 +60,8 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Actor?)>.New<ANDing<(World, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
         IsDestructionAllowed = Aspect<Boolean, (State, World, Vector3i, Actor?)>.New<ANDing<(State, World, Vector3i, Actor?)>>(nameof(IsDestructionAllowed), this);
+
+        Replaceability = Aspect<Boolean, State>.New<Exclusive<Boolean, State>>(nameof(Replaceability), this);
     }
 
     /// <summary>
@@ -171,10 +171,15 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     public Aspect<BoundingVolume, State> BoundingVolume { get; }
 
     /// <summary>
+    ///     Aspect to determine whether the block is replaceable in a given state.
+    /// </summary>
+    public Aspect<Boolean, State> Replaceability { get; }
+
+    /// <summary>
     ///     Get the placement bounding volume of the block.
     ///     It is the bounding volume used for the placement state.
     /// </summary>
-    public BoundingVolume PlacementBoundingVolume => placementBoundingVolume ?? Physics.BoundingVolume.Block;
+    public BoundingVolume PlacementBoundingVolume => placementBoundingVolume ?? Physics.BoundingVolume.Block; // todo: check if there is already something that prevents placing blocks inside of oneself, if no add, otherwise, use this there
 
     /// <summary>
     ///     Defines the type of meshing this block uses.
@@ -258,7 +263,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         IsOpaque = properties.IsOpaque.GetValue(original: true, this);
         MeshFaceAtNonOpaques = properties.MeshFaceAtNonOpaques.GetValue(original: false, this);
         IsSolid = properties.IsSolid.GetValue(original: true, this);
-        substance = properties.Substance.GetValue(Substance.Normal, this);
+        IsEmpty = properties.IsEmpty.GetValue(original: false, this);
         IsUnshaded = properties.IsUnshaded.GetValue(original: false, this);
     }
 
@@ -392,14 +397,14 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <returns><c>true</c> if the block can be replaced, <c>false</c> otherwise.</returns>
     public Boolean IsReplaceable(State state)
     {
-        return substance is Substance.Replaceable or Substance.Empty;
+        return IsEmpty || Replaceability.GetValue(original: false, state);
     }
-    
+
     /// <summary>
-    /// Get whether the block is fully empty, meaning it has no substance.
+    /// Get whether the block is fully empty, meaning it has no physical presence.
     /// This also implies that the block is replaceable in any state.
     /// </summary>
-    public Boolean IsEmpty => substance == Substance.Empty;
+    public Boolean IsEmpty { get; private set; }
 
     /// <summary>
     ///     This method is called when an actor collides with this block.
@@ -979,6 +984,14 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         ///     The new state of this block at the position.
         /// </summary>
         public Content NewState { get; }
+
+        /// <summary>
+        /// Undo the state update. Will not prevent the event from being sent to other subscribers.
+        /// </summary>
+        public void Undo()
+        {
+            World.SetContent(OldState, Position, updateBlock: false);
+        }
     }
 
     /// <summary>

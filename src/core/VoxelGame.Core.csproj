@@ -76,6 +76,7 @@
         <Compile Remove="Visuals\NamedColor.cs" />
         <Compile Remove="Utilities\Units\Length.cs" />
         <Compile Remove="Utilities\Units\Memory.cs" />
+        <Compile Remove="Logic\Voxels\Substance.cs" />
     </ItemGroup>
     <ItemGroup>
         <None Update="Settings.settings">

@@ -35,7 +35,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Vector3i, Actor?)>.New<ANDing<(World, Vector3i, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
 
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
-
+        
         subject.Require<Constraint>().IsValid.ContributeFunction(GetIsValid);
 
         subject.RequireIfPresent<LateralRotatableComposite, LateralRotatable>(lateralRotatableComposite =>
@@ -98,8 +98,6 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     public override void OnInitialize(BlockProperties properties)
     {
         MaximumSize.Initialize(this);
-
-        properties.Substance.ContributeConstant(Substance.Normal);
     }
 
     /// <inheritdoc />
@@ -125,6 +123,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         }
         
         MaximumSize.Override(maxSize);
+        
+        // todo: validate for all states that if not unit-sized then not replaceable
+        // todo: add a new ForAllStates method
     }
 
     /// <inheritdoc />
@@ -231,7 +232,18 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         Vector3i currentPart = GetPartPosition(oldState);
 
         if (oldSize != newSize)
-            ResizeComposite(message.World, message.Position - currentPart, oldSize, newSize, newState);
+        {
+            Vector3i position = message.Position - currentPart;
+            
+            if (!IsGrowthPossible(message.World, position, oldSize, newSize))
+            {
+                message.Undo();
+            
+                return;
+            }
+            
+            ResizeComposite(message.World, position, oldSize, newSize, newState);
+        }
         else if (message.OldState.Block != message.NewState.Block)
             SetStateOnAllParts(message.World, newSize, message.Position - currentPart, currentPart, message.NewState.Block);
     }
@@ -272,8 +284,6 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private void ResizeComposite(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, State state)
     {
-        if (!IsGrowthPossible(world, position, oldSize, newSize)) return;
-        
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 
         for (var x = 0; x < size.X; x++)

@@ -43,6 +43,8 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
         subject.IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
         subject.PlacementState.ContributeFunction(GetPlacementState);
+        
+        subject.Replaceability.ContributeConstant(value: true);
     }
 
     [LateInitialization] private partial IAttribute<Boolean> Front { get; set; }
@@ -71,7 +73,6 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
     {
-        properties.Substance.ContributeConstant(Substance.Replaceable);
         properties.IsUnshaded.ContributeConstant(value: true);
         properties.IsOpaque.ContributeConstant(value: false);
 

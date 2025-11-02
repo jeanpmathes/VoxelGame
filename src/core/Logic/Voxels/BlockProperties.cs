@@ -39,8 +39,8 @@ public class BlockProperties(Block subject)
     public Aspect<Boolean, Block> IsUnshaded { get; } = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(IsUnshaded), subject);
     
     /// <summary>
-    ///     Gets how replaceable this block is.
+    ///     Whether this block is considered empty.
     /// </summary>
-    public Aspect<Substance, Block> Substance { get; } = Aspect<Substance, Block>.New<Exclusive<Substance, Block>>(nameof(Substance), subject);
+    public Aspect<Boolean, Block> IsEmpty { get; } = Aspect<Boolean, Block>.New<Exclusive<Boolean, Block>>(nameof(IsEmpty), subject);
 
 }

@@ -8,6 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -21,7 +22,7 @@ public abstract class Cover
     /// <summary>
     ///     How the snow is generated.
     /// </summary>
-    public enum Snow
+    protected enum Snow
     {
         /// <summary>
         ///     No snow is generated.
@@ -85,6 +86,11 @@ public abstract class Cover
     /// </summary>
     protected abstract Content GetCover(Vector3i position, in Map.PositionClimate climate);
 
+    private static Content GetTallGrassContent(TallGrass.StageState stageState)
+    {
+        return new Content(TallGrass.GetState(Blocks.Instance.Environment.TallGrass.States.GenerationDefault, stageState), FluidInstance.Default);
+    }
+
     /// <summary>
     ///     Cover with no vegetation and no snow.
     /// </summary>
@@ -126,7 +132,9 @@ public abstract class Cover
             Double flowerFactor = isBlooming ? 0.10 : 0.05;
 
             if (value >= humidity * flowerFactor)
-                return value % 2 == 0 ? Content.CreateGenerated(Blocks.Instance.Environment.TallGrass) : Content.CreateGenerated(Blocks.Instance.Environment.TallerGrass);
+                return value % 2 == 0
+                    ? GetTallGrassContent(TallGrass.StageState.Short)
+                    : GetTallGrassContent(TallGrass.StageState.Tall);
 
             if (mushrooms)
                 return (value % 3) switch
@@ -158,11 +166,13 @@ public abstract class Cover
                 return (value % 3) switch
                 {
                     0 => Content.CreateGenerated(Blocks.Instance.Organic.AloeVera),
-                    1 => Content.CreateGenerated(Blocks.Instance.Environment.TallGrass),
-                    _ => Content.CreateGenerated(Blocks.Instance.Environment.TallerGrass)
+                    1 => GetTallGrassContent(TallGrass.StageState.Short),
+                    _ => GetTallGrassContent(TallGrass.StageState.Tall)
                 };
 
-            return value % 2 == 0 ? Content.CreateGenerated(Blocks.Instance.Environment.TallGrass) : Content.CreateGenerated(Blocks.Instance.Environment.TallerGrass);
+            return value % 2 == 0
+                ? GetTallGrassContent(TallGrass.StageState.Short)
+                : GetTallGrassContent(TallGrass.StageState.Tall);
         }
     }
 

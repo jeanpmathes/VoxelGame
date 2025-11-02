@@ -29,8 +29,7 @@ public partial class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlan
     private DoubleCrossPlant(Block subject) : base(subject)
     {
         subject.Require<Plant>();
-
-        subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
+        subject.Require<VerticalTextureSelector>();
 
         composite = subject.Require<Composite>();
         composite.MaximumSize.Initializer.ContributeConstant((1, 2, 1));
@@ -51,11 +50,6 @@ public partial class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlan
     public override void OnInitialize(BlockProperties properties)
     {
         Width.Initialize(this);
-    }
-
-    private TID GetActiveTexture(TID original, State state)
-    {
-        return original.Offset(y: (Byte) (composite.GetPartPosition(state).Y == 0 ? 0 : 1));
     }
 
     private Foliage.PartType GetPart(Foliage.PartType original, State state)

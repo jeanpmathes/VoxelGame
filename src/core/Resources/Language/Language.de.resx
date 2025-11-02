@@ -909,12 +909,6 @@
     <data name="Save" xml:space="preserve">
         <value>Speichern</value>
     </data>
-    <data name="TallerGrass" xml:space="preserve">
-        <value>Höheres Gras</value>
-    </data>
-    <data name="TallestGrass" xml:space="preserve">
-        <value>Höchstes Gras</value>
-    </data>
     <data name="OakLog" xml:space="preserve">
         <value>Eichenstamm</value>
     </data>

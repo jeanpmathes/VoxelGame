@@ -7,6 +7,7 @@
 using System;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
@@ -62,7 +63,7 @@ public static class FlowerConvention
                         plant.Width.Initializer.ContributeConstant(value: 0.35);
                     })
                     .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
-                    .WithProperties(flags => flags.Substance.ContributeConstant(Substance.Replaceable))
+                    .WithBehavior<Replaceable>()
                     .Complete(),
 
                 Tall = builder

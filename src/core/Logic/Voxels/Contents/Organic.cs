@@ -115,7 +115,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .WithBehavior<NeutralTint>()
         .WithBehavior<CrossPlant>(plant => plant.Height.Initializer.ContributeConstant(value: 0.6))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
-        .WithProperties(flags => flags.Substance.ContributeConstant(Substance.Replaceable))
+        .WithBehavior<Replaceable>()
         .Complete();
 
     /// <summary>

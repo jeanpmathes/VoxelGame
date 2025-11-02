@@ -150,7 +150,16 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         Vector3i root = message.Position - Rotate(currentPart, orientation);
 
         if (oldSize != newSize)
+        {
+            if (!IsGrowthPossible(message.World, root, oldSize, newSize, orientation))
+            {
+                message.Undo();
+                
+                return;
+            }
+            
             ResizeComposite(message.World, root, oldSize, newSize, orientation, newState);
+        }
         else if (message.OldState.Block != message.NewState.Block)
             SetStateOnAllParts(message.World, newSize, root, currentPart, orientation, newState);
     }
@@ -175,9 +184,6 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void ResizeComposite(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, Orientation orientation, State state)
     {
-        if (!IsGrowthPossible(world, position, oldSize, newSize, orientation))
-            return;
-        
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 
         for (var x = 0; x < size.X; x++)

@@ -27,7 +27,8 @@ public class Core(BlockBuilder builder) : Category(builder)
         .WithBehavior<Static>()
         .WithBehavior<Fillable>()
         .WithProperties(flags => flags.IsSolid.ContributeConstant(value: false))
-        .WithProperties(flags => flags.Substance.ContributeConstant(Substance.Empty))
+        .WithProperties(flags => flags.IsEmpty.ContributeConstant(value: true))
+        .WithBehavior<Replaceable>()
         .WithValidation((block, validator) =>
         {
             if (block.BlockID != 0) 

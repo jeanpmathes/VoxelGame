@@ -201,12 +201,28 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <summary>
     ///     Set the content of a world position.
     /// </summary>
+    /// <param name="content">The new content.</param>
+    /// <param name="position">The world position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position)
     {
         Throw.IfDisposed(disposed);
 
-        SetContent(content, position, updateFluid: true);
+        SetContent(content, position, updateBlock: true, updateFluid: true);
+    }
+    
+    /// <summary>
+    ///     Set the content of a world position.
+    /// </summary>
+    /// <param name="content">The new content.</param>
+    /// <param name="position">The world position.</param>
+    /// <param name="updateBlock">Whether to update the block at the position. Should generally be true, exceptions include cases where block states are changed in reaction to a previous state change.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetContent(Content content, Vector3i position, Boolean updateBlock)
+    {
+        Throw.IfDisposed(disposed);
+
+        SetContent(content, position, updateBlock, updateFluid: true);
     }
 
     /// <summary>
@@ -341,7 +357,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         if (potentialFluid is not {} fluid) return;
 
-        SetContent(new Content(block, fluid), position, updateFluid: true);
+        SetContent(new Content(block, fluid), position, updateBlock: true, updateFluid: true);
     }
 
     /// <summary>
@@ -357,7 +373,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         if (potentialBlock is not {} block) return;
 
-        SetContent(new Content(block, fluid), position, updateFluid: false);
+        SetContent(new Content(block, fluid), position, updateBlock: true, updateFluid: false);
     }
 
     /// <summary>
@@ -370,7 +386,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(Content newContent, Vector3i position, Boolean updateFluid)
+    private void SetContent(Content newContent, Vector3i position, Boolean updateBlock, Boolean updateFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
@@ -387,7 +403,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         section.SetContent(position, newValue);
 
-        newContent.Block.Block.DoStateUpdate(this, position, oldContent, newContent);
+        if (updateBlock) newContent.Block.Block.DoStateUpdate(this, position, oldContent, newContent);
         if (updateFluid) newContent.Fluid.Fluid.UpdateNow(this, position, newContent.Fluid);
 
         foreach (Side side in Side.All.Sides())

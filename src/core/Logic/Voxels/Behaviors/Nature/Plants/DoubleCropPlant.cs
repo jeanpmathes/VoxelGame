@@ -13,7 +13,6 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 
@@ -49,7 +48,7 @@ public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant,
         foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Crop, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
 
-        subject.Require<SingleTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
+        subject.Require<VerticalTextureSelector>().HorizontalOffset.ContributeFunction(GetHorizontalOffset);
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
     }
@@ -71,17 +70,17 @@ public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant,
 
         return composite.GetPartPosition(state).Y == 0 ? Foliage.PartType.DoubleLower : Foliage.PartType.DoubleUpper;
     }
+    
+    private Int32 GetHorizontalOffset(Int32 original, State state)
+    {
+        return plant.GetStage(state) + 1 ?? 0;
+    }
 
     private Boolean IsDouble(State state)
     {
         return plant.GetStage(state) > FirstFullStage;
     }
-
-    private TID GetActiveTexture(TID original, State state)
-    {
-        return original.Offset((Byte) (plant.GetStage(state) + 1 ?? 0), (Byte) (composite.GetPartPosition(state).Y == 0 ? 0 : 1));
-    }
-
+    
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Int32? currentStage = plant.GetStage(state);

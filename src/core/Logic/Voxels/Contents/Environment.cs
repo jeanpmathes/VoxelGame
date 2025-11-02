@@ -154,38 +154,18 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .Complete();
 
     /// <summary>
-    ///     A tall grassy plant. Fluids will destroy it if the level is too high.
+    ///     Tall grass that can grow through three stages.
     /// </summary>
     public Block TallGrass { get; } = builder
         .BuildFoliageBlock(new CID(nameof(TallGrass)), Language.TallGrass)
         .WithTexture(TID.Block("grass_tall"))
         .WithBehavior<NeutralTint>()
-        .WithBehavior<CrossPlant>(plant => plant.Height.Initializer.ContributeConstant(value: 0.5))
-        .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
-        .WithProperties(flags => flags.Substance.ContributeConstant(Substance.Replaceable))
-        .Complete();
-
-    /// <summary>
-    ///     A somewhat taller version of the normal tall grass.
-    /// </summary>
-    public Block TallerGrass { get; } = builder
-        .BuildFoliageBlock(new CID(nameof(TallerGrass)), Language.TallerGrass)
-        .WithTexture(TID.Block("grass_taller"))
-        .WithBehavior<NeutralTint>()
-        .WithBehavior<CrossPlant>()
-        .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Four))
-        .WithProperties(flags => flags.Substance.ContributeConstant(Substance.Replaceable))
-        .Complete();
-
-    /// <summary>
-    ///     An even taller version of the normal tall grass.
-    ///     Truly the tallest grass in the game.
-    /// </summary>
-    public Block TallestGrass { get; } = builder
-        .BuildFoliageBlock(new CID(nameof(TallestGrass)), Language.TallestGrass)
-        .WithTexture(TID.Block("grass_tallest"))
-        .WithBehavior<NeutralTint>()
-        .WithBehavior<DoubleCrossPlant>()
+        .WithBehavior<Composite>()
+        .WithBehavior<CompositePlant>()
+        .WithBehavior<TallGrass>(grass => grass.Textures.Initializer.ContributeConstant((
+            TID.Block("grass_tall"),
+            TID.Block("grass_taller"),
+            TID.Block("grass_tallest"))))
         .WithBehavior<DestroyOnLiquid>(breaking => breaking.Threshold.Initializer.ContributeConstant(FluidLevel.Five))
         .Complete();
 
