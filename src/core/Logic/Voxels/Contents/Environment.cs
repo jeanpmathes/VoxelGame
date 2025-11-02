@@ -76,6 +76,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
     public Block CrackedDriedMud { get; } = builder
         .BuildSimpleBlock(new CID(nameof(CrackedDriedMud)), Language.CrackedDriedMud)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("mud_cracked")))
+        .WithBehavior<CrackedMud>()
         .Complete();
 
     /// <summary>

@@ -27,6 +27,7 @@ using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
 using VoxelGame.Annotations.Attributes;
 using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Logic;
 
@@ -181,6 +182,19 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     ///     Get the info map of this world.
     /// </summary>
     public IMap Map => ChunkContext.Generator.Map;
+
+    /// <summary>
+    ///     Get the temperature at a block position.
+    /// </summary>
+    /// <param name="position">The position to sample.</param>
+    /// <returns>The temperature at the block.</returns>
+    public Temperature GetTemperature(Vector3i position)
+    {
+        Vector3d centerPosition = position;
+        centerPosition += (0.5, 0.5, 0.5);
+
+        return Map.GetTemperature(centerPosition);
+    }
 
     /// <summary>
     ///     Get both the fluid and block instance at a given position.

@@ -8,6 +8,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 
@@ -16,6 +17,8 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// </summary>
 public partial class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
 {
+    private static readonly Temperature crackingTemperature = new() { DegreesCelsius = 35.0 };
+    
     [Constructible]
     private Mud(Block subject) : base(subject)
     {
@@ -25,7 +28,16 @@ public partial class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
+        bus.Subscribe<Block.IRandomUpdateMessage>(OnRandomUpdate);
         bus.Subscribe<Plantable.IGrowthAttemptMessage>(OnGrowthAttempt);
+    }
+
+    private void OnRandomUpdate(Block.IRandomUpdateMessage message)
+    {
+        if (message.World.GetTemperature(message.Position) < crackingTemperature)
+            return;
+
+        message.World.SetContent(Content.Create(Blocks.Instance.Environment.CrackedDriedMud), message.Position);
     }
 
     private static void OnGrowthAttempt(Plantable.IGrowthAttemptMessage message)
