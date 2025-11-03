@@ -270,6 +270,9 @@ public abstract class Modifier : IIssueSource
     {
         protected override Object? Parse(String text)
         {
+            if (text == "#animation_frames")
+                return 8;
+            
             return Int32.TryParse(text, CultureInfo.InvariantCulture, out Int32 result) ? result : null;
         }
     }

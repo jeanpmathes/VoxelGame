@@ -1,4 +1,4 @@
-﻿// <copyright file="StringUtilities.cs" company="VoxelGame">
+﻿// <copyright file="StringTools.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -14,7 +14,7 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     Utility class for string operations.
 /// </summary>
-public static class StringUtilities
+public static class StringTools
 {
     /// <summary>
     ///     Shortens the text to the specified length and adds an ellipsis if the text is longer than the specified length.

@@ -237,7 +237,7 @@ public class SubBiomeLoader : IResourceLoader
             Amplitude = 2.0f,
             Frequency = 0.05f,
             Offset = 7,
-            Cover = new Cover.NoVegetation(),
+            Cover = new Cover.Nothing(),
             IsOceanic = true,
             Layers =
             [

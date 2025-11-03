@@ -99,40 +99,6 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     }
 
     /// <summary>
-    ///     Get a rotated version of this texture layout, rotated around the given axis by the given number of 90° clockwise
-    ///     turns.
-    /// </summary>
-    /// <param name="axis">The axis to rotate around.</param>
-    /// <param name="turns">The number of 90° clockwise turns to rotate by, must be between 0 and 3 inclusive.</param>
-    /// <returns>The rotated texture layout.</returns>
-    public TextureLayout Rotated(Axis axis, Int32 turns)
-    {
-        Debug.Assert(turns is >= 0 and < 4);
-
-        if (turns == 0) return this;
-
-        Side GetRotatedSide(Side side)
-        {
-            return turns switch
-            {
-                1 => side.Rotate(axis),
-                2 => side.Rotate(axis).Rotate(axis),
-                3 => side.Rotate(axis).Rotate(axis).Rotate(axis),
-                _ => throw Exceptions.UnsupportedValue(turns)
-            };
-        }
-
-        return new TextureLayout(
-            GetTexture(GetRotatedSide(Side.Front)),
-            GetTexture(GetRotatedSide(Side.Back)),
-            GetTexture(GetRotatedSide(Side.Left)),
-            GetTexture(GetRotatedSide(Side.Right)),
-            GetTexture(GetRotatedSide(Side.Bottom)),
-            GetTexture(GetRotatedSide(Side.Top))
-        );
-    }
-
-    /// <summary>
     ///     Get the texture indices that correspond to the textures used by the sides of a block or fluid.
     /// </summary>
     /// <param name="textureIndexProvider">The texture index provider to use.</param>
@@ -146,7 +112,7 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
 
         foreach (Side side in Side.All.Sides())
         {
-            sides[side] = GetTextureIndex(side, textureIndexProvider, isBlock);
+            sides[side] = GetTextureIndex(side, textureIndexProvider, isBlock, (Axis.Y, 0));
         }
 
         return sides;
@@ -158,9 +124,21 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     /// <param name="side">The side of the block or fluid to get the texture index for, must not be <see cref="Side.All" />.</param>
     /// <param name="textureIndexProvider">The texture index provider to use.</param>
     /// <param name="isBlock">Whether the texture index is for a block or a fluid.</param>
+    /// <param name="rotation">The rotation to apply to the texture layout before getting the texture index.</param>
     /// <returns>The texture index for the specified side.</returns>
-    public Int32 GetTextureIndex(Side side, ITextureIndexProvider textureIndexProvider, Boolean isBlock)
+    public Int32 GetTextureIndex(Side side, ITextureIndexProvider textureIndexProvider, Boolean isBlock, (Axis axis, Int32 turns) rotation)
     {
+        (Axis axis, Int32 turns) = rotation;
+        
+        side = MathTools.Mod(turns, m: 4) switch
+        {
+            0 => side,
+            1 => side.Rotate(axis),
+            2 => side.Rotate(axis).Rotate(axis),
+            3 => side.Rotate(axis).Rotate(axis).Rotate(axis),
+            _ => throw Exceptions.UnsupportedValue(turns)
+        };
+        
         return side switch
         {
             Side.Front => textureIndexProvider.GetTextureIndex(front),

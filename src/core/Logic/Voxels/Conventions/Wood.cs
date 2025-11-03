@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
@@ -228,14 +229,50 @@ public static class WoodConvention
                     .BuildSimpleBlock(new CID($"{contentID}{nameof(Wood.Log)}"), name.log)
                     .WithTextureLayout(TextureLayout.Column(TID.Block($"{texture}_log", x: 0), TID.Block($"{texture}_log", x: 1)))
                     .WithBehavior<AxisRotatable>()
-                    .WithBehavior<Combustible>()
+                    .WithBehavior<Combustible>(combustible =>
+                    {
+                        combustible.BurnedState.ContributeFunction((_, context) =>
+                        {
+                            State state = context.state;
+
+                            Block burnedLog = Blocks.Instance.Environment.BurnedLog;
+                            State burnedState = new(burnedLog);
+
+                            if (state.Block.Get<AxisRotatable>() is {} source && burnedLog.Get<AxisRotatable>() is {} target)
+                            {
+                                Axis axis = source.GetAxis(state);
+                                burnedState = target.SetAxis(burnedState, axis);
+                            }
+
+                            if (burnedLog.Get<Smoldering>() is {} smoldering)
+                                burnedState = smoldering.WithEmbers(burnedState);
+
+                            return burnedState;
+                        });
+                        
+                        combustible.CompleteDestructionChance.Initializer.ContributeConstant(Chance.CoinToss);
+                    })
                     .WithBehavior<TreePart>()
                     .Complete(),
 
                 Planks = builder
                     .BuildSimpleBlock(new CID($"{contentID}{nameof(Wood.Planks)}"), $"{Language.Planks} ({name.wood})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block($"{texture}_planks")))
-                    .WithBehavior<Combustible>()
+                    .WithBehavior<Combustible>(combustible =>
+                    {
+                        combustible.BurnedState.ContributeFunction((_, _) =>
+                        {
+                            Block burnedPlanks = Blocks.Instance.Environment.BurnedPlanks;
+                            State burnedState = new(burnedPlanks);
+
+                            if (burnedPlanks.Get<Smoldering>() is {} smoldering)
+                                burnedState = smoldering.WithEmbers(burnedState);
+
+                            return burnedState;
+                        });
+                        
+                        combustible.CompleteDestructionChance.Initializer.ContributeConstant(Chance.CoinToss);
+                    })
                     .WithBehavior<ConstructionMaterial>()
                     .Complete(),
 

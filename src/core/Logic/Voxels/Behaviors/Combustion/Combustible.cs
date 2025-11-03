@@ -9,6 +9,11 @@ using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Behaviors.Aspects.Strategies;
+using VoxelGame.Core.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 
@@ -18,14 +23,33 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBehavior, Block>
 {
     [Constructible]
-    private Combustible(Block subject) : base(subject) {}
+    private Combustible(Block subject) : base(subject)
+    {
+        BurnedState = Aspect<State?, (World, Vector3i, State, Block)>.New<Exclusive<State?, (World, Vector3i, State, Block)>>(nameof(BurnedState), this);
+    }
 
     [LateInitialization] private partial IEvent<IBurnMessage> Burn { get; set; }
 
+    /// <summary>
+    /// The chance that, on combustion, the block is completely destroyed instead of changing state into the <see cref="BurnedState"/>.
+    /// </summary>
+    public ResolvedProperty<Chance> CompleteDestructionChance { get; } = ResolvedProperty<Chance>.New<Exclusive<Chance, Void>>(nameof(CompleteDestructionChance), Chance.Impossible);
+    
+    /// <summary>
+    ///     Determine the state a block should change into after burning.
+    /// </summary>
+    public Aspect<State?, (World world, Vector3i position, State state, Block fire)> BurnedState { get; }
+    
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
         Burn = registry.RegisterEvent<IBurnMessage>();
+    }
+
+    /// <inheritdoc />
+    public override void OnInitialize(BlockProperties properties)
+    {
+        CompleteDestructionChance.Initialize(this);
     }
 
     /// <summary>
@@ -38,8 +62,27 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
     /// <returns><c>true</c> if the block was destroyed, <c>false</c> if not.</returns>
     public Boolean DoBurn(World world, Vector3i position, Block fire)
     {
+        State? state = world.GetBlock(position);
+        
+        if (state == null) 
+            return false;
+
+        State? burnedState = BurnedState.GetValue(original: null, (world, position, state.Value, fire));
+
         if (!Burn.HasSubscribers)
-            return Subject.Destroy(world, position);
+        {
+            if (burnedState == null || NumberGenerator.GetPositionDependentOutcome(position, CompleteDestructionChance.Get())) 
+                return Subject.Destroy(world, position);
+
+            world.SetBlock(burnedState.Value, position);
+            
+            fire.Place(world, position.Above());
+
+            foreach (Orientation orientation in Orientations.All)
+                Fire.PlaceOriented(world, position.Offset(orientation), orientation.Opposite(), fire);
+
+            return false;
+        }
 
         BurnMessage burn = IEventMessage<BurnMessage>.Pool.Get();
 
@@ -52,7 +95,19 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
 
         Burn.Publish(burn);
 
-        return burn.Burned;
+        Boolean burned = burn.Burned;
+
+        IEventMessage<BurnMessage>.Pool.Return(burn);
+
+        if (burned)
+            return true;
+
+        if (burnedState == null) 
+            return false;
+
+        world.SetBlock(burnedState.Value, position);
+
+        return false;
     }
     
     /// <summary>

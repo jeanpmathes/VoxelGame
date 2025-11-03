@@ -8,6 +8,7 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
+using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
@@ -24,14 +25,13 @@ public partial class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Bloc
     private Grass(Block subject) : base(subject)
     {
         subject.Require<CoveredSoil>();
-        subject.Require<Combustible>();
+        subject.Require<Combustible>().BurnedState.ContributeFunction(GetBurnedState);
     }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.IRandomUpdateMessage>(OnRandomUpdate);
-        bus.Subscribe<Combustible.IBurnMessage>(OnBurn);
     }
 
     private void OnRandomUpdate(Block.IRandomUpdateMessage message)
@@ -45,10 +45,9 @@ public partial class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Bloc
                     spreadable.SpreadGrass(message.World, position, Subject);
             }
     }
-
-    private static void OnBurn(Combustible.IBurnMessage message)
+    
+    private static State? GetBurnedState(State? original, (World world, Vector3i position, State state, Block fire) context)
     {
-        message.World.SetBlock(new State(Blocks.Instance.Environment.AshCoveredSoil), message.Position);
-        message.Fire.Place(message.World, message.Position.Above());
+        return new State(Blocks.Instance.Environment.AshCoveredSoil);
     }
 }

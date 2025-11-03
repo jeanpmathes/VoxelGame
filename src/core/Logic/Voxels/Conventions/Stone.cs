@@ -95,12 +95,12 @@ public static class StoneConvention
             return new Stone(contentID, builder)
             {
                 Base = builder
-                    .BuildSimpleBlock(new CID($"{contentID}{nameof(Stone.Base)}"), name)
+                    .BuildSimpleBlock(new CID($"{contentID}"), name)
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block(texture, x: 0)))
                     .Complete(),
 
                 Rubble = builder
-                    .BuildSimpleBlock(new CID($"{contentID}"), $"{nameof(Language.Rubble)} ({name})")
+                    .BuildSimpleBlock(new CID($"{contentID}{nameof(Stone.Rubble)}"), $"{nameof(Language.Rubble)} ({name})")
                     .WithTextureLayout(TextureLayout.Uniform(TID.Block(texture, x: 1)))
                     .WithBehavior<WetTint>()
                     .WithBehavior<Loose>()

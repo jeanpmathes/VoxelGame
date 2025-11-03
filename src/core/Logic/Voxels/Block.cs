@@ -460,7 +460,11 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <returns><c>true</c> if the block can be placed at the given position, <c>false</c> otherwise.</returns>
     public Boolean CanPlace(World world, Vector3i position, Actor? actor = null)
     {
-        return IsPlacementAllowed.GetValue(original: true, (world, position, actor));
+        State? block = world.GetBlock(position);
+
+        if (block == null) return false;
+        
+        return block.Value.IsReplaceable && IsPlacementAllowed.GetValue(original: true, (world, position, actor));
     }
 
     /// <summary>
@@ -472,15 +476,6 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <returns>True if placement was successful.</returns>
     public Boolean Place(World world, Vector3i position, Actor? actor = null)
     {
-        Content? content = world.GetContent(position);
-
-        if (content == null) return false;
-
-        (State block, FluidInstance _) = content.Value;
-
-        if (!block.IsReplaceable)
-            return false;
-
         if (!CanPlace(world, position, actor))
             return false;
 

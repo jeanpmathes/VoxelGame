@@ -12,7 +12,6 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 
@@ -28,7 +27,7 @@ public partial class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSi
     {
         rotatable = subject.Require<Rotatable>();
 
-        subject.Require<CubeTextured>().ActiveTexture.ContributeFunction(GetActiveTexture);
+        subject.Require<CubeTextured>().Rotation.ContributeFunction(GetRotation);
         subject.Require<Simple>().IsTextureRotated.ContributeFunction(GetIsTextureRotated);
     }
 
@@ -47,12 +46,12 @@ public partial class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSi
 
         return onXAndRotated || onZAndRotated;
     }
-
-    private TextureLayout GetActiveTexture(TextureLayout original, State state)
+    
+    private (Axis axis, Int32 turns) GetRotation((Axis axis, Int32 turns) original, State state)
     {
         Axis axis = rotatable.GetCurrentAxis(state);
         Int32 turns = MathTools.Mod(rotatable.GetCurrentTurns(state), m: 4);
-
-        return original.Rotated(axis, turns);
+        
+        return (axis, turns);
     }
 }

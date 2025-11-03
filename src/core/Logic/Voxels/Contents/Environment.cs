@@ -14,6 +14,7 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities.Resources;
@@ -58,6 +59,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<NeutralTint>()
         .WithBehavior<Soil>()
         .WithBehavior<GrassSpreadable>()
+        .WithBehavior<AshCoverable>()
         .Complete();
 
     /// <summary>
@@ -214,9 +216,31 @@ public class Environment(BlockBuilder builder) : Category(builder)
         ///     Ash is the remainder of burning processes.
     /// </summary>
     public Block Ash { get; } = builder
-        .BuildSimpleBlock(new CID(nameof(Ash)), Language.Ash)
+        .BuildPartialHeightBlock(new CID(nameof(Ash)), Language.Ash)
         .WithTextureLayout(TextureLayout.Uniform(TID.Block("ash")))
+        .WithBehavior<Smoldering>(smoldering => smoldering.EmberTexture.Initializer.ContributeConstant(TextureLayout.Uniform(TID.Block("ash_embers"))))
         .WithBehavior<DestroyOnFluid>()
+        .WithBehavior<ConstantHeight>()
+        .WithBehavior<Grounded>()
+        .Complete();
+
+    /// <summary>
+    ///     The charred remainder of a log.
+    /// </summary>
+    public Block BurnedLog { get; } = builder
+        .BuildSimpleBlock(new CID(nameof(BurnedLog)), Language.BurnedLog)
+        .WithTextureLayout(TextureLayout.Column(TID.Block("burned_log", x: 0), TID.Block("burned_log", x: 1)))
+        .WithBehavior<AxisRotatable>()
+        .WithBehavior<Smoldering>(smoldering => smoldering.EmberTexture.Initializer.ContributeConstant(TextureLayout.Uniform(TID.Block("burned_log_embers"))))
+        .Complete();
+
+    /// <summary>
+    ///     The charred remainder of wooden planks.
+    /// </summary>
+    public Block BurnedPlanks { get; } = builder
+        .BuildSimpleBlock(new CID(nameof(BurnedPlanks)), Language.BurnedPlanks)
+        .WithTextureLayout(TextureLayout.Uniform(TID.Block("burned_planks")))
+        .WithBehavior<Smoldering>(smoldering => smoldering.EmberTexture.Initializer.ContributeConstant(TextureLayout.Uniform(TID.Block("burned_planks_embers"))))
         .Complete();
 
     /// <summary>

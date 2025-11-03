@@ -32,7 +32,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 {
     private const UInt32 UpdateOffset = 150;
     private const UInt32 UpdateVariation = 25;
-
+    
     [Constructible]
     private Fire(Block subject) : base(subject)
     {
@@ -57,6 +57,8 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
     [LateInitialization] private partial IAttribute<Boolean> Top { get; set; }
 
+    [LateInitialization] private partial IAttribute<Boolean> LeavesAsh { get; set; }
+
     /// <summary>
     ///     The models used for the block.
     /// </summary>
@@ -66,6 +68,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     public override void SubscribeToEvents(IEventBus bus)
     {
         bus.Subscribe<Block.IPlacementCompletedMessage>(OnPlacementCompleted);
+        bus.Subscribe<Block.IDestructionCompletedMessage>(OnDestructionCompleted);
         bus.Subscribe<Block.INeighborUpdateMessage>(OnNeighborUpdate);
         bus.Subscribe<Block.IScheduledUpdateMessage>(OnScheduledUpdate);
     }
@@ -87,6 +90,8 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         Left = builder.Define(nameof(Left)).Boolean().Attribute();
         Right = builder.Define(nameof(Right)).Boolean().Attribute();
         Top = builder.Define(nameof(Top)).Boolean().Attribute();
+        
+        LeavesAsh = builder.Define(nameof(LeavesAsh)).Boolean().Attribute();
     }
 
     private Mesh GetMesh(Mesh original, MeshContext context)
@@ -105,16 +110,16 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         List<Model> requiredModels = new(capacity: 5);
 
         if (state.Get(Front))
-            requiredModels.Add(side.CreateModelForSide(Side.Front));
+            requiredModels.Add(side.CreateModelForSide(Side.Front.Opposite()));
 
         if (state.Get(Back))
-            requiredModels.Add(side.CreateModelForSide(Side.Back));
+            requiredModels.Add(side.CreateModelForSide(Side.Back.Opposite()));
 
         if (state.Get(Left))
-            requiredModels.Add(side.CreateModelForSide(Side.Left));
+            requiredModels.Add(side.CreateModelForSide(Side.Left.Opposite()));
 
         if (state.Get(Right))
-            requiredModels.Add(side.CreateModelForSide(Side.Right));
+            requiredModels.Add(side.CreateModelForSide(Side.Right.Opposite()));
 
         if (state.Get(Top))
             requiredModels.Add(up);
@@ -174,6 +179,12 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     {
         Subject.ScheduleUpdate(message.World, message.Position, GetDelay(message.Position));
     }
+    
+    private void OnDestructionCompleted(Block.IDestructionCompletedMessage message)
+    {
+        if (message.State.Get(LeavesAsh))
+            PlaceAsh(message.World, message.Position);
+    }
 
     private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
@@ -219,7 +230,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
         if (!IsAnySideBurning(message.State))
         {
-            canBurn |= BurnAt(message.Position.Below());
+            canBurn |= BurnAt(message.World, message.Position.Below());
             sides = Sides.All;
         }
 
@@ -229,7 +240,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
             if (sides.HasFlag(side.ToFlag()))
             {
-                canBurn |= BurnAt(message.Position.Offset(side));
+                canBurn |= BurnAt(message.World, message.Position.Offset(side));
             }
         }
 
@@ -239,24 +250,67 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         }
         else
         {
+            if (Subject.CanPlace(message.World, message.Position.Above()))
+            {
+                PlaceFire(message.World, message.Position.Above(), leavesAsh: false);
+            }
+            
             Subject.ScheduleUpdate(message.World, message.Position, GetDelay(message.Position));
         }
+    }
+    
+    private Boolean BurnAt(World world, Vector3i burnPosition)
+    {
+        if (world.GetBlock(burnPosition)?.Block.Get<Combustible>() is not {} combustible)
+            return false;
 
-        Boolean BurnAt(Vector3i burnPosition)
-        {
-            if (message.World.GetBlock(burnPosition)?.Block.Get<Combustible>() is not {} combustible)
-                return false;
-
-            if (!combustible.DoBurn(message.World, burnPosition, Subject))
-                return true;
-
-            if (message.World.GetBlock(burnPosition.Below())?.Block.Get<AshCoverable>() is {} coverable)
-                coverable.CoverWithAsh(message.World, burnPosition.Below());
-
-            Subject.Place(message.World, burnPosition);
-
+        if (!combustible.DoBurn(world, burnPosition, Subject))
             return true;
+
+        var leavesAsh = true;
+
+        if (world.GetBlock(burnPosition.Below())?.Block.Get<AshCoverable>() is {} coverable)
+        {
+            coverable.CoverWithAsh(world, burnPosition.Below());
+            leavesAsh = false;
         }
+
+        if (Subject.CanPlace(world, burnPosition))
+        {
+            PlaceFire(world, burnPosition, leavesAsh);
+        }
+        else if (leavesAsh)
+        {
+            PlaceAsh(world, burnPosition);
+        }
+            
+        return true;
+    }
+    
+    private void PlaceFire(World world, Vector3i position, Boolean leavesAsh)
+    {
+        State placementState = Subject.GetPlacementState(world, position);
+                
+        placementState.Set(LeavesAsh, leavesAsh);
+                
+        world.SetBlock(placementState, position);
+                
+        Subject.ScheduleUpdate(world, position, GetDelay(position));
+    }
+    
+    private static void PlaceAsh(World world, Vector3i position)
+    {
+        Block ash = Blocks.Instance.Environment.Ash;
+        
+        if (!ash.CanPlace(world, position)) 
+            return;
+        
+        State ashState = ash.GetPlacementState(world, position);
+        
+        if (ash.Get<Smoldering>() is { } smoldering)
+            ashState = smoldering.WithEmbers(ashState);
+        
+        world.SetBlock(ashState, position);
     }
 
     private State GetPlacementState(State original, (World world, Vector3i position, Actor? actor) context)
@@ -336,5 +390,27 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     private static UInt32 GetDelay(Vector3i position)
     {
         return UpdateOffset + (NumberGenerator.GetPositionDependentNumber(position, UpdateVariation * 2) - UpdateVariation);
+    }
+    
+    /// <summary>
+    /// Attempt to place a fire block at the given position, sticking to just the given orientation.
+    /// </summary>
+    /// <param name="world">The world in which to place the fire.</param>
+    /// <param name="position">The position at which to place the fire.</param>
+    /// <param name="orientation">The orientation to use.</param>
+    /// <param name="fire">The fire block to place.</param>
+    /// <returns><c>true</c> if the fire was placed, <c>false</c> otherwise.</returns>
+    public static Boolean PlaceOriented(World world, Vector3i position, Orientation orientation, Block fire)
+    {
+        if (fire.Get<Fire>() is not {} behavior)
+            return false;
+        
+        if (!fire.CanPlace(world, position))
+            return false;
+        
+        world.SetBlock(behavior.SetSides(fire.States.Default, orientation.ToSide().ToFlag()), position);
+        fire.ScheduleUpdate(world, position, GetDelay(position));
+        
+        return true;
     }
 }

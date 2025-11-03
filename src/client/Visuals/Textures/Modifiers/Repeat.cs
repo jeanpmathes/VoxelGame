@@ -17,8 +17,8 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 [UsedImplicitly]
 public class Repeat() : Modifier("repeat", [xParameter, yParameter])
 {
-    private static readonly Parameter<Int32> xParameter = CreateIntegerParameter("x", fallback: 0);
-    private static readonly Parameter<Int32> yParameter = CreateIntegerParameter("y", fallback: 0);
+    private static readonly Parameter<Int32> xParameter = CreateIntegerParameter("x", fallback: 1);
+    private static readonly Parameter<Int32> yParameter = CreateIntegerParameter("y", fallback: 1);
 
     /// <inheritdoc />
     protected override Sheet Modify(Image image, Parameters parameters, IContext context)
@@ -26,8 +26,8 @@ public class Repeat() : Modifier("repeat", [xParameter, yParameter])
         Int32 xRepeat = parameters.Get(xParameter);
         Int32 yRepeat = parameters.Get(yParameter);
 
-        if (xRepeat < 0 || yRepeat < 0)
-            context.ReportWarning("Repeat parameters are negative");
+        if (xRepeat < 1 || yRepeat < 1)
+            context.ReportWarning("Repeat parameters are not positive");
 
         if (xRepeat > Byte.MaxValue || yRepeat > Byte.MaxValue)
             context.ReportWarning("Repeat parameters exceed maximum value");

@@ -129,6 +129,12 @@
     <data name="Ash" xml:space="preserve">
     <value>Asche</value>
   </data>
+    <data name="BurnedLog" xml:space="preserve">
+        <value>Verkohlter Stamm</value>
+    </data>
+    <data name="BurnedPlanks" xml:space="preserve">
+        <value>Verkohlte Bretter</value>
+    </data>
     <data name="AshCoveredSoil" xml:space="preserve">
         <value>Aschebedeckter Erdboden</value>
     </data>

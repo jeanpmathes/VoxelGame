@@ -285,6 +285,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Burned Log.
+        /// </summary>
+        public static string BurnedLog {
+            get {
+                return ResourceManager.GetString("BurnedLog", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Burned Planks.
+        /// </summary>
+        public static string BurnedPlanks {
+            get {
+                return ResourceManager.GetString("BurnedPlanks", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Cactus.
         /// </summary>
         public static string Cactus {

@@ -10,6 +10,7 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
@@ -25,6 +26,7 @@ public partial class CubeTextured : BlockBehavior, IBehavior<CubeTextured, Block
     private CubeTextured(Block subject) : base(subject)
     {
         ActiveTexture = Aspect<TextureLayout, State>.New<Exclusive<TextureLayout, State>>(nameof(ActiveTexture), this);
+        Rotation = Aspect<(Axis, Int32), State>.New<Exclusive<(Axis, Int32), State>>(nameof(Rotation), this);
     }
 
     /// <summary>
@@ -37,6 +39,11 @@ public partial class CubeTextured : BlockBehavior, IBehavior<CubeTextured, Block
     ///     The actually used, state dependent texture layout.
     /// </summary>
     public Aspect<TextureLayout, State> ActiveTexture { get; }
+    
+    /// <summary>
+    ///     The rotation of the texture on the block.
+    /// </summary>
+    public Aspect<(Axis axis, Int32 turns), State> Rotation { get; }
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)
@@ -54,6 +61,8 @@ public partial class CubeTextured : BlockBehavior, IBehavior<CubeTextured, Block
     /// <returns>The texture index for the given state and side.</returns>
     public Int32 GetTextureIndex(State state, Side side, ITextureIndexProvider textureIndexProvider, Boolean isBlock)
     {
-        return ActiveTexture.GetValue(DefaultTexture.Get(), state).GetTextureIndex(side, textureIndexProvider, isBlock);
+        TextureLayout layout = ActiveTexture.GetValue(DefaultTexture.Get(), state);
+        
+        return layout.GetTextureIndex(side, textureIndexProvider, isBlock, Rotation.GetValue((Axis.Y, 0), state));
     }
 }
