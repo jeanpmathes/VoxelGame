@@ -558,6 +558,9 @@
     <data name="FreshWater" xml:space="preserve">
     <value>Süßwasser</value>
   </data>
+    <data name="WasteWater" xml:space="preserve">
+    <value>Abwasser</value>
+  </data>
     <data name="Salt" xml:space="preserve">
     <value>Salz</value>
   </data>

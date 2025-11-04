@@ -558,6 +558,9 @@
     <data name="FreshWater" xml:space="preserve">
     <value>Fresh Water</value>
   </data>
+    <data name="WasteWater" xml:space="preserve">
+    <value>Waste Water</value>
+  </data>
     <data name="Salt" xml:space="preserve">
     <value>Salt</value>
   </data>

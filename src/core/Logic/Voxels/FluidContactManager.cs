@@ -51,7 +51,9 @@ public class FluidContactManager
             fluids.Beer,
             fluids.Wine);
 
-        map.AddCombination(fluids.SeaWater, ContactAction.MixWater, fluids.FreshWater);
+        map.AddCombination(fluids.WasteWater, ContactAction.ContaminateWater, fluids.FreshWater);
+
+        map.AddCombination(fluids.SeaWater, ContactAction.MixWater, fluids.FreshWater, fluids.WasteWater);
     }
 
     /// <summary>
@@ -80,6 +82,7 @@ public class FluidContactManager
             ContactAction.BurnWithLava => BurnWithLava(world, a, b),
             ContactAction.DissolveConcrete => DissolveConcrete(world, a, b),
             ContactAction.MixWater => MixWater(world, a, b),
+            ContactAction.ContaminateWater => ContaminateWater(world, a, b),
             _ => throw Exceptions.UnsupportedEnumValue(action)
         };
     }
@@ -188,8 +191,22 @@ public class FluidContactManager
         Select(a, b, Fluids.Instance.FreshWater, out ContactInformation fresh, out ContactInformation sea);
         
         sea.fluid.UpdateSoon(world, sea.position, sea.isStatic);
-        
+
         SetFluid(world, fresh.position, Fluids.Instance.SeaWater, fresh.level);
+
+        return true;
+    }
+
+    /// <summary>
+    ///     Contaminate fresh water, turning it into waste water.
+    /// </summary>
+    private static Boolean ContaminateWater(World world, ContactInformation a, ContactInformation b)
+    {
+        Select(a, b, Fluids.Instance.FreshWater, out ContactInformation fresh, out ContactInformation waste);
+
+        waste.fluid.UpdateSoon(world, waste.position, waste.isStatic);
+
+        SetFluid(world, fresh.position, Fluids.Instance.WasteWater, fresh.level);
 
         return true;
     }
@@ -239,7 +256,8 @@ public class FluidContactManager
         CoolLava,
         BurnWithLava,
         DissolveConcrete,
-        MixWater
+        MixWater,
+        ContaminateWater
     }
 
     private readonly struct ContactInformation(FluidInstance fluid, Vector3i position) : IEquatable<ContactInformation>

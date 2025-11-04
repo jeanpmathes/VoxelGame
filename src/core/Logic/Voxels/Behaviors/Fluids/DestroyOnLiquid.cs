@@ -15,6 +15,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
 /// <summary>
 ///     Breaks when filled with more than a certain amount of liquid, by default any amount causes breaking.
+///     This is a specialization of <see cref="DestroyOnFluid" />.
 /// </summary>
 public partial class DestroyOnLiquid : BlockBehavior, IBehavior<DestroyOnLiquid, BlockBehavior, Block>
 {

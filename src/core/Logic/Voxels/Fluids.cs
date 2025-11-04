@@ -48,6 +48,18 @@ public sealed partial class Fluids(Registry<Fluid> registry)
         RenderType.Transparent));
 
     /// <summary>
+    ///     Waste water is contaminated fresh water.
+    /// </summary>
+    public Fluid WasteWater { get; } = registry.Register(new BasicFluid(
+        Language.WasteWater,
+        nameof(WasteWater),
+        new Density { KilogramsPerCubicMeter = 997f },
+        new Viscosity { MilliPascalSeconds = 1 },
+        hasNeutralTint: false,
+        TID.Fluid("waste_water"),
+        RenderType.Transparent));
+
+    /// <summary>
     ///     Water is a basic fluid, that allows the player to swim relatively easily.
     /// </summary>
     public Fluid SeaWater { get; } = registry.Register(new SaltWaterFluid(

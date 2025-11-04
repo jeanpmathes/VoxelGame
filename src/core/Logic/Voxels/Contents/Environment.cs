@@ -222,6 +222,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<DestroyOnFluid>()
         .WithBehavior<ConstantHeight>()
         .WithBehavior<Grounded>()
+        .WithBehavior<Contaminating>()
         .Complete();
 
     /// <summary>

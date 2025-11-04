@@ -22,7 +22,7 @@ public class FluidAnimation() : Modifier("fluid-animation", [invertedParameter])
     private const Int32 Static = 1;
     private const Int32 StaticSide = 0;
 
-    private const Byte Frames = 16;
+    private const Byte Frames = Constants.FluidAnimationFrames;
 
     private static readonly Parameter<Boolean> invertedParameter = CreateBooleanParameter("inverted", fallback: false);
 

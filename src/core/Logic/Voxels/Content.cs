@@ -23,7 +23,7 @@ public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, Boole
     public static FluidInstance Default => new(Fluids.Instance.None, FluidLevel.Eight, IsStatic: true);
 
     /// <summary>
-    ///     Get whether the fluid is either fresh water or sea water.
+    ///     Get whether the fluid is either fresh water or seawater.
     /// </summary>
     public Boolean IsAnyWater => Fluid == Fluids.Instance.FreshWater || Fluid == Fluids.Instance.SeaWater;
 

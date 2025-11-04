@@ -3030,6 +3030,15 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Waste Water.
+        /// </summary>
+        public static string WasteWater {
+            get {
+                return ResourceManager.GetString("WasteWater", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Wheat.
         /// </summary>
         public static string Wheat {
