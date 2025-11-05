@@ -2,7 +2,11 @@ version = 1
 
 test_patterns = ["tst/**"]
 
-exclude_patterns = ["src/native_toolkit/FastNoise2/**"]
+exclude_patterns = [
+  "src/native_toolkit/FastNoise2/**",
+  "src/native_graphics/Tools/D3D12MemoryAlloc.cpp",
+  "src/native_graphics/Tools/D3D12MemoryAlloc.hpp"
+]
 
 [[analyzers]]
 name = "cxx"
