@@ -137,8 +137,9 @@ float GetReflectance(float3 const normal, float3 const incident, float3 const tr
 
     float const relativeY = 1.0f - (pixel.y + 1.0f) / 2.0f;
     Fog         fog       = Fog::CreateDefault();
-    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f && relativeY > vg::custom.fogOverlapSize + 1.0f)) fog =
-    Fog::CreateVolume(vg::custom.fogOverlapColor);
+    
+    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f && relativeY > vg::custom.fogOverlapSize + 1.0f))
+        fog = Fog::CreateVolume(vg::custom.fogOverlapColor);
 
     int    iteration = 0;
     float4 color     = 0;
