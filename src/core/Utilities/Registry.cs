@@ -16,9 +16,9 @@ namespace VoxelGame.Core.Utilities;
 public class Registry<T> where T : class
 {
     private readonly Func<T, String> keySelector;
+    private readonly Dictionary<String, T> valueByKey = [];
 
     private readonly List<T> values = [];
-    private readonly Dictionary<String, T> valueByKey = [];
 
     /// <summary>
     ///     Create a new registry.
@@ -60,6 +60,19 @@ public class Registry<T> where T : class
     {
         values.Add(value);
         valueByKey[keySelector(value)] = value;
+
+        return value;
+    }
+
+    /// <summary>
+    ///     Register a new instance and return it as a specific type.
+    /// </summary>
+    /// <param name="value">The instance to register.</param>
+    /// <typeparam name="TS">The specific type of the instance.</typeparam>
+    /// <returns>The registered instance as the specific type.</returns>
+    public TS Register<TS>(TS value) where TS : T
+    {
+        Register((T) value);
 
         return value;
     }

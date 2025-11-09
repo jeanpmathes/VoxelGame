@@ -51,7 +51,7 @@ public class Documentation
         if (doc.DocumentElement == null) return loadedDocumentation;
 
         IEnumerable<XmlElement> members =
-            doc.DocumentElement["members"]?.ChildNodes.OfType<XmlElement>() ?? Enumerable.Empty<XmlElement>();
+            doc.DocumentElement["members"]?.ChildNodes.OfType<XmlElement>() ?? [];
 
         foreach (XmlElement member in members)
         {
@@ -75,11 +75,7 @@ public class Documentation
     /// <returns>The summary.</returns>
     public String GetFieldSummary(MemberInfo field)
     {
-        return documentation.TryGetValue(
-            $"F:{field.DeclaringType?.FullName ?? ""}.{field.Name}",
-            out String? summary)
-            ? summary
-            : "";
+        return documentation.GetValueOrDefault($"F:{field.DeclaringType?.FullName ?? ""}.{field.Name}", "");
     }
 
     /// <summary>
@@ -89,10 +85,16 @@ public class Documentation
     /// <returns>The summary.</returns>
     public String GetPropertySummary(MemberInfo property)
     {
-        return documentation.TryGetValue(
-            $"P:{property.DeclaringType?.FullName ?? ""}.{property.Name}",
-            out String? summary)
-            ? summary
-            : "";
+        return documentation.GetValueOrDefault($"P:{property.DeclaringType?.FullName ?? ""}.{property.Name}", "");
+    }
+
+    /// <summary>
+    ///     Get the documentation for a type.
+    /// </summary>
+    /// <param name="type">The type to get the summary for.</param>
+    /// <returns>The summary.</returns>
+    public String GetTypeSummary(Type type)
+    {
+        return documentation.GetValueOrDefault($"T:{type.FullName}", "");
     }
 }

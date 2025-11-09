@@ -21,19 +21,21 @@ using VoxelGame.UI.Settings;
 
 namespace VoxelGame.Client.Inputs;
 
-internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
+/// <summary>
+/// Manages all keybinds and their settings.
+/// </summary>
+public sealed partial class KeybindManager : ISettingsProvider, IDisposable
 {
+    private readonly IDisposable binding;
     private readonly Dictionary<Keybind, Button> keybinds = new();
 
     private readonly Dictionary<Keybind, PushButton> pushButtons = new();
+
+    private readonly List<Setting> settings = [];
     private readonly Dictionary<Keybind, SimpleButton> simpleButtons = new();
     private readonly Dictionary<Keybind, ToggleButton> toggleButtons = new();
 
     private readonly KeyMap usageMap = new();
-
-    private readonly List<Setting> settings = [];
-
-    private readonly IDisposable binding;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="KeybindManager" /> class.
@@ -62,7 +64,7 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
     /// <summary>
     ///     Get the look input provided by this manager.
     /// </summary>
-    internal LookInput LookBind { get; }
+    public LookInput LookBind { get; }
 
     /// <summary>
     ///     All keybinds managed by this class.
@@ -312,12 +314,16 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
         disposed = true;
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    /// Finalizer.
+    /// </summary>
     ~KeybindManager()
     {
         Dispose(disposing: false);

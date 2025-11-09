@@ -9,8 +9,8 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -132,19 +132,19 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     }
 
     /// <inheritdoc />
-    protected override void OnActivation()
+    protected override void OnActivate()
     {
         RecreateIncompleteSectionMeshes();
     }
 
     /// <inheritdoc />
-    protected override void OnDeactivation()
+    protected override void OnDeactivate()
     {
         DisableAllVfx();
     }
 
     /// <inheritdoc />
-    protected override void OnNeighborActivation()
+    protected override void OnNeighborActivate()
     {
         RecreateIncompleteSectionMeshes();
     }
@@ -284,5 +284,5 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         disposed = true;
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

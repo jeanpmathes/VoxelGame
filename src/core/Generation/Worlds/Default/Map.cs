@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
@@ -162,8 +163,11 @@ public sealed partial class Map : IMap, IDisposable
         this.biomes = biomes;
     }
 
-    internal SamplingNoise SamplingNoise { get; private set; } = null!;
-    internal GeneratingNoise GeneratingNoise { get; private set; } = null!;
+    [LateInitialization]
+    internal partial SamplingNoise SamplingNoise { get; private set; }
+    
+    [LateInitialization]
+    internal partial GeneratingNoise GeneratingNoise { get; private set; }
 
     /// <inheritdoc />
     public Property GetPositionDebugData(Vector3d position)
@@ -725,7 +729,7 @@ public sealed partial class Map : IMap, IDisposable
     }
 
     /// <summary>
-    /// Get the center of a cell, as a world-position column.
+    ///     Get the center of a cell, as a world-position column.
     /// </summary>
     /// <param name="cell">The cell coordinates.</param>
     /// <returns>The column (in block coordinates).</returns>
@@ -844,27 +848,27 @@ public sealed partial class Map : IMap, IDisposable
         public Biome ActualBiome { get; init; }
 
         /// <summary>
-        /// Get the actual sub-biome at the sample position.
+        ///     Get the actual sub-biome at the sample position.
         /// </summary>
         public SubBiome ActualSubBiome { get; init; }
 
         /// <summary>
-        /// Get the sub-biome <c>00</c>.
+        ///     Get the sub-biome <c>00</c>.
         /// </summary>
         public SubBiome SubBiome00 { get; init; }
 
         /// <summary>
-        /// Get the sub-biome <c>10</c>.
+        ///     Get the sub-biome <c>10</c>.
         /// </summary>
         public SubBiome SubBiome10 { get; init; }
 
         /// <summary>
-        /// Get the sub-biome <c>01</c>.
+        ///     Get the sub-biome <c>01</c>.
         /// </summary>
         public SubBiome SubBiome01 { get; init; }
 
         /// <summary>
-        /// Get the sub-biome <c>11</c>.
+        ///     Get the sub-biome <c>11</c>.
         /// </summary>
         public SubBiome SubBiome11 { get; init; }
 
@@ -1094,5 +1098,5 @@ public sealed partial class Map : IMap, IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

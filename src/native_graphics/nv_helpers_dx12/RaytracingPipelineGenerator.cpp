@@ -151,7 +151,7 @@ namespace nv_helpers_dx12
         shaderPayloadAssociation.NumExports = static_cast<UINT>(exportedSymbols.size());
         shaderPayloadAssociation.pExports   = shaderExports;
 
-        shaderPayloadAssociation.pSubobjectToAssociate = &subobjects[(currentIndex - 1)];
+        shaderPayloadAssociation.pSubobjectToAssociate = &subobjects[currentIndex - 1];
 
         D3D12_STATE_SUBOBJECT shaderPayloadAssociationObject;
         shaderPayloadAssociationObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
@@ -173,7 +173,7 @@ namespace nv_helpers_dx12
 
             assoc.association.NumExports            = static_cast<UINT>(assoc.symbolPointers.size());
             assoc.association.pExports              = assoc.symbolPointers.data();
-            assoc.association.pSubobjectToAssociate = &subobjects[(currentIndex - 1)];
+            assoc.association.pSubobjectToAssociate = &subobjects[currentIndex - 1];
 
             D3D12_STATE_SUBOBJECT rootSigAssociationObject;
             rootSigAssociationObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;

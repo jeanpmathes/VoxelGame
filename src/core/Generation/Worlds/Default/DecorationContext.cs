@@ -53,7 +53,7 @@ public sealed class DecorationContext(Generator generator, ChunkPosition hint, I
         return (columns, anchor);
     }
 
-    #region Disposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

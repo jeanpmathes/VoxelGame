@@ -13,23 +13,29 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Generation.Worlds;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Annotations.Attributes;
 using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
+using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     Represents the world. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
-public abstract partial class World : IDisposable, IGrid
+[ComponentSubject(typeof(WorldComponent))]
+public abstract partial class World : Composed<World, WorldComponent>, IGrid
 {
     /// <summary>
     ///     The largest absolute value of a block position coordinate component.
@@ -38,12 +44,10 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     public const UInt32 BlockLimit = 100_000;
 
+    private const UInt32 SectionLimit = BlockLimit / Section.Size;
     private const UInt32 ChunkLimit = BlockLimit / Chunk.BlockSize;
 
-    /// <summary>
-    ///     The limit of the world extents, in sections.
-    /// </summary>
-    public const UInt32 SectionLimit = BlockLimit / Section.Size;
+    private readonly SectionChangedEventArgs pooledSectionChangedEventArgs = new(null!, Vector3i.Zero);
 
     private readonly WorldStateMachine state;
 
@@ -58,7 +62,7 @@ public abstract partial class World : IDisposable, IGrid
                     UpperSeed = seed.upper,
                     LowerSeed = seed.lower,
                     Creation = DateTime.UtcNow,
-                    Version = ApplicationInformation.Instance.Version
+                    Version = Application.Instance.Version.ToString()
                 },
                 path),
             isNew: true)
@@ -83,10 +87,9 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Set up of readonly fields and non-optional steps.
     /// </summary>
-    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, Boolean isNew)
     {
-        Timer? timer = Timer.Start("World Setup", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
+        Timer? timer = Timer.Start(isNew ? "World Setup (new)" : "World Setup (existing)", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
 
         state = new WorldStateMachine(this, timer);
 
@@ -101,6 +104,12 @@ public abstract partial class World : IDisposable, IGrid
         Chunks = new ChunkSet(this, ChunkContext);
 
         state.Initialize();
+
+        state.Activating += OnActivate;
+        state.Deactivating += OnDeactivate;
+        state.Terminating += OnTerminate;
+
+        AddComponent<ChunkSimulator>();
     }
 
     /// <summary>
@@ -175,6 +184,19 @@ public abstract partial class World : IDisposable, IGrid
     public IMap Map => ChunkContext.Generator.Map;
 
     /// <summary>
+    ///     Get the temperature at a block position.
+    /// </summary>
+    /// <param name="position">The position to sample.</param>
+    /// <returns>The temperature at the block.</returns>
+    public Temperature GetTemperature(Vector3i position)
+    {
+        Vector3d centerPosition = position;
+        centerPosition += (0.5, 0.5, 0.5);
+
+        return Map.GetTemperature(centerPosition);
+    }
+
+    /// <summary>
     ///     Get both the fluid and block instance at a given position.
     ///     The content can only be retrieved from active chunks.
     /// </summary>
@@ -193,13 +215,50 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Set the content of a world position.
     /// </summary>
+    /// <param name="content">The new content.</param>
+    /// <param name="position">The world position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position)
     {
         Throw.IfDisposed(disposed);
 
-        SetContent(content, position, updateFluid: true);
+        SetContent(content, position, updateBlock: true, updateFluid: true);
     }
+    
+    /// <summary>
+    ///     Set the content of a world position.
+    /// </summary>
+    /// <param name="content">The new content.</param>
+    /// <param name="position">The world position.</param>
+    /// <param name="updateBlock">
+    ///     Whether to update the block at the position.
+    ///     Should generally be true, exceptions include cases where block states are changed in reaction to a previous state change.
+    /// </param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetContent(Content content, Vector3i position, Boolean updateBlock)
+    {
+        Throw.IfDisposed(disposed);
+
+        SetContent(content, position, updateBlock, updateFluid: true);
+    }
+
+    /// <summary>
+    /// Called when the world becomes active.
+    /// </summary>
+    [ComponentEvent(nameof(WorldComponent.OnActivate))]
+    private partial void OnActivate(Object? sender, EventArgs e);
+
+    /// <summary>
+    /// Called when the world becomes inactive.
+    /// </summary>
+    [ComponentEvent(nameof(WorldComponent.OnDeactivate))]
+    private partial void OnDeactivate(Object? sender, EventArgs e);
+
+    /// <summary>
+    /// Called when the world is terminated, which means it begins unloading. Disposal will happen later, when unloading is complete.
+    /// </summary>
+    [ComponentEvent(nameof(WorldComponent.OnTerminate))]
+    private partial void OnTerminate(Object? sender, EventArgs e);
 
     private void UnloadChunk(Chunk chunk)
     {
@@ -253,7 +312,7 @@ public abstract partial class World : IDisposable, IGrid
     /// <param name="position">The block position.</param>
     /// <returns>The block instance at the given position or null if the block was not found.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance? GetBlock(Vector3i position)
+    public State? GetBlock(Vector3i position)
     {
         Throw.IfDisposed(disposed);
 
@@ -304,10 +363,10 @@ public abstract partial class World : IDisposable, IGrid
     ///     Sets a block in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of
     ///     the changed block. The fluid at the position is preserved.
     /// </summary>
-    /// <param name="block">The block which should be set at the position.</param>
+    /// <param name="block">The block and its state which should be set at the position.</param>
     /// <param name="position">The block position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBlock(BlockInstance block, Vector3i position)
+    public void SetBlock(State block, Vector3i position)
     {
         Throw.IfDisposed(disposed);
 
@@ -315,7 +374,7 @@ public abstract partial class World : IDisposable, IGrid
 
         if (potentialFluid is not {} fluid) return;
 
-        SetContent(new Content(block, fluid), position, updateFluid: true);
+        SetContent(new Content(block, fluid), position, updateBlock: true, updateFluid: true);
     }
 
     /// <summary>
@@ -327,11 +386,11 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        BlockInstance? potentialBlock = GetBlock(position);
+        State? potentialBlock = GetBlock(position);
 
         if (potentialBlock is not {} block) return;
 
-        SetContent(new Content(block, fluid), position, updateFluid: false);
+        SetContent(new Content(block, fluid), position, updateBlock: true, updateFluid: false);
     }
 
     /// <summary>
@@ -344,43 +403,51 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(in Content content, Vector3i position, Boolean updateFluid)
+    private void SetContent(Content newContent, Vector3i position, Boolean updateBlock, Boolean updateFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
-        UInt32 val = Section.Encode(content);
+        Section section = chunk.GetSection(position);
 
-        chunk.GetSection(position).SetContent(position, val);
+        UInt32 oldValue = section.GetContent(position);
+        UInt32 newValue = Section.Encode(newContent);
+        Section.Decode(oldValue, out Content oldContent);
 
-        content.Block.Block.ContentUpdate(this, position, content);
-        if (updateFluid) content.Fluid.Fluid.UpdateNow(this, position, content.Fluid);
+        if (newContent.Fluid.Level == FluidLevel.None)
+            newContent.Fluid = FluidInstance.Default;
+
+        section.SetContent(position, newValue);
+
+        if (updateBlock) newContent.Block.Block.DoStateUpdate(this, position, oldContent, newContent);
+        if (updateFluid) newContent.Fluid.Fluid.UpdateNow(this, position, newContent.Fluid);
 
         foreach (Side side in Side.All.Sides())
         {
-            Vector3i neighborPosition = side.Offset(position);
+            Vector3i neighborPosition = position.Offset(side);
 
             Content? neighborContent = GetContent(neighborPosition);
 
             if (neighborContent == null) continue;
 
-            (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
+            (State blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
 
             // Side is passed out of the perspective of the block receiving the block update.
-            blockNeighbor.Block.NeighborUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
+            blockNeighbor.Block.DoNeighborUpdate(this, neighborPosition, blockNeighbor, side.Opposite());
             fluidNeighbor.Fluid.UpdateSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 
-        ProcessChangedSection(chunk, position);
+        HandleChangedSection(chunk, position);
     }
 
-    /// <summary>
-    ///     Process that a section was changed.
-    /// </summary>
-    /// <param name="chunk">The chunk containing the section.</param>
-    /// <param name="position">The position of the block that caused the section change.</param>
-    protected abstract void ProcessChangedSection(Chunk chunk, Vector3i position);
+    private void HandleChangedSection(Chunk chunk, Vector3i position)
+    {
+        pooledSectionChangedEventArgs.Chunk = chunk;
+        pooledSectionChangedEventArgs.Position = position;
+
+        SectionChanged?.Invoke(this, pooledSectionChangedEventArgs);
+    }
 
     /// <summary>
     ///     Modify the data of a position, without causing any updates.
@@ -399,8 +466,13 @@ public abstract partial class World : IDisposable, IGrid
 
         chunk.GetSection(position).SetContent(position, val);
 
-        ProcessChangedSection(chunk, position);
+        HandleChangedSection(chunk, position);
     }
+
+    /// <summary>
+    ///     Invoked whenever the content of a section has changed.
+    /// </summary>
+    public event EventHandler<SectionChangedEventArgs>? SectionChanged;
 
     /// <summary>
     ///     Set a position to the default block.
@@ -409,7 +481,7 @@ public abstract partial class World : IDisposable, IGrid
     {
         Throw.IfDisposed(disposed);
 
-        SetBlock(BlockInstance.Default, position);
+        SetBlock(Content.DefaultState, position);
     }
 
     /// <summary>
@@ -435,10 +507,10 @@ public abstract partial class World : IDisposable, IGrid
 
         if (content == null) return false;
 
-        (BlockInstance block, FluidInstance fluid) = content.Value;
+        (State block, FluidInstance fluid) = content.Value;
 
-        block.Block.RandomUpdate(this, position, block.Data);
-        fluid.Fluid.RandomUpdate(this, position, fluid.Level, fluid.IsStatic);
+        block.Block.DoRandomUpdate(this, position, block);
+        fluid.Fluid.DoRandomUpdate(this, position, fluid.Level, fluid.IsStatic);
 
         return true;
     }
@@ -601,7 +673,27 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public virtual void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer) {}
+    [ComponentEvent(nameof(WorldComponent.OnLogicUpdateInActiveState))]
+    public partial void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer);
+
+    /// <summary>
+    ///     Event arguments for the <see cref="SectionChanged" /> event.
+    ///     Note that this event is pooled and as such should not be kept after the event has been handled.
+    /// </summary>
+    /// <param name="chunk">The chunk in which the section was changed.</param>
+    /// <param name="position">The position of the block that caused the section change.</param>
+    public class SectionChangedEventArgs(Chunk chunk, Vector3i position) : EventArgs
+    {
+        /// <summary>
+        ///     The chunk in which the section was changed.
+        /// </summary>
+        public Chunk Chunk { get; set; } = chunk;
+
+        /// <summary>
+        ///     The position of the block that caused the section change.
+        /// </summary>
+        public Vector3i Position { get; set; } = position;
+    }
 
     #region LOGGING
 
@@ -634,12 +726,11 @@ public abstract partial class World : IDisposable, IGrid
 
     private Boolean disposed;
 
-    /// <summary>
-    ///     Dispose of the world.
-    /// </summary>
-    /// <param name="disposing">True when disposing intentionally.</param>
-    protected virtual void Dispose(Boolean disposing)
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
     {
+        base.Dispose(disposing);
+
         if (disposed) return;
 
         if (disposing)
@@ -649,23 +740,6 @@ public abstract partial class World : IDisposable, IGrid
         }
 
         disposed = true;
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~World()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Dispose of the world.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
     }
 
     #endregion DISPOSABLE

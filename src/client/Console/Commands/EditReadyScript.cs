@@ -8,7 +8,6 @@ using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Edit the ready script that is executed on world start.
@@ -25,6 +24,6 @@ public class EditReadyScript : Command
     /// <exclude />
     public void Invoke()
     {
-        EditScript.Do(Context, GameConsole.WorldReadyScript);
+        EditScript.Do(Context, SessionConsole.WorldReadyScript);
     }
 }

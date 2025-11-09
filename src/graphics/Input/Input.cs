@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Collections.Generic;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input.Devices;
@@ -16,6 +18,10 @@ namespace VoxelGame.Graphics.Input;
 /// </summary>
 public class Input
 {
+    private readonly List<Action<VirtualKeys>> callbackListForAnyPress = new();
+
+    private readonly ISet<VirtualKeys> ignoredKeys = new HashSet<VirtualKeys>();
+
     private readonly ISet<VirtualKeys> mouseButtons = new HashSet<VirtualKeys>
     {
         VirtualKeys.LeftButton,
@@ -24,10 +30,6 @@ public class Input
         VirtualKeys.ExtraButton1,
         VirtualKeys.ExtraButton2
     };
-
-    private readonly ISet<VirtualKeys> ignoredKeys = new HashSet<VirtualKeys>();
-
-    private readonly List<Action<VirtualKeys>> callbackListForAnyPress = new();
 
     internal Input(Client client)
     {

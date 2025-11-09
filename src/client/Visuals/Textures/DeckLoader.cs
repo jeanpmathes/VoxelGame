@@ -21,12 +21,12 @@ namespace VoxelGame.Client.Visuals.Textures;
 /// <summary>
 ///     Loads decks, combining their layers and applying their modifiers.
 /// </summary>
-public class DeckLoader
+public class DeckLoader : IIssueSource
 {
-    private readonly Dictionary<String, Modifier> modifiers = new();
     private readonly Dictionary<String, Combinator> combinators = new();
 
     private readonly Combinator defaultCombinator = new Blend();
+    private readonly Dictionary<String, Modifier> modifiers = new();
 
     /// <summary>
     ///     The image library to add the decks to and retrieve images from.
@@ -401,13 +401,13 @@ public class DeckLoader
             ReportWarning(combinator, message);
         }
 
-        public void ReportWarning(Object source, String message)
+        public void ReportWarning(IIssueSource source, String message)
         {
             context.ReportWarning(source, message, path: file);
         }
     }
 
-    private sealed class ModifierContext(FileInfo file, IResourceContext context) : Modifier.IContext
+    private sealed class ModifierContext(FileInfo file, IResourceContext context) : Modifier.IContext, IIssueSource
     {
         public Modifier? Modifier { get; set; }
 
@@ -423,7 +423,7 @@ public class DeckLoader
                 ReportWarning(this, message);
         }
 
-        public void ReportWarning(Object source, String message)
+        public void ReportWarning(IIssueSource source, String message)
         {
             context.ReportWarning(source, message, path: file);
         }

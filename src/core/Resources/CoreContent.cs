@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Core.Generation;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Resources;
@@ -19,9 +19,9 @@ public class CoreContent : ResourceCatalog
     ///     Create a new instance of the core content catalog.
     /// </summary>
     public CoreContent() : base([
-        new StaticStructures(),
         new BlockLoader(),
         new FluidLoader(),
+        new StaticStructures(),
         new Generators()
     ]) {}
 }

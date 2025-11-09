@@ -6,9 +6,9 @@
 
 using System;
 using JetBrains.Annotations;
+using VoxelGame.Client.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
-#pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the player flying speed.
@@ -25,6 +25,7 @@ public class SetFreecam : Command
     /// <exclude />
     public void Invoke(Boolean freecam)
     {
-        Context.Player.SetFreecam(freecam);
+        if (Context.Player.GetComponent<PlayerMovement>() is {} movement)
+            movement.SetFreecamMode(enabled: freecam);
     }
 }

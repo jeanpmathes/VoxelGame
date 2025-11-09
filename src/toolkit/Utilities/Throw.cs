@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
@@ -30,9 +31,9 @@ public partial class Throw
     /// <param name="object">The object that was not disposed.</param>
     /// <param name="source">Where the object was created.</param>
     // Intentionally not conditional.
-    public static void ForMissedDispose<T>(T? @object = default, String? source = null)
+    public static void ForMissedDispose<T>(T? @object = default, String? source = null) where T : notnull
     {
-        LogMissedDispose(logger, typeof(T).Name, @object, source ?? "unknown");
+        LogMissedDispose(logger, Reflections.GetLongName<T>(), @object?.ToString(), source ?? "unknown");
 
         Debugger.Break();
     }
@@ -57,7 +58,7 @@ public partial class Throw
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Throw>();
 
     [LoggerMessage(EventId = LogID.Throw + 0, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at: {Source}")]
-    private static partial void LogMissedDispose(ILogger logger, String type, Object? @object, String source);
+    private static partial void LogMissedDispose(ILogger logger, String type, String? @object, String source);
 
     #endregion LOGGING
 }

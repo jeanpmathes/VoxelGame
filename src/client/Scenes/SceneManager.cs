@@ -5,57 +5,87 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
+using VoxelGame.Client.Application.Components;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Logging;
+using Activity = VoxelGame.Core.Updates.Activity;
 
 namespace VoxelGame.Client.Scenes;
 
 /// <summary>
 ///     Manages scenes, switching between them.
 /// </summary>
-/// <param name="dispatch">On scene change, all operations on this dispatch will be cancelled or completed.</param>
-public partial class SceneManager(OperationUpdateDispatch? dispatch = null)
+public partial class SceneManager : ApplicationComponent
 {
-    private IScene? current;
+    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
+    private readonly SceneOperationDispatch? dispatch;
+
+    private Scene? current;
+    private (Scene? scene, Action completion)? next;
+
+    [Constructible]
+    private SceneManager(Core.App.Application application) : base(application)
+    {
+        dispatch = application.GetComponent<SceneOperationDispatch>();
+    }
 
     /// <summary>
-    ///     Whether a scene is currently loaded.
+    ///     Whether a scene is currently loaded or is currently being loaded.
     /// </summary>
-    public Boolean IsInScene => current != null;
+    public Boolean IsActive => current is not null || next is {scene: not null};
 
     /// <summary>
-    ///     Load a scene.
+    ///     Begin loading a new scene, unloading the current one if necessary.
+    ///     Actual loading and unloading will happen in the next update cycle.
     /// </summary>
     /// <param name="scene">The scene to load.</param>
-    public void Load(IScene scene)
+    /// <returns>The activity that is used to track the loading process.</returns>
+    public Activity BeginLoad(Scene scene)
     {
+        Debug.Assert(next == null);
+
         LogSwitchingScene(logger, current, scene);
+
+        var activity = Activity.Create(out Action completion);
+
+        next = (scene, completion);
+
+        return activity;
+    }
+
+    private void Transition()
+    {
+        if (next is not {scene: var scene, completion: {} completion})
+            return;
 
         Unload();
 
+        if (scene != null)
+            Load(scene);
+
+        completion();
+        next = null;
+    }
+
+    private void Load(Scene scene)
+    {
+        LogLoadingScene(logger, scene);
+
         current = scene;
-
-        Load();
+        current.Load();
     }
 
-    private void Load()
+    private void Unload()
     {
-        LogLoadingScene(logger, current);
-
-        current?.Load();
-    }
-
-    /// <summary>
-    ///     Unload the current scene.
-    /// </summary>
-    public void Unload()
-    {
-        if (current == null)
-            return;
+        if (current == null) return;
 
         if (dispatch != null)
             CancelOrCompleteDispatch(dispatch);
@@ -69,6 +99,30 @@ public partial class SceneManager(OperationUpdateDispatch? dispatch = null)
         Visuals.Graphics.Instance.Reset();
 
         Cleanup();
+    }
+
+    /// <summary>
+    ///     Begin unloading the current scene, if any.
+    ///     Actual unloading will happen in the next update cycle.
+    /// </summary>
+    /// <returns>The activity that is used to track the unloading process.</returns>
+    public Activity BeginUnload()
+    {
+        LogStartingOfUnloadingScene(logger, current);
+
+        var activity = Activity.Create(out Action completion);
+
+        next = (null, completion);
+
+        return activity;
+    }
+
+    /// <summary>
+    ///     Unload the current scene immediately, without waiting for the next update cycle.
+    /// </summary>
+    public void UnloadImmediately()
+    {
+        Unload();
     }
 
     private static void CancelOrCompleteDispatch(OperationUpdateDispatch dispatch)
@@ -89,24 +143,18 @@ public partial class SceneManager(OperationUpdateDispatch? dispatch = null)
         #pragma warning restore S1215 // When unloading, many objects have just died.
     }
 
-    /// <summary>
-    ///     Render the current scene.
-    /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    /// <param name="timer">A timer for profiling.</param>
-    public void RenderUpdate(Double deltaTime, Timer? timer)
+    /// <inheritdoc />
+    public override void OnLogicUpdate(Double delta, Timer? timer)
     {
-        current?.RenderUpdate(deltaTime, timer);
+        Transition();
+
+        current?.LogicUpdate(delta, timer);
     }
 
-    /// <summary>
-    ///     Update the current scene.
-    /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    /// <param name="timer">A timer for profiling.</param>
-    public void LogicUpdate(Double deltaTime, Timer? timer)
+    /// <inheritdoc />
+    public override void OnRenderUpdate(Double delta, Timer? timer)
     {
-        current?.LogicUpdate(deltaTime, timer);
+        current?.RenderUpdate(delta, timer);
     }
 
     /// <summary>
@@ -115,7 +163,7 @@ public partial class SceneManager(OperationUpdateDispatch? dispatch = null)
     /// <param name="size">The new window size.</param>
     public void OnResize(Vector2i size)
     {
-        current?.OnResize(size);
+        current?.Resize(size);
     }
 
     /// <summary>
@@ -126,23 +174,40 @@ public partial class SceneManager(OperationUpdateDispatch? dispatch = null)
         return current?.CanCloseWindow() ?? true;
     }
 
+    #region DISPOSABLE
+    
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        base.Dispose(disposing);
+        
+        if (!disposing) return;
+        
+        Unload();
+    }
+    
+    #endregion DISPOSABLE
+
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SceneManager>();
 
     [LoggerMessage(EventId = LogID.SceneManager + 0, Level = LogLevel.Debug, Message = "Initiating scene change from {OldScene} to {NewScene}")]
-    private static partial void LogSwitchingScene(ILogger logger, IScene? oldScene, IScene? newScene);
+    private static partial void LogSwitchingScene(ILogger logger, Scene? oldScene, Scene? newScene);
 
-    [LoggerMessage(EventId = LogID.SceneManager + 1, Level = LogLevel.Information, Message = "Loading scene {Scene}")]
-    private static partial void LogLoadingScene(ILogger logger, IScene? scene);
+    [LoggerMessage(EventId = LogID.SceneManager + 1, Level = LogLevel.Debug, Message = "Initiating unloading of {OldScene}")]
+    private static partial void LogStartingOfUnloadingScene(ILogger logger, Scene? oldScene);
 
-    [LoggerMessage(EventId = LogID.SceneManager + 2, Level = LogLevel.Information, Message = "Unloading scene {Scene}")]
-    private static partial void LogUnloadingScene(ILogger logger, IScene? scene);
+    [LoggerMessage(EventId = LogID.SceneManager + 2, Level = LogLevel.Information, Message = "Loading scene {Scene}")]
+    private static partial void LogLoadingScene(ILogger logger, Scene? scene);
 
-    [LoggerMessage(EventId = LogID.SceneManager + 3, Level = LogLevel.Debug, Message = "Cancelling and completing operations")]
+    [LoggerMessage(EventId = LogID.SceneManager + 3, Level = LogLevel.Information, Message = "Unloading scene {Scene}")]
+    private static partial void LogUnloadingScene(ILogger logger, Scene? scene);
+
+    [LoggerMessage(EventId = LogID.SceneManager + 4, Level = LogLevel.Debug, Message = "Cancelling and completing operations")]
     private static partial void LogCompletingDispatch(ILogger logger);
 
-    [LoggerMessage(EventId = LogID.SceneManager + 4, Level = LogLevel.Debug, Message = "Cacelled and completed operations")]
+    [LoggerMessage(EventId = LogID.SceneManager + 5, Level = LogLevel.Debug, Message = "Cancelled and completed operations")]
     private static partial void LogCompletedDispatch(ILogger logger);
 
     #endregion LOGGING

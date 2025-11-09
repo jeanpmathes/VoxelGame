@@ -102,7 +102,7 @@ public sealed class BiomeLoader : IResourceLoader
             SubBiomes =
             [
                 (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Snowy")), 5),
-                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "LooseSnow")), 2),
+                (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "PulverizedSnow")), 2),
                 (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Dunes")), 10),
                 (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Ridge")), 1),
                 (subBiomes.GetSubBiomeDefinition(GetSubBiomeRID(nameof(PolarDesert), "Basin")), 3)

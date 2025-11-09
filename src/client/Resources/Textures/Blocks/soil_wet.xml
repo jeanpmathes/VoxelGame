@@ -1,0 +1,10 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers>
+        <Layer source="p:soil:all">
+            <Modifier type="colorize" color="#CCCCCC"/>
+            <Modifier type="no-tint"/>
+        </Layer>
+    </Layers>
+    <Modifiers/>
+</Texture>

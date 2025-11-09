@@ -15,8 +15,8 @@ namespace VoxelGame.Core.Utilities;
 public sealed class Guard : IDisposable
 {
     private readonly Action release;
-    private readonly String? source;
     private readonly Object resource;
+    private readonly String? source;
 
     /// <summary>
     ///     Create a new guard.

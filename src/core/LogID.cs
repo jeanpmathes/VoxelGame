@@ -44,9 +44,9 @@ internal static class LogID
 
     internal const UInt16 DefaultMap = Events.Increment + DefaultGenerator;
 
-    internal const UInt16 BlockModel = Events.Increment + DefaultMap;
+    internal const UInt16 Model = Events.Increment + DefaultMap;
 
-    internal const UInt16 OS = Events.Increment + BlockModel;
+    internal const UInt16 OS = Events.Increment + Model;
 
     internal const UInt16 FileSystem = Events.Increment + OS;
 

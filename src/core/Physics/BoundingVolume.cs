@@ -8,9 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Physics;
 
@@ -109,70 +108,83 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     public Int32 ChildCount => children.Length;
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Elements.Block" />.
+    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Voxels.Block" />.
     /// </summary>
     public static BoundingVolume Block =>
         new(new Vector3d(x: 0.5, y: 0.5, z: 0.5), new Vector3d(x: 0.5, y: 0.5, z: 0.5));
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the given height.
+    ///     Gets a <see cref="BoundingVolume" /> with the given height and width.
     /// </summary>
-    public static BoundingVolume CrossBlock(Double height = 1.0)
+    public static BoundingVolume CrossBlock(Double height, Double width)
     {
         return new BoundingVolume(
             new Vector3d(x: 0.5, height / 2.0, z: 0.5),
-            new Vector3d(x: 0.355, height / 2.0, z: 0.355));
-    }
-
-    /// <summary>
-    ///     Creates a flat block bounding volume with the given width and depth.
-    /// </summary>
-    /// <param name="orientation">The orientation of the bounding volume.</param>
-    /// <param name="width">The width of the bounding volume, meaning the distance perpendicular to the orientation.</param>
-    /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
-    /// <returns>The bounding volume with the given width and depth.</returns>
-    public static BoundingVolume FlatBlock(Orientation orientation, Double width, Double depth)
-    {
-        Double halfWidth = width / 2.0;
-        Double halfDepth = depth / 2.0;
-
-        return orientation switch
-        {
-            Orientation.North => new BoundingVolume(
-                new Vector3d(x: 0.5, y: 0.5, 1.0 - halfDepth),
-                new Vector3d(halfWidth, y: 0.5, halfDepth)),
-            Orientation.South => new BoundingVolume(
-                new Vector3d(x: 0.5, y: 0.5, halfDepth),
-                new Vector3d(halfWidth, y: 0.5, halfDepth)),
-            Orientation.West => new BoundingVolume(
-                new Vector3d(1.0 - halfDepth, y: 0.5, z: 0.5),
-                new Vector3d(halfDepth, y: 0.5, halfWidth)),
-            Orientation.East => new BoundingVolume(
-                new Vector3d(halfDepth, y: 0.5, z: 0.5),
-                new Vector3d(halfDepth, y: 0.5, halfWidth)),
-            _ => throw Exceptions.UnsupportedEnumValue(orientation)
-        };
+            new Vector3d(width / 2.0, height / 2.0, width / 2.0));
     }
 
     /// <summary>
     ///     Creates a flat block bounding volume with the given depth.
     /// </summary>
     /// <param name="side">The side the bounding volume is on.</param>
-    /// <param name="depth">The depth of the bounding volume.</param>
+    /// <param name="width">The width of the bounding volume, meaning the distance perpendicular to the orientation. Ignored for non-lateral sides.</param>
+    /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
     /// <returns>A bounding volume with the given depth.</returns>
-    public static BoundingVolume FlatBlock(Side side, Double depth)
+    public static BoundingVolume FlatBlock(Side side, Double width, Double depth)
     {
+        Double halfWidth = width / 2.0;
         Double halfDepth = depth / 2.0;
 
         Vector3d offset = side.Direction();
         offset *= 0.5 - halfDepth;
         offset += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
 
+        Vector3d widthDirection = side.IsLateral() 
+            ? side.Rotate(Axis.Y).Direction().Abs() 
+            : new Vector3d(x: 0.0, y: 0.0, z: 0.0);
+
         Vector3d extents = side.Direction().Abs();
         extents *= halfDepth - 0.5;
+        extents += widthDirection * (halfWidth - 0.5);
         extents += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
 
         return new BoundingVolume(offset, extents);
+    }
+
+    /// <summary>
+    ///     Creates a flat block bounding volume with the given depth, on all specified sides.
+    /// </summary>
+    /// <param name="sides">The sides the bounding volume is on.</param>
+    /// <param name="width">The width of the bounding volume, meaning the distance perpendicular to the orientation.</param>
+    /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
+    /// <returns>>A bounding volume with the given depth.</returns>
+    public static BoundingVolume FlatBlock(Sides sides, Double width, Double depth)
+    {
+        List<BoundingVolume> volumes = [];
+
+        foreach (Side side in Side.All.Sides())
+        {
+            if (!sides.HasFlag(side.ToFlag())) continue;
+
+            volumes.Add(FlatBlock(side, width, depth));
+        }
+
+        return Combine(volumes);
+    }
+
+    /// <summary>
+    /// Translate this bounding volume by the given translation.
+    /// </summary>
+    /// <param name="translation">The translation to apply.</param>
+    /// <returns>>The translated bounding volume.</returns>
+    public BoundingVolume Translated(Vector3d translation)
+    {
+        var translated = new BoundingVolume[ChildCount];
+
+        for (var i = 0; i < ChildCount; i++)
+            translated[i] = this[i].Translated(translation);
+
+        return new BoundingVolume(Box.Translated(translation), translated);
     }
 
     /// <summary>

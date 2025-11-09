@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Collections.Generic;
 using VoxelGame.Graphics.Definition;
 
 namespace VoxelGame.Graphics.Input.Collections;
@@ -22,10 +24,7 @@ public class KeyMap
     /// <returns>True if the binding does not cause conflicts.</returns>
     public Boolean AddBinding(VirtualKeys keyOrButton)
     {
-        var unused = true;
-
-        if (usageCount.ContainsKey(keyOrButton)) unused = false;
-        else usageCount.Add(keyOrButton, value: 0);
+        Boolean unused = usageCount.TryAdd(keyOrButton, value: 0);
 
         usageCount[keyOrButton]++;
 

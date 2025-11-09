@@ -65,6 +65,14 @@ void Effect::Draw(ComPtr<ID3D12GraphicsCommandList4> const& commandList) const
         0,
         &m_instanceDataBufferView);
 
+    D3D12_RESOURCE_BARRIER const transitionShaderResourceToVertexBuffer = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_geometryBuffer.Get(),
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER)
+    };
+    commandList->ResourceBarrier(1, &transitionShaderResourceToVertexBuffer);
+
     commandList->IASetVertexBuffers(0, 1, &m_geometryVBV);
     commandList->DrawInstanced(GetDataElementCount(), 1, 0, 0);
 }

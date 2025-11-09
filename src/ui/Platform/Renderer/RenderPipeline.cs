@@ -30,15 +30,15 @@ namespace VoxelGame.UI.Platform.Renderer;
 public sealed class RenderPipeline : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<RenderPipeline>();
+    private readonly ShaderBuffer<Vector2> buffer;
+
+    private readonly IDisposable disposable;
 
     private readonly PooledList<DrawCall> drawCalls = new();
     private readonly RasterPipeline pipeline;
     private readonly Action preDraw;
 
-    private readonly IDisposable disposable;
-
     private readonly RendererBase renderer;
-    private readonly ShaderBuffer<Vector2> buffer;
 
     private readonly PooledList<Draw2D.Vertex> vertexBuffer = new();
 

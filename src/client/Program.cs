@@ -11,9 +11,9 @@ using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using Microsoft.Extensions.Logging;
 using Properties;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Application.Settings;
-using VoxelGame.Core;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -32,32 +32,37 @@ internal static partial class Program
     /// <summary>
     ///     Get the version of the program.
     /// </summary>
-    private static String Version { get; set; } = null!;
-
-    /// <summary>
-    ///     Get the app data directory.
-    /// </summary>
-    private static DirectoryInfo AppDataDirectory { get; set; } = null!;
-
-    /// <summary>
-    ///     Get the screenshot directory.
-    /// </summary>
-    internal static DirectoryInfo ScreenshotDirectory { get; private set; } = null!;
-
-    /// <summary>
-    ///     Get the directory structures are exported to.
-    /// </summary>
-    internal static DirectoryInfo StructureDirectory { get; private set; } = null!;
-
-    /// <summary>
-    ///     Get the world directory.
-    /// </summary>
-    internal static DirectoryInfo WorldsDirectory { get; private set; } = null!;
+    [LateInitialization]
+    private static partial Version Version { get; set; } 
 
     /// <summary>
     ///     Get whether the program is running with code that was compiled in debug mode.
     /// </summary>
-    internal static Boolean IsDebug { get; private set; }
+    private static Boolean IsDebug { get; set; }
+
+    /// <summary>
+    ///     Get the app data directory.
+    /// </summary>
+    [LateInitialization]
+    private static partial DirectoryInfo AppDataDirectory { get; set; }
+
+    /// <summary>
+    ///     Get the screenshot directory.
+    /// </summary>
+    [LateInitialization]
+    internal static partial DirectoryInfo ScreenshotDirectory { get; private set; }
+
+    /// <summary>
+    ///     Get the directory structures are exported to.
+    /// </summary>
+    [LateInitialization]
+    internal static partial DirectoryInfo StructureDirectory { get; private set; } 
+
+    /// <summary>
+    ///     Get the world directory.
+    /// </summary>
+    [LateInitialization]
+    internal static partial DirectoryInfo WorldsDirectory { get; private set; } 
 
     [STAThread]
     private static Int32 Main(String[] commandLineArguments)
@@ -74,6 +79,7 @@ internal static partial class Program
         WorldsDirectory = AppDataDirectory.CreateSubdirectory("Worlds");
 
         return Arguments.Handle(commandLineArguments,
+            IsDebug,
             logging =>
             {
                 ILogger logger = LoggingHelper.SetUpLogging(nameof(Program), logging.LogDebug, AppDataDirectory);
@@ -81,8 +87,7 @@ internal static partial class Program
                 if (logging.LogDebug) LogDebugMessages(logger);
                 else LogDebugMessagesNotLogged(logger);
 
-                Version = typeof(Program).Assembly.GetName().Version?.ToString() ?? "[VERSION UNAVAILABLE]";
-                ApplicationInformation.Initialize(Version);
+                Version = typeof(Program).Assembly.GetName().Version ?? new Version("0.0.0.1");
                 System.Console.Title = Language.VoxelGame + @" " + Version;
 
                 LogStartingGame(logger, Version);
@@ -109,7 +114,7 @@ internal static partial class Program
 
                     Int32 result;
 
-                    using (Application.Client client = new(windowSettings, graphicsSettings, args))
+                    using (Application.Client client = new(windowSettings, graphicsSettings, args, Version))
                     {
                         result = client.Run();
                     }
@@ -129,6 +134,8 @@ internal static partial class Program
 
     private static Int32 Run(ILogger logger, Func<Int32> runnable)
     {
+        using ILoggerFactory factory = LoggingHelper.LoggerFactory;
+        
         if (IsDebug) return runnable();
 
         try
@@ -154,7 +161,7 @@ internal static partial class Program
     private static partial void LogDebugMessagesNotLogged(ILogger logger);
 
     [LoggerMessage(EventId = LogID.Program + 2, Level = LogLevel.Information, Message = "Starting game on version: {Version}")]
-    private static partial void LogStartingGame(ILogger logger, String version);
+    private static partial void LogStartingGame(ILogger logger, Version version);
 
     [LoggerMessage(EventId = LogID.Program + 3, Level = LogLevel.Debug, Message = "Opening window")]
     private static partial void LogOpeningWindow(ILogger logger);

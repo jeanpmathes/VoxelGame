@@ -10,12 +10,10 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Definitions.Fluids;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
-using VoxelGame.Core.Physics;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Tests.Logic.Chunks;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Tests.Logic.Elements;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Generation.Worlds;
@@ -41,10 +39,9 @@ public class GenerationContextTests : ContextTestBase
 
     private sealed class MockGenerationContext : IGenerationContext
     {
+        private readonly Content content = Content.CreateGenerated(new MockBlock(), new MockFluid());
         private readonly HashSet<Vector3i> generatedBlocks = [];
         private readonly HashSet<SectionPosition> generatedSections = [];
-
-        private readonly Content content = new(new MockBlock(), new MockFluid());
 
         public Int32 NumberOfGeneratedBlocks => generatedBlocks.Count;
         public Int32 NumberOfGeneratedSections => generatedSections.Count;
@@ -75,13 +72,4 @@ public class GenerationContextTests : ContextTestBase
             // Nothing to dispose.
         }
     }
-
-    private sealed class MockBlock() : Block("Mock Block", nameof(MockBlock), new BlockFlags(), BoundingVolume.Block);
-
-    private sealed class MockFluid() : BasicFluid("Mock Fluid",
-        nameof(MockFluid),
-        density: 1.0,
-        viscosity: 1,
-        hasNeutralTint: false,
-        TID.MissingTexture);
 }

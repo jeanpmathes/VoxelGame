@@ -92,10 +92,10 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
         try
         {
             ComPtr<IDXGIOutput> pOutput;
-            TryDo(swapChain->GetContainingOutput(&pOutput));
+            TryDo(swapChain->GetContainingOutput(&pOutput), false);
 
             DXGI_OUTPUT_DESC desc;
-            TryDo(pOutput->GetDesc(&desc));
+            TryDo(pOutput->GetDesc(&desc), false);
 
             fullscreenWindowRect = desc.DesktopCoordinates;
         }

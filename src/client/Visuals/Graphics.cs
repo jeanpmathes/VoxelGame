@@ -25,26 +25,23 @@ public partial class Graphics
         windDirection = new Vector3(x: 0.7f, y: 0.0f, z: 0.7f).Normalized()
     };
 
-    private readonly Engine? engine;
+    private Engine? engine;
 
-    private Graphics(Engine? engine)
-    {
-        this.engine = engine;
-    }
+    private Graphics() {}
 
     /// <summary>
     ///     Get the active instance controlling the graphics.
     /// </summary>
-    public static Graphics Instance { get; private set; } = null!;
+    public static Graphics Instance { get; } = new();
 
     /// <summary>
     ///     Initializes the graphics.
     /// </summary>
-    /// <param name="engine">The engine to use for rendering.</param>
-    public static void Initialize(Engine engine)
+    /// <param name="e">The engine to use for rendering.</param>
+    public void Initialize(Engine e)
     {
-        Debug.Assert(Instance == null);
-        Instance = new Graphics(engine);
+        Debug.Assert(engine == null);
+        engine = e;
 
         LogGraphicsInitialized(logger);
 

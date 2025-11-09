@@ -40,9 +40,9 @@ internal static class LogID
 
     internal const UInt16 ChunkStates = Events.Increment + Chunk;
 
-    internal const UInt16 GameScene = Events.Increment + ChunkStates;
+    internal const UInt16 SessionScene = Events.Increment + ChunkStates;
 
-    internal const UInt16 StartScene = Events.Increment + GameScene;
+    internal const UInt16 StartScene = Events.Increment + SessionScene;
 
     internal const UInt16 SceneFactory = Events.Increment + StartScene;
 

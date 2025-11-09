@@ -8,7 +8,7 @@ using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Logic.Contents.Structures;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 

@@ -41,13 +41,13 @@ public class WorldStateMachine(World world, Timer? timer) : IWorldStates
     public Boolean IsTerminating => state.IsTerminating;
 
     /// <inheritdoc />
-    public event EventHandler<EventArgs>? Activated;
+    public event EventHandler<EventArgs>? Activating;
 
     /// <inheritdoc />
-    public event EventHandler<EventArgs>? Deactivated;
+    public event EventHandler<EventArgs>? Deactivating;
 
     /// <inheritdoc />
-    public event EventHandler<EventArgs>? Terminated;
+    public event EventHandler<EventArgs>? Terminating;
 
     /// <summary>
     ///     Initialize the state machine when the world construction is complete.
@@ -71,16 +71,16 @@ public class WorldStateMachine(World world, Timer? timer) : IWorldStates
             return;
 
         if (state.IsActive)
-            Deactivated?.Invoke(this, EventArgs.Empty);
+            Deactivating?.Invoke(this, EventArgs.Empty);
 
         state = next;
 
         state.ApplyChunkUpdateMode(world.ChunkContext.UpdateList);
 
         if (next.IsTerminating)
-            Terminated?.Invoke(this, EventArgs.Empty);
+            Terminating?.Invoke(this, EventArgs.Empty);
 
         if (next.IsActive)
-            Activated?.Invoke(this, EventArgs.Empty);
+            Activating?.Invoke(this, EventArgs.Empty);
     }
 }

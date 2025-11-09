@@ -7,7 +7,9 @@
 using System;
 using JetBrains.Annotations;
 using VoxelGame.Core.Resources;
+using VoxelGame.Core.Tests.Visuals;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 using Xunit;
 
 namespace VoxelGame.Core.Tests;
@@ -16,10 +18,14 @@ namespace VoxelGame.Core.Tests;
 public sealed class ResourceFixture : DispatcherFixture
 {
     private readonly IResourceContext resources;
-
+    
     public ResourceFixture()
     {
         ResourceCatalogLoader loader = new();
+        
+        loader.AddToEnvironment(new MockTextureIndexProvider());
+        loader.AddToEnvironment(new MockModelProvider());
+        loader.AddToEnvironment(new VisualConfiguration());
 
         (resources, _) = loader.Load(new CoreContent(), timer: null);
     }

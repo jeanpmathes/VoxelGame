@@ -14,13 +14,12 @@ namespace VoxelGame.Core.Logic.Chunks;
 /// </summary>
 public class RequestAlgorithm
 {
+    private readonly HashSet<Requests> changed = [];
     private readonly Func<ChunkPosition, Requests?> getOptional;
     private readonly Func<ChunkPosition, Requests> getRequired;
 
     private readonly HashSet<ChunkPosition> newlyRequested = [];
     private readonly HashSet<ChunkPosition> noLongerRequested = [];
-
-    private readonly HashSet<Requests> changed = [];
 
     private readonly HashSet<ChunkPosition> requested = [];
 

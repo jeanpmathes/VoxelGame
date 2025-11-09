@@ -126,13 +126,13 @@ public sealed partial class CommandInvoker : IResource
             }
             else
             {
-                context.Console.WriteError($"No overload found, use 'help {commandName}' for more info.");
+                context.Output.WriteError($"No overload found, use 'help {commandName}' for more info.");
                 LogNoOverloadFound(logger, commandName);
             }
         }
         else
         {
-            context.Console.WriteError($"No command '{commandName}' found, use 'help' for more info.");
+            context.Output.WriteError($"No command '{commandName}' found, use 'help' for more info.");
             LogCommandNotFound(logger, commandName);
         }
     }
@@ -201,6 +201,14 @@ public sealed partial class CommandInvoker : IResource
         catch (TargetInvocationException e)
         {
             LogErrorInvokingCommand(logger, e.InnerException, method.Name);
+            
+            context.Output.WriteError($"Error while invoking command '{command.Name}', see log for details");
+        }
+        catch (Exception e)
+        {
+            LogErrorExecutingCommand(logger, e, command.Name);
+            
+            context.Output.WriteError($"Error while executing command '{command.Name}', see log for details");
         }
     }
 
@@ -231,6 +239,9 @@ public sealed partial class CommandInvoker : IResource
 
     [LoggerMessage(EventId = LogID.CommandInvoker + 7, Level = LogLevel.Error, Message = "Error while invoking command '{Command}'")]
     private static partial void LogErrorInvokingCommand(ILogger logger, Exception? exception, String command);
+    
+    [LoggerMessage(EventId = LogID.CommandInvoker + 8, Level = LogLevel.Error, Message = "Error while executing command '{Command}'")]
+    private static partial void LogErrorExecutingCommand(ILogger logger, Exception? exception, String command);
 
-    #endregion
+    #endregion LOGGING
 }

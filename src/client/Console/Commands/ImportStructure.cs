@@ -7,12 +7,12 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Contents.Structures;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
-#pragma warning disable CA1822
 
 /// <summary>
 ///     Import a structure from a file.
@@ -52,8 +52,8 @@ public class ImportStructure : Command
 
     private void ImportAtTarget(String name, Orientation orientation)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Import(targetPosition, name, orientation);
-        else Context.Console.WriteError("No position targeted.");
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Import(targetPosition, name, orientation);
+        else Context.Output.WriteError("No position targeted.");
     }
 
     private void Import(Vector3i position, String name, Orientation orientation)

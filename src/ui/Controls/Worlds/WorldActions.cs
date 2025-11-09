@@ -23,14 +23,13 @@ namespace VoxelGame.UI.Controls.Worlds;
 /// </summary>
 public class WorldActions : ControlBase
 {
-    private readonly IWorldProvider.IWorldInfo world;
-    private readonly IWorldProvider worldProvider;
-
     private readonly Context context;
     private readonly ControlBase menu;
+    private readonly IWorldProvider.IWorldInfo world;
+    private readonly IWorldProvider worldProvider;
+    private CancellationTokenSource? infoCancellation;
 
     private Window? worldInfoWindow;
-    private CancellationTokenSource? infoCancellation;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="WorldActions" /> class.

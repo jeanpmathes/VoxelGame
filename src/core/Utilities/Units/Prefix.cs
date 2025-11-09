@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using VoxelGame.Annotations.Definitions;
 
 namespace VoxelGame.Core.Utilities.Units;
 
@@ -14,86 +15,6 @@ namespace VoxelGame.Core.Utilities.Units;
 /// </summary>
 public record Prefix(String Symbol, Double Factor)
 {
-    /// <summary>
-    ///     Describes which prefixes are allowed.
-    /// </summary>
-    [Flags]
-    public enum AllowedPrefixes : UInt32
-    {
-        /// <inheritdoc cref="Yotta" />
-        Yotta = 1 << 0,
-
-        /// <inheritdoc cref="Zetta" />
-        Zetta = 1 << 1,
-
-        /// <inheritdoc cref="Exa" />
-        Exa = 1 << 2,
-
-        /// <inheritdoc cref="Peta" />
-        Peta = 1 << 3,
-
-        /// <inheritdoc cref="Tera" />
-        Tera = 1 << 4,
-
-        /// <inheritdoc cref="Giga" />
-        Giga = 1 << 5,
-
-        /// <inheritdoc cref="Mega" />
-        Mega = 1 << 6,
-
-        /// <inheritdoc cref="Kilo" />
-        Kilo = 1 << 7,
-
-        /// <inheritdoc cref="Hecto" />
-        Hecto = 1 << 8,
-
-        /// <inheritdoc cref="Deca" />
-        Deca = 1 << 9,
-
-        /// <inheritdoc cref="Unprefixed" />
-        Unprefixed = 1 << 10,
-
-        /// <inheritdoc cref="Deci" />
-        Deci = 1 << 11,
-
-        /// <inheritdoc cref="Centi" />
-        Centi = 1 << 12,
-
-        /// <inheritdoc cref="Milli" />
-        Milli = 1 << 13,
-
-        /// <inheritdoc cref="Micro" />
-        Micro = 1 << 14,
-
-        /// <inheritdoc cref="Nano" />
-        Nano = 1 << 15,
-
-        /// <inheritdoc cref="Pico" />
-        Pico = 1 << 16,
-
-        /// <inheritdoc cref="Femto" />
-        Femto = 1 << 17,
-
-        /// <inheritdoc cref="Atto" />
-        Atto = 1 << 18,
-
-        /// <inheritdoc cref="Zepto" />
-        Zepto = 1 << 19,
-
-        /// <inheritdoc cref="Yocto" />
-        Yocto = 1 << 20,
-
-        /// <summary>
-        ///     All prefixes.
-        /// </summary>
-        All = Yotta | Zetta | Exa | Peta | Tera | Giga | Mega | Kilo | Hecto | Deca | Unprefixed | Deci | Centi | Milli | Micro | Nano | Pico | Femto | Atto | Zepto | Yocto,
-
-        /// <summary>
-        ///     No prefixes.
-        /// </summary>
-        None = 0
-    }
-
     private static readonly List<Prefix> prefixes = [];
 
     /// <summary>
@@ -112,7 +33,7 @@ public record Prefix(String Symbol, Double Factor)
     public static Prefix Zetta { get; } = Create("Z", factor: 1e21);
 
     /// <summary>
-    /// Prefix for <c>10^18</c>.
+    ///     Prefix for <c>10^18</c>.
     /// </summary>
     public static Prefix Exa { get; } = Create("E", factor: 1e18);
 
@@ -234,7 +155,7 @@ public record Prefix(String Symbol, Double Factor)
 
         while (mask != 0)
         {
-            Int32 index = BitHelper.LeastSignificantBit(mask);
+            Int32 index = BitTools.LeastSignificantBit(mask);
             Prefix prefix = prefixes[index];
 
             if (prefix.Factor <= value)
@@ -247,7 +168,7 @@ public record Prefix(String Symbol, Double Factor)
 
         mask = (UInt32) allowed;
 
-        Int32 last = BitHelper.MostSignificantBit(mask);
+        Int32 last = BitTools.MostSignificantBit(mask);
 
         return prefixes[last];
     }

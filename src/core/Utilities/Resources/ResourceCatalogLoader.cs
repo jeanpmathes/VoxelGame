@@ -139,7 +139,8 @@ public sealed partial class ResourceCatalogLoader
 
     private static void LoadCatalogEntries(IEnumerable<ICatalogEntry> entries, String hierarchy, Group report, Timer? timer, Context context)
     {
-        foreach (ICatalogEntry entry in entries) LoadCatalogEntry(entry, hierarchy, report, timer, context);
+        foreach (ICatalogEntry entry in entries) 
+            LoadCatalogEntry(entry, hierarchy, report, timer, context);
     }
 
     private static void LoadResources(IEnumerable<IResource> resources, String hierarchy, Context context)
@@ -196,14 +197,24 @@ public sealed partial class ResourceCatalogLoader
             return content.GetAll<T>();
         }
 
-        public void ReportWarning(Object source, String message, Exception? exception = null, FileSystemInfo? path = null)
+        public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null)
         {
-            currentReport!.Add(new Error(Reflections.GetLongName(source.GetType()), message, isCritical: false));
+            currentReport!.Add(new Error(GetSourceName(source), message, isCritical: false));
 
             if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
             else LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
 
             warningCount++;
+        }
+
+        public void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null)
+        {
+            currentReport!.Add(new Error(GetSourceName(source), message, isCritical: true));
+
+            if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
+            else LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
+
+            errorCount++;
         }
 
         public void ReportDiscovery(ResourceType type, RID identifier, Exception? error = null, String? errorMessage = null)
@@ -223,6 +234,11 @@ public sealed partial class ResourceCatalogLoader
         }
 
         public event EventHandler? Completed;
+
+        private static String GetSourceName(IIssueSource source)
+        {
+            return source.InstanceName is {} name ? Reflections.GetLongName(source.GetType(), name) : Reflections.GetLongName(source.GetType());
+        }
 
         public void AddCatalogEntry(ICatalogEntry entry)
         {

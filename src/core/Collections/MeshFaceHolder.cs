@@ -7,9 +7,9 @@
 using System;
 using System.Buffers;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
 using VoxelGame.Toolkit.Utilities;
@@ -27,10 +27,11 @@ public class MeshFaceHolder
     /// </summary>
     public const Boolean DefaultDirection = true;
 
-    private readonly Side side;
+    private readonly Vector3 inset;
 
     private readonly MeshFace?[][] lastFaces;
-    private readonly Vector3 inset;
+
+    private readonly Side side;
 
     private Int32 count;
 
@@ -182,17 +183,23 @@ public class MeshFaceHolder
     /// <param name="pos">The position of the face, relative to the section origin.</param>
     /// <param name="data">The binary encoded data of the quad.</param>
     /// <param name="isRotated">True if the face is rotated.</param>
-    /// <param name="isSingleSided">True if the face is single sided, false if double sided.</param>
+    /// <param name="isSingleSided">True if the face is single sided, false if double-sided.</param>
     public void AddFace(Vector3i pos, (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, Boolean isRotated, Boolean isSingleSided)
     {
-        AddFace(pos, (IHeightVariable.MaximumHeight, IHeightVariable.NoHeight), data, isSingleSided, isFull: true, isRotated, DefaultDirection);
+        AddFace(pos,
+            (BlockHeight.Maximum.ToInt32(), BlockHeight.None.ToInt32()),
+            data,
+            isSingleSided,
+            isFull: true,
+            isRotated,
+            DefaultDirection);
     }
 
     /// <summary>
     ///     Add a face to the holder.
     /// </summary>
     /// <param name="pos">The position of the face, in section block coordinates.</param>
-    /// <param name="size">The size of the face, <see cref="IHeightVariable" /> units.</param>
+    /// <param name="size">The size of the face, <see cref="PartialHeight" /> units.</param>
     /// <param name="skip">
     ///     The portion of the face that is skipped, in size units. This means <c>0</c> is one step and
     ///     <c>-1</c> is no skip.
@@ -369,8 +376,8 @@ public class MeshFaceHolder
         Vector3 bottomOffset;
         Vector3 topOffset;
 
-        Single gap = IHeightVariable.GetGap(face.size);
-        Single skip = IHeightVariable.GetSize(face.skip);
+        Single gap = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetGap(face.size);
+        Single skip = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetSize(face.skip);
 
         if (face.direction)
         {
@@ -391,7 +398,7 @@ public class MeshFaceHolder
 
     private void ApplyVaryingHeightToVerticalSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
-        Single gap = IHeightVariable.GetGap(face.size);
+        Single gap = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetGap(face.size);
         Vector3 offset = inset;
 
         if (face.direction && side == Side.Top) offset += (0, -gap, 0);
@@ -440,8 +447,17 @@ public class MeshFaceHolder
         /// </summary>
         public Boolean direction;
 
+        public UInt32 height;
+        public Boolean isRotated;
+
+        public Boolean isSingleSided;
+        public UInt32 length;
+        public Int32 position;
+
+        public MeshFace? previous;
+
         /// <summary>
-        ///     The size of the face, in the units used by <see cref="IHeightVariable" />.
+        ///     The size of the face, in the units used by <see cref="PartialHeight" />.
         ///     Is referred to as the height of the face outside of this class.
         /// </summary>
         public Int32 size;
@@ -451,15 +467,6 @@ public class MeshFaceHolder
         ///     This can be the height of a neighboring block.
         /// </summary>
         public Int32 skip;
-
-        public UInt32 height;
-        public UInt32 length;
-        public Int32 position;
-
-        public Boolean isSingleSided;
-        public Boolean isRotated;
-
-        public MeshFace? previous;
 
         #pragma warning disable S1067
         public Boolean IsExtendable(MeshFace extension)

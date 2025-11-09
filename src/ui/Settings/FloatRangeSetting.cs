@@ -22,12 +22,12 @@ namespace VoxelGame.UI.Settings;
 internal class FloatRangeSetting : Setting
 {
     private readonly Func<Single> get;
-    private readonly Action<Single> set;
-
-    private readonly Single min;
     private readonly Single max;
 
+    private readonly Single min;
+
     private readonly Boolean percentage;
+    private readonly Action<Single> set;
     private readonly Single? step;
 
     internal FloatRangeSetting(String name, Single min, Single max, Boolean percentage, Single? step, Func<Single> get, Action<Single> set)

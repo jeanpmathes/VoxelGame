@@ -7,9 +7,9 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Cause a random update to occur for a targeted position.
@@ -26,8 +26,8 @@ public class DoUpdate : Command
     /// <exclude />
     public void Invoke()
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Update(targetPosition);
-        else Context.Console.WriteError("No position targeted.");
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Update(targetPosition);
+        else Context.Output.WriteError("No position targeted.");
     }
 
     /// <exclude />
@@ -39,6 +39,6 @@ public class DoUpdate : Command
     private void Update(Vector3i position)
     {
         Boolean success = Context.Player.World.DoRandomUpdate(position);
-        if (!success) Context.Console.WriteError("Cannot update at this position.");
+        if (!success) Context.Output.WriteError("Cannot update at this position.");
     }
 }

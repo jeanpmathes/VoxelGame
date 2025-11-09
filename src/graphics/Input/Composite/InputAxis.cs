@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Graphics.Input.Actions;
 
 namespace VoxelGame.Graphics.Input.Composite;

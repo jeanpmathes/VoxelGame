@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
@@ -17,15 +18,15 @@ public class Mouse
 {
     private readonly Client client;
 
-    private Vector2d oldDelta;
+    private Boolean isCursorLocked;
+    private Boolean isCursorLockRequiredOnFocus;
 
-    private Vector2i? storedPosition;
+    private Vector2d oldDelta;
 
     private Vector2i oldPosition;
     private Vector2i position;
 
-    private Boolean isCursorLocked;
-    private Boolean isCursorLockRequiredOnFocus;
+    private Vector2i? storedPosition;
 
     internal Mouse(Client client)
     {

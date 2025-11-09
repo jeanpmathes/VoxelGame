@@ -1,4 +1,4 @@
-# Exports a selected object from blender into the file format that is used by the BlockModel class.
+# Exports a selected object from blender into the file format that is used by the Model class.
 # Current supported Blender version: 2.83.5
 
 # Currently only quads are supported.

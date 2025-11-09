@@ -27,12 +27,7 @@ namespace vg
          * \param quadFactor Factor to weight the impact of the primitive ID.
          * \return The animated texture index.
          */
-        uint GetAnimatedIndex(
-            uint const  index,
-            uint const  primitive,
-            float const time,
-            uint const  frameCount,
-            float const quadFactor)
+        uint GetAnimatedIndex(uint const index, uint const primitive, float const time, uint const frameCount, float const quadFactor)
         {
             if (index == 0) return 0;
 
@@ -46,10 +41,7 @@ namespace vg
          * \param time The current time.
          * \return The animated texture index.
          */
-        uint GetAnimatedBlockTextureIndex(uint const index, uint const primitive, float const time)
-        {
-            return GetAnimatedIndex(index, primitive, time, 8, 0.125f);
-        }
+        uint GetAnimatedBlockTextureIndex(uint const index, uint const primitive, float const time) { return GetAnimatedIndex(index, primitive, time, 8, 0.125f); }
 
         /**
          * \brief Get the animated texture index for fluids.
@@ -58,10 +50,7 @@ namespace vg
          * \param time The current time.
          * \return The animated texture index.
          */
-        uint GetAnimatedFluidTextureIndex(uint const index, uint const primitive, float const time)
-        {
-            return GetAnimatedIndex(index, primitive, time, 16, 0.000f);
-        }
+        uint GetAnimatedFluidTextureIndex(uint const index, uint const primitive, float const time) { return GetAnimatedIndex(index, primitive, time, 16, 0.000f); }
 
         /**
          * \brief Get the animated texture index.

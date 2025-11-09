@@ -5,20 +5,32 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
+using VoxelGame.Toolkit.Components;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Core.Actors;
 
 /// <summary>
 ///     An actor is anything that can be added to a world, but is not the world itself.
 /// </summary>
-public abstract class Actor : IDisposable
+[ComponentSubject(typeof(ActorComponent))]
+public abstract partial class Actor : Composed<Actor, ActorComponent>
 {
+
     /// <summary>
     ///     Gets the world in which this actor is located.
     ///     Using an actor without a world is not valid.
     /// </summary>
     public World World { get; private set; } = null!;
+
+    /// <summary>
+    ///     The head of the actor, which allows to determine where the actor is looking at.
+    ///     If an actor has no head or the concept of looking does not make sense, this will try to return the transform of the
+    ///     actor itself.
+    /// </summary>
+    public virtual IOrientable? Head => GetComponent<Transform>();
 
     /// <summary>
     ///     Called when this actor is added to a world.
@@ -28,66 +40,69 @@ public abstract class Actor : IDisposable
     {
         World = world;
 
-        AddedToWorld?.Invoke(this, EventArgs.Empty);
+        OnAddComponents();
     }
 
-    /// <summary>
-    ///     Invoked when this actor is added to a world.
-    /// </summary>
-    protected event EventHandler? AddedToWorld;
+    /// <inheritdoc cref="Actor.OnAdd" />
+    [ComponentEvent(nameof(ActorComponent.OnAdd))]
+    private partial void OnAddComponents();
 
     /// <summary>
     ///     Called when this actor is removed from a world.
     /// </summary>
     public void OnRemove()
     {
-        RemovedFromWorld?.Invoke(this, EventArgs.Empty);
+        OnRemoveComponents();
 
         World = null!;
     }
 
+    /// <inheritdoc cref="Actor.OnRemove" />
+    [ComponentEvent(nameof(ActorComponent.OnRemove))]
+    private partial void OnRemoveComponents();
+
     /// <summary>
-    ///     Invoked when this actor is removed from a world.
+    ///     Call to activate this actor.
     /// </summary>
-    protected event EventHandler? RemovedFromWorld;
+    public void Activate()
+    {
+        OnActivateComponents();
+    }
+
+    /// <inheritdoc cref="Actor.Activate" />
+    [ComponentEvent(nameof(ActorComponent.OnActivate))]
+    private partial void OnActivateComponents();
+
+    /// <summary>
+    ///     Call to deactivate this actor.
+    /// </summary>
+    public void Deactivate()
+    {
+        OnDeactivateComponents();
+    }
+
+    /// <inheritdoc cref="Actor.Deactivate" />
+    [ComponentEvent(nameof(ActorComponent.OnDeactivate))]
+    private partial void OnDeactivateComponents();
 
     /// <summary>
     ///     Update this actor.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
-    public virtual void LogicUpdate(Double deltaTime) {}
-
-    #region DISPOSABLE
-
-    private Boolean disposed;
-
-    /// <summary>
-    ///     Disposes this actor.
-    /// </summary>
-    public void Dispose()
+    public void LogicUpdate(Double deltaTime)
     {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
+        OnLogicUpdate(deltaTime);
+
+        OnLogicUpdateComponents(deltaTime);
     }
 
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~Actor()
-    {
-        Dispose(disposing: false);
-    }
+    /// <inheritdoc cref="Actor.LogicUpdate" />
+    [ComponentEvent(nameof(ActorComponent.OnLogicUpdate))]
+    private partial void OnLogicUpdateComponents(Double deltaTime);
 
     /// <summary>
-    ///     Disposes this actor.
+    ///     Called when the actor receives a logic update.
     /// </summary>
-    /// <param name="disposing">True if called by code.</param>
-    protected virtual void Dispose(Boolean disposing)
-    {
-        if (disposed) return;
-
-        disposed = true;
-    }
-
-    #endregion DISPOSABLE
+    /// <param name="deltaTime">The time since the last update.</param>
+    protected virtual void OnLogicUpdate(Double deltaTime) {}
 }

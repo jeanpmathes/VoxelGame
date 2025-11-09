@@ -6,9 +6,9 @@
 
 using System;
 using JetBrains.Annotations;
+using VoxelGame.Client.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
-#pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the player flying speed.
@@ -28,17 +28,18 @@ public class SetSpeed : Command
         switch (speed)
         {
             case < 0.25:
-                Context.Console.WriteError("Speed must be at least 0.25");
+                Context.Output.WriteError("Speed must be at least 0.25");
 
                 return;
 
             case > 25.0:
-                Context.Console.WriteError("Speed must be at most 25.0");
+                Context.Output.WriteError("Speed must be at most 25.0");
 
                 return;
 
             default:
-                Context.Player.SetFlyingSpeed(speed);
+                if (Context.Player.GetComponent<PlayerMovement>() is {} movement)
+                    movement.SetFlyingSpeed(speed);
 
                 break;
         }

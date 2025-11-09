@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
@@ -26,13 +27,14 @@ public abstract class ChunkState
     /// </summary>
     private Boolean isAccessSufficient;
 
+    private ChunkState? next;
+    private ChunkState? previous;
+
     /// <summary>
     ///     Whether this state has exited and released all resources.
     /// </summary>
     private Boolean released;
 
-    private ChunkState? next;
-    private ChunkState? previous;
     private RequestQueue requests = null!;
 
     /// <summary>
@@ -479,7 +481,7 @@ public abstract class ChunkState
             return true;
         }
 
-        Debug.Assert((guard == null && Access == Access.None) || (guard != null && Chunk.IsHeldBy(guard, Access)));
+        Debug.Assert(guard == null && Access == Access.None || guard != null && Chunk.IsHeldBy(guard, Access));
 
         return false;
     }
@@ -635,7 +637,7 @@ public abstract class ChunkState
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
     public static Guard? TryStealAccess(ref ChunkState state)
     {
-        ApplicationInformation.ThrowIfNotOnMainThread(state.Chunk);
+        Application.ThrowIfNotOnMainThread(state.Chunk);
 
         if (!state.CanStealAccess) return null;
 

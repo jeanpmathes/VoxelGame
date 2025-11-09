@@ -57,4 +57,16 @@ public class Visitor
     {
         // Nothing to do here.
     }
+
+    /// <exclude />
+    public virtual void Visit(Truth truth)
+    {
+        // Nothing to do here.
+    }
+
+    /// <exclude />
+    public virtual void Visit(Color color)
+    {
+        // Nothing to do here.
+    }
 }

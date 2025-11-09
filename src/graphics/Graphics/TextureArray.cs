@@ -4,8 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
@@ -19,8 +22,8 @@ namespace VoxelGame.Graphics.Graphics;
 /// </summary>
 public sealed class TextureArray : IEnumerable<Texture>
 {
-    private readonly Texture[] textures;
     private readonly ColorS[] dominantColors;
+    private readonly Texture[] textures;
 
     private TextureArray(Texture[] textures, ColorS[] dominantColors)
     {

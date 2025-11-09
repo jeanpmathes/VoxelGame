@@ -346,13 +346,7 @@ public partial class Map
         Array2D<Single> offsets,
         TectonicCell a, TectonicCell b)
     {
-        TectonicCollision collision;
-
-        if (collisions.ContainsKey((a.continent, b.continent)))
-        {
-            collision = collisions[(a.continent, b.continent)];
-        }
-        else
+        if (!collisions.TryGetValue((a.continent, b.continent), out TectonicCollision collision))
         {
             Vector2i relativePosition = b.position - a.position;
             Vector2d relativeDrift = b.drift - a.drift;

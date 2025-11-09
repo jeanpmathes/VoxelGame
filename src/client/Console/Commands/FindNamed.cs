@@ -15,7 +15,6 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Search and find any named generated entity in the world.
@@ -51,31 +50,31 @@ public class FindNamed : Command
     {
         if (count < 1)
         {
-            Context.Console.WriteError("Count must be greater than 0.");
+            Context.Output.WriteError("Count must be greater than 0.");
 
             return;
         }
 
         IEnumerable<Vector3i>? positions = Context.Player.World
-            .SearchNamedGeneratedElements(Context.Player.Position.Floor(), name, maxDistance);
+            .SearchNamedGeneratedElements(Context.Player.Body.Transform.Position.Floor(), name, maxDistance);
 
         if (positions == null)
         {
-            Context.Console.WriteError($"Search failed, name {name} not valid.");
+            Context.Output.WriteError($"Search failed, name {name} not valid.");
 
             return;
         }
 
-        Context.Console.WriteResponse($"Beginning search for {count} {name} elements...");
+        Context.Output.WriteResponse($"Beginning search for {count} {name} elements...");
 
         Operations.Launch(async token =>
         {
             foreach (Vector3i position in positions.Take(count))
-                await Context.Console.WriteResponseAsync($"Found {name} at {position}.",
-                    [new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, position))],
+                await Context.Output.WriteResponseAsync($"Found {name} at {position}.",
+                    [new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, this, position))],
                     token).InAnyContext();
 
-            await Context.Console.WriteResponseAsync($"Search for {name} finished.", [], token).InAnyContext();
+            await Context.Output.WriteResponseAsync($"Search for {name} finished.", [], token).InAnyContext();
         });
     }
 }

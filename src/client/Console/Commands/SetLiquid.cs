@@ -7,10 +7,10 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the fluid at the target position. Can cause invalid fluid state.
@@ -33,8 +33,8 @@ public class SetFluid : Command
     /// <exclude />
     public void Invoke(String namedID, Int32 level)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, level, targetPosition);
-        else Context.Console.WriteError("No position targeted.");
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(namedID, level, targetPosition);
+        else Context.Output.WriteError("No position targeted.");
     }
 
     private void Set(String namedID, Int32 levelData, Vector3i position)
@@ -43,16 +43,14 @@ public class SetFluid : Command
 
         if (fluid == null)
         {
-            Context.Console.WriteError("Cannot find fluid.");
+            Context.Output.WriteError("Cannot find fluid.");
 
             return;
         }
 
-        var level = (FluidLevel) levelData;
-
-        if (level is < FluidLevel.One or > FluidLevel.Eight)
+        if (!FluidLevel.TryFromInt32(levelData, out FluidLevel level))
         {
-            Context.Console.WriteError("Invalid level.");
+            Context.Output.WriteError("Invalid level.");
 
             return;
         }

@@ -4,7 +4,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using VoxelGame.Core.Utilities;
@@ -50,13 +54,13 @@ public class PipelineBuilder
     private readonly List<MaterialConfig> materials = [];
     private readonly List<ShaderFile> shaderFiles = [];
 
-    private TextureArray? firstTextureSlot;
-    private TextureArray? secondTextureSlot;
-
     private UInt32 customDataBufferSize;
+    private UInt32 effectSpoolCount;
+
+    private TextureArray? firstTextureSlot;
 
     private UInt32 meshSpoolCount;
-    private UInt32 effectSpoolCount;
+    private TextureArray? secondTextureSlot;
 
     /// <summary>
     ///     Add a shader file to the pipeline.

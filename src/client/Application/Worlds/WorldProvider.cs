@@ -15,6 +15,7 @@ using System.Security.Cryptography;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Application.Components;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
@@ -132,7 +133,7 @@ public partial class WorldProvider : IWorldProvider
     {
         Debug.Assert(Status == Status.Ok);
 
-        World world = new(client, GetData(info));
+        World world = new(client.Space, GetData(info));
         ActivateWorld(world);
     }
 
@@ -143,7 +144,7 @@ public partial class WorldProvider : IWorldProvider
 
         DirectoryInfo worldDirectory = FileSystem.GetUniqueDirectory(WorldsDirectory, name);
 
-        World world = new(client, worldDirectory, name, seed);
+        World world = new(client.Space, worldDirectory, name, seed);
         ActivateWorld(world);
     }
 
@@ -285,7 +286,7 @@ public partial class WorldProvider : IWorldProvider
             {
                 await metadata.SaveAsync(metadataFile, token).InAnyContext();
             },
-            client.ClientUpdateDispatch);
+            client.GetRequiredComponent<GlobalOperationDispatch>());
     }
 
     /// <summary>

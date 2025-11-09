@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Collections;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
@@ -21,18 +22,17 @@ namespace VoxelGame.Core.Logic.Chunks;
 /// </summary>
 public sealed partial class ChunkSet : IDisposable
 {
-    private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
-
-    private readonly World world;
-    private readonly ChunkContext context;
-
     private readonly Bag<Chunk> active = new(null!);
+    private readonly Dictionary<ChunkPosition, Chunk> chunks = new();
     private readonly Bag<Chunk> complete = new(null!);
+    private readonly ChunkContext context;
+    private readonly HashSet<Request> pendingReleases = [];
+
+    private readonly HashSet<Request> pendingRequests = [];
 
     private readonly RequestAlgorithm requests;
 
-    private readonly HashSet<Request> pendingRequests = [];
-    private readonly HashSet<Request> pendingReleases = [];
+    private readonly World world;
 
     /// <summary>
     ///     Create a new chunk set.
@@ -116,7 +116,7 @@ public sealed partial class ChunkSet : IDisposable
     private Chunk? Get(ChunkPosition position)
     {
         Throw.IfDisposed(disposed);
-        ApplicationInformation.ThrowIfNotOnMainThread(this);
+        Application.ThrowIfNotOnMainThread(this);
 
         return chunks.GetValueOrDefault(position);
     }

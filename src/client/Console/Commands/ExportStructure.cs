@@ -9,13 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Contents.Structures;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-#pragma warning disable CA1822
 
 /// <summary>
 ///     Export a structure to a file.
@@ -38,8 +38,8 @@ public class ExportStructure : Command
     /// <exclude />
     public void Invoke(Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name);
-        else Context.Console.WriteError("No position targeted.");
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name);
+        else Context.Output.WriteError("No position targeted.");
     }
 
     private void Export(Vector3i position, Vector3i extents, String name)
@@ -66,9 +66,9 @@ public class ExportStructure : Command
         }
 
         if (success)
-            await Context.Console.WriteResponseAsync($"Structure exported to: {Program.StructureDirectory}",
+            await Context.Output.WriteResponseAsync($"Structure exported to: {Program.StructureDirectory}",
                 [new FollowUp("Open directory", () => { OS.Start(Program.StructureDirectory); })],
                 token).InAnyContext();
-        else await Context.Console.WriteErrorAsync("Failed to export structure.", [], token).InAnyContext();
+        else await Context.Output.WriteErrorAsync("Failed to export structure.", [], token).InAnyContext();
     }
 }

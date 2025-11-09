@@ -8,7 +8,8 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics;
@@ -19,7 +20,7 @@ namespace VoxelGame.Core.Physics;
 public static class Raycast
 {
     /// <summary>
-    ///     Checks if a ray intersects with a block that is not <see cref="Blocks.Air" />.
+    ///     Checks if a ray intersects with a block that is not <see cref="Logic.Voxels.Core.Air" />.
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
@@ -145,12 +146,12 @@ public static class Raycast
 
     private static Boolean BlockIntersectionCheck(World world, Ray ray, Vector3i position)
     {
-        BlockInstance? potentialBlock = world.GetBlock(position);
+        State? potentialBlock = world.GetBlock(position);
 
         if (potentialBlock is not {} block) return false;
 
         // Check if the ray intersects the bounding box of the block.
-        return block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(ray);
+        return !block.Block.IsEmpty && block.Block.GetCollider(world, position).Intersects(ray);
     }
 
     private static Boolean FluidIntersectionCheck(World world, Ray ray, Vector3i position)
@@ -186,7 +187,7 @@ public static class Raycast
 
             if (content is not var (block, fluid)) continue;
 
-            if (block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(frustum)) positions.Add((content.Value, position));
+            if (!block.Block.IsEmpty && block.Block.GetCollider(world, position).Intersects(frustum)) positions.Add((content.Value, position));
             else if (fluid.Fluid != Fluids.Instance.None && Fluid.GetCollider(position, fluid.Level).Intersects(frustum)) positions.Add((content.Value, position));
         }
 

@@ -9,6 +9,7 @@ using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -87,10 +88,9 @@ public static class Operations
     private sealed class FutureOperationInternal
     #pragma warning restore S2931
     {
-        private Future? future;
-
         private CancellationTokenSource? cancellation;
         private Boolean cancelled;
+        private Future? future;
 
         public FutureOperationInternal()
         {
@@ -134,7 +134,7 @@ public static class Operations
 
         public void Cleanup()
         {
-            ApplicationInformation.ThrowIfNotOnMainThread(this);
+            Application.ThrowIfNotOnMainThread(this);
 
             cancellation?.Dispose();
             cancellation = null;
@@ -142,7 +142,7 @@ public static class Operations
 
         public void Cancel()
         {
-            ApplicationInformation.ThrowIfNotOnMainThread(this);
+            Application.ThrowIfNotOnMainThread(this);
 
             cancelled = true;
             cancellation?.Cancel();
@@ -151,11 +151,10 @@ public static class Operations
 
     private sealed class FutureOperation : Operation
     {
-        private readonly OperationUpdateDispatch dispatch;
-        private readonly Func<Task> work;
-
         private readonly FutureOperationInternal current;
+        private readonly OperationUpdateDispatch dispatch;
         private readonly FutureOperationInternal? previous;
+        private readonly Func<Task> work;
 
         private Future? future;
 
@@ -221,11 +220,10 @@ public static class Operations
 
     private sealed class FutureOperation<T> : Operation<T>
     {
-        private readonly OperationUpdateDispatch dispatch;
-        private readonly Func<Task<T>> work;
-
         private readonly FutureOperationInternal current;
+        private readonly OperationUpdateDispatch dispatch;
         private readonly FutureOperationInternal? previous;
+        private readonly Func<Task<T>> work;
 
         private Future<T>? future;
 

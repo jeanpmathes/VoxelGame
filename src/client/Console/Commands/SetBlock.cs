@@ -7,10 +7,11 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Contents;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the block at the target position. Can cause invalid block state.
@@ -25,36 +26,29 @@ public class SetBlock : Command
     public override String HelpText => "Sets the block at the target position. Can cause invalid block state.";
 
     /// <exclude />
-    public void Invoke(String namedID, Int32 data, Int32 x, Int32 y, Int32 z)
+    public void Invoke(String contentID, Int32 x, Int32 y, Int32 z)
     {
-        Set(namedID, data, (x, y, z));
+        Set(new CID(contentID), (x, y, z));
     }
 
     /// <exclude />
-    public void Invoke(String namedID, Int32 data)
+    public void Invoke(String contentID)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, data, targetPosition);
-        else Context.Console.WriteError("No position targeted.");
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(new CID(contentID), targetPosition);
+        else Context.Output.WriteError("No position targeted.");
     }
 
-    private void Set(String namedID, Int32 data, Vector3i position)
+    private void Set(CID contentID, Vector3i position)
     {
-        Block? block = Blocks.Instance.TranslateNamedID(namedID);
+        Block? block = Blocks.Instance.TranslateContentID(contentID);
 
         if (block == null)
         {
-            Context.Console.WriteError("Cannot find block.");
+            Context.Output.WriteError("Cannot find block.");
 
             return;
         }
 
-        if (data is < 0 or > 0b11_1111)
-        {
-            Context.Console.WriteError("Invalid data value.");
-
-            return;
-        }
-
-        Context.Player.World.SetBlock(block.AsInstance((UInt32) data), position);
+        Context.Player.World.SetBlock(block.States.Default, position);
     }
 }

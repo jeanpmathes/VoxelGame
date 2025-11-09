@@ -13,6 +13,7 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.UI.UserInterfaces;
 using VoxelGame.UI.Utilities;
+using Color = VoxelGame.Core.Collections.Properties.Color;
 
 namespace VoxelGame.UI.Controls.Common;
 
@@ -35,9 +36,9 @@ public class PropertyBasedListControl : ControlBase
         private const Int32 KeyColumn = 0;
         private const Int32 ValueColumn = 1;
 
-        private readonly Stack<(String prefix, Int32 number, VerticalLayout parent, ListBox? list)> stack = new();
-
         private readonly Context context;
+
+        private readonly Stack<(String prefix, Int32 number, VerticalLayout parent, ListBox? list)> stack = new();
 
         public PropertyControlBuilder(ControlBase parent, Context context)
         {
@@ -100,6 +101,22 @@ public class PropertyBasedListControl : ControlBase
         public override void Visit(Measure measure)
         {
             AddRow(measure.Name, measure.Value.ToString() ?? "null");
+        }
+
+        public override void Visit(Truth truth)
+        {
+            AddRow(truth.Name, truth.Value ? "True" : "False");
+        }
+
+        public override void Visit(Color color)
+        {
+            var value = color.Value.ToString();
+
+            ListBoxRow row = AddRow(color.Name, value);
+            row.SetCellText(ValueColumn, value, Alignment.Center);
+
+            var c = color.Value.ToColor();
+            row.SetTextColor(new Gwen.Net.Color(c.A, c.R, c.G, c.B));
         }
 
         private void EnsureList()

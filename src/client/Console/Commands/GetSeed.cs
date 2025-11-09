@@ -1,4 +1,4 @@
-﻿// <copyright file="Clear.cs" company="VoxelGame">
+﻿// <copyright file="GetSeed.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -8,7 +8,6 @@ using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Gets the world seed.
@@ -26,6 +25,6 @@ public class GetSeed : Command
     public void Invoke()
     {
         (Int32 upper, Int32 lower) = Context.Player.World.Seed;
-        Context.Console.WriteResponse($"({upper}, {lower})");
+        Context.Output.WriteResponse($"({upper}, {lower})");
     }
 }

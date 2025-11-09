@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Client.Visuals.Textures;
 
@@ -12,12 +13,15 @@ namespace VoxelGame.Client.Visuals.Textures;
 ///     Defines how layers of a deck are combined.
 /// </summary>
 /// <param name="type">The type of this combinator. Used as a key to find the correct combinator.</param>
-public abstract class Combinator(String type)
+public abstract class Combinator(String type) : IIssueSource
 {
     /// <summary>
     ///     Get the type of this combinator. Used as a key to find the correct combinator.
     /// </summary>
     public String Type { get; } = type;
+
+    /// <inheritdoc />
+    public String? InstanceName => Type;
 
     /// <summary>
     ///     Combine the current sheet with the next sheet.

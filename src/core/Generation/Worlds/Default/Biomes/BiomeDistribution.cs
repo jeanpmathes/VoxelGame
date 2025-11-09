@@ -18,18 +18,17 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 /// </summary>
 public class BiomeDistribution
 {
-    private readonly Array2D<Biome?> distribution;
-
     private readonly Biome beach;
+    private readonly Biome continentalIceSheet;
     private readonly Biome desert;
-    private readonly Biome sandyCliff;
+    private readonly Array2D<Biome?> distribution;
     private readonly Biome grassyCliff;
+    private readonly Biome mountain;
+    private readonly Biome ocean;
+    private readonly Biome oceanicIceSheet;
     private readonly Biome polarDesert;
     private readonly Biome polarOcean;
-    private readonly Biome continentalIceSheet;
-    private readonly Biome oceanicIceSheet;
-    private readonly Biome ocean;
-    private readonly Biome mountain;
+    private readonly Biome sandyCliff;
 
     /// <summary>
     ///     Create a new biome distribution.
@@ -55,7 +54,7 @@ public class BiomeDistribution
     }
 
     /// <summary>
-    /// Determine the biome for a location based on the given conditions.
+    ///     Determine the biome for a location based on the given conditions.
     /// </summary>
     /// <param name="conditions">The special cell conditions in effect.</param>
     /// <param name="temperature">The temperature, which must be in the range [0, 1].</param>

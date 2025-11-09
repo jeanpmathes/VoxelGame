@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System.IO;
 using Microsoft.IO;
 
 namespace VoxelGame.Toolkit.Memory;

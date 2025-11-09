@@ -21,9 +21,9 @@ namespace VoxelGame.Client.Scenes;
 public partial class SceneFactory
 {
     private readonly Application.Client client;
+    private CommandInvoker? commands;
 
     private Engine? engine;
-    private CommandInvoker? commands;
 
     private UserInterfaceResources? uiResources;
 
@@ -48,11 +48,11 @@ public partial class SceneFactory
     }
 
     /// <summary>
-    ///     Create a new game scene.
+    ///     Create a new session scene.
     /// </summary>
-    /// <param name="world">The world in which the game takes place.</param>
-    /// <returns>The created game scene, or <c>null</c> if required resources are not loaded.</returns>
-    public IScene? CreateGameScene(World world)
+    /// <param name="world">The world in which the session takes place.</param>
+    /// <returns>The created session scene, or <c>null</c> if required resources are not loaded.</returns>
+    public Scene? CreateSessionScene(World world)
     {
         if (engine == null || commands == null || uiResources == null)
         {
@@ -63,7 +63,7 @@ public partial class SceneFactory
 
         LogCreatingGameScene(logger, world.Data.Information.Name);
 
-        return new GameScene(client, world, commands, uiResources, engine);
+        return new SessionScene(client, world, commands, uiResources, engine);
     }
 
     /// <summary>
@@ -72,7 +72,7 @@ public partial class SceneFactory
     /// <param name="resourceLoadingIssueReport">A report of loading issues that occurred when loading the resources.</param>
     /// <param name="loadWorldDirectly">The index of the world to load directly, if any.</param>
     /// <returns>The created scene, or <c>null</c> if required resources are not loaded.</returns>
-    public IScene? CreateStartScene(ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly)
+    public Scene? CreateStartScene(ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly)
     {
         if (uiResources == null)
         {
@@ -90,7 +90,7 @@ public partial class SceneFactory
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SceneFactory>();
 
-    [LoggerMessage(EventId = LogID.SceneFactory + 0, Level = LogLevel.Debug, Message = "Creating game scene for world {WorldName}")]
+    [LoggerMessage(EventId = LogID.SceneFactory + 0, Level = LogLevel.Debug, Message = "Creating session scene for world {WorldName}")]
     private static partial void LogCreatingGameScene(ILogger logger, String worldName);
 
     [LoggerMessage(EventId = LogID.SceneFactory + 1, Level = LogLevel.Debug, Message = "Creating start scene")]

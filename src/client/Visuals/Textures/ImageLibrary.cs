@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
@@ -21,11 +22,11 @@ public class ImageLibrary
     private const String PartPrefix = "p:";
     private const String CombinedSuffix = ":all";
 
-    private readonly Dictionary<String, Image> splitParts = [];
-    private readonly Dictionary<String, Image> splitTextures = [];
-
     private readonly Dictionary<String, Sheet> combinedParts = [];
     private readonly Dictionary<String, Sheet> combinedTextures = [];
+
+    private readonly Dictionary<String, Image> splitParts = [];
+    private readonly Dictionary<String, Image> splitTextures = [];
 
     /// <summary>
     ///     Add a sheet to the library.
@@ -116,6 +117,7 @@ public class ImageLibrary
 
     /// <summary>
     ///     Bundle all images in the library that should be available in the game as textures.
+    ///     Will ensure that <see cref="ITextureIndexProvider.MissingTextureIndex" /> is available in the bundle.
     /// </summary>
     /// <param name="resolution">The resolution of the textures in this library.</param>
     /// <returns>The intermediate bundle containing all require images.</returns>
@@ -141,10 +143,11 @@ public class ImageLibrary
     }
 
     /// <summary>
-    /// Get the name of a texture from its file.
+    ///     Get the name of a texture from its file.
     /// </summary>
     /// <param name="file">The file defining the texture.</param>
     /// <returns>The name of the texture.</returns>
+    [PerformanceSensitive]
     public static String GetName(FileInfo file)
     {
         StringBuilder key = new();

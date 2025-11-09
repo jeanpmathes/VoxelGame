@@ -50,7 +50,7 @@ NATIVE void NativeRequestClose(NativeClient const* client)
         Require(CALL_ON_MAIN_THREAD(client));
         Require(Win32Application::IsRunning(client));
 
-        PostMessage(Win32Application::GetHwnd(), WM_CLOSE, 0, 0);
+        PostMessage(Win32Application::GetWindowHandle(), WM_CLOSE, 0, 0);
     } CATCH();
 }
 

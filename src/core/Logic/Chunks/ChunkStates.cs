@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
@@ -103,10 +104,10 @@ public partial class Chunk
     /// </summary>
     public class Generating : ChunkState
     {
+        private IDecorationContext? decorationContext;
         private Future? generating;
 
         private IGenerationContext? generationContext;
-        private IDecorationContext? decorationContext;
 
         /// <inheritdoc />
         protected override Access Access => Access.Write;
@@ -132,11 +133,13 @@ public partial class Chunk
 
                 generating.Result?.Switch(
                     TryActivation,
-                    exception =>
+                    e =>
                     {
-                        LogChunkGenerationError(logger, exception, Chunk.Position);
+                        LogChunkGenerationError(logger, e, Chunk.Position);
 
-                        throw exception;
+                        ExceptionDispatchInfo.Capture(e).Throw();
+                        
+                        return false;
                     }
                 );
             }
@@ -161,11 +164,11 @@ public partial class Chunk
         private readonly Neighborhood<Chunk?> chunks;
         private readonly PooledList<Guard> guards;
 
+        private Boolean cleaned;
+
         private Future? decorating;
 
         private IDecorationContext? decorationContext;
-
-        private Boolean cleaned;
 
         /// <summary>
         ///     Creates a new decorating state.
@@ -210,11 +213,13 @@ public partial class Chunk
 
                 decorating.Result?.Switch(
                     TryActivation,
-                    exception =>
+                    e =>
                     {
-                        LogChunkDecorationError(logger, exception, Chunk.Position);
+                        LogChunkDecorationError(logger, e, Chunk.Position);
 
-                        throw exception;
+                        ExceptionDispatchInfo.Capture(e).Throw();
+                        
+                        return false;
                     }
                 );
             }

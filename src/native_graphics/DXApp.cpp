@@ -92,7 +92,7 @@ void DXApp::Update(CycleFlags const flags, bool const timer)
 
     if (!timer && m_isUpdateTimerRunning)
     {
-        CheckReturn(KillTimer(Win32Application::GetHwnd(), IDT_UPDATE));
+        CheckReturn(KillTimer(Win32Application::GetWindowHandle(), IDT_UPDATE));
         m_isUpdateTimerRunning = false;
     }
 
@@ -185,12 +185,12 @@ void DXApp::OnSizeMove(bool const enter)
     if (enter)
     {
         CheckReturn(
-            SetTimer(Win32Application::GetHwnd(), IDT_UPDATE, m_logicTimer.GetTargetElapsedMilliseconds(), nullptr));
+            SetTimer(Win32Application::GetWindowHandle(), IDT_UPDATE, m_logicTimer.GetTargetElapsedMilliseconds(), nullptr));
         m_isUpdateTimerRunning = true;
     }
     else if (m_isUpdateTimerRunning)
     {
-        CheckReturn(KillTimer(Win32Application::GetHwnd(), IDT_UPDATE));
+        CheckReturn(KillTimer(Win32Application::GetWindowHandle(), IDT_UPDATE));
         m_isUpdateTimerRunning = false;
     }
 }
@@ -238,7 +238,7 @@ void DXApp::SetMousePosition(POINT position)
     m_xMousePosition = position.x;
     m_yMousePosition = position.y;
 
-    TryDo(ClientToScreen(Win32Application::GetHwnd(), &position));
+    TryDo(ClientToScreen(Win32Application::GetWindowHandle(), &position));
     TryDo(SetCursorPos(position.x, position.y));
 }
 
@@ -249,7 +249,7 @@ void DXApp::SetMouseLock(bool const lock)
     if (lock)
     {
         RECT rect;
-        TryDo(GetWindowRect(Win32Application::GetHwnd(), &rect));
+        TryDo(GetWindowRect(Win32Application::GetWindowHandle(), &rect));
 
         TryDo(ClipCursor(&rect));
     }
@@ -316,7 +316,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
 void DXApp::SetCustomWindowText(LPCWSTR const text) const
 {
     std::wstring const windowText = m_title + L": " + text;
-    SetWindowText(Win32Application::GetHwnd(), windowText.c_str());
+    SetWindowText(Win32Application::GetWindowHandle(), windowText.c_str());
 }
 
 void DXApp::CheckTearingSupport()

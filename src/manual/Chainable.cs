@@ -92,4 +92,33 @@ public abstract class Chainable
 
         return this;
     }
+
+    /// <summary>
+    ///     Add a subsection to this chainable.
+    /// </summary>
+    /// <param name="title">The title of the subsection.</param>
+    /// <param name="builder">The builder for the subsection.</param>
+    /// <returns>This.</returns>
+    public Chainable SubSection(String title, Func<Chainable, Chainable> builder)
+    {
+        AddElement(Manual.SubSection.Create(title, builder));
+
+        return this;
+    }
+
+    /// <summary>
+    ///     Add a table to the section.
+    /// </summary>
+    /// <param name="columns">The column specification of the table.</param>
+    /// <param name="builder">The builder for the table.</param>
+    /// <returns>This.</returns>
+    public Chainable Table(String columns, Action<Table> builder)
+    {
+        Table table = new(columns);
+        AddElement(table);
+
+        builder(table);
+
+        return this;
+    }
 }

@@ -12,8 +12,6 @@ using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
 
-#pragma warning disable CA1822
-
 /// <summary>
 ///     Emit information about the generated world for debugging.
 /// </summary>
@@ -33,7 +31,7 @@ public class EmitWorldInfo : Command
 
         Context.Player.World.EmitWorldInfo(path).OnSuccessfulSync(() =>
         {
-            Context.Console.WriteResponse($"Emitted world info to: {path}",
+            Context.Output.WriteResponse($"Emitted world info to: {path}",
                 [new FollowUp("Open folder", () => OS.Start(path))]);
         });
     }

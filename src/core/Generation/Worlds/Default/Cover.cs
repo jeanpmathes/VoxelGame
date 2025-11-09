@@ -6,9 +6,9 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Blocks;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -22,7 +22,7 @@ public abstract class Cover
     /// <summary>
     ///     How the snow is generated.
     /// </summary>
-    public enum Snow
+    protected enum Snow
     {
         /// <summary>
         ///     No snow is generated.
@@ -35,15 +35,15 @@ public abstract class Cover
         Normal,
 
         /// <summary>
-        ///     Loose snow is generated.
+        ///     Pulverized snow is generated.
         /// </summary>
-        Loose
+        Pulverized
     }
 
     private readonly Snow snowMode;
 
     /// <summary>
-    /// Create a new cover generator.
+    ///     Create a new cover generator.
     /// </summary>
     protected Cover(Snow snow)
     {
@@ -60,22 +60,22 @@ public abstract class Cover
 
         if (climate.Temperature.IsFreezing && snowMode != Snow.None)
         {
-            Int32 height = MathTools.RoundedToInt(IHeightVariable.MaximumHeight * heightFraction * 0.75);
+            var maximumHeight = BlockHeight.Maximum.ToInt32();
+            Int32 height = MathTools.RoundedToInt(maximumHeight * heightFraction * 0.75);
 
-            height += BlockUtilities.GetPositionDependentNumber(position, mod: 5) switch
+            height += NumberGenerator.GetPositionDependentNumber(position, mod: 5) switch
             {
                 0 => 1,
                 1 => -1,
                 _ => 0
             };
+            
 
-            height = Math.Clamp(height, min: 0, IHeightVariable.MaximumHeight);
+            Block snow = snowMode == Snow.Pulverized
+                ? Blocks.Instance.Environment.PulverizedSnow
+                : Blocks.Instance.Environment.Snow;
 
-            SnowBlock snow = snowMode == Snow.Loose
-                ? Blocks.Instance.Specials.LooseSnow
-                : Blocks.Instance.Specials.Snow;
-
-            return new Content(snow.GetInstance(height), FluidInstance.Default);
+            return new Content(snow.States.GenerationDefault.WithHeight(BlockHeight.FromInt32(height)), FluidInstance.Default);
         }
 
         return GetCover(position, climate);
@@ -85,6 +85,11 @@ public abstract class Cover
     ///     Get the cover for a given position.
     /// </summary>
     protected abstract Content GetCover(Vector3i position, in Map.PositionClimate climate);
+
+    private static Content GetTallGrassContent(TallGrass.StageState stageState)
+    {
+        return new Content(TallGrass.GetState(Blocks.Instance.Environment.TallGrass.States.GenerationDefault, stageState), FluidInstance.Default);
+    }
 
     /// <summary>
     ///     Cover with no vegetation and no snow.
@@ -101,7 +106,7 @@ public abstract class Cover
     /// <summary>
     ///     Cover with no vegetation.
     /// </summary>
-    public class NoVegetation(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class NoVegetation(Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
@@ -113,12 +118,12 @@ public abstract class Cover
     /// <summary>
     ///     Cover with (tall) grass and flowers.
     /// </summary>
-    public class GrassAndFlowers(Boolean isSnowLoose = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class GrassAndFlowers(Boolean isSnowPulverized = false, Boolean isBlooming = false, Boolean mushrooms = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 100);
             Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
@@ -127,29 +132,31 @@ public abstract class Cover
             Double flowerFactor = isBlooming ? 0.10 : 0.05;
 
             if (value >= humidity * flowerFactor)
-                return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
+                return value % 2 == 0
+                    ? GetTallGrassContent(TallGrass.StageState.Short)
+                    : GetTallGrassContent(TallGrass.StageState.Tall);
 
             if (mushrooms)
                 return (value % 3) switch
                 {
-                    0 => new Content(Blocks.Instance.RedFlower),
-                    1 => new Content(Blocks.Instance.YellowFlower),
-                    _ => new Content(Blocks.Instance.Chanterelle)
+                    0 => Content.CreateGenerated(Blocks.Instance.Flowers.FlowerRed.Short),
+                    1 => Content.CreateGenerated(Blocks.Instance.Flowers.FlowerYellow.Short),
+                    _ => Content.CreateGenerated(Blocks.Instance.Organic.Chanterelle)
                 };
 
-            return new Content(value % 2 == 0 ? Blocks.Instance.RedFlower : Blocks.Instance.YellowFlower);
+            return Content.CreateGenerated(value % 2 == 0 ? Blocks.Instance.Flowers.FlowerRed.Short : Blocks.Instance.Flowers.FlowerYellow.Short);
         }
     }
 
     /// <summary>
     ///     Cover with (tall) grass.
     /// </summary>
-    public class Grass(Boolean isSnowLoose = false, Boolean hasSucculents = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Grass(Boolean isSnowPulverized = false, Boolean hasSucculents = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 100);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 100);
             Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
@@ -158,19 +165,21 @@ public abstract class Cover
             if (hasSucculents)
                 return (value % 3) switch
                 {
-                    0 => new Content(Blocks.Instance.AloeVera),
-                    1 => new Content(Blocks.Instance.TallGrass),
-                    _ => new Content(Blocks.Instance.TallerGrass)
+                    0 => Content.CreateGenerated(Blocks.Instance.Organic.AloeVera),
+                    1 => GetTallGrassContent(TallGrass.StageState.Short),
+                    _ => GetTallGrassContent(TallGrass.StageState.Tall)
                 };
 
-            return value % 2 == 0 ? new Content(Blocks.Instance.TallGrass) : new Content(Blocks.Instance.TallerGrass);
+            return value % 2 == 0
+                ? GetTallGrassContent(TallGrass.StageState.Short)
+                : GetTallGrassContent(TallGrass.StageState.Tall);
         }
     }
 
     /// <summary>
     ///     Cover with lichen.
     /// </summary>
-    public class Lichen(Lichen.Density density, Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Lichen(Lichen.Density density, Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <summary>
         ///     How dense the lichen is.
@@ -198,8 +207,8 @@ public abstract class Cover
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            return BlockUtilities.GetPositionDependentNumber(position, draw.mod) > draw.threshold
-                ? new Content(Blocks.Instance.Lichen)
+            return NumberGenerator.GetPositionDependentNumber(position, draw.mod) > draw.threshold
+                ? Content.CreateGenerated(Blocks.Instance.Organic.Lichen)
                 : Content.Default;
         }
     }
@@ -207,17 +216,17 @@ public abstract class Cover
     /// <summary>
     ///     Cover with moss and some lichen.
     /// </summary>
-    public class Moss(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Moss(Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 10);
 
             return value switch
             {
-                0 => new Content(Blocks.Instance.Lichen),
-                < 7 => new Content(Blocks.Instance.Moss),
+                0 => Content.CreateGenerated(Blocks.Instance.Organic.Lichen),
+                < 7 => Content.CreateGenerated(Blocks.Instance.Organic.Moss),
                 _ => Content.Default
             };
         }
@@ -226,32 +235,32 @@ public abstract class Cover
     /// <summary>
     ///     Cover with salt and no vegetation.
     /// </summary>
-    public class Salt(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Salt(Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 10);
 
-            return value < 6 ? new Content(Blocks.Instance.Salt) : Content.Default;
+            return value < 6 ? Content.CreateGenerated(Blocks.Instance.Environment.Salt) : Content.Default;
         }
     }
 
     /// <summary>
     ///     Cover with fern, and some moss.
     /// </summary>
-    public class Fern(Boolean isSnowLoose = false) : Cover(isSnowLoose ? Snow.Loose : Snow.Normal)
+    public class Fern(Boolean isSnowPulverized = false) : Cover(isSnowPulverized ? Snow.Pulverized : Snow.Normal)
     {
         /// <inheritdoc />
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
-            Int32 value = BlockUtilities.GetPositionDependentNumber(position, mod: 10);
+            Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 10);
 
             return value switch
             {
-                < 2 => new Content(Blocks.Instance.Moss),
-                < 7 => new Content(Blocks.Instance.Fern),
-                _ => Content.Default
+                < 2 => Content.CreateGenerated(Blocks.Instance.Organic.Moss),
+                < 7 => Content.CreateGenerated(Blocks.Instance.Organic.Fern),
+                _ => Content.GenerationDefault
             };
         }
     }

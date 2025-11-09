@@ -20,11 +20,11 @@ namespace VoxelGame.UI.UserInterfaces;
 public abstract class UserInterface : IDisposable
 {
     private static readonly Vector2 targetSize = new(x: 1920, y: 1080);
+    private readonly Boolean drawBackground;
 
     private readonly Input input;
-    private readonly IScaleProvider scale;
     private readonly UserInterfaceResources resources;
-    private readonly Boolean drawBackground;
+    private readonly IScaleProvider scale;
 
     private readonly IDisposable scaleSubscription;
 

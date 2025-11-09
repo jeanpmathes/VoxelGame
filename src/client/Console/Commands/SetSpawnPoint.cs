@@ -9,7 +9,6 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the spawn position for the current world.
@@ -32,7 +31,7 @@ public class SetSpawnPoint : Command
     /// <exclude />
     public void Invoke()
     {
-        SetSpawnPosition(Context.Player.Position);
+        SetSpawnPosition(Context.Player.Body.Transform.Position);
     }
 
     private void SetSpawnPosition(Vector3d newSpawnPoint)

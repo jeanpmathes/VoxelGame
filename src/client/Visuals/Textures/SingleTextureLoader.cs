@@ -17,9 +17,9 @@ namespace VoxelGame.Client.Visuals.Textures;
 /// </summary>
 public sealed class SingleTextureLoader : IResourceLoader
 {
+    private readonly Int32 fallbackResolution;
     private readonly RID identifier;
     private readonly FileInfo path;
-    private readonly Int32 fallbackResolution;
 
     /// <summary>
     ///     Creates a new <see cref="SingleTextureLoader" /> which loads a texture from the given path.

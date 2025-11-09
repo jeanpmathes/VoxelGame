@@ -5,19 +5,23 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Logging;
 
 /// <summary>
 ///     Utility class to create loggers.
 /// </summary>
-public static class LoggingHelper
+public static partial class LoggingHelper
 {
-    private static ILoggerFactory LoggerFactory { get; set; } = null!;
+    /// <summary>
+    /// Get the logger factory.
+    /// </summary>
+    [LateInitialization]
+    public static partial ILoggerFactory LoggerFactory { get; set; } 
 
     /// <summary>
     ///     Create a logger.
@@ -48,36 +52,34 @@ public static class LoggingHelper
     /// <returns></returns>
     public static ILogger SetUpLogging(String category, Boolean logDebug, FileSystemInfo appDataDirectory)
     {
-        Debug.Assert(LoggerFactory == null);
-
         LogLevel level = logDebug ? LogLevel.Debug : LogLevel.Information;
 
-        LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(
-            builder =>
-            {
-                builder
-                    .AddFilter("Microsoft", LogLevel.Warning)
-                    .AddFilter("System", LogLevel.Warning)
-                    .AddFilter("VoxelGame", level)
-                    .AddSimpleConsole(options => options.IncludeScopes = true)
-                    .AddFile(
-                        Path.Combine(appDataDirectory.FullName, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"),
-                        level);
-            });
+        LoggerFactory = Microsoft.Extensions.Logging.LoggerFactory.Create(builder =>
+        {
+            builder
+                .AddFilter("Microsoft", LogLevel.Warning)
+                .AddFilter("System", LogLevel.Warning)
+                .AddFilter("VoxelGame", level)
+                .AddSimpleConsole(options => options.IncludeScopes = true)
+                .AddFile(
+                    Path.Combine(appDataDirectory.FullName, "Logs", $"voxel-log-{{Date}}{DateTime.Now:_HH-mm-ss}.log"),
+                    level);
+        });
 
         return LoggerFactory.CreateLogger(category);
     }
+    
+    private static Boolean isMockLoggingSetUp;
 
     /// <summary>
-    ///     Set up a mock logger. All loggers creating with this helper will be null loggers.
+    ///     Set up a mock logger. All loggers created with this helper will be null loggers.
     /// </summary>
     /// <returns>A mock logger.</returns>
-    public static ILogger SetUpMockLogging()
+    public static void SetUpMockLogging()
     {
-        Debug.Assert(LoggerFactory == null);
+        if (isMockLoggingSetUp) return;
+        isMockLoggingSetUp = true;
 
         LoggerFactory = new NullLoggerFactory();
-
-        return LoggerFactory.CreateLogger("Mock");
     }
 }

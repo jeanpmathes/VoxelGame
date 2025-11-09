@@ -8,7 +8,6 @@ using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Allows to enable or disable physics for the player.
@@ -33,6 +32,6 @@ public class SetPhysics : Command
     /// </summary>
     public static void Do(Context context, Boolean enabled)
     {
-        context.Player.DoPhysics = enabled;
+        context.Player.Body.IsEnabled = enabled;
     }
 }

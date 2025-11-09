@@ -7,9 +7,10 @@
 using System;
 using System.Diagnostics;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
@@ -58,6 +59,43 @@ public class SurfaceDecorator : Decorator
 
         Content below = grid.GetContent(position.Below()) ?? Content.Default;
 
-        return below.Block.IsSolidAndFull;
+        return below.Block.IsFullySolid;
+    }
+}
+
+/// <summary>
+///     A specialization of <see cref="SurfaceDecorator" /> that only allows placement on surfaces that have a specific behavior.
+/// </summary>
+/// <typeparam name="TBelow">The behavior that must be present on the block below the surface.</typeparam>
+public class SurfaceDecorator<TBelow> : SurfaceDecorator where TBelow : BlockBehavior, IBehavior<TBelow, BlockBehavior, Block>
+{
+    private readonly Vector3i offset;
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SurfaceDecorator{TBelow}" /> class.
+    /// </summary>
+    public SurfaceDecorator()
+    {
+        offset = Vector3i.Zero;
+    }
+
+    /// <summary>
+    ///     Creates a new instance of the <see cref="SurfaceDecorator{TBelow}" /> class.
+    /// </summary>
+    /// <param name="offset">An offset to apply to the checked position.</param>
+    /// <param name="width">The width of the surface column. See <see cref="SurfaceDecorator" />.</param>
+    public SurfaceDecorator(Vector3i offset, Int32 width) : base(width)
+    {
+        this.offset = offset;
+    }
+
+    /// <inheritdoc />
+    public override Boolean CanPlace(Vector3i position, in Decoration.PlacementContext context, IReadOnlyGrid grid)
+    {
+        position += offset;
+
+        if (!base.CanPlace(position, context, grid)) return false;
+
+        return grid.GetContent(position.Below())?.Block.Block.Is<TBelow>() == true;
     }
 }

@@ -54,7 +54,17 @@ public interface IResourceContext : IDisposable
     /// <param name="message">The warning message.</param>
     /// <param name="exception">An optional exception that caused the warning.</param>
     /// <param name="path">An optional path associated with the warning.</param>
-    public void ReportWarning(Object source, String message, Exception? exception = null, FileSystemInfo? path = null);
+    public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null);
+
+    /// <summary>
+    ///     Report an error for the loading of the current resource.
+    ///     Using an error resource is generally preferred to using this method.
+    /// </summary>
+    /// <param name="source">The source of the error.</param>
+    /// <param name="message">The error message.</param>
+    /// <param name="exception">An optional exception that caused the error.</param>
+    /// <param name="path">An optional path associated with the error.</param>
+    public void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null);
 
     /// <summary>
     ///     Report the discovery (and potential load) of a sub-resource when loading the current resource.

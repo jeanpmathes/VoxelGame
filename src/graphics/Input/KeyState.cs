@@ -5,6 +5,7 @@
 // </copyright>
 // <author>OpenTK</author>
 
+using System;
 using System.Collections;
 using System.Globalization;
 using System.Text;
@@ -17,9 +18,10 @@ namespace VoxelGame.Graphics.Input;
 /// </summary>
 public class KeyState
 {
-    private static readonly VirtualKeys[] allKeys = (VirtualKeys[]) Enum.GetValues(typeof(VirtualKeys));
-    private readonly BitArray keys = new((Int32) VirtualKeys.LastKey + 1);
-    private readonly BitArray keysPrevious = new((Int32) VirtualKeys.LastKey + 1);
+    private static readonly VirtualKeys[] allKeys = Enum.GetValues<VirtualKeys>();
+    
+    private readonly BitArray keys = new(0xFF);
+    private readonly BitArray keysPrevious = new(0xFF);
 
     internal KeyState() {}
 

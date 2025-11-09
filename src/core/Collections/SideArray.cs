@@ -1,4 +1,4 @@
-﻿// <copyright file="Sides.cs" company="VoxelGame">
+﻿// <copyright file="SideArray.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Collections;
 
@@ -55,7 +55,7 @@ public class SideArray<T> : IEnumerable<T>
         return GetRef(side);
     }
 
-    #region IEnumerable
+    #region ENUMERABLE
 
     IEnumerator<T> IEnumerable<T>.GetEnumerator()
     {
@@ -153,5 +153,5 @@ public class SideArray<T> : IEnumerable<T>
         #endregion EQUALITY
     }
 
-    #endregion
+    #endregion ENUMERABLE
 }

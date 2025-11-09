@@ -1,0 +1,24 @@
+﻿// <copyright file="Static.cs" company="VoxelGame">
+//     MIT License
+//     For full license see the repository.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using VoxelGame.Annotations.Attributes;
+using VoxelGame.Core.Behaviors;
+
+namespace VoxelGame.Core.Logic.Voxels.Behaviors;
+
+/// <summary>
+///     Prevents placement and destruction of the block.
+///     Note that if the block is replaceable, it can still be replaced by other blocks.
+/// </summary>
+public partial class Static : BlockBehavior, IBehavior<Static, BlockBehavior, Block>
+{
+    [Constructible]
+    private Static(Block subject) : base(subject)
+    {
+        subject.IsPlacementAllowed.ContributeConstant(value: false);
+        subject.IsDestructionAllowed.ContributeConstant(value: false);
+    }
+}

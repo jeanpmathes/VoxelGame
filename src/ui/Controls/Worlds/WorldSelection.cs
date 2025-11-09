@@ -28,18 +28,17 @@ namespace VoxelGame.UI.Controls.Worlds;
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 internal class WorldSelection : StandardMenu
 {
-    private readonly IWorldProvider worldProvider;
-
     private readonly List<Button> buttonBar = new();
-
-    private Search search = null!;
-    private WorldList worlds = null!;
+    private readonly IWorldProvider worldProvider;
 
     private Boolean isFirstOpen = true;
 
     private CancellationTokenSource? refreshCancellation;
 
+    private Search search = null!;
+
     private Window? worldCreationWindow;
+    private WorldList worlds = null!;
 
     internal WorldSelection(ControlBase parent, IWorldProvider worldProvider, Context context) : base(
         parent,

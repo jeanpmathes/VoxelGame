@@ -79,6 +79,10 @@
         <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj"/>
         <ProjectReference Include="..\manual\VoxelGame.Manual.csproj"/>
         <ProjectReference Include="..\ui\VoxelGame.UI.csproj"/>
+        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj"/>
+        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
+        <ProjectReference Include="..\analyzers\VoxelGame.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
     </ItemGroup>
 
     <ItemGroup>
@@ -102,9 +106,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Models\bars_side.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\Models\bed.json">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Models\carpet.json">
@@ -201,10 +202,16 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\ash.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\ash_side.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\burned_log.xml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\burned_planks.xml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\cactus.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -386,7 +393,7 @@
         <None Update="Resources\Textures\Blocks\coal_anthracite.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\coal_bituminous.png">
+        <None Update="Resources\Textures\Blocks\coal_bituminous_coal.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\ore_aluminium_bauxite.png">
@@ -509,13 +516,13 @@
         <None Update="Resources\Textures\Blocks\checkerboard_tiles_white.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\dirt.xml">
+        <None Update="Resources\Textures\Blocks\soil.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\Parts\dirt.png">
+        <None Update="Resources\Textures\Blocks\Parts\soil.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\dirt_wet.xml">
+        <None Update="Resources\Textures\Blocks\soil_wet.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\steel_door.png">
@@ -710,7 +717,7 @@
         <None Update="Resources\Textures\Blocks\Parts\flower_tall_stalk.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\flower_tall_red.xml">
+        <None Update="Resources\Textures\Blocks\flower_red_tall.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\wool_decorated.xml">
@@ -720,12 +727,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\grass_tall.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\Textures\Blocks\grass_taller.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\Textures\Blocks\grass_tallest.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Fluids\Parts\beer.png">
@@ -1283,7 +1284,7 @@
         <None Update="Resources\Textures\Blocks\walnut_bed.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\aluminium_ore_bauxite.png">
+        <None Update="Resources\Textures\Blocks\aluminum_ore_bauxite.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\beryllium_ore_beryl.png">
@@ -1307,13 +1308,13 @@
         <None Update="Resources\Textures\Blocks\copper_ore_malachite.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\copper_ore_native.png">
+        <None Update="Resources\Textures\Blocks\copper_native_copper.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\electrum_ore_native.png">
+        <None Update="Resources\Textures\Blocks\gold_electrum.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\gold_ore_native.png">
+        <None Update="Resources\Textures\Blocks\gold_native_gold.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\iron_ore_hematite.png">
@@ -1343,10 +1344,10 @@
         <None Update="Resources\Textures\Blocks\nickel_ore_pentlandite.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\platinum_ore_native.png">
+        <None Update="Resources\Textures\Blocks\platinum_native_platinum.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\silver_ore_native.png">
+        <None Update="Resources\Textures\Blocks\silver_native_silver.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\strontium_ore_celestine.png">
@@ -1373,7 +1374,7 @@
         <None Update="Resources\Textures\Blocks\zirconium_ore_zircon.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\snow_loose.xml">
+        <None Update="Resources\Textures\Blocks\snow_pulverized.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\lichen.png">
@@ -1385,7 +1386,7 @@
         <None Update="Resources\Textures\Blocks\flower_yellow.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Textures\Blocks\flower_tall_yellow.xml">
+        <None Update="Resources\Textures\Blocks\flower_yellow_tall.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\Textures\Blocks\Parts\flower_petal_yellow.png">
@@ -1414,6 +1415,39 @@
         </None>
         <None Update="Resources\Textures\Blocks\peat.xml">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\dev.png">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Models\bed.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\Parts\burned_wood.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\Parts\burned_log.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\Parts\embers.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\burned_log_embers.xml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\burned_planks_embers.xml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Blocks\ash_embers.xml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Fluids\Parts\waste_water.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Fluids\waste_water.xml">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Update="Resources\Textures\Fluids\Parts\waste_water.png">
+          <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
 
@@ -1451,7 +1485,7 @@
         <None Include="Resources\Shaders\Custom.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Include="Resources\Shaders\Selection.hlsl">
+        <None Include="Resources\Shaders\Targeting.hlsl">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="Resources\Shaders\ScreenElement.hlsl">

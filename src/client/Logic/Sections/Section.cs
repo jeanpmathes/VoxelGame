@@ -10,9 +10,10 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -36,7 +37,7 @@ public class Section : Core.Logic.Sections.Section
     private Boolean hasMesh;
     private Sides missing;
 
-    private SectionVFX? vfx;
+    private SectionRenderer? vfx;
     private Boolean vfxEnabled;
 
     /// <inheritdoc />
@@ -56,7 +57,6 @@ public class Section : Core.Logic.Sections.Section
             return;
 
 #pragma warning disable S2952 // Object is diposed in Dispose() too, but is set to null here and thus must be disposed here.
-        vfx.TearDown();
         vfx.Dispose();
 #pragma warning restore S2952
 
@@ -148,18 +148,16 @@ public class Section : Core.Logic.Sections.Section
 
                 Decode(
                     content,
-                    out Block currentBlock,
-                    out UInt32 data,
+                    out State state,
                     out Fluid currentFluid,
                     out FluidLevel level,
                     out Boolean isStatic);
 
-                IBlockMeshable meshable = currentBlock;
-                meshable.CreateMesh((x, y, z), new BlockMeshInfo(Side.All, data, currentFluid), context);
+                state.Block.Mesh((x, y, z), state, context);
 
                 currentFluid.CreateMesh(
                     (x, y, z),
-                    FluidMeshInfo.Fluid(currentBlock.AsInstance(data), level, Side.All, isStatic),
+                    FluidMeshInfo.Fluid(state, level, Side.All, isStatic),
                     context);
             }
         }
@@ -213,13 +211,10 @@ public class Section : Core.Logic.Sections.Section
 
         Debug.Assert(hasMesh == meshData.IsFilled);
 
-        if (vfx == null)
+        vfx ??= new SectionRenderer(world.Space, Position.FirstBlock)
         {
-            vfx = new SectionVFX(world.Space, Position.FirstBlock);
-            vfx.SetUp();
-
-            vfx.IsEnabled = vfxEnabled;
-        }
+            IsEnabled = vfxEnabled
+        };
 
         vfx.SetData(meshData);
     }
@@ -235,7 +230,6 @@ public class Section : Core.Logic.Sections.Section
 
         if (disposing)
         {
-            vfx?.TearDown();
             vfx?.Dispose();
         }
 

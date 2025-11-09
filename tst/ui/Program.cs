@@ -4,14 +4,16 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.IO;
 using Gwen.Net.Tests.Components;
 using OpenTK.Mathematics;
-using VoxelGame.Core;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
 using VoxelGame.UI.Platform;
+using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.UI.Tests;
 
@@ -25,7 +27,7 @@ internal class Program : Client
 
     private UnitTestHarnessControls unitTestHarnessControls = null!;
 
-    private Program(WindowSettings windowSettings) : base(windowSettings)
+    private Program(WindowSettings windowSettings, Version version) : base(windowSettings, version)
     {
         gui = GwenGuiFactory.CreateFromClient(this,
             GwenGuiSettings.Default.From(settings =>
@@ -46,7 +48,6 @@ internal class Program : Client
     internal static void Main()
     {
         LoggingHelper.SetUpMockLogging();
-        ApplicationInformation.Initialize("0.0.0.1");
 
         WindowSettings windowSettings = new()
         {
@@ -54,17 +55,17 @@ internal class Program : Client
             Size = new Vector2i(x: 800, y: 600)
         };
 
-        using Client client = new Program(windowSettings);
+        using Client client = new Program(windowSettings, new Version("0.0.0.1"));
         client.Run();
     }
 
-    protected override void OnInitialization()
+    protected override void OnInitialization(Timer? timer)
     {
         gui.Load();
         unitTestHarnessControls = new UnitTestHarnessControls(gui.Root);
     }
 
-    protected override void OnLogicUpdate(Double delta)
+    protected override void OnLogicUpdate(Double delta, Timer? timer)
     {
         updateFrameTimes.Write(delta);
         unitTestHarnessControls.UpdateFps = 1 / updateFrameTimes.Average;
@@ -72,7 +73,7 @@ internal class Program : Client
         gui.Update();
     }
 
-    protected override void OnRenderUpdate(Double delta)
+    protected override void OnRenderUpdate(Double delta, Timer? timer)
     {
         renderFrameTimes.Write(delta);
         unitTestHarnessControls.RenderFps = 1 / renderFrameTimes.Average;

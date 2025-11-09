@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Water;
@@ -32,7 +32,7 @@ public sealed class GenerationContext(Generator generator) : IGenerationContext
         // No structures to generate.
     }
 
-    #region Disposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 

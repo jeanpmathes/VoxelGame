@@ -4,6 +4,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.IO;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
 using VoxelGame.Graphics.Interop;

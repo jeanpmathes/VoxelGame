@@ -11,7 +11,7 @@ using System.IO;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds.Default.Biomes;
 using VoxelGame.Core.Generation.Worlds.Default.Decorations;
@@ -21,9 +21,9 @@ using VoxelGame.Core.Generation.Worlds.Default.Structures;
 using VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
@@ -49,18 +49,18 @@ public sealed partial class Generator : IWorldGenerator
     private static List<StructureGeneratorDefinition> loadedStructures = [];
     private static List<SubBiomeDefinition> loadedSubBiomes = [];
     private static List<BiomeDefinition> loadedBiomes = [];
+    private readonly List<Biome> biomes = [];
 
-    private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(MathTools.Square((Player.LoadDistance + 1) * 2 + 1));
-
-    private readonly Palette palette;
+    private readonly Cache<(Int32, Int32), ColumnSampleStore> columnCache = new(MathTools.Square((ChunkLoader.LoadDistance + 1) * 2 + 1));
 
     private readonly NoiseGenerator decorationNoise;
 
-    private readonly List<StructureGenerator> structures = [];
-    private readonly List<SubBiome> subBiomes = [];
-    private readonly List<Biome> biomes = [];
+    private readonly Palette palette;
 
     private readonly Searcher search;
+
+    private readonly List<StructureGenerator> structures = [];
+    private readonly List<SubBiome> subBiomes = [];
 
     private Generator(IWorldGeneratorContext context, Palette palette,
         BiomeDistributionDefinition biomeDistributionDefinition,
@@ -471,7 +471,7 @@ public sealed partial class Generator : IWorldGenerator
 
     private Content GenerateContent(Vector3i position, in Context context)
     {
-        if (position.Y == -World.BlockLimit) return new Content(Blocks.Instance.Core);
+        if (position.Y == -World.BlockLimit) return Content.CreateGenerated(Blocks.Instance.Core.CoreBlock);
 
         Int32 groundDepth = context.Ground.Height - position.Y;
         Boolean isFilled = position.Y <= SeaLevel;
@@ -532,7 +532,7 @@ public sealed partial class Generator : IWorldGenerator
     private static Content FillContent(Content content)
     {
         if (!content.Fluid.IsEmpty) return content;
-        if (content.Block.Block is not IFillable) return content;
+        if (!content.Block.Block.Is<Fillable>()) return content;
 
         return content with {Fluid = Fluids.Instance.SeaWater.AsInstance()};
     }
@@ -642,5 +642,5 @@ public sealed partial class Generator : IWorldGenerator
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds.Default.Structures;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Toolkit.Noise;
@@ -22,8 +22,8 @@ namespace VoxelGame.Core.Generation.Worlds.Default.SubBiomes;
 /// </summary>
 public sealed class SubBiome : IDisposable
 {
-    private readonly NoiseGenerator noise;
     private readonly Int32 dampeningFactor;
+    private readonly NoiseGenerator noise;
 
     /// <summary>
     ///     Create a new sub-biome.

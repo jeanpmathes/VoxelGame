@@ -10,7 +10,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Get the distance to a specified point or target.
@@ -34,16 +33,16 @@ public class GetDistance : Command
     public void Invoke(String target)
     {
         if (GetNamedPosition(target) is {} position) DetermineDistance(position);
-        else Context.Console.WriteError($"Unknown target: {target}");
+        else Context.Output.WriteError($"Unknown target: {target}");
     }
 
     private void DetermineDistance(Vector3d position)
     {
         Length distance = new()
         {
-            Meters = (position - Context.Player.Position).Length
+            Meters = (position - Context.Player.Body.Transform.Position).Length
         };
 
-        Context.Console.WriteResponse($"Distance: {distance}");
+        Context.Output.WriteResponse($"Distance: {distance}");
     }
 }

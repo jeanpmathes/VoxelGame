@@ -25,8 +25,8 @@ public class SamplingNoiseStore
     private readonly (Array2D<Single> x, Array2D<Single> y) cellSamplingOffsetNoise;
 
     private SlotCache<Vector2> cellSamplingOffsetNoiseCache;
-    private SlotCache<Single> subBiomeDeterminationNoiseCache;
     private SlotCache<Single> oceanicSubBiomeDeterminationNoiseCache;
+    private SlotCache<Single> subBiomeDeterminationNoiseCache;
 
     /// <summary>
     ///     Create a new noise store for a targeted chunk-sized region of the world.

@@ -34,10 +34,10 @@ public sealed class BiomeDefinition(String name) : IResource
     public required ColorS Color { get; init; }
 
     /// <summary>
-    /// The sub-biomes of this biome, as tuples.
-    /// Each tuple associates a sub-biome with a ticket count.
-    /// A higher count number means that the sub-biome is more likely to be chosen.
-    /// Must contain at least one sub-biome.
+    ///     The sub-biomes of this biome, as tuples.
+    ///     Each tuple associates a sub-biome with a ticket count.
+    ///     A higher count number means that the sub-biome is more likely to be chosen.
+    ///     Must contain at least one sub-biome.
     /// </summary>
     public required IReadOnlyList<(SubBiomeDefinition, Int32)> SubBiomes { get; init; }
 

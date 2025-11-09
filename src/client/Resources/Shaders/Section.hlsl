@@ -120,18 +120,10 @@ namespace vg
          * \param isBlock Whether the quad is part of a block or a fluid.
          * \return The final texture index for the quad.
          */
-        int4 GetBaseColorIndex(
-            float const            path,
-            in spatial::Info const info,
-            bool const             useTextureRepetition,
-            bool const             isBlock)
+        int4 GetBaseColorIndex(float const path, in spatial::Info const info, bool const useTextureRepetition, bool const isBlock)
         {
             float2 const uv           = GetUV(info, useTextureRepetition);
-            uint         textureIndex = animation::GetAnimatedTextureIndex(
-                info.data,
-                PrimitiveIndex() / 2,
-                native::spatial::global.time,
-                isBlock);
+            uint         textureIndex = animation::GetAnimatedTextureIndex(info.data, PrimitiveIndex() / 2, native::spatial::global.time, isBlock);
 
             uint  mip  = 0;
             uint2 size = native::spatial::global.textureSize.xy;

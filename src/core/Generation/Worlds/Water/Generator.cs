@@ -10,7 +10,7 @@ using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
@@ -22,9 +22,9 @@ namespace VoxelGame.Core.Generation.Worlds.Water;
 /// </summary>
 public sealed class Generator : IWorldGenerator
 {
-    private readonly Content core = new(Blocks.Instance.Core);
-    private readonly Content empty = Content.Default;
-    private readonly Content water = new(fluid: Fluids.Instance.SeaWater);
+    private readonly Content core = Content.CreateGenerated(Blocks.Instance.Core.CoreBlock);
+    private readonly Content empty = Content.GenerationDefault;
+    private readonly Content water = Content.CreateGenerated(fluid: Fluids.Instance.SeaWater);
 
     private readonly Int32 waterLevel;
 
@@ -32,7 +32,7 @@ public sealed class Generator : IWorldGenerator
     ///     Create a new water generator.
     /// </summary>
     /// <param name="waterLevel">The water level (inclusive) below which the world is filled with water.</param>
-    public Generator(Int32 waterLevel = 0)
+    private Generator(Int32 waterLevel = 0)
     {
         this.waterLevel = waterLevel;
     }
@@ -132,5 +132,5 @@ public sealed class Generator : IWorldGenerator
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

@@ -247,7 +247,7 @@ public static class MathTools
     /// <param name="min">The minimum values for each component.</param>
     /// <param name="max">The maximum values for each component.</param>
     /// <returns>The vector with clamped components.</returns>
-    public static Vector3d ClampComponents(Vector3d vector, Vector3d min, Vector3d max)
+    public static Vector3d ClampComponents(this Vector3d vector, Vector3d min, Vector3d max)
     {
         return new Vector3d(
             MathHelper.Clamp(vector.X, min.X, max.X),
@@ -262,7 +262,7 @@ public static class MathTools
     /// <param name="min">The minimum values for each component.</param>
     /// <param name="max">The maximum values for each component.</param>
     /// <returns>The vector with clamped components.</returns>
-    public static Vector3i ClampComponents(Vector3i vector, Vector3i min, Vector3i max)
+    public static Vector3i ClampComponents(this Vector3i vector, Vector3i min, Vector3i max)
     {
         return new Vector3i(
             MathHelper.Clamp(vector.X, min.X, max.X),
@@ -657,7 +657,7 @@ public static class MathTools
     }
 
     /// <summary>
-    /// Simply gets the cube of a number.
+    ///     Simply gets the cube of a number.
     /// </summary>
     public static Single Cube(Single x)
     {

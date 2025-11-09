@@ -29,13 +29,7 @@ vg::ray::TraceResult Trace(float3 const origin, float3 const direction, float co
 
     native::rt::HitInfo payload = vg::ray::GetInitialHitInfo(path);
 
-    TraceRay(
-        native::rt::spaceBVH,
-        RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
-        native::rt::MASK_VISIBLE,
-        RT_HIT_ARG(0),
-        ray,
-        payload);
+    TraceRay(native::rt::spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, native::rt::MASK_VISIBLE, RT_HIT_ARG(0), ray, payload);
 
     return vg::ray::GetTraceResult(payload, origin);
 }
@@ -102,12 +96,7 @@ struct Fog
  * \param n2 The refractive index of the medium the transmission ray is in.
  * \return The reflectance factor at the hit.
  */
-float GetReflectance(
-    float3 const normal,
-    float3 const incident,
-    float3 const transmission,
-    float const  n1,
-    float const  n2)
+float GetReflectance(float3 const normal, float3 const incident, float3 const transmission, float const n1, float const n2)
 {
     if (!any(transmission)) return 1.0f;
 
@@ -148,8 +137,9 @@ float GetReflectance(
 
     float const relativeY = 1.0f - (pixel.y + 1.0f) / 2.0f;
     Fog         fog       = Fog::CreateDefault();
-    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f
-        && relativeY > vg::custom.fogOverlapSize + 1.0f)) fog = Fog::CreateVolume(vg::custom.fogOverlapColor);
+    
+    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f && relativeY > vg::custom.fogOverlapSize + 1.0f))
+        fog = Fog::CreateVolume(vg::custom.fogOverlapColor);
 
     int    iteration = 0;
     float4 color     = 0;
@@ -202,9 +192,7 @@ float GetReflectance(
         // If an reflectance ray is needed for the current hit, it is traced this iteration.
         // The main ray of the next iteration is the refraction ray, except if the reflectance is total.
 
-        reflectance = alpha < 1.0f
-                          ? GetReflectance(incoming ? main.normal : main.normal * -1.0f, direction, refracted, n1, n2)
-                          : 0.0f;
+        reflectance = alpha < 1.0f ? GetReflectance(incoming ? main.normal : main.normal * -1.0f, direction, refracted, n1, n2) : 0.0f;
 
         origin    = main.position;
         normal    = main.normal;

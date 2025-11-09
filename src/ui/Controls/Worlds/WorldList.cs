@@ -24,11 +24,11 @@ namespace VoxelGame.UI.Controls.Worlds;
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 public class WorldList : ControlBase
 {
+    private readonly Context context;
     private readonly WorldSelection menu;
     private readonly ControlBase tableParent;
 
     private readonly IWorldProvider worldProvider;
-    private readonly Context context;
 
     private Table? table;
 

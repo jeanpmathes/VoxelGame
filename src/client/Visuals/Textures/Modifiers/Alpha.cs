@@ -11,7 +11,7 @@ using VoxelGame.Core.Visuals;
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 
 /// <summary>
-/// Sets the alpha value of the image to the given value.
+///     Sets the alpha value of the image to the given value.
 /// </summary>
 [UsedImplicitly]
 public class Alpha() : Modifier("alpha", [valueParameter])

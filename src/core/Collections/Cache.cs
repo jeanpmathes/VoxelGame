@@ -20,10 +20,9 @@ public class Cache<TK, TV>
     where TK : notnull
     where TV : notnull
 {
+    private readonly Action<TV>? cleanup;
     private readonly LinkedList<Entry> list = [];
     private readonly Dictionary<TK, LinkedListNode<Entry>> map = new();
-
-    private readonly Action<TV>? cleanup;
 
     /// <summary>
     ///     Create a new cache with the given capacity.
@@ -43,7 +42,7 @@ public class Cache<TK, TV>
     {
         this.cleanup = cleanup;
     }
-
+    
     /// <summary>
     ///     The capacity of the cache.
     ///     This is the maximum number of objects that can be stored.
@@ -180,5 +179,5 @@ public sealed class DisposableCache<TK, TV> : Cache<TK, TV>, IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
@@ -23,7 +24,7 @@ public partial class Chunk
     [LoggerMessage(EventId = LogID.ChunkStates + 0, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
     private static partial void LogChunkMeshingError(ILogger logger, Exception exception, ChunkPosition position);
 
-    #endregion
+    #endregion LOGGING
 
     /// <summary>
     ///     Utility to allow easier access without casting.
@@ -48,9 +49,9 @@ public partial class Chunk
     public class Meshing : ChunkState
     {
         private ChunkMeshingContext? context;
+        private ChunkMeshData? meshData;
 
         private Future<ChunkMeshData>? meshing;
-        private ChunkMeshData? meshData;
 
         /// <summary>
         ///     Meshes a chunk and sets the data to the GPU.
@@ -97,7 +98,7 @@ public partial class Chunk
                     {
                         LogChunkMeshingError(logger, e, Chunk.Position);
 
-                        throw e;
+                        ExceptionDispatchInfo.Capture(e).Throw();
                     }
                 );
             }

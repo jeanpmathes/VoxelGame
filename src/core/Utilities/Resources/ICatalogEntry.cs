@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Utilities.Resources;
 ///     When entered, they can load resources, provide further catalog entries or do other things.
 ///     As soon as all resources and entries of a catalog are processed, the catalog is exited.
 /// </summary>
-public interface ICatalogEntry
+public interface ICatalogEntry : IIssueSource
 {
     /// <summary>
     ///     Get the name of the catalog entry.
@@ -32,6 +32,9 @@ public interface ICatalogEntry
     ///     The optional instance name of the catalog entry. Will be used to create the full name of the entry if not null.
     /// </summary>
     protected String? Instance { get; }
+
+    /// <inheritdoc />
+    String? IIssueSource.InstanceName => Instance;
 
     /// <summary>
     ///     Enter this catalog entry. This allows the entry to load resources

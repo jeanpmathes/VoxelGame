@@ -7,9 +7,7 @@
 #include "Payload.hlsl"
 #include "Section.hlsl"
 
-[shader("closesthit")]void BasicOpaqueSectionClosestHit(
-    inout native::rt::HitInfo    payload,
-    native::rt::Attributes const attributes)
+[shader("closesthit")]void BasicOpaqueSectionClosestHit(inout native::rt::HitInfo payload, native::rt::Attributes const attributes)
 {
     float const path = vg::ray::GetPathLength(payload);
 
@@ -21,7 +19,4 @@
     SET_FINAL_HIT_INFO(payload, info, RGBA(CalculateShading(info, baseColor.rgb)));
 }
 
-[shader("closesthit")]void BasicOpaqueShadowClosestHit(inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes)
-{
-    hitInfo.isHit = true;
-}
+[shader("closesthit")]void BasicOpaqueShadowClosestHit(inout native::rt::ShadowHitInfo hitInfo, native::rt::Attributes) { hitInfo.isHit = true; }

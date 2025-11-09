@@ -20,8 +20,7 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
 {
     private readonly String name;
 
-    private Dictionary<RID, T> models = [];
-
+    private Dictionary<RID, T> resources = [];
 
     /// <summary>
     ///     Creates a new group provider.
@@ -37,7 +36,7 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
     /// <inheritdoc />
     public void SetUp()
     {
-        models = Context?.GetAll<T>().ToDictionary(resource => resource.Identifier, resource => resource) ?? [];
+        resources = Context?.GetAll<T>().ToDictionary(resource => resource.Identifier, resource => resource) ?? [];
 
         if (Context != null)
             OnSetUp(Context);
@@ -81,13 +80,18 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
             return CreateFallback();
         }
 
-        if (models.TryGetValue(identifier, out T? resource))
+        if (resources.TryGetValue(identifier, out T? resource))
             return Copy(resource);
 
         Context.ReportWarning(this, $"{name} resource '{identifier}' not found, using fallback instead");
 
         return CreateFallback();
     }
+
+    /// <summary>
+    ///     Get all resources managed by this provider.
+    /// </summary>
+    protected IReadOnlyDictionary<RID, T> Resources => resources;
 
     #region LOGGING
 

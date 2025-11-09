@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.UI.UserInterfaces;
@@ -109,7 +108,7 @@ public class PropertyBasedTreeControl : TreeControl
             TreeNode node = FindOrCreateNode(error.Name, $"{error.Name}: {error.Message}");
 
             String icon = error.IsCritical ? Icons.Instance.Error : Icons.Instance.Warning;
-            Color color = error.IsCritical ? Colors.Error : Colors.Warning;
+            Gwen.Net.Color color = error.IsCritical ? Colors.Error : Colors.Warning;
 
             node.SetImage(icon, Context.SmallIconSize, color);
         }
@@ -132,6 +131,24 @@ public class PropertyBasedTreeControl : TreeControl
         public override void Visit(Measure measure)
         {
             FindOrCreateNode(measure.Name, $"{measure.Name}: {measure.Value}");
+        }
+
+        public override void Visit(Truth truth)
+        {
+            TreeNode node = FindOrCreateNode(truth.Name, truth.Name);
+
+            String icon = truth.Value ? Icons.Instance.Check : Icons.Instance.Close;
+            Gwen.Net.Color color = truth.Value ? Colors.Good : Colors.Bad;
+
+            node.SetImage(icon, Context.SmallIconSize, color);
+        }
+
+        public override void Visit(Color color)
+        {
+            TreeNode node = FindOrCreateNode(color.Name, color.Name);
+
+            var c = color.Value.ToColor();
+            node.SetColor(new Gwen.Net.Color(c.A, c.R, c.G, c.B));
         }
     }
 }

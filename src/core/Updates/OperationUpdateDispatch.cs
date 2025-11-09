@@ -6,22 +6,33 @@
 
 using System;
 using System.Diagnostics;
+using Microsoft.Extensions.Logging;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Profiling;
+using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Updates;
 
 /// <summary>
 ///     Stores and updates all operations.
 /// </summary>
-public class OperationUpdateDispatch
+public class OperationUpdateDispatch : ApplicationComponent
 {
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<OperationUpdateDispatch>();
+
+    #endregion LOGGING
+
     private readonly Bag<Operation> operations = new(null!);
 
     /// <summary>
     ///     Create a new operation update dispatch instance.
     /// </summary>
     /// <param name="singleton">Whether to make this the singleton instance.</param>
-    public OperationUpdateDispatch(Boolean singleton = false)
+    /// <param name="application">The application instance.</param>
+    public OperationUpdateDispatch(Boolean singleton, Application application) : base(application)
     {
         if (!singleton) return;
 
@@ -31,23 +42,16 @@ public class OperationUpdateDispatch
     }
 
     /// <summary>
+    ///     The name of this dispatch, used for debugging and logging purposes.
+    /// </summary>
+    public virtual String Name => "Operations";
+
+    /// <summary>
     ///     The singleton instance of the operation update dispatch.
     /// </summary>
     public static OperationUpdateDispatch? Instance { get; private set; }
 
-    /// <summary>
-    /// Set up a mock instance for testing.
-    /// It will override the singleton instance.
-    /// </summary>
-    public static void SetUpMockInstance()
-    {
-        Instance = new OperationUpdateDispatch();
-    }
-
-    /// <summary>
-    ///     Perform an update.
-    /// </summary>
-    public void LogicUpdate()
+    private void Update()
     {
         operations.Apply(operation =>
         {
@@ -58,8 +62,17 @@ public class OperationUpdateDispatch
     }
 
     /// <summary>
+    ///     Set up a mock instance for testing.
+    ///     It will override the singleton instance.
+    /// </summary>
+    public static void SetUpMockInstance()
+    {
+        Instance = new OperationUpdateDispatch(singleton: true, Application.Instance);
+    }
+
+    /// <summary>
     ///     Try cancelling all currently running operations.
-    ///     Note that operations can be un-cancelable and may thus ignore this.
+    ///     Note that operations can ignore this.
     /// </summary>
     public void CancelAll()
     {
@@ -78,10 +91,10 @@ public class OperationUpdateDispatch
     /// </summary>
     public void CompleteAll()
     {
-        ApplicationInformation.ThrowIfNotOnMainThread(this);
+        Application.ThrowIfNotOnMainThread(this);
 
         while (operations.Count > 0)
-            LogicUpdate();
+            Update();
     }
 
     /// <summary>
@@ -94,4 +107,32 @@ public class OperationUpdateDispatch
 
         operations.Add(operation);
     }
+
+    /// <inheritdoc />
+    public override void OnLogicUpdate(Double delta, Timer? timer)
+    {
+        using (logger.BeginTimedSubScoped(Name, timer))
+        {
+            Update();
+        }
+    }
+
+    #region DISPOSABLE
+
+    private Boolean disposed;
+
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        base.Dispose(disposing);
+
+        if (disposed)
+            return;
+
+        if (disposing) CompleteAll();
+
+        disposed = true;
+    }
+
+    #endregion DISPOSABLE
 }

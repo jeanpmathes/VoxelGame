@@ -8,8 +8,8 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Generation.Worlds;
 
@@ -62,11 +62,10 @@ public interface IGenerationContext : IDisposable
             {
                 Vector3i blockPosition = (x, y, z);
 
-                Content modifiedContent = content.Block.Block.GeneratorUpdate(content);
+                Content modifiedContent = content.Block.Block.DoGeneratorUpdate(content);
 
                 UInt32 encodedContent = Section.Encode(
-                    modifiedContent.Block.Block,
-                    modifiedContent.Block.Data,
+                    modifiedContent.Block,
                     modifiedContent.Fluid.Fluid,
                     modifiedContent.Fluid.Level,
                     modifiedContent.Fluid.IsStatic);

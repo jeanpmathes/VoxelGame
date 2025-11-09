@@ -10,7 +10,6 @@ using JetBrains.Annotations;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Runs a script.
@@ -28,7 +27,7 @@ public class RunScript : Command
     public void Invoke(String name)
     {
         if (!Context.IsScript) Do(Context, name);
-        else Context.Console.WriteError("Cannot run scripts from scripts.");
+        else Context.Output.WriteError("Cannot run scripts from scripts.");
     }
 
     /// <summary>
@@ -51,7 +50,7 @@ public class RunScript : Command
         if (script == null)
         {
             if (!ignoreErrors)
-                context.Console.WriteError($"Script '{name}' does not exist.", [followUp]);
+                context.Output.WriteError($"Script '{name}' does not exist.", [followUp]);
 
             return false;
         }
@@ -69,7 +68,7 @@ public class RunScript : Command
             loc++;
         }
 
-        context.Console.WriteResponse($"Executed {loc} line(s) of the '{name}' script.", [followUp]);
+        context.Output.WriteResponse($"Executed {loc} line(s) of the '{name}' script.", [followUp]);
 
         return true;
     }

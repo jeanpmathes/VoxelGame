@@ -8,7 +8,6 @@ using System;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Clears the console.
@@ -25,6 +24,6 @@ public class Clear : Command
     /// <exclude />
     public void Invoke()
     {
-        Context.Console.Clear();
+        Context.Output.Clear();
     }
 }

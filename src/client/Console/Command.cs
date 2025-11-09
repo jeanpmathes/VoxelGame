@@ -7,6 +7,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Actors.Components;
 
 namespace VoxelGame.Client.Console;
 
@@ -46,10 +47,30 @@ public abstract class Command : ICommand
             "spawn" => Context.Player.World.SpawnPosition,
             "min-corner" => -Context.Player.World.Extents,
             "max-corner" => Context.Player.World.Extents,
-            "self" => Context.Player.Position,
-            "prev-self" => Context.Player.PreviousPosition,
+            "self" => Context.Player.Body.Transform.Position,
+            "prev-self" => GetPreviousPlayerPosition(),
             _ => null
         };
+    }
+
+    /// <summary>
+    ///     Get the previous position of the player, e.g. before a teleportation.
+    ///     This is only set by the command system, so normal movement does not change it.
+    /// </summary>
+    /// <returns>The previous position, or spawn position if not set.</returns>
+    private Vector3d? GetPreviousPlayerPosition()
+    {
+        return Context.Player.GetComponent<PreviousPosition>()?.Value ?? Context.Player.World.SpawnPosition;
+    }
+
+    /// <summary>
+    ///     Set the previous position of the player, e.g. before a teleportation.
+    /// </summary>
+    /// <param name="position">The position to set as previous.</param>
+    public void SetPreviousPlayerPosition(Vector3d position)
+    {
+        var previousPosition = Context.Player.AddComponent<PreviousPosition>();
+        previousPosition.Value = position;
     }
 }
 

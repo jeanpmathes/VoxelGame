@@ -16,8 +16,8 @@ namespace VoxelGame.Core.Generation.Worlds.Default.Biomes;
 /// </summary>
 public sealed class Biome : IDisposable
 {
-    private readonly List<(SubBiome, Single)> subBiomes;
     private readonly List<(SubBiome, Single)> oceanicSubBiomes;
+    private readonly List<(SubBiome, Single)> subBiomes;
 
     /// <summary>
     ///     Create a new biome.
@@ -38,7 +38,7 @@ public sealed class Biome : IDisposable
     public BiomeDefinition Definition { get; }
 
     /// <summary>
-    /// Get all sub-biomes used by this biome.
+    ///     Get all sub-biomes used by this biome.
     /// </summary>
     public IEnumerable<SubBiome> SubBiomes
     {

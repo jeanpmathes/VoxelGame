@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Graphics.Objects;

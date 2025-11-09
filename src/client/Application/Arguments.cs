@@ -21,14 +21,14 @@ public static partial class Arguments
     /// <summary>
     ///     Handles the command line arguments.
     /// </summary>
-    public static Int32 Handle(String[] args, SetUpLogging setUpLogging, RunGame runGame)
+    public static Int32 Handle(String[] args, Boolean isDebug, SetUpLogging setUpLogging, RunGame runGame)
     {
         RootCommand command = new("Run VoxelGame.");
 
         var logDebugOption = new Option<Boolean>(
             "--log-debug",
             description: "Whether to log debug messages. Is enabled by default in DEBUG builds.",
-            getDefaultValue: () => Program.IsDebug
+            getDefaultValue: () => isDebug
         );
 
         logDebugOption.AddAlias("-dbg");
@@ -36,15 +36,15 @@ public static partial class Arguments
 
         var loadWorldDirectlyOption = new Option<Int32>(
             "--load-world-directly",
-            description: "Select the number of a world to load directly, skipping the main menu. Use 0 to disable.",
-            getDefaultValue: () => 0
+            description: "Select the index of a world to load directly, skipping the main menu. Use -1 to disable.",
+            getDefaultValue: () => -1
         );
 
         loadWorldDirectlyOption.AddAlias("-l");
 
         loadWorldDirectlyOption.AddValidator(result =>
         {
-            if (result.GetValueForOption(loadWorldDirectlyOption) < 0) result.ErrorMessage = "The value must be greater than or equal to 0.";
+            if (result.GetValueForOption(loadWorldDirectlyOption) < -1) result.ErrorMessage = "The value must be greater than or equal to -1.";
         });
 
         command.AddOption(loadWorldDirectlyOption);
@@ -68,7 +68,7 @@ public static partial class Arguments
         var enableProfilingOption = new Option<ProfilerConfiguration>(
             "--profile",
             description: "The profiler configuration to use. In DEBUG builds, basic profiling is used by default. Otherwise, no profiling is done.",
-            getDefaultValue: () => Program.IsDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled
+            getDefaultValue: () => isDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled
         );
 
         enableProfilingOption.AddAlias("-p");
@@ -138,5 +138,5 @@ public record GameParameters(Int32 LoadWorldDirectly, ProfilerConfiguration Prof
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.
     /// </summary>
-    public Int32? DirectlyLoadedWorldIndex => LoadWorldDirectly == 0 ? null : LoadWorldDirectly - 1;
+    public Int32? DirectlyLoadedWorldIndex => LoadWorldDirectly < 0 ? null : LoadWorldDirectly;
 }

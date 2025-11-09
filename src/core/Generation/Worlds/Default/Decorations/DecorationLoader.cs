@@ -7,9 +7,11 @@
 using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Blocks.Conventions;
-using VoxelGame.Core.Logic.Definitions.Structures;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Contents.Structures;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
+using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Toolkit.Utilities;
@@ -42,17 +44,12 @@ public sealed class DecorationLoader : IResourceLoader
     {
         return
         [
-            new StructureDecoration("TallGrass", structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new PlantableDecorator()),
-            new StructureDecoration("TallRedFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_red")), new PlantableDecorator()),
-            new StructureDecoration("TallYellowFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_yellow")), new PlantableDecorator()),
-            new StructureDecoration("Cactus", new Cactus(), new CoverDecorator(Blocks.Instance.Sand, Vector3i.Zero, width: 3)),
+            new StructureDecoration("TallGrass", structures.GetStructure(RID.File<StaticStructure>("tall_grass")), new SurfaceDecorator<Plantable>()),
+            new StructureDecoration("TallRedFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_red")), new SurfaceDecorator<Plantable>()),
+            new StructureDecoration("TallYellowFlower", structures.GetStructure(RID.File<StaticStructure>("tall_flower_yellow")), new SurfaceDecorator<Plantable>()),
+            new StructureDecoration("Cactus", new Cactus(), new SurfaceDecorator<Sandy>(Vector3i.Zero, width: 3)),
             new RootDecoration("Roots", new DepthDecorator(minDepth: 5, maxDepth: 15)),
-            new FlatBlockDecoration("Vines",
-                Blocks.Instance.Specials.Vines,
-                new HashSet<Block>
-                {
-                    Blocks.Instance.Mahogany.Log, Blocks.Instance.Mahogany.Leaves, Blocks.Instance.Teak.Log, Blocks.Instance.Teak.Leaves
-                })
+            new AttachedBlockDecoration<TreePart>("Vines", Blocks.Instance.Organic.Vines)
         ];
     }
 
@@ -62,7 +59,7 @@ public sealed class DecorationLoader : IResourceLoader
         {
             Wood.Tree treeDefinition = wood.Trees;
 
-            var name = $"{wood.NamedID}";
+            var name = $"{wood.ID}";
 
             Int32 height = GetTrunkHeight(treeDefinition.Height);
             Shape3D crownShape = GetCrownShape(treeDefinition.Shape, height);
@@ -70,11 +67,11 @@ public sealed class DecorationLoader : IResourceLoader
 
             Tree treeStructure = new(height, crownRandomization, crownShape, wood.Log, wood.Leaves);
 
-            Decorator decorator = treeDefinition.Soil switch
+            Decorator decorator = treeDefinition.Terrain switch
             {
-                Wood.Tree.SoilType.Dirt => new PlantableDecorator(Vector3i.UnitY, width: 3),
-                Wood.Tree.SoilType.Sand => new CoverDecorator(Blocks.Instance.Sand, Vector3i.UnitY, width: 3),
-                _ => throw Exceptions.UnsupportedEnumValue(treeDefinition.Soil)
+                Wood.Tree.TerrainType.Earth => new SurfaceDecorator<Plantable>(Vector3i.UnitY, width: 3),
+                Wood.Tree.TerrainType.Sand => new SurfaceDecorator<Sandy>(Vector3i.UnitY, width: 3),
+                _ => throw Exceptions.UnsupportedEnumValue(treeDefinition.Terrain)
             };
 
             yield return new StructureDecoration(name, treeStructure, decorator);

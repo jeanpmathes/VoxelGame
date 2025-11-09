@@ -7,7 +7,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Default.Decorations;
@@ -26,9 +26,9 @@ public class WallDecorator : Decorator
 
         foreach (Orientation orientation in Orientations.All)
         {
-            Content? neighbor = grid.GetContent(orientation.Offset(position));
+            Content? neighbor = grid.GetContent(position.Offset(orientation));
 
-            if (neighbor?.Block.IsSolidAndFull == true) return true;
+            if (neighbor?.Block.IsFullySolid == true) return true;
         }
 
         return false;

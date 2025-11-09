@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
@@ -59,7 +59,7 @@ public static class Orientations
     /// <returns>All orientations.</returns>
     public static IEnumerable<Orientation> ShuffledStart(Vector3i position)
     {
-        Int32 start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
+        Int32 start = NumberGenerator.GetPositionDependentNumber(position, mod: 4);
 
         for (Int32 i = start; i < start + 4; i++) yield return orientations[i % 4];
     }
@@ -152,39 +152,9 @@ public static class OrientationExtensions
     /// <summary>
     ///     Offset a vector along an orientation.
     /// </summary>
-    public static Vector3i Offset(this Orientation orientation, Vector3i vector)
+    public static Vector3i Offset(this Vector3i vector, Orientation orientation)
     {
         return vector + orientation.ToVector3i();
-    }
-
-    /// <summary>
-    ///     Pick an element from a tuple based on an orientation.
-    /// </summary>
-    public static T Pick<T>(this Orientation orientation, (T north, T east, T south, T west) tuple)
-    {
-        return orientation switch
-        {
-            Orientation.North => tuple.north,
-            Orientation.East => tuple.east,
-            Orientation.South => tuple.south,
-            Orientation.West => tuple.west,
-            _ => tuple.north
-        };
-    }
-
-    /// <summary>
-    ///     Convert an orientation to an integer flag.
-    /// </summary>
-    public static UInt32 ToFlag(this Orientation orientation)
-    {
-        return orientation switch
-        {
-            Orientation.North => 0b1000,
-            Orientation.East => 0b0100,
-            Orientation.South => 0b0010,
-            Orientation.West => 0b0001,
-            _ => 0b1000
-        };
     }
 
     /// <summary>

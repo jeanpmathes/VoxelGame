@@ -39,22 +39,13 @@ namespace vg
 {
     namespace ray
     {
-        float4 GetColor(in native::rt::HitInfo const payload)
-        {
-            return float4(native::packing::UnpackColor4(payload.color));
-        }
+        float4 GetColor(in native::rt::HitInfo const payload) { return float4(native::packing::UnpackColor4(payload.color)); }
 
-        void SetColor(inout native::rt::HitInfo payload, in float4 const color)
-        {
-            payload.color = native::packing::PackColor4(color);
-        }
+        void SetColor(inout native::rt::HitInfo payload, in float4 const color) { payload.color = native::packing::PackColor4(color); }
 
         float3 GetNormal(in native::rt::HitInfo const payload) { return native::packing::UnpackNormal(payload.normal); }
 
-        void SetNormal(inout native::rt::HitInfo payload, in float3 const normal)
-        {
-            payload.normal = native::packing::PackNormal(normal);
-        }
+        void SetNormal(inout native::rt::HitInfo payload, in float3 const normal) { payload.normal = native::packing::PackNormal(normal); }
 
         float GetPathLength(in native::rt::HitInfo const payload) { return payload.position.x; }
 
@@ -62,10 +53,7 @@ namespace vg
 
         float GetRayDistance(in native::rt::HitInfo const payload) { return payload.position.y; }
 
-        void SetRayDistance(inout native::rt::HitInfo payload, in float const distance)
-        {
-            payload.position.y = distance;
-        }
+        void SetRayDistance(inout native::rt::HitInfo payload, in float const distance) { payload.position.y = distance; }
 
         float3 GetPosition(in native::rt::HitInfo const payload) { return payload.position; }
 
@@ -77,15 +65,9 @@ namespace vg
 
         static int const FOG_COLOR_MASK = 0x00FFFFFF;
 
-        float3 GetFogColor(in native::rt::HitInfo const payload)
-        {
-            return float3(native::packing::UnpackColor3(payload.data.x & FOG_COLOR_MASK));
-        }
+        float3 GetFogColor(in native::rt::HitInfo const payload) { return float3(native::packing::UnpackColor3(payload.data.x & FOG_COLOR_MASK)); }
 
-        void SetFogColor(inout native::rt::HitInfo payload, in float3 const color)
-        {
-            payload.data.x = (payload.data.x & ~FOG_COLOR_MASK) | native::packing::PackColor3(color);
-        }
+        void SetFogColor(inout native::rt::HitInfo payload, in float3 const color) { payload.data.x = (payload.data.x & ~FOG_COLOR_MASK) | native::packing::PackColor3(color); }
 
         /**
          * \brief Create an initialized hit info / ray payload struct.

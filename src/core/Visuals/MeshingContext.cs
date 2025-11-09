@@ -9,8 +9,9 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -21,18 +22,18 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public class MeshingContext
 {
-    private readonly Section current;
-    private readonly SideArray<Section?> neighbors;
     private readonly IMeshing basicOpaqueMeshing;
     private readonly IMeshing basicTransparentMeshing;
-    private readonly IMeshing foliageMeshing;
-    private readonly IMeshing fluidMeshing;
-    private readonly SideArray<MeshFaceHolder> opaqueFullBlockMeshFaceHolders;
-    private readonly SideArray<MeshFaceHolder> transparentFullBlockMeshFaceHolders;
-    private readonly SideArray<MeshFaceHolder> opaqueVaryingHeightBlockMeshFaceHolders;
-    private readonly SideArray<MeshFaceHolder> transparentVaryingHeightBlockMeshFaceHolders;
-    private readonly SideArray<MeshFaceHolder> fluidMeshFaceHolders;
     private readonly (ColorS block, ColorS fluid)[,] colors;
+    private readonly Section current;
+    private readonly SideArray<MeshFaceHolder> fluidMeshFaceHolders;
+    private readonly IMeshing fluidMeshing;
+    private readonly IMeshing foliageMeshing;
+    private readonly SideArray<Section?> neighbors;
+    private readonly SideArray<MeshFaceHolder> opaqueFullBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> opaqueVaryingHeightBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> transparentFullBlockMeshFaceHolders;
+    private readonly SideArray<MeshFaceHolder> transparentVaryingHeightBlockMeshFaceHolders;
 
     /// <summary>
     ///     Create a new block meshing context.
@@ -86,7 +87,7 @@ public class MeshingContext
         SideArray<Section?> neighborSections = new();
 
         foreach (Side side in Side.All.Sides())
-            neighborSections[side] = context.GetSection(side.Offset(position));
+            neighborSections[side] = context.GetSection(position.Offset(side));
 
         return neighborSections;
     }
@@ -162,13 +163,13 @@ public class MeshingContext
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
     /// <returns>The block and fluid or null if there is nothing.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public (BlockInstance block, FluidInstance fluid)? GetBlockAndFluid(Vector3i position, Side side)
+    public (State block, FluidInstance fluid)? GetBlockAndFluid(Vector3i position, Side side)
     {
-        (BlockInstance block, FluidInstance fluid)? result;
+        (State block, FluidInstance fluid)? result;
 
         if (Section.IsInBounds((position.X, position.Y, position.Z)))
         {
-            BlockInstance block = current.GetBlock(position);
+            State block = current.GetBlock(position);
             FluidInstance fluid = current.GetFluid(position);
 
             result = (block, fluid);
@@ -178,7 +179,7 @@ public class MeshingContext
             position = Section.ToLocalPosition(position);
 
             Section? neighbor = neighbors[side];
-            BlockInstance? block = neighbor?.GetBlock(position);
+            State? block = neighbor?.GetBlock(position);
             FluidInstance? fluid = neighbor?.GetFluid(position);
 
             result = neighbor != null ? (block!.Value, fluid!.Value) : null;
@@ -194,9 +195,9 @@ public class MeshingContext
     /// <param name="side">The block side giving the neighbor to use if necessary.</param>
     /// <returns>The block or null if there is no block.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance? GetBlock(Vector3i position, Side side)
+    public State? GetBlock(Vector3i position, Side side)
     {
-        BlockInstance? block;
+        State? block;
 
         if (Section.IsInBounds(position.X, position.Y, position.Z))
         {

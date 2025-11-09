@@ -46,9 +46,14 @@ public class Section : Chainable
 
     internal void Generate(StreamWriter writer, String parent)
     {
-        writer.WriteLine(
-            @$"\subsection{{{title}}}\label{{subsec:{parent.ToLowerInvariant()}_{title.ToLowerInvariant()}}}");
+        var id = $"{parent.ToLowerInvariant()}_{title.ToLowerInvariant()}";
 
-        foreach (IElement element in elements) element.Generate(writer);
+        writer.WriteLine(@$"\subsection{{{title}}}\label{{subsec:{id}}}");
+
+        foreach (IElement element in elements)
+            if (element is SubSection subsection)
+                subsection.Generate(writer, id);
+            else
+                element.Generate(writer);
     }
 }

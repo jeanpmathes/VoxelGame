@@ -35,7 +35,7 @@ public sealed class PlayerContent : ResourceCatalog
                 context.Require<SingleTexture>(RID.Path(crosshairPath),
                     crosshair =>
                     {
-                        engine.CrosshairVFX.SetTexture(crosshair.Texture);
+                        engine.CrosshairPipeline.SetTexture(crosshair.Texture);
 
                         return [];
                     }));

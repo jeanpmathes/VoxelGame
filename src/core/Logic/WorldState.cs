@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
@@ -67,8 +68,8 @@ public abstract partial class WorldState
     /// </param>
     public class Activating(Timer? timer) : WorldState
     {
-        private Int64 worldUpdateCount;
         private Int64 chunkUpdateCount;
+        private Int64 worldUpdateCount;
 
         /// <inheritdoc />
         public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
@@ -151,8 +152,8 @@ public abstract partial class WorldState
     /// <param name="onComplete">Called when the world has successfully terminated.</param>
     public class Terminating(Action onComplete) : WorldState
     {
-        private Operation? saving;
         private Boolean completed;
+        private Operation? saving;
 
         /// <inheritdoc />
         public override Boolean IsTerminating => true;
@@ -164,7 +165,7 @@ public abstract partial class WorldState
 
             if (saving == null)
             {
-                world.Data.Information.Version = ApplicationInformation.Instance.Version;
+                world.Data.Information.Version = Application.Instance.Version.ToString();
 
                 saving = Operations.Launch(async token =>
                 {
@@ -200,9 +201,8 @@ public abstract partial class WorldState
     /// <param name="onComplete">Called when the world has successfully saving.</param>
     public class Saving(Action onComplete) : WorldState
     {
-        private Operation? saving;
-
         private Int32 progress;
+        private Operation? saving;
         private Int32 total;
 
         /// <inheritdoc />
@@ -212,7 +212,7 @@ public abstract partial class WorldState
             {
                 LogSavingWorld(logger);
 
-                world.Data.Information.Version = ApplicationInformation.Instance.Version;
+                world.Data.Information.Version = Application.Instance.Version.ToString();
 
                 saving = Operations.Launch(async token =>
                 {

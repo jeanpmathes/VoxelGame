@@ -29,9 +29,9 @@ public partial class WorldData
 {
     private const String InfoFileName = "info.json";
 
-    private readonly List<DirectoryInfo> subdirectories = [];
-
     private readonly FileInfo informationFile;
+
+    private readonly List<DirectoryInfo> subdirectories = [];
 
     /// <summary>
     ///     Creates a new world data object.
@@ -164,7 +164,7 @@ public partial class WorldData
     private static SpawnInformation ClampSpawn(WorldInformation information)
     {
         Vector3d size = new(information.Size);
-        Vector3d clamped = MathTools.ClampComponents(information.SpawnInformation.Position, -size, size);
+        Vector3d clamped = information.SpawnInformation.Position.ClampComponents(-size, size);
 
         return new SpawnInformation(clamped);
     }
