@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections.Properties;
 
 namespace VoxelGame.Core.Logic.Attributes.Implementations;
@@ -22,6 +23,7 @@ internal class ListAttribute<TElement>(IEnumerable<TElement> elements, Func<Int3
         return elements[index];
     }
 
+    [PerformanceSensitive]
     public override Int32 Provide(TElement value)
     {
         for (var index = 0; index < elements.Length; index++)

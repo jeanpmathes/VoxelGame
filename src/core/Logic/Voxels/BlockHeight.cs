@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Globalization;
 using System.Numerics;
 using System.Runtime.InteropServices;
 
@@ -62,7 +63,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     /// Get the ratio of this height to the maximum height of a block.
     /// As a block is exactly 1 meter tall, this is also the height in meters.
     /// </summary>
-    public Double Ratio => IsNone ? 0.0 : GetRatio(value);
+    public Double Ratio => IsNone ? 0.0 : ComputeRatio(value);
     
     /// <summary>
     /// Get the ratio of a given height to the maximum height of a block.
@@ -70,7 +71,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     /// </summary>
     /// <param name="height">The height to get the ratio for.</param>
     /// <returns>>The ratio of the given height.</returns>
-    public static Double GetRatio(Int32 height)
+    public static Double ComputeRatio(Int32 height)
     {
         return (Double) (height + 1) / (MaxValue + 1);
     }
@@ -122,11 +123,23 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     {
         return FromInt32(height.ToInt32() - delta);
     }
+    
+    /// <inheritdoc cref="op_Addition" />
+    public static BlockHeight Add(BlockHeight height, Int32 delta)
+    {
+        return height + delta;
+    }
+    
+    /// <inheritdoc cref="op_Subtraction" />
+    public static BlockHeight Subtract(BlockHeight height, Int32 delta)
+    {
+        return height - delta;
+    }
 
     /// <inheritdoc />
     public override String ToString()
     {
-        return IsNone ? nameof(None) : value.ToString();
+        return IsNone ? nameof(None) : value.ToString(CultureInfo.InvariantCulture);
     }
 
     #region EQUALITY AND COMPARISON

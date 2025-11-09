@@ -5,13 +5,13 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
@@ -26,7 +26,10 @@ namespace VoxelGame.Core.Logic.Contents.Structures;
 /// </summary>
 public sealed partial class StaticStructure : Structure, IResource, ILocated, IIssueSource
 {
-    private const Int32 MaxSize = 1024;
+    /// <summary>
+    /// The maximum size of a structure in any dimension.
+    /// </summary>
+    public const Int32 MaxSize = 1024;
 
     private readonly Content?[,,] contents;
 
@@ -38,22 +41,47 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
         Extents = extents;
     }
 
-    private StaticStructure(Definition definition, String name, RID identifier, IResourceContext? context)
+    private StaticStructure(StaticStructureDefinition definition, String name, RID identifier, IResourceContext? context)
     {
+        StaticStructureDefinitionReader reader = new(definition, name);
+        
         Identifier = identifier;
-        Extents = new Vector3i(MaxSize);
+        Extents = reader.Extents;
 
-        if (!IsInExtents(GetVector(definition.Extents, name)))
-            throw new FileFormatException(name, $"Extents must be positive and not exceed {MaxSize} in any dimension.");
+        contents = new Content?[Extents.X, Extents.Y, Extents.Z];
 
-        Vector3i extents = GetVector(definition.Extents, name);
+        while (reader.AdvanceToNextPlacement())
+        {
+            Vector3i position = reader.Position;
+            
+            var content = Content.Default;
 
-        Extents = extents;
+            State? state = reader.GetBlock(out String namedBlockID);
+            
+            if (state == null)
+            {
+                if (context != null) context.ReportWarning(this, $"Unknown block '{namedBlockID}' in structure '{name}'");
+                else LogUnknownBlockInStructure(logger, namedBlockID, name);
 
-        contents = new Content?[extents.X, extents.Y, extents.Z];
+                state = Blocks.Instance.Core.Air.States.Default;
+            }
 
-        foreach (Placement placement in definition.Placements)
-            ApplyPlacement(placement, name, context);
+            content.Block = state.Value;
+            
+            FluidInstance? fluid = reader.GetFluid(out String namedFluidID);
+            
+            if (fluid == null)
+            {
+                if (context != null) context.ReportWarning(this, $"Unknown fluid '{namedFluidID}' in structure '{name}'");
+                else LogUnknownFluidInStructure(logger, namedFluidID, name);
+
+                fluid = Voxels.Fluids.Instance.None.AsInstance();
+            }
+            
+            content.Fluid = fluid.Value;
+            
+            contents[position.X, position.Y, position.Z] = content;
+        }
     }
 
     /// <inheritdoc />
@@ -153,7 +181,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
     /// <returns>The result of the operation.</returns>
     public static async Task<Result<StaticStructure>> LoadAsync(FileInfo file, IResourceContext? context, CancellationToken token = default)
     {
-        Result<Definition> result = await Serialize.LoadJsonAsync<Definition>(file, token).InAnyContext();
+        Result<StaticStructureDefinition> result = await Serialize.LoadJsonAsync<StaticStructureDefinition>(file, token).InAnyContext();
 
         return result.Map(definition => new StaticStructure(definition, file.GetFileNameWithoutExtension(), RID.Path(file), context));
     }
@@ -168,53 +196,6 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
         fallback[0, 0, 0] = Content.Create(Blocks.Instance.Core.Error);
 
         return new StaticStructure(fallback, Vector3i.One);
-    }
-
-    private void ApplyPlacement(Placement placement, String name, IResourceContext? context)
-    {
-        Vector3i position = GetVector(placement.Position, name);
-
-        if (!IsInExtents(position))
-            throw new FileFormatException(name, $"Position {position} is out of bounds.");
-
-        if (contents[position.X, position.Y, position.Z] != null)
-            throw new FileFormatException(name, $"Position {position} is already occupied.");
-
-        var content = Content.Default;
-
-        Block? block = Blocks.Instance.TranslateContentID(new CID(placement.Block));
-
-        if (block == null)
-        {
-            if (context != null) context.ReportWarning(this, $"Unknown block '{placement.Block}' in structure '{name}'");
-            else LogUnknownBlockInStructure(logger, placement.Block, name);
-
-            block = Blocks.Instance.Core.Air;
-        }
-
-        content.Block = block.States.SetJson(placement.State);
-
-        Fluid? fluid = Voxels.Fluids.Instance.TranslateNamedID(placement.Fluid);
-
-        if (fluid == null)
-        {
-            if (context != null) context.ReportWarning(this, $"Unknown fluid '{placement.Fluid}' in structure '{name}'");
-            else LogUnknownFluidInStructure(logger, placement.Fluid, name);
-
-            fluid = Voxels.Fluids.Instance.None;
-        }
-        
-        content.Fluid = new FluidInstance(fluid, FluidLevel.FromInt32(placement.Level), placement.IsStatic);
-
-        contents[position.X, position.Y, position.Z] = content;
-    }
-
-    private static Vector3i GetVector(Vector vector, String name)
-    {
-        if (vector.Values.Length != 3)
-            throw new FileFormatException(name, "Vector must have 3 values.");
-
-        return new Vector3i(vector.Values[0], vector.Values[1], vector.Values[2]);
     }
 
     /// <inheritdoc />
@@ -244,30 +225,18 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
     /// <returns>The result of the operation.</returns>
     public async Task<Result> SaveAsync(DirectoryInfo directory, String name, CancellationToken token = default)
     {
-        List<Placement> placements = [];
+        StaticStructureBuilder builder = new();
 
         for (var x = 0; x < Extents.X; x++)
         for (var y = 0; y < Extents.Y; y++)
         for (var z = 0; z < Extents.Z; z++)
         {
             if (contents[x, y, z] is not {} content) continue;
-
-            placements.Add(new Placement
-            {
-                Position = new Vector {Values = [x, y, z]},
-                Block = content.Block.Block.ContentID.ToString(),
-                State = content.Block.Owner.GetJson(content.Block),
-                Fluid = content.Fluid.Fluid.NamedID,
-                Level = content.Fluid.Level.ToInt32(),
-                IsStatic = content.Fluid.IsStatic
-            });
+            
+            builder.AddPlacement(new Vector3i(x, y, z), content, content.Fluid.IsStatic);
         }
 
-        Definition definition = new()
-        {
-            Extents = new Vector {Values = [Extents.X, Extents.Y, Extents.Z]},
-            Placements = placements.ToArray()
-        };
+        StaticStructureDefinition definition = builder.Build(Extents);
 
         Result result = await Serialize.SaveJsonAsync(definition, directory.GetFile(FileSystem.GetResourceFileName<StaticStructure>(name)), token).InAnyContext();
 

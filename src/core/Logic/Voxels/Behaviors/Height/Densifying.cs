@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 
@@ -33,6 +32,6 @@ public partial class Densifying : BlockBehavior, IBehavior<Densifying, BlockBeha
     {
         (World _, Vector3i _, State state, Side _, Fluid _) = context;
 
-        return height.GetHeight(state) < BlockHeight.Half;
+        return height.GetCurrentHeight(state) < BlockHeight.Half;
     }
 }

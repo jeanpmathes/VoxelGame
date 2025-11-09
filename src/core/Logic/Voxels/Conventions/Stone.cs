@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
@@ -137,14 +136,18 @@ public static class StoneConvention
                 Wall = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Stone.Wall)}"), $"{Language.Wall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(
+                        connecting => connecting.Models.Initializer.ContributeConstant(
+                            (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
                     .Complete(),
 
                 BrickWall = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Stone.BrickWall)}"), $"{Language.BrickWall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant((RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(
+                        connecting => connecting.Models.Initializer.ContributeConstant(
+                            (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))
                     .Complete()
             };

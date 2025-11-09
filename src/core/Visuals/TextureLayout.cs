@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
@@ -81,21 +80,6 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     public static TextureLayout Fluid(TID sides, TID ends)
     {
         return Column(sides, ends);
-    }
-
-    private TID GetTexture(Side side)
-    {
-        return side switch
-        {
-            Side.Front => front,
-            Side.Back => back,
-            Side.Left => left,
-            Side.Right => right,
-            Side.Bottom => bottom,
-            Side.Top => top,
-            Side.All => throw Exceptions.InvalidOperation("Cannot get texture for all sides."),
-            _ => throw Exceptions.UnsupportedEnumValue(side)
-        };
     }
 
     /// <summary>

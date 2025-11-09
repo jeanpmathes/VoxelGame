@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
@@ -146,6 +147,7 @@ public class ImageLibrary
     /// </summary>
     /// <param name="file">The file defining the texture.</param>
     /// <returns>The name of the texture.</returns>
+    [PerformanceSensitive]
     public static String GetName(FileInfo file)
     {
         StringBuilder key = new();

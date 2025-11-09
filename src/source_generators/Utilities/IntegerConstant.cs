@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Globalization;
 using Microsoft.CodeAnalysis;
 
 namespace VoxelGame.SourceGenerators.Utilities;
@@ -52,7 +53,7 @@ public readonly struct IntegerConstant : IEquatable<IntegerConstant>
             SpecialType.System_UInt16 => new IntegerConstant(isUnsigned: true, (UInt16) value),
             SpecialType.System_UInt32 => new IntegerConstant(isUnsigned: true, (UInt32) value),
             SpecialType.System_UInt64 => new IntegerConstant(isUnsigned: true, (UInt64) value),
-            _ => new IntegerConstant(isUnsigned: false, signedData: Convert.ToInt64(value))
+            _ => new IntegerConstant(isUnsigned: false, signedData: Convert.ToInt64(value, CultureInfo.InvariantCulture))
         };
     }
 

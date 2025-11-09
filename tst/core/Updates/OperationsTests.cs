@@ -16,7 +16,7 @@ namespace VoxelGame.Core.Tests.Updates;
 [TestSubject(typeof(Operations))]
 public class OperationsTests
 {
-    private readonly OperationUpdateDispatch dispatch = new(singleton: true, Application.Instance);
+    private readonly OperationUpdateDispatch dispatch = new(singleton: false, Application.Instance);
 
     [Fact]
     public void Operations_CreateDone_ShouldBeCompleted()

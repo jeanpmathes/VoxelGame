@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;

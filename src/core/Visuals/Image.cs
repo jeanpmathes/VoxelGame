@@ -15,6 +15,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit;
@@ -373,6 +374,7 @@ public class Image
     ///     An image is considered empty if all pixels have the zero-value.
     /// </summary>
     /// <returns>The result of the check.</returns>
+    [PerformanceSensitive]
     public Boolean IsEmpty()
     {
         foreach (Int32 value in data)

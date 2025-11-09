@@ -20,17 +20,12 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// </summary>
 public class FoliageBlock : Block
 {
-    private static readonly Mesh.Quad[] errorQuads;
     private static readonly UInt32 errorQuadCount;
+    private static readonly Mesh.Quad[] errorQuads = Meshes.CreateCrossMesh(ITextureIndexProvider.MissingTextureIndex).GetMeshData(out errorQuadCount);
 
     private readonly Foliage foliage;
 
     private Foliage.MeshData[] meshData = null!;
-
-    static FoliageBlock()
-    {
-        errorQuads = Meshes.CreateCrossMesh(ITextureIndexProvider.MissingTextureIndex).GetMeshData(out errorQuadCount);
-    }
 
     /// <inheritdoc />
     public FoliageBlock(UInt32 blockID, CID contentID, String name) : base(blockID, contentID, name)
@@ -50,7 +45,7 @@ public class FoliageBlock : Block
     {
         meshData = new Foliage.MeshData[States.Count];
 
-        foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
+        foreach ((State state, Int32 index) in States.AllStatesWithIndex)
         {
             if (!Constraint.IsStateValid(state))
             {

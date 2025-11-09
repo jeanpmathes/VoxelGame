@@ -281,16 +281,15 @@ public static class Meshes
         return Model.CreateFallback().CreateMesh(FallbackTextureIndexProvider.Instance);
     }
 
-    private class FallbackTextureIndexProvider : ITextureIndexProvider
+    private sealed class FallbackTextureIndexProvider : ITextureIndexProvider
     {
         public static ITextureIndexProvider Instance { get; } = new FallbackTextureIndexProvider();
 
-        public IResourceContext? Context { get; set; } = null;
-
-
+        public IResourceContext? Context { get; set; }
+        
         public void SetUp() {}
 
-        public Int32 GetTextureIndex(TID textureID)
+        public Int32 GetTextureIndex(TID identifier)
         {
             return ITextureIndexProvider.MissingTextureIndex;
         }

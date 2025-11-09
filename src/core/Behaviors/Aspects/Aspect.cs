@@ -133,4 +133,40 @@ public class Aspect<TValue, TContext>
     {
         return name;
     }
+    
+    /// <summary>
+    ///     Contribute a constant value to this aspect.
+    /// </summary>
+    /// <param name="value">The constant value to contribute.</param>
+    /// <param name="exclusive">Whether the contribution should be exclusive.</param>
+    public void ContributeConstant(TValue value, Boolean exclusive = false)
+    {
+        Add(new ConstantContributor(value), exclusive);
+    }
+
+    /// <summary>
+    ///     Contribute a value derived from a function to this aspect.
+    /// </summary>
+    /// <param name="function">The function that takes the original value and context, and returns a new value.</param>
+    /// <param name="exclusive">Whether the contribution should be exclusive.</param>
+    public void ContributeFunction(Func<TValue, TContext, TValue> function, Boolean exclusive = false)
+    {
+        Add(new FunctionContributor(function), exclusive);
+    }
+
+    private sealed class ConstantContributor(TValue value) : IContributor<TValue, TContext>
+    {
+        public TValue Contribute(TValue original, TContext context)
+        {
+            return value;
+        }
+    }
+
+    private sealed class FunctionContributor(Func<TValue, TContext, TValue> function) : IContributor<TValue, TContext>
+    {
+        public TValue Contribute(TValue original, TContext context)
+        {
+            return function(original, context);
+        }
+    }
 }

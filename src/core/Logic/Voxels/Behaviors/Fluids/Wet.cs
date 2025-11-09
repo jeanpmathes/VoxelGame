@@ -46,10 +46,8 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
 
         BecomeWetMessage becomeWet = IEventMessage<BecomeWetMessage>.Pool.Get();
             
-        {
-            becomeWet.World = message.World;
-            becomeWet.Position = message.Position;
-        }
+        becomeWet.World = message.World;
+        becomeWet.Position = message.Position;
             
         BecomeWet.Publish(becomeWet);
             
@@ -61,7 +59,7 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     /// </summary>
     /// <param name="state">The state of the block.</param>
     /// <returns>True if the block is wet, false otherwise.</returns>
-    public Boolean IsWet(State state)
+    private static Boolean IsWet(State state)
     {
         return state.Fluid?.IsLiquid == true;
     }
@@ -70,7 +68,7 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
     ///     Sent when a block becomes wet.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IBecomeWetMessage : IEventMessage
+    public interface IBecomeWetMessage
     {
         /// <summary>
         ///     The world in which the block is located.

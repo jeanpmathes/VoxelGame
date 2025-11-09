@@ -6,7 +6,6 @@
 
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 

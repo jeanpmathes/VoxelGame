@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Logic.Attributes;
@@ -57,7 +58,7 @@ public class PlayerDebugProperties : Group
     {
         yield return new Message("ID", $"{instance.Fluid.NamedID}[{instance.Fluid.ID}]");
         yield return new Message("Level", instance.Level.ToString());
-        yield return new Message("IsStatic", instance.IsStatic.ToString());
+        yield return new Message("IsStatic", instance.IsStatic.ToString(CultureInfo.InvariantCulture));
     }
 
     private static String FormatObject(Object? obj)

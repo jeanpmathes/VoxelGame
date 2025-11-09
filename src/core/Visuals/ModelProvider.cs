@@ -4,6 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -27,17 +28,21 @@ public partial class ModelProvider : ResourceProvider<Model>, IModelProvider
 
         Model[,,]? modelParts = parts.GetValueOrDefault(identifier);
 
-        if (modelParts != null &&
-            position.X >= 0 && position.X < modelParts.GetLength(0) &&
-            position.Y >= 0 && position.Y < modelParts.GetLength(1) &&
-            position.Z >= 0 && position.Z < modelParts.GetLength(2))
+        if (modelParts != null && IsPositionInBounds(position, modelParts))
             return modelParts[position.X, position.Y, position.Z];
 
         if (part != (0, 0, 0))
             LogPartDoesNotExist(logger, identifier, position);
 
         return GetResource(identifier);
+    }
+    
+    private static Boolean IsPositionInBounds(Vector3i position, Model[,,] parts)
+    {
+        if (position is {X: < 0, Y: < 0, Z: < 0})
+            return false;
 
+        return position.X < parts.GetLength(0) && position.Y < parts.GetLength(1) && position.Z < parts.GetLength(2);
     }
 
     /// <inheritdoc />
@@ -57,9 +62,9 @@ public partial class ModelProvider : ResourceProvider<Model>, IModelProvider
     {
         parts.Clear();
 
-        foreach ((RID id, Model original) in GetAllResources())
+        foreach ((RID id, Model original) in Resources)
         {
-            Box3d bounds = original.GetBounds();
+            Box3d bounds = original.ComputeBounds();
 
             if (bounds.Size is {X: <= 1, Y: <= 1, Z: <= 1})
                 continue;

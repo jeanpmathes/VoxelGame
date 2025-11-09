@@ -8,7 +8,6 @@ using System;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
@@ -66,7 +65,7 @@ public class SimpleBlock : Block, IOverlayTextureProvider
         {
             meshData[side] = new Simple.MeshData[States.Count];
 
-            foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
+            foreach ((State state, Int32 index) in States.AllStatesWithIndex)
             {
                 if (!Constraint.IsStateValid(state))
                 {

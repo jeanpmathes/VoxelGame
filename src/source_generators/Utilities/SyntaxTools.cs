@@ -17,11 +17,11 @@ namespace VoxelGame.SourceGenerators.Utilities;
 public static class SyntaxTools
 {
     /// <summary>
-    ///     Determine the namespace a type declaration is contained in.
+    ///     Determine the namespace a node is contained in.
     /// </summary>
-    /// <param name="node">The type declaration syntax node.</param>
+    /// <param name="node">The syntax node.</param>
     /// <returns>The namespace the type is contained in, or an empty string if it is in the global namespace.</returns>
-    public static String GetNamespace(BaseTypeDeclarationSyntax node)
+    public static String GetNamespace(SyntaxNode node)
     {
         var @namespace = "";
 
@@ -49,16 +49,6 @@ public static class SyntaxTools
         }
 
         return @namespace;
-    }
-
-    /// <summary>
-    ///     Get the namespace a member declaration is contained in.
-    /// </summary>
-    /// <param name="node">The member declaration syntax node.</param>
-    /// <returns>The namespace the member is contained in, or an empty string if it is in the global namespace.</returns>
-    public static String GetNamespace(MemberDeclarationSyntax node)
-    {
-        return node.Parent is TypeDeclarationSyntax typeDeclaration ? GetNamespace(typeDeclaration) : "";
     }
 
     /// <summary>

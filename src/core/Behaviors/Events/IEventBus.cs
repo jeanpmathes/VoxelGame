@@ -18,5 +18,5 @@ public interface IEventBus
     /// </summary>
     /// <param name="handler">The event handler.</param>
     /// <typeparam name="TEventMessage">The type of event message to subscribe to.</typeparam>
-    public void Subscribe<TEventMessage>(Action<TEventMessage> handler) where TEventMessage : IEventMessage;
+    public void Subscribe<TEventMessage>(Action<TEventMessage> handler) ;
 }

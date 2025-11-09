@@ -174,6 +174,18 @@ public partial class SceneManager : ApplicationComponent
         return current?.CanCloseWindow() ?? true;
     }
 
+    #region DISPOSABLE
+    
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        if (!disposing) return;
+        
+        Unload();
+    }
+    
+    #endregion DISPOSABLE
+
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SceneManager>();

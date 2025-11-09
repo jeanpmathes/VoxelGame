@@ -91,11 +91,7 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
     /// <summary>
     ///     Get all resources managed by this provider.
     /// </summary>
-    /// <returns>All resources managed by this provider.</returns>
-    protected IReadOnlyDictionary<RID, T> GetAllResources()
-    {
-        return resources;
-    }
+    protected IReadOnlyDictionary<RID, T> Resources => resources;
 
     #region LOGGING
 

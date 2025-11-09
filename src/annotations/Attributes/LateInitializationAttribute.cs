@@ -14,4 +14,4 @@ namespace VoxelGame.Annotations.Attributes;
 ///     being initialized.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public class LateInitializationAttribute : Attribute;
+public sealed class LateInitializationAttribute : Attribute;

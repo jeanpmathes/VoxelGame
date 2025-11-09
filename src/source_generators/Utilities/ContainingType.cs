@@ -11,7 +11,7 @@ namespace VoxelGame.SourceGenerators.Utilities;
 /// <summary>
 ///     Class to represent the containing type of declarations, able to handle nested types.
 /// </summary>
-public class ContainingType(String accessbility, String keyword, String name, String? typeParameters, String constraints, ContainingType? child)
+public class ContainingType(String accessibility, String keyword, String name, String? typeParameters, String constraints, ContainingType? child)
 {
     /// <summary>
     ///     The child containing type, if any.
@@ -19,12 +19,12 @@ public class ContainingType(String accessbility, String keyword, String name, St
     public ContainingType? Child { get; } = child;
 
     /// <summary>
-    ///     The accessibility of the containing type (e.g., "public", "internal", "private").
+    ///     The accessibility of the containing type (e.g., <c>public</c>, <c>internal</c>).
     /// </summary>
-    public String Accessibility { get; } = accessbility;
+    public String Accessibility { get; } = accessibility;
 
     /// <summary>
-    ///     The keyword of the containing type (e.g., "class", "struct", "record", "interface").
+    ///     The keyword of the containing type (e.g., <c>class</c>, <c>struct</c>).
     /// </summary>
     public String Keyword { get; } = keyword;
 

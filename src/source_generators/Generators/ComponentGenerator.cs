@@ -110,9 +110,9 @@ public sealed class ComponentGenerator : IIncrementalGenerator
         return null;
     }
     
-    private static AttributeData? GetEventAttributeData(IMethodSymbol methodSymbol)
+    private static AttributeData? GetEventAttributeData(ISymbol symbol)
     {
-        foreach (AttributeData attribute in methodSymbol.GetAttributes())
+        foreach (AttributeData attribute in symbol.GetAttributes())
         {
             if (attribute.AttributeClass is not { } attributeClass)
                 continue;
@@ -169,7 +169,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
             parameters.ToImmutable());
     }
     
-    private static ComponentModel? CreateComponentModel(INamedTypeSymbol componentSymbol, SemanticModel semanticModel)
+    private static ComponentModel? CreateComponentModel(ITypeSymbol componentSymbol, SemanticModel semanticModel)
     {
         if (componentSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is not TypeDeclarationSyntax componentTypeDeclarationSyntax)
             return null;
@@ -305,6 +305,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
             }
             
             builder.Append($$"""
+                             
                              
                              {{i}}    private void {{subjectModel.FlushMethodName}}()
                              {{i}}    {

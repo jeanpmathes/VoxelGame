@@ -25,7 +25,7 @@ public class GenerateRecordUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        [GenerateRecord]
                        public interface I<T> {}
@@ -56,7 +56,7 @@ public class GenerateRecordUsageAnalyzerTests
         await new CSharpAnalyzerTest<GenerateRecordUsageAnalyzer, DefaultVerifier>
         {
             TestCode = """
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
                        
                        public interface A<T1, T2>;
 
@@ -90,7 +90,7 @@ public class GenerateRecordUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        [GenerateRecord]
                        public interface I {}
@@ -115,7 +115,7 @@ public class GenerateRecordUsageAnalyzerTests
         await new CSharpAnalyzerTest<GenerateRecordUsageAnalyzer, DefaultVerifier>
         {
             TestCode = """
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
                        
                        public class A;
 
@@ -142,7 +142,7 @@ public class GenerateRecordUsageAnalyzerTests
         await new CSharpAnalyzerTest<GenerateRecordUsageAnalyzer, DefaultVerifier>
         {
             TestCode = """
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
                        
                        public class A<T>;
 
@@ -171,7 +171,7 @@ public class GenerateRecordUsageAnalyzerTests
             TestCode = """
                        using System;
                        using System.Collections.Generic;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
                        
                        public class A<T1, T2>;
 

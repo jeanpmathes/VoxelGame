@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;

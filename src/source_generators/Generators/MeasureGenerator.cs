@@ -51,21 +51,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
         if (!IsUnitType(propertySymbol.Type))
             return null;
         
-        AttributeData? attributeData = null;
-
-        foreach (AttributeData attribute in context.Attributes)
-        {
-            if (attribute.AttributeClass is not { } attributeClass)
-                continue;
-
-            if (attributeClass.Name != nameof(GenerateMeasureAttribute)
-                && attributeClass.ToDisplayString() != typeof(GenerateMeasureAttribute).FullName)
-                continue;
-
-            attributeData = attribute;
-            
-            break;
-        }
+        AttributeData? attributeData = GetAttribute(context);
 
         if (attributeData == null)
             return null;
@@ -81,24 +67,8 @@ public sealed class MeasureGenerator : IIncrementalGenerator
 
         if (attributeData.ConstructorArguments[2].Value is not UInt32 allowedPrefixes)
             return null;
-
-        String? measureSummary = null;
-        String? valueSummary = null;
-
-        foreach (KeyValuePair<String, TypedConstant> namedArgument in attributeData.NamedArguments)
-        {
-            switch (namedArgument.Key)
-            {
-                case nameof(GenerateMeasureAttribute.MeasureSummary):
-                    measureSummary = namedArgument.Value.Value as String;
-
-                    break;
-                case nameof(GenerateMeasureAttribute.ValueSummary):
-                    valueSummary = namedArgument.Value.Value as String;
-
-                    break;
-            }
-        }
+        
+        GetNamedArguments(attributeData, out String? measureSummary, out String? valueSummary);
 
         String @namespace = propertySymbol.ContainingType.ContainingNamespace.ToDisplayString();
         String unitContainingType = propertySymbol.ContainingType.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
@@ -113,10 +83,47 @@ public sealed class MeasureGenerator : IIncrementalGenerator
             $"{unitContainingType}.{propertySymbol.Name}");
     }
 
-    private static Boolean IsUnitType(ITypeSymbol typeSymbol)
+    private static void GetNamedArguments(AttributeData attributeData, out String? measureSummary, out String? valueSummary)
     {
-        return typeSymbol.Name == "Unit"
-               && typeSymbol.ContainingNamespace.ToDisplayString() == "VoxelGame.Core.Utilities.Units";
+        measureSummary = null;
+        valueSummary = null;
+        
+        foreach (KeyValuePair<String, TypedConstant> namedArgument in attributeData.NamedArguments)
+        {
+            switch (namedArgument.Key)
+            {
+                case nameof(GenerateMeasureAttribute.MeasureSummary):
+                    measureSummary = namedArgument.Value.Value as String;
+
+                    break;
+                case nameof(GenerateMeasureAttribute.ValueSummary):
+                    valueSummary = namedArgument.Value.Value as String;
+
+                    break;
+            }
+        }
+    }
+
+    private static AttributeData? GetAttribute(GeneratorAttributeSyntaxContext context)
+    {
+        foreach (AttributeData attribute in context.Attributes)
+        {
+            if (attribute.AttributeClass is not { } attributeClass)
+                continue;
+
+            if (attributeClass.Name != nameof(GenerateMeasureAttribute)
+                && attributeClass.ToDisplayString() != typeof(GenerateMeasureAttribute).FullName)
+                continue;
+
+            return attribute;
+        }
+
+        return null;
+    }
+
+    private static Boolean IsUnitType(ISymbol symbol)
+    {
+        return symbol.Name == "Unit" && symbol.ContainingNamespace.ToDisplayString() == "VoxelGame.Core.Utilities.Units";
     }
 
     private static void Execute(MeasureModel? model, SourceProductionContext context)
@@ -151,13 +158,16 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                         public global::System.Double {{model.ValuePropertyName}} { get; init; }
                     
                         /// <inheritdoc />
-                        public static global::VoxelGame.Core.Utilities.Units.Unit Unit => {{model.UnitPropertyAccess}};
+                        public static global::VoxelGame.Core.Utilities.Units.Unit Unit 
+                            => {{model.UnitPropertyAccess}};
                     
                         /// <inheritdoc />
-                        public static global::VoxelGame.Annotations.Definitions.AllowedPrefixes Prefixes => (global::VoxelGame.Annotations.Definitions.AllowedPrefixes) {{model.AllowedPrefixes}};
+                        public static global::VoxelGame.Annotations.Definitions.AllowedPrefixes Prefixes 
+                            => (global::VoxelGame.Annotations.Definitions.AllowedPrefixes) {{model.AllowedPrefixes}};
                     
                         /// <inheritdoc />
-                        global::System.Double global::VoxelGame.Core.Utilities.Units.IMeasure.Value => {{model.ValuePropertyName}};
+                        global::System.Double global::VoxelGame.Core.Utilities.Units.IMeasure.Value 
+                            => {{model.ValuePropertyName}};
                     
                         /// <inheritdoc />
                         public global::System.Boolean Equals({{model.MeasureName}} other)

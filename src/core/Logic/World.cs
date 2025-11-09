@@ -230,7 +230,10 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// </summary>
     /// <param name="content">The new content.</param>
     /// <param name="position">The world position.</param>
-    /// <param name="updateBlock">Whether to update the block at the position. Should generally be true, exceptions include cases where block states are changed in reaction to a previous state change.</param>
+    /// <param name="updateBlock">
+    ///     Whether to update the block at the position.
+    ///     Should generally be true, exceptions include cases where block states are changed in reaction to a previous state change.
+    /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position, Boolean updateBlock)
     {

@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -63,7 +64,7 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
 
             if (attributeClass.Name != nameof(LateInitializationAttribute) && attributeClass.ToDisplayString() != typeof(LateInitializationAttribute).FullName) continue;
 
-            if (!propertySymbol.IsPartialDefinition || propertyDeclarationSyntax.Type is NullableTypeSyntax || propertySymbol.Type.NullableAnnotation == NullableAnnotation.Annotated)
+            if (!propertyDeclarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword) || propertyDeclarationSyntax.Type is NullableTypeSyntax || propertySymbol.Type.NullableAnnotation == NullableAnnotation.Annotated)
             {
                 var diagnostic = Diagnostic.Create(rule, propertyDeclarationSyntax.Identifier.GetLocation(), propertySymbol.Name);
                 context.ReportDiagnostic(diagnostic);

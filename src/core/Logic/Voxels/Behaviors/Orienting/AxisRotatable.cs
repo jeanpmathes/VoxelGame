@@ -10,7 +10,6 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
 

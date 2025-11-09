@@ -1,4 +1,4 @@
-﻿// <copyright file = "ResolvedProperty.cs" company = "VoxelGame">
+﻿// <copyright file="ResolvedProperty.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -36,7 +36,7 @@ public class ResolvedProperty<TValue>
         return new ResolvedProperty<TValue>(initial, initializer, proxy);
     }
 
-    private class AspectableProxy : IAspectable
+    private sealed class AspectableProxy : IAspectable
     {
         public event EventHandler<IAspectable.ValidationEventArgs>? Validation;
         

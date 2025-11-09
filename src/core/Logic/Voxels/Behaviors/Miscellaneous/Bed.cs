@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
@@ -107,7 +106,7 @@ public partial class Bed : BlockBehavior, IBehavior<Bed, BlockBehavior, Block>
             legs);
     }
 
-    private void OnPlacementCompleted(Block.IPlacementCompletedMessage message)
+    private static void OnPlacementCompleted(Block.IPlacementCompletedMessage message)
     {
         message.World.SpawnPosition = new Vector3d(message.Position.X, message.Position.Y + 1f, message.Position.Z);
     }

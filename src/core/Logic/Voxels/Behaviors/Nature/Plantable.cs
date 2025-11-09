@@ -81,7 +81,7 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
     ///     Sent when a plant attempts to grow on this block.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IGrowthAttemptMessage : IEventMessage
+    public interface IGrowthAttemptMessage
     {
         /// <summary>
         ///     The world in which the placement was completed.

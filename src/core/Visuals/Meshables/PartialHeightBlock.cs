@@ -9,7 +9,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
@@ -64,7 +63,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         {
             meshData[side] = new PartialHeight.MeshData[States.Count];
 
-            foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
+            foreach ((State state, Int32 index) in States.AllStatesWithIndex)
             {
                 if (!Constraint.IsStateValid(state))
                 {
@@ -89,7 +88,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
 
             if (blockToCheck == null) return;
 
-            BlockHeight height = partialHeightBehavior.GetHeight(state);
+            BlockHeight height = partialHeightBehavior.GetCurrentHeight(state);
             Boolean isFullHeight = height.IsFull;
 
             if ((side != Side.Top || isFullHeight) && SimpleBlock.IsHiddenFace(this, blockToCheck.Value, side)) return;
@@ -117,7 +116,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         var convertedMesh = new Simple.MeshData
         {
             TextureIndex = mesh.TextureIndex,
-            IsTextureRotated = mesh.IsTextureRotated,
+            IsTextureRotated = PartialHeight.MeshData.IsTextureRotated,
             Tint = mesh.Tint,
             IsAnimated = mesh.IsAnimated
         };
@@ -134,7 +133,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] State? blockToCheck, BlockHeight height, ref readonly PartialHeight.MeshData mesh, MeshingContext context)
     {
         if (side != Side.Top && blockToCheck.Value.Block.Get<Logic.Voxels.Behaviors.Height.PartialHeight>() is {} toCheck &&
-            toCheck.GetHeight(blockToCheck.Value) == height) return;
+            toCheck.GetCurrentHeight(blockToCheck.Value) == height) return;
 
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 

@@ -9,16 +9,9 @@ using VoxelGame.Core.Collections;
 namespace VoxelGame.Core.Behaviors.Events;
 
 /// <summary>
-///     Core interface for event messages.
-/// </summary>
-public interface IEventMessage
-{
-}
-
-/// <summary>
 ///     Core interface for event messages, with pooling support.
 /// </summary>
-public interface IEventMessage<TSelf> : IEventMessage where TSelf : class, IEventMessage<TSelf>, new()
+public interface IEventMessage<TSelf>  where TSelf : class, IEventMessage<TSelf>, new()
 {
     /// <summary>
     ///    A simple pool for this event message type.

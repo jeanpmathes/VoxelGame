@@ -100,7 +100,7 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         {
             offset += block.Initialize(offset, validator);
 
-            states.AddRange(block.States.GetAllStates());
+            states.AddRange(block.States.AllStates);
         }
         
         BehaviorSystem<Block, BlockBehavior>.Bake(validator);

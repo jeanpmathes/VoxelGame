@@ -23,7 +23,7 @@ public class LateInitializationGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -48,7 +48,9 @@ public class LateInitializationGeneratorTests
 
                                    private partial global::System.String Data
                                    {
-                                       get => @__data ?? throw new global::System.InvalidOperationException($"Property '{nameof(Data)}' is used before being initialized.");
+                                       get => @__data 
+                                           ?? throw new global::System.InvalidOperationException($"Property '{nameof(Data)}' is used before being initialized.");
+
                                        set
                                        {
                                            if (@__data is not null)
@@ -71,7 +73,7 @@ public class LateInitializationGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -96,7 +98,9 @@ public class LateInitializationGeneratorTests
 
                                    public partial global::System.Int32 Value
                                    {
-                                       get => @__value ?? throw new global::System.InvalidOperationException($"Property '{nameof(Value)}' is used before being initialized.");
+                                       get => @__value 
+                                           ?? throw new global::System.InvalidOperationException($"Property '{nameof(Value)}' is used before being initialized.");
+
                                        set
                                        {
                                                                                       if (@__value is not null)
@@ -119,7 +123,7 @@ public class LateInitializationGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -144,7 +148,9 @@ public class LateInitializationGeneratorTests
 
                                    public partial global::System.Double Data
                                    {
-                                       private get => @__data ?? throw new global::System.InvalidOperationException($"Property '{nameof(Data)}' is used before being initialized.");
+                                       private get => @__data 
+                                           ?? throw new global::System.InvalidOperationException($"Property '{nameof(Data)}' is used before being initialized.");
+
                                        set
                                        {
                                            if (@__data is not null)

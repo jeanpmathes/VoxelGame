@@ -54,11 +54,8 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
         if (constructorSymbol.MethodKind != MethodKind.Constructor || constructorSymbol.IsStatic || constructorSymbol.Parameters.Length == 0)
             return null;
 
-        foreach (IParameterSymbol parameter in constructorSymbol.Parameters)
-        {
-            if (parameter.RefKind != RefKind.None || parameter.HasExplicitDefaultValue || parameter.IsParams) 
-                return null;
-        }
+        if (HasUnsupportedParameterKind(constructorSymbol)) 
+            return null;
 
         if (constructorDeclaration.Parent is not TypeDeclarationSyntax typeDeclaration)
             return null;
@@ -69,13 +66,8 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
         ContainingType? containingType = SyntaxTools.GetContainingType(typeDeclaration, context.SemanticModel);
         String @namespace = SyntaxTools.GetNamespace(typeDeclaration);
         
-        ImmutableArray<ParameterModel>.Builder parameterBuilder = ImmutableArray.CreateBuilder<ParameterModel>();
-        foreach (IParameterSymbol parameter in constructorSymbol.Parameters)
-        {
-            parameterBuilder.Add(new ParameterModel(parameter.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat)));
-        }
-        ImmutableArray<ParameterModel> parameters = parameterBuilder.ToImmutable();
-        
+        ImmutableArray<ParameterModel> parameters = CreateParameterModels(constructorSymbol);
+
         if (parameters.IsDefaultOrEmpty)
             return null;
         
@@ -89,6 +81,29 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
             typeDeclaration.TypeParameterList?.ToString() ?? String.Empty,
             typeDeclaration.ConstraintClauses.ToString(),
             parameters);
+    }
+    
+    private static Boolean HasUnsupportedParameterKind(IMethodSymbol methodSymbol)
+    {
+        foreach (IParameterSymbol parameter in methodSymbol.Parameters)
+        {
+            if (parameter.RefKind != RefKind.None || parameter.HasExplicitDefaultValue || parameter.IsParams) 
+                return true;
+        }
+
+        return false;
+    }
+
+    private static ImmutableArray<ParameterModel> CreateParameterModels(IMethodSymbol methodSymbol)
+    {
+        ImmutableArray<ParameterModel>.Builder parameterBuilder = ImmutableArray.CreateBuilder<ParameterModel>();
+        
+        foreach (IParameterSymbol parameter in methodSymbol.Parameters)
+        {
+            parameterBuilder.Add(new ParameterModel(parameter.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat)));
+        }
+        
+        return parameterBuilder.ToImmutable();
     }
 
     private static void Execute(ConstructorModel? model, SourceProductionContext context)
@@ -111,7 +126,9 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
 
         sb.AppendNestedClass(constructorModel.ContainingType, (builder, i) =>
         {
-            builder.Append($"{i}{constructorModel.TypeAccessibility} partial {constructorModel.TypeKeyword} {constructorModel.TypeName}{constructorModel.TypeParameters} : {constructorMethod.GetConstructibleInterface(constructorModel.TypeFullName)}");
+            builder
+                .Append($"{i}{constructorModel.TypeAccessibility} partial {constructorModel.TypeKeyword} {constructorModel.TypeName}{constructorModel.TypeParameters}")
+                .Append($" : {constructorMethod.GetConstructibleInterface(constructorModel.TypeFullName)}");
 
             if (!String.IsNullOrWhiteSpace(constructorModel.TypeConstraints))
                 builder.Append($"{i}{constructorModel.TypeConstraints}");

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Logic.Voxels.Conventions;
@@ -269,7 +268,7 @@ public class BlockBuilder
         /// <param name="action">The action to perform during validation, will be called when the block is validated.</param>
         public BlockDefinition WithValidation(Action<Block, IValidator> action)
         {
-            block.Validation += (sender, args) =>
+            block.Validation += (_, args) =>
             {
                 action(block, args.Validator);
             };

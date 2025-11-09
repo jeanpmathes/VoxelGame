@@ -49,7 +49,7 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
 
     private Mesh GetMesh(Mesh original, MeshContext context)
     {
-        (Boolean north, Boolean east, Boolean south, Boolean west) = connecting.GetConnections(context.State);
+        (Boolean north, Boolean east, Boolean south, Boolean west) connections = connecting.GetConnections(context.State);
 
         Model post = context.ModelProvider.GetModel(Models.Get().post);
         Model extension = context.ModelProvider.GetModel(Models.Get().extension);
@@ -58,33 +58,45 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
 
         List<Model> models = new(capacity: 5);
 
-        Boolean useStraightZ = north && south && !east && !west;
-        Boolean useStraightX = !north && !south && east && west;
+        Boolean useStraightX = IsStraightOnX(connections);
+        Boolean useStraightZ = IsStraightOnZ(connections);
 
         if (Models.Get().straight is {} straight && (useStraightX || useStraightZ))
         {
-            Model straightZ = context.ModelProvider.GetModel(straight);
+            Model straightModel = context.ModelProvider.GetModel(straight);
 
-            if (useStraightZ)
+            if (useStraightX)
             {
-                models.Add(straightZ);
+                straightModel = straightModel.CreateModelForSide(Side.Left, Model.TransformationMode.Reshape);
             }
-            else if (useStraightX)
-            {
-                Model straightX = straightZ.CreateModelForSide(Side.Left, Model.TransformationMode.Reshape);
-                models.Add(straightX);
-            }
+
+            models.Add(straightModel);
         }
         else
         {
             models.Add(post);
 
-            if (north) models.Add(extensions.north);
-            if (east) models.Add(extensions.east);
-            if (south) models.Add(extensions.south);
-            if (west) models.Add(extensions.west);
+            AddExtensionsBasedOnConnections(models, connections, extensions);
         }
 
         return Model.Combine(models).CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures.Get());
+    }
+
+    private static Boolean IsStraightOnX((Boolean north, Boolean east, Boolean south, Boolean west) connections)
+    {
+        return connections is {north: false, east: true, south: false, west: true};
+    }
+    
+    private static Boolean IsStraightOnZ((Boolean north, Boolean east, Boolean south, Boolean west) connections)
+    {
+        return connections is {north: true, east: false, south: true, west: false};
+    }
+    
+    private static void AddExtensionsBasedOnConnections(List<Model> models, (Boolean north, Boolean east, Boolean south, Boolean west) connections, (Model north, Model east, Model south, Model west) extensions)
+    {
+        if (connections.north) models.Add(extensions.north);
+        if (connections.east) models.Add(extensions.east);
+        if (connections.south) models.Add(extensions.south);
+        if (connections.west) models.Add(extensions.west);
     }
 }

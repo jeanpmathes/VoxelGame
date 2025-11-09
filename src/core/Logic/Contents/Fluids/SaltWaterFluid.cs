@@ -45,7 +45,7 @@ public class SaltWaterFluid : BasicFluid
 
         State state = Blocks.Instance.Environment.Salt.GetPlacementState(world, position);
         
-        state = state.WithHeight(level.GetBlockHeight());
+        state = state.WithHeight(level.BlockHeight);
         
         world.SetBlock(state, position);
     }

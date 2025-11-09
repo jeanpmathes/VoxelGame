@@ -45,9 +45,9 @@ public class EnumUtilityGenerator : IIncrementalGenerator
         return GetEnumModel(context.SemanticModel, (EnumDeclarationSyntax) context.Node);
     }
 
-    private static EnumModel? GetEnumModel(SemanticModel semanticModel, EnumDeclarationSyntax enumDeclarationSyntax)
+    private static EnumModel? GetEnumModel(SemanticModel semanticModel, BaseTypeDeclarationSyntax declarationSyntax)
     {
-        if (ModelExtensions.GetDeclaredSymbol(semanticModel, enumDeclarationSyntax) is not INamedTypeSymbol enumSymbol)
+        if (ModelExtensions.GetDeclaredSymbol(semanticModel, declarationSyntax) is not INamedTypeSymbol enumSymbol)
             return null;
 
         if (enumSymbol.DeclaredAccessibility is not Accessibility.Public and not Accessibility.Internal)
@@ -55,8 +55,8 @@ public class EnumUtilityGenerator : IIncrementalGenerator
 
         String accessibility = SyntaxFacts.GetText(enumSymbol.DeclaredAccessibility);
 
-        ContainingType? containingType = SyntaxTools.GetContainingType(enumDeclarationSyntax, semanticModel);
-        String @namespace = SyntaxTools.GetNamespace(enumDeclarationSyntax);
+        ContainingType? containingType = SyntaxTools.GetContainingType(declarationSyntax, semanticModel);
+        String @namespace = SyntaxTools.GetNamespace(declarationSyntax);
         String name = enumSymbol.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
 
         if (GetNumberOfGenericNestingLevels(containingType) > 1)

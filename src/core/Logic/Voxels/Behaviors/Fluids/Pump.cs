@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 
@@ -46,7 +45,7 @@ public partial class Pump : BlockBehavior, IBehavior<Pump, BlockBehavior, Block>
         return side == Side.Top;
     }
 
-    private void OnActorInteraction(Block.IActorInteractionMessage message)
+    private static void OnActorInteraction(Block.IActorInteractionMessage message)
     {
         Fluid.Elevate(message.Actor.World, message.Position, distance: 16);
     }

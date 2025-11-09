@@ -44,9 +44,9 @@ public partial class SectionMeshing : WorldComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
     {
-        using (logger.BeginTimedSubScoped("Section Meshing", timer))
+        using (logger.BeginTimedSubScoped("Section Meshing", updateTimer))
         {
             MeshAndClearSectionList();
         }

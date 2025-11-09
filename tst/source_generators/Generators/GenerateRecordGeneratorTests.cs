@@ -24,7 +24,7 @@ public class GenerateRecordGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -51,7 +51,7 @@ public class GenerateRecordGeneratorTests
                                    /// <summary>
                                    ///     Implementation of <see cref="global::TestNamespace.Container.INested" />.
                                    /// </summary>
-                                   private partial record Nested : global::TestNamespace.Container.INested
+                                   private sealed partial record Nested : global::TestNamespace.Container.INested
                                    {
                                        public global::System.Int32 X { get; set; }
                                    }
@@ -69,7 +69,7 @@ public class GenerateRecordGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -93,7 +93,7 @@ public class GenerateRecordGeneratorTests
                                /// <summary>
                                ///     Implementation of <see cref="global::TestNamespace.ITest" />.
                                /// </summary>
-                               public partial record Test : global::TestNamespace.ITest
+                               public sealed partial record Test : global::TestNamespace.ITest
                                {
                                    public global::System.Int32 X { get; set; }
                                }
@@ -110,7 +110,7 @@ public class GenerateRecordGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -131,7 +131,7 @@ public class GenerateRecordGeneratorTests
                                /// <summary>
                                ///     Implementation of <see cref="global::TestNamespace.IEmpty" />.
                                /// </summary>
-                               public partial record Empty : global::TestNamespace.IEmpty
+                               public sealed partial record Empty : global::TestNamespace.IEmpty
                                {
                                }
 
@@ -147,7 +147,7 @@ public class GenerateRecordGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -171,7 +171,7 @@ public class GenerateRecordGeneratorTests
                                /// <summary>
                                ///     Implementation of <see cref="global::TestNamespace.IWithMethods" />.
                                /// </summary>
-                               public partial record WithMethods : global::TestNamespace.IWithMethods
+                               public sealed partial record WithMethods : global::TestNamespace.IWithMethods
                                {
                                    public global::System.Int32 X { get; set; }
                                }
@@ -188,7 +188,7 @@ public class GenerateRecordGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -212,7 +212,7 @@ public class GenerateRecordGeneratorTests
                                /// <summary>
                                ///     Implementation of <see cref="global::TestNamespace.IWithReference" />.
                                /// </summary>
-                               public partial record WithReference : global::TestNamespace.IWithReference
+                               public sealed partial record WithReference : global::TestNamespace.IWithReference
                                {
                                    public global::System.String Text { get; set; } = null!;
                                    public global::System.String? NullableText { get; set; }
@@ -231,7 +231,7 @@ public class GenerateRecordGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -252,7 +252,7 @@ public class GenerateRecordGeneratorTests
                                /// <summary>
                                ///     Implementation of <see cref="global::TestNamespace.IWithBase" />.
                                /// </summary>
-                               public partial record WithBase : global::TestNamespace.BaseClass, global::TestNamespace.IWithBase
+                               public sealed partial record WithBase : global::TestNamespace.BaseClass, global::TestNamespace.IWithBase
                                {
                                }
 
@@ -268,7 +268,7 @@ public class GenerateRecordGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -289,7 +289,7 @@ public class GenerateRecordGeneratorTests
                                /// <summary>
                                ///     Implementation of <see cref="global::TestNamespace.IWithBase" />.
                                /// </summary>
-                               public partial record WithBase : global::TestNamespace.BaseClass<WithBase>, global::TestNamespace.IWithBase
+                               public sealed partial record WithBase : global::TestNamespace.BaseClass<WithBase>, global::TestNamespace.IWithBase
                                {
                                }
 
@@ -305,7 +305,7 @@ public class GenerateRecordGeneratorTests
     {
         const String oldText = """
                                using System;
-                               using VoxelGame.Annotations;
+                               using VoxelGame.Annotations.Attributes;
 
                                namespace TestNamespace;
 
@@ -326,7 +326,7 @@ public class GenerateRecordGeneratorTests
                                /// <summary>
                                ///     Implementation of <see cref="global::TestNamespace.IWithBase" />.
                                /// </summary>
-                               public partial record WithBase : global::TestNamespace.BaseClass<global::System.Int32>, global::TestNamespace.IWithBase
+                               public sealed partial record WithBase : global::TestNamespace.BaseClass<global::System.Int32>, global::TestNamespace.IWithBase
                                {
                                }
 

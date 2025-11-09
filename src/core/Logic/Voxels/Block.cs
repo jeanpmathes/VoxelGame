@@ -67,7 +67,8 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <summary>
     ///     The states of the block.
     /// </summary>
-    public StateSet States { get; private set; } = null!;
+    [LateInitialization]
+    public partial StateSet States { get; protected set; }
 
     [LateInitialization] private partial IEvent<IActorCollisionMessage> ActorCollision { get; set; }
 
@@ -362,7 +363,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (IsAlwaysFull) return true;
 
         if (Get<PartialHeight>() is {} height)
-            return height.GetHeight(state).IsFull;
+            return height.GetCurrentHeight(state).IsFull;
 
         return false;
     }
@@ -378,7 +379,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (IsAlwaysFull) return true;
 
         if (Get<PartialHeight>() is {} height)
-            return height.GetHeight(state).IsFull || height.IsSideFull(side, state);
+            return height.GetCurrentHeight(state).IsFull || height.IsSideFull(side, state);
 
         return false;
     }
@@ -413,11 +414,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         ActorCollisionMessage actorCollision = IEventMessage<ActorCollisionMessage>.Pool.Get();
 
-        {
-            actorCollision.Body = body;
-            actorCollision.Position = position;
-            actorCollision.State = potentialBlock.Value;
-        }
+        actorCollision.Body = body;
+        actorCollision.Position = position;
+        actorCollision.State = potentialBlock.Value;
 
         ActorCollision.Publish(actorCollision);
         
@@ -440,11 +439,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         ActorInteractionMessage actorInteraction = IEventMessage<ActorInteractionMessage>.Pool.Get();
 
-        {
-            actorInteraction.Actor = actor;
-            actorInteraction.Position = position;
-            actorInteraction.State = potentialBlock.Value;
-        }
+        actorInteraction.Actor = actor;
+        actorInteraction.Position = position;
+        actorInteraction.State = potentialBlock.Value;
 
         ActorInteraction.Publish(actorInteraction);
         
@@ -485,12 +482,10 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         {
             PlacementMessage placement = IEventMessage<PlacementMessage>.Pool.Get();
 
-            {
-                placement.World = world;
-                placement.Position = position;
-                placement.Actor = actor;
-                placement.PlacementState = placementState;
-            }
+            placement.World = world;
+            placement.Position = position;
+            placement.Actor = actor;
+            placement.PlacementState = placementState;
 
             Placement.Publish(placement);
             
@@ -503,11 +498,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         PlacementCompletedMessage placementCompleted = IEventMessage<PlacementCompletedMessage>.Pool.Get();
 
-        {
-            placementCompleted.World = world;
-            placementCompleted.Position = position;
-            placementCompleted.Actor = actor;
-        }
+        placementCompleted.World = world;
+        placementCompleted.Position = position;
+        placementCompleted.Actor = actor;
         
         PlacementCompleted.Publish(placementCompleted);
         
@@ -567,12 +560,10 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         {
             DestructionMessage destruction = IEventMessage<DestructionMessage>.Pool.Get();
             
-            {
-                destruction.World = world;
-                destruction.Position = position;
-                destruction.State = block;
-                destruction.Actor = actor;
-            }
+            destruction.World = world;
+            destruction.Position = position;
+            destruction.State = block;
+            destruction.Actor = actor;
 
             Destruction.Publish(destruction);
             
@@ -585,12 +576,10 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         
         DestructionCompletedMessage destructionCompleted = IEventMessage<DestructionCompletedMessage>.Pool.Get();
         
-        {
-            destructionCompleted.World = world;
-            destructionCompleted.Position = position;
-            destructionCompleted.State = block;
-            destructionCompleted.Actor = actor;
-        }
+        destructionCompleted.World = world;
+        destructionCompleted.Position = position;
+        destructionCompleted.State = block;
+        destructionCompleted.Actor = actor;
         
         DestructionCompleted.Publish(destructionCompleted);
         
@@ -637,12 +626,10 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         
         StateUpdateMessage stateUpdate = IEventMessage<StateUpdateMessage>.Pool.Get();
 
-        {
-            stateUpdate.World = world;
-            stateUpdate.Position = position;
-            stateUpdate.OldState = oldContent;
-            stateUpdate.NewState = newContent;
-        }
+        stateUpdate.World = world;
+        stateUpdate.Position = position;
+        stateUpdate.OldState = oldContent;
+        stateUpdate.NewState = newContent;
         
         StateUpdate.Publish(stateUpdate);
         
@@ -656,12 +643,10 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         
         NeighborUpdateMessage neighborUpdate = IEventMessage<NeighborUpdateMessage>.Pool.Get();
 
-        {
-            neighborUpdate.World = world;
-            neighborUpdate.Position = position;
-            neighborUpdate.State = state;
-            neighborUpdate.Side = side;
-        }
+        neighborUpdate.World = world;
+        neighborUpdate.Position = position;
+        neighborUpdate.State = state;
+        neighborUpdate.Side = side;
         
         NeighborUpdate.Publish(neighborUpdate);
         
@@ -675,11 +660,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         RandomUpdateMessage randomUpdate = IEventMessage<RandomUpdateMessage>.Pool.Get();
 
-        {
-            randomUpdate.World = world;
-            randomUpdate.Position = position;
-            randomUpdate.State = state;
-        }
+        randomUpdate.World = world;
+        randomUpdate.Position = position;
+        randomUpdate.State = state;
 
         RandomUpdate.Publish(randomUpdate);
             
@@ -693,11 +676,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         ScheduledUpdateMessage scheduledUpdate = IEventMessage<ScheduledUpdateMessage>.Pool.Get();
 
-        {
-            scheduledUpdate.World = world;
-            scheduledUpdate.Position = position;
-            scheduledUpdate.State = state;
-        }
+        scheduledUpdate.World = world;
+        scheduledUpdate.Position = position;
+        scheduledUpdate.State = state;
 
         ScheduledUpdate.Publish(scheduledUpdate);
             
@@ -731,7 +712,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         placementBoundingVolume = BoundingVolume.GetValue(Physics.BoundingVolume.Block, States.PlacementDefault);
 
-        foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
+        foreach ((State state, Int32 index) in States.AllStatesWithIndex)
         {
             if (!Constraint.IsStateValid(state))
             {
@@ -805,7 +786,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent when an actor collides with this block.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IActorCollisionMessage : IEventMessage
+    public interface IActorCollisionMessage
     {
         /// <summary>
         ///     The body of the actor that collided with the block.
@@ -827,7 +808,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent when an actor interacts with this block.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IActorInteractionMessage : IEventMessage
+    public interface IActorInteractionMessage
     {
         /// <summary>
         ///     The actor that interacted with the block.
@@ -849,7 +830,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent when the block is actually placed in the world.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IPlacementMessage : IEventMessage
+    public interface IPlacementMessage
     {
         /// <summary>
         ///     The world in which the placement occurs.
@@ -876,7 +857,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent after the block was placed in the world successfully.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IPlacementCompletedMessage : IEventMessage
+    public interface IPlacementCompletedMessage
     {
         /// <summary>
         ///     The world in which the placement was completed.
@@ -898,7 +879,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent when the block is actually destroyed in the world.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IDestructionMessage : IEventMessage
+    public interface IDestructionMessage
     {
         /// <summary>
         ///     The world in which the destruction occurs.
@@ -925,7 +906,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent after the block was destroyed in the world successfully.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IDestructionCompletedMessage : IEventMessage
+    public interface IDestructionCompletedMessage
     {
         /// <summary>
         ///     The world in which the destruction was completed.
@@ -952,7 +933,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent when the state of a block changes, including when the fluid at its position changes.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IStateUpdateMessage : IEventMessage
+    public interface IStateUpdateMessage
     {
         /// <summary>
         ///     The world in which the content update occurs.
@@ -987,7 +968,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent when a neighboring position is changed.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface INeighborUpdateMessage : IEventMessage
+    public interface INeighborUpdateMessage
     {
         /// <summary>
         ///     The world in which the neighbor update occurs.
@@ -1014,7 +995,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent for random updates.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IRandomUpdateMessage : IEventMessage
+    public interface IRandomUpdateMessage
     {
         /// <summary>
         ///     The world in which the random update occurs.
@@ -1036,7 +1017,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent for scheduled updates.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IScheduledUpdateMessage : IEventMessage
+    public interface IScheduledUpdateMessage
     {
         /// <summary>
         ///     The world in which the scheduled update occurs.
@@ -1058,7 +1039,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Sent after the chunk the block is in has been generated.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IGeneratorUpdateMessage : IEventMessage
+    public interface IGeneratorUpdateMessage
     {
         /// <summary>
         ///     The content that is generated, containing this block.

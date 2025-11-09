@@ -262,6 +262,8 @@ public abstract class Composed<TSelf, TComponent> : Composed
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
+        base.Dispose(disposing);
+        
         if (!disposing)
             return;
 

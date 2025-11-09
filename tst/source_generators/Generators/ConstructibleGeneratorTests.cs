@@ -24,7 +24,7 @@ public class ConstructibleGeneratorTests
     {
         const String source = """
                              using System;
-                             using VoxelGame.Annotations;
+                             using VoxelGame.Annotations.Attributes;
                              namespace TestNamespace;
 
                              public partial class SingleParameterConstructible
@@ -65,7 +65,7 @@ public class ConstructibleGeneratorTests
     {
         const String source = """
                              using System;
-                             using VoxelGame.Annotations;
+                             using VoxelGame.Annotations.Attributes;
                              namespace TestNamespace;
 
                              public partial class TwoParameterConstructible
@@ -106,7 +106,7 @@ public class ConstructibleGeneratorTests
     {
         const String source = """
                              using System;
-                             using VoxelGame.Annotations;
+                             using VoxelGame.Annotations.Attributes;
                              namespace TestNamespace;
 
                              public partial class MultiParameterConstructible

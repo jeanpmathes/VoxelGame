@@ -44,18 +44,22 @@ public class TermiteMoundDecoration : Decoration
         for (var y = 0; y < Size; y++)
         for (var z = 0; z < Size; z++)
         {
-            Vector3i offset = new(x, y, z);
-            Vector3i current = center + offset;
-
-            if (!shape.Contains(offset - extents)) continue;
-
-            Content? content = grid.GetContent(current);
-
-            if (content is not {Block: var block})
-                continue;
-
-            if (block.IsReplaceable || block.Block.Is<Regolith>())
-                grid.SetContent(Content.CreateGenerated(Blocks.Instance.Organic.TermiteMound), current);
+            CheckPosition(grid, center, (x, y, z), extents);
         }
+    }
+
+    private void CheckPosition(IGrid grid, Vector3i center, Vector3i offset, Vector3i extents)
+    {
+        Vector3i current = center + offset;
+
+        if (!shape.Contains(offset - extents)) return;
+
+        Content? content = grid.GetContent(current);
+
+        if (content is not {Block: var block})
+            return;
+
+        if (block.IsReplaceable || block.Block.Is<Regolith>())
+            grid.SetContent(Content.CreateGenerated(Blocks.Instance.Organic.TermiteMound), current);
     }
 }

@@ -221,31 +221,6 @@ public static class SideExtensions
     }
 
     /// <summary>
-    ///     Get the opposite sides of the given sides.
-    ///     Note that this is not simply a bitwise negation, as <c>None</c> and <c>All</c> remain unchanged.
-    ///     Additionally, if two opposite sides are set, they remain set.
-    /// </summary>
-    /// <param name="side">The sides to get the opposite of.</param>
-    /// <returns>The opposite sides.</returns>
-    public static Sides Opposite(this Sides side)
-    {
-        if (side is Voxels.Sides.None or Voxels.Sides.All) return side;
-
-        var result = Voxels.Sides.None;
-
-        if (side.HasFlag(Voxels.Sides.Front)) result |= Voxels.Sides.Back;
-        if (side.HasFlag(Voxels.Sides.Back)) result |= Voxels.Sides.Front;
-
-        if (side.HasFlag(Voxels.Sides.Left)) result |= Voxels.Sides.Right;
-        if (side.HasFlag(Voxels.Sides.Right)) result |= Voxels.Sides.Left;
-
-        if (side.HasFlag(Voxels.Sides.Bottom)) result |= Voxels.Sides.Top;
-        if (side.HasFlag(Voxels.Sides.Top)) result |= Voxels.Sides.Bottom;
-
-        return result;
-    }
-
-    /// <summary>
     ///     Get the flag for a side.
     /// </summary>
     public static Sides ToFlag(this Side side)
@@ -291,6 +266,31 @@ public static class SideExtensions
             Side.Top => Side.Bottom,
             _ => throw Exceptions.UnsupportedEnumValue(side)
         };
+    }
+    
+    /// <summary>
+    ///     Get the opposite sides of the given sides.
+    ///     Note that this is not simply a bitwise negation, as <c>None</c> and <c>All</c> remain unchanged.
+    ///     Additionally, if two opposite sides are set, they remain set.
+    /// </summary>
+    /// <param name="side">The sides to get the opposite of.</param>
+    /// <returns>The opposite sides.</returns>
+    public static Sides Opposite(this Sides side)
+    {
+        if (side is Voxels.Sides.None or Voxels.Sides.All) return side;
+
+        var result = Voxels.Sides.None;
+
+        if (side.HasFlag(Voxels.Sides.Front)) result |= Voxels.Sides.Back;
+        if (side.HasFlag(Voxels.Sides.Back)) result |= Voxels.Sides.Front;
+
+        if (side.HasFlag(Voxels.Sides.Left)) result |= Voxels.Sides.Right;
+        if (side.HasFlag(Voxels.Sides.Right)) result |= Voxels.Sides.Left;
+
+        if (side.HasFlag(Voxels.Sides.Bottom)) result |= Voxels.Sides.Top;
+        if (side.HasFlag(Voxels.Sides.Top)) result |= Voxels.Sides.Bottom;
+
+        return result;
     }
 
     /// <summary>

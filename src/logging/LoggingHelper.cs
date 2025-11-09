@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
 using System.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -69,6 +68,8 @@ public static partial class LoggingHelper
 
         return LoggerFactory.CreateLogger(category);
     }
+    
+    private static Boolean isMockLoggingSetUp = false;
 
     /// <summary>
     ///     Set up a mock logger. All loggers created with this helper will be null loggers.
@@ -76,8 +77,13 @@ public static partial class LoggingHelper
     /// <returns>A mock logger.</returns>
     public static ILogger SetUpMockLogging()
     {
-        LoggerFactory ??= new NullLoggerFactory();
-
+        if (!isMockLoggingSetUp)
+        {
+            LoggerFactory = new NullLoggerFactory();
+            
+            isMockLoggingSetUp = true;
+        }
+        
         return LoggerFactory.CreateLogger("Mock");
     }
 }

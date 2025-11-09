@@ -152,7 +152,7 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
                           {{i}}/// <summary>
                           {{i}}///     Implementation of <see cref="{{model.InterfaceDisplay}}" />.
                           {{i}}/// </summary>
-                          {{i}}{{(isNested ? "private" : "public")}} partial record {{recordName}}{{implements}}
+                          {{i}}{{(isNested ? "private" : "public")}} sealed partial record {{recordName}}{{implements}}
                           {{i}}{
                           """);
 
@@ -183,7 +183,18 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
         return interfaceName + "Record";
     }
 
-    private record struct InterfaceModel(ContainingType? ContainingType, String Namespace, String InterfaceDisplay, String InterfaceName, ImmutableArray<PropertyModel> Properties, String? BaseType, Boolean IsBaseTypeGeneric);
+    private record struct InterfaceModel(
+        ContainingType? ContainingType, 
+        String Namespace, 
+        String InterfaceDisplay, 
+        String InterfaceName, 
+        ImmutableArray<PropertyModel> Properties, 
+        String? BaseType, 
+        Boolean IsBaseTypeGeneric);
 
-    private record struct PropertyModel(String Name, String TypeDisplay, Boolean IsReferenceType, Boolean IsNullableAnnotated);
+    private record struct PropertyModel(
+        String Name, 
+        String TypeDisplay, 
+        Boolean IsReferenceType, 
+        Boolean IsNullableAnnotated);
 }

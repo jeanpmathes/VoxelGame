@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -23,33 +24,33 @@ public sealed class StaticStructureLoader : IResourceLoader
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context)
-    {
-        FileInfo[] files;
-
-        try
+    public IEnumerable<IResource> Load(IResourceContext context) => context.Require<Block>(_ =>
         {
-            files = directory.GetFiles(FileSystem.GetResourceSearchPattern<StaticStructure>());
-        }
-        catch (DirectoryNotFoundException exception)
-        {
-            return [new MissingResource(ResourceTypes.Directory, RID.Path(directory), ResourceIssue.FromException(Level.Warning, exception))];
-        }
+            FileInfo[] files;
 
-        List<IResource> loaded = [];
-
-        Operations.Launch(async token =>
-        {
-            foreach (FileInfo file in files)
+            try
             {
-                Result<StaticStructure> result = await StaticStructure.LoadAsync(file, context, token).InAnyContext();
-
-                result.Switch(
-                    structure => loaded.Add(structure),
-                    exception => loaded.Add(new MissingResource(ResourceTypes.Structure, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception))));
+                files = directory.GetFiles(FileSystem.GetResourceSearchPattern<StaticStructure>());
             }
-        }).Wait().ThrowIfError();
+            catch (DirectoryNotFoundException exception)
+            {
+                return [new MissingResource(ResourceTypes.Directory, RID.Path(directory), ResourceIssue.FromException(Level.Warning, exception))];
+            }
 
-        return loaded;
-    }
+            List<IResource> loaded = [];
+
+            Operations.Launch(async token =>
+            {
+                foreach (FileInfo file in files)
+                {
+                    Result<StaticStructure> result = await StaticStructure.LoadAsync(file, context, token).InAnyContext();
+
+                    result.Switch(
+                        structure => loaded.Add(structure),
+                        exception => loaded.Add(new MissingResource(ResourceTypes.Structure, RID.Path(file), ResourceIssue.FromException(Level.Warning, exception))));
+                }
+            }).Wait().ThrowIfError();
+
+            return loaded;
+        });
 }

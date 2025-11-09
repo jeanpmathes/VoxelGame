@@ -48,10 +48,8 @@ public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, Block
 
         AshCoverMessage ashCover = IEventMessage<AshCoverMessage>.Pool.Get();
 
-        {
-            ashCover.World = world;
-            ashCover.Position = position;
-        }
+        ashCover.World = world;
+        ashCover.Position = position;
 
         AshCover.Publish(ashCover);
         
@@ -62,7 +60,7 @@ public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, Block
     ///     Sent when a block should be covered with ash.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IAshCoverMessage : IEventMessage
+    public interface IAshCoverMessage
     {
         /// <summary>
         ///     The world the block is in.

@@ -64,13 +64,16 @@ public class MeasureGeneratorTests
                                     public global::System.Double Meters { get; init; }
 
                                     /// <inheritdoc />
-                                    public static global::VoxelGame.Core.Utilities.Units.Unit Unit => global::VoxelGame.Core.Utilities.Units.Unit.Meter;
+                                    public static global::VoxelGame.Core.Utilities.Units.Unit Unit 
+                                        => global::VoxelGame.Core.Utilities.Units.Unit.Meter;
 
                                     /// <inheritdoc />
-                                    public static global::VoxelGame.Annotations.Definitions.AllowedPrefixes Prefixes => (global::VoxelGame.Annotations.Definitions.AllowedPrefixes) 0;
+                                    public static global::VoxelGame.Annotations.Definitions.AllowedPrefixes Prefixes 
+                                        => (global::VoxelGame.Annotations.Definitions.AllowedPrefixes) 0;
 
                                     /// <inheritdoc />
-                                    global::System.Double global::VoxelGame.Core.Utilities.Units.IMeasure.Value => Meters;
+                                    global::System.Double global::VoxelGame.Core.Utilities.Units.IMeasure.Value 
+                                        => Meters;
 
                                     /// <inheritdoc />
                                     public global::System.Boolean Equals(Length other)

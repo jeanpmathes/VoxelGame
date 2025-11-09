@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using OpenTK.Mathematics;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;

@@ -40,11 +40,9 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
 
         ModifyHeightMessage modifyHeight = IEventMessage<ModifyHeightMessage>.Pool.Get();
 
-        {
-            modifyHeight.World = message.Actor.World;
-            modifyHeight.Position = message.Position;
-            modifyHeight.State = message.State;
-        }
+        modifyHeight.World = message.Actor.World;
+        modifyHeight.Position = message.Position;
+        modifyHeight.State = message.State;
 
         ModifyHeight.Publish(modifyHeight);
         
@@ -62,7 +60,7 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
     ///     Sent when the height of the block should be modified.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IModifyHeightMessage : IEventMessage
+    public interface IModifyHeightMessage
     {
         /// <summary>
         ///     The world in which the block is located.

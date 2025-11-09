@@ -6,7 +6,6 @@
 
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Materials;

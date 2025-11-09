@@ -17,12 +17,21 @@ namespace VoxelGame.Core.Tests.Logic.Attributes;
 [TestSubject(typeof(StateSet))]
 public class StateSetTests
 {
+    private static StateBuilder CreateStateBuilder()
+    {
+        Validator validator = new(new MockResourceContext());
+        
+        validator.SetScope(new MockBlock());
+        
+        return new StateBuilder(validator);
+    }
+    
     [Fact]
     public void StateSet_GenerationDefault_ShouldContainSpecifiedValues()
     {
-        StateBuilder builder = new(new Validator(new MockResourceContext()));
+        StateBuilder builder = CreateStateBuilder();
         IAttribute<Boolean> boolAttribute = builder.Define("bool").Boolean().Attribute(generationDefault: true);
-        IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute(TestState.C);
+        IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute(generationDefault: TestState.C);
 
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 

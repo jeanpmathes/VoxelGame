@@ -6,7 +6,6 @@
 
 using System.Collections.Generic;
 using VoxelGame.Core.Generation.Worlds;
-using VoxelGame.Core.Generation.Worlds.Default;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Generation;
@@ -20,7 +19,7 @@ public class Generators : ResourceCatalog
     ///     Create a new instance of the generators catalog.
     /// </summary>
     public Generators() : base([
-        .. GetGeneratorEntries<Generator>(),
+        .. GetGeneratorEntries<Worlds.Default.Generator>(),
         .. GetGeneratorEntries<Worlds.Water.Generator>()
     ]) {}
 

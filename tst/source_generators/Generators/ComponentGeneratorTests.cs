@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Annotations;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.SourceGenerators.Generators;
 using VoxelGame.SourceGenerators.Tests.Utilities;
@@ -16,11 +15,11 @@ namespace VoxelGame.SourceGenerators.Tests.Generators;
 public class ComponentGeneratorTests
 {
     [Fact]
-    public void ComponentCompositionGenerator_GeneratesSubjectAndComponentSources()
+    public void ComponentCompositionGenerator_ShouldGenerateSubjectAndComponentSources()
     {
         const String source = """
                               using System;
-                              using VoxelGame.Annotations;
+                              using VoxelGame.Annotations.Attributes;
 
                               namespace VoxelGame.Toolkit.Components
                               {
@@ -46,21 +45,22 @@ public class ComponentGeneratorTests
                                   }
                               }
 
-                              namespace TestNamespace;
-
-                              [ComponentSubject(typeof(TestComponent))]
-                              public partial class TestSubject : VoxelGame.Toolkit.Components.Composed<TestSubject, TestComponent>
+                              namespace TestNamespace 
                               {
-                                  [ComponentEvent(nameof(TestComponent.OnEvent))]
-                                  private partial void OnEvent();
+                                  [ComponentSubject(typeof(TestComponent))]
+                                  public partial class TestSubject : VoxelGame.Toolkit.Components.Composed<TestSubject, TestComponent>
+                                  {
+                                      [ComponentEvent(nameof(TestComponent.OnEvent))]
+                                      private partial void OnEvent();
 
-                                  [ComponentEvent(nameof(TestComponent.OnParameterized))]
-                                  public partial void OnParameterized(Int32 value);
-                              }
+                                      [ComponentEvent(nameof(TestComponent.OnParameterized))]
+                                      public partial void OnParameterized(Int32 value);
+                                  }
 
-                              public partial class TestComponent : VoxelGame.Toolkit.Components.Component<TestSubject>
-                              {
-                                  public TestComponent(TestSubject subject) : base(subject) {}
+                                  public partial class TestComponent : VoxelGame.Toolkit.Components.Component<TestSubject>
+                                  {
+                                      public TestComponent(TestSubject subject) : base(subject) {}
+                                  }
                               }
                               """;
 
@@ -74,34 +74,35 @@ public class ComponentGeneratorTests
 
                                        public partial class TestSubject
                                        {
-                                           protected override global::TestNamespace.TestSubject Self => this;
+                                           /// <inheritdoc />
+                                           protected override TestSubject Self => this;
 
                                            private readonly global::System.Collections.Generic.HashSet<global::TestNamespace.TestComponent> @__onEventComponents = new();
-                                           private readonly global::System.Collections.Generic.HashSet<global::TestNamespace.TestComponent> @__onEventComponentsPendingRemoval = new();
+                                           private readonly global::System.Collections.Generic.HashSet<global::TestNamespace.TestComponent> @__onEventPendingRemoval = new();
 
                                            private readonly global::System.Collections.Generic.HashSet<global::TestNamespace.TestComponent> @__onParameterizedComponents = new();
-                                           private readonly global::System.Collections.Generic.HashSet<global::TestNamespace.TestComponent> @__onParameterizedComponentsPendingRemoval = new();
+                                           private readonly global::System.Collections.Generic.HashSet<global::TestNamespace.TestComponent> @__onParameterizedPendingRemoval = new();
 
                                            private global::System.Int32 @__testSubjectComponentEventIterationDepth;
 
+                                           /// <inheritdoc />
                                            protected override void OnComponentAdded(global::TestNamespace.TestComponent component)
                                            {
-                                               base.OnComponentAdded(component);
                                                RegisterComponentEvents(component);
                                            }
 
+                                           /// <inheritdoc />
                                            protected override void OnComponentRemoved(global::TestNamespace.TestComponent component)
                                            {
-                                               base.OnComponentRemoved(component);
                                                UnregisterComponentEvents(component);
                                            }
 
                                            private void RegisterComponentEvents(global::TestNamespace.TestComponent component)
                                            {
                                                @__onEventComponents.Add(component);
-                                               @__onEventComponentsPendingRemoval.Remove(component);
+                                               @__onEventPendingRemoval.Remove(component);
                                                @__onParameterizedComponents.Add(component);
-                                               @__onParameterizedComponentsPendingRemoval.Remove(component);
+                                               @__onParameterizedPendingRemoval.Remove(component);
                                            }
 
                                            private void UnregisterComponentEvents(global::TestNamespace.TestComponent component)
@@ -112,78 +113,77 @@ public class ComponentGeneratorTests
 
                                            internal void Disable_OnEvent(global::TestNamespace.TestComponent component)
                                            {
-                                               if (testSubjectComponentEventIterationDepth > 0)
+                                               if (@__testSubjectComponentEventIterationDepth > 0)
                                                {
-                                                   @__onEventComponentsPendingRemoval.Add(component);
+                                                   @__onEventPendingRemoval.Add(component);
                                                }
                                                else
                                                {
-                                                   @__onEventComponentsPendingRemoval.Remove(component);
+                                                   @__onEventPendingRemoval.Remove(component);
                                                    @__onEventComponents.Remove(component);
                                                }
                                            }
 
                                            internal void Disable_OnParameterized(global::TestNamespace.TestComponent component)
                                            {
-                                               if (testSubjectComponentEventIterationDepth > 0)
+                                               if (@__testSubjectComponentEventIterationDepth > 0)
                                                {
-                                                   @__onParameterizedComponentsPendingRemoval.Add(component);
+                                                   @__onParameterizedPendingRemoval.Add(component);
                                                }
                                                else
                                                {
-                                                   @__onParameterizedComponentsPendingRemoval.Remove(component);
+                                                   @__onParameterizedPendingRemoval.Remove(component);
                                                    @__onParameterizedComponents.Remove(component);
                                                }
                                            }
 
-                                           private void FlushPendingTestSubjectComponentEventRemovals()
+                                           private void FlushPendingTestSubjectEventRemovals()
                                            {
-                                               foreach (global::TestNamespace.TestComponent component in onEventComponentsPendingRemoval)
+                                               foreach (var component in @__onEventPendingRemoval)
                                                {
                                                    @__onEventComponents.Remove(component);
                                                }
-                                               @__onEventComponentsPendingRemoval.Clear();
-
-                                               foreach (global::TestNamespace.TestComponent component in onParameterizedComponentsPendingRemoval)
+                                               @__onEventPendingRemoval.Clear();
+                                               foreach (var component in @__onParameterizedPendingRemoval)
                                                {
                                                    @__onParameterizedComponents.Remove(component);
                                                }
-                                               @__onParameterizedComponentsPendingRemoval.Clear();
+                                               @__onParameterizedPendingRemoval.Clear();
                                            }
 
                                            private partial void OnEvent()
                                            {
-                                               @__testSubjectComponentEventIterationDepth++;
+                                               @__testSubjectComponentEventIterationDepth += 1;
                                                try
                                                {
-                                                   foreach (global::TestNamespace.TestComponent component in onEventComponents)
+                                                   foreach (var component in @__onEventComponents)
                                                    {
                                                        component.OnEvent();
                                                    }
                                                }
                                                finally
                                                {
-                                                   @__testSubjectComponentEventIterationDepth--;
+                                                   @__testSubjectComponentEventIterationDepth -= 1;
                                                    if (@__testSubjectComponentEventIterationDepth == 0)
-                                                       FlushPendingTestSubjectComponentEventRemovals();
+                                                       FlushPendingTestSubjectEventRemovals();
                                                }
                                            }
 
                                            public partial void OnParameterized(global::System.Int32 value)
                                            {
-                                               @__testSubjectComponentEventIterationDepth++;
+                                               @__testSubjectComponentEventIterationDepth += 1;
                                                try
                                                {
-                                                   foreach (global::TestNamespace.TestComponent component in onParameterizedComponents)
+                                                   foreach (var component in @__onParameterizedComponents)
                                                    {
                                                        component.OnParameterized(value);
                                                    }
                                                }
                                                finally
                                                {
-                                                   @__testSubjectComponentEventIterationDepth--;
-                                                   if (testSubjectComponentEventIterationDepth == 0)
-                                                       FlushPendingTestSubjectComponentEventRemovals();
+                                                   @__testSubjectComponentEventIterationDepth -= 1;
+                                                   if (@__testSubjectComponentEventIterationDepth == 0)
+                                                       FlushPendingTestSubjectEventRemovals();
                                                }
                                            }
                                        }
@@ -200,11 +200,12 @@ public class ComponentGeneratorTests
 
                                          public partial class TestComponent
                                          {
+                                             /// <inheritdoc cref="global::TestNamespace.TestSubject.OnEvent" />
                                              public virtual void OnEvent()
                                              {
                                                  Subject.Disable_OnEvent(this);
                                              }
-
+                                             /// <inheritdoc cref="global::TestNamespace.TestSubject.OnParameterized" />
                                              public virtual void OnParameterized(global::System.Int32 value)
                                              {
                                                  Subject.Disable_OnParameterized(this);
@@ -213,14 +214,14 @@ public class ComponentGeneratorTests
 
                                          """;
 
-        String generatedSubject = TestTools.RunGenerator<ComponentGenerator>(source, "TestNamespace.TestSubject_ComponentComposition.g.cs", typeof(ComponentSubjectAttribute), typeof(ComponentEventAttribute));
+        String generatedSubject = TestTools.RunGenerator<ComponentGenerator>(source, "_ComponentSubject.g.cs", typeof(ComponentSubjectAttribute), typeof(ComponentEventAttribute));
 
         Assert.Equal(expectedSubject,
             generatedSubject,
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
 
-        String generatedComponent = TestTools.RunGenerator<ComponentGenerator>(source, "TestNamespace.TestComponent_ComponentDefaults.g.cs", typeof(ComponentSubjectAttribute), typeof(ComponentEventAttribute));
+        String generatedComponent = TestTools.RunGenerator<ComponentGenerator>(source, "_Component.g.cs", typeof(ComponentSubjectAttribute), typeof(ComponentEventAttribute));
 
         Assert.Equal(expectedComponent,
             generatedComponent,

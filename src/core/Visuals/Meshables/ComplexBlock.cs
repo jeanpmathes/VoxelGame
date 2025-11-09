@@ -43,7 +43,7 @@ public class ComplexBlock : Block
     {
         meshData = new Complex.MeshData[States.Count];
 
-        foreach ((State state, Int32 index) in States.GetAllStatesWithIndex())
+        foreach ((State state, Int32 index) in States.AllStatesWithIndex)
         {
             if (!Constraint.IsStateValid(state))
             {

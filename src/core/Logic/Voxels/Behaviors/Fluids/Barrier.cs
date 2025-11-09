@@ -8,7 +8,6 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Core.Logic.Attributes;
 
@@ -23,8 +22,8 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
     private Barrier(Block subject) : base(subject)
     {
         var fillable = subject.Require<Fillable>();
-        fillable.IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
-        fillable.IsOutflowAllowed.ContributeFunction(GetIsOutflowAllowed);
+        fillable.IsInflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);
+        fillable.IsOutflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);
     }
 
     [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
@@ -41,14 +40,7 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
         IsOpen = builder.Define(nameof(IsOpen)).Boolean().Attribute();
     }
 
-    private Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
-    {
-        (World _, Vector3i _, State state, Side _, Fluid _) = context;
-
-        return IsBarrierOpen(state);
-    }
-
-    private Boolean GetIsOutflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
+    private Boolean GetIsInflowOrOutflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {
         (World _, Vector3i _, State state, Side _, Fluid _) = context;
 

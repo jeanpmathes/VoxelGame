@@ -1,4 +1,4 @@
-﻿// <copyright file = "Chance.cs" company = "VoxelGame">
+﻿// <copyright file="Chance.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -62,21 +62,15 @@ public readonly struct Chance : IEquatable<Chance>, IComparable<Chance>
     }
     
     /// <inheritdoc />
-    public override Int32 GetHashCode()
-    {
-        return value.GetHashCode();
-    }
-
-    /// <inheritdoc />
     public Boolean Equals(Chance other)
     {
         return value == other.value;
     }
     
     /// <inheritdoc />
-    public Int32 CompareTo(Chance other)
+    public override Int32 GetHashCode()
     {
-        return value.CompareTo(other.value);
+        return value.GetHashCode();
     }
     
     /// <summary>
@@ -96,4 +90,46 @@ public readonly struct Chance : IEquatable<Chance>, IComparable<Chance>
     }
     
     #endregion EQUALITY
+    
+    #region COMPARABLE
+    
+    /// <inheritdoc />
+    public Int32 CompareTo(Chance other)
+    {
+        return value.CompareTo(other.value);
+    }
+    
+    /// <summary>
+    /// Comparison operator for less than.
+    /// </summary>
+    public static Boolean operator <(Chance left, Chance right)
+    {
+        return left.CompareTo(right) < 0;
+    }
+    
+    /// <summary>
+    /// Comparison operator for less than or equal to.
+    /// </summary>
+    public static Boolean operator <=(Chance left, Chance right)
+    {
+        return left.CompareTo(right) <= 0;
+    }
+    
+    /// <summary>
+    /// Comparison operator for greater than.
+    /// </summary>
+    public static Boolean operator >(Chance left, Chance right)
+    {
+        return left.CompareTo(right) > 0;
+    }
+    
+    /// <summary>
+    /// Comparison operator for greater than or equal to.
+    /// </summary>
+    public static Boolean operator >=(Chance left, Chance right)
+    {
+        return left.CompareTo(right) >= 0;
+    }
+    
+    #endregion COMPARABLE
 }

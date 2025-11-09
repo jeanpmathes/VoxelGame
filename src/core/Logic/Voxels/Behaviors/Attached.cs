@@ -130,16 +130,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
             return AttachedState.GetValue(original, (original, side.Value.ToFlag())) ?? original;
         }
 
-        var attachableSides = Sides.None;
-
-        foreach (Side possibleSide in Side.All.Sides())
-        {
-            if (AttachmentSides.Get().HasFlag(possibleSide.ToFlag()) &&
-                context.world.GetBlock(context.position.Offset(possibleSide))?.IsFullySolid == true)
-            {
-                attachableSides |= possibleSide.ToFlag();
-            }
-        }
+        Sides attachableSides = GetAttachableSides(context.world, context.position, AttachmentSides.Get());
 
         return AttachedState.GetValue(original, (original, attachableSides)) ?? original;
     }
@@ -191,31 +182,16 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
             if (IsOtherwiseAttached.GetValue(original: false, (world, position, state)))
                 return;
 
-            foreach (Side side in Side.All.Sides())
+            Side side = sides.Single();
+
+            if (world.GetBlock(position.Offset(side))?.IsFullySolid != true)
             {
-                if (!sides.HasFlag(side.ToFlag()))
-                    continue;
-
-                if (world.GetBlock(position.Offset(side))?.IsFullySolid == true)
-                    continue;
-
                 Subject.ScheduleDestroy(world, position);
-
-                return;
             }
         }
         else
         {
-            var remainingSides = Sides.None;
-
-            foreach (Side side in Side.All.Sides())
-            {
-                if (sides.HasFlag(side.ToFlag()) &&
-                    world.GetBlock(position.Offset(side))?.IsFullySolid == true)
-                {
-                    remainingSides |= side.ToFlag();
-                }
-            }
+            Sides remainingSides = GetAttachableSides(world, position, sides);
 
             if (remainingSides == Sides.None)
             {
@@ -227,6 +203,22 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
                 world.SetBlock(newState, position);
             }
         }
+    }
+    
+    private static Sides GetAttachableSides(World world, Vector3i position, Sides allowed)
+    {
+        var sides = Sides.None;
+
+        foreach (Side side in Side.All.Sides())
+        {
+            if (allowed.HasFlag(side.ToFlag()) &&
+                world.GetBlock(position.Offset(side))?.IsFullySolid == true)
+            {
+                sides |= side.ToFlag();
+            }
+        }
+
+        return sides;
     }
     
     /// <summary>

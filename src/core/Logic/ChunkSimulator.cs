@@ -31,9 +31,9 @@ public partial class ChunkSimulator : WorldComponent
     private ChunkSimulator(World subject) : base(subject) {}
 
     /// <inheritdoc />
-    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
     {
-        using Timer? simTimer = logger.BeginTimedSubScoped("Chunk Simulation", timer);
+        using Timer? simTimer = logger.BeginTimedSubScoped("Chunk Simulation", updateTimer);
 
         SendLogicUpdatesForSimulation(deltaTime, simTimer);
     }

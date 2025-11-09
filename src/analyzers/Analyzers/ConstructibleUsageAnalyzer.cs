@@ -122,13 +122,13 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
 
     }
 
-    private static void Report(SyntaxNodeAnalysisContext context, Location location, IMethodSymbol constructorSymbol, String message)
+    private static void Report(SyntaxNodeAnalysisContext context, Location location, ISymbol constructorSymbol, String message)
     {
         var diagnostic = Diagnostic.Create(rule, location, constructorSymbol.ToDisplayString(), message);
         context.ReportDiagnostic(diagnostic);
     }
 
-    private static Boolean HasConstructibleAttribute(IMethodSymbol constructorSymbol)
+    private static Boolean HasConstructibleAttribute(ISymbol constructorSymbol)
     {
         foreach (AttributeData attribute in constructorSymbol.GetAttributes())
         {
@@ -145,7 +145,7 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
         return false;
     }
 
-    private static Boolean IsPartial(TypeDeclarationSyntax typeDeclaration)
+    private static Boolean IsPartial(MemberDeclarationSyntax typeDeclaration)
     {
         return typeDeclaration.Modifiers.Any(SyntaxKind.PartialKeyword);
     }

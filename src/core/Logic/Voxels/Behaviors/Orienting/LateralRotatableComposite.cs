@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
@@ -70,7 +69,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         (World world, Vector3i position, Actor? actor) = context;
 
         State state = Subject.GetPlacementState(world, position, actor);
-        Vector3i size = composite.GetSize(state);
+        Vector3i size = composite.GetCurrentSize(state);
 
         Orientation orientation = rotatable.GetOrientation(state);
 
@@ -96,7 +95,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     private void OnPlacement(Block.IPlacementMessage message)
     {
         State state = message.PlacementState;
-        Vector3i size = composite.GetSize(state);
+        Vector3i size = composite.GetCurrentSize(state);
 
         Orientation orientation = rotatable.GetOrientation(state);
 
@@ -118,7 +117,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void OnDestruction(Block.IDestructionMessage message)
     {
-        Vector3i size = composite.GetSize(message.State);
+        Vector3i size = composite.GetCurrentSize(message.State);
         Vector3i currentPart = composite.GetPartPosition(message.State);
 
         Orientation orientation = rotatable.GetOrientation(message.State);
@@ -141,8 +140,8 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         if (oldState == newState) return;
 
-        Vector3i oldSize = composite.GetSize(oldState);
-        Vector3i newSize = composite.GetSize(newState);
+        Vector3i oldSize = composite.GetCurrentSize(oldState);
+        Vector3i newSize = composite.GetCurrentSize(newState);
 
         Vector3i currentPart = composite.GetPartPosition(oldState);
         Orientation orientation = rotatable.GetOrientation(oldState);
@@ -166,7 +165,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
-        Vector3i size = composite.GetSize(message.State);
+        Vector3i size = composite.GetCurrentSize(message.State);
         Vector3i currentPart = composite.GetPartPosition(message.State);
 
         Orientation orientation = rotatable.GetOrientation(message.State);
@@ -191,22 +190,22 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         for (var z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
+            
             Boolean inOld = x < oldSize.X && y < oldSize.Y && z < oldSize.Z;
             Boolean inNew = x < newSize.X && y < newSize.Y && z < newSize.Z;
+            
+            Boolean kept = inOld && inNew;
+            Boolean removed = inOld && !inNew;
+            Boolean added = !inOld && inNew;
 
-            if (inOld && inNew)
+            if (kept || added)
             {
                 state = SetPartPosition(state, part);
                 world.SetBlock(state, position + Rotate(part, orientation));
             }
-            else if (inOld && !inNew)
+            else if (removed)
             {
                 world.SetDefaultBlock(position + Rotate(part, orientation));
-            }
-            else if (!inOld && inNew)
-            {
-                state = SetPartPosition(state, part);
-                world.SetBlock(state, position + Rotate(part, orientation));
             }
         }
     }
@@ -285,26 +284,8 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     /// <returns>A collider covering all parts of the composite block.</returns>
     public BoxCollider GetFullCollider(State state, Vector3i position)
     {
-        Vector3i partPosition = composite.GetPartPosition(state);
-        Vector3i rootPosition = position - partPosition;
-
-        Vector3i size = composite.GetSize(state);
-
-        List<BoundingVolume> volumes = new(size.X * size.Y * size.Z);
-
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
-        {
-            Vector3i currentPart = (x, y, z);
-            
-            State partState = SetPartPosition(state, currentPart);
-            
-            volumes.Add(Subject.GetBoundingVolume(partState).Translated(currentPart));
-        }
-
-        BoundingVolume combinedVolume = BoundingVolume.Combine(volumes);
-
-        return new BoxCollider(combinedVolume, new Vector3d(rootPosition.X, rootPosition.Y, rootPosition.Z));
+        CompositeColliderBuilder builder = new(composite, state, SetPartPosition);
+        
+        return builder.Build(position);
     }
 }

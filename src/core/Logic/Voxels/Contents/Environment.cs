@@ -4,7 +4,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Combustion;
@@ -182,7 +181,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<Modifiable>()
         .WithBehavior<Grounded>()
         .WithBehavior<Densifying>()
-        .WithBehavior<CoverPreserving, PartialHeight>((preserving, height) => preserving.Preservation.ContributeFunction((_, state) => height.GetHeight(state) < BlockHeight.Maximum - 2))
+        .WithBehavior<CoverPreserving, PartialHeight>((preserving, height) => preserving.Preservation.ContributeFunction((_, state) => height.GetCurrentHeight(state) < BlockHeight.Maximum - 2))
         .WithBehavior<DestroyOnFluid>()
         .Complete();
 
@@ -199,7 +198,7 @@ public class Environment(BlockBuilder builder) : Category(builder)
         .WithBehavior<DestroyOnFluid>()
         .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(value: 0.01))
         .WithProperties(properties => properties.IsSolid.ContributeConstant(value: false))
-        .WithBehavior<CoverPreserving, PartialHeight>((preserving, height) => preserving.Preservation.ContributeFunction((_, state) => !height.GetHeight(state).IsFull))
+        .WithBehavior<CoverPreserving, PartialHeight>((preserving, height) => preserving.Preservation.ContributeFunction((_, state) => !height.GetCurrentHeight(state).IsFull))
         .Complete();
 
     /// <summary>

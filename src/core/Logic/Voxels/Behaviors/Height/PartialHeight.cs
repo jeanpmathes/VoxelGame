@@ -36,7 +36,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
 
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
-        return BoundingVolume.BlockWithHeight(GetHeight(state).ToInt32());
+        return BoundingVolume.BlockWithHeight(GetCurrentHeight(state).ToInt32());
     }
 
     /// <inheritdoc />
@@ -51,7 +51,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     /// </summary>
     /// <param name="state">The state of the block.</param>
     /// <returns>The height of the block.</returns>
-    public BlockHeight GetHeight(State state)
+    public BlockHeight GetCurrentHeight(State state)
     {
         return Height.GetValue(BlockHeight.Minimum, state);
     }
@@ -66,7 +66,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     {
         if (side == Side.Bottom) return true;
 
-        return GetHeight(state).IsFull;
+        return GetCurrentHeight(state).IsFull;
     }
 
     /// <summary>
@@ -76,6 +76,6 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     /// <returns><c>true</c> if the block is full, <c>false</c> otherwise.</returns>
     public Boolean IsFull(State state)
     {
-        return GetHeight(state).IsFull;
+        return GetCurrentHeight(state).IsFull;
     }
 }

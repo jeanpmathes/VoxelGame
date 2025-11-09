@@ -151,7 +151,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     ///     Sent when the plant receives a random update and has already reached the last stage.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IMatureUpdateMessage : IEventMessage
+    public interface IMatureUpdateMessage
     {
         /// <summary>
         ///     The world in which the plant is located.

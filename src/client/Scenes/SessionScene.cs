@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Actors;
@@ -35,8 +36,7 @@ public sealed class SessionScene : Scene, IInputControl
 
     private readonly EventHandler<FocusChangeEventArgs> onFocusChange;
 
-    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Disposed in OnUnload")]
-    private Session session;
+    private Session? session;
 
     internal SessionScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine) : base(client)
     {
@@ -91,8 +91,8 @@ public sealed class SessionScene : Scene, IInputControl
     {
         Client.FocusChanged -= onFocusChange;
 
-        session.Dispose();
-        session = null!;
+        session?.Dispose();
+        session = null;
     }
 
     /// <inheritdoc />
@@ -127,6 +127,8 @@ public sealed class SessionScene : Scene, IInputControl
 
     private void SetUpUI(InGameUserInterface ui, Core.Logic.World world, IConsoleProvider console)
     {
+        Debug.Assert(session != null);
+        
         List<SettingsProvider> settingsProviders =
         [
             SettingsProvider.Wrap(Client.Settings),
@@ -152,4 +154,17 @@ public sealed class SessionScene : Scene, IInputControl
             world.State.BeginTerminating()?.Then(() => Client.ExitGame(args.ExitToOS));
         };
     }
+
+    #region DISPOSABLE
+
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        if (!disposing) return;
+
+        session?.Dispose();
+        session = null;
+    }
+
+    #endregion DISPOSABLE
 }

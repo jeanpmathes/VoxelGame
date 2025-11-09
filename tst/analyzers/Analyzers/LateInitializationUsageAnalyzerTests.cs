@@ -25,7 +25,7 @@ public class LateInitializationUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        public partial class TestClass
                        {
@@ -60,7 +60,7 @@ public class LateInitializationUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        public partial class TestClass
                        {
@@ -88,10 +88,10 @@ public class LateInitializationUsageAnalyzerTests
             ExpectedDiagnostics =
             {
                 Verifier.Diagnostic(LateInitializationUsageAnalyzer.DiagnosticID)
-                    .WithLocation(line: 7, column: 18).WithArguments("Property"),
+                    .WithLocation(line: 7, column: 27).WithArguments("Property"),
 
                 Verifier.Diagnostic(LateInitializationUsageAnalyzer.DiagnosticID)
-                    .WithLocation(line: 12, column: 25).WithArguments("Property")
+                    .WithLocation(line: 12, column: 27).WithArguments("Property")
             }
         }.RunAsync();
     }
@@ -103,7 +103,7 @@ public class LateInitializationUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        public partial class TestClass
                        {

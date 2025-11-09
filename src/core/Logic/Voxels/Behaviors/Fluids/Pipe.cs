@@ -26,8 +26,8 @@ public partial class Pipe : BlockBehavior, IBehavior<Pipe, BlockBehavior, Block>
 
         var fillable = subject.Require<Fillable>();
         fillable.IsFluidMeshed.Initializer.ContributeConstant(value: false);
-        fillable.IsInflowAllowed.ContributeFunction(GetIsInflowAllowed);
-        fillable.IsOutflowAllowed.ContributeFunction(GetIsOutflowAllowed);
+        fillable.IsInflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);
+        fillable.IsOutflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);
 
         OpenSides = Aspect<Sides, State>.New<Exclusive<Sides, State>>(nameof(OpenSides), this);
     }
@@ -37,14 +37,7 @@ public partial class Pipe : BlockBehavior, IBehavior<Pipe, BlockBehavior, Block>
     /// </summary>
     public Aspect<Sides, State> OpenSides { get; }
 
-    private Boolean GetIsInflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
-    {
-        (World _, Vector3i _, State state, Side side, Fluid _) = context;
-
-        return OpenSides.GetValue(Sides.None, state).HasFlag(side.ToFlag());
-    }
-
-    private Boolean GetIsOutflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
+    private Boolean GetIsInflowOrOutflowAllowed(Boolean original, (World world, Vector3i position, State state, Side side, Fluid fluid) context)
     {
         (World _, Vector3i _, State state, Side side, Fluid _) = context;
 

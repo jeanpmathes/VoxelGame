@@ -118,9 +118,9 @@ public static class EnumTools
 
     private static class PositionCache<TEnum> where TEnum : struct, Enum
     {
-        public static IEnumerable<(String name, TEnum value)> Value { get; } = GetPositions();
+        public static IEnumerable<(String name, TEnum value)> Value { get; } = GetPositionsSequence();
 
-        private static List<(String name, TEnum value)> GetPositions()
+        private static List<(String name, TEnum value)> GetPositionsSequence()
         {
             List<(String name, TEnum value)> positions = [];
 

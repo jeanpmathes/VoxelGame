@@ -112,12 +112,14 @@ public class StateSet
     ///     Note that this will generate the states on the fly, so do not use this after loading.
     ///     The order of states is guaranteed to be the same as the order of state indices.
     /// </summary>
-    /// <returns>An enumerable of all states in this set.</returns>
-    public IEnumerable<State> GetAllStates()
+    public IEnumerable<State> AllStates
     {
-        for (var index = 0; index < Count; index++)
+        get
         {
-            yield return GetStateByIndex(index);
+            for (var index = 0; index < Count; index++)
+            {
+                yield return GetStateByIndex(index);
+            }
         }
     }
 
@@ -127,11 +129,14 @@ public class StateSet
     ///     The order of states is guaranteed to be the same as the order of state indices.
     /// </summary>
     /// <returns>An enumerable of all states in this set along with their indices.</returns>
-    public IEnumerable<(State, Int32)> GetAllStatesWithIndex()
+    public IEnumerable<(State, Int32)> AllStatesWithIndex
     {
-        for (var index = 0; index < Count; index++)
+        get
         {
-            yield return (GetStateByIndex(index), index);
+            for (var index = 0; index < Count; index++)
+            {
+                yield return (GetStateByIndex(index), index);
+            }
         }
     }
 

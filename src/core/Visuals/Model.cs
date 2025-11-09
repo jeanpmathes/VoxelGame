@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
@@ -107,7 +108,8 @@ public sealed partial class Model : IResource, ILocated
     ///     Get the axis-aligned bounding box of this model.
     /// </summary>
     /// <returns>The bounding box.</returns>
-    public Box3d GetBounds()
+    [PerformanceSensitive]
+    public Box3d ComputeBounds()
     {
         if (Quads.Length == 0)
             return new Box3d();
@@ -135,53 +137,55 @@ public sealed partial class Model : IResource, ILocated
     /// <returns>The parts of the model.</returns>
     public Model[,,] PartitionByBlocks()
     {
-        Box3d bounds = GetBounds();
+        Box3d bounds = ComputeBounds();
 
         Vector3i size = bounds.Size.Ceiling();
 
         if (size.X <= 0 || size.Y <= 0 || size.Z <= 0)
             return new Model[0, 0, 0];
 
-        var partQuads = new List<Quad>[size.X, size.Y, size.Z];
+        var buckets = new List<Quad>[size.X, size.Y, size.Z];
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
-            partQuads[x, y, z] = [];
+        InitializeBuckets(size, buckets);
 
         foreach (Quad quad in Quads)
         {
             Vector3i target = DetermineTargetCell(quad, size);
 
-            partQuads[target.X, target.Y, target.Z].Add(quad);
+            buckets[target.X, target.Y, target.Z].Add(quad);
         }
 
-        var parts = new Model[size.X, size.Y, size.Z];
+        var models = new Model[size.X, size.Y, size.Z];
 
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
         for (var z = 0; z < size.Z; z++)
+            models[x, y, z] = CreateModelFromBucket(buckets[x, y, z], x, y, z);
+
+        return models;
+    }
+
+    private Model CreateModelFromBucket(List<Quad> bucket, Int32 x, Int32 y, Int32 z)
+    {
+        if (bucket.Count == 0)
+            return new Model(TextureNames, []);
+
+        var translation = Matrix4.CreateTranslation(-x, -y, -z);
+
+        for (var index = 0; index < bucket.Count; index++)
         {
-            List<Quad> quads = partQuads[x, y, z];
-
-            if (quads.Count == 0)
-            {
-                parts[x, y, z] = new Model(TextureNames, []);
-
-                continue;
-            }
-
-            var translation = Matrix4.CreateTranslation(-x, -y, -z);
-
-            for (var index = 0; index < quads.Count; index++)
-            {
-                quads[index] = quads[index].ApplyMatrix(translation);
-            }
-            
-            parts[x, y, z] = new Model(TextureNames, [..quads]);
+            bucket[index] = bucket[index].ApplyMatrix(translation);
         }
+            
+        return new Model(TextureNames, [..bucket]);
+    }
 
-        return parts;
+    private static void InitializeBuckets(Vector3i size, List<Quad>[,,] partQuads)
+    {
+        for (var x = 0; x < size.X; x++)
+        for (var y = 0; y < size.Y; y++)
+        for (var z = 0; z < size.Z; z++)
+            partQuads[x, y, z] = [];
     }
 
     private static Vector3i DetermineTargetCell(Quad quad, Vector3i size)
@@ -378,13 +382,10 @@ public sealed partial class Model : IResource, ILocated
         {
             TID id = TID.FromString(TextureNames[texture], isBlock: true);
 
-            if (textureOverrides != null)
+            if (textureOverrides != null && (textureOverrides.TryGetValue(texture, out TID overrideId) ||
+                                             textureOverrides.TryGetValue(key: -1, out overrideId)))
             {
-                if (textureOverrides.TryGetValue(texture, out TID overrideId) ||
-                    textureOverrides.TryGetValue(key: -1, out overrideId))
-                {
-                    id = overrideId;
-                }
+                id = overrideId;
             }
 
             textureIndexLookup[texture] = textureIndexProvider.GetTextureIndex(id);
@@ -511,16 +512,18 @@ public sealed partial class Model : IResource, ILocated
     public static Model Combine(params IEnumerable<Model> models)
     {
         Model[] array = models.ToArray();
-        
-        switch (array)
-        {
-            case []:
-                return new Model();
-            
-            case [var model]:
-                return model;
-        }
 
+        return array switch
+        {
+            [] => new Model(),
+            [var model] => model,
+            _ => CombineMultiple(array)
+        };
+    }
+
+    [PerformanceSensitive]
+    private static Model CombineMultiple(Model[] array)
+    {
         Dictionary<String, Int32> textureNameToIndex = new();
         List<String> textureNames = [];
         
@@ -610,30 +613,6 @@ public struct Quad : IEquatable<Quad>
         Vert1 = Vert1.ApplyMatrix(xyz);
         Vert2 = Vert2.ApplyMatrix(xyz);
         Vert3 = Vert3.ApplyMatrix(xyz);
-
-        return this;
-    }
-
-    /// <summary>
-    ///     Apply a rotation matrix to this quad.
-    /// </summary>
-    public Quad ApplyRotationMatrixY(Matrix4 xyz, Int32 rotations)
-    {
-        // Rotate positions.
-        Vert0 = Vert0.ApplyMatrix(xyz);
-        Vert1 = Vert1.ApplyMatrix(xyz);
-        Vert2 = Vert2.ApplyMatrix(xyz);
-        Vert3 = Vert3.ApplyMatrix(xyz);
-
-        // Rotate UVs for top and bottom sides.
-        if (Normal.Absolute().Rounded(digits: 2) == Vector3d.UnitY)
-            for (var r = 0; r < rotations; r++)
-            {
-                Vert0 = Vert0.RotateUV();
-                Vert1 = Vert1.RotateUV();
-                Vert2 = Vert2.RotateUV();
-                Vert3 = Vert3.RotateUV();
-            }
 
         return this;
     }

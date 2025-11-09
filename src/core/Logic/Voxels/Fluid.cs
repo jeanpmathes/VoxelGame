@@ -284,8 +284,8 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             fluidMeshFaceHolders[side].AddFace(
                 position,
-                info.Level.GetBlockHeight().ToInt32(),
-                neighborLevel.GetBlockHeight().ToInt32(),
+                info.Level.BlockHeight.ToInt32(),
+                neighborLevel.BlockHeight.ToInt32(),
                 Direction != VerticalFlow.Upwards,
                 data,
                 singleSided,

@@ -19,14 +19,14 @@ public interface IEventRegistry
     /// <param name="single">Whether there can only be one subscriber to this event.</param>
     /// <typeparam name="TEventMessage">The type of the event message.</typeparam>
     /// <returns>The registered event.</returns>
-    public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single) where TEventMessage : IEventMessage;
+    public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single) ;
 
     /// <summary>
     ///     Register an event with the registry, allowing multiple subscribers.
     /// </summary>
     /// <typeparam name="TEventMessage">The type of the event message.</typeparam>
     /// <returns>The registered event.</returns>
-    public IEvent<TEventMessage> RegisterEvent<TEventMessage>() where TEventMessage : IEventMessage
+    public IEvent<TEventMessage> RegisterEvent<TEventMessage>() 
     {
         return RegisterEvent<TEventMessage>(single: false);
     }

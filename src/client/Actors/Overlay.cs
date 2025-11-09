@@ -95,14 +95,14 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
     {
         BlockHeight height = BlockHeight.Maximum;
 
-        if (block.Block.Get<PartialHeight>() is {} partialHeight) height = partialHeight.GetHeight(block);
+        if (block.Block.Get<PartialHeight>() is {} partialHeight) height = partialHeight.GetCurrentHeight(block);
 
         return GetOverlayBounds(height, position, inverted: false, frustum);
     }
 
     private static (Double lower, Double upper)? GetOverlayBounds(FluidInstance fluid, Vector3d position, Frustum frustum)
     {
-        BlockHeight height = fluid.Level.GetBlockHeight();
+        BlockHeight height = fluid.Level.BlockHeight;
 
         return GetOverlayBounds(height, position, fluid.Fluid.Direction == VerticalFlow.Upwards, frustum);
     }

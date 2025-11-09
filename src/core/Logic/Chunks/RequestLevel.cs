@@ -124,18 +124,14 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
     {
         return !left.Equals(right);
     }
-
-    #endregion EQUALITY
-
-    #region COMPARABLE
-
+    
     /// <inheritdoc />
     public Int32 CompareTo(RequestLevel other)
     {
         return level.CompareTo(other.level);
     }
 
-    #endregion COMPARABLE
+    #endregion EQUALITY
 
     #region OPERATORS
 

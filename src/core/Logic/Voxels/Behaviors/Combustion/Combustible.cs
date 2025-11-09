@@ -86,12 +86,10 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
 
         BurnMessage burn = IEventMessage<BurnMessage>.Pool.Get();
 
-        {
-            burn.World = world;
-            burn.Position = position;
-            burn.Fire = fire;
-            burn.Burned = false;
-        }
+        burn.World = world;
+        burn.Position = position;
+        burn.Fire = fire;
+        burn.Burned = false;
 
         Burn.Publish(burn);
 
@@ -114,7 +112,7 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
     ///     Sent when a block is burned.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IBurnMessage : IEventMessage
+    public interface IBurnMessage
     {
         /// <summary>
         ///     The world the block is in.
@@ -143,7 +141,7 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
         public void Burn();
     }
     
-    private partial record BurnMessage
+    private sealed partial record BurnMessage
     {
         public void Burn()
         {

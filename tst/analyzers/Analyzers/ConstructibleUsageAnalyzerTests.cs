@@ -25,7 +25,7 @@ public class ConstructibleUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        namespace TestNamespace;
 
@@ -65,7 +65,7 @@ public class ConstructibleUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        namespace TestNamespace;
 
@@ -105,7 +105,7 @@ public class ConstructibleUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        namespace TestNamespace;
 
@@ -145,7 +145,7 @@ public class ConstructibleUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        namespace TestNamespace;
 
@@ -185,7 +185,7 @@ public class ConstructibleUsageAnalyzerTests
         {
             TestCode = """
                        using System;
-                       using VoxelGame.Annotations;
+                       using VoxelGame.Annotations.Attributes;
 
                        namespace TestNamespace;
 

@@ -98,9 +98,9 @@ public sealed class GenerateMeasureUsageAnalyzer : DiagnosticAnalyzer
         }
     }
 
-    private static Boolean IsUnitType(ITypeSymbol typeSymbol)
+    private static Boolean IsUnitType(ISymbol symbol)
     {
-        return typeSymbol.Name == "Unit"
-               && typeSymbol.ContainingNamespace.ToDisplayString() == "VoxelGame.Core.Utilities.Units";
+        return symbol.Name == "Unit"
+               && symbol.ContainingNamespace.ToDisplayString() == "VoxelGame.Core.Utilities.Units";
     }
 }

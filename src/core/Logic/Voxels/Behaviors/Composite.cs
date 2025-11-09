@@ -5,7 +5,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
@@ -127,7 +126,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         
         ValidateForAllStatesOrError(validator, state =>
         {
-            Vector3i size = GetSize(state);
+            Vector3i size = GetCurrentSize(state);
 
             return size.X > 0 && size is {Y: > 0, Z: > 0}
                               && size.X <= MaximumSize.Get().X
@@ -136,7 +135,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         }, "Composite block sizes must never exceed the maximum size");
         
         ValidateForAllStatesOrWarn(validator, 
-            state => state.IsReplaceable.Implies(GetSize(state) == Vector3i.One), 
+            state => state.IsReplaceable.Implies(GetCurrentSize(state) == Vector3i.One), 
             "Only composite blocks of size one can be marked as replaceable");
     }
 
@@ -152,7 +151,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
         (World world, Vector3i position, Actor? actor) = context;
 
-        Vector3i size = GetSize(Subject.GetPlacementState(world, position, actor));
+        Vector3i size = GetCurrentSize(Subject.GetPlacementState(world, position, actor));
 
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
@@ -172,7 +171,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private Boolean GetIsValid(Boolean original, State state)
     {
-        Vector3i currentSize = GetSize(state);
+        Vector3i currentSize = GetCurrentSize(state);
         Vector3i currentPart = GetPartPosition(state);
 
         return currentPart is {X: >= 0, Y: >= 0, Z: >= 0}
@@ -182,7 +181,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     private void OnPlacement(Block.IPlacementMessage message)
     {
         State state = message.PlacementState;
-        Vector3i size = GetSize(state);
+        Vector3i size = GetCurrentSize(state);
 
         for (var x = 0; x < size.X; x++)
         for (var y = 0; y < size.Y; y++)
@@ -205,12 +204,10 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         
         PlacementCompletedMessage placementCompleted = IEventMessage<PlacementCompletedMessage>.Pool.Get();
 
-        {
-            placementCompleted.World = world;
-            placementCompleted.Position = position;
-            placementCompleted.Part = part;
-            placementCompleted.Actor = actor;
-        }
+        placementCompleted.World = world;
+        placementCompleted.Position = position;
+        placementCompleted.Part = part;
+        placementCompleted.Actor = actor;
 
         PlacementCompleted.Publish(placementCompleted);
             
@@ -219,7 +216,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private void OnDestruction(Block.IDestructionMessage message)
     {
-        Vector3i size = GetSize(message.State);
+        Vector3i size = GetCurrentSize(message.State);
         Vector3i root = message.Position - GetPartPosition(message.State);
 
         for (var x = 0; x < size.X; x++)
@@ -238,8 +235,8 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
         if (oldState == newState) return;
 
-        Vector3i oldSize = GetSize(oldState);
-        Vector3i newSize = GetSize(newState);
+        Vector3i oldSize = GetCurrentSize(oldState);
+        Vector3i newSize = GetCurrentSize(newState);
 
         Vector3i currentPart = GetPartPosition(oldState);
 
@@ -262,7 +259,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
-        Vector3i size = GetSize(message.State);
+        Vector3i size = GetCurrentSize(message.State);
 
         Vector3i currentPart = GetPartPosition(message.State);
         Vector3i updatedPart = currentPart.Offset(message.Side);
@@ -281,13 +278,11 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         
         NeighborUpdateMessage neighborUpdate = IEventMessage<NeighborUpdateMessage>.Pool.Get();
 
-        {
-            neighborUpdate.World = world;
-            neighborUpdate.Position = position;
-            neighborUpdate.Part = part;
-            neighborUpdate.State = state;
-            neighborUpdate.Side = side;
-        }
+        neighborUpdate.World = world;
+        neighborUpdate.Position = position;
+        neighborUpdate.Part = part;
+        neighborUpdate.State = state;
+        neighborUpdate.Side = side;
 
         NeighborUpdate.Publish(neighborUpdate);
         
@@ -306,25 +301,24 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
             Boolean inOld = x < oldSize.X && y < oldSize.Y && z < oldSize.Z;
             Boolean inNew = x < newSize.X && y < newSize.Y && z < newSize.Z;
+            
+            Boolean kept = inOld && inNew;
+            Boolean removed = inOld && !inNew;
+            Boolean added = !inOld && inNew;
 
-            if (inOld && inNew)
+            if (kept || added)
             {
                 state.Set(Part, (x, y, z));
                 world.SetBlock(state, current);
             }
-            else if (inOld && !inNew)
+            else if (removed)
             {
                 world.SetDefaultBlock(current);
-            }
-            else if (!inOld && inNew)
-            {
-                state.Set(Part, (x, y, z));
-                world.SetBlock(state, current);
             }
         }
     }
     
-    private Boolean IsGrowthPossible(World world, Vector3i position, Vector3i oldSize, Vector3i newSize)
+    private static Boolean IsGrowthPossible(World world, Vector3i position, Vector3i oldSize, Vector3i newSize)
     {
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 
@@ -373,13 +367,20 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     {
         return state.Get(Part);
     }
+    
+    private State SetPartPosition(State state, Vector3i part)
+    {
+        state.Set(Part, part);
+        
+        return state;
+    }
 
     /// <summary>
     ///     Get the size of the composite in a given state.
     /// </summary>
     /// <param name="state">The state to get the size for.</param>
     /// <returns>The size of the composite in the given state.</returns>
-    public Vector3i GetSize(State state)
+    public Vector3i GetCurrentSize(State state)
     {
         return Size.GetValue(MaximumSize.Get(), state);
     }
@@ -394,28 +395,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     {
         if (rotatable != null) return rotatable.GetFullCollider(state, position);
         
-        Vector3i partPosition = GetPartPosition(state);
-        Vector3i rootPosition = position - partPosition;
-
-        Vector3i size = GetSize(state);
-
-        List<BoundingVolume> volumes = new(size.X * size.Y * size.Z);
-
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
-        {
-            Vector3i currentPart = (x, y, z);
-
-            State partState = state;
-            partState.Set(Part, currentPart);
-            
-            volumes.Add(Subject.GetBoundingVolume(partState).Translated(currentPart));
-        }
-
-        BoundingVolume combinedVolume = BoundingVolume.Combine(volumes);
-
-        return new BoxCollider(combinedVolume, new Vector3d(rootPosition.X, rootPosition.Y, rootPosition.Z));
+        CompositeColliderBuilder builder = new(this, state, SetPartPosition);
+        
+        return builder.Build(position);
     }
 
     /// <summary>
@@ -423,7 +405,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     ///     This is essentially a filtered version of <see cref="Block.INeighborUpdateMessage" /> adapted to composite blocks.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface INeighborUpdateMessage : IEventMessage
+    public interface INeighborUpdateMessage
     {
         /// <summary>
         ///     The world in which the neighbor update occurs.
@@ -455,7 +437,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     ///     Sent after the composite block was placed in the world successfully.
     /// </summary>
     [GenerateRecord(typeof(IEventMessage<>))]
-    public interface IPlacementCompletedMessage : IEventMessage
+    public interface IPlacementCompletedMessage
     {
         /// <summary>
         ///     The world in which the placement was completed.

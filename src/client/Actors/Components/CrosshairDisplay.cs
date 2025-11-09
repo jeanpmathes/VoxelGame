@@ -17,12 +17,10 @@ namespace VoxelGame.Client.Actors.Components;
 public partial class CrosshairDisplay : ActorComponent
 {
     private readonly Engine engine;
-    private readonly Player player;
 
     [Constructible]
     private CrosshairDisplay(Player player, Engine engine) : base(player)
     {
-        this.player = player;
         this.engine = engine;
     }
 

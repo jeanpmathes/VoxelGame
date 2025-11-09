@@ -38,14 +38,16 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Boolean Is<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
+    public Boolean Is<TConcreteBehavior>() 
+        where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         return Get<TConcreteBehavior>() != null;
     }
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TConcreteBehavior? Get<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
+    public TConcreteBehavior? Get<TConcreteBehavior>() 
+        where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         if (baked == null) return behaviors.OfType<TConcreteBehavior>().FirstOrDefault();
 
@@ -58,7 +60,8 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     }
 
     /// <inheritdoc />
-    public TConcreteBehavior Require<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
+    public TConcreteBehavior Require<TConcreteBehavior>() 
+        where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
 
@@ -78,7 +81,9 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     }
 
     /// <inheritdoc />
-    public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null) where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSelf> where TConditionConcreteBehavior : class, TBehavior, IBehavior<TConditionConcreteBehavior, TBehavior, TSelf>
+    public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null) 
+        where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSelf> 
+        where TConditionConcreteBehavior : class, TBehavior, IBehavior<TConditionConcreteBehavior, TBehavior, TSelf>
     {
         // To prevent endless loops, we only process the watchers introduced by this behavior after it is fully constructed and added.
 

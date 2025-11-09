@@ -117,14 +117,11 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     /// Get the fraction of a full block this fluid level represents.
     /// </summary>
     public Double Fraction => value != NoneValue ? (value + 1) / 8.0 : 0.0;
-    
+
     /// <summary>
     ///     Get the fluid level as block height, or <see cref="BlockHeight.None"/> if there is no fluid.
     /// </summary>
-    public BlockHeight GetBlockHeight()
-    {
-        return value == NoneValue ? BlockHeight.None : BlockHeight.FromInt32(value * (BlockHeight.Maximum.ToInt32() / MaxValue) + 1);
-    }
+    public BlockHeight BlockHeight => value == NoneValue ? BlockHeight.None : BlockHeight.FromInt32(value * (BlockHeight.Maximum.ToInt32() / MaxValue) + 1);
 
     /// <summary>
     ///     Get the texture coordinates for the fluid level.
@@ -134,8 +131,8 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     /// <returns>The texture coordinates.</returns>
     public (Vector2 min, Vector2 max) GetUVs(FluidLevel neighbor, VerticalFlow flow)
     {
-        var size = (Single) GetBlockHeight().Ratio;
-        var skipped = (Single) neighbor.GetBlockHeight().Ratio;
+        var size = (Single) BlockHeight.Ratio;
+        var skipped = (Single) neighbor.BlockHeight.Ratio;
 
         return flow != VerticalFlow.Upwards
             ? (new Vector2(x: 0, skipped), new Vector2(x: 1, size))
@@ -204,7 +201,7 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
         };
     }
     
-    #region COMPARISON
+    #region COMPARABLE
 
     /// <summary>
     ///     The less-than operator.
@@ -238,7 +235,7 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
         return left.value >= right.value;
     }
 
-    #endregion COMPARISON
+    #endregion COMPARABLE
     
     #region MATH
     
@@ -257,6 +254,9 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
         return FromInt32(result);
     }
     
+    /// <inheritdoc cref="op_Addition" />
+    public static FluidLevel Add(FluidLevel left, FluidLevel right) => left + right;
+    
     /// <summary>
     /// The subtraction operator.
     /// </summary>
@@ -266,6 +266,9 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
         
         return result < MinValue ? None : FromInt32(result);
     }
+    
+    /// <inheritdoc cref="op_Subtraction" />
+    public static FluidLevel Subtract(FluidLevel left, FluidLevel right) => left - right;
     
     #endregion MATH
 }

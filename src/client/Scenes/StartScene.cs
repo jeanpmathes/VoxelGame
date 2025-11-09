@@ -21,11 +21,10 @@ namespace VoxelGame.Client.Scenes;
 public sealed class StartScene : Scene
 {
     private readonly Func<Boolean> isSafeToClose;
-    private readonly WorldProvider worldProvider;
 
     internal StartScene(Application.Client client, UserInterfaceResources uiResources, ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly) : base(client)
     {
-        worldProvider = new WorldProvider(client, Program.WorldsDirectory);
+        WorldProvider worldProvider = new(client, Program.WorldsDirectory);
         worldProvider.WorldActivation += (_, world) => client.StartSession(world);
 
         List<SettingsProvider> settingsProviders =

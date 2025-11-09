@@ -57,7 +57,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     /// <returns>The size of the face.</returns>
     public static Single GetSize(Int32 height)
     {
-        return (Single) BlockHeight.GetRatio(height);
+        return (Single) BlockHeight.ComputeRatio(height);
     }
 
     /// <summary>
@@ -92,6 +92,6 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
         /// <summary>
         ///     Whether the texture is rotated.
         /// </summary>
-        public Boolean IsTextureRotated => false;
+        public static Boolean IsTextureRotated => false;
     }
 }

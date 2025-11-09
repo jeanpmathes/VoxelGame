@@ -28,7 +28,12 @@ public sealed class Engine : IResource
     private readonly List<IDisposable> bindings = [];
     private readonly ShaderBuffer<RaytracingData>? raytracingDataBuffer;
 
-    internal Engine(Application.Client client, ScreenElementPipeline crosshairPipeline, OverlayPipeline overlayPipeline, TargetingBoxPipeline targetingBoxPipeline, ShaderBuffer<RaytracingData>? rtData)
+    internal Engine(
+        Application.Client client, 
+        ScreenElementPipeline crosshairPipeline, 
+        OverlayPipeline overlayPipeline, 
+        TargetingBoxPipeline targetingBoxPipeline, 
+        ShaderBuffer<RaytracingData>? rtData)
     {
         CrosshairPipeline = crosshairPipeline;
         OverlayPipeline = overlayPipeline;

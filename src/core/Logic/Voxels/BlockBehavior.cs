@@ -70,7 +70,7 @@ public class BlockBehavior : Behavior<BlockBehavior, Block>
         var count = 0;
         State evidence = Subject.States.Default;
         
-        foreach (State state in Subject.States.GetAllStates())
+        foreach (State state in Subject.States.AllStates)
         {
             if (predicate(state)) 
                 continue;
