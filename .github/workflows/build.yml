@@ -67,4 +67,5 @@ jobs:
         .\.sonar\scanner\build-wrapper-win-x86\build-wrapper-win-x86-64.exe --out-dir .\.sonar\build-wrapper-output msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release; $BuildExitCode = $LASTEXITCODE; Set-Content -Path "buildexitcode" -Value $BuildExitCode
         if ((Get-Content -Path "buildexitcode" -ErrorAction Stop) -ne 0) { throw "build failed with exit code: $(Get-Content -Path "buildexitcode")" }
         dotnet-coverage collect "dotnet test -c Test --no-restore --no-build --verbosity normal" -f xml -o "coverage.xml" # Use dotnet because msbuild has problems with tests
+        if ($LASTEXITCODE -ne 0) { throw "tests failed" }
         .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
