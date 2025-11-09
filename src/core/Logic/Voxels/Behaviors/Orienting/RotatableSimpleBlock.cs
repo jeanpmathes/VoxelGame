@@ -34,8 +34,8 @@ public partial class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSi
     {
         (State state, Side side) = context;
 
-        Axis axis = rotatable.GetCurrentAxis(state);
-        Int32 turns = MathTools.Mod(rotatable.GetCurrentTurns(state), m: 4);
+        Axis axis = rotatable.GetAxis(state);
+        Int32 turns = MathTools.Mod(rotatable.GetTurns(state), m: 4);
 
         if (turns == 0 || turns == 2 || axis == Axis.Y) return false;
 
@@ -48,8 +48,8 @@ public partial class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSi
     
     private (Axis axis, Int32 turns) GetRotation((Axis axis, Int32 turns) original, State state)
     {
-        Axis axis = rotatable.GetCurrentAxis(state);
-        Int32 turns = MathTools.Mod(rotatable.GetCurrentTurns(state), m: 4);
+        Axis axis = rotatable.GetAxis(state);
+        Int32 turns = MathTools.Mod(rotatable.GetTurns(state), m: 4);
         
         return (axis, turns);
     }

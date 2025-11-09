@@ -1,4 +1,4 @@
-﻿// <copyright file = "CompositeGrounded.cs" company = "VoxelGame">
+﻿// <copyright file="CompositeGrounded.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

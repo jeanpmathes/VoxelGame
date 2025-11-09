@@ -169,7 +169,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
             parameters.ToImmutable());
     }
     
-    private static ComponentModel? CreateComponentModel(ITypeSymbol componentSymbol, SemanticModel semanticModel)
+    private static ComponentModel? CreateComponentModel(ISymbol componentSymbol, SemanticModel semanticModel)
     {
         if (componentSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is not TypeDeclarationSyntax componentTypeDeclarationSyntax)
             return null;

@@ -45,7 +45,7 @@ public class EnumUtilityGenerator : IIncrementalGenerator
         return GetEnumModel(context.SemanticModel, (EnumDeclarationSyntax) context.Node);
     }
 
-    private static EnumModel? GetEnumModel(SemanticModel semanticModel, BaseTypeDeclarationSyntax declarationSyntax)
+    private static EnumModel? GetEnumModel(SemanticModel semanticModel, MemberDeclarationSyntax declarationSyntax)
     {
         if (ModelExtensions.GetDeclaredSymbol(semanticModel, declarationSyntax) is not INamedTypeSymbol enumSymbol)
             return null;

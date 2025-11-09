@@ -88,7 +88,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
 
             if (blockToCheck == null) return;
 
-            BlockHeight height = partialHeightBehavior.GetCurrentHeight(state);
+            BlockHeight height = partialHeightBehavior.GetHeight(state);
             Boolean isFullHeight = height.IsFull;
 
             if ((side != Side.Top || isFullHeight) && SimpleBlock.IsHiddenFace(this, blockToCheck.Value, side)) return;
@@ -133,7 +133,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     private void MeshLikeFluid(Vector3i position, Side side, [DisallowNull] State? blockToCheck, BlockHeight height, ref readonly PartialHeight.MeshData mesh, MeshingContext context)
     {
         if (side != Side.Top && blockToCheck.Value.Block.Get<Logic.Voxels.Behaviors.Height.PartialHeight>() is {} toCheck &&
-            toCheck.GetCurrentHeight(blockToCheck.Value) == height) return;
+            toCheck.GetHeight(blockToCheck.Value) == height) return;
 
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 

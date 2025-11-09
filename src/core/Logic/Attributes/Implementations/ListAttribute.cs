@@ -43,6 +43,7 @@ internal class ListAttribute<TElement>(IEnumerable<TElement> elements, Func<Int3
         return state.Get(this).ToString() ?? "";
     }
 
+    [PerformanceSensitive]
     public override State SetValues(State state, JsonNode values)
     {
         foreach (TElement element in elements)

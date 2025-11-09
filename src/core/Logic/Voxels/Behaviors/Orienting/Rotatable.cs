@@ -46,7 +46,7 @@ public partial class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavi
     /// </summary>
     /// <param name="state">The state to get the axis from.</param>
     /// <returns>The current rotation axis of the block.</returns>
-    public Axis GetCurrentAxis(State state)
+    public Axis GetAxis(State state)
     {
         return Axis.GetValue(Utilities.Axis.Y, state);
     }
@@ -57,7 +57,7 @@ public partial class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavi
     /// </summary>
     /// <param name="state">The state to get the number of turns from.</param>
     /// <returns>The current number of 90° clockwise turns around <see cref="Axis" />.</returns>
-    public Int32 GetCurrentTurns(State state)
+    public Int32 GetTurns(State state)
     {
         return Turns.GetValue(original: 0, state);
     }

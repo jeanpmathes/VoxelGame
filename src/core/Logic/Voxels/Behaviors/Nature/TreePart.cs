@@ -1,4 +1,4 @@
-﻿// <copyright file = "TreePart.cs" company = "VoxelGame">
+﻿// <copyright file="TreePart.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

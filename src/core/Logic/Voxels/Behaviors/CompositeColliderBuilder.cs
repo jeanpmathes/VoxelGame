@@ -1,4 +1,4 @@
-﻿// <copyright file = "CompositeColliderBuilder.cs" company = "VoxelGame">
+﻿// <copyright file="CompositeColliderBuilder.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -36,7 +36,7 @@ public class CompositeColliderBuilder
         this.state = state;
         this.setPartPosition = setPartPosition;
         
-        size = composite.GetCurrentSize(state);
+        size = composite.GetSize(state);
         volumes =  new List<BoundingVolume>(size.X * size.Y * size.Z);
     }
 

@@ -70,6 +70,14 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
                 isBlock = true;
                 anyIsBlock = true;
             }
+            else if (content.Block.Block.Get<Core.Logic.Voxels.Behaviors.Visuals.Overlay>() is {} overlayBehavior)
+            {
+                newBounds = GetOverlayBounds(content.Block, position, frustum);
+                overlayTextureProvider ??= overlayBehavior.GetProvider();
+                
+                isBlock = true;
+                anyIsBlock = true;
+            }
 
             if (newBounds == null && content.Fluid.Fluid is IOverlayTextureProvider overlayFluidTextureProvider)
             {
@@ -95,7 +103,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
     {
         BlockHeight height = BlockHeight.Maximum;
 
-        if (block.Block.Get<PartialHeight>() is {} partialHeight) height = partialHeight.GetCurrentHeight(block);
+        if (block.Block.Get<PartialHeight>() is {} partialHeight) height = partialHeight.GetHeight(block);
 
         return GetOverlayBounds(height, position, inverted: false, frustum);
     }

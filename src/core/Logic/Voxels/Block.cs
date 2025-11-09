@@ -30,6 +30,8 @@ using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Voxels;
 
+#pragma warning disable S1200 // This is a very important class.
+
 /// <summary>
 ///     The basic unit of the game world - a block.
 ///     Blocks use the flyweight pattern, the world data only stores a state ID.
@@ -244,7 +246,10 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     }
 
     /// <inheritdoc />
-    public sealed override void SubscribeToEvents(IEventBus bus) {}
+    public sealed override void SubscribeToEvents(IEventBus bus)
+    {
+        // Nothing to subscribe to, but for symmetry we keep this method.
+    }
 
     private void InitializeProperties()
     {
@@ -363,7 +368,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (IsAlwaysFull) return true;
 
         if (Get<PartialHeight>() is {} height)
-            return height.GetCurrentHeight(state).IsFull;
+            return height.GetHeight(state).IsFull;
 
         return false;
     }
@@ -379,7 +384,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (IsAlwaysFull) return true;
 
         if (Get<PartialHeight>() is {} height)
-            return height.GetCurrentHeight(state).IsFull || height.IsSideFull(side, state);
+            return height.GetHeight(state).IsFull || height.IsSideFull(side, state);
 
         return false;
     }
@@ -692,9 +697,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
         GeneratorUpdateMessage generatorUpdate = IEventMessage<GeneratorUpdateMessage>.Pool.Get();
 
-        {
-            generatorUpdate.Content = content;
-        }
+        generatorUpdate.Content = content;
 
         GeneratorUpdate.Publish(generatorUpdate);
         

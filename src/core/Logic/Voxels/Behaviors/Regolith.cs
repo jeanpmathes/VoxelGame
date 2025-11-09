@@ -1,4 +1,4 @@
-﻿// <copyright file = "Regolith.cs" company = "VoxelGame">
+﻿// <copyright file="Regolith.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -17,12 +17,6 @@ public partial class Regolith : BlockBehavior, IBehavior<Regolith, BlockBehavior
 {
     [Constructible]
     private Regolith(Block subject) : base(subject)
-    {
-        
-    }
-
-    /// <inheritdoc />
-    protected override void OnValidate(IValidator validator)
     {
         
     }

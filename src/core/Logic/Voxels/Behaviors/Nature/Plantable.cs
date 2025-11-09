@@ -60,13 +60,11 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
 
         GrowthAttemptMessage growthAttempt = IEventMessage<GrowthAttemptMessage>.Pool.Get();
         
-        {
-            growthAttempt.World = world;
-            growthAttempt.Position = position;
-            growthAttempt.Fluid = fluid;
-            growthAttempt.Level = level;
-            growthAttempt.CanGrow = false;
-        }
+        growthAttempt.World = world;
+        growthAttempt.Position = position;
+        growthAttempt.Fluid = fluid;
+        growthAttempt.Level = level;
+        growthAttempt.CanGrow = false;
         
         GrowthAttempt.Publish(growthAttempt);
         
@@ -115,7 +113,7 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
         public void MarkAsSuccessful();
     }
     
-    private partial record GrowthAttemptMessage
+    private sealed partial record GrowthAttemptMessage
     {
         public void MarkAsSuccessful()
         {

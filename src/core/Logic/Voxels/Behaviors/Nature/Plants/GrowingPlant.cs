@@ -97,12 +97,10 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
             
             MatureUpdateMessage matureUpdate = IEventMessage<MatureUpdateMessage>.Pool.Get();
 
-            {
-                matureUpdate.World = message.World;
-                matureUpdate.Position = message.Position;
-                matureUpdate.State = message.State;
-                matureUpdate.Ground = plantable;
-            }
+            matureUpdate.World = message.World;
+            matureUpdate.Position = message.Position;
+            matureUpdate.State = message.State;
+            matureUpdate.Ground = plantable;
             
             MatureUpdate.Publish(matureUpdate);
             

@@ -28,7 +28,8 @@ public partial class TextureOverride : BlockBehavior, IBehavior<TextureOverride,
     /// <summary>
     ///     Optional textures to override the texture provided by a model.
     /// </summary>
-    public ResolvedProperty<IReadOnlyDictionary<Int32, TID>?> Textures { get; } = ResolvedProperty<IReadOnlyDictionary<Int32, TID>?>.New<Exclusive<IReadOnlyDictionary<Int32, TID>?, Void>>(nameof(Textures));
+    public ResolvedProperty<IReadOnlyDictionary<Int32, TID>?> Textures { get; } 
+        = ResolvedProperty<IReadOnlyDictionary<Int32, TID>?>.New<Exclusive<IReadOnlyDictionary<Int32, TID>?, Void>>(nameof(Textures));
 
     /// <summary>
     ///     Override all textures with the given replacement texture.

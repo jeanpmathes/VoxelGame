@@ -50,7 +50,7 @@ public partial class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, 
         
         if (Subject.Get<PartialHeight>() is {} height)
         {
-            factor = height.GetCurrentHeight(message.State).Ratio;
+            factor = height.GetHeight(message.State).Ratio;
         }
 
         Vector3d newVelocity = MathTools.Clamp(message.Body.Velocity, min: -1.0, MaxVelocity.Get());

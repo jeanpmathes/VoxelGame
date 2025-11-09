@@ -32,6 +32,6 @@ public partial class Densifying : BlockBehavior, IBehavior<Densifying, BlockBeha
     {
         (World _, Vector3i _, State state, Side _, Fluid _) = context;
 
-        return height.GetCurrentHeight(state) < BlockHeight.Half;
+        return height.GetHeight(state) < BlockHeight.Half;
     }
 }

@@ -69,21 +69,17 @@ public static partial class LoggingHelper
         return LoggerFactory.CreateLogger(category);
     }
     
-    private static Boolean isMockLoggingSetUp = false;
+    private static Boolean isMockLoggingSetUp;
 
     /// <summary>
     ///     Set up a mock logger. All loggers created with this helper will be null loggers.
     /// </summary>
     /// <returns>A mock logger.</returns>
-    public static ILogger SetUpMockLogging()
+    public static void SetUpMockLogging()
     {
-        if (!isMockLoggingSetUp)
-        {
-            LoggerFactory = new NullLoggerFactory();
-            
-            isMockLoggingSetUp = true;
-        }
-        
-        return LoggerFactory.CreateLogger("Mock");
+        if (isMockLoggingSetUp) return;
+        isMockLoggingSetUp = true;
+
+        LoggerFactory = new NullLoggerFactory();
     }
 }

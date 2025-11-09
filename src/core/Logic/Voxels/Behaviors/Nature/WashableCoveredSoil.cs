@@ -34,6 +34,6 @@ public partial class WashableCoveredSoil : BlockBehavior, IBehavior<WashableCove
 
     private void OnBecomeWet(Wet.IBecomeWetMessage message)
     {
-        soil.RemoveCover(message.World, message.Position);
+        CoveredSoil.RemoveCover(message.World, message.Position);
     }
 }

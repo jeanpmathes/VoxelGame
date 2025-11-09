@@ -1,4 +1,4 @@
-﻿// <copyright file = "VerticalTextureSelector.cs" company = "VoxelGame">
+﻿// <copyright file="VerticalTextureSelector.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

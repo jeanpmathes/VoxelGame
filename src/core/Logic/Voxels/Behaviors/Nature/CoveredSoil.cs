@@ -86,7 +86,7 @@ public partial class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBe
     /// </summary>
     /// <param name="world">The world in which the block is located.</param>
     /// <param name="position">The position of the block.</param>
-    public void RemoveCover(World world, Vector3i position)
+    public static void RemoveCover(World world, Vector3i position)
     {
         world.SetBlock(new State(Blocks.Instance.Environment.Soil), position);
     }

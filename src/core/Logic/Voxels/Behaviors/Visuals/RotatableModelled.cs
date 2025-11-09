@@ -45,8 +45,8 @@ public class RotatableModelled : BlockBehavior, IBehavior<RotatableModelled, Blo
 
     private Model GetModel(Model original, State state)
     {
-        Axis axis = rotatable.GetCurrentAxis(state);
-        Int32 turns = rotatable.GetCurrentTurns(state);
+        Axis axis = rotatable.GetAxis(state);
+        Int32 turns = rotatable.GetTurns(state);
 
         (axis, turns) = RotationOverride.GetValue((axis, turns), state);
 

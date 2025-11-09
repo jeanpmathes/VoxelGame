@@ -111,7 +111,7 @@ public partial class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior
 /// <summary>
 ///     Serves to select a specific part of a model and the layer to use.
 /// </summary>
-public readonly struct Selector(Byte x, Byte y, Byte z, Byte layer)
+public readonly record struct Selector(Byte X, Byte Y, Byte Z, Byte Layer)
 {
     /// <summary>
     ///     The maximum number of layers that can be used.
@@ -119,27 +119,28 @@ public readonly struct Selector(Byte x, Byte y, Byte z, Byte layer)
     public const Int32 MaxLayerCount = Byte.MaxValue;
 
     /// <summary>
-    ///     Get the selected layer.
-    /// </summary>
-    public Int32 Layer => layer;
-
-    /// <summary>
     ///     Get the selected part coordinates.
     /// </summary>
-    public Vector3i Part => new(x, y, z);
+    public Vector3i Part => new(X, Y, Z);
 
     /// <summary>
     ///     Get a modified copy of this selector with the given layer.
     /// </summary>
     public Selector WithLayer(Byte newLayer)
     {
-        return new Selector(x, y, z, newLayer);
+        return this with
+        {
+            Layer = newLayer
+        };
     }
 
     /// <inheritdoc cref="WithLayer(Byte)" />
     public Selector WithLayer(Int32 newLayer)
     {
-        return new Selector(x, y, z, (Byte) newLayer);
+        return this with
+        {
+            Layer = (Byte) newLayer
+        };
     }
 
     /// <summary>
@@ -147,6 +148,6 @@ public readonly struct Selector(Byte x, Byte y, Byte z, Byte layer)
     /// </summary>
     public Selector WithPart(Vector3i newPart)
     {
-        return new Selector((Byte) newPart.X, (Byte) newPart.Y, (Byte) newPart.Z, layer);
+        return new Selector((Byte) newPart.X, (Byte) newPart.Y, (Byte) newPart.Z, Layer);
     }
 }

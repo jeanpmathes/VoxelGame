@@ -78,7 +78,7 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
 
         State? below = world.GetBlock(position.Below());
 
-        state.Set(IsLowered, below?.Block.Get<PartialHeight>() is {} partialHeight && !partialHeight.GetCurrentHeight(below.Value).IsFull);
+        state.Set(IsLowered, below?.Block.Get<PartialHeight>() is {} partialHeight && !partialHeight.GetHeight(below.Value).IsFull);
 
         return state;
     }

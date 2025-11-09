@@ -1,4 +1,4 @@
-﻿// <copyright file = "Replaceable.cs" company = "VoxelGame">
+﻿// <copyright file="Replaceable.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>

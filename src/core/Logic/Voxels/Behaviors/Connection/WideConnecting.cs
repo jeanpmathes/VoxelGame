@@ -92,7 +92,10 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
         return connections is {north: true, east: false, south: true, west: false};
     }
     
-    private static void AddExtensionsBasedOnConnections(List<Model> models, (Boolean north, Boolean east, Boolean south, Boolean west) connections, (Model north, Model east, Model south, Model west) extensions)
+    private static void AddExtensionsBasedOnConnections(
+        List<Model> models, 
+        (Boolean north, Boolean east, Boolean south, Boolean west) connections, 
+        (Model north, Model east, Model south, Model west) extensions)
     {
         if (connections.north) models.Add(extensions.north);
         if (connections.east) models.Add(extensions.east);

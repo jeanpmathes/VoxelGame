@@ -69,7 +69,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         (World world, Vector3i position, Actor? actor) = context;
 
         State state = Subject.GetPlacementState(world, position, actor);
-        Vector3i size = composite.GetCurrentSize(state);
+        Vector3i size = composite.GetSize(state);
 
         Orientation orientation = rotatable.GetOrientation(state);
 
@@ -95,7 +95,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     private void OnPlacement(Block.IPlacementMessage message)
     {
         State state = message.PlacementState;
-        Vector3i size = composite.GetCurrentSize(state);
+        Vector3i size = composite.GetSize(state);
 
         Orientation orientation = rotatable.GetOrientation(state);
 
@@ -117,7 +117,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void OnDestruction(Block.IDestructionMessage message)
     {
-        Vector3i size = composite.GetCurrentSize(message.State);
+        Vector3i size = composite.GetSize(message.State);
         Vector3i currentPart = composite.GetPartPosition(message.State);
 
         Orientation orientation = rotatable.GetOrientation(message.State);
@@ -140,8 +140,8 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         if (oldState == newState) return;
 
-        Vector3i oldSize = composite.GetCurrentSize(oldState);
-        Vector3i newSize = composite.GetCurrentSize(newState);
+        Vector3i oldSize = composite.GetSize(oldState);
+        Vector3i newSize = composite.GetSize(newState);
 
         Vector3i currentPart = composite.GetPartPosition(oldState);
         Orientation orientation = rotatable.GetOrientation(oldState);
@@ -165,7 +165,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
-        Vector3i size = composite.GetCurrentSize(message.State);
+        Vector3i size = composite.GetSize(message.State);
         Vector3i currentPart = composite.GetPartPosition(message.State);
 
         Orientation orientation = rotatable.GetOrientation(message.State);
@@ -210,7 +210,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         }
     }
     
-    private Boolean IsGrowthPossible(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, Orientation orientation)
+    private static Boolean IsGrowthPossible(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, Orientation orientation)
     {
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 

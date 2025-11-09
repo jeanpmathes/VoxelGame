@@ -19,7 +19,6 @@ public sealed class ResourceFixture : DispatcherFixture
 {
     private readonly IResourceContext resources;
     
-    
     public ResourceFixture()
     {
         ResourceCatalogLoader loader = new();

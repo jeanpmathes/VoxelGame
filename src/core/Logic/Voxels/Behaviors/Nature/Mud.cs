@@ -32,7 +32,7 @@ public partial class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
         bus.Subscribe<Plantable.IGrowthAttemptMessage>(OnGrowthAttempt);
     }
 
-    private void OnRandomUpdate(Block.IRandomUpdateMessage message)
+    private static void OnRandomUpdate(Block.IRandomUpdateMessage message)
     {
         if (message.World.GetTemperature(message.Position) < crackingTemperature)
             return;

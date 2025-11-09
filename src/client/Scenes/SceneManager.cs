@@ -179,6 +179,8 @@ public partial class SceneManager : ApplicationComponent
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
+        base.Dispose(disposing);
+        
         if (!disposing) return;
         
         Unload();

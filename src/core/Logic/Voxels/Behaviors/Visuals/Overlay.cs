@@ -35,7 +35,7 @@ public partial class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, 
     ///     Get the overlay texture provider for this block.
     /// </summary>
     /// <returns>The overlay texture provider.</returns>
-    public IOverlayTextureProvider GetOverlayTextureProvider()
+    public IOverlayTextureProvider GetProvider()
     {
         overlayTextureProvider ??= OverlayTextureProvider.GetValue(original: null, Subject)
                                    ?? new DefaultOverlayTextureProvider();
@@ -43,7 +43,7 @@ public partial class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, 
         return overlayTextureProvider;
     }
 
-    private class DefaultOverlayTextureProvider : IOverlayTextureProvider
+    private sealed class DefaultOverlayTextureProvider : IOverlayTextureProvider
     {
         public OverlayTexture GetOverlayTexture(Content content)
         {
