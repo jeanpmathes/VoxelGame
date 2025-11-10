@@ -14,7 +14,7 @@ using Xunit;
 namespace VoxelGame.Core.Tests.Updates;
 
 [TestSubject(typeof(Operations))]
-public class OperationsTests
+public sealed class OperationsTests : IDisposable
 {
     private readonly OperationUpdateDispatch dispatch = new(singleton: false, Application.Instance);
 
@@ -398,5 +398,10 @@ public class OperationsTests
 
         Assert.True(executed);
         Assert.Equal(result, capturedResult);
+    }
+
+    public void Dispose()
+    {
+        dispatch.Dispose();
     }
 }

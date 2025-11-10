@@ -2,12 +2,10 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <Nullable>enable</Nullable>
+        <IsPackable>false</IsPackable>
 
         <Platforms>x64</Platforms>
         <PlatformTarget>x64</PlatformTarget>
-
-        <IsPackable>false</IsPackable>
     </PropertyGroup>
 
     <ItemGroup>
