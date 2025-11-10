@@ -11,7 +11,6 @@
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <OutputPath>bin\x64\Debug\</OutputPath>
         <DebugType>full</DebugType>
         <DebugSymbols>true</DebugSymbols>
     </PropertyGroup>
@@ -33,7 +32,6 @@
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <DefineConstants>TRACE</DefineConstants>
-        <OutputPath>bin\x64\Release\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>

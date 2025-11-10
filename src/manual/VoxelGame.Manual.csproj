@@ -1,21 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
     <PropertyGroup>
         <TargetFramework>net9.0-windows</TargetFramework>
         <Platforms>x64</Platforms>
     </PropertyGroup>
     
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
         <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <OutputPath>bin\x64\Debug\</OutputPath>
         <DebugType>full</DebugType>
         <DebugSymbols>true</DebugSymbols>
-    </PropertyGroup>
-
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-        <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-        <OutputPath>bin\x64\Release\</OutputPath>
     </PropertyGroup>
 
     <ItemGroup>
