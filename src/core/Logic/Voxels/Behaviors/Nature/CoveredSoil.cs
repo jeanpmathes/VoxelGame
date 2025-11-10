@@ -51,7 +51,7 @@ public partial class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBe
             Blocks.Instance.Environment.Soil.Place(message.World, message.Position, message.Actor);
     }
 
-    private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
+    private static void OnNeighborUpdate(Block.INeighborUpdateMessage message)
     {
         if (message.Side == Side.Top && CanHaveCover(message.World, message.Position) != true)
             RemoveCover(message.World, message.Position);

@@ -32,15 +32,16 @@ public partial class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, 
     public Aspect<IOverlayTextureProvider?, Block> OverlayTextureProvider { get; }
 
     /// <summary>
-    ///     Get the overlay texture provider for this block.
+    /// The overlay texture provider for the block.
     /// </summary>
-    /// <returns>The overlay texture provider.</returns>
-    public IOverlayTextureProvider GetProvider()
+    public IOverlayTextureProvider Provider
     {
-        overlayTextureProvider ??= OverlayTextureProvider.GetValue(original: null, Subject)
-                                   ?? new DefaultOverlayTextureProvider();
+        get
+        {
+            overlayTextureProvider ??= OverlayTextureProvider.GetValue(original: null, Subject) ?? new DefaultOverlayTextureProvider();
 
-        return overlayTextureProvider;
+            return overlayTextureProvider;
+        }
     }
 
     private sealed class DefaultOverlayTextureProvider : IOverlayTextureProvider

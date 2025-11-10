@@ -73,7 +73,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
             else if (content.Block.Block.Get<Core.Logic.Voxels.Behaviors.Visuals.Overlay>() is {} overlayBehavior)
             {
                 newBounds = GetOverlayBounds(content.Block, position, frustum);
-                overlayTextureProvider ??= overlayBehavior.GetProvider();
+                overlayTextureProvider = overlayBehavior.Provider;
                 
                 isBlock = true;
                 anyIsBlock = true;
