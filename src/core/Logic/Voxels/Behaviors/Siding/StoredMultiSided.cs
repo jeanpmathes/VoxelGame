@@ -24,7 +24,7 @@ public partial class StoredMultiSided : BlockBehavior, IBehavior<StoredMultiSide
         sided.SidedState.ContributeFunction(GetSidedState);
     }
 
-    [LateInitialization] private partial IAttribute<Sides> Sides { get; set; }
+    [LateInitialization] private partial IAttributeData<Sides> Sides { get; set; }
 
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)

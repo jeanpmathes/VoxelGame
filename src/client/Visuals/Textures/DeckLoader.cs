@@ -379,7 +379,7 @@ public class DeckLoader : IIssueSource
         };
     }
 
-    private static IReadOnlyDictionary<String, String> GetParameters(XElement element)
+    private static Dictionary<String, String> GetParameters(XElement element)
     {
         return element.Attributes().Where(attribute => attribute.Name.LocalName != "type").ToDictionary(attribute => attribute.Name.LocalName, attribute => attribute.Value);
     }

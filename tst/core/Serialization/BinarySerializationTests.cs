@@ -47,7 +47,7 @@ public class BinarySerializationTests
         Assert.NotEmpty(data.r);
     }
 
-    private class Data : IEntity
+    private sealed class Data : IEntity
     {
         public enum TestState
         {
@@ -108,7 +108,7 @@ public class BinarySerializationTests
             serializer.SerializeValues(r);
         }
 
-        public class TestValue : IValue
+        public sealed class TestValue : IValue
         {
             public Int32 value;
 

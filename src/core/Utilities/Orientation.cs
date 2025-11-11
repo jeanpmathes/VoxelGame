@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
@@ -44,7 +45,7 @@ public enum Orientation
 /// </summary>
 public static class Orientations
 {
-    private static readonly IReadOnlyList<Orientation> orientations = new List<Orientation>
+    private static readonly ReadOnlyCollection<Orientation> orientations = new List<Orientation>
         {Orientation.North, Orientation.East, Orientation.South, Orientation.West}.AsReadOnly();
 
     /// <summary>
@@ -141,10 +142,10 @@ public static class OrientationExtensions
     {
         return orientation switch
         {
-            Orientation.North => Orientation.East,
             Orientation.East => Orientation.South,
-            Orientation.South => Orientation.West,
             Orientation.West => Orientation.North,
+            Orientation.North => Orientation.East,
+            Orientation.South => Orientation.West,
             _ => Orientation.North
         };
     }

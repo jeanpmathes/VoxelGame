@@ -130,7 +130,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <returns>The guards for the chunk.</returns>
     public Guard TakeAccess()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (guard == null)
             throw Exceptions.InvalidOperation("Cannot take access from main thread meshing context.");
@@ -386,7 +386,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         }
         else
         {
-            Throw.ForMissedDispose(nameof(ChunkMeshingContext));
+            ExceptionTools.ThrowForMissedDispose(nameof(ChunkMeshingContext));
         }
 
         disposed = true;

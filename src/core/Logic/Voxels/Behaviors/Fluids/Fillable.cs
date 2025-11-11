@@ -23,8 +23,8 @@ public partial class Fillable : BlockBehavior, IBehavior<Fillable, BlockBehavior
     [Constructible]
     private Fillable(Block subject) : base(subject)
     {
-        IsInflowAllowed = Aspect<Boolean, (World, Vector3i, State, Side, Fluid)>.New<ANDing<(World, Vector3i, State, Side, Fluid)>>(nameof(IsInflowAllowed), this);
-        IsOutflowAllowed = Aspect<Boolean, (World, Vector3i, State, Side, Fluid)>.New<ANDing<(World, Vector3i, State, Side, Fluid)>>(nameof(IsOutflowAllowed), this);
+        IsInflowAllowed = Aspect<Boolean, (World, Vector3i, State, Side, Fluid)>.New<LogicalAnd<(World, Vector3i, State, Side, Fluid)>>(nameof(IsInflowAllowed), this);
+        IsOutflowAllowed = Aspect<Boolean, (World, Vector3i, State, Side, Fluid)>.New<LogicalAnd<(World, Vector3i, State, Side, Fluid)>>(nameof(IsOutflowAllowed), this);
     }
 
     /// <summary>

@@ -135,7 +135,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UInt32 GetContent(Int32 x, Int32 y, Int32 z)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return blocks[(x << SizeExp2) + (y << SizeExp) + z];
     }
@@ -148,7 +148,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UInt32 GetContent(Vector3i blockPosition)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return GetContent(blockPosition.X & Size - 1, blockPosition.Y & Size - 1, blockPosition.Z & Size - 1);
     }
@@ -163,7 +163,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Int32 x, Int32 y, Int32 z, UInt32 data)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         blocks[(x << SizeExp2) + (y << SizeExp) + z] = data;
     }
@@ -176,7 +176,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Vector3i blockPosition, UInt32 value)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         SetContent(blockPosition.X & Size - 1, blockPosition.Y & Size - 1, blockPosition.Z & Size - 1, value);
     }
@@ -227,7 +227,7 @@ public class Section : IDisposable
     /// <param name="world">The world this section is in.</param>
     public void SendRandomUpdate(World world)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         UInt32 content = GetRandomPositionContent(out Vector3i localPosition);
 
@@ -320,7 +320,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public State GetBlock(Vector3i blockPosition)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         UInt32 value = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z) & BlockStateMask;
 
@@ -335,7 +335,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FluidInstance GetFluid(Vector3i blockPosition)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 

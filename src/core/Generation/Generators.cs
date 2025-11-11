@@ -19,7 +19,7 @@ public class Generators : ResourceCatalog
     ///     Create a new instance of the generators catalog.
     /// </summary>
     public Generators() : base([
-        .. GetGeneratorEntries<Worlds.Default.Generator>(),
+        .. GetGeneratorEntries<Worlds.Standard.Generator>(),
         .. GetGeneratorEntries<Worlds.Water.Generator>()
     ]) {}
 

@@ -25,7 +25,7 @@ public partial class Paintable : BlockBehavior, IBehavior<Paintable, BlockBehavi
         subject.Require<Meshed>().Tint.ContributeFunction(GetTint);
     }
 
-    [LateInitialization] private partial IAttribute<ColorS> Color { get; set; }
+    [LateInitialization] private partial IAttributeData<ColorS> Color { get; set; }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

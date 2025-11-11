@@ -40,7 +40,7 @@ public partial class Plant : BlockBehavior, IBehavior<Plant, BlockBehavior, Bloc
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
     }
 
-    [LateInitialization] private partial IAttribute<Boolean> IsLowered { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> IsLowered { get; set; }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

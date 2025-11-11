@@ -39,7 +39,7 @@ public partial class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Bloc
     [Constructible]
     private Piped(Block subject) : base(subject)
     {
-        IsConnectionAllowed = Aspect<Boolean, (State state, Side side)>.New<ANDing<(State, Side)>>(nameof(IsConnectionAllowed), this);
+        IsConnectionAllowed = Aspect<Boolean, (State state, Side side)>.New<LogicalAnd<(State, Side)>>(nameof(IsConnectionAllowed), this);
     }
 
     /// <summary>

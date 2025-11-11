@@ -68,7 +68,7 @@ public sealed partial class ChunkSet : IDisposable
     /// <param name="requester">The actor requesting the chunk.</param>
     public Request? Request(ChunkPosition position, Actor requester)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(World.IsInLimits(position));
 
@@ -89,7 +89,7 @@ public sealed partial class ChunkSet : IDisposable
     /// <param name="request">The request to release.</param>
     public void Release(Request request)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (pendingRequests.Remove(request))
             return;
@@ -115,7 +115,7 @@ public sealed partial class ChunkSet : IDisposable
     /// <returns>The chunk, or null if it does not exist.</returns>
     private Chunk? Get(ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
         Application.ThrowIfNotOnMainThread(this);
 
         return chunks.GetValueOrDefault(position);
@@ -146,7 +146,7 @@ public sealed partial class ChunkSet : IDisposable
     /// <returns>The chunk, or null if it does not exist or is not active.</returns>
     public Chunk? GetActive(ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Chunk? chunk = Get(position);
 
@@ -161,7 +161,7 @@ public sealed partial class ChunkSet : IDisposable
     /// <returns>The chunk, or null if it does not exist.</returns>
     public Chunk? GetAny(ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return Get(position);
     }
@@ -172,7 +172,7 @@ public sealed partial class ChunkSet : IDisposable
     /// <param name="chunk">The chunk to unload.</param>
     public void Unload(Chunk chunk)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(!chunk.IsActive);
         Debug.Assert(!chunk.IsRequestedToLoad);
@@ -186,7 +186,7 @@ public sealed partial class ChunkSet : IDisposable
     /// </summary>
     public void BeginSaving()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         foreach (Chunk chunk in chunks.Values) chunk.BeginSaving();
     }

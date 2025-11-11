@@ -48,7 +48,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume);
     }
 
-    [LateInitialization] private partial IAttribute<Int32> Age { get; set; }
+    [LateInitialization] private partial IAttributeData<Int32> Age { get; set; }
 
     /// <summary>
     ///     The fruit block.

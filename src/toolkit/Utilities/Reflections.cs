@@ -150,7 +150,7 @@ public static class Reflections
     public static IEnumerable<MethodInfo> GetMethodOverloads(Type type, String name)
     {
         return type.GetMethods()
-            .Where(m => m.Name.Equals(name, StringComparison.InvariantCulture) && !m.IsStatic);
+            .Where(m => m.Name.Equals(name, StringComparison.Ordinal) && !m.IsStatic);
     }
 
 

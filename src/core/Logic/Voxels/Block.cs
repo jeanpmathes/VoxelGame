@@ -60,8 +60,8 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         BoundingVolume = Aspect<BoundingVolume, State>.New<Exclusive<BoundingVolume, State>>(nameof(BoundingVolume), this);
         PlacementState = Aspect<State, (World, Vector3i, Actor?)>.New<Chaining<State, (World, Vector3i, Actor?)>>(nameof(PlacementState), this);
 
-        IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Actor?)>.New<ANDing<(World, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
-        IsDestructionAllowed = Aspect<Boolean, (State, World, Vector3i, Actor?)>.New<ANDing<(State, World, Vector3i, Actor?)>>(nameof(IsDestructionAllowed), this);
+        IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Actor?)>.New<LogicalAnd<(World, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
+        IsDestructionAllowed = Aspect<Boolean, (State, World, Vector3i, Actor?)>.New<LogicalAnd<(State, World, Vector3i, Actor?)>>(nameof(IsDestructionAllowed), this);
 
         Replaceability = Aspect<Boolean, State>.New<Exclusive<Boolean, State>>(nameof(Replaceability), this);
     }
@@ -1155,7 +1155,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         }
         else
         {
-            Throw.ForMissedDispose(this);
+            ExceptionTools.ThrowForMissedDispose(this);
         }
 
         disposed = true;

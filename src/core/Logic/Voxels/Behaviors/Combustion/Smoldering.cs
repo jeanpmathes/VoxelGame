@@ -29,7 +29,7 @@ public partial class Smoldering : BlockBehavior, IBehavior<Smoldering, BlockBeha
         subject.Require<CubeTextured>().ActiveTexture.ContributeFunction(GetTexture);
     }
 
-    [LateInitialization] private partial IAttribute<Boolean> HasEmbers { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> HasEmbers { get; set; }
 
     /// <summary>
     ///     The texture layout to use while embers are glowing.

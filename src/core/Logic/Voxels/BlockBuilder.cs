@@ -147,12 +147,17 @@ public class BlockBuilder
         /// <summary>
         ///     The block being defined. Do not use this until <see cref="Complete" /> is called.
         /// </summary>
-        protected readonly Block block = block;
+        private readonly Block block = block;
 
         /// <summary>
         ///     The content registry to register the block in.
         /// </summary>
-        protected readonly ContentRegistry registry = registry;
+        private readonly ContentRegistry registry = registry;
+        
+        /// <summary>
+        /// Get the block being defined.
+        /// </summary>
+        protected Block Block => block;
 
         /// <summary>
         ///     Require a behavior to be present on the block.
@@ -299,7 +304,7 @@ public class BlockBuilder
         /// <param name="textureLayout">The texture layout to set.</param>
         public SimpleBlockDefinition WithTextureLayout(TextureLayout textureLayout)
         {
-            block.Require<CubeTextured>().DefaultTexture.Initializer.ContributeConstant(textureLayout);
+            Block.Require<CubeTextured>().DefaultTexture.Initializer.ContributeConstant(textureLayout);
 
             return this;
         }
@@ -311,7 +316,7 @@ public class BlockBuilder
         /// <param name="wetTextureLayout">The texture layout to use when the block is wet.</param>
         public SimpleBlockDefinition WithWetTextureLayout(TextureLayout wetTextureLayout)
         {
-            block.Require<WetCubeTexture>().WetTexture.Initializer.ContributeConstant(wetTextureLayout);
+            Block.Require<WetCubeTexture>().WetTexture.Initializer.ContributeConstant(wetTextureLayout);
 
             return this;
         }
@@ -328,7 +333,7 @@ public class BlockBuilder
         /// <param name="texture">The texture to set.</param>
         public FoliageBlockDefinition WithTexture(TID texture)
         {
-            if (block.Get<SingleTextured>() is {} textured)
+            if (Block.Get<SingleTextured>() is {} textured)
                 textured.DefaultTexture.Initializer.ContributeConstant(texture);
 
             return this;
@@ -351,7 +356,7 @@ public class BlockBuilder
         /// <param name="textureLayout">The texture layout to set.</param>
         public PartialHeightBlockDefinition WithTextureLayout(TextureLayout textureLayout)
         {
-            if (block.Get<CubeTextured>() is {} texture)
+            if (Block.Get<CubeTextured>() is {} texture)
                 texture.DefaultTexture.Initializer.ContributeConstant(textureLayout);
 
             return this;
@@ -364,7 +369,7 @@ public class BlockBuilder
         /// <param name="wetTextureLayout">The texture layout to use when the block is wet.</param>
         public PartialHeightBlockDefinition WithWetTextureLayout(TextureLayout wetTextureLayout)
         {
-            block.Require<WetCubeTexture>().WetTexture.Initializer.ContributeConstant(wetTextureLayout);
+            Block.Require<WetCubeTexture>().WetTexture.Initializer.ContributeConstant(wetTextureLayout);
 
             return this;
         }

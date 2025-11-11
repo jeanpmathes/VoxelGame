@@ -27,10 +27,10 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     {
         subject.Require<Plant>();
         
-        CanGrow = Aspect<Boolean, State>.New<ANDing<State>>(nameof(CanGrow), this);
+        CanGrow = Aspect<Boolean, State>.New<LogicalAnd<State>>(nameof(CanGrow), this);
     }
 
-    [LateInitialization] private partial IAttribute<Int32?> Stage { get; set; }
+    [LateInitialization] private partial IAttributeData<Int32?> Stage { get; set; }
 
     /// <summary>
     ///     The number of growth stages this plant has.

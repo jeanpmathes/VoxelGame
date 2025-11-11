@@ -11,7 +11,7 @@ namespace VoxelGame.UI.Utilities;
 /// <summary>
 ///     A handel that allows to close a window.
 /// </summary>
-internal class CloseHandel
+internal sealed class CloseHandel
 {
     private readonly Window window;
 

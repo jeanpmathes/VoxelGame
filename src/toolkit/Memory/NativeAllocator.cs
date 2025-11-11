@@ -39,7 +39,7 @@ public sealed class NativeAllocator : IDisposable
     /// <returns>The allocated memory.</returns>
     public unsafe NativeAllocation<T> Allocate<T>(Int32 count) where T : unmanaged
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(count > 0);
 
@@ -59,7 +59,7 @@ public sealed class NativeAllocator : IDisposable
     /// <typeparam name="T">The type of the elements in the allocation.</typeparam>
     public unsafe void Deallocate<T>(NativeAllocation<T> allocation) where T : unmanaged
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         IntPtr pointer = new(allocation.Pointer);
 
@@ -77,7 +77,7 @@ public sealed class NativeAllocator : IDisposable
         if (disposed) return;
 
         if (disposing) NativeMethods.DeleteAllocator(self);
-        else Throw.ForMissedDispose(this);
+        else ExceptionTools.ThrowForMissedDispose(this);
 
         disposed = true;
     }

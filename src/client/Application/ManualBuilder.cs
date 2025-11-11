@@ -125,8 +125,8 @@ public static partial class ManualBuilder
                         .Text(s.description).NewLine()
                         .List(list => list
                             .Item("ID:").Text(s.fluid.NamedID, TextStyle.Monospace)
-                            .Item("Viscosity:").Text(s.fluid.Viscosity.ToString())
-                            .Item("Density:").Text(s.fluid.Density.ToString()))));
+                            .Item("Viscosity:").Text(s.fluid.Viscosity.ToString(CultureInfo.InvariantCulture))
+                            .Item("Density:").Text(s.fluid.Density.ToString(CultureInfo.InvariantCulture)))));
 
         fluids.Generate();
 
@@ -210,7 +210,7 @@ public static partial class ManualBuilder
 
     private static IEnumerable<(String, IEnumerable<String>)> GetBehaviors(Block block)
     {
-        Dictionary<String, List<IAttribute>> attributes = [];
+        Dictionary<String, List<IAttributeData>> attributes = [];
 
         foreach (IScoped scoped in block.States.Entries)
         {
@@ -219,7 +219,7 @@ public static partial class ManualBuilder
 
             foreach (IScoped entry in scope.Entries)
             {
-                if (entry is IAttribute attribute)
+                if (entry is IAttributeData attribute)
                 {
                     attributes.GetOrAdd(scoped.Name, []).Add(attribute);
                 }

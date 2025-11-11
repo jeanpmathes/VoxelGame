@@ -278,7 +278,7 @@ public partial class Client : Application
     /// <returns>The created pipeline, or <c>null</c> if the pipeline could not be created.</returns>
     public RasterPipeline? CreateRasterPipeline(RasterPipelineDescription description, Action<String> errorCallback)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.CreateRasterPipeline(this, description, CreateErrorFunc(errorCallback));
     }
@@ -292,7 +292,7 @@ public partial class Client : Application
     /// <returns>The created pipeline and shader buffer, or <c>null</c> if the pipeline could not be created.</returns>
     public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<String> errorCallback) where T : unmanaged, IEquatable<T>
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
@@ -307,7 +307,7 @@ public partial class Client : Application
     /// </summary>
     public void SetPostProcessingPipeline(RasterPipeline pipeline)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         NativeMethods.DesignatePostProcessingPipeline(this, pipeline);
     }
@@ -325,7 +325,7 @@ public partial class Client : Application
     /// <returns>A disposable object which can be used to remove the pipeline.</returns>
     public IDisposable AddDraw2dPipeline(RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
     }
@@ -337,7 +337,7 @@ public partial class Client : Application
     /// <returns>The loaded texture.</returns>
     public Texture LoadTexture(Image image)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.LoadTexture(this, [image]);
     }
@@ -349,7 +349,7 @@ public partial class Client : Application
     /// <returns>The loaded texture.</returns>
     public Texture LoadTexture(Span<Image> images)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.LoadTexture(this, images);
     }
@@ -359,7 +359,7 @@ public partial class Client : Application
     /// </summary>
     public void ToggleFullscreen()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         NativeMethods.ToggleFullscreen(this);
     }
@@ -370,7 +370,7 @@ public partial class Client : Application
     /// <param name="directory">The directory to save the screenshot to.</param>
     public void TakeScreenshot(DirectoryInfo directory)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         VoxelGame.Graphics.Native.EnqueueScreenshot(this,
             (data, width, height) =>
@@ -398,7 +398,7 @@ public partial class Client : Application
     /// <returns>The exit code of the client.</returns>
     public Int32 Run()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Int32 exit = NativeMethods.Run(this);
 
@@ -456,7 +456,7 @@ public partial class Client : Application
         }
         else
         {
-            Throw.ForMissedDispose(nameof(Client));
+            ExceptionTools.ThrowForMissedDispose(nameof(Client));
         }
 
         disposed = true;

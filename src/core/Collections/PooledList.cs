@@ -67,7 +67,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     {
         get
         {
-            Throw.IfDisposed(disposed);
+            ExceptionTools.ThrowIfDisposed(disposed);
 
             Debug.Assert(items != null);
 
@@ -75,7 +75,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
         }
         set
         {
-            Throw.IfDisposed(disposed);
+            ExceptionTools.ThrowIfDisposed(disposed);
 
             Debug.Assert(items != null);
             Debug.Assert(value >= Count);
@@ -98,7 +98,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <inheritdoc />
     public Boolean Remove(T item)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -126,7 +126,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     {
         get
         {
-            Throw.IfDisposed(disposed);
+            ExceptionTools.ThrowIfDisposed(disposed);
 
             Debug.Assert(items != null);
             Debug.Assert(index >= 0 && index < Count);
@@ -136,7 +136,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
 
         set
         {
-            Throw.IfDisposed(disposed);
+            ExceptionTools.ThrowIfDisposed(disposed);
 
             Debug.Assert(items != null);
             Debug.Assert(index >= 0 && index < Count);
@@ -150,7 +150,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </summary>
     public IEnumerator<T> GetEnumerator()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -159,7 +159,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -175,7 +175,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </param>
     public void Add(T item)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -187,7 +187,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <inheritdoc />
     public Int32 IndexOf(T item)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -197,7 +197,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <inheritdoc />
     public void Insert(Int32 index, T item)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
         Debug.Assert(index >= 0 && index <= Count);
@@ -212,7 +212,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </summary>
     public void RemoveAt(Int32 index)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
         Debug.Assert(index >= 0 && index < Count);
@@ -229,7 +229,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </summary>
     public void Clear()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -239,7 +239,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <inheritdoc />
     public Boolean Contains(T item)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -253,7 +253,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <inheritdoc />
     public void CopyTo(T[] array, Int32 arrayIndex)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -262,7 +262,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
 
     private T[] MoveIntoNew(Int32 newSize)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -285,7 +285,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </param>
     public void AddRange(ICollection<T> collection)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -310,7 +310,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </param>
     public void AddRange(Span<T> span)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -333,7 +333,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </param>
     public void AddRange(PooledList<T> pooledList)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
         Debug.Assert(pooledList.items != null);
@@ -358,7 +358,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// <param name="min">The minimum amount of elements the <see cref="PooledList{T}" /> should be able to hold.</param>
     public void EnsureCapacity(Int32 min)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -379,7 +379,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </summary>
     public Span<T> AsSpan()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -392,7 +392,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     /// </summary>
     private void ReturnToPool()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(items != null);
 
@@ -411,7 +411,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
         if (disposed) return;
 
         if (disposing) ReturnToPool();
-        else Throw.ForMissedDispose(this);
+        else ExceptionTools.ThrowForMissedDispose(this);
 
         disposed = true;
     }

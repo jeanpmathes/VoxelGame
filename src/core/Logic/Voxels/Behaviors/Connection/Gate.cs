@@ -44,7 +44,7 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
-    [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> IsOpen { get; set; }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

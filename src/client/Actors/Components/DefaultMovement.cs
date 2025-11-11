@@ -16,7 +16,7 @@ namespace VoxelGame.Client.Actors.Components;
 /// <param name="player">The player to move.</param>
 /// <param name="input">The player input to use for movement.</param>
 /// <param name="flyingSpeed">The initial flying speed.</param>
-internal class DefaultMovement(Player player, PlayerInput input, Double flyingSpeed) : MovementStrategy(flyingSpeed)
+internal sealed class DefaultMovement(Player player, PlayerInput input, Double flyingSpeed) : MovementStrategy(flyingSpeed)
 {
     private const Single DiveSpeed = 8f;
     private const Single JumpForce = 25000f;

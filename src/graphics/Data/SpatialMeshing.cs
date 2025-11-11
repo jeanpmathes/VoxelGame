@@ -39,7 +39,7 @@ public sealed class SpatialMeshing : IMeshing
         in (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data,
         Vector3 offset)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         mesh.Add(new SpatialVertex
         {
@@ -69,7 +69,7 @@ public sealed class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public void PushQuad(in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, in (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         mesh.Add(new SpatialVertex
         {
@@ -99,7 +99,7 @@ public sealed class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public void Grow(IMeshing.Primitive primitive, Int32 count)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Int32 size = primitive == IMeshing.Primitive.Quad
             ? 4

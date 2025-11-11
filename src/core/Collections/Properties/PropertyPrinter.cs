@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Globalization;
 using System.Text;
 
 namespace VoxelGame.Core.Collections.Properties;
@@ -18,16 +19,17 @@ public static class PropertyPrinter
     ///     Print a given property to a string.
     /// </summary>
     /// <param name="property">The property to print.</param>
+    /// <param name="cultureInfo">The culture info to use for formatting.</param>
     /// <returns>The string representation of the property.</returns>
-    public static String Print(Property property)
+    public static String Print(Property property, CultureInfo cultureInfo)
     {
-        Builder builder = new();
+        Builder builder = new(cultureInfo);
         builder.Visit(property);
 
         return builder.String;
     }
 
-    private sealed class Builder : Visitor
+    private sealed class Builder(CultureInfo cultureInfo) : Visitor
     {
         private readonly StringBuilder builder = new();
 
@@ -39,7 +41,7 @@ public static class PropertyPrinter
 
         public override void Visit(Group group)
         {
-            builder.AppendLine($"{Indent}{group.Name}:");
+            builder.AppendLine(cultureInfo, $"{Indent}{group.Name}:");
 
             indent += 2;
             base.Visit(group);
@@ -48,37 +50,37 @@ public static class PropertyPrinter
 
         public override void Visit(Error error)
         {
-            builder.AppendLine($"{Indent}{error.Name}: {error.Message}");
+            builder.AppendLine(cultureInfo, $"{Indent}{error.Name}: {error.Message}");
         }
 
         public override void Visit(Message message)
         {
-            builder.AppendLine($"{Indent}{message.Name}: {message.Text}");
+            builder.AppendLine(cultureInfo, $"{Indent}{message.Name}: {message.Text}");
         }
 
         public override void Visit(Integer integer)
         {
-            builder.AppendLine($"{Indent}{integer.Name}: {integer.Value}");
+            builder.AppendLine(cultureInfo, $"{Indent}{integer.Name}: {integer.Value}");
         }
 
         public override void Visit(FileSystemPath path)
         {
-            builder.AppendLine($"{Indent}{path.Name}: {path.Path}");
+            builder.AppendLine(cultureInfo, $"{Indent}{path.Name}: {path.Path}");
         }
 
         public override void Visit(Measure measure)
         {
-            builder.AppendLine($"{Indent}{measure.Name}: {measure.Value}");
+            builder.AppendLine(cultureInfo, $"{Indent}{measure.Name}: {measure.Value}");
         }
 
         public override void Visit(Truth truth)
         {
-            builder.AppendLine($"{Indent}{truth.Name}: {(truth.Value ? "true" : "false")}");
+            builder.AppendLine(cultureInfo, $"{Indent}{truth.Name}: {(truth.Value ? "true" : "false")}");
         }
 
         public override void Visit(Color color)
         {
-            builder.AppendLine($"{Indent}{color.Name}: {color.Value.R:P}, {color.Value.G:P}, {color.Value.B:P}, {color.Value.A:P}");
+            builder.AppendLine(cultureInfo, $"{Indent}{color.Name}: {color.Value.R:P}, {color.Value.G:P}, {color.Value.B:P}, {color.Value.A:P}");
         }
     }
 }

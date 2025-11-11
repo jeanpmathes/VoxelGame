@@ -37,7 +37,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
         attached.IsOtherwiseAttached.ContributeFunction(GetIsOtherwiseAttached);
     }
 
-    [LateInitialization] private partial IAttribute<Int32> Age { get; set; }
+    [LateInitialization] private partial IAttributeData<Int32> Age { get; set; }
     
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

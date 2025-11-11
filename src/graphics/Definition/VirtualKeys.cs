@@ -15,8 +15,10 @@ namespace VoxelGame.Graphics.Definition;
 /// <remarks>
 ///     Adapted from https://www.pinvoke.net/default.aspx/Enums/VirtualKeys.html
 /// </remarks>
-[SuppressMessage("ReSharper", "InconsistentNaming")]
-[SuppressMessage("ReSharper", "IdentifierTypo")]
+[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Must match original definitions.")]
+[SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Must match original definitions.")]
+[SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "Must match original definitions.")]
+[SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Must match original definitions.")]
 #pragma warning disable CS1591
 public enum VirtualKeys : Byte
 {

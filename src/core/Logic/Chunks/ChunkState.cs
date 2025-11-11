@@ -615,7 +615,7 @@ public abstract class ChunkState
         };
     }
 
-    private ChunkState CreateFinalState()
+    private Chunk.Deactivating CreateFinalState()
     {
         var state = new Chunk.Deactivating
         {

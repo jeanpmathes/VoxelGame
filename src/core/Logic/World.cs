@@ -26,7 +26,7 @@ using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
 using VoxelGame.Annotations.Attributes;
-using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
+using Generator = VoxelGame.Core.Generation.Worlds.Standard.Generator;
 using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Logic;
@@ -205,7 +205,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Content? GetContent(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         RetrieveContent(position, out Content? content);
 
@@ -220,7 +220,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         SetContent(content, position, updateBlock: true, updateFluid: true);
     }
@@ -237,7 +237,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position, Boolean updateBlock)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         SetContent(content, position, updateBlock, updateFluid: true);
     }
@@ -275,7 +275,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// </summary>
     public Operation EmitWorldInfo(DirectoryInfo directory)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return ChunkContext.Generator.EmitWorldInfo(directory);
     }
@@ -290,7 +290,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <returns>The positions of the elements, or null if the name is not valid.</returns>
     public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return ChunkContext.Generator.SearchNamedGeneratedElements(start, name, maxDistance);
     }
@@ -314,7 +314,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public State? GetBlock(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         RetrieveContent(position, out Content? content);
 
@@ -352,7 +352,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FluidInstance? GetFluid(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         RetrieveContent(position, out Content? content);
 
@@ -368,7 +368,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetBlock(State block, Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         FluidInstance? potentialFluid = GetFluid(position);
 
@@ -384,7 +384,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetFluid(FluidInstance fluid, Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         State? potentialBlock = GetBlock(position);
 
@@ -479,7 +479,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// </summary>
     public void SetDefaultBlock(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         SetBlock(Content.DefaultState, position);
     }
@@ -489,7 +489,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// </summary>
     public void SetDefaultFluid(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         SetFluid(FluidInstance.Default, position);
     }
@@ -501,7 +501,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <returns>True if both the fluid and block at the position received a random update.</returns>
     public Boolean DoRandomUpdate(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Content? content = GetContent(position);
 
@@ -571,7 +571,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <inheritdoc cref="ChunkSet.Request" />
     public Request? RequestChunk(ChunkPosition position, Actor actor)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(!State.IsTerminating);
 
@@ -587,7 +587,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <inheritdoc cref="ChunkSet.Release" />
     public void ReleaseChunk(Request? request)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (request == null) return;
 
@@ -604,7 +604,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
     public Chunk? GetActiveChunk(ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return !IsInLimits(position) ? null : Chunks.GetActive(position);
     }
@@ -618,7 +618,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Chunk? GetActiveChunk(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return IsInLimits(position) ? GetActiveChunk(ChunkPosition.From(position)) : null;
     }
@@ -630,7 +630,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <returns>True if the chunk is active.</returns>
     protected Boolean IsChunkActive(ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return GetActiveChunk(position) != null;
     }
@@ -644,7 +644,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <returns>True if a chunk was found.</returns>
     public Boolean TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         chunk = Chunks.GetAny(position);
 

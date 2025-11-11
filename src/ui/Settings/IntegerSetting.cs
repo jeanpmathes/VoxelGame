@@ -16,7 +16,7 @@ namespace VoxelGame.UI.Settings;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class IntegerSetting : Setting
+internal sealed class IntegerSetting : Setting
 {
     private readonly Func<Int32> get;
     private readonly Int32 max;

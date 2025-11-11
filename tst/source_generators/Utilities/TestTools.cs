@@ -39,7 +39,7 @@ public static class TestTools
             ]);
 
         GeneratorDriverRunResult runResult = driver.RunGenerators(compilation).GetRunResult();
-        SyntaxTree generated = runResult.GeneratedTrees.Single(t => t.FilePath.EndsWith(fileSuffix));
+                SyntaxTree generated = runResult.GeneratedTrees.Single(t => t.FilePath.EndsWith(fileSuffix, StringComparison.OrdinalIgnoreCase));
         
         return generated.GetText().ToString();
     }

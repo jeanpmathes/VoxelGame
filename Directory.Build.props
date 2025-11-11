@@ -18,8 +18,10 @@
     <PropertyGroup>
         <EnableNETAnalyzers>true</EnableNETAnalyzers>
         <EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+        <AnalysisMode>Recommended</AnalysisMode>
         <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
         <Nullable>enable</Nullable>
         <WarningsAsErrors>;NU1605;nullable</WarningsAsErrors>
+        <NoWarn>CA1000;CA1711;CA1716;CA1720</NoWarn>
     </PropertyGroup>
 </Project>

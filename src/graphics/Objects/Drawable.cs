@@ -36,7 +36,7 @@ public class Drawable : Spatial, IDisposable
         {
             if (value == enabled) return;
 
-            Throw.IfDisposed(disposed);
+            ExceptionTools.ThrowIfDisposed(disposed);
 
             NativeMethods.SetDrawableEnabledState(this, value);
             enabled = value;
@@ -61,7 +61,7 @@ public class Drawable : Spatial, IDisposable
         }
         else
         {
-            Throw.ForMissedDispose(this);
+            ExceptionTools.ThrowForMissedDispose(this);
         }
 
         disposed = true;

@@ -35,7 +35,7 @@ public sealed class NoiseGenerator : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Single GetNoise(Vector2d position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return Native.GetNoise2D(self, position);
     }
@@ -46,7 +46,7 @@ public sealed class NoiseGenerator : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Single GetNoise(Vector3d position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return Native.GetNoise3D(self, position);
     }
@@ -57,7 +57,7 @@ public sealed class NoiseGenerator : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Array2D<Single> GetNoiseGrid(Vector2i position, Int32 size)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Array2D<Single> result = new(size, transpose: true);
         Native.GetNoiseGrid2D(self, position, new Vector2i(size), result.AsSpan());
@@ -71,7 +71,7 @@ public sealed class NoiseGenerator : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Array3D<Single> GetNoiseGrid(Vector3i position, Int32 size)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Array3D<Single> result = new(size, transpose: true);
         Native.GetNoiseGrid3D(self, position, new Vector3i(size), result.AsSpan());
@@ -88,7 +88,7 @@ public sealed class NoiseGenerator : IDisposable
         if (disposed) return;
 
         if (disposing) Native.DeleteNoise(self);
-        else Throw.ForMissedDispose(this);
+        else ExceptionTools.ThrowForMissedDispose(this);
 
         disposed = true;
     }

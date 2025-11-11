@@ -11,7 +11,7 @@ namespace VoxelGame.Manual.Elements;
 /// <summary>
 ///     A piece of text that represents a boolean value.
 /// </summary>
-internal class Boolean : IElement
+internal sealed class Boolean : IElement
 {
     internal Boolean(System.Boolean value)
     {

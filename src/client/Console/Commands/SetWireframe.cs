@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -22,6 +23,7 @@ public class SetWireframe : Command
     public override String HelpText => "Allows to enable or disable wireframe rendering.";
 
     /// <exclude />
+    [SuppressMessage("Performance", "CA1822:Mark members as static", Justification = "Command methods must be instance methods.")]
     public void Invoke(Boolean enable)
     {
         Visuals.Graphics.Instance.SetWireframe(enable);

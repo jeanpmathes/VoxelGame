@@ -18,18 +18,16 @@ namespace VoxelGame.Graphics.Input;
 /// </summary>
 public class Input
 {
-    private readonly List<Action<VirtualKeys>> callbackListForAnyPress = new();
-
-    private readonly ISet<VirtualKeys> ignoredKeys = new HashSet<VirtualKeys>();
-
-    private readonly ISet<VirtualKeys> mouseButtons = new HashSet<VirtualKeys>
-    {
+    private readonly List<Action<VirtualKeys>> callbackListForAnyPress = [];
+    private readonly HashSet<VirtualKeys> ignoredKeys = [];
+    private readonly HashSet<VirtualKeys> mouseButtons =
+    [
         VirtualKeys.LeftButton,
         VirtualKeys.RightButton,
         VirtualKeys.MiddleButton,
         VirtualKeys.ExtraButton1,
         VirtualKeys.ExtraButton2
-    };
+    ];
 
     internal Input(Client client)
     {
@@ -117,12 +115,8 @@ public class Input
     {
         var virtualKey = (VirtualKeys) key;
 
-        if (ignoredKeys.Contains(virtualKey))
-        {
-            ignoredKeys.Remove(virtualKey);
-
+        if (ignoredKeys.Remove(virtualKey))
             return;
-        }
 
         KeyState.SetKeyState(virtualKey, down: false);
         HandleKey(virtualKey, down: false);

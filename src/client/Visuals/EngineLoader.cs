@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -38,6 +39,7 @@ public sealed class EngineLoader : IResourceLoader
                                 Load(context, blocks, fluids, client, visuals)))));
     }
 
+    [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "False positive.")]
     private IEnumerable<IResource> Load(IResourceContext context, TextureBundle blocks, TextureBundle fluids, Application.Client client, VisualConfiguration visuals)
     {
         errors.Clear();

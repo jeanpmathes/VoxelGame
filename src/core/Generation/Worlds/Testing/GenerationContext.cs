@@ -42,7 +42,7 @@ public sealed class GenerationContext(Generator generator) : IGenerationContext
             return;
 
         if (!disposing)
-            Throw.ForMissedDispose(this);
+            ExceptionTools.ThrowForMissedDispose(this);
 
         disposed = true;
     }

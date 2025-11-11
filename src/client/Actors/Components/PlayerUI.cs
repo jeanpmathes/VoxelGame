@@ -46,7 +46,7 @@ public partial class PlayerUI : ActorComponent
     /// <inheritdoc />
     public override void OnActivate()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         ui.SetActive(active: true);
         ui.UpdatePlayerData();
@@ -55,7 +55,7 @@ public partial class PlayerUI : ActorComponent
     /// <inheritdoc />
     public override void OnDeactivate()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         ui.SetActive(active: false);
     }
@@ -63,7 +63,7 @@ public partial class PlayerUI : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (player.Input.CanHandleMetaInput && debugViewButton.IsDown)
             ui.ToggleDebugDataView();
@@ -73,7 +73,7 @@ public partial class PlayerUI : ActorComponent
 
     private void UpdatePlayerData(Object? sender, EventArgs e)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         ui.UpdatePlayerData();
     }

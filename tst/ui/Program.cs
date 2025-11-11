@@ -17,7 +17,7 @@ using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.UI.Tests;
 
-internal class Program : Client
+internal sealed class Program : Client
 {
     private const Int32 MaxFrameSamples = 1000;
     private readonly IGwenGui gui;

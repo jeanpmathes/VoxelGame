@@ -29,7 +29,7 @@ public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatabl
         siding.SidedState.ContributeFunction(GetSidedState);
     }
 
-    [LateInitialization] private partial IAttribute<Orientation> Orientation { get; set; }
+    [LateInitialization] private partial IAttributeData<Orientation> Orientation { get; set; }
 
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)

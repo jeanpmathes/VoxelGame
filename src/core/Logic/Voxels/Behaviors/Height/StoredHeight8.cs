@@ -38,7 +38,7 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
         subject.Require<StoredHeight>().HeightedState.ContributeFunction(GetHeightedState);
     }
 
-    [LateInitialization] private partial IAttribute<Int32> Height { get; set; }
+    [LateInitialization] private partial IAttributeData<Int32> Height { get; set; }
 
     /// <summary>
     ///     The preferred height of the block at placement.

@@ -103,7 +103,7 @@ public class SettingsProvider
 ///     Wraps a settings provider object into a form usable by the user interface.
 /// </summary>
 /// <typeparam name="T">The type of the settings provider.</typeparam>
-internal class SettingsProviderWrapper<T> : SettingsProvider where T : ISettingsProvider
+internal sealed class SettingsProviderWrapper<T> : SettingsProvider where T : ISettingsProvider
 {
     /// <summary>
     ///     Create a new settings provider wrapper.

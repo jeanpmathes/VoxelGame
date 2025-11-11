@@ -52,7 +52,7 @@ public sealed class Disposer : IDisposable
         if (disposed) return;
 
         if (disposing) dispose();
-        else Throw.ForMissedDispose(this);
+        else ExceptionTools.ThrowForMissedDispose(this);
 
         disposed = true;
     }

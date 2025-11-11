@@ -34,7 +34,7 @@ public class ResourceCatalogLoaderTests
         Assert.Equal(expected: 1, report.ErrorCount);
     }
 
-    private class CallTracker
+    private sealed class CallTracker
     {
         public Boolean LoaderCalled { get; set; }
 
@@ -43,13 +43,13 @@ public class ResourceCatalogLoaderTests
         public Boolean ProviderCalled { get; set; }
     }
 
-    private class MockCatalog() : ResourceCatalog([
+    private sealed class MockCatalog() : ResourceCatalog([
         new MockLoader(),
         new MockLinker(),
         new MockProvider()
     ]);
 
-    private class MockLoader : IResourceLoader
+    private sealed class MockLoader : IResourceLoader
     {
         public String Instance => "";
 
@@ -71,7 +71,7 @@ public class ResourceCatalogLoaderTests
         }
     }
 
-    private class MockLinker : IResourceLinker
+    private sealed class MockLinker : IResourceLinker
     {
         public String Instance => "";
 
@@ -86,7 +86,7 @@ public class ResourceCatalogLoaderTests
         }
     }
 
-    private class MockProvider : IResourceProvider
+    private sealed class MockProvider : IResourceProvider
     {
         public IResourceContext? Context { get; set; }
         public String Instance => "";

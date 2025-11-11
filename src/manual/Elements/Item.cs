@@ -12,7 +12,7 @@ namespace VoxelGame.Manual.Elements;
 /// <summary>
 ///     An item for lists.
 /// </summary>
-internal class Item : IElement
+internal sealed class Item : IElement
 {
     private readonly String? bullet;
 

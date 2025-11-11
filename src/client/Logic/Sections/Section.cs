@@ -70,7 +70,7 @@ public class Section : Core.Logic.Sections.Section
     /// <param name="context">The context to use for mesh creation.</param>
     public void CreateAndSetMesh(World world, ChunkMeshingContext context)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Sides required = GetRequiredSides(Position);
         missing = required & ~context.AvailableSides & Sides.All;
@@ -86,7 +86,7 @@ public class Section : Core.Logic.Sections.Section
     /// <param name="context">The context to use for mesh creation.</param>
     public void RecreateIncompleteMesh(World world, ChunkMeshingContext context)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (missing == Sides.None) return;
 
@@ -103,7 +103,7 @@ public class Section : Core.Logic.Sections.Section
     /// <param name="sides">The sides that are missing for the section.</param>
     public void SetAsIncomplete(Sides sides)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         missing |= sides;
     }
@@ -132,7 +132,7 @@ public class Section : Core.Logic.Sections.Section
     /// <returns>The created mesh data.</returns>
     public SectionMeshData CreateMeshData(IChunkMeshingContext chunkContext)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         using Timer? timer = logger.BeginTimedScoped("Section Meshing");
 
@@ -184,7 +184,7 @@ public class Section : Core.Logic.Sections.Section
     /// <param name="meshData">The mesh data to use and activate.</param>
     public void SetMeshData(World world, SectionMeshData meshData)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         // While the mesh is not necessarily complete,
         // missing neighbours are the reponsibility of the level that created the passed mesh, e.g. the chunk.
@@ -198,7 +198,7 @@ public class Section : Core.Logic.Sections.Section
     /// </summary>
     public void SetVfxEnabledState(Boolean enabled)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         vfxEnabled = enabled;
 
@@ -207,7 +207,7 @@ public class Section : Core.Logic.Sections.Section
 
     private void SetMeshDataInternal(World world, SectionMeshData meshData)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(hasMesh == meshData.IsFilled);
 

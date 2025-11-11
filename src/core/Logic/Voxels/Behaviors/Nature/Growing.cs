@@ -34,7 +34,7 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
         subject.IsPlacementAllowed.ContributeFunction(GetIsPlacementAllowed);
     }
 
-    [LateInitialization] private partial IAttribute<Int32> Age { get; set; }
+    [LateInitialization] private partial IAttributeData<Int32> Age { get; set; }
 
     /// <summary>
     ///     The required ground block.

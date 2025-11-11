@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals.Meshables;
 
@@ -193,6 +194,7 @@ public class Mesh
         /// <summary>
         ///     The data of the quad.
         /// </summary>
+        [SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "Required to pass it by reference.")]
         public (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data;
 
         #pragma warning restore S1104

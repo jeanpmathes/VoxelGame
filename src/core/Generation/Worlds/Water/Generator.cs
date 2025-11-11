@@ -111,7 +111,7 @@ public sealed class Generator : IWorldGenerator
         }
         else
         {
-            Throw.ForMissedDispose(this);
+            ExceptionTools.ThrowForMissedDispose(this);
         }
 
         disposed = true;

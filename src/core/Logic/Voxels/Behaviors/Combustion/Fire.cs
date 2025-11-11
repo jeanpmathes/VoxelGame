@@ -47,17 +47,17 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         subject.Replaceability.ContributeConstant(value: true);
     }
 
-    [LateInitialization] private partial IAttribute<Boolean> Front { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> Front { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> Back { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> Back { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> Left { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> Left { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> Right { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> Right { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> Top { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> Top { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> LeavesAsh { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> LeavesAsh { get; set; }
 
     /// <summary>
     ///     The models used for the block.
