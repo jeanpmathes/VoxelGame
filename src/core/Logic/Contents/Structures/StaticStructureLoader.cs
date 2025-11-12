@@ -24,7 +24,7 @@ public sealed class StaticStructureLoader : IResourceLoader
     String? ICatalogEntry.Instance => null;
 
     /// <inheritdoc />
-    public IEnumerable<IResource> Load(IResourceContext context) => context.Require<Block>(_ =>
+    public IEnumerable<IResource> Load(IResourceContext context) => context.Require<Block>(Blocks.Instance.Core.Error.Identifier, _ =>
         {
             FileInfo[] files;
 
