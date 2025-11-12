@@ -102,10 +102,10 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 this,
                 Language.GraphicsRenderResolutionScale,
                 RenderResolutionScale.Accessors,
-                min: 0.1f,
+                min: 0.5f,
                 max: 5f,
                 percentage: true,
-                step: 0.1f));
+                step: 0.5f));
     }
 
     #region LOGGING
