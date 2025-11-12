@@ -10,22 +10,18 @@ using System.Diagnostics;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Standard;
 
 /// <summary>
 ///     Implementation of <see cref="IGenerationContext" />.
 /// </summary>
-public sealed class GenerationContext(Generator generator, ChunkPosition hint) : IGenerationContext
+public sealed class GenerationContext(Generator generator, ChunkPosition hint) : BaseGenerationContext(generator)
 {
     private ColumnSampleStore? columns = generator.GetColumns(hint);
-
+    
     /// <inheritdoc />
-    public IWorldGenerator Generator => generator;
-
-    /// <inheritdoc />
-    public IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
+    public override IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
     {
         ChunkPosition chunk = ChunkPosition.From((x, 0, z));
         columns ??= ColumnSampleStore.Sample(chunk.X, chunk.Z, generator);
@@ -36,7 +32,7 @@ public sealed class GenerationContext(Generator generator, ChunkPosition hint) :
     }
 
     /// <inheritdoc />
-    public void GenerateStructures(Section section)
+    public override void GenerateStructures(Section section)
     {
         generator.GenerateStructures(section, columns);
     }
@@ -45,33 +41,18 @@ public sealed class GenerationContext(Generator generator, ChunkPosition hint) :
 
     private Boolean disposed;
 
-    private void Dispose(Boolean disposing)
-    {
-        if (disposed)
-            return;
-
-        if (!disposing)
-            ExceptionTools.ThrowForMissedDispose(this);
-
-        if (columns != null)
-            generator.AddColumns(columns);
-
-        disposed = true;
-    }
-
     /// <inheritdoc />
-    public void Dispose()
+    protected override void Dispose(Boolean disposing)
     {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
+        if (!disposed)
+        {
+            if (disposing && columns != null)
+                generator.AddColumns(columns);   
 
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~GenerationContext()
-    {
-        Dispose(disposing: false);
+            disposed = true;
+        }
+
+        base.Dispose(disposing);
     }
 
     #endregion DISPOSABLE

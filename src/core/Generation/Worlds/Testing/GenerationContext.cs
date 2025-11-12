@@ -6,61 +6,18 @@
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Testing;
 
 /// <summary>
 ///     Implementation of <see cref="IGenerationContext" />.
 /// </summary>
-public sealed class GenerationContext(Generator generator) : IGenerationContext
+public sealed class GenerationContext(Generator generator) : BaseGenerationContext(generator)
 {
     /// <inheritdoc />
-    public IWorldGenerator Generator => generator;
-
-    /// <inheritdoc />
-    public IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
+    public override IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
     {
         return generator.GenerateColumn(x, z, heightRange);
     }
-
-    /// <inheritdoc />
-    public void GenerateStructures(Section section)
-    {
-        // No structures to generate.
-    }
-
-    #region DISPOSABLE
-
-    private Boolean disposed;
-
-    private void Dispose(Boolean disposing)
-    {
-        if (disposed)
-            return;
-
-        if (!disposing)
-            ExceptionTools.ThrowForMissedDispose(this);
-
-        disposed = true;
-    }
-
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~GenerationContext()
-    {
-        Dispose(disposing: false);
-    }
-
-    #endregion DISPOSABLE
 }
