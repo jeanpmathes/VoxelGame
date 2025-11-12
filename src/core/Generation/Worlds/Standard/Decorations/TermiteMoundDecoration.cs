@@ -21,7 +21,7 @@ public class TermiteMoundDecoration : Decoration
     private readonly Shape3D shape;
 
     /// <summary>
-    ///     Creates a new instance of the <see cref="RootDecoration" /> class.
+        ///     Creates a new instance of the <see cref="TermiteMoundDecoration" /> class.
     /// </summary>
     public TermiteMoundDecoration(String name, Decorator decorator) : base(name, decorator)
     {
@@ -35,7 +35,7 @@ public class TermiteMoundDecoration : Decoration
     public override Int32 Size { get; }
 
     /// <inheritdoc />
-    protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)
+    protected override void DoPlace(Vector3i position, IGrid grid, in PlacementContext placementContext)
     {
         Vector3i extents = new(Size / 2);
         Vector3i center = position - extents;

@@ -15,42 +15,23 @@ namespace VoxelGame.Core.Generation.Worlds.Standard.Decorations;
 /// <summary>
 ///     A clump of roots.
 /// </summary>
-public class RootDecoration : Decoration
+public class RootDecoration : ShapeDecoration
 {
-    private readonly Shape3D shape;
+    private const Int32 Diameter = 3;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="RootDecoration" /> class.
     /// </summary>
-    public RootDecoration(String name, Decorator decorator) : base(name, decorator)
+    public RootDecoration(String name, Decorator decorator) : base(name, decorator, new Sphere {Radius = Diameter / 2.0}, Diameter)
     {
-        const Int32 diameter = 3;
-
-        shape = new Sphere {Radius = diameter / 2.0f};
-        Size = diameter;
     }
 
     /// <inheritdoc />
-    public override Int32 Size { get; }
-
-    /// <inheritdoc />
-    protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)
+    protected override void OnPlace(Vector3i position, IGrid grid, in PlacementContext placementContext)
     {
-        Vector3i extents = new(Size / 2);
-        Vector3i center = position - extents;
+        if (grid.GetContent(position)?.Block.Block != Blocks.Instance.Environment.Soil) 
+            return;
 
-        for (var x = 0; x < Size; x++)
-        for (var y = 0; y < Size; y++)
-        for (var z = 0; z < Size; z++)
-        {
-            Vector3i offset = new(x, y, z);
-            Vector3i current = center + offset;
-
-            if (!shape.Contains(offset - extents)) continue;
-
-            if (grid.GetContent(current)?.Block.Block != Blocks.Instance.Environment.Soil) continue;
-
-            grid.SetContent(Content.CreateGenerated(Blocks.Instance.Environment.Roots), current);
-        }
+        grid.SetContent(Content.CreateGenerated(Blocks.Instance.Environment.Roots), position);
     }
 }

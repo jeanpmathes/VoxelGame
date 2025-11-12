@@ -95,16 +95,16 @@ public abstract class Decoration : IResource
 
     private void DecoratePosition(Vector3i position, in PlacementContext context, IGrid grid)
     {
-        if (decorator.CanPlace(position, context, grid)) DoPlace(position, context, grid);
+        if (decorator.CanPlace(position, context, grid)) DoPlace(position, grid, context);
     }
 
     /// <summary>
     ///     Place the decoration at the given position.
     /// </summary>
     /// <param name="position">The position at which to place the decoration.</param>
-    /// <param name="placementContext">The placement context object.</param>
     /// <param name="grid">The grid that is being decorated.</param>
-    protected abstract void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid);
+    /// <param name="placementContext">The placement context object.</param>
+    protected abstract void DoPlace(Vector3i position, IGrid grid, in PlacementContext placementContext);
 
     /// <summary>
     ///     The context in which placement in a section occurs.

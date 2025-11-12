@@ -34,7 +34,7 @@ public class DecorationProvider : ResourceProvider<Decoration>, IDecorationProvi
     {
         public override Int32 Size => 0;
 
-        protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)
+        protected override void DoPlace(Vector3i position, IGrid grid, in PlacementContext placementContext)
         {
             // Do nothing.
         }

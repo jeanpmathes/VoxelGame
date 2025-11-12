@@ -40,7 +40,7 @@ public class StructureDecoration : Decoration
     public sealed override Int32 Size => structure.Extents.MaxComponent();
 
     /// <inheritdoc />
-    protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)
+    protected override void DoPlace(Vector3i position, IGrid grid, in PlacementContext placementContext)
     {
         Int32 xOffset = structure.Extents.X / 2;
         Int32 zOffset = structure.Extents.Z / 2;

@@ -36,7 +36,7 @@ public class AttachedBlockDecoration<TFilter> : Decoration where TFilter : Block
     public override Int32 Size => 1;
 
     /// <inheritdoc />
-    protected override void DoPlace(Vector3i position, in PlacementContext placementContext, IGrid grid)
+    protected override void DoPlace(Vector3i position, IGrid grid, in PlacementContext placementContext)
     {
         foreach (Orientation orientation in Orientations.All)
         {
