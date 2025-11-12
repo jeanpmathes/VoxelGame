@@ -20,7 +20,7 @@ public class BlockProperties(Block subject)
     ///     Note that this only indicates whether the actual filled portion of the block is opaque.
     ///     If the block is not full, it is possible to see around the block.
     /// </summary>
-    public Aspect<Boolean, Block> IsOpaque { get; } = Aspect<Boolean, Block>.New<ANDing<Block>>(nameof(IsOpaque), subject);
+    public Aspect<Boolean, Block> IsOpaque { get; } = Aspect<Boolean, Block>.New<LogicalAnd<Block>>(nameof(IsOpaque), subject);
 
     /// <summary>
     ///     This aspect is only relevant for non-opaque full blocks. It decides if their faces should be meshed next to
@@ -31,7 +31,7 @@ public class BlockProperties(Block subject)
     /// <summary>
     ///     Whether this block hinders movement.
     /// </summary>
-    public Aspect<Boolean, Block> IsSolid { get; } = Aspect<Boolean, Block>.New<ANDing<Block>>(nameof(IsSolid), subject);
+    public Aspect<Boolean, Block> IsSolid { get; } = Aspect<Boolean, Block>.New<LogicalAnd<Block>>(nameof(IsSolid), subject);
     
     /// <summary>
     ///     Gets whether this block is unshaded, which means it does not receive shadows.

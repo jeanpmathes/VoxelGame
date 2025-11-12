@@ -18,7 +18,7 @@ namespace VoxelGame.Client.Visuals;
 /// <summary>
 ///     Creates raster pipelines.
 /// </summary>
-internal class PipelineFactory
+internal sealed class PipelineFactory
 {
     private readonly Application.Client client;
     private readonly ICollection<MissingResource> errors;

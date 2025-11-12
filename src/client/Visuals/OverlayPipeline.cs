@@ -84,7 +84,7 @@ public sealed class OverlayPipeline : IDisposable
     /// <param name="overlay">The texture to use.</param>
     public void SetBlockTexture(OverlayTexture overlay)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         mode = BlockMode;
 
@@ -97,7 +97,7 @@ public sealed class OverlayPipeline : IDisposable
     /// <param name="overlay">The texture to use.</param>
     public void SetFluidTexture(OverlayTexture overlay)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         mode = FluidMode;
 
@@ -111,7 +111,7 @@ public sealed class OverlayPipeline : IDisposable
     /// <param name="newUpperBound">The upper bound.</param>
     public void SetBounds(Double newLowerBound, Double newUpperBound)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         lowerBound = (Single) newLowerBound;
         upperBound = (Single) newUpperBound;
@@ -119,7 +119,7 @@ public sealed class OverlayPipeline : IDisposable
 
     private void SetAttributes(OverlayTexture overlay)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         textureID = overlay.TextureIndex;
         tint = overlay.Tint;

@@ -360,7 +360,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <returns>The guard, or null if the resource could not be acquired.</returns>
     public Guard? Acquire(Access access, [CallerMemberName] String caller = "", [CallerLineNumber] Int32 line = 0)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(access != Access.None);
 
@@ -387,7 +387,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public Boolean CanAcquire(Access access)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return state.CanStealAccess || rw.CanAcquire(access);
     }
@@ -397,7 +397,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public Boolean IsHeldBy(Guard guard, Access access)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return rw.IsHeldBy(guard, access);
     }
@@ -436,7 +436,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     internal void OnRequestLevelApplied()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (!IsRequestedToLoad) BeginSaving();
         else if (!IsRequestedToActivate) BeginHiding();
@@ -553,7 +553,7 @@ public partial class Chunk : IDisposable, IEntity
     {
         Debug.Assert(IsGenerated);
 
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         blockUpdateManager.Normalize();
         fluidUpdateManager.Normalize();
@@ -577,7 +577,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public void Generate(IGenerationContext generationContext, IDecorationContext decorationContext)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         using Timer? timer = logger.BeginTimedScoped("Chunk Generation");
 
@@ -594,7 +594,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public void Decorate(Neighborhood<Chunk?> neighbors, IDecorationContext decorationContext)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         using Timer? timer = logger.BeginTimedScoped("Chunk Decoration");
 
@@ -635,7 +635,7 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public void LogicUpdate()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(IsActive);
 
@@ -655,7 +655,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <returns>The section.</returns>
     public Section GetSection(SectionPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         (Int32 x, Int32 y, Int32 z) = position.Local;
 
@@ -730,7 +730,7 @@ public partial class Chunk : IDisposable, IEntity
     /// <returns>The next state, if the chunk needs decoration.</returns>
     public ChunkState? ProcessDecorationOption()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Debug.Assert(IsGenerated);
 

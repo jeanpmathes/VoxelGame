@@ -14,7 +14,7 @@ namespace VoxelGame.Manual.Elements;
 /// <summary>
 ///     A simple text element.
 /// </summary>
-internal class Text : IElement
+internal sealed class Text : IElement
 {
     private readonly TextStyle style;
 

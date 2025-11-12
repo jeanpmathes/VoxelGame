@@ -17,11 +17,6 @@ namespace VoxelGame.Toolkit.Noise;
 public interface INoiseBuilder
 {
     /// <summary>
-    ///     Get the noise builder.
-    /// </summary>
-    NoiseBuilder And();
-
-    /// <summary>
     ///     Builds and returns the configured <see cref="NoiseGenerator" />.
     /// </summary>
     NoiseGenerator Build();
@@ -64,11 +59,6 @@ public class NoiseBuilder : IFractalNoiseBuilder
     private NoiseBuilder(Int32 seed)
     {
         definition = new NoiseDefinition {Seed = seed};
-    }
-
-    NoiseBuilder INoiseBuilder.And()
-    {
-        return this;
     }
 
     /// <inheritdoc />

@@ -45,9 +45,9 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
-    [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> IsOpen { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> IsLeftSided { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> IsLeftSided { get; set; }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

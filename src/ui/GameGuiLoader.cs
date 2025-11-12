@@ -117,7 +117,7 @@ public sealed class GameGuiLoader : IResourceLoader
         return textures;
     }
 
-    private static IResource? ReportShaderLoading(String? shaderLoadingError, FileSystemInfo shader, IResourceContext context)
+    private static MissingResource? ReportShaderLoading(String? shaderLoadingError, FileSystemInfo shader, IResourceContext context)
     {
         context.ReportDiscovery(ResourceTypes.Shader, RID.Path(shader), errorMessage: shaderLoadingError);
 

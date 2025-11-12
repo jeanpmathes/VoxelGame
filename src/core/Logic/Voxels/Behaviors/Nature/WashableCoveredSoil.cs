@@ -16,14 +16,11 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// </summary>
 public partial class WashableCoveredSoil : BlockBehavior, IBehavior<WashableCoveredSoil, BlockBehavior, Block>
 {
-    private readonly CoveredSoil soil;
-
     [Constructible]
     private WashableCoveredSoil(Block subject) : base(subject)
     {
         subject.Require<Wet>();
-
-        soil = subject.Require<CoveredSoil>();
+        subject.Require<CoveredSoil>();
     }
 
     /// <inheritdoc />
@@ -32,7 +29,7 @@ public partial class WashableCoveredSoil : BlockBehavior, IBehavior<WashableCove
         bus.Subscribe<Wet.IBecomeWetMessage>(OnBecomeWet);
     }
 
-    private void OnBecomeWet(Wet.IBecomeWetMessage message)
+    private static void OnBecomeWet(Wet.IBecomeWetMessage message)
     {
         CoveredSoil.RemoveCover(message.World, message.Position);
     }

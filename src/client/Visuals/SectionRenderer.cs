@@ -163,7 +163,7 @@ public sealed partial class SectionRenderer : IDisposable
     /// <param name="meshData">The mesh data to use.</param>
     public void SetData(SectionMeshData meshData)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
         Core.App.Application.ThrowIfNotOnMainThread(this);
 
         if (meshData.BasicMeshing.opaque.Count > 0 || basic.opaque != null)
@@ -209,7 +209,7 @@ public sealed partial class SectionRenderer : IDisposable
         }
         else
         {
-            Throw.ForMissedDispose(nameof(SectionRenderer));
+            ExceptionTools.ThrowForMissedDispose(nameof(SectionRenderer));
         }
 
         disposed = true;

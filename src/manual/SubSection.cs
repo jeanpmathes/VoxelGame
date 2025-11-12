@@ -14,7 +14,7 @@ namespace VoxelGame.Manual;
 /// <summary>
 ///     A subsection within a section.
 /// </summary>
-internal class SubSection(String sectionTitle) : Chainable, IElement
+internal sealed class SubSection(String sectionTitle) : Chainable, IElement
 {
     private readonly List<IElement> elements = [];
 

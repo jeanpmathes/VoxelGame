@@ -51,7 +51,7 @@ internal sealed class GameGui : IGwenGui
 
     public void Load()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         GwenPlatform.Init(new VoxelGamePlatform(Parent.Input.Mouse.SetCursorType));
         AttachToWindowEvents();
@@ -101,7 +101,7 @@ internal sealed class GameGui : IGwenGui
 
     public void Update()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         // While handling an event, code might be executed that passes control to the OS.
         // As such, new events might be invoked, causing problems with the iteration.
@@ -114,7 +114,7 @@ internal sealed class GameGui : IGwenGui
 
     public void Render()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         canvas.RenderCanvas();
 

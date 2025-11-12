@@ -37,7 +37,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     private Single ConvertToPixels(Single value, GraphicsUnit unit)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         switch (unit)
         {
@@ -69,7 +69,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public Boolean LoadFont(Font font)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         font.RealSize = (Single) Math.Ceiling(font.Size * renderer.Scale);
 
@@ -108,7 +108,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public FontMetrics GetFontMetrics(Font font)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (font.RendererData is not System.Drawing.Font sysFont
             || Math.Abs(font.RealSize - font.Size * renderer.Scale) > 2)
@@ -148,7 +148,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public SizeF MeasureTab(System.Drawing.Font font)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return graphics.MeasureString(
             "....",
@@ -160,7 +160,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public SizeF MeasureString(String text, System.Drawing.Font font, StringFormat format)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return graphics.MeasureString(text, font, Point.Empty, format);
     }

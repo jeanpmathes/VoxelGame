@@ -38,7 +38,7 @@ public sealed class Guard : IDisposable
     /// <returns>True if the guard is guarding the resource.</returns>
     public Boolean IsGuarding(Object @object)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return resource == @object;
     }
@@ -55,7 +55,7 @@ public sealed class Guard : IDisposable
         if (disposed) return;
 
         if (disposing) release();
-        else Throw.ForMissedDispose(resource, source);
+        else ExceptionTools.ThrowForMissedDispose(resource, source);
 
         disposed = true;
     }

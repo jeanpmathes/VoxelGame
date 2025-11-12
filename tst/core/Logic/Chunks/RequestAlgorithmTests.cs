@@ -234,7 +234,7 @@ public class RequestAlgorithmTests
         Assert.Equal(GetAffected(other).Count(), system.GetNumberOfChunksToLoad());
     }
 
-    private class MockChunkSystem
+    private sealed class MockChunkSystem
     {
         private readonly Dictionary<ChunkPosition, Requests> chunks = new();
 

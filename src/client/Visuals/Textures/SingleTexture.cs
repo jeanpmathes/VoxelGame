@@ -36,7 +36,7 @@ public sealed class SingleTexture(RID identifier, Texture texture) : IResource
         if (disposed) return;
 
         if (disposing) texture.Free();
-        else Throw.ForMissedDispose(this);
+        else ExceptionTools.ThrowForMissedDispose(this);
 
         disposed = true;
     }

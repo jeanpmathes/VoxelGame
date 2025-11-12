@@ -23,7 +23,7 @@ namespace VoxelGame.UI.Settings;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 [SuppressMessage("ReSharper", "CA1001")]
 #pragma warning disable S2931
-internal class KeyOrButtonSetting : Setting
+internal sealed class KeyOrButtonSetting : Setting
 #pragma warning restore S2931
 {
     private readonly Func<VirtualKeys> get;

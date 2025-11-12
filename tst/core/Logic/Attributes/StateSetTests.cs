@@ -30,15 +30,15 @@ public class StateSetTests
     public void StateSet_GenerationDefault_ShouldContainSpecifiedValues()
     {
         StateBuilder builder = CreateStateBuilder();
-        IAttribute<Boolean> boolAttribute = builder.Define("bool").Boolean().Attribute(generationDefault: true);
-        IAttribute<TestState> enumAttribute = builder.Define("enum").Enum<TestState>().Attribute(generationDefault: TestState.C);
+        IAttributeData<Boolean> boolAttributeData = builder.Define("bool").Boolean().Attribute(generationDefault: true);
+        IAttributeData<TestState> enumAttributeData = builder.Define("enum").Enum<TestState>().Attribute(generationDefault: TestState.C);
 
         StateSet set = builder.Build(new MockBlock(), setOffset: 0);
 
         State generationDefault = set.GenerationDefault;
 
-        Assert.True(generationDefault.Get(boolAttribute));
-        Assert.Equal(TestState.C, generationDefault.Get(enumAttribute));
+        Assert.True(generationDefault.Get(boolAttributeData));
+        Assert.Equal(TestState.C, generationDefault.Get(enumAttributeData));
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]

@@ -21,7 +21,7 @@ public partial class CoverPreserving : BlockBehavior, IBehavior<CoverPreserving,
     [Constructible]
     private CoverPreserving(Block subject) : base(subject)
     {
-        Preservation = Aspect<Boolean, State>.New<ANDing<State>>(nameof(Preservation), this);
+        Preservation = Aspect<Boolean, State>.New<LogicalAnd<State>>(nameof(Preservation), this);
     }
 
     /// <summary>

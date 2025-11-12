@@ -47,7 +47,7 @@ public sealed class TextRenderer : IDisposable
     {
         get
         {
-            Throw.IfDisposed(disposed);
+            ExceptionTools.ThrowIfDisposed(disposed);
 
             return texture;
         }
@@ -66,7 +66,7 @@ public sealed class TextRenderer : IDisposable
     /// <param name="format">The <see cref="StringFormat" /> that will be used.</param>
     public void SetString(String text, Font font, Brush brush, Point point, StringFormat format)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         using Bitmap bitmap = new(Texture.Width, Texture.Height, PixelFormat.Format32bppArgb);
 

@@ -30,7 +30,7 @@ public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, Blo
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
-    [LateInitialization] private partial IAttribute<Axis> Axis { get; set; }
+    [LateInitialization] private partial IAttributeData<Axis> Axis { get; set; }
 
     /// <inheritdoc />
     public override void DefineState(IStateBuilder builder)

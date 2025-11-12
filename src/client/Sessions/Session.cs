@@ -48,7 +48,7 @@ public sealed partial class Session : Composed<Session, SessionComponent>
     /// <param name="timer">A timer to use for profiling.</param>
     public void LogicUpdate(Double deltaTime, Timer? timer)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         OnLogicUpdate(deltaTime, timer);
 
@@ -66,7 +66,7 @@ public sealed partial class Session : Composed<Session, SessionComponent>
     /// <param name="timer">A timer to use for profiling.</param>
     public void RenderUpdate(Double deltaTime, Timer? timer)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         OnRenderUpdate(deltaTime, timer);
 

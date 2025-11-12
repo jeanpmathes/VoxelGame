@@ -46,7 +46,7 @@ public partial class TallGrass : BlockBehavior, IBehavior<TallGrass, BlockBehavi
         subject.Replaceability.ContributeFunction(GetIsReplaceable);
     }
 
-    [LateInitialization] private partial IAttribute<StageState> Stage { get; set; }
+    [LateInitialization] private partial IAttributeData<StageState> Stage { get; set; }
 
     /// <summary>
     ///     The textures used for the individual stages.

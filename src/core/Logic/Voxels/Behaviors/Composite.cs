@@ -32,7 +32,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     private Composite(Block subject) : base(subject)
     {
         Size = Aspect<Vector3i, State>.New<Exclusive<Vector3i, State>>(nameof(Size), this);
-        IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Vector3i, Actor?)>.New<ANDing<(World, Vector3i, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
+        IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Vector3i, Actor?)>.New<LogicalAnd<(World, Vector3i, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
 
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
         
@@ -52,7 +52,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         });
     }
 
-    [LateInitialization] private partial IAttribute<Vector3i> Part { get; set; }
+    [LateInitialization] private partial IAttributeData<Vector3i> Part { get; set; }
 
     /// <summary>
     ///     Maximum size of the composite block in block positions.

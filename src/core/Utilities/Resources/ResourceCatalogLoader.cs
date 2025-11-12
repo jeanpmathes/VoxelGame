@@ -40,7 +40,7 @@ public record ResourceLoadingIssueReport(Property Report, Int32 ErrorCount, Int3
     /// <returns>The merged report or <c>null</c> if no reports are given.</returns>
     public static ResourceLoadingIssueReport? Merge(String name, params ResourceLoadingIssueReport?[] reports)
     {
-        IList<ResourceLoadingIssueReport> validReports = reports.WhereNotNull().ToList();
+        List<ResourceLoadingIssueReport> validReports = reports.WhereNotNull().ToList();
 
         if (validReports.Count == 0)
             return null;
@@ -329,7 +329,7 @@ public sealed partial class ResourceCatalogLoader
             if (disposing)
                 foreach (IResource resource in content.GetAll<IResource>())
                     resource.Dispose();
-            else Throw.ForMissedDispose(this);
+            else ExceptionTools.ThrowForMissedDispose(this);
 
             disposed = true;
         }

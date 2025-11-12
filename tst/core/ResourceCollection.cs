@@ -34,6 +34,8 @@ public sealed class ResourceFixture : DispatcherFixture
     {
         if (disposing)
             resources.Dispose();
+        
+        base.Dispose(disposing);
     }
 }
 

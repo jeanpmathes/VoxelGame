@@ -21,7 +21,7 @@ namespace VoxelGame.UI.Settings;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class SizeSetting : Setting
+internal sealed class SizeSetting : Setting
 {
     private readonly Func<Vector2i> get;
     private readonly Action<Vector2i> set;

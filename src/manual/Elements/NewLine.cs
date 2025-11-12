@@ -11,7 +11,7 @@ namespace VoxelGame.Manual.Elements;
 /// <summary>
 ///     Creates a new line.
 /// </summary>
-internal class NewLine : IElement
+internal sealed class NewLine : IElement
 {
     void IElement.Generate(StreamWriter writer)
     {

@@ -639,7 +639,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         }
         else
         {
-            Throw.ForMissedDispose(this);
+            ExceptionTools.ThrowForMissedDispose(this);
         }
 
         disposed = true;

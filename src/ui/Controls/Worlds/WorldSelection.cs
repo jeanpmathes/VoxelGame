@@ -26,7 +26,7 @@ namespace VoxelGame.UI.Controls.Worlds;
 ///     The menu displaying worlds, allowing to select and create worlds.
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-internal class WorldSelection : StandardMenu
+internal sealed class WorldSelection : StandardMenu
 {
     private readonly List<Button> buttonBar = new();
     private readonly IWorldProvider worldProvider;

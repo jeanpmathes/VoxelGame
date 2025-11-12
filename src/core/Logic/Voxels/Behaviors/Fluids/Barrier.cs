@@ -26,7 +26,7 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
         fillable.IsOutflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);
     }
 
-    [LateInitialization] private partial IAttribute<Boolean> IsOpen { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> IsOpen { get; set; }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)

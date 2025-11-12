@@ -47,7 +47,7 @@ public class BehaviorSystemTests
         }
     }
 
-    private class TestSubject : BehaviorContainer<TestSubject, TestBehaviorBase>
+    private sealed class TestSubject : BehaviorContainer<TestSubject, TestBehaviorBase>
     {
         public Boolean Defined { get; private set; }
         public Boolean Subscribed { get; private set; }

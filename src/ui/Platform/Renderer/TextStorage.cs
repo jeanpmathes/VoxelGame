@@ -47,7 +47,7 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public Texture? GetTexture(Font font, String text)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (used.TryGetValue((text, font), out Entry? entry))
         {
@@ -72,7 +72,7 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public Texture GetOrCreateTexture(Font font, String text)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Texture? texture = GetTexture(font, text);
 
@@ -93,7 +93,7 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public void Update()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Dictionary<(String, Font), Entry> newStrings = new();
 
@@ -116,7 +116,7 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public void Flush()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         foreach (Entry entry in used.Values) entry.Renderer.Dispose();
         used.Clear();

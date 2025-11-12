@@ -160,6 +160,8 @@ public sealed class SessionScene : Scene, IInputControl
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
+        base.Dispose(disposing);
+        
         if (!disposing) return;
 
         session?.Dispose();

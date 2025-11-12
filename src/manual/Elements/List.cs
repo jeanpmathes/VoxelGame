@@ -12,7 +12,7 @@ namespace VoxelGame.Manual.Elements;
 /// <summary>
 ///     A list of elements.
 /// </summary>
-internal class List : Chainable, IElement
+internal sealed class List : Chainable, IElement
 {
     private readonly List<IElement> elements = [];
 

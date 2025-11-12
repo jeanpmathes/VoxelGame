@@ -77,7 +77,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// </summary>
     public void ReMesh()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (!this.IsAbleToMesh()) return;
         if (!this.IsReMeshingValuable()) return;
@@ -101,7 +101,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <param name="context">The chunk meshing context.</param>
     public void CreateAndSetMesh(Int32 x, Int32 y, Int32 z, ChunkMeshingContext context)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(World, context);
     }
@@ -113,7 +113,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <returns>A target state if the chunk should mesh, null otherwise.</returns>
     public Core.Logic.Chunks.ChunkState? ProcessMeshingOption(out Boolean allowActivation)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         allowActivation = false;
 
@@ -165,7 +165,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <param name="sides">The sides that are missing for the section.</param>
     public void SetSectionAsIncomplete((Int32 x, Int32 y, Int32 z) local, Sides sides)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         GetLocalSection(local.x, local.y, local.z).Cast().SetAsIncomplete(sides);
     }
@@ -190,7 +190,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <param name="meshData">The mesh data to apply.</param>
     public void SetMeshData(ChunkMeshData meshData)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (logger.IsEnabled(LogLevel.Debug))
             LogSettingMeshData(logger, Position, MeshedSides.ToCompactString(), meshData.Sides.ToCompactString());
@@ -208,7 +208,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <param name="frustum">The view frustum to use for culling.</param>
     public void CullSections(Frustum frustum)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Box3d chunkBox = MathTools.CreateBox3(Position.Center, Extents);
 

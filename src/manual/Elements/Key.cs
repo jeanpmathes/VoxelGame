@@ -12,7 +12,7 @@ namespace VoxelGame.Manual.Elements;
 /// <summary>
 ///     A nicely formatted key box.
 /// </summary>
-internal class Key : IElement
+internal sealed class Key : IElement
 {
     private readonly Object key;
 

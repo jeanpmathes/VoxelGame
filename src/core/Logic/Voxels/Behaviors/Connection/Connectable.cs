@@ -54,7 +54,7 @@ public partial class Connectable : BlockBehavior, IBehavior<Connectable, BlockBe
     [Constructible]
     private Connectable(Block subject) : base(subject)
     {
-        IsConnectionAllowed = Aspect<Boolean, (Side, State)>.New<ANDing<(Side, State)>>(nameof(IsConnectionAllowed), this);
+        IsConnectionAllowed = Aspect<Boolean, (Side, State)>.New<LogicalAnd<(Side, State)>>(nameof(IsConnectionAllowed), this);
     }
 
     /// <summary>

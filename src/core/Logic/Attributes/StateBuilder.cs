@@ -107,35 +107,35 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         names.Add($"{path}{Separator}{entry.Name}");
     }
 
-    private void AddAttribute<TValue>(AttributeImplementation<TValue> attribute, String name, TValue placementDefault, TValue generationDefault)
+    private void AddAttribute<TValue>(AttributeDataImplementation<TValue> attributeData, String name, TValue placementDefault, TValue generationDefault)
     {
-        if (stateCount * (UInt64) attribute.Multiplicity > Int32.MaxValue)
+        if (stateCount * (UInt64) attributeData.Multiplicity > Int32.MaxValue)
         {
-            validator.ReportWarning($"Attribute '{name}' would cause {stateCount * (UInt64) attribute.Multiplicity} states which is more than allowed");
+            validator.ReportWarning($"Attribute '{name}' would cause {stateCount * (UInt64) attributeData.Multiplicity} states which is more than allowed");
 
             return;
         }
 
-        attribute.Initialize(name, (Int32) stateCount);
+        attributeData.Initialize(name, (Int32) stateCount);
 
-        stateCount *= (UInt64) attribute.Multiplicity;
+        stateCount *= (UInt64) attributeData.Multiplicity;
 
-        AddEntry(attribute);
+        AddEntry(attributeData);
 
-        UpdatePlacementDefaultState(attribute, placementDefault);
-        UpdateGenerationDefaultState(attribute, generationDefault);
+        UpdatePlacementDefaultState(attributeData, placementDefault);
+        UpdateGenerationDefaultState(attributeData, generationDefault);
     }
 
-    private void UpdatePlacementDefaultState<TValue>(IAttribute<TValue> attribute, TValue placementDefault)
+    private void UpdatePlacementDefaultState<TValue>(AttributeDataImplementation<TValue> attributeData, TValue placementDefault)
     {
-        Int32 index = attribute.Provide(placementDefault);
-        placementDefaultState += (UInt64) attribute.GetStateIndex(index);
+        Int32 index = attributeData.Provide(placementDefault);
+        placementDefaultState += IAttributeData.GetStateIndex(attributeData, index);
     }
 
-    private void UpdateGenerationDefaultState<TValue>(IAttribute<TValue> attribute, TValue generationDefault)
+    private void UpdateGenerationDefaultState<TValue>(AttributeDataImplementation<TValue> attributeData, TValue generationDefault)
     {
-        Int32 index = attribute.Provide(generationDefault);
-        generationDefaultState += (UInt64) attribute.GetStateIndex(index);
+        Int32 index = attributeData.Provide(generationDefault);
+        generationDefaultState += IAttributeData.GetStateIndex(attributeData, index);
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         /// </summary>
         public AttributeDefinition<Boolean> Boolean()
         {
-            return new AttributeDefinition<Boolean>(new BooleanAttribute(), name, builder);
+            return new AttributeDefinition<Boolean>(new BooleanAttributeData(), name, builder);
         }
 
         /// <summary>
@@ -182,7 +182,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         {
             Debug.Assert(min < max);
 
-            return new AttributeDefinition<Int32>(new Int32Attribute(min, max), name, builder);
+            return new AttributeDefinition<Int32>(new Int32AttributeData(min, max), name, builder);
         }
 
         /// <summary>
@@ -195,7 +195,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         {
             Debug.Assert(max is {X: > 0, Y: > 0, Z: > 0});
 
-            return new AttributeDefinition<Vector3i>(new Vector3iAttribute(max), name, builder);
+            return new AttributeDefinition<Vector3i>(new Vector3IAttributeData(max), name, builder);
         }
 
         /// <summary>
@@ -210,7 +210,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
 
             Debug.Assert(list.Count > 0);
 
-            return new AttributeDefinition<TElement>(new ListAttribute<TElement>(list, representation), name, builder);
+            return new AttributeDefinition<TElement>(new ListAttributeData<TElement>(list, representation), name, builder);
         }
 
         /// <summary>
@@ -222,7 +222,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         {
             Debug.Assert(!EnumTools.IsFlagsEnum<TEnum>());
 
-            return new AttributeDefinition<TEnum>(new EnumAttribute<TEnum>(), name, builder);
+            return new AttributeDefinition<TEnum>(new EnumAttributeData<TEnum>(), name, builder);
         }
 
         /// <summary>
@@ -234,14 +234,14 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         {
             Debug.Assert(EnumTools.IsFlagsEnum<TEnum>());
 
-            return new AttributeDefinition<TEnum>(new FlagsAttribute<TEnum>(), name, builder);
+            return new AttributeDefinition<TEnum>(new FlagsAttributeData<TEnum>(), name, builder);
         }
     }
 
     /// <summary>
     ///     Last step of the builder to define an attribute.
     /// </summary>
-    public sealed class AttributeDefinition<TValue>(AttributeImplementation<TValue> attribute, String name, StateBuilder builder) where TValue : struct
+    public sealed class AttributeDefinition<TValue>(AttributeDataImplementation<TValue> attributeData, String name, StateBuilder builder) where TValue : struct
     {
         /// <summary>
         ///     Complete the definition of the attribute.
@@ -250,14 +250,14 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         /// <param name="generationDefault">The value this attribute should have by default for generated blocks.</param>
         /// <returns>The attribute that was defined.</returns>
         [MustUseReturnValue]
-        public IAttribute<TValue> Attribute(TValue? placementDefault = null, TValue? generationDefault = null)
+        public IAttributeData<TValue> Attribute(TValue? placementDefault = null, TValue? generationDefault = null)
         {
-            builder.AddAttribute(attribute,
+            builder.AddAttribute(attributeData,
                 name,
-                placementDefault ?? attribute.Retrieve(index: 0),
-                generationDefault ?? attribute.Retrieve(index: 0));
+                placementDefault ?? attributeData.Retrieve(index: 0),
+                generationDefault ?? attributeData.Retrieve(index: 0));
 
-            return attribute;
+            return attributeData;
         }
 
         /// <summary>
@@ -267,13 +267,13 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         /// <param name="generationDefault">The value this attribute should have by default for generated blocks.</param>
         /// <returns>The nullable attribute that was defined.</returns>
         [MustUseReturnValue]
-        public IAttribute<TValue?> NullableAttribute(TValue? placementDefault = null, TValue? generationDefault = null)
+        public IAttributeData<TValue?> NullableAttribute(TValue? placementDefault = null, TValue? generationDefault = null)
         {
-            AttributeImplementation<TValue?> nullableAttribute = new NullableAttribute<TValue>(attribute);
+            AttributeDataImplementation<TValue?> nullableAttributeData = new NullableAttributeData<TValue>(attributeData);
 
-            builder.AddAttribute(nullableAttribute, name, placementDefault, generationDefault);
+            builder.AddAttribute(nullableAttributeData, name, placementDefault, generationDefault);
 
-            return nullableAttribute;
+            return nullableAttributeData;
         }
     }
 }

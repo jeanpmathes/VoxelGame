@@ -68,7 +68,7 @@ public sealed class TextureList : IDisposable
     /// <param name="drawer">The Draw2D pipeline.</param>
     public void UploadIfDirty(Draw2D drawer)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (!IsDirty) return;
 
@@ -91,7 +91,7 @@ public sealed class TextureList : IDisposable
     /// <returns>An exception if the load failed, null otherwise.</returns>
     public Exception? LoadTexture(FileInfo path, Boolean allowDiscard, Action<Handle> callback)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Handle existing = GetTexture(path.FullName);
 
@@ -127,7 +127,7 @@ public sealed class TextureList : IDisposable
     /// <param name="allowDiscard">Whether the texture should be discarded when it is no longer used.</param>
     public Handle LoadTexture(Image image, Boolean allowDiscard)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Texture texture = client.LoadTexture(image);
 
@@ -141,7 +141,7 @@ public sealed class TextureList : IDisposable
     /// <param name="handle">The texture handle.</param>
     public void DiscardTexture(Handle handle)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (!handle.IsValid) return;
         if (usage[handle.Index] == NeverDiscard) return;
@@ -218,7 +218,7 @@ public sealed class TextureList : IDisposable
     /// <returns>The texture entry, if found.</returns>
     public Handle GetTexture(String name)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (!availableTextures.TryGetValue(name, out Int32 index)) return Handle.Invalid;
 
@@ -236,7 +236,7 @@ public sealed class TextureList : IDisposable
     /// <returns>The texture list entry, if the handle is valid.</returns>
     public Texture? GetEntry(Handle handle)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return handle.IsValid ? textures[handle.Index] : null;
     }
@@ -246,7 +246,7 @@ public sealed class TextureList : IDisposable
     /// </summary>
     public Color GetPixel(Handle handle, UInt32 x, UInt32 y)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Color32 color = images[handle.Index].GetPixel((Int32) x, (Int32) y);
 

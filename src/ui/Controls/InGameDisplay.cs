@@ -22,7 +22,7 @@ namespace VoxelGame.UI.Controls;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class InGameDisplay : ControlBase
+internal sealed class InGameDisplay : ControlBase
 {
     private readonly PropertyBasedTreeControl debugViewContent;
 

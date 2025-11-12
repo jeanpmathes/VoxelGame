@@ -54,7 +54,7 @@ public sealed class ChunkPool : IDisposable
     /// <returns>A chunk.</returns>
     public Chunk Get(World world, ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Chunk chunk = chunks.Get();
 
@@ -69,7 +69,7 @@ public sealed class ChunkPool : IDisposable
     /// <param name="chunk">A chunk that was previously gotten from the pool.</param>
     public void Return(Chunk chunk)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         chunk.Reset();
 

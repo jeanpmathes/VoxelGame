@@ -74,43 +74,43 @@ public record struct State(StateSet Owner, Int32 Index)
     /// <summary>
     ///     Get the value of the given attribute for this state.
     /// </summary>
-    /// <param name="attribute">The attribute to get the value for.</param>
+    /// <param name="attributeData">The attribute to get the value for.</param>
     /// <typeparam name="TValue">The value type of the attribute.</typeparam>
     /// <returns>The value of the attribute for this state.</returns>
-    public TValue Get<TValue>(IAttribute<TValue> attribute)
+    public TValue Get<TValue>(IAttributeData<TValue> attributeData)
     {
-        return attribute.Get(Index);
+        return attributeData.Get(Index);
     }
     
     /// <summary>
     /// Get the value index of the given attribute for this state.
     /// Do not confuse the value index with the state index.
     /// </summary>
-    /// <param name="attribute">The attribute to get the value index for.</param>
+    /// <param name="attributeData">The attribute to get the value index for.</param>
     /// <returns>The value index of the attribute for this state.</returns>
-    public Int32 GetValueIndex(IAttribute attribute)
+    public Int32 GetValueIndex(IAttributeData attributeData)
     {
-        return attribute.GetValueIndex(Index);
+        return attributeData.GetValueIndex(Index);
     }
 
     /// <summary>
     ///     Set the value of the given attribute for this state.
     ///     This will modify this state.
     /// </summary>
-    /// <param name="attribute">The attribute to set the value for.</param>
+    /// <param name="attributeData">The attribute to set the value for.</param>
     /// <param name="value">The value to set for the attribute.</param>
     /// <typeparam name="TValue">The value type of the attribute.</typeparam>
-    public void Set<TValue>(IAttribute<TValue> attribute, TValue value)
+    public void Set<TValue>(IAttributeData<TValue> attributeData, TValue value)
     {
-        if (attribute.Multiplicity == 1)
+        if (attributeData.Multiplicity == 1)
             return;
 
         Int32 oldIndex = Index;
 
-        Int32 oldStateIndex = attribute.GetStateIndex(attribute.GetValueIndex(Index));
+        Int32 oldStateIndex = attributeData.GetStateIndex(attributeData.GetValueIndex(Index));
         oldIndex -= oldStateIndex;
 
-        Int32 newStateIndex = attribute.Set(value);
+        Int32 newStateIndex = attributeData.Set(value);
         oldIndex += newStateIndex;
 
         Index = oldIndex;
@@ -119,14 +119,14 @@ public record struct State(StateSet Owner, Int32 Index)
     /// <summary>
     ///     Create a new state with the given attribute set to the given value.
     /// </summary>
-    /// <param name="attribute">The attribute to set the value for.</param>
+    /// <param name="attributeData">The attribute to set the value for.</param>
     /// <param name="value">The value to set for the attribute.</param>
     /// <typeparam name="TValue">The value type of the attribute.</typeparam>
     /// <returns>A new state with the attribute set to the given value.</returns>
-    public State With<TValue>(IAttribute<TValue> attribute, TValue value)
+    public State With<TValue>(IAttributeData<TValue> attributeData, TValue value)
     {
         State newState = this;
-        newState.Set(attribute, value);
+        newState.Set(attributeData, value);
 
         return newState;
     }

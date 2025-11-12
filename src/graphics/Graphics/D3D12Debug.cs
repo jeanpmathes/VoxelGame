@@ -18,7 +18,7 @@ namespace VoxelGame.Graphics.Graphics;
 /// <summary>
 ///     Offers support for DirectX debug message formatting.
 /// </summary>
-internal class D3D12Debug
+internal sealed class D3D12Debug
 {
     private const String DebugCategory = "DirectX Debug";
     private static readonly ILogger logger = LoggingHelper.CreateLogger<D3D12Debug>();
@@ -63,6 +63,7 @@ internal class D3D12Debug
 
         if (logger.IsEnabled(level))
             // Logging intentionally not trough source generator to allow easily setting level and event id.
+#pragma warning disable CA1848
             logger.Log(
                 level,
                 eventId,
@@ -70,6 +71,7 @@ internal class D3D12Debug
                 categoryName,
                 idResolved,
                 message);
+#pragma warning restore CA1848
 
         Debugger.Log((Int32) level, DebugCategory, $"Category: {categoryName} | Id: {idResolved} | Message: {message}");
 

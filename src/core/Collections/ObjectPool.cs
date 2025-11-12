@@ -75,11 +75,9 @@ public class SimpleObjectPool<T> : ObjectPool<T> where T : class, new()
     ///     Create a new simple object pool.
     /// </summary>
     public SimpleObjectPool() : base(() => new T()) {}
-
-#pragma warning disable CA1000 // Do not declare static members on generic types
+    
     /// <summary>
     ///     Get a shared instance of this object pool.
     /// </summary>
     public static SimpleObjectPool<T> Shared { get; } = new();
-#pragma warning restore CA1000 // Do not declare static members on generic types
 }

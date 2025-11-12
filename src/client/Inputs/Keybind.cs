@@ -57,7 +57,7 @@ public readonly struct Keybind : IEquatable<Keybind>
     /// <inheritdoc />
     public Boolean Equals(Keybind other)
     {
-        return id.Equals(other.id, StringComparison.InvariantCulture);
+        return id.Equals(other.id, StringComparison.Ordinal);
     }
 
     /// <inheritdoc />

@@ -92,7 +92,7 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void PushRect(Rectangle rect, Single u1 = 0, Single v1 = 0, Single u2 = 1, Single v2 = 1)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (IsClippingEnabled && PerformClip(ref rect, ref u1, ref v1, ref u2, ref v2)) return;
 
@@ -179,7 +179,7 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void PushCall(TextureList.Handle texture)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (currentVertexCount == 0) return;
 
@@ -250,7 +250,7 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void Resize(Vector2 size)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         buffer.Data = size;
     }

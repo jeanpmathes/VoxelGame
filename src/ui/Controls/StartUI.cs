@@ -23,7 +23,7 @@ namespace VoxelGame.UI.Controls;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class StartUI : ControlBase
+internal sealed class StartUI : ControlBase
 {
     private const Int32 MainMenuIndex = 0;
     private const Int32 SettingsMenuIndex = 1;

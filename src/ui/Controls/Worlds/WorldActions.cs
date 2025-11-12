@@ -176,6 +176,8 @@ public class WorldActions : ControlBase
     public override void Dispose()
     {
         base.Dispose();
+        
+        GC.SuppressFinalize(this);
 
         worldInfoWindow?.Close();
 

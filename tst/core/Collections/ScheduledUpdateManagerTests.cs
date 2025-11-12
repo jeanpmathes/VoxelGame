@@ -134,18 +134,18 @@ public class ScheduledUpdateManagerTests
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private record Constant32 : IConstantInt32
+    private sealed record Constant32 : IConstantInt32
     {
         public static Int32 Value => 32;
     }
 
     // ReSharper disable once ClassNeverInstantiated.Local
-    private record Constant2 : IConstantInt32
+    private sealed record Constant2 : IConstantInt32
     {
         public static Int32 Value => 2;
     }
 
-    private class TestUpdate(Int32 id) : IUpdateable
+    private sealed class TestUpdate(Int32 id) : IUpdateable
     {
         private Int32 id = id;
 

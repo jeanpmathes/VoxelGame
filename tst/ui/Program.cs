@@ -17,7 +17,7 @@ using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.UI.Tests;
 
-internal class Program : Client
+internal sealed class Program : Client
 {
     private const Int32 MaxFrameSamples = 1000;
     private readonly IGwenGui gui;
@@ -25,7 +25,7 @@ internal class Program : Client
     private readonly CircularTimeBuffer renderFrameTimes = new(MaxFrameSamples);
     private readonly CircularTimeBuffer updateFrameTimes = new(MaxFrameSamples);
 
-    private UnitTestHarnessControls unitTestHarnessControls = null!;
+    private UnitTestHarnessControls? unitTestHarnessControls;
 
     private Program(WindowSettings windowSettings, Version version) : base(windowSettings, version)
     {
@@ -68,7 +68,9 @@ internal class Program : Client
     protected override void OnLogicUpdate(Double delta, Timer? timer)
     {
         updateFrameTimes.Write(delta);
-        unitTestHarnessControls.UpdateFps = 1 / updateFrameTimes.Average;
+        
+        if (unitTestHarnessControls != null) 
+            unitTestHarnessControls.UpdateFps = 1 / updateFrameTimes.Average;
 
         gui.Update();
     }
@@ -76,7 +78,9 @@ internal class Program : Client
     protected override void OnRenderUpdate(Double delta, Timer? timer)
     {
         renderFrameTimes.Write(delta);
-        unitTestHarnessControls.RenderFps = 1 / renderFrameTimes.Average;
+        
+        if (unitTestHarnessControls != null) 
+            unitTestHarnessControls.RenderFps = 1 / renderFrameTimes.Average;
 
         gui.Render();
     }
@@ -88,6 +92,7 @@ internal class Program : Client
             SizeChanged -= OnSizeChanged;
 
             gui.Dispose();
+            unitTestHarnessControls?.Dispose();
         }
 
         base.Dispose(disposing);

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -77,7 +78,7 @@ public partial class Profile(ProfilerConfiguration configuration)
         LogCreatingProfilerExitReport(logger);
 
         Property report = Instance.GenerateReport(full: true);
-        String text = PropertyPrinter.Print(report);
+        String text = PropertyPrinter.Print(report, CultureInfo.InvariantCulture);
 
         OS.Show("Report", text);
     }
@@ -207,7 +208,7 @@ public partial class Profile(ProfilerConfiguration configuration)
             }
         }
 
-        public Property GenerateReport()
+        public Group GenerateReport()
         {
             List<Property> content = [];
 
@@ -308,7 +309,7 @@ public partial class Profile(ProfilerConfiguration configuration)
             return new Group("Lifetimes", content);
         }
 
-        public Property GenerateReport(Boolean full)
+        public Group GenerateReport(Boolean full)
         {
             List<Property> content =
             [

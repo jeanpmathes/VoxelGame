@@ -16,7 +16,7 @@ namespace VoxelGame.UI.Settings;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class BooleanSetting : Setting
+internal sealed class BooleanSetting : Setting
 {
     private readonly Func<Boolean> get;
     private readonly Action<Boolean> set;

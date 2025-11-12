@@ -31,13 +31,13 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
         subject.PlacementState.ContributeFunction(GetPlacementState);
     }
 
-    [LateInitialization] private partial IAttribute<Boolean> North { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> North { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> East { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> East { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> South { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> South { get; set; }
 
-    [LateInitialization] private partial IAttribute<Boolean> West { get; set; }
+    [LateInitialization] private partial IAttributeData<Boolean> West { get; set; }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
@@ -75,7 +75,7 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
     {
         if (!message.Side.IsLateral()) return;
 
-        IAttribute<Boolean> side = GetDirection(message.Side.ToOrientation());
+        IAttributeData<Boolean> side = GetDirection(message.Side.ToOrientation());
         Boolean canConnect = CanConnectTo(message.World, message.Position.Offset(message.Side), message.Side);
 
         if (message.State.Get(side) == canConnect) return;
@@ -90,7 +90,7 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
         return other?.Block.Get<Connectable>() is {} otherConnectable && otherConnectable.CanConnect(other.Value, side.Opposite(), connectable);
     }
 
-    private IAttribute<Boolean> GetDirection(Orientation orientation)
+    private IAttributeData<Boolean> GetDirection(Orientation orientation)
     {
         return orientation switch
         {
