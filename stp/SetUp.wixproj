@@ -5,12 +5,12 @@
         <Configurations>Debug;Release</Configurations>
         <Platforms>x64</Platforms>
     </PropertyGroup>
+    
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
         <DefineConstants>Debug</DefineConstants>
-        <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
-        <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
     </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+    
+    <PropertyGroup>
         <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
         <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>
     </PropertyGroup>
@@ -35,8 +35,8 @@
         </HarvestDirectory>
     </ItemGroup>
 
-    <Target Name="SetProductVersionFromClient" BeforeTargets="CoreCompile">
-        <XmlPeek XmlInputPath="../src/client/VoxelGame.Client.csproj" Query="//Project/PropertyGroup/Version/text()">
+    <Target Name="SetProductVersionFromProperties" BeforeTargets="CoreCompile">
+        <XmlPeek XmlInputPath="../Directory.Build.props" Query="//Project/PropertyGroup/Version/text()">
             <Output TaskParameter="Result" ItemName="version"/>
         </XmlPeek>
         <Message Text="ProductVersion: @(version)" Importance="high"/>
