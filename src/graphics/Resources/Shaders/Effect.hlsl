@@ -20,6 +20,8 @@ namespace native
         struct EffectData
         {
             float4x4 mvp;
+            float    near;
+            float    far;
         };
 
         ConstantBuffer<EffectData> data : register(b1);

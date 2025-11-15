@@ -197,6 +197,15 @@ public static class Meshing
     {
         data.a |= (UInt32) index & textureIndexMask;
     }
+    
+    /// <summary>
+    ///     Get the texture index for a quad.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Int32 GetTextureIndex(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data)
+    {
+        return (Int32)(data.a & textureIndexMask);
+    }
 
     /// <summary>
     ///     Set the tint for a quad.

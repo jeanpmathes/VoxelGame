@@ -64,7 +64,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
         return new OverlayTexture
         {
             TextureIndex = mainTexture,
-            Tint = hasNeutralTint ? ColorS.Neutral : ColorS.None,
+            Tint = hasNeutralTint ? ColorS.Neutral : ColorS.NoTint,
             IsAnimated = true
         };
     }
@@ -95,7 +95,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     {
         return FluidMeshData.Basic(
             info.IsStatic ? staticTextures[info.Side] : movingTextures[info.Side],
-            hasNeutralTint ? ColorS.Neutral : ColorS.None);
+            hasNeutralTint ? ColorS.Neutral : ColorS.NoTint);
     }
 
     /// <inheritdoc />

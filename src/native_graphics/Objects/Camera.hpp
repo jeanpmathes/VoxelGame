@@ -60,7 +60,12 @@ public:
     void SetOrientation(DirectX::XMFLOAT3 const& front, DirectX::XMFLOAT3 const& up);
 
     [[nodiscard]] DirectX::XMFLOAT3 const&   GetPosition() const;
+    [[nodiscard]] DirectX::XMFLOAT4X4 const& GetViewMatrix() const;
+    [[nodiscard]] DirectX::XMFLOAT4X4 const& GetProjectionMatrix() const;
     [[nodiscard]] DirectX::XMFLOAT4X4 const& GetViewProjectionMatrix() const;
+
+    [[nodiscard]] float GetNearPlane() const;
+    [[nodiscard]] float GetFarPlane() const;
 
     void SetFov(float fov);
     void SetPlanes(float nearDistance, float farDistance);
@@ -82,6 +87,8 @@ private:
     float m_near = 0.0f;
     float m_far  = 0.0f;
 
+    DirectX::XMFLOAT4X4 m_vMatrix  = {};
+    DirectX::XMFLOAT4X4 m_pMatrix  = {};
     DirectX::XMFLOAT4X4 m_vpMatrix = {};
 
     Allocation<ID3D12Resource>                      m_spaceCameraBuffer        = {};

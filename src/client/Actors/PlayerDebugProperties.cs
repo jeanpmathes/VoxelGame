@@ -34,7 +34,7 @@ public class PlayerDebugProperties : Group
         new Message("Position (Section)", FormatObject(SectionPosition.From(player.Body.Transform.Position.Floor()))),
         new Group("Target Block", CreateBlockTargetProperties(player.GetComponent<Targeting>()?.Block ?? Content.DefaultState)),
         new Group("Target Fluid", CreateFluidTargetProperties(player.GetComponent<Targeting>()?.Fluid ?? FluidInstance.Default)),
-        new Measure("Temperature", player.World.GetTemperature(player.Body.Transform.Position.Floor())),
+        new Measure("Temperature", player.World.Map.GetTemperature(player.Body.Transform.Position.Floor())),
         new Group("World",
         [
             new Message("Chunk State Updates", $"{player.World.ChunkStateUpdateCount}"),

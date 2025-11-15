@@ -42,7 +42,7 @@ public sealed class OverlayPipeline : IDisposable
     private Int32 mode = BlockMode;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
     private Int32 textureID;
-    private ColorS tint = ColorS.None;
+    private ColorS tint = ColorS.NoTint;
     private Single upperBound;
 
     private OverlayPipeline(VoxelGame.Graphics.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)

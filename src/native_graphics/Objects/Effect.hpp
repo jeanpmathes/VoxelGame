@@ -12,6 +12,8 @@ class RasterPipeline;
 struct EffectDataBuffer
 {
     DirectX::XMFLOAT4X4 pvm;
+    float               zNear;
+    float               zFar;
 };
 #pragma pack(pop)
 
@@ -58,9 +60,9 @@ protected:
 private:
     RasterPipeline* m_pipeline = nullptr;
 
-    Allocation<ID3D12Resource>                m_instanceDataBuffer            = {};
-    UINT64                                    m_instanceDataBufferAlignedSize = 0;
-    D3D12_CONSTANT_BUFFER_VIEW_DESC           m_instanceDataBufferView        = {};
+    Allocation<ID3D12Resource>                m_instanceConstantDataBuffer            = {};
+    UINT64                                    m_instanceConstantDataBufferAlignedSize = 0;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC           m_instanceConstantDataBufferView        = {};
     Mapping<ID3D12Resource, EffectDataBuffer> m_instanceConstantBufferMapping = {};
 
     Allocation<ID3D12Resource> m_geometryBuffer = {};

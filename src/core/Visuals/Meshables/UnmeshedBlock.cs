@@ -48,4 +48,10 @@ public class UnmeshedBlock : Block
     {
         // Intentionally left empty.
     }
+
+    /// <inheritdoc />
+    public override ColorS GetDominantColor(State state, ColorS positionTint)
+    {
+        return ColorS.Black;
+    }
 }

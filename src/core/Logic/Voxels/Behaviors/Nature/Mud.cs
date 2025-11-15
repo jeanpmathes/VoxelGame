@@ -34,7 +34,7 @@ public partial class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
 
     private static void OnRandomUpdate(Block.IRandomUpdateMessage message)
     {
-        if (message.World.GetTemperature(message.Position) < crackingTemperature)
+        if (message.World.Map.GetTemperature(message.Position) < crackingTemperature)
             return;
 
         message.World.SetContent(Content.Create(Blocks.Instance.Environment.CrackedDriedMud), message.Position);

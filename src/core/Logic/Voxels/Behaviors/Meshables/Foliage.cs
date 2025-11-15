@@ -121,7 +121,7 @@ public partial class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, 
     {
         PartType part = Part.GetValue(PartType.Single, state);
         Boolean isLowered = IsLowered.GetValue(original: false, state);
-        ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
+        ColorS tint = meshed.Tint.GetValue(ColorS.NoTint, state);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
 
         Int32 textureIndex = textured.GetTextureIndex(state, textureIndexProvider, isBlock: true);

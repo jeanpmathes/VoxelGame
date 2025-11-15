@@ -142,6 +142,18 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
             return null;
         }
     }
+    
+    /// <summary>
+    ///     Create a new color from a <see cref="Vector4" />.
+    /// </summary>
+    /// <param name="vector">The vector to use.</param>
+    /// <returns>The new color.</returns>
+    public static ColorS FromVector4(Vector4 vector)
+    {
+        Debug.Assert(!Single.IsNaN(vector.W));
+
+        return new ColorS(vector.X, vector.Y, vector.Z, vector.W);
+    }
 
     /// <summary>
     ///     Create a vector containing the color channels in RGBA order.
@@ -165,15 +177,16 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     }
 
     /// <summary>
-    ///     Create a new color from a <see cref="Vector4" />.
+    /// The luminance of this color, using the HSP color model.
     /// </summary>
-    /// <param name="vector">The vector to use.</param>
-    /// <returns>The new color.</returns>
-    public static ColorS FromVector4(Vector4 vector)
+    public Single Luminance
     {
-        Debug.Assert(!Single.IsNaN(vector.W));
-
-        return new ColorS(vector.X, vector.Y, vector.Z, vector.W);
+        get
+        {
+            Debug.Assert(!IsNeutral);
+            
+            return MathF.Sqrt(0.299f * R * R + 0.587f * G * G + 0.114f * B * B);
+        }
     }
 
     /// <inheritdoc />
@@ -315,7 +328,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     /// <summary>
     ///     Create a color that will have no effect as a tint.
     /// </summary>
-    public static ColorS None => new(red: 1, green: 1, blue: 1, alpha: 1);
+    public static ColorS NoTint => new(red: 1, green: 1, blue: 1, alpha: 1);
 
     #endregion SPECIAL
 
@@ -547,7 +560,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
 
     private static readonly (String name, ColorS color)[] namedColorEntries =
     [
-        ("Default", None),
+        ("Default", NoTint),
         (nameof(Red), Red),
         (nameof(Green), Green),
         (nameof(Blue), Blue),

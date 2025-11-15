@@ -97,6 +97,22 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     private Box3d Box { get; }
 
     /// <summary>
+    /// Get the number of boxes in this bounding volume, including children.
+    /// </summary>
+    public Int32 NumberOfBoxes
+    {
+        get
+        {
+            Int32 count = 1;
+            
+            for (var index = 0; index < ChildCount; index++)
+                count += this[index].NumberOfBoxes;
+            
+            return count;
+        }
+    }
+
+    /// <summary>
     ///     Get a child bounding box.
     /// </summary>
     /// <param name="i">The index of the child.</param>

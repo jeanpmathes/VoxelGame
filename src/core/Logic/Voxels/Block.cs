@@ -71,6 +71,12 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// </summary>
     [LateInitialization]
     public partial StateSet States { get; protected set; }
+    
+    /// <summary>
+    /// The dominant color provider for the block.
+    /// </summary>
+    [LateInitialization]
+    protected partial IDominantColorProvider DominantColorProvider { get; private set; }
 
     [LateInitialization] private partial IEvent<IActorCollisionMessage> ActorCollision { get; set; }
 
@@ -327,11 +333,19 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     This completes the set-up of the block and its behaviors.
     /// </summary>
     /// <param name="textureIndexProvider">The texture index provider to use for the block.</param>
+    /// <param name="dominantColorProvider">The dominant color provider to use for the block.</param>
     /// <param name="modelProvider">The model provider to use for the block.</param>
     /// <param name="visuals">The visual configuration to use for the block.</param>
     /// <param name="validator">The validator to use for validation.</param>
-    public void Activate(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IValidator validator)
+    public void Activate(
+        ITextureIndexProvider textureIndexProvider, 
+        IDominantColorProvider dominantColorProvider, 
+        IModelProvider modelProvider, 
+        VisualConfiguration visuals, 
+        IValidator validator)
     {
+        DominantColorProvider = dominantColorProvider;
+        
         BuildBoundingVolumes();
         BuildMeshes(textureIndexProvider, modelProvider, visuals, validator);
     }
@@ -406,6 +420,14 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// </summary>
     public Boolean IsEmpty { get; private set; }
 
+    /// <summary>
+    /// Get the dominant color of the block in the given state.
+    /// </summary>
+    /// <param name="state">The state of the block.</param>
+    /// <param name="positionTint">The tint at the block position.</param>
+    /// <returns>The dominant color of the block.</returns>
+    public abstract ColorS GetDominantColor(State state, ColorS positionTint);
+    
     /// <summary>
     ///     This method is called when an actor collides with this block.
     /// </summary>

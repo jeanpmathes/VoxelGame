@@ -69,7 +69,7 @@ public class SimpleBlock : Block, IOverlayTextureProvider
             {
                 if (!Constraint.IsStateValid(state))
                 {
-                    meshData[side][index] = new Simple.MeshData(ITextureIndexProvider.MissingTextureIndex, IsTextureRotated: false, ColorS.None, IsAnimated: false);
+                    meshData[side][index] = new Simple.MeshData(ITextureIndexProvider.MissingTextureIndex, IsTextureRotated: false, ColorS.NoTint, IsAnimated: false);
 
                     continue;
                 }
@@ -122,6 +122,16 @@ public class SimpleBlock : Block, IOverlayTextureProvider
             data,
             mesh.IsTextureRotated,
             isSingleSided: true);
+    }
+    
+    /// <inheritdoc />
+    public override ColorS GetDominantColor(State state, ColorS positionTint)
+    {
+        ref readonly Simple.MeshData mesh = ref meshData[Side.Front][state.Index];
+
+        ColorS color = DominantColorProvider.GetDominantColor(mesh.TextureIndex, isBlock: true);
+        
+        return color * mesh.Tint.Select(positionTint);
     }
 
     /// <summary>

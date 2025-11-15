@@ -32,7 +32,7 @@ public sealed class FluidMeshData
     /// <summary>
     ///     Creates fluid mesh data for an empty fluid.
     /// </summary>
-    public static FluidMeshData Empty { get; } = new(textureIndex: 0, ColorS.None);
+    public static FluidMeshData Empty { get; } = new(textureIndex: 0, ColorS.NoTint);
 
     /// <summary>
     ///     Creates fluid mesh data for a basic fluid.

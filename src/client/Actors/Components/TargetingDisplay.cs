@@ -14,6 +14,7 @@ using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -28,6 +29,8 @@ public partial class TargetingDisplay : ActorComponent
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
 
+    private (State state, Vector3i position)? targeted;
+    
     [Constructible]
     private TargetingDisplay(Player player, Engine engine) : base(player)
     {
@@ -60,21 +63,29 @@ public partial class TargetingDisplay : ActorComponent
 
     private void SetTarget(World? world, State? state, Vector3i? position)
     {
+        (State state, Vector3i position)? newTarget = null;
         BoxCollider? collider = null;
+        ColorS color = ColorS.Black;
 
-        if (world != null && state is {Block: {} block} && position != null)
+        if (world != null && position != null && state is {Block: {} block})
         {
             Boolean visualized = !state.Value.IsReplaceable;
 
             if (Core.App.Application.Instance.IsDebug)
                 visualized |= !block.IsEmpty;
 
-            collider = visualized ? block.GetCollider(world, position.Value) : null;
+            if (visualized)
+            {
+                newTarget = (state.Value, position.Value);
+                collider = block.GetCollider(world, position.Value);
+                color = block.GetDominantColor(state.Value, world.Map.GetPositionTint(position.Value).block);
+            }
         }
 
-        if (collider != null)
-            effect.SetBox(collider.Value);
-
+        if (collider != null && targeted != newTarget)
+            effect.SetTarget(collider.Value, color);
+        
+        targeted = newTarget;
         effect.IsEnabled = collider != null;
     }
 

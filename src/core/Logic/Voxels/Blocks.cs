@@ -78,11 +78,17 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     ///     Initialize all blocks. This should be called exactly once during loading.
     /// </summary>
     /// <param name="textureIndexProvider">The texture index provider to use for resolving textures.</param>
+    /// <param name="dominantColorProvider">The dominant color provider to use for getting block colors.</param>
     /// <param name="modelProvider">The model provider to use for resolving block models.</param>
     /// <param name="visuals">The visual configuration to use.</param>
     /// <param name="context">The resource context in which loading is done.</param>
     /// <returns>All content defined in this class.</returns>
-    public IEnumerable<IContent> Initialize(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IResourceContext context)
+    public IEnumerable<IContent> Initialize(
+        ITextureIndexProvider textureIndexProvider, 
+        IDominantColorProvider dominantColorProvider, 
+        IModelProvider modelProvider, 
+        VisualConfiguration visuals, 
+        IResourceContext context)
     {
         states.Clear();
         
@@ -108,7 +114,7 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         foreach (Block block in builder.BlocksByID)
         {
             validator.SetScope(block);
-            block.Activate(textureIndexProvider, modelProvider, visuals, validator);
+            block.Activate(textureIndexProvider, dominantColorProvider, modelProvider, visuals, validator);
         }
 
         if (validator.HasError) return [];

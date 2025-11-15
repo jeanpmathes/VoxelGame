@@ -7,9 +7,12 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -18,6 +21,8 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public sealed class TargetingBoxEffect : IDisposable
 {
+    private const Single Ratio = 0.02f;
+    
     private readonly Effect effect;
     private readonly TargetingBoxPipeline pipeline;
 
@@ -39,61 +44,82 @@ public sealed class TargetingBoxEffect : IDisposable
     }
 
     /// <summary>
-    ///     Set the box collider to display.
+    ///     Set the information about the target required to display the box.
     /// </summary>
     /// <param name="boxCollider">The box collider to display.</param>
-    public void SetBox(BoxCollider boxCollider)
+    /// <param name="targetedColor">The color of the target, will decide the color of the targeting box.</param>
+    public void SetTarget(BoxCollider boxCollider, ColorS targetedColor)
     {
-        if (currentBox == boxCollider) return;
-
         currentBox = boxCollider;
         effect.Position = boxCollider.Position;
 
-        using PooledList<EffectVertex> vertices = new();
-        BuildMeshData(boxCollider.Volume, vertices);
+        using PooledList<EffectVertex> vertices = new(capacity: boxCollider.Volume.NumberOfBoxes * 6 * 4 * 6);
+        BuildMeshData(boxCollider.Volume, vertices, targetedColor.Luminance < 0.5f);
 
         effect.SetNewVertices(vertices.AsSpan());
     }
 
-    private static void BuildMeshData(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices)
+    private static void BuildMeshData(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices, Boolean isDarkBackground)
     {
-        BuildMeshDataForTopLevelBox(boundingVolume, vertices);
+        BuildMeshDataForTopLevelBox(boundingVolume, vertices, isDarkBackground);
 
         if (boundingVolume.ChildCount == 0) return;
 
-        for (var i = 0; i < boundingVolume.ChildCount; i++) BuildMeshData(boundingVolume[i], vertices);
+        for (var i = 0; i < boundingVolume.ChildCount; i++) 
+            BuildMeshData(boundingVolume[i], vertices, isDarkBackground);
     }
 
-    private static void BuildMeshDataForTopLevelBox(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices)
+    private static void BuildMeshDataForTopLevelBox(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices, Boolean isDarkBackground)
     {
-        (Single minX, Single minY, Single minZ) = (Vector3) boundingVolume.Min;
-        (Single maxX, Single maxY, Single maxZ) = (Vector3) boundingVolume.Max;
+        var min = (Vector3) boundingVolume.Min;
+        var max = (Vector3) boundingVolume.Max;
 
-        // The four bottom lines:
-        AddLine(vertices, (minX, minY, minZ), (maxX, minY, minZ));
-        AddLine(vertices, (minX, minY, maxZ), (maxX, minY, maxZ));
-        AddLine(vertices, (minX, minY, minZ), (minX, minY, maxZ));
-        AddLine(vertices, (maxX, minY, minZ), (maxX, minY, maxZ));
-
-        // The four top lines:
-        AddLine(vertices, (minX, maxY, minZ), (maxX, maxY, minZ));
-        AddLine(vertices, (minX, maxY, maxZ), (maxX, maxY, maxZ));
-        AddLine(vertices, (minX, maxY, minZ), (minX, maxY, maxZ));
-        AddLine(vertices, (maxX, maxY, minZ), (maxX, maxY, maxZ));
-
-        // The four vertical lines:
-        AddLine(vertices, (minX, minY, minZ), (minX, maxY, minZ));
-        AddLine(vertices, (maxX, minY, minZ), (maxX, maxY, minZ));
-        AddLine(vertices, (minX, minY, maxZ), (minX, maxY, maxZ));
-        AddLine(vertices, (maxX, minY, maxZ), (maxX, maxY, maxZ));
+        foreach (Side side in Side.All.Sides())
+            AddSide(vertices, side, min, max, isDarkBackground);
     }
 
-#pragma warning disable S3242 // Concrete type used for performance.
-    private static void AddLine(PooledList<EffectVertex> vertices, Vector3 a, Vector3 b)
-#pragma warning restore S3242
+    private static void AddSide(PooledList<EffectVertex> vertices, Side side, Vector3 min, Vector3 max, Boolean isDarkBackground)
     {
-        vertices.Add(new EffectVertex {Position = a, Data = 0});
-        vertices.Add(new EffectVertex {Position = b, Data = 0});
+        side.Corners(out Int32[] c0, out Int32[] c1, out Int32[] c2, out Int32[] c3);
+        
+        Vector3 v0 = GetCorner(min, max, c0);
+        Vector3 v1 = GetCorner(min, max, c1);
+        Vector3 v2 = GetCorner(min, max, c2);
+        Vector3 v3 = GetCorner(min, max, c3);
+        
+        const Single width = Ratio / 2.0f * -1.0f;
+
+        Vector3 o0 = (GetCorner(-Vector3.One, Vector3.One, c0)- side.Direction()) * width;
+        Vector3 o1 = (GetCorner(-Vector3.One, Vector3.One, c1)- side.Direction()) * width;
+        Vector3 o2 = (GetCorner(-Vector3.One, Vector3.One, c2)- side.Direction()) * width;
+        Vector3 o3 = (GetCorner(-Vector3.One, Vector3.One, c3)- side.Direction()) * width;
+        
+        AddQuad(vertices, v0, v1, v1 + o1, v0 + o0, isDarkBackground);
+        AddQuad(vertices, v1, v2, v2 + o2, v1 + o1, isDarkBackground);
+        AddQuad(vertices, v2, v3, v3 + o3, v2 + o2, isDarkBackground);
+        AddQuad(vertices, v3, v0, v0 + o0, v3 + o3, isDarkBackground);
+    }
+    
+    private static Vector3 GetCorner(Vector3 min, Vector3 max, Int32[] corner)
+    {
+        return new Vector3(
+            min.X * corner[0] + max.X * (1 - corner[0]),
+            min.Y * corner[1] + max.Y * (1 - corner[1]),
+            min.Z * corner[2] + max.Z * (1 - corner[2])
+        );
+    }
+    
+    private static void AddQuad(PooledList<EffectVertex> vertices, Vector3 v0, Vector3 v1, Vector3 v2, Vector3 v3, Boolean isDarkBackground)
+    {
+        UInt32 data = isDarkBackground.ToUInt();
+        
+        vertices.Add(new EffectVertex {Position = v0, Data = data});
+        vertices.Add(new EffectVertex {Position = v1, Data = data});
+        vertices.Add(new EffectVertex {Position = v2, Data = data});
+        
+        vertices.Add(new EffectVertex {Position = v0, Data = data});
+        vertices.Add(new EffectVertex {Position = v2, Data = data});
+        vertices.Add(new EffectVertex {Position = v3, Data = data});
     }
 
     /// <summary>

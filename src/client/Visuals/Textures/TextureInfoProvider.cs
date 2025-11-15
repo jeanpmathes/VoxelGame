@@ -33,23 +33,21 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
         if (blockTextures == null || fluidTextures == null)
             return fallbackColor;
 
-        if (Context == null)
-        {
-            LogLoadingDisabled(logger);
-
-            return fallbackColor;
-        }
-
         TextureBundle bundle = isBlock ? blockTextures : fluidTextures;
 
-        if (index < 0 || index >= bundle.Count)
+        if (index >= 0 && index < bundle.Count) 
+            return bundle.GetDominantColor(index);
+
+        if (Context != null)
         {
             Context.ReportWarning(this, $"Texture index '{index}' out of bounds, using fallback instead");
-
-            return fallbackColor;
+        }
+        else 
+        {
+            LogTextureIndexOutOfBounds(logger, index);
         }
 
-        return bundle.GetDominantColor(index);
+        return fallbackColor;
     }
 
     /// <inheritdoc />
@@ -94,6 +92,9 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
 
     [LoggerMessage(EventId = LogID.TextureIndexProvider + 0, Level = LogLevel.Warning, Message = "Loading of textures is currently disabled, fallback will be used instead")]
     private static partial void LogLoadingDisabled(ILogger logger);
+    
+    [LoggerMessage(EventId = LogID.TextureIndexProvider + 1, Level = LogLevel.Warning, Message = "Texture index '{index}' out of bounds, using fallback instead")]
+    private static partial void LogTextureIndexOutOfBounds(ILogger logger, Int32 index);
 
     #endregion LOGGING
 }

@@ -20,12 +20,13 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public sealed class TargetingBoxPipeline : IDisposable
 {
-    private readonly ShaderBuffer<Data> buffer;
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly RasterPipeline pipeline;
+    private readonly ShaderBuffer<Data> buffer;
+    
+    private Boolean dataDirty = true;
+    
     private ColorS brightColor = ColorS.White;
-    private Boolean colorsDirty = true;
-
     private ColorS darkColor = ColorS.Black;
 
     private TargetingBoxPipeline(VoxelGame.Graphics.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
@@ -51,7 +52,7 @@ public sealed class TargetingBoxPipeline : IDisposable
     internal static TargetingBoxPipeline? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
-            = factory.LoadPipelineWithBuffer<Data>("Targeting", new ShaderPresets.SpatialEffect(Topology.Line));
+            = factory.LoadPipelineWithBuffer<Data>("Targeting", new ShaderPresets.SpatialEffect(Topology.Triangle));
 
         return result is {pipeline: var rasterPipeline, buffer: var shaderBuffer}
             ? new TargetingBoxPipeline(client, rasterPipeline, shaderBuffer)
@@ -74,7 +75,7 @@ public sealed class TargetingBoxPipeline : IDisposable
     public void SetDarkColor(ColorS newColor)
     {
         darkColor = newColor;
-        colorsDirty = true;
+        dataDirty = true;
     }
 
     /// <summary>
@@ -84,7 +85,7 @@ public sealed class TargetingBoxPipeline : IDisposable
     public void SetBrightColor(ColorS newColor)
     {
         brightColor = newColor;
-        colorsDirty = true;
+        dataDirty = true;
     }
 
     /// <summary>
@@ -92,11 +93,11 @@ public sealed class TargetingBoxPipeline : IDisposable
     /// </summary>
     public void UpdateData()
     {
-        if (!colorsDirty) return;
-
+        if (!dataDirty) return;
+        
         buffer.Data = new Data(darkColor.ToColor4(), brightColor.ToColor4());
 
-        colorsDirty = false;
+        dataDirty = false;
     }
 
     /// <summary>

@@ -50,4 +50,9 @@ public class MockBlock : Block
     protected override void BuildMeshes(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IValidator validator) {}
 
     public override void Mesh(Vector3i position, State state, MeshingContext context) {}
+
+    public override ColorS GetDominantColor(State state, ColorS positionTint)
+    {
+        return ColorS.White;
+    }
 }

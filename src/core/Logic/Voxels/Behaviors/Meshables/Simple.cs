@@ -51,7 +51,7 @@ public partial class Simple : BlockBehavior, IBehavior<Simple, BlockBehavior, Bl
     public MeshData GetMeshData(State state, Side side, ITextureIndexProvider textureIndexProvider)
     {
         Boolean isTextureRotated = IsTextureRotated.GetValue(original: false, (state, side));
-        ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
+        ColorS tint = meshed.Tint.GetValue(ColorS.NoTint, state);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
 
         Int32 textureIndex = textured.GetTextureIndex(state, side, textureIndexProvider, isBlock: true);

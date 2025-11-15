@@ -184,19 +184,6 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     public IMap Map => ChunkContext.Generator.Map;
 
     /// <summary>
-    ///     Get the temperature at a block position.
-    /// </summary>
-    /// <param name="position">The position to sample.</param>
-    /// <returns>The temperature at the block.</returns>
-    public Temperature GetTemperature(Vector3i position)
-    {
-        Vector3d centerPosition = position;
-        centerPosition += (0.5, 0.5, 0.5);
-
-        return Map.GetTemperature(centerPosition);
-    }
-
-    /// <summary>
     ///     Get both the fluid and block instance at a given position.
     ///     The content can only be retrieved from active chunks.
     /// </summary>

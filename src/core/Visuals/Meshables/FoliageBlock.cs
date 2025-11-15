@@ -49,7 +49,7 @@ public class FoliageBlock : Block
         {
             if (!Constraint.IsStateValid(state))
             {
-                meshData[index] = new Foliage.MeshData(errorQuads, errorQuadCount, ColorS.None, Foliage.PartType.Single, IsAnimated: false);
+                meshData[index] = new Foliage.MeshData(errorQuads, errorQuadCount, ColorS.NoTint, Foliage.PartType.Single, IsAnimated: false);
 
                 continue;
             }
@@ -94,5 +94,19 @@ public class FoliageBlock : Block
 
             meshing.PushQuadWithOffset(quad.Positions, data, offset);
         }
+    }
+
+    /// <inheritdoc />
+    public override ColorS GetDominantColor(State state, ColorS positionTint)
+    {
+        ref readonly Foliage.MeshData mesh = ref meshData[state.Index];
+        
+        if (mesh.QuadCount == 0)
+            return ColorS.Black;
+        
+        Int32 textureIndex = Meshing.GetTextureIndex(ref mesh.Quads[0].data);
+        ColorS color = DominantColorProvider.GetDominantColor(textureIndex, isBlock: true);
+        
+        return color * mesh.Tint.Select(positionTint);
     }
 }

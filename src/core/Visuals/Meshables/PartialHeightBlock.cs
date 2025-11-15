@@ -67,7 +67,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
             {
                 if (!Constraint.IsStateValid(state))
                 {
-                    meshData[side][index] = new PartialHeight.MeshData(ITextureIndexProvider.MissingTextureIndex, ColorS.None, IsAnimated: false);
+                    meshData[side][index] = new PartialHeight.MeshData(ITextureIndexProvider.MissingTextureIndex, ColorS.NoTint, IsAnimated: false);
 
                     continue;
                 }
@@ -160,5 +160,15 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
             data,
             isSingleSided: true,
             height.IsFull);
+    }
+
+    /// <inheritdoc />
+    public override ColorS GetDominantColor(State state, ColorS positionTint)
+    {
+        ref readonly PartialHeight.MeshData mesh = ref meshData[Side.Front][state.Index];
+
+        ColorS color = DominantColorProvider.GetDominantColor(mesh.TextureIndex, isBlock: true);
+        
+        return color * mesh.Tint.Select(positionTint);
     }
 }

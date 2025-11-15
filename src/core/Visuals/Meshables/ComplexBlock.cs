@@ -49,7 +49,7 @@ public class ComplexBlock : Block
             {
                 Mesh.Quad[] quads = Meshes.CreateFallback().GetMeshData(out UInt32 count);
 
-                meshData[index] = new Complex.MeshData(quads, count, ColorS.None, IsAnimated: false);
+                meshData[index] = new Complex.MeshData(quads, count, ColorS.NoTint, IsAnimated: false);
 
                 continue;
             }
@@ -91,5 +91,19 @@ public class ComplexBlock : Block
 
             meshing.PushQuadWithOffset(quad.Positions, data, offset);
         }
+    }
+
+    /// <inheritdoc />
+    public override ColorS GetDominantColor(State state, ColorS positionTint)
+    {
+        ref readonly Complex.MeshData mesh = ref meshData[state.Index];
+        
+        if (mesh.QuadCount == 0)
+            return ColorS.Black;
+        
+        Int32 textureIndex = Meshing.GetTextureIndex(ref mesh.Quads[0].data);
+        ColorS color = DominantColorProvider.GetDominantColor(textureIndex, isBlock: true);
+        
+        return color * mesh.Tint.Select(positionTint);
     }
 }

@@ -45,7 +45,7 @@ public partial class Complex : BlockBehavior, IBehavior<Complex, BlockBehavior, 
     /// <returns>The mesh data for the given context.</returns>
     public MeshData GetMeshData(MeshContext context)
     {
-        ColorS tint = meshed.Tint.GetValue(ColorS.None, context.State);
+        ColorS tint = meshed.Tint.GetValue(ColorS.NoTint, context.State);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, context.State);
 
         Mesh mesh = Mesh.GetValue(Meshes.CreateFallback(), context);

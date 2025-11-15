@@ -48,7 +48,7 @@ public partial class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, 
     {
         public OverlayTexture GetOverlayTexture(Content content)
         {
-            return new OverlayTexture(ITextureIndexProvider.MissingTextureIndex, ColorS.None, IsAnimated: false);
+            return new OverlayTexture(ITextureIndexProvider.MissingTextureIndex, ColorS.NoTint, IsAnimated: false);
         }
     }
 }

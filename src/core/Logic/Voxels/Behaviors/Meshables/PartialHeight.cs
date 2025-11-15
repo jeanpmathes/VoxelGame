@@ -42,7 +42,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     /// <returns>The mesh data for the given side and state.</returns>
     public MeshData GetMeshData(State state, Side side, ITextureIndexProvider textureIndexProvider)
     {
-        ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
+        ColorS tint = meshed.Tint.GetValue(ColorS.NoTint, state);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
 
         Int32 textureIndex = textured.GetTextureIndex(state, side, textureIndexProvider, isBlock: true);
