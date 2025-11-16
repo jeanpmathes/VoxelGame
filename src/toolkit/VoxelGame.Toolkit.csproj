@@ -27,7 +27,11 @@
 
     <ItemGroup>
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
-        <ProjectReference Include="..\native_toolkit\NativeToolkit.vcxproj"/>
+        <ProjectReference Include="..\native_toolkit\NativeToolkit.vcxproj">
+            <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+            <OutputItemType>Content</OutputItemType>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </ProjectReference>
         <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj"/>
         <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
         <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
