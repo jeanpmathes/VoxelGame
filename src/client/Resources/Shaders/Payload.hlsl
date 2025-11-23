@@ -138,7 +138,7 @@ namespace vg
     }
 }
 
-#define RGBA(color) float4(color.rgb, 1.0f)
+#define RGBA(color) float4((color).rgb, 1.0f)
 
 #define SET_INTERMEDIATE_HIT_INFO(payload, info, shadingColor) \
     { \

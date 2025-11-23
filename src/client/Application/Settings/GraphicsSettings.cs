@@ -47,6 +47,22 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 clientSettings.RenderResolutionScale = scale;
                 clientSettings.Save();
             });
+
+        PostProcessingAntiAliasingQuality = new Bindable<Quality>(
+            () => clientSettings.PostProcessingAntiAliasingQuality,
+            q =>
+            {
+                clientSettings.PostProcessingAntiAliasingQuality = q;
+                clientSettings.Save();
+            });
+
+        RenderingAntiAliasingQuality = new Bindable<Quality>(
+            () => clientSettings.RenderingAntiAliasingQuality,
+            q =>
+            {
+                clientSettings.RenderingAntiAliasingQuality = q;
+                clientSettings.Save();
+            });
     }
 
     /// <summary>
@@ -63,6 +79,16 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
     ///     The render resolution scale.
     /// </summary>
     public Bindable<Single> RenderResolutionScale { get; }
+
+    /// <summary>
+    ///     The antialiasing quality level used during post-processing.
+    /// </summary>
+    public Bindable<Quality> PostProcessingAntiAliasingQuality { get; }
+
+    /// <summary>
+    ///     The antialiasing quality level used during ray-based rendering.
+    /// </summary>
+    public Bindable<Quality> RenderingAntiAliasingQuality { get; }
 
     /// <summary>
     ///     Get the visual configuration from the settings.
@@ -106,6 +132,18 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 max: 5f,
                 percentage: true,
                 step: 0.5f));
+
+        AddSetting(nameof(PostProcessingAntiAliasingQuality),
+            Setting.CreateQualitySetting(
+                this,
+                Language.GraphicsPostProcessingAntiAliasingQuality,
+                PostProcessingAntiAliasingQuality.Accessors));
+
+        AddSetting(nameof(RenderingAntiAliasingQuality),
+            Setting.CreateQualitySetting(
+                this,
+                Language.GraphicsRenderingAntiAliasingQuality,
+                RenderingAntiAliasingQuality.Accessors));
     }
 
     #region LOGGING

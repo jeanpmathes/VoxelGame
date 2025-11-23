@@ -12,6 +12,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -27,25 +28,33 @@ public sealed class Engine : IResource
 
     private readonly List<IDisposable> bindings = [];
     private readonly ShaderBuffer<RaytracingData>? raytracingDataBuffer;
+    private readonly ShaderBuffer<PostProcessingData>? postProcessingBuffer;
 
     internal Engine(
         Application.Client client, 
         ScreenElementPipeline crosshairPipeline, 
         OverlayPipeline overlayPipeline, 
         TargetingBoxPipeline targetingBoxPipeline, 
-        ShaderBuffer<RaytracingData>? rtData)
+        ShaderBuffer<RaytracingData>? rtData,
+        ShaderBuffer<PostProcessingData>? ppBuffer)
     {
         CrosshairPipeline = crosshairPipeline;
         OverlayPipeline = overlayPipeline;
         TargetingBoxPipeline = targetingBoxPipeline;
 
         raytracingDataBuffer = rtData;
+        postProcessingBuffer = ppBuffer;
 
         bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairPipeline.SetColor(args.NewValue)));
         bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairPipeline.SetScale(args.NewValue)));
 
         bindings.Add(client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
         bindings.Add(client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
+        
+        bindings.Add(client.Graphics.PostProcessingAntiAliasingQuality.Bind(args =>
+            Graphics.Instance.ApplyPostProcessingAntiAliasingQuality(args.NewValue)));
+        bindings.Add(client.Graphics.RenderingAntiAliasingQuality.Bind(args =>
+            Graphics.Instance.ApplyRenderingAntiAliasingQuality(args.NewValue)));
     }
 
     /// <summary>
@@ -68,12 +77,90 @@ public sealed class Engine : IResource
     /// </summary>
     public ShaderBuffer<RaytracingData> RaytracingDataBuffer => raytracingDataBuffer!;
 
+    /// <summary>
+    ///     Get the post-processing data buffer.
+    /// </summary>
+    public ShaderBuffer<PostProcessingData> PostProcessingBuffer => postProcessingBuffer!;
+
     /// <inheritdoc />
     public RID Identifier { get; } = RID.Named<Engine>("Default");
 
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Engine;
 
+    /// <summary>
+    /// Data defining the antialiasing settings used in raytracing.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    public struct AntiAliasingSettings : IEquatable<AntiAliasingSettings>
+    {
+        /// <summary>
+        ///     Whether adaptive antialiasing for ray generation is enabled.
+        /// </summary>
+        public Bool isEnabled;
+
+        /// <summary>
+        ///     Whether to visualize the sampling rate in the rendered image.
+        /// </summary>
+        public Bool showSamplingRate;
+
+        /// <summary>
+        ///     The size of the sampling grid used initially per pixel.
+        /// </summary>
+        public Int32 minGridSize;
+
+        /// <summary>
+        ///     The size of the maximum sampling grid used per pixel.
+        /// </summary>
+        public Int32 maxGridSize;
+
+        /// <summary>
+        ///     The color variance threshold, determining if more samples are needed for a pixel.
+        /// </summary>
+        public Single varianceThreshold;
+        
+        /// <summary>
+        ///     The depth threshold, determining if more samples are needed for a pixel.
+        /// </summary>
+        public Single depthThreshold;
+        
+        private (Boolean, Boolean, Int32, Int32, Single, Single) Pack => (isEnabled, showSamplingRate, minGridSize, maxGridSize, varianceThreshold, depthThreshold);
+
+        /// <inheritdoc />
+        public Boolean Equals(AntiAliasingSettings other)
+        {
+            return Pack.Equals(other.Pack);
+        }
+
+        /// <inheritdoc />
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is AntiAliasingSettings other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override Int32 GetHashCode()
+        {
+            return Pack.GetHashCode();
+        }
+        
+        /// <summary>
+        ///     Check if two <see cref="AntiAliasingSettings" />s are equal.
+        /// </summary>
+        public static Boolean operator ==(AntiAliasingSettings left, AntiAliasingSettings right)
+        {            
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Check if two <see cref="AntiAliasingSettings" />s are not equal.
+        /// </summary>
+        public static Boolean operator !=(AntiAliasingSettings left, AntiAliasingSettings right)
+        {
+            return !left.Equals(right);
+        }
+    }
+    
     /// <summary>
     ///     Data passed to the raytracing shaders.
     /// </summary>
@@ -83,7 +170,7 @@ public sealed class Engine : IResource
         /// <summary>
         ///     Whether to render in wireframe mode.
         /// </summary>
-        [MarshalAs(UnmanagedType.Bool)] public Boolean wireframe;
+        public Bool wireframe;
 
         /// <summary>
         ///     The wind direction, used for foliage swaying.
@@ -101,7 +188,13 @@ public sealed class Engine : IResource
         /// </summary>
         public Vector3 fogOverlapColor;
 
-        private (Boolean, Vector3, Single, Vector3) Pack => (wireframe, windDirection, fogOverlapSize, fogOverlapColor);
+        /// <summary>
+        ///     The antialiasing settings for ray generation.
+        /// </summary>
+        public AntiAliasingSettings antiAliasing;
+
+        private (Boolean, Vector3, Single, Vector3, AntiAliasingSettings) Pack =>
+            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, antiAliasing);
 
         /// <inheritdoc />
         public Boolean Equals(RaytracingData other)
@@ -133,6 +226,53 @@ public sealed class Engine : IResource
         ///     Check if two <see cref="RaytracingData" />s are not equal.
         /// </summary>
         public static Boolean operator !=(RaytracingData left, RaytracingData right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
+    /// <summary>
+    ///     Data passed to the post-processing shader.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    public struct PostProcessingData : IEquatable<PostProcessingData>
+    {
+        /// <summary>
+        /// The level of post-processing antialiasing to apply.
+        /// A value of 0 means disabled, higher values up to 3 increase the quality.
+        /// </summary>
+        public Int32 levelOfAntiAliasing;
+
+        /// <inheritdoc />
+        public Boolean Equals(PostProcessingData other)
+        {
+            return levelOfAntiAliasing.Equals(other.levelOfAntiAliasing);
+        }
+
+        /// <inheritdoc />
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is PostProcessingData other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override Int32 GetHashCode()
+        {
+            return levelOfAntiAliasing.GetHashCode();
+        }
+
+        /// <summary>
+        ///     Check if two <see cref="PostProcessingData" />s are equal.
+        /// </summary>
+        public static Boolean operator ==(PostProcessingData left, PostProcessingData right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        /// Check if two <see cref="PostProcessingData" />s are not equal.
+        /// </summary>
+        public static Boolean operator !=(PostProcessingData left, PostProcessingData right)
         {
             return !left.Equals(right);
         }

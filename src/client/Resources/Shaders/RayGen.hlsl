@@ -8,6 +8,7 @@
 #include "RayGenRT.hlsl"
 
 #include "Custom.hlsl"
+#include "Hash.hlsl"
 #include "Payload.hlsl"
 
 /**
@@ -114,16 +115,28 @@ float GetReflectance(float3 const normal, float3 const incident, float3 const tr
     return clamp(r0 + (1.0f - r0) * POW5(1.0f - cos), 0.0f, 1.0f);
 }
 
-[shader("raygeneration")]void RayGen()
+float2 GetSampleOffset(uint2 launchIndex, uint sampleIndex, uint gridSize, float strength)
 {
-    uint2 const  launchIndex = DispatchRaysIndex().xy;
-    float2 const dimensions  = float2(DispatchRaysDimensions().xy);
+    uint sx = sampleIndex % gridSize;
+    uint sy = sampleIndex / gridSize;
 
+    float2 base = (float2(sx, sy) + 0.5f) / gridSize;
+
+    uint seed = launchIndex.x * 1973u ^ launchIndex.y * 9277u ^ sampleIndex * 26699u;
+    float jx = (Random(seed + 0u) - 0.5f) / gridSize;
+    float jy = (Random(seed + 1u) - 0.5f) / gridSize;
+
+    return saturate(base + float2(jx, jy) * strength);
+}
+
+void SampleAt(float2 offset, uint2 launchIndex, float2 dimensions, out float4 color, out float depth)
+{
     // Given the dimension (w, h), the launch index is in the range [0, w - 1] x [0, h - 1].
     // This range is transformed to NDC space, i.e. [-1, 1] x [-1, 1].
-    float2 const pixel = (float2(launchIndex) + 0.5f) / dimensions * 2.0f - 1.0f;
+    // Before that, a jitter in [0, 1] x [0, 1] is added to the launch index for antialiasing.
+    float2 pixel = (float2(launchIndex) + offset) / dimensions * 2.0f - 1.0f;
 
-    // DirectX textures have their origin at the top-left corner, while NDC has it at the bottom-left corner.
+    // DirectX textures have their origin in the top-left corner, while NDC has it in the bottom-left corner.
     // Therefore, the y coordinate is inverted.
     float4 const targetInProjectionSpace = float4(pixel.x, pixel.y * -1.0f, 1.0f, 1.0f);
 
@@ -141,9 +154,10 @@ float GetReflectance(float3 const normal, float3 const incident, float3 const tr
     if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f && relativeY > vg::custom.fogOverlapSize + 1.0f))
         fog = Fog::CreateVolume(vg::custom.fogOverlapColor);
 
+    color            = 0;
+    depth            = 0;
+    
     int    iteration = 0;
-    float4 color     = 0;
-    float  depth     = 0;
     float  path      = length(direction);
 
     float                reflectance = 0.0f;
@@ -189,9 +203,8 @@ float GetReflectance(float3 const normal, float3 const incident, float3 const tr
         float3 const refracted = normalize(refract(direction, main.normal, n1 / n2));
         float3 const reflected = normalize(reflect(direction, main.normal));
 
-        // If an reflectance ray is needed for the current hit, it is traced this iteration.
+        // If a reflectance ray is needed for the current hit, it is traced this iteration.
         // The main ray of the next iteration is the refraction ray, except if the reflectance is total.
-
         reflectance = alpha < 1.0f ? GetReflectance(incoming ? main.normal : main.normal * -1.0f, direction, refracted, n1, n2) : 0.0f;
 
         origin    = main.position;
@@ -236,7 +249,80 @@ float GetReflectance(float3 const normal, float3 const incident, float3 const tr
             else fog          = Fog::CreateDefault();
         }
     }
+}
 
-    native::rt::colorOutput[launchIndex] = RGBA(color);
-    native::rt::depthOutput[launchIndex] = depth;
+[shader("raygeneration")]
+void RayGen()
+{
+    uint2 const  launchIndex = DispatchRaysIndex().xy;
+    float2 const dimensions  = float2(DispatchRaysDimensions().xy);
+
+    uint const minGrid = vg::custom.antiAliasing.isEnabled ? vg::custom.antiAliasing.minimumSamplingGridSize : 1;
+    uint const maxGrid = vg::custom.antiAliasing.isEnabled ? vg::custom.antiAliasing.maximumSamplingGridSize : 1;
+    
+    float const varianceThreshold = vg::custom.antiAliasing.varianceThreshold;
+    float const depthThreshold = vg::custom.antiAliasing.depthThreshold;
+
+    float const offsetStrength = vg::custom.antiAliasing.isEnabled ? 1.0f : 0.0f;
+
+    uint const minSampleCount = minGrid * minGrid;
+    uint const maxSampleCount = maxGrid * maxGrid;
+
+    uint samples = 0;
+
+    // Variance is estimated using the Welford online algorithm.
+    float meanLuminance = 0;
+    float sumOfSquaresLuminance = 0;
+
+    float3 accumulator = 0;
+    float  minDepth    = 1.0f;
+    float  maxDepth    = 0.0f;
+    
+    float4 color;
+    float depth;
+
+    for (uint index = 0; index < minSampleCount; index++)
+    {
+        SampleAt(GetSampleOffset(launchIndex, index, minGrid, offsetStrength), launchIndex, dimensions, color, depth);
+        
+        accumulator += color.rgb;
+        minDepth = min(minDepth, depth);
+        maxDepth = max(maxDepth, depth);
+        samples += 1;
+
+        float luminance = native::GetLuminance(color.rgb);
+        float delta     = luminance - meanLuminance;
+        
+        meanLuminance += delta / samples;
+        sumOfSquaresLuminance += delta * (luminance - meanLuminance);
+    }
+    
+    float variance = samples > 1 ? sumOfSquaresLuminance / samples : 0;
+    
+    if (vg::custom.antiAliasing.isEnabled && (variance > varianceThreshold || (maxDepth - minDepth) > depthThreshold))
+    {
+        for (uint index = minSampleCount; index < maxSampleCount; index++)
+        {
+            SampleAt(GetSampleOffset(launchIndex, index, maxGrid, offsetStrength), launchIndex, dimensions, color, depth);
+            
+            accumulator += color.rgb;
+            minDepth = min(minDepth, depth);
+            // Maximum depth was only needed for the threshold check.
+            samples += 1;
+        }
+    }
+    
+    float4 result = RGBA(accumulator / samples);
+
+    if (vg::custom.antiAliasing.showSamplingRate)
+    {
+        bool hasUsedMaxSamples = samples > minSampleCount;
+        float luminance    = native::GetLuminance(result.rgb);
+
+        float3 visualization = hasUsedMaxSamples ? float3(1.0f, 0.0f, luminance) : float3(0.0f, 1.0f, luminance);
+        result               = RGBA(visualization);
+    }
+
+    native::rt::colorOutput[launchIndex] = result;
+    native::rt::depthOutput[launchIndex] = minDepth;
 }

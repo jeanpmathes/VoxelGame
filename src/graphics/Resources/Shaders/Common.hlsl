@@ -35,7 +35,7 @@ namespace native
      * \param color The color.
      * \return The luminance.
      */
-    float GetLuminance(in float3 const color) { return dot(color, float3(0.299f, 0.587f, 0.114f)); }
+    float GetLuminance(in float3 const color) { return dot(color, float3(0.2126729f,  0.7151522f, 0.0721750f)); }
 
     /**
      * \brief Translates the UV coordinates between the OpenGL and DirectX coordinate system.

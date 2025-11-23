@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -22,7 +23,14 @@ public partial class Graphics
     private static readonly Engine.RaytracingData defaultData = new()
     {
         wireframe = false,
-        windDirection = new Vector3(x: 0.7f, y: 0.0f, z: 0.7f).Normalized()
+        windDirection = new Vector3(x: 0.7f, y: 0.0f, z: 0.7f).Normalized(),
+        antiAliasing =
+        {
+            isEnabled = false,
+            minGridSize = 1,
+            maxGridSize = 1,
+            varianceThreshold = 0.0f
+        }
     };
 
     private Engine? engine;
@@ -66,11 +74,7 @@ public partial class Graphics
     /// <param name="enable">Whether to enable wireframe rendering.</param>
     public void SetWireframe(Boolean enable)
     {
-        if (engine == null) return;
-
-        engine.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) => data.wireframe = enable);
-
-        LogSetWireframe(logger, enable);
+        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) => data.wireframe = enable);
     }
 
     /// <summary>
@@ -92,6 +96,79 @@ public partial class Graphics
         });
     }
 
+    /// <summary>
+    /// Set whether to display the sampling rate of the raytracing antialiasing algorithm.
+    /// </summary>
+    /// <param name="enable">Whether to enable the sampling rate display.</param>
+    public void SetSamplingDisplay(Boolean enable)
+    {
+        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) => data.antiAliasing.showSamplingRate = enable);
+    }
+
+    private void SetRaytracingAntiAliasingConfiguration(Boolean enabled, Int32 min, Int32 max, Single variance, Single depth)
+    {
+        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
+        {
+            data.antiAliasing.isEnabled = enabled;
+            data.antiAliasing.minGridSize = min;
+            data.antiAliasing.maxGridSize = max;
+            data.antiAliasing.varianceThreshold = variance;
+            data.antiAliasing.depthThreshold = depth;
+        });
+    }
+
+    private void SetPostProcessingAntiAliasingConfiguration(Int32 level)
+    {
+        engine?.PostProcessingBuffer.Modify((ref Engine.PostProcessingData data) =>
+        {
+            data.levelOfAntiAliasing = level;
+        });
+    }
+
+    private static (Boolean enabled, Int32 min, Int32 max, Single variance, Single depth) GetRaytracingAntiAliasingConfiguration(Quality quality)
+    {
+        return quality switch
+        {
+            Quality.Low => (false, 1, 1, 0.0f, 0.0f),
+            Quality.Medium => (true, 2, 3, 0.016f, 0.0025f),
+            Quality.High => (true, 2, 4, 0.008f, 0.0015f),
+            Quality.Ultra => (true, 3, 5, 0.004f, 0.0010f),
+            _ => throw Exceptions.UnsupportedEnumValue(quality)
+        };
+    }
+
+    private static Int32 GetPostProcessingAntiAliasingConfiguration(Quality quality)
+    {
+        return quality switch
+        {
+            Quality.Low => 0,
+            Quality.Medium => 1,
+            Quality.High => 2,
+            Quality.Ultra => 3,
+            _ => throw Exceptions.UnsupportedEnumValue(quality)
+        };
+    }
+
+    /// <summary>
+    ///     Apply a quality preset to the ray generation antialiasing algorithm.
+    /// </summary>
+    /// <param name="quality">The selected quality preset.</param>
+    public void ApplyRenderingAntiAliasingQuality(Quality quality)
+    {
+        (Boolean enabled, Int32 initial, Int32 max, Single variance, Single depth) configuration = GetRaytracingAntiAliasingConfiguration(quality);
+        SetRaytracingAntiAliasingConfiguration(configuration.enabled, configuration.initial, configuration.max, configuration.variance, configuration.depth);
+    }
+
+    /// <summary>
+    ///     Apply a quality preset to the post-processing antialiasing pass.
+    /// </summary>
+    /// <param name="quality">The selected quality preset.</param>
+    public void ApplyPostProcessingAntiAliasingQuality(Quality quality)
+    {
+        Int32 level = GetPostProcessingAntiAliasingConfiguration(quality);
+        SetPostProcessingAntiAliasingConfiguration(level);
+    }
+
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Graphics>();
@@ -101,9 +178,6 @@ public partial class Graphics
 
     [LoggerMessage(EventId = LogID.Graphics + 1, Level = LogLevel.Debug, Message = "Graphics reset to default state")]
     private static partial void LogGraphicsReset(ILogger logger);
-
-    [LoggerMessage(EventId = LogID.Graphics + 2, Level = LogLevel.Debug, Message = "Wireframe mode set to {Mode}")]
-    private static partial void LogSetWireframe(ILogger logger, Boolean mode);
 
     #endregion LOGGING
 }

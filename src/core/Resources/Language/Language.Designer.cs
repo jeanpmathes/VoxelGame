@@ -942,6 +942,24 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Post-Processing Antialiasing Quality.
+        /// </summary>
+        public static string GraphicsPostProcessingAntiAliasingQuality {
+            get {
+                return ResourceManager.GetString("GraphicsPostProcessingAntiAliasingQuality", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Rendering Antialiasing Quality.
+        /// </summary>
+        public static string GraphicsRenderingAntiAliasingQuality {
+            get {
+                return ResourceManager.GetString("GraphicsRenderingAntiAliasingQuality", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Rendering Resolution Scale.
         /// </summary>
         public static string GraphicsRenderResolutionScale {

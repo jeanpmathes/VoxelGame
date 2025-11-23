@@ -83,7 +83,8 @@ public:
 
         struct PostProcessingBindings
         {
-            ShaderResources::Table::Entry input = ShaderResources::Table::Entry::invalid;
+            ShaderResources::Table::Entry color  = ShaderResources::Table::Entry::invalid;
+            ShaderResources::Table::Entry depth = ShaderResources::Table::Entry::invalid;
         };
 
         struct SpatialEffectBindings

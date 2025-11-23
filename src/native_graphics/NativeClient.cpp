@@ -391,7 +391,7 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
     if (m_space) m_space->PerformResolutionDependentSetup(m_resolution);
 
     D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-        DXGI_FORMAT_D32_FLOAT,
+        DXGI_FORMAT_R32_TYPELESS,
         m_resolution.width,
         m_resolution.height,
         1,
@@ -419,10 +419,9 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
         m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
 
     if (m_postProcessingPipeline != nullptr)
-        m_postProcessingPipeline->CreateShaderResourceView(
-            m_postProcessingPipeline->GetBindings().PostProcessing().input,
-            0,
-            {m_intermediateRenderTarget});
+    {
+        CreatePostProcessingShaderResourceViews();
+    }
 }
 
 void NativeClient::EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> const commandList)
@@ -544,7 +543,7 @@ void NativeClient::OnSizeChanged(UINT const width, UINT const height, bool const
         UpdateForSizeChange(width, height);
         SetUpSizeDependentResources();
 
-        if (Resolution const newResolution = Resolution{width, height} * GetRenderScale();
+        if (Resolution const newResolution = Resolution{.width = width, .height = height} * GetRenderScale();
             newResolution != m_resolution)
         {
             m_resolution = newResolution;
@@ -592,10 +591,7 @@ void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
 void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 {
     m_postProcessingPipeline = pipeline;
-    m_postProcessingPipeline->CreateShaderResourceView(
-        m_postProcessingPipeline->GetBindings().PostProcessing().input,
-        0,
-        {m_intermediateRenderTarget});
+    CreatePostProcessingShaderResourceViews();
 }
 
 UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT const priority, draw2d::Callback const callback)
@@ -642,6 +638,27 @@ void NativeClient::RemoveDraw2DPipeline(UINT const id)
 
     m_draw2dPipelines.erase(iterator);
     m_draw2dPipelineIDs.erase(id);
+}
+
+void NativeClient::CreatePostProcessingShaderResourceViews() const
+{
+    m_postProcessingPipeline->CreateShaderResourceView(
+            m_postProcessingPipeline->GetBindings().PostProcessing().color,
+            0,
+            {m_intermediateRenderTarget});
+
+    // Because the depth buffer is created as TYPELESS, we cannot use the NULL descriptor.
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Format                          = DXGI_FORMAT_R32_FLOAT;
+    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Texture2D.MipLevels             = 1;
+
+    m_postProcessingPipeline->CreateShaderResourceView(
+        m_postProcessingPipeline->GetBindings().PostProcessing().depth,
+        0,
+        {m_intermediateDepthStencilBuffer, &srvDesc});
 }
 
 NativeClient::ObjectHandle NativeClient::StoreObject(std::unique_ptr<Object> object)
@@ -793,7 +810,7 @@ void NativeClient::PopulateCommandLists()
     EnsureValidDepthBuffers(m_2dGroup.commandList);
     EnsureValidIntermediateRenderTarget(m_2dGroup.commandList);
 
-    std::array<D3D12_RESOURCE_BARRIER, 2> barriers = {
+    std::array<D3D12_RESOURCE_BARRIER, 3> barriers = {
         CD3DX12_RESOURCE_BARRIER::Transition(
             m_finalRenderTargets[m_frameIndex].Get(),
             D3D12_RESOURCE_STATE_PRESENT,
@@ -801,6 +818,10 @@ void NativeClient::PopulateCommandLists()
         CD3DX12_RESOURCE_BARRIER::Transition(
             m_intermediateRenderTarget.Get(),
             D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_intermediateDepthStencilBuffer.Get(),
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
     };
 
@@ -829,8 +850,12 @@ void NativeClient::PopulateCommandLists()
 
     barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
     barriers[0].Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
+    
     barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     barriers[1].Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    barriers[2].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    barriers[2].Transition.StateAfter  = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
     m_2dGroup.commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
     m_2dGroup.Close();

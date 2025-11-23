@@ -13,6 +13,42 @@
 namespace vg
 {
     /**
+     * \brief The antialiasing data. The renderer uses adaptive supersampling.
+     */
+    struct AntiAliasing
+    {
+        /**
+         * \brief Whether antialiasing is enabled. If false, the sample counts and threshold are ignored.
+         */
+        bool isEnabled;
+
+        /**
+         * \brief Whether to visualize the sampling rate (for debugging purposes).
+         */
+        bool showSamplingRate;
+
+        /**
+         * \brief The size of the sampling grid applied to each pixel.
+         */
+        uint minimumSamplingGridSize;
+
+        /**
+         * \brief The maximum size of the sampling grid, will only be used if the variance threshold is exceeded.
+         */
+        uint maximumSamplingGridSize;
+
+        /**
+         * \brief The variance threshold. If the variance of the samples (their luminance) exceeds this threshold, more samples are taken.
+         */
+        float varianceThreshold;
+
+        /**
+         * \brief The depth threshold. If the depth difference of the samples exceeds this threshold, more samples are taken.
+         */
+        float depthThreshold;
+    };
+    
+    /**
      * \brief The custom data.
      */
     struct Custom
@@ -20,7 +56,7 @@ namespace vg
         /**
          * \brief Whether to render wireframes.
          */
-        bool wireframe;
+        bool showWireframes;
 
         /**
          * \brief The direction of the wind.
@@ -36,6 +72,11 @@ namespace vg
          * \brief Color of the fog volume the view plane is currently in.
          */
         float3 fogOverlapColor;
+
+        /**
+         * \brief The antialiasing settings.
+         */
+        AntiAliasing antiAliasing;
     };
 
     ConstantBuffer<Custom> custom : register(b1);

@@ -209,7 +209,7 @@ namespace vg
 
             color *= intensity;
 
-            if (custom.wireframe)
+            if (custom.showWireframes)
             {
                 float const edge = info.GetDistanceToTriangleBorders();
                 color            = edge < 0.005f ? 1.0f : lerp(color, 0.0f, 0.2f);

@@ -1,34 +1,40 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)"
-              GeneratedClassNamespace="Properties" GeneratedClassName="Settings">
-    <Profiles/>
-    <Settings>
-        <Setting Name="MouseSensitivity" Type="System.Double" Scope="User">
-            <Value Profile="(Default)">0.3</Value>
-        </Setting>
-        <Setting Name="CrosshairScale" Type="System.Double" Scope="User">
-            <Value Profile="(Default)">0.0225</Value>
-        </Setting>
-        <Setting Name="CrosshairColor" Type="System.Drawing.Color" Scope="User">
-            <Value Profile="(Default)">White</Value>
-        </Setting>
-        <Setting Name="WindowSize" Type="System.Drawing.Size" Scope="User">
-            <Value Profile="(Default)">480, 270</Value>
-        </Setting>
-        <Setting Name="FoliageQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
-            <Value Profile="(Default)">Medium</Value>
-        </Setting>
-        <Setting Name="RenderResolutionScale" Type="System.Double" Scope="User">
-            <Value Profile="(Default)">1</Value>
-        </Setting>
-        <Setting Name="DarkSelectionColor" Type="System.Drawing.Color" Scope="User">
-            <Value Profile="(Default)">25, 25, 25</Value>
-        </Setting>
-        <Setting Name="BrightSelectionColor" Type="System.Drawing.Color" Scope="User">
-            <Value Profile="(Default)">150, 150, 150</Value>
-        </Setting>
-        <Setting Name="ScaleOfUI" Type="System.Double" Scope="User">
-            <Value Profile="(Default)">1</Value>
-        </Setting>
-    </Settings>
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="Properties" GeneratedClassName="Settings">
+  <Profiles />
+  <Settings>
+    <Setting Name="MouseSensitivity" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.3</Value>
+    </Setting>
+    <Setting Name="CrosshairScale" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">0.0225</Value>
+    </Setting>
+    <Setting Name="CrosshairColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">White</Value>
+    </Setting>
+    <Setting Name="WindowSize" Type="System.Drawing.Size" Scope="User">
+      <Value Profile="(Default)">480, 270</Value>
+    </Setting>
+    <Setting Name="FoliageQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
+      <Value Profile="(Default)">Medium</Value>
+    </Setting>
+    <Setting Name="RenderResolutionScale" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="DarkSelectionColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">25, 25, 25</Value>
+    </Setting>
+    <Setting Name="BrightSelectionColor" Type="System.Drawing.Color" Scope="User">
+      <Value Profile="(Default)">150, 150, 150</Value>
+    </Setting>
+    <Setting Name="ScaleOfUI" Type="System.Double" Scope="User">
+      <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="PostProcessingAntiAliasingQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
+      <Value Profile="(Default)">Low</Value>
+    </Setting>
+    <Setting Name="RenderingAntiAliasingQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
+      <Value Profile="(Default)">Low</Value>
+    </Setting>
+  </Settings>
 </SettingsFile>
+

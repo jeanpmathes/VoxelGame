@@ -48,11 +48,16 @@ public sealed class EngineLoader : IResourceLoader
 
         PipelineFactory factory = new(client, errors);
 
-        RasterPipeline? postProcessingPipeline = factory.LoadPipeline("PostProcessing", new ShaderPresets.PostProcessing());
+        (RasterPipeline pipeline, ShaderBuffer<Engine.PostProcessingData> buffer)? postProcessingResult
+            = factory.LoadPipelineWithBuffer<Engine.PostProcessingData>("PostProcessing", new ShaderPresets.PostProcessing());
+
+        if (postProcessingResult is not {pipeline: var postProcessingPipeline, buffer: var ppData})
+            return errors;
+        
         var crosshairVFX = ScreenElementPipeline.Create(client, factory, (0.5f, 0.5f));
         var overlayVFX = OverlayPipeline.Create(client, factory, textureSlots);
-
-        if (postProcessingPipeline == null || crosshairVFX == null || overlayVFX == null)
+        
+        if (crosshairVFX == null || overlayVFX == null)
             return errors;
 
         ShaderBuffer<Engine.RaytracingData>? rtData = LoadRaytracingPipeline(client, visuals, textureSlots, context);
@@ -67,7 +72,7 @@ public sealed class EngineLoader : IResourceLoader
 
         client.SetPostProcessingPipeline(postProcessingPipeline);
 
-        return [new Engine(client, crosshairVFX, overlayVFX, selectionBoxVFX, rtData)];
+        return [new Engine(client, crosshairVFX, overlayVFX, selectionBoxVFX, rtData, ppData)];
     }
 
     private ShaderBuffer<Engine.RaytracingData>? LoadRaytracingPipeline(

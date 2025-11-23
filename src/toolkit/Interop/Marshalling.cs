@@ -55,7 +55,7 @@ public static class Marshalling
         where TUnmanaged : unmanaged
         where TMarshaller : IMarshaller<TManaged, TUnmanaged>
     {
-        for (var index = 0; index < length; index++) TMarshaller.Free(unmanaged[index]);
+        for (UInt32 index = 0; index < length; index++) TMarshaller.Free(unmanaged[index]);
 
         ArrayMarshaller<TManaged, TUnmanaged>.Free(unmanaged);
     }
@@ -72,11 +72,11 @@ public interface IMarshaller<in TManaged, TUnmanaged>
     /// </summary>
     /// <param name="managed">The managed value to convert.</param>
     /// <returns>The unmanaged value.</returns>
-    public static abstract TUnmanaged ConvertToUnmanaged(TManaged managed);
+    static abstract TUnmanaged ConvertToUnmanaged(TManaged managed);
 
     /// <summary>
     ///     Free an unmanaged value.
     /// </summary>
     /// <param name="unmanaged">The unmanaged value to free, created by <see cref="ConvertToUnmanaged" />.</param>
-    public static abstract void Free(TUnmanaged unmanaged);
+    static abstract void Free(TUnmanaged unmanaged);
 }

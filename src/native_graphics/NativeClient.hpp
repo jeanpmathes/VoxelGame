@@ -92,6 +92,8 @@ public:
      */
     void RemoveDraw2DPipeline(UINT id);
 
+    void CreatePostProcessingShaderResourceViews() const;
+
     using ObjectHandle = size_t;
 
     ObjectHandle StoreObject(std::unique_ptr<Object> object);

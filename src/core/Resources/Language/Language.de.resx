@@ -567,9 +567,15 @@
     <data name="GraphicsWindowSize" xml:space="preserve">
       <value>Fenstergröße</value>
   </data>
-    <data name="GraphicsRenderResolutionScale" xml:space="preserve">
+  <data name="GraphicsRenderResolutionScale" xml:space="preserve">
       <value>Skalierung der Renderingauflösung</value>
   </data>
+    <data name="GraphicsPostProcessingAntiAliasingQuality" xml:space="preserve">
+        <value>Post-Processing-Antialiasing-Qualität</value>
+    </data>
+    <data name="GraphicsRenderingAntiAliasingQuality" xml:space="preserve">
+        <value>Rendering-Antialiasing-Qualität</value>
+    </data>
     <data name="SelectionBoxDarkColor" xml:space="preserve">
         <value>Dunkle Auswahlfarbe</value>
     </data>
