@@ -20,14 +20,55 @@ namespace pp
     SamplerState sampler : register(s0);
 
     /**
-     * @brief The settings for the antialiasing post-processing effect.
+     * @brief The parameters for the FXAA post-processing effect.
+     */
+    struct FXAA
+    {
+        /**
+         * @brief Whether FXAA is enabled.
+         */
+        bool isEnabled;
+
+        /**
+         * @brief The absolute contrast threshold for edge detection.
+         */
+        float contrastThreshold;
+
+        /**
+         * @brief The relative contrast threshold for edge detection.
+         */
+        float relativeThreshold;
+
+        /**
+         * @brief The factor controlling subpixel blending strength.
+         */
+        float subpixelBlending;
+
+        /**
+         * @brief The maximum number of iterations when stepping along an edge.
+         */
+        int edgeStepCount;
+
+        /**
+         * @brief The increment used when stepping along an edge.
+         */
+        int edgeStep;
+
+        /**
+         * @brief A heuristic used to guess the end of an edge.
+         */
+        float edgeGuess;
+    };
+
+    /**
+     * @brief The parameters for post-processing effects.
      */
     struct Settings
     {
         /**
-         * @brief The level of antialiasing to apply, from 0 (off) to 3 (ultra).
+         * @brief The FXAA configuration.
          */
-        int levelOfAntiAliasing;
+        FXAA fxaa;
     };
 
     ConstantBuffer<Settings> settings : register(b0);
@@ -49,27 +90,16 @@ PSInput VSMain(float4 const position : POSITION, float2 const uv : TEXCOORD)
     return result;
 }
 
-struct Settings
-{
-    float contrastThreshold;
-    float relativeThreshold;
-    float subpixelBlending;
-    int edgeStepCount;
-    int edgeStep;
-    float edgeGuess;
-    float2 texelSize;
-};
-
 float SampleLuminance(float2 uv)
 {
     float4 const color = pp::color.Sample(pp::sampler, uv);
     return native::GetLuminance(saturate(color.rgb));
 }
 
-float SampleLuminance(float2 uv, float uOffset, float vOffset, Settings settings)
+float SampleLuminance(float2 uv, float uOffset, float vOffset, float2 texelSize)
 {
-    uv += float2(uOffset, vOffset) * settings.texelSize;
-    
+    uv += float2(uOffset, vOffset) * texelSize;
+
     return SampleLuminance(uv);
 }
 
@@ -87,21 +117,21 @@ struct LuminanceData
     float highest, lowest, contrast;
 };
 
-LuminanceData SampleLuminanceNeighborhood(float2 uv, Settings settings)
+LuminanceData SampleLuminanceNeighborhood(float2 uv, float2 texelSize)
 {
     LuminanceData l;
-    
-    l.m = SampleLuminance(uv);
-    
-    l.n = SampleLuminance(uv, NORTH.x, NORTH.y, settings);
-    l.e = SampleLuminance(uv, EAST.x, EAST.y, settings);
-    l.s = SampleLuminance(uv, SOUTH.x, SOUTH.y, settings);
-    l.w = SampleLuminance(uv, WEST.x, WEST.y, settings);
 
-    l.ne = SampleLuminance(uv, NORTH.x + EAST.x, NORTH.y + EAST.y, settings);
-    l.nw = SampleLuminance(uv, NORTH.x + WEST.x, NORTH.y + WEST.y, settings);
-    l.se = SampleLuminance(uv, SOUTH.x + EAST.x, SOUTH.y + EAST.y, settings);
-    l.sw = SampleLuminance(uv, SOUTH.x + WEST.x, SOUTH.y + WEST.y, settings);
+    l.m = SampleLuminance(uv);
+
+    l.n = SampleLuminance(uv, NORTH.x, NORTH.y, texelSize);
+    l.e = SampleLuminance(uv, EAST.x, EAST.y, texelSize);
+    l.s = SampleLuminance(uv, SOUTH.x, SOUTH.y, texelSize);
+    l.w = SampleLuminance(uv, WEST.x, WEST.y, texelSize);
+
+    l.ne = SampleLuminance(uv, NORTH.x + EAST.x, NORTH.y + EAST.y, texelSize);
+    l.nw = SampleLuminance(uv, NORTH.x + WEST.x, NORTH.y + WEST.y, texelSize);
+    l.se = SampleLuminance(uv, SOUTH.x + EAST.x, SOUTH.y + EAST.y, texelSize);
+    l.sw = SampleLuminance(uv, SOUTH.x + WEST.x, SOUTH.y + WEST.y, texelSize);
 
     l.highest = max(max(max(max(l.n, l.e), l.s), l.w), l.m);
     l.lowest = min(min(min(min(l.n, l.e), l.s), l.w), l.m);
@@ -110,12 +140,12 @@ LuminanceData SampleLuminanceNeighborhood(float2 uv, Settings settings)
     return l;
 }
 
-bool ShouldSkip(LuminanceData luminance, Settings settings)
+bool ShouldSkip(LuminanceData luminance)
 {
-    return luminance.contrast < max(settings.contrastThreshold, settings.relativeThreshold * luminance.highest);
+    return luminance.contrast < max(pp::settings.fxaa.contrastThreshold, pp::settings.fxaa.relativeThreshold * luminance.highest);
 }
 
-float DeterminePixelBlendFactor(LuminanceData luminance, Settings settings)
+float DeterminePixelBlendFactor(LuminanceData luminance)
 {
     float filter = 2.0f * (luminance.n + luminance.e + luminance.s + luminance.w);
     filter += luminance.ne + luminance.nw + luminance.se + luminance.sw;
@@ -123,7 +153,7 @@ float DeterminePixelBlendFactor(LuminanceData luminance, Settings settings)
     filter = abs(filter - luminance.m);
     filter = saturate(filter / luminance.contrast);
     filter = smoothstep(0.0f, 1.0f, filter);
-    return filter * filter * settings.subpixelBlending;
+    return filter * filter * pp::settings.fxaa.subpixelBlending;
 }
 
 struct Edge
@@ -134,7 +164,7 @@ struct Edge
     float gradient;
 };
 
-Edge DetermineEdge(LuminanceData l, Settings settings)
+Edge DetermineEdge(LuminanceData l, float2 texelSize)
 {
     Edge e;
     
@@ -148,7 +178,7 @@ Edge DetermineEdge(LuminanceData l, Settings settings)
         abs(l.se + l.sw - 2 * l.s);
     
     e.isHorizontal = horizontal >= vertical;
-    e.step = e.isHorizontal ? settings.texelSize.y : settings.texelSize.x;
+    e.step = e.isHorizontal ? texelSize.y : texelSize.x;
     
     float const pLuminance = e.isHorizontal ? l.s : l.e;
     float const nLuminance = e.isHorizontal ? l.n : l.w;
@@ -169,20 +199,20 @@ Edge DetermineEdge(LuminanceData l, Settings settings)
     return e;
 }
 
-float DetermineEdgeBlendFactor(LuminanceData luminance, Edge edge, float2 uv, Settings settings)
+float DetermineEdgeBlendFactor(LuminanceData luminance, Edge edge, float2 uv, float2 texelSize)
 {
     float2 uvEdge = uv;
     float2 edgeStep;
-    
+
     if (edge.isHorizontal)
     {
         uvEdge.y += edge.step * 0.5;
-        edgeStep = float2(settings.texelSize.x, 0.0f);
+        edgeStep = float2(texelSize.x, 0.0f);
     }
     else
     {
         uvEdge.x += edge.step * 0.5;
-        edgeStep = float2(0.0f, settings.texelSize.y);
+        edgeStep = float2(0.0f, texelSize.y);
     }
 
     float const edgeLuminance = (luminance.m + edge.oppositeLuminance) * 0.5f;
@@ -192,7 +222,7 @@ float DetermineEdgeBlendFactor(LuminanceData luminance, Edge edge, float2 uv, Se
     float pLuminanceDelta = SampleLuminance(puv) - edgeLuminance;
     bool pAtEnd = abs(pLuminanceDelta) >= gradientThreshold;
 
-    for (int i = 0; i < settings.edgeStepCount && !pAtEnd; i += settings.edgeStep)
+    for (int i = 0; i < pp::settings.fxaa.edgeStepCount && !pAtEnd; i += pp::settings.fxaa.edgeStep)
     {
         puv += edgeStep;
         pLuminanceDelta = SampleLuminance(puv) - edgeLuminance;
@@ -200,13 +230,13 @@ float DetermineEdgeBlendFactor(LuminanceData luminance, Edge edge, float2 uv, Se
     }
 
     if (!pAtEnd)
-        puv += edgeStep * settings.edgeGuess;
+        puv += edgeStep * pp::settings.fxaa.edgeGuess;
 
     float2 nuv = uvEdge - edgeStep;
     float nLuminanceDelta = SampleLuminance(nuv) - edgeLuminance;
     bool nAtEnd = abs(nLuminanceDelta) >= gradientThreshold;
 
-    for (int i = 0; i < settings.edgeStepCount && !nAtEnd; i += settings.edgeStep)
+    for (int i = 0; i < pp::settings.fxaa.edgeStepCount && !nAtEnd; i += pp::settings.fxaa.edgeStep)
     {
         nuv -= edgeStep;
         nLuminanceDelta = SampleLuminance(nuv) - edgeLuminance;
@@ -214,7 +244,7 @@ float DetermineEdgeBlendFactor(LuminanceData luminance, Edge edge, float2 uv, Se
     }
 
     if (!nAtEnd)
-        nuv -= edgeStep * settings.edgeGuess;
+        nuv -= edgeStep * pp::settings.fxaa.edgeGuess;
 
     float pDistance, nDistance;
     if (edge.isHorizontal)
@@ -248,18 +278,18 @@ float DetermineEdgeBlendFactor(LuminanceData luminance, Edge edge, float2 uv, Se
     return 0.5f - shortestDistance / (pDistance + nDistance);
 }
 
-float3 FXAA(float2 uv, Settings settings)
+float3 FXAA(float2 uv, float2 texelSize)
 {
-    LuminanceData luminance = SampleLuminanceNeighborhood(uv, settings);
-    
-    if (ShouldSkip(luminance, settings))
+    LuminanceData luminance = SampleLuminanceNeighborhood(uv, texelSize);
+
+    if (ShouldSkip(luminance))
     {
         return pp::color.Sample(pp::sampler, uv).rgb;
     }
 
-    float const pixelBlend = DeterminePixelBlendFactor(luminance, settings);
-    Edge const edge = DetermineEdge(luminance, settings);
-    float const edgeBlend = DetermineEdgeBlendFactor(luminance, edge, uv, settings);
+    float const pixelBlend = DeterminePixelBlendFactor(luminance);
+    Edge const edge = DetermineEdge(luminance, texelSize);
+    float const edgeBlend = DetermineEdgeBlendFactor(luminance, edge, uv, texelSize);
 
     float const finalBlend = max(pixelBlend, edgeBlend);
     
@@ -278,53 +308,18 @@ float3 FXAA(float2 uv, Settings settings)
 float4 PSMain(PSInput const input) : SV_TARGET
 {
     float3 color;
-    
-    if (pp::settings.levelOfAntiAliasing == 0)
+
+    if (!pp::settings.fxaa.isEnabled)
     {
         color = pp::color.Sample(pp::sampler, input.uv).rgb;
     }
     else
     {
-        Settings settings;
-
-        switch (pp::settings.levelOfAntiAliasing)
-        {
-        case 1: // Medium Quality
-            settings.contrastThreshold = 0.0833f;
-            settings.relativeThreshold = 0.333f;
-            settings.subpixelBlending = 0.50f;
-
-            settings.edgeStepCount = 4;
-            settings.edgeStep = 2;
-            settings.edgeGuess = 12.0f;
-            break;
-
-        case 2: // High Quality
-            settings.contrastThreshold = 0.0625f;
-            settings.relativeThreshold = 0.166f;
-            settings.subpixelBlending = 0.75f;
-
-            settings.edgeStepCount = 8;
-            settings.edgeStep = 2;
-            settings.edgeGuess = 8.0f;
-            break;
-
-        default: // Ultra Quality
-            settings.contrastThreshold = 0.0312f;
-            settings.relativeThreshold = 0.063f;
-            settings.subpixelBlending = 1.00f;
-
-            settings.edgeStepCount = 12;
-            settings.edgeStep = 1;
-            settings.edgeGuess = 8.0f;
-            break;
-        }
-
         float width, height;
         pp::color.GetDimensions(width, height);
-        settings.texelSize = float2(1.0f / width, 1.0f / height);
+        float2 const texelSize = float2(1.0f / width, 1.0f / height);
 
-        color = FXAA(input.uv, settings);
+        color = FXAA(input.uv, texelSize);
     }
 
     return float4(color, 1.0f);

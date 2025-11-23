@@ -160,7 +160,86 @@ public sealed class Engine : IResource
             return !left.Equals(right);
         }
     }
-    
+
+    /// <summary>
+    ///     Data defining the FXAA post-processing settings.
+    /// </summary>
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    public struct FxaaSettings : IEquatable<FxaaSettings>
+    {
+        /// <summary>
+        ///     Whether FXAA is enabled.
+        /// </summary>
+        public Bool isEnabled;
+
+        /// <summary>
+        ///     The absolute contrast threshold for edge detection.
+        /// </summary>
+        public Single contrastThreshold;
+
+        /// <summary>
+        ///     The relative contrast threshold for edge detection.
+        /// </summary>
+        public Single relativeThreshold;
+
+        /// <summary>
+        ///     The factor controlling the strength of subpixel blending.
+        /// </summary>
+        public Single subpixelBlending;
+
+        /// <summary>
+        ///     The maximum number of iterations when stepping along an edge.
+        /// </summary>
+        public Int32 edgeStepCount;
+
+        /// <summary>
+        ///     The increment used when stepping along an edge.
+        /// </summary>
+        public Int32 edgeStep;
+
+        /// <summary>
+        ///     A heuristic value used to estimate the end of an edge.
+        /// </summary>
+        public Single edgeGuess;
+
+        private (Boolean, Single, Single, Single, Int32, Int32, Single) Pack =>
+            (isEnabled, contrastThreshold, relativeThreshold, subpixelBlending, edgeStepCount, edgeStep, edgeGuess);
+
+        /// <inheritdoc />
+        public Boolean Equals(FxaaSettings other)
+        {
+            return Pack.Equals(other.Pack);
+        }
+
+        /// <inheritdoc />
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is FxaaSettings other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override Int32 GetHashCode()
+        {
+            return Pack.GetHashCode();
+        }
+
+        /// <summary>
+        ///     Check if two <see cref="FxaaSettings" />s are equal.
+        /// </summary>
+        public static Boolean operator ==(FxaaSettings left, FxaaSettings right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Check if two <see cref="FxaaSettings" />s are not equal.
+        /// </summary>
+        public static Boolean operator !=(FxaaSettings left, FxaaSettings right)
+        {
+            return !left.Equals(right);
+        }
+    }
+
     /// <summary>
     ///     Data passed to the raytracing shaders.
     /// </summary>
@@ -238,15 +317,16 @@ public sealed class Engine : IResource
     public struct PostProcessingData : IEquatable<PostProcessingData>
     {
         /// <summary>
-        /// The level of post-processing antialiasing to apply.
-        /// A value of 0 means disabled, higher values up to 3 increase the quality.
+        ///     The FXAA settings used during post-processing.
         /// </summary>
-        public Int32 levelOfAntiAliasing;
+        public FxaaSettings fxaa;
+
+        private FxaaSettings Pack => fxaa;
 
         /// <inheritdoc />
         public Boolean Equals(PostProcessingData other)
         {
-            return levelOfAntiAliasing.Equals(other.levelOfAntiAliasing);
+            return Pack.Equals(other.Pack);
         }
 
         /// <inheritdoc />
@@ -258,7 +338,7 @@ public sealed class Engine : IResource
         /// <inheritdoc />
         public override Int32 GetHashCode()
         {
-            return levelOfAntiAliasing.GetHashCode();
+            return Pack.GetHashCode();
         }
 
         /// <summary>

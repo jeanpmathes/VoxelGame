@@ -33,6 +33,20 @@ public partial class Graphics
         }
     };
 
+    private static readonly Engine.PostProcessingData defaultPostProcessingData = new()
+    {
+        fxaa = new Engine.FxaaSettings
+        {
+            isEnabled = false,
+            contrastThreshold = 0.0f,
+            relativeThreshold = 0.0f,
+            subpixelBlending = 0.0f,
+            edgeStepCount = 0,
+            edgeStep = 0,
+            edgeGuess = 0.0f
+        }
+    };
+
     private Engine? engine;
 
     private Graphics() {}
@@ -64,6 +78,7 @@ public partial class Graphics
         if (engine == null) return;
 
         engine.RaytracingDataBuffer.Data = defaultData;
+        engine.PostProcessingBuffer.Data = defaultPostProcessingData;
 
         LogGraphicsReset(logger);
     }
@@ -97,7 +112,7 @@ public partial class Graphics
     }
 
     /// <summary>
-    /// Set whether to display the sampling rate of the raytracing antialiasing algorithm.
+    ///     Set whether to display the sampling rate of the raytracing antialiasing algorithm.
     /// </summary>
     /// <param name="enable">Whether to enable the sampling rate display.</param>
     public void SetSamplingDisplay(Boolean enable)
@@ -117,14 +132,6 @@ public partial class Graphics
         });
     }
 
-    private void SetPostProcessingAntiAliasingConfiguration(Int32 level)
-    {
-        engine?.PostProcessingBuffer.Modify((ref Engine.PostProcessingData data) =>
-        {
-            data.levelOfAntiAliasing = level;
-        });
-    }
-
     private static (Boolean enabled, Int32 min, Int32 max, Single variance, Single depth) GetRaytracingAntiAliasingConfiguration(Quality quality)
     {
         return quality switch
@@ -137,14 +144,32 @@ public partial class Graphics
         };
     }
 
-    private static Int32 GetPostProcessingAntiAliasingConfiguration(Quality quality)
+    private void SetPostProcessingAntiAliasingConfiguration(
+        Boolean enabled, 
+        Single contrastThreshold, Single relativeThreshold, 
+        Single subpixelBlending, 
+        Int32 edgeStepCount, Int32 edgeStep, Single edgeGuess)
+    {
+        engine?.PostProcessingBuffer.Modify((ref Engine.PostProcessingData data) =>
+        {
+            data.fxaa.isEnabled = enabled;
+            data.fxaa.contrastThreshold = contrastThreshold;
+            data.fxaa.relativeThreshold = relativeThreshold;
+            data.fxaa.subpixelBlending = subpixelBlending;
+            data.fxaa.edgeStepCount = edgeStepCount;
+            data.fxaa.edgeStep = edgeStep;
+            data.fxaa.edgeGuess = edgeGuess;
+        });
+    }
+
+    private static (Boolean, Single, Single, Single, Int32, Int32, Single) GetPostProcessingAntiAliasingConfiguration(Quality quality)
     {
         return quality switch
         {
-            Quality.Low => 0,
-            Quality.Medium => 1,
-            Quality.High => 2,
-            Quality.Ultra => 3,
+            Quality.Low => (false, 0.0f, 0.0f, 0.0f, 0, 0, 0.0f),
+            Quality.Medium => (true, 0.0833f, 0.333f, 0.50f, 4, 2, 12.0f),
+            Quality.High => (true, 0.0625f, 0.166f, 0.75f, 8, 2, 8.0f),
+            Quality.Ultra => (true, 0.0312f, 0.063f, 1.00f, 12, 1, 8.0f),
             _ => throw Exceptions.UnsupportedEnumValue(quality)
         };
     }
@@ -165,8 +190,14 @@ public partial class Graphics
     /// <param name="quality">The selected quality preset.</param>
     public void ApplyPostProcessingAntiAliasingQuality(Quality quality)
     {
-        Int32 level = GetPostProcessingAntiAliasingConfiguration(quality);
-        SetPostProcessingAntiAliasingConfiguration(level);
+        (Boolean enabled, Single contrastThreshold, Single relativeThreshold, Single subpixelBlending, Int32 edgeStepCount, Int32 edgeStep, Single edgeGuess) 
+            configuration = GetPostProcessingAntiAliasingConfiguration(quality);
+
+        SetPostProcessingAntiAliasingConfiguration(
+            configuration.enabled, 
+            configuration.contrastThreshold, configuration.relativeThreshold, 
+            configuration.subpixelBlending, 
+            configuration.edgeStepCount, configuration.edgeStep, configuration.edgeGuess);
     }
 
     #region LOGGING
