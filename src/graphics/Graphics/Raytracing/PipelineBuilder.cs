@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -146,9 +147,9 @@ public class PipelineBuilder
     ///     Using this will enable the creation of a custom data buffer.
     /// </summary>
     /// <typeparam name="T">The type of the custom data buffer.</typeparam>
-    public void SetCustomDataBufferType<T>() where T : unmanaged
+    public unsafe void SetCustomDataBufferType<T>() where T : unmanaged
     {
-        customDataBufferSize = (UInt32) Marshal.SizeOf<T>();
+        customDataBufferSize = (UInt32) sizeof(T);
     }
 
     /// <summary>
@@ -186,11 +187,11 @@ public class PipelineBuilder
     /// <param name="context">The context in which loading is happening.</param>
     /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
     /// <returns>An error, if any.</returns>
-    public ResourceIssue? Build<T>(Client client, IResourceContext context, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
+    public unsafe ResourceIssue? Build<T>(Client client, IResourceContext context, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
     {
         (ShaderFileDescription[] files, String[] symbols, MaterialDescription[] materialDescriptions, Texture[] textures) = BuildDescriptions();
 
-        Debug.Assert((customDataBufferSize > 0).Implies(Marshal.SizeOf<T>() == customDataBufferSize));
+        Debug.Assert((customDataBufferSize > 0).Implies(sizeof(T) == customDataBufferSize));
 
         StringBuilder errors = new();
         var anyError = false;
@@ -206,8 +207,10 @@ public class PipelineBuilder
             customDataBufferSize = customDataBufferSize,
             meshSpoolCount = meshSpoolCount,
             effectSpoolCount = effectSpoolCount,
-            onShaderLoadingError = (_, message) =>
+            onShaderLoadingError = (_, messagePointer) =>
             {
+                String? message = Utf8StringMarshaller.ConvertToManaged(messagePointer);
+                
                 errors.AppendLine(message);
                 anyError = true;
 

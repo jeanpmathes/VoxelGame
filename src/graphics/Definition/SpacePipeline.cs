@@ -144,6 +144,7 @@ internal static class ShaderFileDescriptionMarshaller
     {
         UnicodeStringMarshaller.Free(unmanaged.path);
     }
+    
 #pragma warning disable S1694
     internal abstract class Marshaller : IMarshaller<ShaderFileDescription, Unmanaged>
 #pragma warning restore S1694

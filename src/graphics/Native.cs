@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -35,11 +36,14 @@ internal static class Native
     /// <summary>
     ///     Get current allocator statistics as a string.
     /// </summary>
-    internal static String GetAllocatorStatistics(Client client)
+    internal static unsafe String GetAllocatorStatistics(Client client)
     {
         var result = "";
 
-        NativeMethods.PassAllocatorStatistics(client, s => result = s);
+        NativeMethods.PassAllocatorStatistics(client, stringPointer =>
+        {
+            result = Utf16StringMarshaller.ConvertToManaged(stringPointer);
+        });
 
         return result;
     }
@@ -48,11 +52,14 @@ internal static class Native
     ///     Get the DRED (Device Removed Extended Data) string.
     ///     This is only available in debug builds and after a device removal.
     /// </summary>
-    internal static String GetDRED(Client client)
+    internal static unsafe String GetDRED(Client client)
     {
         var result = "";
 
-        NativeMethods.PassDRED(client, s => result = s);
+        NativeMethods.PassDRED(client, stringPointer =>
+        {
+            result = Utf16StringMarshaller.ConvertToManaged(stringPointer);
+        });
 
         return result;
     }
@@ -243,12 +250,12 @@ internal static class Native
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline and associated shader buffer, or null if the pipeline could not be created.</returns>
-    internal static (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
+    internal static unsafe (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
         Client client,
         RasterPipelineDescription description,
         Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
     {
-        description.BufferSize = (UInt32) Marshal.SizeOf<T>();
+        description.BufferSize = (UInt32) sizeof(T);
 
         IntPtr pipelinePointer = NativeMethods.CreateRasterPipeline(client, description, callback);
 
@@ -272,7 +279,7 @@ internal static class Native
     /// <returns>An object that allows removing the pipeline.</returns>
     internal static IDisposable AddDraw2DPipeline(Client client, RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
     {
-        Draw2D.Callback draw2dCallback = @internal => callback(new Draw2D(@internal));
+        Draw2D.Callback draw2dCallback = unmanaged => callback(new Draw2D(Draw2D.InternalMarshaller.ConvertToManaged(unmanaged)));
         UInt32 id = NativeMethods.AddDraw2DPipeline(client, pipeline, priority, draw2dCallback);
 
         Debug.Assert(!draw2DCallbacks.ContainsKey(id));

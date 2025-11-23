@@ -14,6 +14,7 @@ using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Interop;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics;
 
@@ -58,7 +59,7 @@ internal static partial class NativeMethods
     internal static partial void SetCursorType(Client client, MouseCursor cursor);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetCursorLock")]
-    internal static partial void SetCursorLock(Client client, [MarshalAs(UnmanagedType.Bool)] Boolean locked);
+    internal static partial void SetCursorLock(Client client, Bool locked);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeInitializeRaytracing")]
     internal static partial IntPtr InitializeRaytracing(Client client, SpacePipelineDescription description);
@@ -100,7 +101,7 @@ internal static partial class NativeMethods
     internal static partial void ReturnDrawable(Drawable drawable);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetDrawableEnabledState")]
-    internal static partial void SetDrawableEnabledState(Drawable drawable, [MarshalAs(UnmanagedType.Bool)] Boolean enabled);
+    internal static partial void SetDrawableEnabledState(Drawable drawable, Bool enabled);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateRasterPipeline")]
     internal static partial IntPtr CreateRasterPipeline(Client client, RasterPipelineDescription description, Definition.Native.NativeErrorFunc callback);

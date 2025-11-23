@@ -6,8 +6,11 @@
 
 using System;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics.Graphics;
 
@@ -57,18 +60,60 @@ public readonly unsafe struct Draw2D
 
     internal delegate void UploadBufferDelegate(IntPtr vertices, UInt32 vertexCount, IntPtr ctx);
 
-    internal delegate void DrawBufferDelegate(UInt32 firstVertex, UInt32 vertexCount, UInt32 textureIndex, [MarshalAs(UnmanagedType.Bool)] Boolean useTexture, IntPtr ctx);
+    internal delegate void DrawBufferDelegate(UInt32 firstVertex, UInt32 vertexCount, UInt32 textureIndex, Bool useTexture, IntPtr ctx);
 
     #pragma warning disable S3898 // No equality comparison used.
+    [NativeMarshalling(typeof(InternalMarshaller))]
+    [StructLayout(LayoutKind.Sequential)]
     internal struct Internal
     #pragma warning restore S3898 // No equality comparison used.
     {
-#pragma warning disable CS0649 // Assigned by native code.
-        internal readonly InitializeTexturesDelegate initializeTextures;
-        internal readonly UploadBufferDelegate uploadBuffer;
-        internal readonly DrawBufferDelegate drawBuffer;
-        internal readonly IntPtr ctx;
-#pragma warning restore CS0649 // Assigned by native code.
+        internal InitializeTexturesDelegate initializeTextures;
+        internal UploadBufferDelegate uploadBuffer;
+        internal DrawBufferDelegate drawBuffer;
+        internal IntPtr ctx;
+    }
+
+    [CustomMarshaller(typeof(Internal), MarshalMode.ManagedToUnmanagedIn, typeof(InternalMarshaller))]
+    [CustomMarshaller(typeof(Internal), MarshalMode.UnmanagedToManagedIn, typeof(InternalMarshaller))]
+    [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+    internal static class InternalMarshaller
+    {
+        internal static Unmanaged ConvertToUnmanaged(Internal managed)
+        {
+            return new Unmanaged
+            {
+                initializeTextures = Marshal.GetFunctionPointerForDelegate(managed.initializeTextures),
+                uploadBuffer = Marshal.GetFunctionPointerForDelegate(managed.uploadBuffer),
+                drawBuffer = Marshal.GetFunctionPointerForDelegate(managed.drawBuffer),
+                ctx = managed.ctx
+            };
+        }
+        
+        internal static Internal ConvertToManaged(Unmanaged unmanaged)
+        {
+            return new Internal
+            {
+                initializeTextures = Marshal.GetDelegateForFunctionPointer<InitializeTexturesDelegate>(unmanaged.initializeTextures),
+                uploadBuffer = Marshal.GetDelegateForFunctionPointer<UploadBufferDelegate>(unmanaged.uploadBuffer),
+                drawBuffer = Marshal.GetDelegateForFunctionPointer<DrawBufferDelegate>(unmanaged.drawBuffer),
+                ctx = unmanaged.ctx
+            };
+        }
+
+        internal static void Free(Unmanaged unmanaged)
+        {
+            // Nothing to free.
+        }
+
+        [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+        internal struct Unmanaged
+        {
+            internal IntPtr initializeTextures;
+            internal IntPtr uploadBuffer;
+            internal IntPtr drawBuffer;
+            internal IntPtr ctx;
+        }
     }
 
     private readonly Internal @internal;
@@ -175,5 +220,5 @@ public readonly unsafe struct Draw2D
         @internal.drawBuffer(range.first, range.lenght, textureIndex, useTexture, @internal.ctx);
     }
 
-    internal delegate void Callback(Internal @internal);
+    internal delegate void Callback(InternalMarshaller.Unmanaged @internal);
 }

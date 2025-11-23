@@ -9,6 +9,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
 using VoxelGame.Graphics.Interop;
+using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics.Definition;
 
@@ -39,7 +40,7 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives a bool value.
     /// </summary>
-    internal delegate void NativeBoolFunc([MarshalAs(UnmanagedType.Bool)] Boolean arg);
+    internal delegate void NativeBoolFunc(Bool arg);
 
     /// <summary>
     ///     A simple callback function.
@@ -49,28 +50,27 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives a char value describing an input event.
     /// </summary>
-    internal delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] Char arg);
+    internal delegate void NativeCharFunc(Char arg);
 
     /// <summary>
     ///     Checks if a condition is true.
     /// </summary>
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal delegate Boolean NativeCheckFunc();
+    internal delegate Bool NativeCheckFunc();
 
     /// <summary>
     ///     A callback that receives an HRESULT and an error message, indicating a fatal error.
     /// </summary>
-    internal delegate void NativeErrorFunc(Int32 hresult, [MarshalAs(UnmanagedType.LPStr)] String message);
+    internal unsafe delegate void NativeErrorFunc(Int32 hresult, Byte* message);
 
     /// <summary>
     ///     A callback that receives a byte value describing an input event.
     /// </summary>
-    internal delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] Byte arg);
+    internal delegate void NativeInputFunc(Byte arg);
 
     /// <summary>
     ///     A callback that receives the new mouse position on a mouse move event.
     /// </summary>
-    internal delegate void NativeMouseMoveFunc([MarshalAs(UnmanagedType.I4)] Int32 x, [MarshalAs(UnmanagedType.I4)] Int32 y);
+    internal delegate void NativeMouseMoveFunc(Int32 x, Int32 y);
 
     /// <summary>
     ///     A callback that receives the mouse wheel delta on a mouse wheel event.
@@ -80,17 +80,17 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives the new window size on a resize event.
     /// </summary>
-    internal delegate void NativeResizeFunc([MarshalAs(UnmanagedType.U4)] UInt32 width, [MarshalAs(UnmanagedType.U4)] UInt32 height);
+    internal delegate void NativeResizeFunc(UInt32 width, UInt32 height);
 
     /// <summary>
     ///     A callback that receives a double delta time value.
     /// </summary>
-    internal delegate void NativeStepFunc([MarshalAs(UnmanagedType.R8)] Double arg);
+    internal delegate void NativeStepFunc(Double arg);
 
     /// <summary>
     ///     A callback that receives a wide string value.
     /// </summary>
-    internal delegate void NativeWStringFunc([MarshalAs(UnmanagedType.LPWStr)] String arg);
+    internal unsafe delegate void NativeWStringFunc(UInt16* arg);
 
     /// <summary>
     ///     Flags that can be used to configure the native side.

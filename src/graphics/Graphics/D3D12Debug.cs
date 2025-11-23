@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
@@ -41,7 +42,7 @@ internal sealed class D3D12Debug
     ///     Enable the debugging features. This method should be called exactly once, and the result must be passed to the
     ///     native configuration.
     /// </summary>
-    internal static Definition.Native.D3D12MessageFunc Enable(Client client)
+    internal static unsafe Definition.Native.D3D12MessageFunc Enable(Client client)
     {
         Debug.Assert(instance is null);
 
@@ -51,15 +52,17 @@ internal sealed class D3D12Debug
         return debug.debugCallbackDelegate;
     }
 
-    private static void DebugCallback(
+    private static unsafe void DebugCallback(
         Definition.Native.D3D12_MESSAGE_CATEGORY category,
         Definition.Native.D3D12_MESSAGE_SEVERITY severity,
         Definition.Native.D3D12_MESSAGE_ID id,
-        String? message, IntPtr context)
+        Byte* messagePointer, IntPtr context)
     {
         LogLevel level = GetLevel(severity);
         String categoryName = ResolveCategory(category);
         (String idResolved, Int32 eventId) = ResolveEvent(id);
+        
+        String? message = Utf8StringMarshaller.ConvertToManaged(messagePointer);
 
         if (logger.IsEnabled(level))
             // Logging intentionally not trough source generator to allow easily setting level and event id.

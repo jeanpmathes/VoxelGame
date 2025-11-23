@@ -21,6 +21,7 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Interop;
 using VoxelGame.UI.Resources;
 
 namespace VoxelGame.Client.Application;
@@ -144,7 +145,7 @@ public sealed partial class Client : Graphics.Core.Client
     }
 
     /// <inheritdoc />
-    protected override Boolean CanClose()
+    protected override Bool CanClose()
     {
         return sceneManager.CanCloseWindow();
     }

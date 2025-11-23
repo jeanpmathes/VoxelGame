@@ -22,6 +22,7 @@ using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Interop;
 using VoxelGame.Toolkit.Utilities;
 using Image = VoxelGame.Core.Visuals.Image;
 using Timer = VoxelGame.Core.Profiling.Timer;
@@ -43,7 +44,7 @@ public partial class Client : Application
     /// <summary>
     ///     Creates a new native client and initializes it.
     /// </summary>
-    protected Client(WindowSettings windowSettings, Version version) : base(version)
+    protected unsafe Client(WindowSettings windowSettings, Version version) : base(version)
     {
         Debug.Assert(windowSettings.Size.X > 0);
         Debug.Assert(windowSettings.Size.Y > 0);
@@ -231,8 +232,10 @@ public partial class Client : Application
         return $"{message} | {Marshal.GetExceptionForHR(hr)?.Message ?? "No Description"}";
     }
 
-    private static void OnError(Int32 hr, String message)
+    private static unsafe void OnError(Int32 hr, Byte* messagePointer)
     {
+        String message = Utf8StringMarshaller.ConvertToManaged(messagePointer) ?? "No message provided!";
+        
         Debugger.Break();
 
         Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
@@ -265,7 +268,7 @@ public partial class Client : Application
     /// <summary>
     ///     Decide whether the window can be closed right now.
     /// </summary>
-    protected virtual Boolean CanClose()
+    protected virtual Bool CanClose()
     {
         return true;
     }
@@ -297,9 +300,14 @@ public partial class Client : Application
         return VoxelGame.Graphics.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
 
-    private static Definition.Native.NativeErrorFunc CreateErrorFunc(Action<String> errorCallback)
+    private static unsafe Definition.Native.NativeErrorFunc CreateErrorFunc(Action<String> errorCallback)
     {
-        return (hr, message) => errorCallback(FormatErrorMessage(hr, message));
+        return (hr, messagePointer) =>
+        {
+            String message = Utf8StringMarshaller.ConvertToManaged(messagePointer) ?? "No message provided!";
+            
+            errorCallback(FormatErrorMessage(hr, message));
+        };
     }
 
     /// <summary>

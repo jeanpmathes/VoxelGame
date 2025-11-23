@@ -15,7 +15,7 @@ namespace VoxelGame.Graphics.Definition;
 // ReSharper disable IdentifierTypo
 internal static partial class Native
 {
-    internal delegate void D3D12MessageFunc(D3D12_MESSAGE_CATEGORY Category, D3D12_MESSAGE_SEVERITY Severity, D3D12_MESSAGE_ID ID, [MarshalAs(UnmanagedType.LPStr)] String? pDescription, IntPtr pContext);
+    internal unsafe delegate void D3D12MessageFunc(D3D12_MESSAGE_CATEGORY Category, D3D12_MESSAGE_SEVERITY Severity, D3D12_MESSAGE_ID ID, Byte* pDescription, IntPtr pContext);
 
     internal enum D3D12_MESSAGE_CATEGORY
     {
