@@ -206,6 +206,12 @@ public struct Color32 : IEquatable<Color32>
         set => bgra = bgra & ~(ChannelMask << Format.A) | value << Format.A;
     }
 
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return $"Color32({R}, {G}, {B}, {A})";
+    }
+
     #region OPERATIONS
 
     /// <summary>

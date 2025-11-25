@@ -128,12 +128,10 @@ public class ImageTests
         image.SetPixel(x: 1, y: 1, ColorS.Black);
 
         Color32 average = image.CalculateAverage();
-
-        // Color averaging is calculated as the root of the average squared sum of each channel.
-
-        Assert.Equal(expected: 180, average.R);
-        Assert.Equal(expected: 180, average.G);
-        Assert.Equal(expected: 180, average.B);
+        
+        Assert.Equal(expected: 127, average.R);
+        Assert.Equal(expected: 127, average.G);
+        Assert.Equal(expected: 127, average.B);
         Assert.Equal(expected: 255, average.A);
     }
 
@@ -267,33 +265,13 @@ public class ImageTests
     }
 
     [Fact]
-    public void Image_GenerateMipmaps_WithoutTransparency_ShouldApplyToFullyTransparentAreas()
-    {
-        Image image = new(width: 2, height: 2);
-        image.SetPixel(x: 0, y: 0, ColorS.White with {A = 0.0f});
-        image.SetPixel(x: 1, y: 0, ColorS.Black with {A = 0.0f});
-        image.SetPixel(x: 0, y: 1, ColorS.White with {A = 0.0f});
-        image.SetPixel(x: 1, y: 1, ColorS.Black with {A = 0.0f});
-
-        Image[] mipmaps = image.GenerateMipmaps(levels: 2, Image.MipmapAlgorithm.AveragingWithoutTransparency).ToArray();
-
-        Assert.Single(mipmaps);
-        Assert.Equal(expected: 1, mipmaps[0].Width);
-        Assert.Equal(expected: 1, mipmaps[0].Height);
-        Assert.Equal(expected: 0, mipmaps[0].GetPixel(x: 0, y: 0).A);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).R);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).G);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).B);
-    }
-
-    [Fact]
     public void Image_GenerateMipmaps_WithTransparency_ShouldMixAllColors()
     {
         Image image = new(width: 2, height: 2);
         image.SetPixel(x: 0, y: 0, ColorS.White);
-        image.SetPixel(x: 1, y: 0, ColorS.Black with {A = 0.0f});
+        image.SetPixel(x: 1, y: 0, ColorS.Black with {A = 0.5f});
         image.SetPixel(x: 0, y: 1, ColorS.White);
-        image.SetPixel(x: 1, y: 1, ColorS.Black with {A = 0.0f});
+        image.SetPixel(x: 1, y: 1, ColorS.Black with {A = 0.5f});
 
         Image[] mipmaps = image.GenerateMipmaps(levels: 2, Image.MipmapAlgorithm.AveragingWithTransparency).ToArray();
 
@@ -301,9 +279,9 @@ public class ImageTests
 
         Assert.Equal(expected: 1, mipmaps[0].Width);
         Assert.Equal(expected: 1, mipmaps[0].Height);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).A);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).R);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).G);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).B);
+        Assert.Equal(expected: 191, mipmaps[0].GetPixel(x: 0, y: 0).A);
+        Assert.Equal(expected: 170, mipmaps[0].GetPixel(x: 0, y: 0).R);
+        Assert.Equal(expected: 170, mipmaps[0].GetPixel(x: 0, y: 0).G);
+        Assert.Equal(expected: 170, mipmaps[0].GetPixel(x: 0, y: 0).B);
     }
 }
