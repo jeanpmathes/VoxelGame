@@ -8,6 +8,7 @@
 #define VG_SHADER_SECTION_HLSL
 
 #include "CameraRT.hlsl"
+#include "Common.hlsl"
 
 #include "Decoding.hlsl"
 #include "Spatial.hlsl"
@@ -113,6 +114,39 @@ namespace vg
         }
 
         /**
+         * \brief Create a color encoding the mip level used for sampling.
+         * \param mip The mip level that was sampled.
+         * \return A color visualizing the mip level.
+         */
+        float3 GetMipColor(uint const mip)
+        {
+            switch (mip % 6)
+            {
+                case 0: return float3(1.0f, 0.0f, 0.0f);
+                case 1: return float3(1.0f, 0.5f, 0.0f);
+                case 2: return float3(1.0f, 1.0f, 0.0f);
+                case 3: return float3(0.0f, 1.0f, 0.0f);
+                case 4: return float3(0.0f, 0.5f, 1.0f);
+                default: return float3(0.5f, 0.0f, 1.0f);
+            }
+        }
+
+        /**
+         * \brief Apply mip level visualization to a sampled color.
+         * \param color The sampled color.
+         * \param mip The mip level used to retrieve the color.
+         * \return Either the original color or a visualization.
+         */
+        float4 ApplyMipVisualization(float4 const color, uint const mip)
+        {
+            float luminance = native::GetLuminance(color.rgb);
+            float brightness = lerp(0.2f, 1.0f, luminance);
+
+            float3 const mipColor = GetMipColor(mip) * brightness;
+            return float4(mipColor, color.a);
+        }
+
+        /**
          * \brief Get the final texture index for a quad.
          * \param path The length of rays up to the previous hit.
          * \param info Information about the quad.
@@ -152,7 +186,12 @@ namespace vg
         float4 GetBasicBaseColor(float const path, in spatial::Info const info)
         {
             int4 const index = GetBaseColorIndex(path, info, true, true);
-            return LOAD_SLOT_ONE(index);
+            float4 color = LOAD_SLOT_ONE(index);
+            
+            if (custom.showLevelOfDetail) 
+                color = ApplyMipVisualization(color, index.z);
+            
+            return color;
         }
 
         /**
@@ -164,7 +203,12 @@ namespace vg
         float4 GetFoliageBaseColor(float const path, in spatial::Info const info)
         {
             int4 const index = GetBaseColorIndex(path, info, false, true);
-            return LOAD_SLOT_ONE(index);
+            float4 color = LOAD_SLOT_ONE(index);
+            
+            if (custom.showLevelOfDetail) 
+                color = ApplyMipVisualization(color, index.z);
+            
+            return color;
         }
 
         /**
@@ -176,7 +220,12 @@ namespace vg
         float4 GetFluidBaseColor(float const path, in spatial::Info const info)
         {
             int4 const index = GetBaseColorIndex(path, info, true, false);
-            return LOAD_SLOT_TWO(index);
+            float4 color = LOAD_SLOT_TWO(index);
+            
+            if (custom.showLevelOfDetail) 
+                color = ApplyMipVisualization(color, index.z);
+            
+            return color;
         }
 
         /**

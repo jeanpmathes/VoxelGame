@@ -59,6 +59,11 @@ namespace vg
         bool showWireframes;
 
         /**
+         * \brief Whether to visualize the mip level used for sampling textures.
+         */
+        bool showLevelOfDetail;
+
+        /**
          * \brief The direction of the wind.
          */
         float3 windDir;

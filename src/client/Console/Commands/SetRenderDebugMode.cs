@@ -29,9 +29,13 @@ public class SetRenderDebugMode : Command
             case "wireframe":
                 Visuals.Graphics.Instance.SetWireframe(enable);
                 break;
-            
+
             case "sampling":
                 Visuals.Graphics.Instance.SetSamplingDisplay(enable);
+                break;
+
+            case "lod":
+                Visuals.Graphics.Instance.SetLevelOfDetailDisplay(enable);
                 break;
             
             default:

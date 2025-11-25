@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -246,10 +247,19 @@ public sealed class Engine : IResource
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
     public struct RaytracingData : IEquatable<RaytracingData>
     {
+        
         /// <summary>
         ///     Whether to render in wireframe mode.
         /// </summary>
         public Bool wireframe;
+
+        /// <summary>
+        ///     Whether to visualize the mip level used when sampling textures.
+        /// </summary>
+        public Bool showLevelOfDetail;
+        
+        [UsedImplicitly]
+        private readonly Vector2 padding0;
 
         /// <summary>
         ///     The wind direction, used for foliage swaying.
@@ -266,14 +276,17 @@ public sealed class Engine : IResource
         ///     Color of the fog volume the view plane is currently in, represented as a RGB vector.
         /// </summary>
         public Vector3 fogOverlapColor;
+        
+        [UsedImplicitly]
+        private readonly Single padding1;
 
         /// <summary>
         ///     The antialiasing settings for ray generation.
         /// </summary>
         public AntiAliasingSettings antiAliasing;
 
-        private (Boolean, Vector3, Single, Vector3, AntiAliasingSettings) Pack =>
-            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, antiAliasing);
+        private (Boolean, Boolean, Vector3, Single, Vector3, AntiAliasingSettings) Pack =>
+            (wireframe, showLevelOfDetail, windDirection, fogOverlapSize, fogOverlapColor, antiAliasing);
 
         /// <inheritdoc />
         public Boolean Equals(RaytracingData other)
