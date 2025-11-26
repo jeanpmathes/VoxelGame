@@ -39,9 +39,9 @@ namespace vg
         /**
          * \brief Calculate the (doubled) area of the triangle in world space.
          */
-        float GetWorldAreaOfTriangle(in spatial::Info const info)
+        float GetDoubleWorldAreaOfTriangle(in spatial::Info const info)
         {
-            // See: Ray Tracing Gems, Chapter 20.6
+            // See: Ray Tracing Gems, Chapter 20.2
 
             return length(cross(info.a - info.b, info.a - info.c));
         }
@@ -49,18 +49,31 @@ namespace vg
         /**
          * \brief Calculate the (doubled) area of the triangle in texture space.
          */
-        float GetTexelAreaOfTriangle(in spatial::Info const info)
+        float GetDoubleTexelAreaOfTriangle(in spatial::Info const info)
         {
-            // See: Ray Tracing Gems, Chapter 20.6
-
+            // See: Ray Tracing Gems, Chapter 20.2
+            
             float4x2 const uvs = decode::GetUVs(info.data);
+            float2 const repetition = decode::GetTextureRepetition(info.data);
 
-            float2 const uv0 = uvs[info.indices.x];
-            float2 const uv1 = uvs[info.indices.y];
-            float2 const uv2 = uvs[info.indices.z];
+            float2 uv0 = uvs[info.indices.x];
+            float2 uv1 = uvs[info.indices.y];
+            float2 uv2 = uvs[info.indices.z];
+            
+            if (decode::GetTextureRotationFlag(info.data))
+            {
+                uv0 = spatial::RotateUV(uv0);
+                uv1 = spatial::RotateUV(uv1);
+                uv2 = spatial::RotateUV(uv2);
+            }
+            
+            uv0 *= repetition;
+            uv1 *= repetition;
+            uv2 *= repetition;
+            
+            // The wh factor is not used here as it comes in later when summing up the LOD.
 
-            float const textureSize = native::spatial::global.textureSize.x * native::spatial::global.textureSize.y;
-            return textureSize * abs((uv1.x - uv0.x) * (uv2.y - uv0.y) - (uv2.x - uv0.x) * (uv1.y - uv0.y));
+            return abs((uv1.x - uv0.x) * (uv2.y - uv0.y) - (uv2.x - uv0.x) * (uv1.y - uv0.y));
         }
 
         /**
@@ -72,17 +85,14 @@ namespace vg
         float GetLOD(float const path, in spatial::Info const info)
         {
             // See: Ray Tracing Gems, Chapter 20.6
-
-            float const width       = GetConeWidth(path);
-            float const textureSize = native::spatial::global.textureSize.x * native::spatial::global.textureSize.y;
-
-            float const world = GetWorldAreaOfTriangle(info);
-            float const texel = GetTexelAreaOfTriangle(info);
-            float       lod   = 0.5f * log2(world / texel);
+            
+            float const width = GetConeWidth(path);
+            float const world = GetDoubleWorldAreaOfTriangle(info);
+            float const texel = GetDoubleTexelAreaOfTriangle(info);
+            float       lod   = 0.5f * log2(texel / world);
 
             lod += log2(width);
-            lod += 0.5f * log2(textureSize);
-
+            lod += 0.5f * log2(native::spatial::global.textureSize.x * native::spatial::global.textureSize.y);
             lod -= log2(abs(dot(WorldRayDirection(), info.normal)));
 
             return lod;
