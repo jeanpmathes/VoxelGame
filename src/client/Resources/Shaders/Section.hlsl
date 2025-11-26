@@ -52,25 +52,25 @@ namespace vg
         float GetDoubleTexelAreaOfTriangle(in spatial::Info const info)
         {
             // See: Ray Tracing Gems, Chapter 20.2
-            
-            float4x2 const uvs = decode::GetUVs(info.data);
-            float2 const repetition = decode::GetTextureRepetition(info.data);
+
+            float4x2 const uvs        = decode::GetUVs(info.data);
+            float2 const   repetition = decode::GetTextureRepetition(info.data);
 
             float2 uv0 = uvs[info.indices.x];
             float2 uv1 = uvs[info.indices.y];
             float2 uv2 = uvs[info.indices.z];
-            
+
             if (decode::GetTextureRotationFlag(info.data))
             {
                 uv0 = spatial::RotateUV(uv0);
                 uv1 = spatial::RotateUV(uv1);
                 uv2 = spatial::RotateUV(uv2);
             }
-            
+
             uv0 *= repetition;
             uv1 *= repetition;
             uv2 *= repetition;
-            
+
             // The wh factor is not used here as it comes in later when summing up the LOD.
 
             return abs((uv1.x - uv0.x) * (uv2.y - uv0.y) - (uv2.x - uv0.x) * (uv1.y - uv0.y));
@@ -85,7 +85,7 @@ namespace vg
         float GetLOD(float const path, in spatial::Info const info)
         {
             // See: Ray Tracing Gems, Chapter 20.6
-            
+
             float const width = GetConeWidth(path);
             float const world = GetDoubleWorldAreaOfTriangle(info);
             float const texel = GetDoubleTexelAreaOfTriangle(info);
@@ -132,12 +132,18 @@ namespace vg
         {
             switch (mip % 6)
             {
-                case 0: return float3(1.0f, 0.0f, 0.0f);
-                case 1: return float3(1.0f, 0.5f, 0.0f);
-                case 2: return float3(1.0f, 1.0f, 0.0f);
-                case 3: return float3(0.0f, 1.0f, 0.0f);
-                case 4: return float3(0.0f, 0.5f, 1.0f);
-                default: return float3(0.5f, 0.0f, 1.0f);
+            case 0:
+                return float3(1.0f, 0.0f, 0.0f);
+            case 1:
+                return float3(1.0f, 0.5f, 0.0f);
+            case 2:
+                return float3(1.0f, 1.0f, 0.0f);
+            case 3:
+                return float3(0.0f, 1.0f, 0.0f);
+            case 4:
+                return float3(0.0f, 0.5f, 1.0f);
+            default:
+                return float3(0.5f, 0.0f, 1.0f);
             }
         }
 
@@ -149,7 +155,7 @@ namespace vg
          */
         float4 ApplyMipVisualization(float4 const color, uint const mip)
         {
-            float luminance = native::GetLuminance(color.rgb);
+            float luminance  = native::GetLuminance(color.rgb);
             float brightness = lerp(0.2f, 1.0f, luminance);
 
             float3 const mipColor = GetMipColor(mip) * brightness;
@@ -157,34 +163,74 @@ namespace vg
         }
 
         /**
-         * \brief Get the final texture index for a quad.
+         * \brief Sample the base color for a given texture index.
+         * \param index The texture index to sample.
+         * \param isBlock Whether the texture is part of a block or a fluid.
+         * \return The sampled base color.
+         */
+        float4 SampleBaseColor(uint4 const index, bool const isBlock) { return isBlock ? LOAD_SLOT_ONE(index) : LOAD_SLOT_TWO(index); }
+
+        /**
+         * \brief Sample the base color for a hit against a quad.
          * \param path The length of rays up to the previous hit.
          * \param info Information about the quad.
          * \param useTextureRepetition Whether to use texture repetition.
          * \param isBlock Whether the quad is part of a block or a fluid.
-         * \return The final texture index for the quad.
+         * \return The sampled base color for the quad.
          */
-        int4 GetBaseColorIndex(float const path, in spatial::Info const info, bool const useTextureRepetition, bool const isBlock)
+        float4 SampleBaseColor(float const path, in spatial::Info const info, bool const useTextureRepetition, bool const isBlock)
         {
             float2 const uv           = GetUV(info, useTextureRepetition);
             uint         textureIndex = animation::GetAnimatedTextureIndex(info.data, PrimitiveIndex() / 2, native::spatial::global.time, isBlock);
 
-            uint  mip  = 0;
-            uint2 size = native::spatial::global.textureSize.xy;
+            uint3 size = native::spatial::global.textureSize.xyz;
+            
+            float4 color;
+            uint mip;
 
             if (path >= 0.0f)
             {
-                float const lod    = GetLOD(path, info);
-                uint const  maxMip = native::spatial::global.textureSize.z - 1;
+                uint const maxMip = size.z - 1;
 
-                mip  = clamp(uint(lod), 0, maxMip);
-                size = uint2(max(1, size.x >> mip), max(1, size.y >> mip));
+                float lod = GetLOD(path, info);
+                lod       = clamp(lod, 0.0f, maxMip);
+
+                float const interpolation = frac(lod);
+
+                uint const mipLow  = uint(floor(lod));
+                uint const mipHigh = min(mipLow + 1, maxMip);
+
+                uint2 const  sizeLow  = uint2(max(1, size.x >> mipLow), max(1, size.y >> mipLow));
+                float2 const tsLow    = frac(uv) * float2(sizeLow);
+                uint2 const  texelLow = uint2(tsLow.x, tsLow.y);
+
+                color = SampleBaseColor(int4(texelLow.x, texelLow.y, mipLow, textureIndex), isBlock);
+                mip = mipLow;
+                
+                if (mipHigh != mipLow)
+                {
+                    uint2 const  sizeHigh   = uint2(max(1, size.x >> mipHigh), max(1, size.y >> mipHigh));
+                    float2 const tsHigh     = frac(uv) * float2(sizeHigh);
+                    uint2 const  texelHigh  = uint2(tsHigh.x, tsHigh.y);
+                    
+                    float4 const otherColor = SampleBaseColor(int4(texelHigh.x, texelHigh.y, mipHigh, textureIndex), isBlock);
+                    
+                    color = lerp(color, otherColor, interpolation);
+                }
             }
+            else
+            {
+                float2 const ts    = frac(uv) * float2(size.xy);
+                uint2        texel = uint2(ts.x, ts.y);
 
-            float2 const ts    = frac(uv) * float2(size);
-            uint2        texel = uint2(ts.x, ts.y);
+                color = SampleBaseColor(int4(texel.x, texel.y, 0, textureIndex), isBlock);
+                mip = 0;
+            }
+            
+            if (custom.showLevelOfDetail) 
+                color = ApplyMipVisualization(color, mip);
 
-            return int4(texel.x, texel.y, mip, textureIndex);
+            return color;
         }
 
         /**
@@ -193,16 +239,7 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a basic quad.
          */
-        float4 GetBasicBaseColor(float const path, in spatial::Info const info)
-        {
-            int4 const index = GetBaseColorIndex(path, info, true, true);
-            float4 color = LOAD_SLOT_ONE(index);
-            
-            if (custom.showLevelOfDetail) 
-                color = ApplyMipVisualization(color, index.z);
-            
-            return color;
-        }
+        float4 GetBasicBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, true, true); }
 
         /**
          * \brief Get the base color (no shading) for a foliage quad.
@@ -210,16 +247,7 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a foliage quad.
          */
-        float4 GetFoliageBaseColor(float const path, in spatial::Info const info)
-        {
-            int4 const index = GetBaseColorIndex(path, info, false, true);
-            float4 color = LOAD_SLOT_ONE(index);
-            
-            if (custom.showLevelOfDetail) 
-                color = ApplyMipVisualization(color, index.z);
-            
-            return color;
-        }
+        float4 GetFoliageBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, false, true); }
 
         /**
          * \brief Get the base color (no shading) for a fluid quad.
@@ -227,16 +255,7 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a fluid quad.
          */
-        float4 GetFluidBaseColor(float const path, in spatial::Info const info)
-        {
-            int4 const index = GetBaseColorIndex(path, info, true, false);
-            float4 color = LOAD_SLOT_TWO(index);
-            
-            if (custom.showLevelOfDetail) 
-                color = ApplyMipVisualization(color, index.z);
-            
-            return color;
-        }
+        float4 GetFluidBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, true, false); }
 
         /**
          * \brief Get the dominant color for a fluid quad.
