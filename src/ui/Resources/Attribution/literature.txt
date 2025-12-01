@@ -1,0 +1,5 @@
+﻿E. Haines and T. Akenine-Möller, "Ray Tracing Gems: High-Quality and Real-Time Rendering with DXR and Other APIs", 2019.
+
+J. Amanatides and A. Woo, "A Fast Voxel Traversal Algorithm for Ray Tracing", Eurographics, 1987.
+
+Z. H. Cigolle, S. Donow, D. Evangelakos, M. Mara, M. McGuire, and Q. Meyer, "A survey of efficient representations for independent unit vectors", Journal of Computer Graphics Techniques, 3(2), 2014.

@@ -24,9 +24,6 @@
         <None Update="Resources\Attribution\opentk-tutorials.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Resources\Attribution\voxel-traversal.txt">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
         <None Update="Resources\GUI\Images\start.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
@@ -52,9 +49,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\GUI\Icons\reset.png">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </None>
-        <None Update="Resources\Attribution\ray-tracing-gems.txt">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Update="Resources\GUI\Icons\error.png">
@@ -96,6 +90,7 @@
         <None Update="Resources\GUI\Icons\close.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Remove="Resources\Attribution\ray-tracing-gems.txt" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,2 +1,0 @@
-﻿Ray Tracing Gems: High-Quality and Real-Time Rendering with DXR and Other APIs
-by Eric Haines and Tomas Akenine-Möller, 2019
