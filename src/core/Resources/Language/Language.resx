@@ -576,6 +576,9 @@
     <data name="GraphicsRenderingAntiAliasingQuality" xml:space="preserve">
         <value>Rendering Antialiasing Quality</value>
     </data>
+    <data name="GraphicsAnisotropicFilteringQuality" xml:space="preserve">
+        <value>Anisotropic Filtering Quality</value>
+    </data>
     <data name="SelectionBoxDarkColor" xml:space="preserve">
         <value>Dark Color of Selection</value>
     </data>

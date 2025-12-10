@@ -63,6 +63,14 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 clientSettings.RenderingAntiAliasingQuality = q;
                 clientSettings.Save();
             });
+
+        AnisotropicFilteringQuality = new Bindable<Quality>(
+            () => clientSettings.AnisotropicFilteringQuality,
+            q =>
+            {
+                clientSettings.AnisotropicFilteringQuality = q;
+                clientSettings.Save();
+            });
     }
 
     /// <summary>
@@ -89,6 +97,11 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
     ///     The antialiasing quality level used during ray-based rendering.
     /// </summary>
     public Bindable<Quality> RenderingAntiAliasingQuality { get; }
+
+    /// <summary>
+    ///     The anisotropic filtering quality level used during ray-based rendering.
+    /// </summary>
+    public Bindable<Quality> AnisotropicFilteringQuality { get; }
 
     /// <summary>
     ///     Get the visual configuration from the settings.
@@ -144,6 +157,12 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 this,
                 Language.GraphicsRenderingAntiAliasingQuality,
                 RenderingAntiAliasingQuality.Accessors));
+
+        AddSetting(nameof(AnisotropicFilteringQuality),
+            Setting.CreateQualitySetting(
+                this,
+                Language.GraphicsAnisotropicFilteringQuality,
+                AnisotropicFilteringQuality.Accessors));
     }
 
     #region LOGGING

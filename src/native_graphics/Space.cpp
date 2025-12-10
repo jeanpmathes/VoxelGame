@@ -292,9 +292,12 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), true, {L"RayGen"});
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
+    constexpr D3D12_FILTER               filter = D3D12_FILTER_ANISOTROPIC;
+    constexpr D3D12_TEXTURE_ADDRESS_MODE mode   = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+
     m_globalShaderResources = std::make_shared<ShaderResources>();
     m_globalShaderResources->Initialize(
-        [this](auto& graphics)
+        [&pipelineDescription, this](ShaderResources::Description& graphics)
         {
             graphics.AddHeapDescriptorTable(
                 [&](auto& table)
@@ -304,13 +307,17 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
                 });
 
             m_effectBindings = RasterPipeline::SetUpEffectBindings(*m_client, graphics);
+
+            graphics.AddStaticSampler({.reg = 0}, filter, mode, pipelineDescription.anisotropy);
         },
-        [this](auto& compute)
+        [&pipelineDescription, this](ShaderResources::Description& compute)
         {
             SetUpStaticResourceLayout(&compute);
             SetUpDynamicResourceLayout(&compute);
 
             for (auto& animation : m_animations) animation.SetUpResourceLayout(&compute);
+
+            compute.AddStaticSampler({.reg = 0}, filter, mode, pipelineDescription.anisotropy);
         },
         GetDevice());
 
@@ -495,14 +502,14 @@ void Space::SetUpStaticResourceLayout(ShaderResources::Description* description)
     description->AddConstantBufferView(m_globalConstantBuffer.GetGPUVirtualAddress(), {.reg = 2});
 
     m_unchangedCommonResourceHandle = description->AddHeapDescriptorTable(
-        [this](auto& table)
+        [this](ShaderResources::Table& table)
         {
             m_textureSlot1.entry = table.AddShaderResourceView({.reg = 0, .space = 1}, m_textureSlot1.size);
             m_textureSlot2.entry = table.AddShaderResourceView({.reg = 0, .space = 2}, m_textureSlot2.size);
         });
 
     m_changedCommonResourceHandle = description->AddHeapDescriptorTable(
-        [this](auto& table)
+        [this](ShaderResources::Table& table)
         {
             m_bvhEntry         = table.AddShaderResourceView({.reg = 0});
             m_colorOutputEntry = table.AddUnorderedAccessView({.reg = 0});

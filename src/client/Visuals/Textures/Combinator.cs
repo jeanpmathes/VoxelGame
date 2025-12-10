@@ -21,7 +21,7 @@ public abstract class Combinator(String type) : IIssueSource
     public String Type { get; } = type;
 
     /// <inheritdoc />
-    public String? InstanceName => Type;
+    public String InstanceName => Type;
 
     /// <summary>
     ///     Combine the current sheet with the next sheet.

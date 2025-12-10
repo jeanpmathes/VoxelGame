@@ -114,8 +114,8 @@ public sealed partial class Model : IResource, ILocated
         if (Quads.Length == 0)
             return new Box3d();
 
-        Vector3d min = Quads[0].Vert0.Position;
-        Vector3d max = Quads[0].Vert0.Position;
+        Vector3d min = Quads[index: 0].Vert0.Position;
+        Vector3d max = Quads[index: 0].Vert0.Position;
 
         foreach (Quad quad in Quads)
         {
@@ -200,7 +200,7 @@ public sealed partial class Model : IResource, ILocated
             quad.Vert3
         ];
 
-        Vector3d min = vertices[0].Position;
+        Vector3d min = vertices[index: 0].Position;
         Vector3d max = min;
 
         for (var index = 1; index < vertices.Length; index++)

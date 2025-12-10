@@ -177,22 +177,22 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
             switch (parameterTypes.Length)
             {
                 case 1:
-                    parameterList = $"{parameterTypes[0]} input";
+                    parameterList = $"{parameterTypes[index: 0]} input";
                     argumentList = "input";
 
                     break;
 
                 case 2:
-                    parameterList = $"{parameterTypes[0]} input1, {parameterTypes[1]} input2";
+                    parameterList = $"{parameterTypes[index: 0]} input1, {parameterTypes[index: 1]} input2";
                     argumentList = "input1, input2";
 
                     break;
 
                 default:
                 {
-                    var tupleType = $"({String.Join(", ", parameterTypes.Skip(1))})";
+                    var tupleType = $"({String.Join(", ", parameterTypes.Skip(count: 1))})";
 
-                    parameterList = $"{parameterTypes[0]} input1, {tupleType} input2";
+                    parameterList = $"{parameterTypes[index: 0]} input1, {tupleType} input2";
 
                     ImmutableArray<String>.Builder builder = ImmutableArray.CreateBuilder<String>(parameterTypes.Length);
                     builder.Add("input1");
@@ -217,9 +217,9 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
 
             return ParameterTypes.Length switch
             {
-                1 => $"{interfacePrefix}<{ParameterTypes[0]}, {typeDisplay}>",
-                2 => $"{interfacePrefix}<{ParameterTypes[0]}, {ParameterTypes[1]}, {typeDisplay}>",
-                _ => $"{interfacePrefix}<{ParameterTypes[0]}, ({String.Join(", ", ParameterTypes.Skip(1))}), {typeDisplay}>"
+                1 => $"{interfacePrefix}<{ParameterTypes[index: 0]}, {typeDisplay}>",
+                2 => $"{interfacePrefix}<{ParameterTypes[index: 0]}, {ParameterTypes[index: 1]}, {typeDisplay}>",
+                _ => $"{interfacePrefix}<{ParameterTypes[index: 0]}, ({String.Join(", ", ParameterTypes.Skip(count: 1))}), {typeDisplay}>"
             };
         }
     }

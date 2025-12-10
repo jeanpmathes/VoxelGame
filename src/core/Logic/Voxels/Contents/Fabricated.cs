@@ -15,7 +15,7 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     These blocks are fabricated from other materials and are mostly decorative.

@@ -42,7 +42,7 @@ public partial class ModelProvider : ResourceProvider<Model>, IModelProvider
         if (position is {X: < 0, Y: < 0, Z: < 0})
             return false;
 
-        return position.X < parts.GetLength(0) && position.Y < parts.GetLength(1) && position.Z < parts.GetLength(2);
+        return position.X < parts.GetLength(dimension: 0) && position.Y < parts.GetLength(dimension: 1) && position.Z < parts.GetLength(dimension: 2);
     }
 
     /// <inheritdoc />

@@ -224,8 +224,14 @@ public:
          * \brief Add a static texture sampler.
          * \param location The shader location of the sampler.
          * \param filter The sampler filter.
+         * \param mode The texture address mode, used when sampling outside [0, 1].
+         * \param maxAnisotropy The maximum anisotropy level.
          */
-        void AddStaticSampler(ShaderLocation location, D3D12_FILTER filter);
+        void AddStaticSampler(
+            ShaderLocation             location,
+            D3D12_FILTER               filter,
+            D3D12_TEXTURE_ADDRESS_MODE mode,
+            UINT                       maxAnisotropy = 1);
 
         /**
          * \brief Enable the input assembler option in the root signature.

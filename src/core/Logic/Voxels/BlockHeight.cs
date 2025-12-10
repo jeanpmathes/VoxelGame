@@ -151,7 +151,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     }
 
     /// <inheritdoc />
-    public override Boolean Equals([NotNullWhen(true)] Object? obj)
+    public override Boolean Equals([NotNullWhen(returnValue: true)] Object? obj)
     {
         return obj is BlockHeight other && Equals(other);
     }

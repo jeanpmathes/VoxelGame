@@ -82,14 +82,14 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
         
         String? baseType = null;
         var isBaseTypeGeneric = false;
-        
-        if (ctx.Attributes.Length != 1 || ctx.Attributes[0].AttributeClass == null)
+
+        if (ctx.Attributes.Length != 1 || ctx.Attributes[index: 0].AttributeClass == null)
             return null;
 
-        AttributeData attribute = ctx.Attributes[0];
+        AttributeData attribute = ctx.Attributes[index: 0];
         
         // ReSharper disable once MergeIntoPattern
-        if (attribute.ConstructorArguments is {Length: 1} array && array[0] is {Kind: TypedConstantKind.Type, Value: INamedTypeSymbol baseTypeSymbol})
+        if (attribute.ConstructorArguments is {Length: 1} array && array[index: 0] is {Kind: TypedConstantKind.Type, Value: INamedTypeSymbol baseTypeSymbol})
         {
             if (!baseTypeSymbol.IsGenericType || !baseTypeSymbol.IsUnboundGenericType)
             {
@@ -177,8 +177,8 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
     private static String DeriveRecordName(String interfaceName)
     {
         // ReSharper disable once MergeIntoPattern
-        if (interfaceName.Length >= 2 && interfaceName[0] == 'I' && Char.IsUpper(interfaceName[1]))
-            return interfaceName.Substring(1);
+        if (interfaceName.Length >= 2 && interfaceName[index: 0] == 'I' && Char.IsUpper(interfaceName[index: 1]))
+            return interfaceName.Substring(startIndex: 1);
         
         return interfaceName + "Record";
     }

@@ -319,10 +319,10 @@ public static class WoodConvention
                     .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("bed")]))
                     .WithTextureOverride(new Dictionary<Int32, TID>
                     {
-                        [0] = TID.Block($"{texture}_bed", x: 0, y: 1),
-                        [1] = TID.Block($"{texture}_bed", x: 0, y: 0),
-                        [2] = TID.Block($"{texture}_bed", x: 1, y: 0),
-                        [3] = TID.Block($"{texture}_bed", x: 1, y: 1)
+                        [key: 0] = TID.Block($"{texture}_bed", x: 0, y: 1),
+                        [key: 1] = TID.Block($"{texture}_bed", x: 0, y: 0),
+                        [key: 2] = TID.Block($"{texture}_bed", x: 1, y: 0),
+                        [key: 3] = TID.Block($"{texture}_bed", x: 1, y: 1)
                     })
                     .WithBehavior<Bed>()
                     .WithBehavior<DirectionalSidePlacement>()

@@ -59,13 +59,13 @@ public sealed class MeasureGenerator : IIncrementalGenerator
         if (attributeData.ConstructorArguments.Length != 3)
             return null;
 
-        if (attributeData.ConstructorArguments[0].Value is not String measureName || String.IsNullOrWhiteSpace(measureName))
+        if (attributeData.ConstructorArguments[index: 0].Value is not String measureName || String.IsNullOrWhiteSpace(measureName))
             return null;
 
-        if (attributeData.ConstructorArguments[1].Value is not String valuePropertyName || String.IsNullOrWhiteSpace(valuePropertyName))
+        if (attributeData.ConstructorArguments[index: 1].Value is not String valuePropertyName || String.IsNullOrWhiteSpace(valuePropertyName))
             return null;
 
-        if (attributeData.ConstructorArguments[2].Value is not UInt32 allowedPrefixes)
+        if (attributeData.ConstructorArguments[index: 2].Value is not UInt32 allowedPrefixes)
             return null;
         
         GetNamedArguments(attributeData, out String? measureSummary, out String? valueSummary);

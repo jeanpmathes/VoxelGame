@@ -45,7 +45,7 @@ public static class NameTools
             }
             else
             {
-                sb.Append('_');
+                sb.Append(value: '_');
             }
         }
 
@@ -75,6 +75,6 @@ public static class NameTools
         if (str.Length == 1)
             return str.ToLowerInvariant();
 
-        return Char.ToLowerInvariant(str[0]) + str.Substring(startIndex: 1);
+        return Char.ToLowerInvariant(str[index: 0]) + str.Substring(startIndex: 1);
     }
 }

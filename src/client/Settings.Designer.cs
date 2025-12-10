@@ -153,5 +153,17 @@ namespace Properties {
                 this["RenderingAntiAliasingQuality"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Low")]
+        public global::VoxelGame.Core.Visuals.Quality AnisotropicFilteringQuality {
+            get {
+                return ((global::VoxelGame.Core.Visuals.Quality)(this["AnisotropicFilteringQuality"]));
+            }
+            set {
+                this["AnisotropicFilteringQuality"] = value;
+            }
+        }
     }
 }

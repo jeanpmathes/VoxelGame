@@ -19,9 +19,9 @@ namespace VoxelGame.Graphics.Input;
 public class KeyState
 {
     private static readonly VirtualKeys[] allKeys = Enum.GetValues<VirtualKeys>();
-    
-    private readonly BitArray keys = new(0xFF);
-    private readonly BitArray keysPrevious = new(0xFF);
+
+    private readonly BitArray keys = new(length: 0xFF);
+    private readonly BitArray keysPrevious = new(length: 0xFF);
 
     internal KeyState() {}
 

@@ -61,7 +61,7 @@ public interface IAttributeData : IScoped
     {
         return index * Divisor;
     }
-    
+
     /// <summary>
     /// Get the state index for a given value index of a given attribute.
     /// </summary>
@@ -99,7 +99,7 @@ public interface IAttributeData<TValue> : IAttributeData
             return default!;
 
         return Multiplicity == 1
-            ? Retrieve(0)
+            ? Retrieve(index: 0)
             : Retrieve(GetValueIndex(index));
     }
 
@@ -131,15 +131,13 @@ public interface IAttributeData<TValue> : IAttributeData
 public abstract partial class AttributeDataImplementation<TValue> : IAttributeData<TValue>
 {
     /// <inheritdoc />
-    [LateInitialization]
-    public partial String Name { get; private set; }
+    [LateInitialization] public partial String Name { get; private set; }
 
     /// <inheritdoc />
     public Boolean IsEmpty => false;
 
     /// <inheritdoc />
-    [LateInitialization]
-    public partial Int32 Divisor { get; private set; }
+    [LateInitialization] public partial Int32 Divisor { get; private set; }
 
     /// <inheritdoc />
     public abstract Int32 Multiplicity { get; }

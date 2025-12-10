@@ -11,11 +11,13 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels.Contents;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
+using Environment = VoxelGame.Core.Logic.Voxels.Contents.Environment;
 
 namespace VoxelGame.Core.Logic.Voxels;
 
@@ -31,37 +33,37 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     /// </summary>
     public static Blocks Instance { get; } = new(BlockBuilder.Create(), new Registry<Category>(category => Reflections.GetLongName(category.GetType())));
 
-    /// <inheritdoc cref="Voxels.Core" />
-    public Core Core { get; } = categories.Register(new Core(builder.CreateScoped()));
+    /// <inheritdoc cref="Contents.Core" />
+    public Contents.Core Core { get; } = categories.Register(new Contents.Core(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Environment" />
+    /// <inheritdoc cref="Contents.Environment" />
     public Environment Environment { get; } = categories.Register(new Environment(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Woods" />
+    /// <inheritdoc cref="Contents.Woods" />
     public Woods Woods { get; } = categories.Register(new Woods(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Stones" />
+    /// <inheritdoc cref="Contents.Stones" />
     public Stones Stones { get; } = categories.Register(new Stones(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Metals" />
+    /// <inheritdoc cref="Contents.Metals" />
     public Metals Metals { get; } = categories.Register(new Metals(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Coals" />
+    /// <inheritdoc cref="Contents.Coals" />
     public Coals Coals { get; } = categories.Register(new Coals(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Organic" />
+    /// <inheritdoc cref="Contents.Organic" />
     public Organic Organic { get; } = categories.Register(new Organic(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Flowers" />
+    /// <inheritdoc cref="Contents.Flowers" />
     public Flowers Flowers { get; } = categories.Register(new Flowers(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Crops" />
+    /// <inheritdoc cref="Contents.Crops" />
     public Crops Crops { get; } = categories.Register(new Crops(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Construction" />
+    /// <inheritdoc cref="Contents.Construction" />
     public Construction Construction { get; } = categories.Register(new Construction(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Fabricated" />
+    /// <inheritdoc cref="Contents.Fabricated" />
     public Fabricated Fabricated { get; } = categories.Register(new Fabricated(builder.CreateScoped()));
 
     /// <summary>

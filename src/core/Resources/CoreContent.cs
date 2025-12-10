@@ -6,6 +6,7 @@
 
 using VoxelGame.Core.Generation;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Contents;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Resources;

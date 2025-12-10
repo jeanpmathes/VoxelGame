@@ -94,7 +94,7 @@ public partial class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, 
     /// <summary>
     ///     Whether the block is lowered towards the ground, so it aligns with a partial ground that is lowered by one partial
     ///     height unit.
-    ///     See <see cref="Environment.Farmland" /> as an example of a block that allows plant growth and is lowered, not
+    ///     See <see cref="Contents.Environment.Farmland" /> as an example of a block that allows plant growth and is lowered, not
     ///     filling a full block position.
     /// </summary>
     public Aspect<Boolean, State> IsLowered { get; }

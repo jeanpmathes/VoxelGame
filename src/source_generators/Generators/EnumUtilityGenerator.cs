@@ -189,19 +189,19 @@ public class EnumUtilityGenerator : IIncrementalGenerator
                             """);
             }
 
-            sb.Append("""
-                                    
-                                    
-                              return remaining == 0UL ? sb.ToString() : value.ToString();
-                          }
-                      """);
+            sb.Append(value: """
+                                           
+                                           
+                                     return remaining == 0UL ? sb.ToString() : value.ToString();
+                                 }
+                             """);
         }
 
-        sb.Append("""
+        sb.Append(value: """
 
-                  }
+                         }
 
-                  """);
+                         """);
 
         return sb.ToString();
     }

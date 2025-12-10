@@ -54,8 +54,8 @@ public sealed class ComponentGenerator : IIncrementalGenerator
         
         if (attributeData?.ConstructorArguments.Length != 1)
             return null;
-        
-        if (attributeData.ConstructorArguments[0].Value is not INamedTypeSymbol componentSymbol)
+
+        if (attributeData.ConstructorArguments[index: 0].Value is not INamedTypeSymbol componentSymbol)
             return null;
 
         String @namespace = SyntaxTools.GetNamespace(classDeclaration);
@@ -135,7 +135,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
         if (attribute.ConstructorArguments.Length != 1)
             return null;
 
-        var componentMethodName = attribute.ConstructorArguments[0].Value as String;
+        var componentMethodName = attribute.ConstructorArguments[index: 0].Value as String;
         
         if (String.IsNullOrWhiteSpace(componentMethodName))
             return null; 

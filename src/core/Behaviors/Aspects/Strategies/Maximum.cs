@@ -1,4 +1,4 @@
-﻿﻿// <copyright file="Maximum.cs" company="VoxelGame">
+﻿// <copyright file="Maximum.cs" company="VoxelGame">
 //     MIT License
 //     For full license see the repository.
 // </copyright>
@@ -23,7 +23,7 @@ public class Maximum<TValue, TContext> : IContributionStrategy<TValue, TContext>
     {
         if (contributors.Length == 0) return original;
 
-        TValue max = contributors[0].Contribute(original, context);
+        TValue max = contributors[index: 0].Contribute(original, context);
 
         for (var index = 1; index < contributors.Length; index++)
         {

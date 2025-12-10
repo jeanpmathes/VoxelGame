@@ -23,7 +23,7 @@ public class Minimum<TValue, TContext> : IContributionStrategy<TValue, TContext>
     {
         if (contributors.Length == 0) return original;
 
-        TValue min = contributors[0].Contribute(original, context);
+        TValue min = contributors[index: 0].Contribute(original, context);
 
         for (var index = 1; index < contributors.Length; index++)
         {

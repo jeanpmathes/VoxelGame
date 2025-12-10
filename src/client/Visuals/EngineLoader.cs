@@ -53,10 +53,10 @@ public sealed class EngineLoader : IResourceLoader
 
         if (postProcessingResult is not {pipeline: var postProcessingPipeline, buffer: var ppData})
             return errors;
-        
+
         var crosshairVFX = ScreenElementPipeline.Create(client, factory, (0.5f, 0.5f));
         var overlayVFX = OverlayPipeline.Create(client, factory, textureSlots);
-        
+
         if (crosshairVFX == null || overlayVFX == null)
             return errors;
 
@@ -76,7 +76,7 @@ public sealed class EngineLoader : IResourceLoader
     }
 
     private ShaderBuffer<Engine.RaytracingData>? LoadRaytracingPipeline(
-        VoxelGame.Graphics.Core.Client client, VisualConfiguration visuals, (TextureArray, TextureArray) textureSlots, IResourceContext context)
+        Application.Client client, VisualConfiguration visuals, (TextureArray, TextureArray) textureSlots, IResourceContext context)
     {
         PipelineBuilder builder = new();
 
@@ -92,6 +92,8 @@ public sealed class EngineLoader : IResourceLoader
         builder.SetCustomDataBufferType<Engine.RaytracingData>();
 
         builder.SetSpoolCounts(mesh: 8192, effect: 4);
+
+        builder.SetAnisotropyQuality(client.Graphics.AnisotropicFilteringQuality);
 
         ResourceIssue? error = builder.Build(client, context, out ShaderBuffer<Engine.RaytracingData>? buffer);
 

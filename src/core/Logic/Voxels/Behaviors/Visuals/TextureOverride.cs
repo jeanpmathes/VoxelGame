@@ -21,14 +21,12 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 public partial class TextureOverride : BlockBehavior, IBehavior<TextureOverride, BlockBehavior, Block>
 {
     [Constructible]
-    private TextureOverride(Block subject) : base(subject)
-    {
-    }
+    private TextureOverride(Block subject) : base(subject) {}
 
     /// <summary>
     ///     Optional textures to override the texture provided by a model.
     /// </summary>
-    public ResolvedProperty<IReadOnlyDictionary<Int32, TID>?> Textures { get; } 
+    public ResolvedProperty<IReadOnlyDictionary<Int32, TID>?> Textures { get; }
         = ResolvedProperty<IReadOnlyDictionary<Int32, TID>?>.New<Exclusive<IReadOnlyDictionary<Int32, TID>?, Void>>(nameof(Textures));
 
     /// <summary>
@@ -38,7 +36,7 @@ public partial class TextureOverride : BlockBehavior, IBehavior<TextureOverride,
     /// <returns>The created replacement dictionary.</returns>
     public static IReadOnlyDictionary<Int32, TID> All(TID replacement)
     {
-        return new Dictionary<Int32, TID> {[-1] = replacement};
+        return new Dictionary<Int32, TID> {[key: -1] = replacement};
     }
 
     /// <summary>

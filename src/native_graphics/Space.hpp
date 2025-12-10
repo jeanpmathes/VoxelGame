@@ -53,6 +53,8 @@ struct SpacePipelineDescription
 
     LPWSTR* symbols;
 
+    UINT anisotropy;
+    
     MaterialDescription* materials;
     UINT                 materialCount;
 

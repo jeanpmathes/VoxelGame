@@ -14,9 +14,6 @@
 #include "Spatial.hlsl"
 #include "TextureAnimation.hlsl"
 
-#define LOAD_SLOT_ONE(index) native::rt::textureSlotOne[index.w].Load(index.xyz)
-#define LOAD_SLOT_TWO(index) native::rt::textureSlotTwo[index.w].Load(index.xyz)
-
 /**
  * \brief Utilities providing operations for rendering sections.
  */
@@ -37,65 +34,51 @@ namespace vg
         }
 
         /**
-         * \brief Calculate the (doubled) area of the triangle in world space.
+         * \brief Compute anisotropic ellipse axes and texture gradients to be used for anisotropic texture filtering.
+         * 
+         * The function is based on the method described in
+         * "Improved Shader and Texture Level of Detail Using Ray Cones" (Journal of Computer Graphics Techniques, 2021)
+         * by T. Akenine-Möller, C. Crassin, J. Boksansky, L. Belcour, A. Panteleev, and O. Wright
          */
-        float GetDoubleWorldAreaOfTriangle(in spatial::Info const info)
+        void ComputeAnisotropicEllipseAxes(
+            in float3  intersectionPoint,
+            in float3  normal,
+            in float3  direction,
+            in float   rayConeRadiusAtIntersection,
+            in float3  positions[3],
+            in float2  textureCoordinates[3],
+            in float2  interpolatedTextureCoordinatesAtIntersection,
+            out float2 ddx,
+            out float2 ddy)
         {
-            // See: Ray Tracing Gems, Chapter 20.2
+            // Compute the two ellipse axes a1 and a2.
 
-            return length(cross(info.a - info.b, info.a - info.c));
-        }
+            float3       a1 = direction - dot(normal, direction) * normal;
+            float3 const p1 = a1 - dot(direction, a1) * direction;
+            a1              *= rayConeRadiusAtIntersection / max(0.0001, length(p1));
 
-        /**
-         * \brief Calculate the (doubled) area of the triangle in texture space.
-         */
-        float GetDoubleTexelAreaOfTriangle(in spatial::Info const info)
-        {
-            // See: Ray Tracing Gems, Chapter 20.2
+            float3       a2 = cross(normal, a1);
+            float3 const p2 = a2 - dot(direction, a2) * direction;
+            a2              *= rayConeRadiusAtIntersection / max(0.0001, length(p2));
 
-            float4x2 const uvs        = decode::GetUVs(info.data);
-            float2 const   repetition = decode::GetTextureRepetition(info.data);
+            float3       eP, delta           = intersectionPoint - positions[0];
+            float3 const e1                  = positions[1] - positions[0];
+            float3 const e2                  = positions[2] - positions[0];
+            float const  oneOverAreaTriangle = 1.0 / dot(normal, cross(e1, e2));
 
-            float2 uv0 = uvs[info.indices.x];
-            float2 uv1 = uvs[info.indices.y];
-            float2 uv2 = uvs[info.indices.z];
+            // Compute the two texture gradients ddx and ddy.
 
-            if (decode::GetTextureRotationFlag(info.data))
-            {
-                uv0 = spatial::RotateUV(uv0);
-                uv1 = spatial::RotateUV(uv1);
-                uv2 = spatial::RotateUV(uv2);
-            }
+            eP = delta + a1;
+            float const u1 = dot(normal, cross(eP, e2)) * oneOverAreaTriangle;
+            float const v1 = dot(normal, cross(e1, eP)) * oneOverAreaTriangle;
+            ddx = (1.0 - u1 - v1) * textureCoordinates[0] + u1 * textureCoordinates[1] + v1 * textureCoordinates[2] -
+                interpolatedTextureCoordinatesAtIntersection;
 
-            uv0 *= repetition;
-            uv1 *= repetition;
-            uv2 *= repetition;
-
-            // The wh factor is not used here as it comes in later when summing up the LOD.
-
-            return abs((uv1.x - uv0.x) * (uv2.y - uv0.y) - (uv2.x - uv0.x) * (uv1.y - uv0.y));
-        }
-
-        /**
-         * \brief Compute the level of detail to use for the texture at a hit.
-         * \param path The length of rays up to the previous hit.
-         * \param info Information about the hit.
-         * \return The computed LOD.
-         */
-        float GetLOD(float const path, in spatial::Info const info)
-        {
-            // See: Ray Tracing Gems, Chapter 20.6
-
-            float const width = GetConeWidth(path);
-            float const world = GetDoubleWorldAreaOfTriangle(info);
-            float const texel = GetDoubleTexelAreaOfTriangle(info);
-            float       lod   = 0.5f * log2(texel / world);
-
-            lod += log2(width);
-            lod += 0.5f * log2(native::spatial::global.textureSize.x * native::spatial::global.textureSize.y);
-            lod -= log2(abs(dot(WorldRayDirection(), info.normal)));
-
-            return lod;
+            eP = delta + a2;
+            float const u2 = dot(normal, cross(eP, e2)) * oneOverAreaTriangle;
+            float const v2 = dot(normal, cross(e1, eP)) * oneOverAreaTriangle;
+            ddy = (1.0 - u2 - v2) * textureCoordinates[0] + u2 * textureCoordinates[1] + v2 * textureCoordinates[2] -
+                interpolatedTextureCoordinatesAtIntersection;
         }
 
         /**
@@ -124,51 +107,16 @@ namespace vg
         }
 
         /**
-         * \brief Create a color encoding the mip level used for sampling.
-         * \param mip The mip level that was sampled.
-         * \return A color visualizing the mip level.
-         */
-        float3 GetMipColor(uint const mip)
-        {
-            switch (mip % 6)
-            {
-            case 0:
-                return float3(1.0f, 0.0f, 0.0f);
-            case 1:
-                return float3(1.0f, 0.5f, 0.0f);
-            case 2:
-                return float3(1.0f, 1.0f, 0.0f);
-            case 3:
-                return float3(0.0f, 1.0f, 0.0f);
-            case 4:
-                return float3(0.0f, 0.5f, 1.0f);
-            default:
-                return float3(0.5f, 0.0f, 1.0f);
-            }
-        }
-
-        /**
-         * \brief Apply mip level visualization to a sampled color.
-         * \param color The sampled color.
-         * \param mip The mip level used to retrieve the color.
-         * \return Either the original color or a visualization.
-         */
-        float4 ApplyMipVisualization(float4 const color, uint const mip)
-        {
-            float luminance  = native::GetLuminance(color.rgb);
-            float brightness = lerp(0.2f, 1.0f, luminance);
-
-            float3 const mipColor = GetMipColor(mip) * brightness;
-            return float4(mipColor, color.a);
-        }
-
-        /**
          * \brief Sample the base color for a given texture index.
          * \param index The texture index to sample.
          * \param isBlock Whether the texture is part of a block or a fluid.
          * \return The sampled base color.
          */
-        float4 SampleBaseColor(uint4 const index, bool const isBlock) { return isBlock ? LOAD_SLOT_ONE(index) : LOAD_SLOT_TWO(index); }
+        float4 SampleBaseColor(uint4 const index, bool const isBlock)
+        {
+            if (isBlock) return native::rt::textureSlotOne[index.w].Load(index.xyz);
+            else return native::rt::textureSlotTwo[index.w].Load(index.xyz);
+        }
 
         /**
          * \brief Sample the base color for a hit against a quad.
@@ -178,57 +126,90 @@ namespace vg
          * \param isBlock Whether the quad is part of a block or a fluid.
          * \return The sampled base color for the quad.
          */
-        float4 SampleBaseColor(float const path, in spatial::Info const info, bool const useTextureRepetition, bool const isBlock)
+        float4 SampleBaseColor(
+            float const            path,
+            in spatial::Info const info,
+            bool const             useTextureRepetition,
+            bool const             isBlock)
         {
-            float2 const uv           = GetUV(info, useTextureRepetition);
-            uint         textureIndex = animation::GetAnimatedTextureIndex(info.data, PrimitiveIndex() / 2, native::spatial::global.time, isBlock);
+            float2 uv           = GetUV(info, useTextureRepetition);
+            uint   textureIndex = animation::GetAnimatedTextureIndex(
+                info.data,
+                PrimitiveIndex() / 2,
+                native::spatial::global.time,
+                isBlock);
 
-            uint3 size = native::spatial::global.textureSize.xyz;
-            
-            float4 color;
-            uint mip;
+            // todo: optimize, as there is a lot of repeated calculation of these values, and aling storage format between ellipse function and this stuff
 
-            if (path >= 0.0f)
+            float3 intersectionPoint = WorldRayOrigin() + RayTCurrent() * WorldRayDirection();
+            // todo: compare with interpolated position from barycentric coords
+            float3 normal                      = info.normal;
+            float3 direction                   = WorldRayDirection();
+            float  rayConeRadiusAtIntersection = GetConeWidth(path) / 2.0f;
+            // todo: check if /2 is correct here, maybe put it into spread factor
+
+            float3 positions[3];
+            positions[0] = info.a;
+            positions[1] = info.b;
+            positions[2] = info.c;
+
+            float2         textureCoordinates[3]; // todo: the texture coordinates calculation is very ugly right now
+            float4x2 const uvs    = decode::GetUVs(info.data); // todo: align storage format
+            textureCoordinates[0] = uvs[info.indices.x];
+            textureCoordinates[1] = uvs[info.indices.y];
+            textureCoordinates[2] = uvs[info.indices.z];
+
+            if (decode::GetTextureRotationFlag(info.data))
             {
-                uint const maxMip = size.z - 1;
+                textureCoordinates[0] = spatial::RotateUV(textureCoordinates[0]);
+                textureCoordinates[1] = spatial::RotateUV(textureCoordinates[1]);
+                textureCoordinates[2] = spatial::RotateUV(textureCoordinates[2]);
+            }
 
-                float lod = GetLOD(path, info);
-                lod       = clamp(lod, 0.0f, maxMip);
+            textureCoordinates[0] = native::TranslateUV(textureCoordinates[0]);
+            textureCoordinates[1] = native::TranslateUV(textureCoordinates[1]);
+            textureCoordinates[2] = native::TranslateUV(textureCoordinates[2]);
 
-                float const interpolation = frac(lod);
+            if (useTextureRepetition)
+            {
+                float2 repetition     = decode::GetTextureRepetition(info.data);
+                textureCoordinates[0] *= repetition;
+                textureCoordinates[1] *= repetition;
+                textureCoordinates[2] *= repetition;
+            }
 
-                uint const mipLow  = uint(floor(lod));
-                uint const mipHigh = min(mipLow + 1, maxMip);
+            float2 interpolatedTextureCoordinatesAtIntersection = uv;
 
-                uint2 const  sizeLow  = uint2(max(1, size.x >> mipLow), max(1, size.y >> mipLow));
-                float2 const tsLow    = frac(uv) * float2(sizeLow);
-                uint2 const  texelLow = uint2(tsLow.x, tsLow.y);
+            float2 ddx, ddy;
+            ComputeAnisotropicEllipseAxes(
+                intersectionPoint,
+                normal,
+                direction,
+                rayConeRadiusAtIntersection,
+                positions,
+                textureCoordinates,
+                interpolatedTextureCoordinatesAtIntersection,
+                ddx,
+                ddy);
 
-                color = SampleBaseColor(int4(texelLow.x, texelLow.y, mipLow, textureIndex), isBlock);
-                mip = mipLow;
-                
-                if (mipHigh != mipLow)
-                {
-                    uint2 const  sizeHigh   = uint2(max(1, size.x >> mipHigh), max(1, size.y >> mipHigh));
-                    float2 const tsHigh     = frac(uv) * float2(sizeHigh);
-                    uint2 const  texelHigh  = uint2(tsHigh.x, tsHigh.y);
-                    
-                    float4 const otherColor = SampleBaseColor(int4(texelHigh.x, texelHigh.y, mipHigh, textureIndex), isBlock);
-                    
-                    color = lerp(color, otherColor, interpolation);
-                }
+            uint textureSize = 32; // todo: set through constant, in same area as texture slots
+
+            // Because anisotropic filter implies linear filtering in DirectX, we need to center UVs manually.
+
+            uv *= native::spatial::global.textureSize.xy;
+            uv = floor(uv) + 0.5f;
+            uv /= native::spatial::global.textureSize.xy;
+
+            float4 color;
+
+            if (isBlock)
+            {
+                color = native::rt::textureSlotOne[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
             }
             else
             {
-                float2 const ts    = frac(uv) * float2(size.xy);
-                uint2        texel = uint2(ts.x, ts.y);
-
-                color = SampleBaseColor(int4(texel.x, texel.y, 0, textureIndex), isBlock);
-                mip = 0;
+                color = native::rt::textureSlotTwo[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
             }
-            
-            if (custom.showLevelOfDetail) 
-                color = ApplyMipVisualization(color, mip);
 
             return color;
         }
@@ -239,7 +220,10 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a basic quad.
          */
-        float4 GetBasicBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, true, true); }
+        float4 GetBasicBaseColor(float const path, in spatial::Info const info)
+        {
+            return SampleBaseColor(path, info, true, true);
+        }
 
         /**
          * \brief Get the base color (no shading) for a foliage quad.
@@ -247,7 +231,10 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a foliage quad.
          */
-        float4 GetFoliageBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, false, true); }
+        float4 GetFoliageBaseColor(float const path, in spatial::Info const info)
+        {
+            return SampleBaseColor(path, info, false, true);
+        }
 
         /**
          * \brief Get the base color (no shading) for a fluid quad.
@@ -255,7 +242,10 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a fluid quad.
          */
-        float4 GetFluidBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, true, false); }
+        float4 GetFluidBaseColor(float const path, in spatial::Info const info)
+        {
+            return SampleBaseColor(path, info, true, false);
+        }
 
         /**
          * \brief Get the dominant color for a fluid quad.
@@ -264,14 +254,13 @@ namespace vg
          */
         float4 GetFluidDominantColor(in spatial::Info const info)
         {
-            int4 const index = int4(
-                0,
-                0,
-                // Only one texel in highest mip level.
-                native::spatial::global.textureSize.z - 1,
-                // Index of the highest mip level.
-                decode::GetTextureIndex(info.data));
-            return LOAD_SLOT_TWO(index);
+            return native::rt::textureSlotTwo[decode::GetTextureIndex(info.data)].Load(
+                int3(
+                    0,
+                    0,
+                    // Only one texel in highest mip level.
+                    native::spatial::global.textureSize.z - 1 // Index of the highest mip level.
+                ));
         }
 
         /**

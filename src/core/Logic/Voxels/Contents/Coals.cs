@@ -8,7 +8,7 @@ using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Resources.Language;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     Different types of coal. All three types can be found in the world.

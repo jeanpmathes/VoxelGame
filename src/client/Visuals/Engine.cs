@@ -32,10 +32,10 @@ public sealed class Engine : IResource
     private readonly ShaderBuffer<PostProcessingData>? postProcessingBuffer;
 
     internal Engine(
-        Application.Client client, 
-        ScreenElementPipeline crosshairPipeline, 
-        OverlayPipeline overlayPipeline, 
-        TargetingBoxPipeline targetingBoxPipeline, 
+        Application.Client client,
+        ScreenElementPipeline crosshairPipeline,
+        OverlayPipeline overlayPipeline,
+        TargetingBoxPipeline targetingBoxPipeline,
         ShaderBuffer<RaytracingData>? rtData,
         ShaderBuffer<PostProcessingData>? ppBuffer)
     {
@@ -51,9 +51,10 @@ public sealed class Engine : IResource
 
         bindings.Add(client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
         bindings.Add(client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
-        
+
         bindings.Add(client.Graphics.PostProcessingAntiAliasingQuality.Bind(args =>
             Graphics.Instance.ApplyPostProcessingAntiAliasingQuality(args.NewValue)));
+
         bindings.Add(client.Graphics.RenderingAntiAliasingQuality.Bind(args =>
             Graphics.Instance.ApplyRenderingAntiAliasingQuality(args.NewValue)));
     }
@@ -119,12 +120,12 @@ public sealed class Engine : IResource
         ///     The color variance threshold, determining if more samples are needed for a pixel.
         /// </summary>
         public Single varianceThreshold;
-        
+
         /// <summary>
         ///     The depth threshold, determining if more samples are needed for a pixel.
         /// </summary>
         public Single depthThreshold;
-        
+
         private (Boolean, Boolean, Int32, Int32, Single, Single) Pack => (isEnabled, showSamplingRate, minGridSize, maxGridSize, varianceThreshold, depthThreshold);
 
         /// <inheritdoc />
@@ -144,12 +145,12 @@ public sealed class Engine : IResource
         {
             return Pack.GetHashCode();
         }
-        
+
         /// <summary>
         ///     Check if two <see cref="AntiAliasingSettings" />s are equal.
         /// </summary>
         public static Boolean operator ==(AntiAliasingSettings left, AntiAliasingSettings right)
-        {            
+        {
             return left.Equals(right);
         }
 
@@ -247,19 +248,10 @@ public sealed class Engine : IResource
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
     public struct RaytracingData : IEquatable<RaytracingData>
     {
-        
         /// <summary>
         ///     Whether to render in wireframe mode.
         /// </summary>
         public Bool wireframe;
-
-        /// <summary>
-        ///     Whether to visualize the mip level used when sampling textures.
-        /// </summary>
-        public Bool showLevelOfDetail;
-        
-        [UsedImplicitly]
-        private readonly Vector2 padding0;
 
         /// <summary>
         ///     The wind direction, used for foliage swaying.
@@ -276,17 +268,16 @@ public sealed class Engine : IResource
         ///     Color of the fog volume the view plane is currently in, represented as a RGB vector.
         /// </summary>
         public Vector3 fogOverlapColor;
-        
-        [UsedImplicitly]
-        private readonly Single padding1;
+
+        [UsedImplicitly] private readonly Single padding0;
 
         /// <summary>
         ///     The antialiasing settings for ray generation.
         /// </summary>
         public AntiAliasingSettings antiAliasing;
 
-        private (Boolean, Boolean, Vector3, Single, Vector3, AntiAliasingSettings) Pack =>
-            (wireframe, showLevelOfDetail, windDirection, fogOverlapSize, fogOverlapColor, antiAliasing);
+        private (Boolean, Vector3, Single, Vector3, AntiAliasingSettings) Pack =>
+            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, antiAliasing);
 
         /// <inheritdoc />
         public Boolean Equals(RaytracingData other)

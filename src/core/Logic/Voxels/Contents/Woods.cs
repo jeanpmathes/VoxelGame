@@ -8,7 +8,7 @@ using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Resources.Language;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     All sorts of wood types. Trees can be found in the world and can be used for the construction of various things.

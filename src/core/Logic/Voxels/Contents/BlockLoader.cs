@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     Loads all blocks.

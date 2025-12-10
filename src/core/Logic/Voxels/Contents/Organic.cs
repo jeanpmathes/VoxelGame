@@ -18,7 +18,7 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     Organic blocks are different plants and such which do not fit into other categories.
@@ -42,7 +42,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .BuildComplexBlock(new CID(nameof(Spiderweb)), Language.SpiderWeb)
         .WithBehavior<CrossModel>()
         .WithBehavior<SingleTextured>(texture => texture.DefaultTexture.Initializer.ContributeConstant(TID.Block("spider_web")))
-        .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(0.01))
+        .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(value: 0.01))
         .WithBehavior<DestroyOnLiquid>()
         .WithBehavior<Combustible>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))

@@ -45,16 +45,16 @@ public static class SourceCodeTools
         while (containingType is not null)
         {
             sb.Append(containingType.Accessibility)
-                .Append(' ')
+                .Append(value: ' ')
                 .Append("partial")
-                .Append(' ')
+                .Append(value: ' ')
                 .Append(containingType.Keyword)
-                .Append(' ')
+                .Append(value: ' ')
                 .Append(containingType.Name)
                 .Append(containingType.TypeParameters);
 
             if (!String.IsNullOrWhiteSpace(containingType.Constraints))
-                sb.Append(' ').Append(containingType.Constraints);
+                sb.Append(value: ' ').Append(containingType.Constraints);
 
             sb.AppendLine().Append(indent).AppendLine("{");
 

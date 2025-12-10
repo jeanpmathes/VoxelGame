@@ -10,7 +10,7 @@ using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     All sorts of metals and their ores, as well as other metal-related blocks.

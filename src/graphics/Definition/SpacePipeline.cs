@@ -26,6 +26,7 @@ internal struct SpacePipelineDescription
     internal ShaderFileDescription[] shaderFiles;
     internal String[] symbols;
 
+    internal UInt32 anisotropy;
     internal MaterialDescription[] materials;
 
     internal Texture[] textures;
@@ -51,9 +52,11 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
 
         internal IntPtr* symbols;
 
+        internal UInt32 anisotropy;
+        
         internal MaterialDescriptionMarshaller.Unmanaged* materials;
         internal UInt32 materialCount;
-
+        
         internal IntPtr* textures;
         internal UInt32 textureCountFirstSlot;
         internal UInt32 textureCountSecondSlot;
@@ -82,6 +85,7 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
                 shaderFileCount = shaderFileCount,
                 symbols = Marshalling.ConvertToUnmanaged<String, IntPtr,
                     UnicodeStringMarshaller>(managed.symbols, out symbolCount),
+                anisotropy = managed.anisotropy,
                 materials = Marshalling.ConvertToUnmanaged<MaterialDescription, MaterialDescriptionMarshaller.Unmanaged,
                     MaterialDescriptionMarshaller.Marshaller>(managed.materials, out UInt32 materialCount),
                 materialCount = materialCount,

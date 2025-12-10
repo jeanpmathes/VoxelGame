@@ -7,7 +7,7 @@
 using System.Collections.Generic;
 using VoxelGame.Core.Logic.Contents;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     A category of content elements.

@@ -35,6 +35,8 @@
     <Setting Name="RenderingAntiAliasingQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
       <Value Profile="(Default)">Low</Value>
     </Setting>
+      <Setting Name="AnisotropicFilteringQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
+          <Value Profile="(Default)">Low</Value>
+      </Setting>
   </Settings>
 </SettingsFile>
-

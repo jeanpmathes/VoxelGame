@@ -23,7 +23,6 @@ public partial class Graphics
     private static readonly Engine.RaytracingData defaultRaytracingData = new()
     {
         wireframe = false,
-        showLevelOfDetail = false,
         windDirection = new Vector3(x: 0.7f, y: 0.0f, z: 0.7f).Normalized(),
         fogOverlapColor = Vector3.Zero,
         fogOverlapSize = 0.0f,
@@ -123,15 +122,6 @@ public partial class Graphics
         engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) => data.antiAliasing.showSamplingRate = enable);
     }
 
-    /// <summary>
-    ///     Set whether to display the visualization of used mip level in texture sampling.
-    /// </summary>
-    /// <param name="enable">Whether to enable mip level visualization.</param>
-    public void SetLevelOfDetailDisplay(Boolean enable)
-    {
-        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) => data.showLevelOfDetail = enable);
-    }
-
     private void SetRaytracingAntiAliasingConfiguration(Boolean enabled, Int32 min, Int32 max, Single variance, Single depth)
     {
         engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
@@ -157,9 +147,9 @@ public partial class Graphics
     }
 
     private void SetPostProcessingAntiAliasingConfiguration(
-        Boolean enabled, 
-        Single contrastThreshold, Single relativeThreshold, 
-        Single subpixelBlending, 
+        Boolean enabled,
+        Single contrastThreshold, Single relativeThreshold,
+        Single subpixelBlending,
         Int32 edgeStepCount, Int32 edgeStep, Single edgeGuess)
     {
         engine?.PostProcessingBuffer.Modify((ref Engine.PostProcessingData data) =>
@@ -202,14 +192,17 @@ public partial class Graphics
     /// <param name="quality">The selected quality preset.</param>
     public void ApplyPostProcessingAntiAliasingQuality(Quality quality)
     {
-        (Boolean enabled, Single contrastThreshold, Single relativeThreshold, Single subpixelBlending, Int32 edgeStepCount, Int32 edgeStep, Single edgeGuess) 
+        (Boolean enabled, Single contrastThreshold, Single relativeThreshold, Single subpixelBlending, Int32 edgeStepCount, Int32 edgeStep, Single edgeGuess)
             configuration = GetPostProcessingAntiAliasingConfiguration(quality);
 
         SetPostProcessingAntiAliasingConfiguration(
-            configuration.enabled, 
-            configuration.contrastThreshold, configuration.relativeThreshold, 
-            configuration.subpixelBlending, 
-            configuration.edgeStepCount, configuration.edgeStep, configuration.edgeGuess);
+            configuration.enabled,
+            configuration.contrastThreshold,
+            configuration.relativeThreshold,
+            configuration.subpixelBlending,
+            configuration.edgeStepCount,
+            configuration.edgeStep,
+            configuration.edgeGuess);
     }
 
     #region LOGGING

@@ -31,17 +31,17 @@ public readonly struct Chance : IEquatable<Chance>, IComparable<Chance>
     /// <summary>
     /// Gets a chance that is impossible (0%).
     /// </summary>
-    public static Chance Impossible => new(0);
+    public static Chance Impossible => new(value: 0);
  
     /// <summary>
     /// Gets a chance that is certain (100%).
     /// </summary>
-    public static Chance Certain => new(100);
+    public static Chance Certain => new(value: 100);
     
     /// <summary>
     /// Gets a chance representing a coin toss (50%).
     /// </summary>
-    public static Chance CoinToss => new(50);
+    public static Chance CoinToss => new(value: 50);
     
     /// <summary>
     /// Check if a roll of 0-99 passes this chance.
@@ -56,7 +56,7 @@ public readonly struct Chance : IEquatable<Chance>, IComparable<Chance>
     #region EQUALITY
     
     /// <inheritdoc />
-    public override Boolean Equals([NotNullWhen(true)] Object? obj)
+    public override Boolean Equals([NotNullWhen(returnValue: true)] Object? obj)
     {
         return obj is Chance other && Equals(other);
     }

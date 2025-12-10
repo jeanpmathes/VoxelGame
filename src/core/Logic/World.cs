@@ -12,6 +12,7 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Generation.Worlds;
@@ -25,8 +26,7 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Annotations.Attributes;
-using Generator = VoxelGame.Core.Generation.Worlds.Standard.Generator;
+using Generator = VoxelGame.Core.Generation.Worlds.Testing.Generator; // todo: change to Standard generator
 
 namespace VoxelGame.Core.Logic;
 

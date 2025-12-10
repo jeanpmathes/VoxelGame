@@ -48,6 +48,8 @@ namespace native
         };
 
         static uint const VERTICES_PER_QUAD = 4;
+
+        SamplerState sampler : register(s0);
     }
 }
 

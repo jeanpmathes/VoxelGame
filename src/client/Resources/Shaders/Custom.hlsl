@@ -47,7 +47,7 @@ namespace vg
          */
         float depthThreshold;
     };
-    
+
     /**
      * \brief The custom data.
      */
@@ -57,11 +57,6 @@ namespace vg
          * \brief Whether to render wireframes.
          */
         bool showWireframes;
-
-        /**
-         * \brief Whether to visualize the mip level used for sampling textures.
-         */
-        bool showLevelOfDetail;
 
         /**
          * \brief The direction of the wind.

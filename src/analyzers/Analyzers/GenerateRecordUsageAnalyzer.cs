@@ -24,7 +24,7 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
     /// The ID of diagnostics produced by this analyzer.
     /// </summary>
     public const String DiagnosticID = "VG0005";
-    
+
     private const String Category = "Usage";
 
     private static readonly DiagnosticDescriptor rule = new(
@@ -60,7 +60,7 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
             if (attribute.AttributeClass.Name != nameof(GenerateRecordAttribute) &&
                 attribute.AttributeClass.ToDisplayString() != typeof(GenerateRecordAttribute).FullName)
                 continue;
-            
+
             Boolean ok = !typeSymbol.IsGenericType && AttributeArgumentsFit(attribute);
 
             if (ok) continue;
@@ -68,7 +68,7 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
             Location location = typeDecl.Identifier.GetLocation();
             var diagnostic = Diagnostic.Create(rule, location, typeSymbol.Name);
             context.ReportDiagnostic(diagnostic);
-                
+
             break;
         }
     }
@@ -79,12 +79,12 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
         {
             case 0:
                 return true;
-            
+
             case 1:
             {
-                TypedConstant argument = attribute.ConstructorArguments[0];
-                
-                if (argument.Kind != TypedConstantKind.Type || argument.Value is not INamedTypeSymbol baseTypeSymbol) 
+                TypedConstant argument = attribute.ConstructorArguments[index: 0];
+
+                if (argument.Kind != TypedConstantKind.Type || argument.Value is not INamedTypeSymbol baseTypeSymbol)
                     return false;
 
                 if (baseTypeSymbol.IsUnboundGenericType)
@@ -92,7 +92,7 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
 
                 return true;
             }
-            
+
             default:
                 return false;
         }

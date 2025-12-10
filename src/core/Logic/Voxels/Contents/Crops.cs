@@ -8,7 +8,7 @@ using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Resources.Language;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     Crops grow on farmland and can be harvested for food or other resources.

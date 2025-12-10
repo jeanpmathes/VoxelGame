@@ -30,7 +30,7 @@ internal sealed class FlagsAttributeData<TFlags> : AttributeDataImplementation<T
     {
         TFlags value = Retrieve(index);
 
-        List<Property> flags = new(capacity: EnumTools.CountFlags<TFlags>());
+        List<Property> flags = new(EnumTools.CountFlags<TFlags>());
 
         foreach ((String name, TFlags flag) in EnumTools.GetPositions<TFlags>())
         {

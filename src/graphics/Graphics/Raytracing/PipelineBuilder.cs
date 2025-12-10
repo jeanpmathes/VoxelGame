@@ -9,14 +9,15 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Graphics.Raytracing;
 
@@ -55,6 +56,8 @@ public class PipelineBuilder
     private readonly List<MaterialConfig> materials = [];
     private readonly List<ShaderFile> shaderFiles = [];
 
+    private UInt32 anisotropy = 1;
+    
     private UInt32 customDataBufferSize;
     private UInt32 effectSpoolCount;
 
@@ -122,6 +125,22 @@ public class PipelineBuilder
         materials.Add(new MaterialConfig(CleanUpName(name), groups, isOpaque, animation?.ShaderFileIndex, normal, shadow));
 
         return new Material((UInt32) index);
+    }
+
+    /// <summary>
+    ///     Set the quality level of anisotropic texture filtering.
+    /// </summary>
+    /// <param name="level">The anisotropy quality level.</param>
+    public void SetAnisotropyQuality(Quality level)
+    {
+        anisotropy = level switch
+        {
+            Quality.Low => 1,
+            Quality.Medium => 2,
+            Quality.High => 4,
+            Quality.Ultra => 8,
+            _ => throw Exceptions.UnsupportedEnumValue(level)
+        };
     }
 
     /// <summary>
@@ -200,6 +219,7 @@ public class PipelineBuilder
         {
             shaderFiles = files,
             symbols = symbols,
+            anisotropy = anisotropy,
             materials = materialDescriptions,
             textures = textures,
             textureCountFirstSlot = (UInt32) (firstTextureSlot?.Count ?? 0),

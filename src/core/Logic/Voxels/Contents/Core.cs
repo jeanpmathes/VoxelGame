@@ -10,7 +10,7 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     These blocks are the most essential blocks in the game.
@@ -30,7 +30,7 @@ public class Core(BlockBuilder builder) : Category(builder)
         .WithBehavior<Replaceable>()
         .WithValidation((block, validator) =>
         {
-            if (block.BlockID != 0) 
+            if (block.BlockID != 0)
                 validator.ReportError($"Block {block} must have block ID 0");
         })
         .Complete();

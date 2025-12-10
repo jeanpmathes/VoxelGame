@@ -71,10 +71,10 @@ namespace
         auto bindings  = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::POST_PROCESSING);
 
         resources->Initialize(
-            [&client, &shaderBuffer, &description, &bindings](auto& graphics)
+            [&client, &shaderBuffer, &description, &bindings](ShaderResources::Description& graphics)
             {
                 graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0}, GetFilter(description));
+                graphics.AddStaticSampler({.reg = 0}, GetFilter(description), D3D12_TEXTURE_ADDRESS_MODE_BORDER);
 
                 if (shaderBuffer != nullptr) graphics.AddConstantBufferView(
                     shaderBuffer->GetGPUVirtualAddress(),
@@ -134,10 +134,10 @@ namespace
         auto bindings  = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::DRAW_2D);
 
         resources->Initialize(
-            [&client, &shaderBuffer, &description, &bindings](auto& graphics)
+            [&client, &shaderBuffer, &description, &bindings](ShaderResources::Description& graphics)
             {
                 graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0}, GetFilter(description));
+                graphics.AddStaticSampler({.reg = 0}, GetFilter(description), D3D12_TEXTURE_ADDRESS_MODE_BORDER);
 
                 if (shaderBuffer != nullptr) graphics.AddConstantBufferView(
                     shaderBuffer->GetGPUVirtualAddress(),

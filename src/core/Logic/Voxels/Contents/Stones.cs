@@ -8,7 +8,7 @@ using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Resources.Language;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     All sorts of stone types. Stone occurs naturally in the world but can also be used for the construction of various
