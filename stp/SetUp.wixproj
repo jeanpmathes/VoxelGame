@@ -89,9 +89,9 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="WixToolset.Heat" Version="4.0.4"/>
-        <PackageReference Include="WixToolset.UI.wixext" Version="4.0.4"/>
-        <PackageReference Include="WixToolset.Util.wixext" Version="4.0.4"/>
+        <PackageReference Include="WixToolset.Heat" Version="6.0.2"/>
+        <PackageReference Include="WixToolset.UI.wixext" Version="6.0.2"/>
+        <PackageReference Include="WixToolset.Util.wixext" Version="6.0.2"/>
     </ItemGroup>
     <ItemGroup>
         <Folder Include="Resources"/>
