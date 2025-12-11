@@ -63,7 +63,7 @@ private:
     Allocation<ID3D12Resource>                m_instanceConstantDataBuffer            = {};
     UINT64                                    m_instanceConstantDataBufferAlignedSize = 0;
     D3D12_CONSTANT_BUFFER_VIEW_DESC           m_instanceConstantDataBufferView        = {};
-    Mapping<ID3D12Resource, EffectDataBuffer> m_instanceConstantBufferMapping = {};
+    Mapping<ID3D12Resource, EffectDataBuffer> m_instanceConstantBufferMapping         = {};
 
     Allocation<ID3D12Resource> m_geometryBuffer = {};
     D3D12_VERTEX_BUFFER_VIEW   m_geometryVBV    = {};

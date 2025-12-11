@@ -143,22 +143,6 @@ public sealed class Wood(CID contentID, BlockBuilder builder) : Convention<Wood>
         }
 
         /// <summary>
-        ///     The terrain the tree grows on.
-        /// </summary>
-        public enum TerrainType
-        {
-            /// <summary>
-            ///     Earth-based terrain.
-            /// </summary>
-            Earth,
-
-            /// <summary>
-            ///     Sand-based terrain.
-            /// </summary>
-            Sand
-        }
-
-        /// <summary>
         ///     The height of the tree.
         /// </summary>
         public enum Growth
@@ -182,6 +166,22 @@ public sealed class Wood(CID contentID, BlockBuilder builder) : Convention<Wood>
             ///     A shrub, which is shorter than a short tree.
             /// </summary>
             Shrub
+        }
+
+        /// <summary>
+        ///     The terrain the tree grows on.
+        /// </summary>
+        public enum TerrainType
+        {
+            /// <summary>
+            ///     Earth-based terrain.
+            /// </summary>
+            Earth,
+
+            /// <summary>
+            ///     Sand-based terrain.
+            /// </summary>
+            Sand
         }
     }
 
@@ -248,7 +248,7 @@ public static class WoodConvention
 
                             return burnedState;
                         });
-                        
+
                         combustible.CompleteDestructionChance.Initializer.ContributeConstant(Chance.CoinToss);
                     })
                     .WithBehavior<TreePart>()
@@ -269,7 +269,7 @@ public static class WoodConvention
 
                             return burnedState;
                         });
-                        
+
                         combustible.CompleteDestructionChance.Initializer.ContributeConstant(Chance.CoinToss);
                     })
                     .WithBehavior<ConstructionMaterial>()
@@ -277,9 +277,8 @@ public static class WoodConvention
 
                 Fence = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Fence)}"), $"{Language.Fence} ({name.wood})")
-                    .WithBehavior<WideConnecting>(
-                        connecting => connecting.Models.Initializer.ContributeConstant(
-                            (RID.File<Model>("fence_post"), RID.File<Model>("fence_extension"), null)))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+                        (RID.File<Model>("fence_post"), RID.File<Model>("fence_extension"), null)))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Fence>()
                     .WithBehavior<Combustible>()
@@ -297,8 +296,7 @@ public static class WoodConvention
 
                 Door = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Door)}"), $"{Language.Door} ({name.wood})")
-                    .WithBehavior<Modelled>(
-                        modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("door_wood_closed"), RID.File<Model>("door_wood_open")]))
+                    .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("door_wood_closed"), RID.File<Model>("door_wood_open")]))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_door")))
                     .WithBehavior<Door>()
                     .Complete(),
@@ -306,9 +304,8 @@ public static class WoodConvention
                 Pipe = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Pipe)}"), $"{Language.Pipe} ({name.wood})")
                     .WithBehavior<Piped>(piped => piped.Tier.Initializer.ContributeConstant(Piped.PipeTier.Primitive))
-                    .WithBehavior<ConnectingPipe>(
-                        pipe => pipe.Models.Initializer.ContributeConstant(
-                            (RID.File<Model>("wood_pipe_center"), RID.File<Model>("wood_pipe_connector"), RID.File<Model>("wood_pipe_surface"))))
+                    .WithBehavior<ConnectingPipe>(pipe => pipe.Models.Initializer.ContributeConstant(
+                        (RID.File<Model>("wood_pipe_center"), RID.File<Model>("wood_pipe_connector"), RID.File<Model>("wood_pipe_surface"))))
                     .WithTextureOverride(TextureOverride.Single(index: 0, TID.Block(texture)))
                     .WithBehavior<Combustible>()
                     .Complete(),

@@ -81,10 +81,10 @@ public record struct State(StateSet Owner, Int32 Index)
     {
         return attributeData.Get(Index);
     }
-    
+
     /// <summary>
-    /// Get the value index of the given attribute for this state.
-    /// Do not confuse the value index with the state index.
+    ///     Get the value index of the given attribute for this state.
+    ///     Do not confuse the value index with the state index.
     /// </summary>
     /// <param name="attributeData">The attribute to get the value index for.</param>
     /// <returns>The value index of the attribute for this state.</returns>

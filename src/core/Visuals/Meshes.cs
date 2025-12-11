@@ -286,7 +286,7 @@ public static class Meshes
         public static ITextureIndexProvider Instance { get; } = new FallbackTextureIndexProvider();
 
         public IResourceContext? Context { get; set; }
-        
+
         public void SetUp() {}
 
         public Int32 GetTextureIndex(TID identifier)

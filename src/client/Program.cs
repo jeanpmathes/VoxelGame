@@ -32,8 +32,7 @@ internal static partial class Program
     /// <summary>
     ///     Get the version of the program.
     /// </summary>
-    [LateInitialization]
-    private static partial Version Version { get; set; } 
+    [LateInitialization] private static partial Version Version { get; set; }
 
     /// <summary>
     ///     Get whether the program is running with code that was compiled in debug mode.
@@ -43,26 +42,22 @@ internal static partial class Program
     /// <summary>
     ///     Get the app data directory.
     /// </summary>
-    [LateInitialization]
-    private static partial DirectoryInfo AppDataDirectory { get; set; }
+    [LateInitialization] private static partial DirectoryInfo AppDataDirectory { get; set; }
 
     /// <summary>
     ///     Get the screenshot directory.
     /// </summary>
-    [LateInitialization]
-    internal static partial DirectoryInfo ScreenshotDirectory { get; private set; }
+    [LateInitialization] internal static partial DirectoryInfo ScreenshotDirectory { get; private set; }
 
     /// <summary>
     ///     Get the directory structures are exported to.
     /// </summary>
-    [LateInitialization]
-    internal static partial DirectoryInfo StructureDirectory { get; private set; } 
+    [LateInitialization] internal static partial DirectoryInfo StructureDirectory { get; private set; }
 
     /// <summary>
     ///     Get the world directory.
     /// </summary>
-    [LateInitialization]
-    internal static partial DirectoryInfo WorldsDirectory { get; private set; } 
+    [LateInitialization] internal static partial DirectoryInfo WorldsDirectory { get; private set; }
 
     [STAThread]
     private static Int32 Main(String[] commandLineArguments)
@@ -135,7 +130,7 @@ internal static partial class Program
     private static Int32 Run(ILogger logger, Func<Int32> runnable)
     {
         using ILoggerFactory factory = LoggingHelper.LoggerFactory;
-        
+
         if (IsDebug) return runnable();
 
         try

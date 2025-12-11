@@ -33,9 +33,6 @@ public partial class UserInterfaceHide : SceneComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)
     {
-        if (scene.CanHandleGameInput && button.Changed)
-        {
-            ui.ToggleHidden();
-        }
+        if (scene.CanHandleGameInput && button.Changed) ui.ToggleHidden();
     }
 }

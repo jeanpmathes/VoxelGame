@@ -30,7 +30,7 @@ public partial class Membrane : BlockBehavior, IBehavior<Membrane, BlockBehavior
     /// <summary>
     ///     Only fluids with a viscosity less than this value can flow into the block.
     /// </summary>
-    public ResolvedProperty<Viscosity> MaxViscosity { get; } = ResolvedProperty<Viscosity>.New<Minimum<Viscosity, Void>>(nameof(MaxViscosity), new Viscosity { MilliPascalSeconds = 65 });
+    public ResolvedProperty<Viscosity> MaxViscosity { get; } = ResolvedProperty<Viscosity>.New<Minimum<Viscosity, Void>>(nameof(MaxViscosity), new Viscosity {MilliPascalSeconds = 65});
 
     /// <inheritdoc />
     public override void OnInitialize(BlockProperties properties)

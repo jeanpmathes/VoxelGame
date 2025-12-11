@@ -33,7 +33,7 @@ public class UnmeshedBlock : Block
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (Is<Meshed>()) 
+        if (Is<Meshed>())
             validator.ReportWarning("Unmeshed block should not have the Meshed behavior");
     }
 

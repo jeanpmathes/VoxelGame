@@ -6,4 +6,4 @@
 
 namespace VoxelGame.Core.Tests.Actor;
 
-public class MockActor : Actors.Actor {}
+public class MockActor : Actors.Actor;

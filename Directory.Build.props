@@ -9,7 +9,7 @@
         <Win32Icon>$(SolutionDir)vg_icon.ico</Win32Icon>
         <PackageLicenseExpression>MIT License</PackageLicenseExpression>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <LangVersion>13</LangVersion>
         <NeutralLanguage>en</NeutralLanguage>

@@ -232,7 +232,7 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
         Boolean connectZ = CheckOrientation(world, position, Orientation.South) ||
                            CheckOrientation(world, position, Orientation.North);
 
-        if (orientation.IsZ() && !connectX || orientation.IsX() && !connectZ) orientation = orientation.Rotate();
+        if ((orientation.IsZ() && !connectX) || (orientation.IsX() && !connectZ)) orientation = orientation.Rotate();
 
         return rotatable.SetOrientation(original, orientation);
     }

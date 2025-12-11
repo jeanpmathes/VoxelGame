@@ -16,5 +16,5 @@ public interface IConstantInt32
     /// <summary>
     ///     The constant integer value.
     /// </summary>
-    public static abstract Int32 Value { get; }
+    static abstract Int32 Value { get; }
 }

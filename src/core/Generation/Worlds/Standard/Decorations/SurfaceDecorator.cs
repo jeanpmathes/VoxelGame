@@ -64,7 +64,8 @@ public class SurfaceDecorator : Decorator
 }
 
 /// <summary>
-///     A specialization of <see cref="SurfaceDecorator" /> that only allows placement on surfaces that have a specific behavior.
+///     A specialization of <see cref="SurfaceDecorator" /> that only allows placement on surfaces that have a specific
+///     behavior.
 /// </summary>
 /// <typeparam name="TBelow">The behavior that must be present on the block below the surface.</typeparam>
 public class SurfaceDecorator<TBelow> : SurfaceDecorator where TBelow : BlockBehavior, IBehavior<TBelow, BlockBehavior, Block>

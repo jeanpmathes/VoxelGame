@@ -15,7 +15,7 @@ namespace VoxelGame.Core.Visuals;
 /// <summary>
 ///     A mesh, capable of defining more complex shapes than just a cube.
 ///     The mesh is defined by a set of quads, each defined by four vertices and per-quad data.
-///     In contrast to a <see cref="Model"/>, the mesh is stored in a format ready to be uploaded to the GPU.
+///     In contrast to a <see cref="Model" />, the mesh is stored in a format ready to be uploaded to the GPU.
 /// </summary>
 public class Mesh
 {
@@ -77,7 +77,7 @@ public class Mesh
         for (var index = 0; index < original.Length; index++)
         {
             Quad quad = original[index];
-            
+
             Int32 first = index * 2;
             mesh.quads[first] = quad;
 

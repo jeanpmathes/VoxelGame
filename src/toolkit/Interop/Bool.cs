@@ -10,20 +10,26 @@ using System.Runtime.InteropServices;
 namespace VoxelGame.Toolkit.Interop;
 
 /// <summary>
-/// A 32-bit boolean value for native interop.
+///     A 32-bit boolean value for native interop.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
 public struct Bool
 {
     private UInt32 value;
-    
+
     /// <summary>
-    /// Converts a <see cref="Boolean"/> to a <see cref="Bool"/>.
+    ///     Converts a <see cref="Boolean" /> to a <see cref="Bool" />.
     /// </summary>
-    public static implicit operator Bool(Boolean b) => new() { value = b.ToUInt() };
-    
+    public static implicit operator Bool(Boolean b)
+    {
+        return new Bool {value = b.ToUInt()};
+    }
+
     /// <summary>
-    /// Converts a <see cref="Bool"/> to a <see cref="Boolean"/>.
+    ///     Converts a <see cref="Bool" /> to a <see cref="Boolean" />.
     /// </summary>
-    public static implicit operator Boolean(Bool b) => b.value != 0;
+    public static implicit operator Boolean(Bool b)
+    {
+        return b.value != 0;
+    }
 }

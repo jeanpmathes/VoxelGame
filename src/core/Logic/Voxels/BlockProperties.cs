@@ -32,15 +32,14 @@ public class BlockProperties(Block subject)
     ///     Whether this block hinders movement.
     /// </summary>
     public Aspect<Boolean, Block> IsSolid { get; } = Aspect<Boolean, Block>.New<LogicalAnd<Block>>(nameof(IsSolid), subject);
-    
+
     /// <summary>
     ///     Gets whether this block is unshaded, which means it does not receive shadows.
     /// </summary>
     public Aspect<Boolean, Block> IsUnshaded { get; } = Aspect<Boolean, Block>.New<ORing<Block>>(nameof(IsUnshaded), subject);
-    
+
     /// <summary>
     ///     Whether this block is considered empty.
     /// </summary>
     public Aspect<Boolean, Block> IsEmpty { get; } = Aspect<Boolean, Block>.New<Exclusive<Boolean, Block>>(nameof(IsEmpty), subject);
-
 }

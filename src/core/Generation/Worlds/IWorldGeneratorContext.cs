@@ -19,16 +19,16 @@ public interface IWorldGeneratorContext
     /// <summary>
     ///     The seed to use for generation.
     /// </summary>
-    public (Int32 upper, Int32 lower) Seed { get; }
+    (Int32 upper, Int32 lower) Seed { get; }
 
     /// <summary>
     ///     An optional timer for profiling.
     /// </summary>
-    public Timer? Timer { get; }
+    Timer? Timer { get; }
 
     /// <inheritdoc cref="WorldData.ReadBlobAsync{T}" />
-    public T? ReadBlob<T>(String name) where T : class, IEntity, new();
+    T? ReadBlob<T>(String name) where T : class, IEntity, new();
 
     /// <inheritdoc cref="WorldData.WriteBlobAsync{T}" />
-    public void WriteBlob<T>(String name, T entity) where T : class, IEntity, new();
+    void WriteBlob<T>(String name, T entity) where T : class, IEntity, new();
 }

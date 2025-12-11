@@ -17,5 +17,5 @@ public interface IIssueSource
     ///     Optional instance name of the issue source.
     ///     If not provided, just the type name is used.
     /// </summary>
-    public String? InstanceName => null;
+    String? InstanceName => null;
 }

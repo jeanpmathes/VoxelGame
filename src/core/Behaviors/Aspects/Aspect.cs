@@ -95,14 +95,8 @@ public class Aspect<TValue, TContext>
 
     private void OnValidation(Object? sender, IAspectable.ValidationEventArgs e)
     {
-        if (usedContributors.Count == maxContributors && rejectedContributors.Count > 0)
-        {
-            e.Validator.ReportWarning($"Cannot add more than {maxContributors} contributors to aspect '{this}'");
-        }
-        else if (exclusiveContributor != null && rejectedContributors.Count > 0)
-        {
-            e.Validator.ReportWarning($"Cannot add more than one contributor to aspect '{this}' as an exclusive contributor is set");
-        }
+        if (usedContributors.Count == maxContributors && rejectedContributors.Count > 0) e.Validator.ReportWarning($"Cannot add more than {maxContributors} contributors to aspect '{this}'");
+        else if (exclusiveContributor != null && rejectedContributors.Count > 0) e.Validator.ReportWarning($"Cannot add more than one contributor to aspect '{this}' as an exclusive contributor is set");
     }
 
     /// <summary>
@@ -133,7 +127,7 @@ public class Aspect<TValue, TContext>
     {
         return name;
     }
-    
+
     /// <summary>
     ///     Contribute a constant value to this aspect.
     /// </summary>

@@ -123,7 +123,7 @@ void DXApp::Init()
 
 void DXApp::Update(StepTimer const& timer)
 {
-    double const delta = timer.GetElapsedSeconds();
+    double const delta      = timer.GetElapsedSeconds();
     m_totalRenderUpdateTime += delta;
 
     m_cycle = Cycle::LOGIC_UPDATE;
@@ -138,7 +138,7 @@ void DXApp::RenderUpdate(StepTimer const& timer)
 {
     if (m_logicTimer.GetFrameCount() == 0) return;
 
-    double const delta = timer.GetElapsedSeconds();
+    double const delta      = timer.GetElapsedSeconds();
     m_totalRenderUpdateTime += delta;
 
     m_cycle = Cycle::RENDER_UPDATE;
@@ -185,7 +185,11 @@ void DXApp::OnSizeMove(bool const enter)
     if (enter)
     {
         CheckReturn(
-            SetTimer(Win32Application::GetWindowHandle(), IDT_UPDATE, m_logicTimer.GetTargetElapsedMilliseconds(), nullptr));
+            SetTimer(
+                Win32Application::GetWindowHandle(),
+                IDT_UPDATE,
+                m_logicTimer.GetTargetElapsedMilliseconds(),
+                nullptr));
         m_isUpdateTimerRunning = true;
     }
     else if (m_isUpdateTimerRunning)

@@ -30,7 +30,7 @@ public abstract class ShapeDecoration : Decoration
         this.shape = shape;
 
         Debug.Assert(size is > 0 and <= Section.Size);
-        
+
         Size = size;
     }
 
@@ -54,13 +54,10 @@ public abstract class ShapeDecoration : Decoration
         {
             Vector3i offset = new(x, y, z);
             Vector3i current = center + offset;
-            
-            var relative = (Vector3d)(offset - extents);
 
-            if (shape.Contains(relative))
-            {
-                OnPlace(current, grid, placementContext);
-            }
+            var relative = (Vector3d) (offset - extents);
+
+            if (shape.Contains(relative)) OnPlace(current, grid, placementContext);
         }
     }
 

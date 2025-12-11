@@ -11,10 +11,10 @@ namespace VoxelGame.Core.Behaviors.Events;
 /// <summary>
 ///     Core interface for event messages, with pooling support.
 /// </summary>
-public interface IEventMessage<TSelf>  where TSelf : class, IEventMessage<TSelf>, new()
+public interface IEventMessage<TSelf> where TSelf : class, IEventMessage<TSelf>, new()
 {
     /// <summary>
-    ///    A simple pool for this event message type.
+    ///     A simple pool for this event message type.
     /// </summary>
-    public static SimpleObjectPool<TSelf> Pool { get; } = new();
+    static SimpleObjectPool<TSelf> Pool { get; } = new();
 }

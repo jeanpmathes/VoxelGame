@@ -25,7 +25,7 @@ public partial class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     {
         subject.Require<Regolith>();
         subject.Require<Plantable>();
-        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(new Viscosity { MilliPascalSeconds = 6.5 });
+        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(new Viscosity {MilliPascalSeconds = 6.5});
         subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);
     }
 
@@ -60,9 +60,6 @@ public partial class Soil : BlockBehavior, IBehavior<Soil, BlockBehavior, Block>
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (!Subject.Is<Wet>())
-        {
-            validator.ReportWarning("Soil blocks must be able to get wet in some way, preferably with visual representation of that");
-        }
+        if (!Subject.Is<Wet>()) validator.ReportWarning("Soil blocks must be able to get wet in some way, preferably with visual representation of that");
     }
 }

@@ -3,11 +3,11 @@
         <TargetFramework>net9.0-windows</TargetFramework>
         <Platforms>x64</Platforms>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     </PropertyGroup>
-    
+
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
         <DefineConstants>DEBUG;TRACE</DefineConstants>
         <DebugType>full</DebugType>
@@ -27,7 +27,7 @@
     <ItemGroup>
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
         <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj"/>
-        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer" />
+        <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
         <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
         <ProjectReference Include="..\analyzers\VoxelGame.Analyzers.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
     </ItemGroup>

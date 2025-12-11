@@ -91,7 +91,7 @@ public sealed class Engine : IResource
     public ResourceType Type => ResourceTypes.Engine;
 
     /// <summary>
-    /// Data defining the antialiasing settings used in raytracing.
+    ///     Data defining the antialiasing settings used in raytracing.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
     public struct AntiAliasingSettings : IEquatable<AntiAliasingSettings>
@@ -354,7 +354,7 @@ public sealed class Engine : IResource
         }
 
         /// <summary>
-        /// Check if two <see cref="PostProcessingData" />s are not equal.
+        ///     Check if two <see cref="PostProcessingData" />s are not equal.
         /// </summary>
         public static Boolean operator !=(PostProcessingData left, PostProcessingData right)
         {

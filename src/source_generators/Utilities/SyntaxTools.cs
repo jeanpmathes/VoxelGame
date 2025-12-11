@@ -29,10 +29,7 @@ public static class SyntaxTools
 
         while (potentialNamespaceParent != null
                && potentialNamespaceParent is not NamespaceDeclarationSyntax
-               && potentialNamespaceParent is not FileScopedNamespaceDeclarationSyntax)
-        {
-            potentialNamespaceParent = potentialNamespaceParent.Parent;
-        }
+               && potentialNamespaceParent is not FileScopedNamespaceDeclarationSyntax) potentialNamespaceParent = potentialNamespaceParent.Parent;
 
         if (potentialNamespaceParent is not BaseNamespaceDeclarationSyntax namespaceParent)
             return @namespace;

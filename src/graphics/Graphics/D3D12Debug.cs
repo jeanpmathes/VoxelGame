@@ -61,7 +61,7 @@ internal sealed class D3D12Debug
         LogLevel level = GetLevel(severity);
         String categoryName = ResolveCategory(category);
         (String idResolved, Int32 eventId) = ResolveEvent(id);
-        
+
         String? message = Utf8StringMarshaller.ConvertToManaged(messagePointer);
 
         if (logger.IsEnabled(level))

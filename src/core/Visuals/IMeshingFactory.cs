@@ -17,5 +17,5 @@ public interface IMeshingFactory
     /// </summary>
     /// <param name="hint">A hint for the size of the mesh that will be created.</param>
     /// <returns>The new meshing instance.</returns>
-    public IMeshing Create(Int32 hint);
+    IMeshing Create(Int32 hint);
 }

@@ -17,19 +17,19 @@ public interface IChunkMeshingContext
     /// <summary>
     ///     Get the meshing factory of the context.
     /// </summary>
-    public IMeshingFactory MeshingFactory { get; }
+    IMeshingFactory MeshingFactory { get; }
 
     /// <summary>
     ///     Gets the section with the given position, if it is part of the context.
     /// </summary>
     /// <param name="position">The position of the section.</param>
     /// <returns>The section, or null if it is not part of the context.</returns>
-    public Section? GetSection(SectionPosition position);
+    Section? GetSection(SectionPosition position);
 
     /// <summary>
     ///     Get the tint for a position.
     /// </summary>
     /// <param name="position">The world/block position.</param>
     /// <returns>The tint colors.</returns>
-    public (ColorS block, ColorS fluid) GetPositionTint(Vector3i position);
+    (ColorS block, ColorS fluid) GetPositionTint(Vector3i position);
 }

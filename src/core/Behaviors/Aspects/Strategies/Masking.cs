@@ -17,7 +17,7 @@ public class Masking<TValue, TContext> : IContributionStrategy<TValue, TContext>
 {
     /// <inheritdoc />
     public static Int32 MaxContributorCount => Int32.MaxValue;
-    
+
     /// <inheritdoc />
     public TValue CombineContributions(TValue original, TContext context, Span<IContributor<TValue, TContext>> contributors)
     {
@@ -29,6 +29,6 @@ public class Masking<TValue, TContext> : IContributionStrategy<TValue, TContext>
             result &= Convert.ToInt64(contribution, CultureInfo.InvariantCulture);
         }
 
-        return (TValue)Enum.ToObject(typeof(TValue), result);
+        return (TValue) Enum.ToObject(typeof(TValue), result);
     }
 }

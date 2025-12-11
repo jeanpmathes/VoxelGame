@@ -75,7 +75,7 @@ public class SimpleObjectPool<T> : ObjectPool<T> where T : class, new()
     ///     Create a new simple object pool.
     /// </summary>
     public SimpleObjectPool() : base(() => new T()) {}
-    
+
     /// <summary>
     ///     Get a shared instance of this object pool.
     /// </summary>

@@ -16,5 +16,5 @@ public interface IContent : IResource
     /// <summary>
     ///     The identifier of this content.
     /// </summary>
-    public CID ID { get; }
+    CID ID { get; }
 }

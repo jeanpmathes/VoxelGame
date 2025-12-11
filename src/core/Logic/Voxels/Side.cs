@@ -200,7 +200,7 @@ public static class SideExtensions
     }
 
     /// <summary>
-    /// Get the block side flags as a single side, or null if no or multiple sides are set.
+    ///     Get the block side flags as a single side, or null if no or multiple sides are set.
     /// </summary>
     /// <param name="side">The block side flags, only one bit should be set.</param>
     /// <returns>The single side, or null.</returns>
@@ -267,7 +267,7 @@ public static class SideExtensions
             _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
-    
+
     /// <summary>
     ///     Get the opposite sides of the given sides.
     ///     Note that this is not simply a bitwise negation, as <c>None</c> and <c>All</c> remain unchanged.

@@ -30,6 +30,11 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
         name = typeof(T).Name;
     }
 
+    /// <summary>
+    ///     Get all resources managed by this provider.
+    /// </summary>
+    protected IReadOnlyDictionary<RID, T> Resources => resources;
+
     /// <inheritdoc />
     public IResourceContext? Context { get; set; }
 
@@ -87,11 +92,6 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
 
         return CreateFallback();
     }
-
-    /// <summary>
-    ///     Get all resources managed by this provider.
-    /// </summary>
-    protected IReadOnlyDictionary<RID, T> Resources => resources;
 
     #region LOGGING
 

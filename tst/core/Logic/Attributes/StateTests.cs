@@ -20,12 +20,12 @@ public class StateTests
     private static StateBuilder CreateStateBuilder()
     {
         Validator validator = new(new MockResourceContext());
-        
+
         validator.SetScope(new MockBlock());
-        
+
         return new StateBuilder(validator);
     }
-    
+
     [Fact]
     public void State_SetGet_Boolean()
     {

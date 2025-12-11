@@ -79,7 +79,7 @@ public static class AxisExtensions
             _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
-    
+
     /// <summary>
     ///     Get the unit vector of the axis as a <see cref="Vector3d" />.
     /// </summary>

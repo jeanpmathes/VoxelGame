@@ -71,10 +71,7 @@ public partial class UserInterfaceHook : SceneComponent
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
-        if (disposing)
-        {
-            ui.Dispose();
-        }
+        if (disposing) ui.Dispose();
 
         base.Dispose(disposing);
     }

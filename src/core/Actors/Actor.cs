@@ -5,10 +5,10 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
 using VoxelGame.Toolkit.Components;
-using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Core.Actors;
 
@@ -18,7 +18,6 @@ namespace VoxelGame.Core.Actors;
 [ComponentSubject(typeof(ActorComponent))]
 public abstract partial class Actor : Composed<Actor, ActorComponent>
 {
-
     /// <summary>
     ///     Gets the world in which this actor is located.
     ///     Using an actor without a world is not valid.

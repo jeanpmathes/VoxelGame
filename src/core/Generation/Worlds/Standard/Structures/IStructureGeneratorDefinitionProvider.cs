@@ -18,5 +18,5 @@ public interface IStructureGeneratorDefinitionProvider
     /// </summary>
     /// <param name="identifier">The identifier of the structure.</param>
     /// <returns>The structure definition, or a fallback if the structure is not found.</returns>
-    public StructureGeneratorDefinition GetStructure(RID identifier);
+    StructureGeneratorDefinition GetStructure(RID identifier);
 }

@@ -10,12 +10,12 @@ using VoxelGame.Core.Utilities.Resources;
 namespace VoxelGame.Core.Logic.Contents;
 
 /// <summary>
-/// Represents a content identifier. Must be constructed from an unlocalized string.
+///     Represents a content identifier. Must be constructed from an unlocalized string.
 /// </summary>
 public readonly record struct CID(String Identifier)
 {
     /// <summary>
-    /// Get the resource ID for the content type T with this CID.
+    ///     Get the resource ID for the content type T with this CID.
     /// </summary>
     /// <typeparam name="T">The content type.</typeparam>
     /// <returns>The resource ID.</returns>

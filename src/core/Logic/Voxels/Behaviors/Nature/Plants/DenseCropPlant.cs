@@ -22,7 +22,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 public partial class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, BlockBehavior, Block>
 {
     private const Int32 StageCount = 5;
-    
+
     private readonly GrowingPlant plant;
 
     [Constructible]
@@ -48,7 +48,6 @@ public partial class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, B
         Int32? currentStage = plant.GetStage(state);
 
         if (currentStage is {} aliveStage)
-        {
             return aliveStage switch
             {
                 0 => BoundingVolume.BlockWithHeight(height: 3),
@@ -58,7 +57,6 @@ public partial class DenseCropPlant : BlockBehavior, IBehavior<DenseCropPlant, B
                 4 => BoundingVolume.BlockWithHeight(height: 15),
                 _ => throw Exceptions.UnsupportedValue(aliveStage)
             };
-        }
 
         return BoundingVolume.BlockWithHeight(height: 3);
     }

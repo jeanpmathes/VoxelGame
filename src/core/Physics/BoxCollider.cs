@@ -124,12 +124,12 @@ public struct BoxCollider : IEquatable<BoxCollider>
         return Check(other.Volume, ref x, ref y, ref z);
     }
 
-    private Boolean IntersectsTerrain_NonRecursive(World world, 
-        out Boolean xCollision, out Boolean yCollision, out Boolean zCollision, 
+    private Boolean IntersectsTerrain_NonRecursive(World world,
+        out Boolean xCollision, out Boolean yCollision, out Boolean zCollision,
         HashSet<(Vector3i position, Block block)> blockIntersections,
         HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
-        Boolean intersects = false;
+        var intersects = false;
 
         xCollision = false;
         yCollision = false;

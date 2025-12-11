@@ -17,15 +17,15 @@ public interface IPlayerDataProvider
     /// <summary>
     ///     The current block/fluid mode.
     /// </summary>
-    public String Mode { get; }
+    String Mode { get; }
 
     /// <summary>
     ///     The current block/fluid selection.
     /// </summary>
-    public String Selection { get; }
+    String Selection { get; }
 
     /// <summary>
     ///     Data for debugging purposes.
     /// </summary>
-    public Property DebugData { get; }
+    Property DebugData { get; }
 }

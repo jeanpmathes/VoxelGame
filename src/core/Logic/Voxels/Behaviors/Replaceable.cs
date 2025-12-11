@@ -10,7 +10,7 @@ using VoxelGame.Core.Behaviors;
 namespace VoxelGame.Core.Logic.Voxels.Behaviors;
 
 /// <summary>
-/// Marks the block as replaceable, see <see cref="Block.Replaceability"/>,
+///     Marks the block as replaceable, see <see cref="Block.Replaceability" />,
 /// </summary>
 public partial class Replaceable : BlockBehavior, IBehavior<Replaceable, BlockBehavior, Block>
 {

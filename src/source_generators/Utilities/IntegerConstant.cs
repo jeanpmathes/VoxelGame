@@ -30,8 +30,8 @@ public readonly struct IntegerConstant : IEquatable<IntegerConstant>
     ///     Whether the value is a flag value, meaning it is a power of two or zero.
     /// </summary>
     public Boolean IsFlag => isUnsigned
-        ? (unsignedData & unsignedData - 1) == 0
-        : (signedData & signedData - 1) == 0;
+        ? (unsignedData & (unsignedData - 1)) == 0
+        : (signedData & (signedData - 1)) == 0;
 
     /// <summary>
     ///     Creates an <see cref="IntegerConstant" /> from the given underlying type and value.
@@ -77,8 +77,8 @@ public readonly struct IntegerConstant : IEquatable<IntegerConstant>
         unchecked
         {
             Int32 hashCode = isUnsigned.GetHashCode();
-            hashCode = hashCode * 397 ^ unsignedData.GetHashCode();
-            hashCode = hashCode * 397 ^ signedData.GetHashCode();
+            hashCode = (hashCode * 397) ^ unsignedData.GetHashCode();
+            hashCode = (hashCode * 397) ^ signedData.GetHashCode();
 
             return hashCode;
         }

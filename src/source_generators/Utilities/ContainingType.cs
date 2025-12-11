@@ -66,11 +66,11 @@ public class ContainingType(String accessibility, String keyword, String name, S
         unchecked
         {
             Int32 hashCode = Accessibility.GetHashCode();
-            hashCode = hashCode * 397 ^ Keyword.GetHashCode();
-            hashCode = hashCode * 397 ^ Name.GetHashCode();
-            hashCode = hashCode * 397 ^ (TypeParameters != null ? TypeParameters.GetHashCode() : 0);
-            hashCode = hashCode * 397 ^ Constraints.GetHashCode();
-            hashCode = hashCode * 397 ^ (Child != null ? Child.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ Keyword.GetHashCode();
+            hashCode = (hashCode * 397) ^ Name.GetHashCode();
+            hashCode = (hashCode * 397) ^ (TypeParameters != null ? TypeParameters.GetHashCode() : 0);
+            hashCode = (hashCode * 397) ^ Constraints.GetHashCode();
+            hashCode = (hashCode * 397) ^ (Child != null ? Child.GetHashCode() : 0);
 
             return hashCode;
         }

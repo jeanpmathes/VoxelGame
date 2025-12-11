@@ -5,11 +5,11 @@
         <Configurations>Debug;Release</Configurations>
         <Platforms>x64</Platforms>
     </PropertyGroup>
-    
+
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
         <DefineConstants>Debug</DefineConstants>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <OutputPath>bin\$(Platform)\$(Configuration)\</OutputPath>
         <IntermediateOutputPath>obj\$(Platform)\$(Configuration)\</IntermediateOutputPath>

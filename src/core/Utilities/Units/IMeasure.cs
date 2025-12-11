@@ -36,7 +36,7 @@ public interface IMeasure
     /// <param name="format">The format provider to use.</param>
     /// <typeparam name="T">The type of the measure.</typeparam>
     /// <returns>The string representation of the measure.</returns>
-    public static String ToString<T>(T measure, IFormatProvider? format) where T : IMeasure
+    static String ToString<T>(T measure, IFormatProvider? format) where T : IMeasure
     {
         Prefix prefix = Prefix.FindBest(measure.Value, T.Prefixes);
 

@@ -41,7 +41,7 @@ public interface IConsoleProvider
     /// <param name="message">The text of the message.</param>
     /// <param name="followUp">The follow-up actions associated with the message.</param>
     /// <param name="isError">Whether the message is an error message.</param>
-    public class MessageAddedEventArgs(String message, FollowUp[] followUp, Boolean isError) : EventArgs
+    class MessageAddedEventArgs(String message, FollowUp[] followUp, Boolean isError) : EventArgs
     {
         /// <summary>
         ///     The text of the message.

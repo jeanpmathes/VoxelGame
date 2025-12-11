@@ -27,6 +27,26 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
 
     private const String Category = "Usage";
 
+    /// <summary>
+    ///     The reason why the constructor is invalid - it has no parameters.
+    /// </summary>
+    public const String ReasonNoParameters = "it does not declare any parameters";
+
+    /// <summary>
+    ///     The reason why the constructor is invalid - it uses ref, in or out parameters.
+    /// </summary>
+    public const String ReasonRefInOutParameters = "it uses ref, in or out parameters";
+
+    /// <summary>
+    ///     The reason why the constructor is invalid - it specifies default parameter values.
+    /// </summary>
+    public const String ReasonDefaultParameterValues = "it specifies default parameter values";
+
+    /// <summary>
+    ///     The reason why the constructor is invalid - it uses a params parameter.
+    /// </summary>
+    public const String ReasonParamsParameter = "it uses a params parameter";
+
     private static readonly DiagnosticDescriptor rule = new(
         DiagnosticID,
         "Constructible constructors must be valid",
@@ -35,26 +55,6 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         "Constructible constructors must use supported kinds of parameters.");
-    
-    /// <summary>
-    /// The reason why the constructor is invalid - it has no parameters.
-    /// </summary>
-    public const String ReasonNoParameters = "it does not declare any parameters";
-    
-    /// <summary>
-    /// The reason why the constructor is invalid - it uses ref, in or out parameters.
-    /// </summary>
-    public const String ReasonRefInOutParameters = "it uses ref, in or out parameters";
-    
-    /// <summary>
-    /// The reason why the constructor is invalid - it specifies default parameter values.
-    /// </summary>
-    public const String ReasonDefaultParameterValues = "it specifies default parameter values";
-    
-    /// <summary>
-    /// The reason why the constructor is invalid - it uses a params parameter.
-    /// </summary>
-    public const String ReasonParamsParameter = "it uses a params parameter";
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [rule];
@@ -84,7 +84,7 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
 
         Location location = constructorDeclaration.Identifier.GetLocation();
 
-        if (!IsPartial(typeDeclaration)) 
+        if (!IsPartial(typeDeclaration))
             return;
 
         ImmutableArray<IParameterSymbol> parameters = constructorSymbol.Parameters;
@@ -132,7 +132,7 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
     {
         foreach (AttributeData attribute in constructorSymbol.GetAttributes())
         {
-            if (attribute.AttributeClass is not { } attributeClass)
+            if (attribute.AttributeClass is not {} attributeClass)
                 continue;
 
             if (attributeClass.Name == nameof(ConstructibleAttribute))

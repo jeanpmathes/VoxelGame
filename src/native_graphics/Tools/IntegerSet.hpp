@@ -219,14 +219,14 @@ IntegerSet<I>::const_iterator::const_iterator(
   , m_dataEnd(dataEnd) { if (m_dataIterator != m_dataEnd && !GetBit(*m_dataIterator, m_inDataIndex)) Advance(); }
 
 template <UnsignedNativeSizedInteger I>
-typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++()
+IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++()
 {
     Advance();
     return *this;
 }
 
 template <UnsignedNativeSizedInteger I>
-typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++(int)
+IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++(int)
 {
     auto copy = *this;
     Advance();
@@ -269,13 +269,13 @@ void IntegerSet<I>::const_iterator::Advance()
 }
 
 template <UnsignedNativeSizedInteger I>
-typename IntegerSet<I>::const_iterator IntegerSet<I>::begin() const
+IntegerSet<I>::const_iterator IntegerSet<I>::begin() const
 {
     return const_iterator(data().data.begin(), data().data.end());
 }
 
 template <UnsignedNativeSizedInteger I>
-typename IntegerSet<I>::const_iterator IntegerSet<I>::end() const
+IntegerSet<I>::const_iterator IntegerSet<I>::end() const
 {
     return const_iterator(data().data.end(), data().data.end());
 }

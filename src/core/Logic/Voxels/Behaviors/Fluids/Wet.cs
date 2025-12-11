@@ -45,12 +45,12 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
         if (wasWet || !isWet) return;
 
         BecomeWetMessage becomeWet = IEventMessage<BecomeWetMessage>.Pool.Get();
-            
+
         becomeWet.World = message.World;
         becomeWet.Position = message.Position;
-            
+
         BecomeWet.Publish(becomeWet);
-            
+
         IEventMessage<BecomeWetMessage>.Pool.Return(becomeWet);
     }
 
@@ -73,11 +73,11 @@ public partial class Wet : BlockBehavior, IBehavior<Wet, BlockBehavior, Block>
         /// <summary>
         ///     The world in which the block is located.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
     }
 }

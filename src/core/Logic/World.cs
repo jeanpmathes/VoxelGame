@@ -210,7 +210,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         SetContent(content, position, updateBlock: true, updateFluid: true);
     }
-    
+
     /// <summary>
     ///     Set the content of a world position.
     /// </summary>
@@ -218,7 +218,8 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <param name="position">The world position.</param>
     /// <param name="updateBlock">
     ///     Whether to update the block at the position.
-    ///     Should generally be true, exceptions include cases where block states are changed in reaction to a previous state change.
+    ///     Should generally be true, exceptions include cases where block states are changed in reaction to a previous state
+    ///     change.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position, Boolean updateBlock)
@@ -229,19 +230,20 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     }
 
     /// <summary>
-    /// Called when the world becomes active.
+    ///     Called when the world becomes active.
     /// </summary>
     [ComponentEvent(nameof(WorldComponent.OnActivate))]
     private partial void OnActivate(Object? sender, EventArgs e);
 
     /// <summary>
-    /// Called when the world becomes inactive.
+    ///     Called when the world becomes inactive.
     /// </summary>
     [ComponentEvent(nameof(WorldComponent.OnDeactivate))]
     private partial void OnDeactivate(Object? sender, EventArgs e);
 
     /// <summary>
-    /// Called when the world is terminated, which means it begins unloading. Disposal will happen later, when unloading is complete.
+    ///     Called when the world is terminated, which means it begins unloading. Disposal will happen later, when unloading is
+    ///     complete.
     /// </summary>
     [ComponentEvent(nameof(WorldComponent.OnTerminate))]
     private partial void OnTerminate(Object? sender, EventArgs e);

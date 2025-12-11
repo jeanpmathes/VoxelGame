@@ -10,12 +10,12 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Visuals;
 
 /// <summary>
-/// Utilities for <see cref="Model"/>s.
+///     Utilities for <see cref="Model" />s.
 /// </summary>
 public static class Models
 {
     /// <summary>
-    /// Create models for all four horizontal orientations.
+    ///     Create models for all four horizontal orientations.
     /// </summary>
     /// <param name="model">The base model, will be used for the north orientation.</param>
     /// <param name="mode">The transformation mode to use when creating the rotated models.</param>
@@ -29,13 +29,13 @@ public static class Models
             model.CreateModelForOrientation(Orientation.West, mode)
         );
     }
-    
+
     /// <summary>
-    /// Create models for all six sides.
+    ///     Create models for all six sides.
     /// </summary>
     /// <param name="model">The base model, will be used for the front side.</param>
     /// <param name="mode">The transformation mode to use when creating the models for the other sides.</param>
-        /// <returns>A tuple containing the models for the front, back, left, right, bottom and top sides.</returns>
+    /// <returns>A tuple containing the models for the front, back, left, right, bottom and top sides.</returns>
     public static (Model front, Model back, Model left, Model right, Model bottom, Model top) CreateModelsForAllSides(Model model, Model.TransformationMode mode = Model.TransformationMode.Rotate)
     {
         return (

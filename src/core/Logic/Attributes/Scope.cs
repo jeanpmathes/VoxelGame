@@ -25,10 +25,8 @@ public record Scope(String Name, IReadOnlyList<IScoped> Entries) : IScoped
         get
         {
             foreach (IScoped scoped in Entries)
-            {
                 if (!scoped.IsEmpty)
                     return false;
-            }
 
             return true;
         }

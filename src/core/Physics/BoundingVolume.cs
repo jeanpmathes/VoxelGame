@@ -97,17 +97,17 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     private Box3d Box { get; }
 
     /// <summary>
-    /// Get the number of boxes in this bounding volume, including children.
+    ///     Get the number of boxes in this bounding volume, including children.
     /// </summary>
     public Int32 NumberOfBoxes
     {
         get
         {
-            Int32 count = 1;
-            
+            var count = 1;
+
             for (var index = 0; index < ChildCount; index++)
                 count += this[index].NumberOfBoxes;
-            
+
             return count;
         }
     }
@@ -143,7 +143,10 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Creates a flat block bounding volume with the given depth.
     /// </summary>
     /// <param name="side">The side the bounding volume is on.</param>
-    /// <param name="width">The width of the bounding volume, meaning the distance perpendicular to the orientation. Ignored for non-lateral sides.</param>
+    /// <param name="width">
+    ///     The width of the bounding volume, meaning the distance perpendicular to the orientation. Ignored
+    ///     for non-lateral sides.
+    /// </param>
     /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
     /// <returns>A bounding volume with the given depth.</returns>
     public static BoundingVolume FlatBlock(Side side, Double width, Double depth)
@@ -155,8 +158,8 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         offset *= 0.5 - halfDepth;
         offset += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
 
-        Vector3d widthDirection = side.IsLateral() 
-            ? side.Rotate(Axis.Y).Direction().Abs() 
+        Vector3d widthDirection = side.IsLateral()
+            ? side.Rotate(Axis.Y).Direction().Abs()
             : new Vector3d(x: 0.0, y: 0.0, z: 0.0);
 
         Vector3d extents = side.Direction().Abs();
@@ -189,7 +192,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     }
 
     /// <summary>
-    /// Translate this bounding volume by the given translation.
+    ///     Translate this bounding volume by the given translation.
     /// </summary>
     /// <param name="translation">The translation to apply.</param>
     /// <returns>>The translated bounding volume.</returns>

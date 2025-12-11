@@ -36,7 +36,7 @@ public partial class ModelProvider : ResourceProvider<Model>, IModelProvider
 
         return GetResource(identifier);
     }
-    
+
     private static Boolean IsPositionInBounds(Vector3i position, Model[,,] parts)
     {
         if (position is {X: < 0, Y: < 0, Z: < 0})

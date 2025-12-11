@@ -21,9 +21,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 public partial class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Block>
 {
     [Constructible]
-    private Climbable(Block subject) : base(subject)
-    {
-    }
+    private Climbable(Block subject) : base(subject) {}
 
     /// <summary>
     ///     The velocity at which an actor climbs up or down this block.
@@ -47,7 +45,7 @@ public partial class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavi
         ClimbingVelocity.Initialize(this);
         SlidingVelocity.Initialize(this);
     }
-    
+
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
         Vector3d forwardMovement = Vector3d.Dot(message.Body.Movement, message.Body.Transform.Forward) * message.Body.Transform.Forward;

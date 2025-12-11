@@ -24,17 +24,17 @@ public interface IBehavior : IIssueSource
     /// <summary>
     ///     The unknown ID for behaviors.
     /// </summary>
-    public const Int32 UnknownID = -1;
+    const Int32 UnknownID = -1;
 
     /// <summary>
     ///     Get the subject that this behavior applies to.
     /// </summary>
-    public IHasBehaviors Subject { get; }
+    IHasBehaviors Subject { get; }
 
     /// <summary>
     ///     Validates the behavior.
     /// </summary>
-    public void Validate(IValidator validator);
+    void Validate(IValidator validator);
 }
 
 /// <summary>
@@ -46,7 +46,7 @@ public interface IBehavior<out TSubject> : IBehavior, IEventSubject, IAspectable
     /// <summary>
     ///     Get the subject that this behavior applies to.
     /// </summary>
-    public new TSubject Subject { get; }
+    new TSubject Subject { get; }
 }
 
 /// <summary>

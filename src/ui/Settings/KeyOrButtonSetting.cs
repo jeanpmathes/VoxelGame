@@ -64,16 +64,15 @@ internal sealed class KeyOrButtonSetting : Setting
         {
             CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton, context);
 
-            context.Input.ListenForAnyKeyOrButton(
-                keyOrButton =>
-                {
-                    modal.Close();
+            context.Input.ListenForAnyKeyOrButton(keyOrButton =>
+            {
+                modal.Close();
 
-                    set(keyOrButton);
-                    rebind.Text = keyOrButton.ToStringFast();
+                set(keyOrButton);
+                rebind.Text = keyOrButton.ToStringFast();
 
-                    Validator.Validate();
-                });
+                Validator.Validate();
+            });
         };
 
         Button resetBind = new(layout)

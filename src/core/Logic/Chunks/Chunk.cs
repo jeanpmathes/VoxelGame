@@ -693,10 +693,10 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public static (Int32 x, Int32 y, Int32 z) IndexToLocalSection(Int32 index)
     {
-        Int32 z = index & Size - 1;
-        index = index - z >> SizeExp;
-        Int32 y = index & Size - 1;
-        index = index - y >> SizeExp;
+        Int32 z = index & (Size - 1);
+        index = (index - z) >> SizeExp;
+        Int32 y = index & (Size - 1);
+        index = (index - y) >> SizeExp;
         Int32 x = index;
 
         return (x, y, z);

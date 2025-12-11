@@ -141,12 +141,12 @@ public static class ShaderPresets
         /// <summary>
         ///     Gets the topology of the mesh.
         /// </summary>
-        public Topology Topology => Topology.Triangle;
+        Topology Topology => Topology.Triangle;
 
         /// <summary>
         ///     Gets the filter set on the texture sampler.
         /// </summary>
-        public Filter Filter => Filter.Linear;
+        Filter Filter => Filter.Linear;
     }
 
     /// <summary>

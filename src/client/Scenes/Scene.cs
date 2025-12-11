@@ -7,10 +7,10 @@
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
-using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -39,7 +39,7 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
         OnLoad();
         OnLoadComponents();
     }
-    
+
     /// <inheritdoc cref="Scene.OnLoad" />
     [ComponentEvent(nameof(SceneComponent.OnLoad))]
     private partial void OnLoadComponents();

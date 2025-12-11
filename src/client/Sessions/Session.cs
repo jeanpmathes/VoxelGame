@@ -5,12 +5,12 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Actors;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Client.Sessions;
 

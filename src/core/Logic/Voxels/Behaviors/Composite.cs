@@ -35,7 +35,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         IsPlacementAllowed = Aspect<Boolean, (World, Vector3i, Vector3i, Actor?)>.New<LogicalAnd<(World, Vector3i, Vector3i, Actor?)>>(nameof(IsPlacementAllowed), this);
 
         subject.IsPlacementAllowed.ContributeFunction(GetPlacementAllowed);
-        
+
         subject.Require<Constraint>().IsValid.ContributeFunction(GetIsValid);
 
         subject.RequireIfPresent<LateralRotatableComposite, LateralRotatable>(lateralRotatableComposite =>
@@ -60,7 +60,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     ///     If the block can be rotated, this size is interpreted as for the default orientation (north).
     ///     The size must be greater than zero in every dimension and not exceed the section size.
     /// </summary>
-    public ResolvedProperty<Vector3i> MaximumSize { get; } = ResolvedProperty<Vector3i>.New<Exclusive<Vector3i, Void>>(nameof(MaximumSize), initial: Vector3i.One);
+    public ResolvedProperty<Vector3i> MaximumSize { get; } = ResolvedProperty<Vector3i>.New<Exclusive<Vector3i, Void>>(nameof(MaximumSize), Vector3i.One);
 
     /// <summary>
     ///     The actual size of a given state of the block.
@@ -104,38 +104,31 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     protected override void OnValidate(IValidator validator)
     {
         Vector3i maxSize = MaximumSize.Get();
-        
-        if (maxSize.X <= 0 || maxSize.Y <= 0 || maxSize.Z <= 0)
-        {
-            validator.ReportWarning("Composite block size must be greater than zero in every dimension");
-        }
 
-        if (maxSize.X > Section.Size || maxSize.Y > Section.Size || maxSize.Z > Section.Size)
-        {
-            validator.ReportWarning("Composite block size must not exceed section size in any dimension");
-        }
+        if (maxSize.X <= 0 || maxSize.Y <= 0 || maxSize.Z <= 0) validator.ReportWarning("Composite block size must be greater than zero in every dimension");
+
+        if (maxSize.X > Section.Size || maxSize.Y > Section.Size || maxSize.Z > Section.Size) validator.ReportWarning("Composite block size must not exceed section size in any dimension");
 
         maxSize = Vector3i.Clamp(maxSize, Vector3i.One, new Vector3i(Section.Size));
 
-        if (maxSize == Vector3i.One)
-        {
-            validator.ReportWarning("Composite block size is set to one, which is equivalent to a normal block");
-        }
-        
-        MaximumSize.Override(maxSize);
-        
-        ValidateForAllStatesOrError(validator, state =>
-        {
-            Vector3i size = GetSize(state);
+        if (maxSize == Vector3i.One) validator.ReportWarning("Composite block size is set to one, which is equivalent to a normal block");
 
-            return size.X > 0 && size is {Y: > 0, Z: > 0}
-                              && size.X <= MaximumSize.Get().X
-                              && size.Y <= MaximumSize.Get().Y
-                              && size.Z <= MaximumSize.Get().Z;
-        }, "Composite block sizes must never exceed the maximum size");
-        
-        ValidateForAllStatesOrWarn(validator, 
-            state => state.IsReplaceable.Implies(GetSize(state) == Vector3i.One), 
+        MaximumSize.Override(maxSize);
+
+        ValidateForAllStatesOrError(validator,
+            state =>
+            {
+                Vector3i size = GetSize(state);
+
+                return size.X > 0 && size is {Y: > 0, Z: > 0}
+                                  && size.X <= MaximumSize.Get().X
+                                  && size.Y <= MaximumSize.Get().Y
+                                  && size.Z <= MaximumSize.Get().Z;
+            },
+            "Composite block sizes must never exceed the maximum size");
+
+        ValidateForAllStatesOrWarn(validator,
+            state => state.IsReplaceable.Implies(GetSize(state) == Vector3i.One),
             "Only composite blocks of size one can be marked as replaceable");
     }
 
@@ -193,7 +186,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
             state.Set(Part, (x, y, z));
 
             message.World.SetBlock(state, position);
-            
+
             PublishPlacementCompletedMessage(message.World, position, (x, y, z), message.Actor);
         }
     }
@@ -201,7 +194,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     private void PublishPlacementCompletedMessage(World world, Vector3i position, Vector3i part, Actor? actor)
     {
         if (!PlacementCompleted.HasSubscribers) return;
-        
+
         PlacementCompletedMessage placementCompleted = IEventMessage<PlacementCompletedMessage>.Pool.Get();
 
         placementCompleted.World = world;
@@ -210,7 +203,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         placementCompleted.Actor = actor;
 
         PlacementCompleted.Publish(placementCompleted);
-            
+
         IEventMessage<PlacementCompletedMessage>.Pool.Return(placementCompleted);
     }
 
@@ -243,18 +236,20 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         if (oldSize != newSize)
         {
             Vector3i position = message.Position - currentPart;
-            
+
             if (!IsGrowthPossible(message.World, position, oldSize, newSize))
             {
                 message.Undo();
-            
+
                 return;
             }
-            
+
             ResizeComposite(message.World, position, oldSize, newSize, newState);
         }
         else if (message.OldState.Block != message.NewState.Block)
+        {
             SetStateOnAllParts(message.World, newSize, message.Position - currentPart, currentPart, message.NewState.Block);
+        }
     }
 
     private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
@@ -268,14 +263,14 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
                                     && updatedPart.X < size.X && updatedPart.Y < size.Y && updatedPart.Z < size.Z;
 
         if (isPartOfComposite) return;
-        
+
         PublishNeighborUpdateMessage(message.World, message.Position, currentPart, message.State, message.Side);
     }
 
     private void PublishNeighborUpdateMessage(World world, Vector3i position, Vector3i part, State state, Side side)
     {
         if (!NeighborUpdate.HasSubscribers) return;
-        
+
         NeighborUpdateMessage neighborUpdate = IEventMessage<NeighborUpdateMessage>.Pool.Get();
 
         neighborUpdate.World = world;
@@ -285,7 +280,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         neighborUpdate.Side = side;
 
         NeighborUpdate.Publish(neighborUpdate);
-        
+
         IEventMessage<NeighborUpdateMessage>.Pool.Return(neighborUpdate);
     }
 
@@ -301,7 +296,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
             Boolean inOld = x < oldSize.X && y < oldSize.Y && z < oldSize.Z;
             Boolean inNew = x < newSize.X && y < newSize.Y && z < newSize.Z;
-            
+
             Boolean kept = inOld && inNew;
             Boolean removed = inOld && !inNew;
             Boolean added = !inOld && inNew;
@@ -317,7 +312,7 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
             }
         }
     }
-    
+
     private static Boolean IsGrowthPossible(World world, Vector3i position, Vector3i oldSize, Vector3i newSize)
     {
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
@@ -367,11 +362,11 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     {
         return state.Get(Part);
     }
-    
+
     private State SetPartPosition(State state, Vector3i part)
     {
         state.Set(Part, part);
-        
+
         return state;
     }
 
@@ -394,9 +389,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     public BoxCollider GetFullCollider(State state, Vector3i position)
     {
         if (rotatable != null) return rotatable.GetFullCollider(state, position);
-        
+
         CompositeColliderBuilder builder = new(this, state, SetPartPosition);
-        
+
         return builder.Build(position);
     }
 
@@ -410,27 +405,27 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         /// <summary>
         ///     The world in which the neighbor update occurs.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The part of the block that is affected.
         /// </summary>
-        public Vector3i Part { get; }
+        Vector3i Part { get; }
 
         /// <summary>
         ///     The state of this, unchanged, block at the position.
         /// </summary>
-        public State State { get; }
+        State State { get; }
 
         /// <summary>
         ///     The side of the block where the change happened.
         /// </summary>
-        public Side Side { get; }
+        Side Side { get; }
     }
 
     /// <summary>
@@ -442,21 +437,21 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         /// <summary>
         ///     The world in which the placement was completed.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position at which the composite block was placed.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The part of the composite block that was placed.
         /// </summary>
-        public Vector3i Part { get; }
+        Vector3i Part { get; }
 
         /// <summary>
         ///     The actor that placed the block.
         /// </summary>
-        public Actor? Actor { get; }
+        Actor? Actor { get; }
     }
 }

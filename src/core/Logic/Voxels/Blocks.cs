@@ -86,22 +86,22 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     /// <param name="context">The resource context in which loading is done.</param>
     /// <returns>All content defined in this class.</returns>
     public IEnumerable<IContent> Initialize(
-        ITextureIndexProvider textureIndexProvider, 
-        IDominantColorProvider dominantColorProvider, 
-        IModelProvider modelProvider, 
-        VisualConfiguration visuals, 
+        ITextureIndexProvider textureIndexProvider,
+        IDominantColorProvider dominantColorProvider,
+        IModelProvider modelProvider,
+        VisualConfiguration visuals,
         IResourceContext context)
     {
         states.Clear();
-        
+
         Validator validator = new(context);
-        
+
         foreach (Block block in builder.BlocksWithCollisionOnID)
         {
             validator.SetScope(block);
             validator.ReportError($"Block with natural name '{block.Name}' ({block.BlockID}) is part of a named ID collision");
         }
-        
+
         UInt32 offset = 0;
 
         foreach (Block block in builder.BlocksByID)
@@ -110,7 +110,7 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
 
             states.AddRange(block.States.AllStates);
         }
-        
+
         BehaviorSystem<Block, BlockBehavior>.Bake(validator);
 
         foreach (Block block in builder.BlocksByID)
@@ -120,14 +120,14 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
         }
 
         if (validator.HasError) return [];
-        
+
         const Int64 maxNumberOfState = Section.BlockStateMask + 1;
 
-        if (states.Count <= maxNumberOfState) 
+        if (states.Count <= maxNumberOfState)
             return builder.Registry.RetrieveContent();
 
         context.ReportError(this, $"The total number of block states ({states.Count}) exceeds the maximum allowed ({maxNumberOfState})");
-            
+
         return [];
     }
 

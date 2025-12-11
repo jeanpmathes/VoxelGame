@@ -46,5 +46,5 @@ public interface IResourceProvider : ICatalogEntry
     /// <summary>
     ///     Called once during the loading process of the containing catalog.
     /// </summary>
-    public void SetUp();
+    void SetUp();
 }

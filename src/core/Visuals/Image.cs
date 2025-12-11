@@ -224,7 +224,7 @@ public class Image
 
         for (var x = 0; x < fallback.Width; x++)
         for (var y = 0; y < fallback.Height; y++)
-            fallback.SetPixel(x, y, x % 2 == 0 ^ y % 2 == 0 ? magenta : black);
+            fallback.SetPixel(x, y, (x % 2 == 0) ^ (y % 2 == 0) ? magenta : black);
 
         return fallback;
     }
@@ -412,10 +412,10 @@ public class Image
         {
             var result = 0;
 
-            result |= (original >> originalFormat.R & Color32.ChannelMask) << targetFormat.R;
-            result |= (original >> originalFormat.G & Color32.ChannelMask) << targetFormat.G;
-            result |= (original >> originalFormat.B & Color32.ChannelMask) << targetFormat.B;
-            result |= (original >> originalFormat.A & Color32.ChannelMask) << targetFormat.A;
+            result |= ((original >> originalFormat.R) & Color32.ChannelMask) << targetFormat.R;
+            result |= ((original >> originalFormat.G) & Color32.ChannelMask) << targetFormat.G;
+            result |= ((original >> originalFormat.B) & Color32.ChannelMask) << targetFormat.B;
+            result |= ((original >> originalFormat.A) & Color32.ChannelMask) << targetFormat.A;
 
             return result;
         }
@@ -476,16 +476,16 @@ public class Image
         protected abstract void CreateNextLevel(Image previous, Image next);
 
         /// <summary>
-        /// Averages colors, with an option to consider transparency.
+        ///     Averages colors, with an option to consider transparency.
         /// </summary>
         /// <param name="transparency">If <c>true</c>, transparent colors are included in the average; otherwise, they are ignored.</param>
         private sealed class AveragingAlgorithm(Boolean transparency) : MipmapAlgorithm
         {
             private Vector4i DetermineFactors(Color32 c1, Color32 c2, Color32 c3, Color32 c4)
             {
-                if (transparency) 
+                if (transparency)
                     return (1, 1, 1, 1);
-                
+
                 Int32 f1 = (c1.A != 0).ToInt();
                 Int32 f2 = (c2.A != 0).ToInt();
                 Int32 f3 = (c3.A != 0).ToInt();
@@ -514,7 +514,7 @@ public class Image
             private static Color32 CalculateAverageColor(Color32 c1, Color32 c2, Color32 c3, Color32 c4, Vector4i factors)
             {
                 Vector3i totalRGB = Vector3i.Zero;
-                Int32 totalAlpha = 0;
+                var totalAlpha = 0;
 
                 Accumulate(c1, factors.X);
                 Accumulate(c2, factors.Y);
@@ -522,7 +522,7 @@ public class Image
                 Accumulate(c4, factors.W);
 
                 Int32 totalFactors = factors.X + factors.Y + factors.Z + factors.W;
-                
+
                 if (totalFactors == 0)
                     return Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0);
 
@@ -531,7 +531,7 @@ public class Image
 
                 if (averageAlpha == 0)
                     return Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0);
-                
+
                 // To get correct rounding instead of flooring, we add half of the divisor before dividing.
                 Int32 roundingOffset = averageAlpha / 2;
 
@@ -540,7 +540,7 @@ public class Image
                 Int32 blue = (averageRGB.Z + roundingOffset) / averageAlpha;
 
                 return Color32.FromRGBA((Byte) red, (Byte) green, (Byte) blue, (Byte) averageAlpha);
-                
+
                 void Accumulate(Color32 color, Int32 factor)
                 {
                     if (factor == 0) return;

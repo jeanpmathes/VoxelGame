@@ -17,13 +17,11 @@ namespace VoxelGame.Core.Generation.Worlds.Standard.Decorations;
 public class BoulderDecoration : ShapeDecoration
 {
     private const Int32 Diameter = 5;
-    
+
     /// <summary>
     ///     Creates a new instance of the <see cref="BoulderDecoration" /> class.
     /// </summary>
-    public BoulderDecoration(String name, Decorator decorator) : base(name, decorator, new Sphere {Radius = Diameter / 2.0}, Diameter)
-    {
-    }
+    public BoulderDecoration(String name, Decorator decorator) : base(name, decorator, new Sphere {Radius = Diameter / 2.0}, Diameter) {}
 
     /// <inheritdoc />
     protected override void OnPlace(Vector3i position, IGrid grid, in PlacementContext placementContext)

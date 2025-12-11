@@ -54,25 +54,19 @@ public partial class Wall : BlockBehavior, IBehavior<Wall, BlockBehavior, Block>
 
 
         if (north)
-        {
             children.Add(new BoundingVolume(
                 new Vector3d(x: 0.5f, y: 0.46875f, z: 0.125f),
                 new Vector3d(x: 0.1875f, y: 0.46875f, z: 0.125f)));
-        }
 
         if (east)
-        {
             children.Add(new BoundingVolume(
                 new Vector3d(x: 0.875f, y: 0.46875f, z: 0.5f),
                 new Vector3d(x: 0.125f, y: 0.46875f, z: 0.1875f)));
-        }
 
         if (south)
-        {
             children.Add(new BoundingVolume(
                 new Vector3d(x: 0.5f, y: 0.46875f, z: 0.875f),
                 new Vector3d(x: 0.1875f, y: 0.46875f, z: 0.125f)));
-        }
 
         if (west)
             children.Add(new BoundingVolume(

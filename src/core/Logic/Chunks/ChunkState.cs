@@ -481,7 +481,7 @@ public abstract class ChunkState
             return true;
         }
 
-        Debug.Assert(guard == null && Access == Access.None || guard != null && Chunk.IsHeldBy(guard, Access));
+        Debug.Assert((guard == null && Access == Access.None) || (guard != null && Chunk.IsHeldBy(guard, Access)));
 
         return false;
     }

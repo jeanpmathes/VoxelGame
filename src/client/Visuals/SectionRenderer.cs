@@ -24,30 +24,6 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public sealed partial class SectionRenderer : IDisposable
 {
-    /// <summary>
-    ///     The basic raytracing material for opaque section parts.
-    /// </summary>
-    [LateInitialization]
-    private static partial Material BasicOpaqueMaterial { get; set; }
-
-    /// <summary>
-    ///     The basic raytracing material for transparent section parts.
-    /// </summary>
-    [LateInitialization]
-    private static partial Material BasicTransparentMaterial { get; set; }
-
-    /// <summary>
-    ///     The raytracing material used for foliage.
-    /// </summary>
-    [LateInitialization]
-    private static partial Material FoliageMaterial { get; set; }
-
-    /// <summary>
-    ///     The raytracing material used for opaque fluids.
-    /// </summary>
-    [LateInitialization]
-    private static partial Material FluidMaterial { get; set; }
-
     private readonly Vector3d position;
 
     private readonly Space space;
@@ -64,6 +40,26 @@ public sealed partial class SectionRenderer : IDisposable
         this.space = space;
         this.position = position;
     }
+
+    /// <summary>
+    ///     The basic raytracing material for opaque section parts.
+    /// </summary>
+    [LateInitialization] private static partial Material BasicOpaqueMaterial { get; set; }
+
+    /// <summary>
+    ///     The basic raytracing material for transparent section parts.
+    /// </summary>
+    [LateInitialization] private static partial Material BasicTransparentMaterial { get; set; }
+
+    /// <summary>
+    ///     The raytracing material used for foliage.
+    /// </summary>
+    [LateInitialization] private static partial Material FoliageMaterial { get; set; }
+
+    /// <summary>
+    ///     The raytracing material used for opaque fluids.
+    /// </summary>
+    [LateInitialization] private static partial Material FluidMaterial { get; set; }
 
     /// <summary>
     ///     Get or set whether the section renderer is enabled.

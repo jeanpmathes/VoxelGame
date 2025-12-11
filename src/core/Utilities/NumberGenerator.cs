@@ -18,7 +18,7 @@ public static class NumberGenerator
     ///     The random number generator.
     /// </summary>
     public static Random Random => Random.Shared;
-    
+
     /// <summary>
     ///     Get a position dependent number.
     /// </summary>
@@ -40,9 +40,9 @@ public static class NumberGenerator
     {
         return (UInt32) Math.Abs(HashCode.Combine(position.X, position.Y, position.Z)) % mod;
     }
-    
+
     /// <summary>
-    /// Get a position dependent outcome based on a chance.
+    ///     Get a position dependent outcome based on a chance.
     /// </summary>
     /// <param name="position">The position.</param>
     /// <param name="chance">The chance of the outcome being true.</param>
@@ -50,6 +50,7 @@ public static class NumberGenerator
     public static Boolean GetPositionDependentOutcome(Vector3i position, Chance chance)
     {
         Int32 number = GetPositionDependentNumber(position, mod: 100);
+
         return chance.Passes(number);
     }
 }

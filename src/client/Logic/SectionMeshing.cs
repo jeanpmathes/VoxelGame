@@ -31,9 +31,9 @@ public partial class SectionMeshing : WorldComponent
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionMeshing>();
 
     #endregion LOGGING
-    
+
     private readonly HashSet<(Chunk chunk, (Int32 x, Int32 y, Int32 z))> sectionsToMesh = [];
-    
+
     [Constructible]
     private SectionMeshing(Core.Logic.World subject) : base(subject)
     {
@@ -79,7 +79,7 @@ public partial class SectionMeshing : WorldComponent
 
         void CheckAxis(Int32 axis)
         {
-            Int32 axisSectionPosition = position[axis] & Section.Size - 1;
+            Int32 axisSectionPosition = position[axis] & (Section.Size - 1);
 
             Vector3i direction = new()
             {

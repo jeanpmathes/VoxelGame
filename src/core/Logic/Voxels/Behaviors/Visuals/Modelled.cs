@@ -80,18 +80,15 @@ public partial class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior
         IReadOnlyList<RID> layers = Layers.Get();
 
         if (layers.Count == 0)
-        {
             // No layers defined; fallback to original mesh, see validation.
-            
             return original;
-        }
 
         Int32 layerIndex = selector.Layer;
 
         if (layerIndex >= layers.Count)
         {
             const Int32 fallbackIndex = 0;
-            
+
             // Note that GetMesh is called during initialization as all meshes are precomputed, so doing validation is fine.
             context.Validator.ReportWarning($"Selected layer {layerIndex} out of range for modelled block (max {layers.Count - 1}), using layer {fallbackIndex} instead");
 

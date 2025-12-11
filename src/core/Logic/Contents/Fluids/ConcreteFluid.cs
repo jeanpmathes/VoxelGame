@@ -43,7 +43,7 @@ public class ConcreteFluid : BasicFluid
         if (!Blocks.Instance.Construction.Concrete.CanPlace(world, position)) return;
 
         world.SetDefaultFluid(position);
-        
+
         State state = Blocks.Instance.Construction.Concrete.GetPlacementState(world, position);
 
         state = state.WithHeight(level.BlockHeight);

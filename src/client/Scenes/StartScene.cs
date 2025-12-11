@@ -48,15 +48,10 @@ public sealed class StartScene : Scene
         AddComponent<SetExitAction, StartUserInterface>(ui);
 
         if (resourceLoadingIssueReport != null)
-        {
             AddComponent<ResourceLoadingReportHook, (ResourceLoadingIssueReport, StartUserInterface)>(
                 (resourceLoadingIssueReport, ui));
-        }
 
-        if (loadWorldDirectly.HasValue)
-        {
-            AddComponent<DirectWorldLoad, (IWorldProvider, Int32)>((worldProvider, loadWorldDirectly.Value));
-        }
+        if (loadWorldDirectly.HasValue) AddComponent<DirectWorldLoad, (IWorldProvider, Int32)>((worldProvider, loadWorldDirectly.Value));
     }
 
     /// <inheritdoc />

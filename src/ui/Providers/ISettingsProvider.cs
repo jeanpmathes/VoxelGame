@@ -19,17 +19,17 @@ public interface ISettingsProvider : ISettingsValidator
     /// <summary>
     ///     The name of the settings category.
     /// </summary>
-    public static abstract String Category { get; }
+    static abstract String Category { get; }
 
     /// <summary>
     ///     A description for the settings category.
     /// </summary>
-    public static abstract String Description { get; }
+    static abstract String Description { get; }
 
     /// <summary>
     ///     Get all settings for this category.
     /// </summary>
-    public IEnumerable<Setting> Settings { get; }
+    IEnumerable<Setting> Settings { get; }
 
     /// <inheritdoc />
     void ISettingsValidator.Validate()
@@ -40,7 +40,7 @@ public interface ISettingsProvider : ISettingsValidator
     /// <summary>
     ///     Validate the current settings.
     /// </summary>
-    public new void Validate()
+    new void Validate()
     {
         foreach (Setting setting in Settings) setting.Validate();
     }
@@ -54,7 +54,7 @@ public interface ISettingsValidator
     /// <summary>
     ///     Validate the current settings.
     /// </summary>
-    public void Validate();
+    void Validate();
 }
 
 /// <summary>

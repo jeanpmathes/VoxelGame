@@ -128,7 +128,7 @@ public class ImageTests
         image.SetPixel(x: 1, y: 1, ColorS.Black);
 
         Color32 average = image.CalculateAverage();
-        
+
         Assert.Equal(expected: 127, average.R);
         Assert.Equal(expected: 127, average.G);
         Assert.Equal(expected: 127, average.B);

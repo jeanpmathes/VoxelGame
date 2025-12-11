@@ -67,17 +67,17 @@ public partial class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBe
     {
         State? top = world.GetBlock(position.Above());
 
-        if (top == null) 
+        if (top == null)
             return null;
 
         State state = top.Value;
-        
+
         if (state.Block.Get<CoverPreserving>() is {} coverPreserving)
             return coverPreserving.IsPreserving(state);
 
         if (state.IsSideFull(Side.Bottom))
             return false;
-        
+
         return state.Block is not {IsOpaque: true, IsSolid: true};
     }
 

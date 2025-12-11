@@ -52,7 +52,7 @@ public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, Block
         ashCover.Position = position;
 
         AshCover.Publish(ashCover);
-        
+
         IEventMessage<AshCoverMessage>.Pool.Return(ashCover);
     }
 
@@ -65,11 +65,11 @@ public partial class AshCoverable : BlockBehavior, IBehavior<AshCoverable, Block
         /// <summary>
         ///     The world the block is in.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the block to cover with ash.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
     }
 }

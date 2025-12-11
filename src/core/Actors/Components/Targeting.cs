@@ -61,10 +61,7 @@ public static class TargetingExtensions
     /// <returns>The side, or <c>null</c>.</returns>
     public static Side? GetTargetedSide(this Actor actor)
     {
-        if (actor.GetComponent<Targeting>() is {} targeting)
-        {
-            return targeting.HasTarget ? targeting.Side : null;
-        }
+        if (actor.GetComponent<Targeting>() is {} targeting) return targeting.HasTarget ? targeting.Side : null;
 
         return null;
     }

@@ -18,5 +18,5 @@ public interface IValue
     ///     Serialize the value.
     /// </summary>
     /// <param name="serializer">The serializer to use.</param>
-    public void Serialize(Serializer serializer);
+    void Serialize(Serializer serializer);
 }

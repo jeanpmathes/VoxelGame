@@ -189,7 +189,7 @@ public class FluidContactManager
     private static Boolean MixWater(World world, ContactInformation a, ContactInformation b)
     {
         Select(a, b, Fluids.Instance.FreshWater, out ContactInformation fresh, out ContactInformation sea);
-        
+
         sea.fluid.UpdateSoon(world, sea.position, sea.isStatic);
 
         SetFluid(world, fresh.position, Fluids.Instance.SeaWater, fresh.level);

@@ -33,14 +33,14 @@ public partial class CubeTextured : BlockBehavior, IBehavior<CubeTextured, Block
     ///     The default texture layout to use for the block.
     ///     This should be set through the <see cref="BlockBuilder" /> when defining the block.
     /// </summary>
-    public ResolvedProperty<TextureLayout> DefaultTexture { get; } 
+    public ResolvedProperty<TextureLayout> DefaultTexture { get; }
         = ResolvedProperty<TextureLayout>.New<Exclusive<TextureLayout, Void>>(nameof(DefaultTexture), TextureLayout.Uniform(TID.MissingTexture));
 
     /// <summary>
     ///     The actually used, state dependent texture layout.
     /// </summary>
     public Aspect<TextureLayout, State> ActiveTexture { get; }
-    
+
     /// <summary>
     ///     The rotation of the texture on the block.
     /// </summary>
@@ -63,7 +63,7 @@ public partial class CubeTextured : BlockBehavior, IBehavior<CubeTextured, Block
     public Int32 GetTextureIndex(State state, Side side, ITextureIndexProvider textureIndexProvider, Boolean isBlock)
     {
         TextureLayout layout = ActiveTexture.GetValue(DefaultTexture.Get(), state);
-        
+
         return layout.GetTextureIndex(side, textureIndexProvider, isBlock, Rotation.GetValue((Axis.Y, 0), state));
     }
 }

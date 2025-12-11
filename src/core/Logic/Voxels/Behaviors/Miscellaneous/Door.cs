@@ -97,11 +97,8 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         if (original.axis != Axis.Y) return original;
 
         Int32 turns = original.turns + 2; // Ugly fix because the model is not oriented correctly.
-        
-        if (state.Get(IsOpen) && state.Get(IsLeftSided))
-        {
-            turns += 2;
-        }
+
+        if (state.Get(IsOpen) && state.Get(IsLeftSided)) turns += 2;
 
         return (Axis.Y, turns);
     }
@@ -143,7 +140,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         Boolean wasOpen = message.State.Get(IsOpen);
 
         var body = message.Actor.GetComponent<Body>();
-        
+
         if (body != null && body.Collider.Intersects(composite.GetFullCollider(message.State.With(IsOpen, !wasOpen), message.Position)))
             return;
 
@@ -156,7 +153,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         void ToggleNeighbor(Vector3i neighborPosition)
         {
             State neighbor = message.Actor.World.GetBlock(neighborPosition) ?? Content.DefaultState;
-            
+
             if (neighbor.Block == Subject
                 && neighbor.Get(IsLeftSided) != leftSided
                 && neighbor.Get(IsOpen) == wasOpen

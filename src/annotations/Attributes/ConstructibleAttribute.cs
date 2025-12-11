@@ -12,6 +12,4 @@ namespace VoxelGame.Annotations.Attributes;
 ///     Marks a constructor so a constructible implementation is generated.
 /// </summary>
 [AttributeUsage(AttributeTargets.Constructor)]
-public sealed class ConstructibleAttribute : Attribute
-{
-}
+public sealed class ConstructibleAttribute : Attribute;

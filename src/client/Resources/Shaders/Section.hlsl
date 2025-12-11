@@ -5,7 +5,7 @@
 // <author>jeanpmathes</author>
 
 #ifndef VG_SHADER_SECTION_HLSL
-#define VG_SHADER_SECTION_HLSL
+#define VG_SHADER_SECTION_HLSL 
 
 #include "CameraRT.hlsl"
 #include "Common.hlsl"
@@ -192,8 +192,6 @@ namespace vg
                 ddx,
                 ddy);
 
-            uint textureSize = 32; // todo: set through constant, in same area as texture slots
-
             // Because anisotropic filter implies linear filtering in DirectX, we need to center UVs manually.
 
             uv *= native::spatial::global.textureSize.xy;
@@ -202,14 +200,12 @@ namespace vg
 
             float4 color;
 
-            if (isBlock)
-            {
-                color = native::rt::textureSlotOne[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
-            }
-            else
-            {
-                color = native::rt::textureSlotTwo[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
-            }
+            if (isBlock) color = native::rt::textureSlotOne[textureIndex].SampleGrad(
+                native::spatial::sampler,
+                uv,
+                ddx,
+                ddy);
+            else color = native::rt::textureSlotTwo[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
 
             return color;
         }

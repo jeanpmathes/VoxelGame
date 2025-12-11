@@ -38,7 +38,7 @@ public class BlockBehavior : Behavior<BlockBehavior, Block>
     public virtual void DefineState(IStateBuilder builder) {}
 
     /// <summary>
-    /// Validates that a predicate holds for all states of the block, reporting a warning if not.
+    ///     Validates that a predicate holds for all states of the block, reporting a warning if not.
     /// </summary>
     /// <param name="validator">The validator to report warnings to.</param>
     /// <param name="predicate">The predicate to validate.</param>
@@ -46,13 +46,13 @@ public class BlockBehavior : Behavior<BlockBehavior, Block>
     protected void ValidateForAllStatesOrWarn(IValidator validator, Predicate<State> predicate, String message)
     {
         (Int32 count, State evidence) = ValidateForAllStates(predicate);
-        
+
         if (count > 0)
             validator.ReportWarning($"{message} (failed for {count} states, e.g. {evidence})");
     }
-    
+
     /// <summary>
-    /// Validates that a predicate holds for all states of the block, reporting an error if not.
+    ///     Validates that a predicate holds for all states of the block, reporting an error if not.
     /// </summary>
     /// <param name="validator">The validator to report errors to.</param>
     /// <param name="predicate">The predicate to validate.</param>
@@ -60,19 +60,19 @@ public class BlockBehavior : Behavior<BlockBehavior, Block>
     protected void ValidateForAllStatesOrError(IValidator validator, Predicate<State> predicate, String message)
     {
         (Int32 count, State evidence) = ValidateForAllStates(predicate);
-        
+
         if (count > 0)
             validator.ReportError($"{message} (failed for {count} states, e.g. {evidence})");
     }
-    
+
     private (Int32, State) ValidateForAllStates(Predicate<State> predicate)
     {
         var count = 0;
         State evidence = Subject.States.Default;
-        
+
         foreach (State state in Subject.States.AllStates)
         {
-            if (predicate(state)) 
+            if (predicate(state))
                 continue;
 
             count++;

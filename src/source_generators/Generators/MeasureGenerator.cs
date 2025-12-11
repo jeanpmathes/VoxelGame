@@ -50,7 +50,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
 
         if (!IsUnitType(propertySymbol.Type))
             return null;
-        
+
         AttributeData? attributeData = GetAttribute(context);
 
         if (attributeData == null)
@@ -67,7 +67,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
 
         if (attributeData.ConstructorArguments[index: 2].Value is not UInt32 allowedPrefixes)
             return null;
-        
+
         GetNamedArguments(attributeData, out String? measureSummary, out String? valueSummary);
 
         String @namespace = propertySymbol.ContainingType.ContainingNamespace.ToDisplayString();
@@ -87,9 +87,8 @@ public sealed class MeasureGenerator : IIncrementalGenerator
     {
         measureSummary = null;
         valueSummary = null;
-        
+
         foreach (KeyValuePair<String, TypedConstant> namedArgument in attributeData.NamedArguments)
-        {
             switch (namedArgument.Key)
             {
                 case nameof(GenerateMeasureAttribute.MeasureSummary):
@@ -101,14 +100,13 @@ public sealed class MeasureGenerator : IIncrementalGenerator
 
                     break;
             }
-        }
     }
 
     private static AttributeData? GetAttribute(GeneratorAttributeSyntaxContext context)
     {
         foreach (AttributeData attribute in context.Attributes)
         {
-            if (attribute.AttributeClass is not { } attributeClass)
+            if (attribute.AttributeClass is not {} attributeClass)
                 continue;
 
             if (attributeClass.Name != nameof(GenerateMeasureAttribute)
@@ -128,7 +126,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
 
     private static void Execute(MeasureModel? model, SourceProductionContext context)
     {
-        if (model is not { } value)
+        if (model is not {} value)
             return;
 
         String source = GenerateSource(value);
@@ -141,7 +139,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
         StringBuilder sb = new();
 
         sb.AppendPreamble<MeasureGenerator>().AppendNamespace(model.Namespace);
-        
+
         sb.Append($$"""
                     /// <summary>
                     ///     {{model.MeasureSummary ?? "A measure."}}
@@ -156,43 +154,43 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                         ///     {{model.ValueSummary ?? "The value of the measure."}}
                         /// </summary>
                         public global::System.Double {{model.ValuePropertyName}} { get; init; }
-                    
+
                         /// <inheritdoc />
                         public static global::VoxelGame.Core.Utilities.Units.Unit Unit 
                             => {{model.UnitPropertyAccess}};
-                    
+
                         /// <inheritdoc />
                         public static global::VoxelGame.Annotations.Definitions.AllowedPrefixes Prefixes 
                             => (global::VoxelGame.Annotations.Definitions.AllowedPrefixes) {{model.AllowedPrefixes}};
-                    
+
                         /// <inheritdoc />
                         global::System.Double global::VoxelGame.Core.Utilities.Units.IMeasure.Value 
                             => {{model.ValuePropertyName}};
-                    
+
                         /// <inheritdoc />
                         public global::System.Boolean Equals({{model.MeasureName}} other)
                         {
                             return {{model.ValuePropertyName}}.Equals(other.{{model.ValuePropertyName}});
                         }
-                    
+
                         /// <inheritdoc />
                         public override global::System.Boolean Equals(global::System.Object? obj)
                         {
                             return obj is {{model.MeasureName}} other && Equals(other);
                         }
-                    
+
                         /// <inheritdoc />
                         public global::System.Int32 CompareTo({{model.MeasureName}} other)
                         {
                             return {{model.ValuePropertyName}}.CompareTo(other.{{model.ValuePropertyName}});
                         }
-                    
+
                         /// <inheritdoc />
                         public override global::System.Int32 GetHashCode()
                         {
                             return {{model.ValuePropertyName}}.GetHashCode();
                         }
-                    
+
                         /// <summary>
                         ///     Equality operator.
                         /// </summary>
@@ -200,7 +198,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                         {
                             return left.Equals(right);
                         }
-                    
+
                         /// <summary>
                         ///     Inequality operator.
                         /// </summary>
@@ -208,7 +206,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                         {
                             return !left.Equals(right);
                         }
-                    
+
                         /// <summary>
                         ///     Greater-than operator.
                         /// </summary>
@@ -216,7 +214,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                         {
                             return left.{{model.ValuePropertyName}} > right.{{model.ValuePropertyName}};
                         }
-                    
+
                         /// <summary>
                         ///     Less-than operator.
                         /// </summary>
@@ -224,7 +222,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                         {
                             return left.{{model.ValuePropertyName}} < right.{{model.ValuePropertyName}};
                         }
-                    
+
                         /// <summary>
                         ///     Greater-than-or-equal operator.
                         /// </summary>
@@ -232,7 +230,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                         {
                             return left.{{model.ValuePropertyName}} >= right.{{model.ValuePropertyName}};
                         }
-                    
+
                         /// <summary>
                         ///     Less-than-or-equal operator.
                         /// </summary>
@@ -240,7 +238,7 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                         {
                             return left.{{model.ValuePropertyName}} <= right.{{model.ValuePropertyName}};
                         }
-                    
+
                         /// <inheritdoc />
                         public override global::System.String ToString()
                         {
@@ -257,12 +255,12 @@ public sealed class MeasureGenerator : IIncrementalGenerator
                             return global::VoxelGame.Core.Utilities.Units.IMeasure.ToString(this, format);
                         }
                     }
-                    
+
                     """);
 
         return sb.ToString();
     }
-    
+
     private record struct MeasureModel(
         String? Namespace,
         String MeasureName,

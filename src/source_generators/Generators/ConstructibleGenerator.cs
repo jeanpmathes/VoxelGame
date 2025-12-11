@@ -34,10 +34,10 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
                 static (ctx, _) => GetSemanticTargetForGeneration(ctx))
             .Where(static model => model is not null);
 
-        context.RegisterSourceOutput(models, 
+        context.RegisterSourceOutput(models,
             static (spc, source) => Execute(source, spc));
     }
-    
+
     private static Boolean IsSyntaxTargetForGeneration(SyntaxNode node)
     {
         return node is ConstructorDeclarationSyntax;
@@ -54,23 +54,23 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
         if (constructorSymbol.MethodKind != MethodKind.Constructor || constructorSymbol.IsStatic || constructorSymbol.Parameters.Length == 0)
             return null;
 
-        if (HasUnsupportedParameterKind(constructorSymbol)) 
+        if (HasUnsupportedParameterKind(constructorSymbol))
             return null;
 
         if (constructorDeclaration.Parent is not TypeDeclarationSyntax typeDeclaration)
             return null;
-        
+
         if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration) is not {} typeSymbol)
             return null;
 
         ContainingType? containingType = SyntaxTools.GetContainingType(typeDeclaration, context.SemanticModel);
         String @namespace = SyntaxTools.GetNamespace(typeDeclaration);
-        
+
         ImmutableArray<ParameterModel> parameters = CreateParameterModels(constructorSymbol);
 
         if (parameters.IsDefaultOrEmpty)
             return null;
-        
+
         return new ConstructorModel(
             containingType,
             @namespace,
@@ -82,14 +82,12 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
             typeDeclaration.ConstraintClauses.ToString(),
             parameters);
     }
-    
+
     private static Boolean HasUnsupportedParameterKind(IMethodSymbol methodSymbol)
     {
         foreach (IParameterSymbol parameter in methodSymbol.Parameters)
-        {
-            if (parameter.RefKind != RefKind.None || parameter.HasExplicitDefaultValue || parameter.IsParams) 
+            if (parameter.RefKind != RefKind.None || parameter.HasExplicitDefaultValue || parameter.IsParams)
                 return true;
-        }
 
         return false;
     }
@@ -97,23 +95,20 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
     private static ImmutableArray<ParameterModel> CreateParameterModels(IMethodSymbol methodSymbol)
     {
         ImmutableArray<ParameterModel>.Builder parameterBuilder = ImmutableArray.CreateBuilder<ParameterModel>();
-        
-        foreach (IParameterSymbol parameter in methodSymbol.Parameters)
-        {
-            parameterBuilder.Add(new ParameterModel(parameter.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat)));
-        }
-        
+
+        foreach (IParameterSymbol parameter in methodSymbol.Parameters) parameterBuilder.Add(new ParameterModel(parameter.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat)));
+
         return parameterBuilder.ToImmutable();
     }
 
     private static void Execute(ConstructorModel? model, SourceProductionContext context)
     {
-        if (model is not { } constructorModel) return;
-        
+        if (model is not {} constructorModel) return;
+
         var constructorMethod = ConstructorMethod.Create(constructorModel.Parameters);
-        
+
         String result = GenerateSource(constructorModel, constructorMethod);
-        
+
         context.AddSource($"{NameTools.SanitizeForIO(constructorModel.TypeFullName)}_{constructorMethod.SignatureHint}_Constructible.g.cs", SourceText.From(result, Encoding.UTF8));
     }
 
@@ -122,28 +117,29 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
         StringBuilder sb = new();
 
         sb.AppendPreamble<ConstructibleGenerator>()
-          .AppendNamespace(constructorModel.Namespace);
+            .AppendNamespace(constructorModel.Namespace);
 
-        sb.AppendNestedClass(constructorModel.ContainingType, (builder, i) =>
-        {
-            builder
-                .Append($"{i}{constructorModel.TypeAccessibility} partial {constructorModel.TypeKeyword} {constructorModel.TypeName}{constructorModel.TypeParameters}")
-                .Append($" : {constructorMethod.GetConstructibleInterface(constructorModel.TypeFullName)}");
+        sb.AppendNestedClass(constructorModel.ContainingType,
+            (builder, i) =>
+            {
+                builder
+                    .Append($"{i}{constructorModel.TypeAccessibility} partial {constructorModel.TypeKeyword} {constructorModel.TypeName}{constructorModel.TypeParameters}")
+                    .Append($" : {constructorMethod.GetConstructibleInterface(constructorModel.TypeFullName)}");
 
-            if (!String.IsNullOrWhiteSpace(constructorModel.TypeConstraints))
-                builder.Append($"{i}{constructorModel.TypeConstraints}");
+                if (!String.IsNullOrWhiteSpace(constructorModel.TypeConstraints))
+                    builder.Append($"{i}{constructorModel.TypeConstraints}");
 
-            builder.Append($$"""
-                             
-                             {{i}}{
-                             {{i}}    /// <inheritdoc />
-                             {{i}}    public static {{constructorModel.TypeFullName}} Construct({{constructorMethod.ParameterList}})
-                             {{i}}    {
-                             {{i}}        return new {{constructorModel.TypeFullName}}({{constructorMethod.ArgumentList}});
-                             {{i}}    }
-                             {{i}}}
-                             """);
-        });
+                builder.Append($$"""
+
+                                 {{i}}{
+                                 {{i}}    /// <inheritdoc />
+                                 {{i}}    public static {{constructorModel.TypeFullName}} Construct({{constructorMethod.ParameterList}})
+                                 {{i}}    {
+                                 {{i}}        return new {{constructorModel.TypeFullName}}({{constructorMethod.ArgumentList}});
+                                 {{i}}    }
+                                 {{i}}}
+                                 """);
+            });
 
         return sb.ToString();
     }

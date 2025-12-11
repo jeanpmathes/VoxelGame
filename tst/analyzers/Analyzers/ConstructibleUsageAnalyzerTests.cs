@@ -97,7 +97,7 @@ public class ConstructibleUsageAnalyzerTests
             }
         }.RunAsync();
     }
-    
+
     [Fact]
     public async Task ConstructibleUsageAnalyzer_ShouldDetectDefaultParameterValue()
     {
@@ -137,7 +137,7 @@ public class ConstructibleUsageAnalyzerTests
             }
         }.RunAsync();
     }
-    
+
     [Fact]
     public async Task ConstructibleUsageAnalyzer_ShouldDetectParamsParameter()
     {

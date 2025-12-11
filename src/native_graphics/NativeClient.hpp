@@ -182,15 +182,10 @@ private:
     bool m_windowedMode  = true;
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    GpuCrashTracker::MarkerMap m_markerMap      = {};
-    ShaderDatabase             m_shaderDatabase = {};
-    GpuCrashTracker            m_gpuCrashTracker;
-
-public:
-    void SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
-    void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);
-
-private:
+    GpuCrashTracker::MarkerMap m_markerMap = {}; ShaderDatabase m_shaderDatabase = {}; GpuCrashTracker
+    m_gpuCrashTracker;public: void SetUpCommandListForAftermath(
+        ComPtr<ID3D12GraphicsCommandList> const& commandList) const; void SetUpShaderForAftermath(
+        ComPtr<IDxcResult> const& result);private:
 #endif
 
     void CheckRaytracingSupport() const;

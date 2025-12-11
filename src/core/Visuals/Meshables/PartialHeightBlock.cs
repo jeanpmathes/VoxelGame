@@ -120,7 +120,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
             Tint = mesh.Tint,
             IsAnimated = mesh.IsAnimated
         };
-        
+
         SimpleBlock.AddSimpleMesh(position,
             side,
             in convertedMesh,
@@ -138,7 +138,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
         Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
-        
+
         Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
         Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
 
@@ -168,7 +168,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         ref readonly PartialHeight.MeshData mesh = ref meshData[Side.Front][state.Index];
 
         ColorS color = DominantColorProvider.GetDominantColor(mesh.TextureIndex, isBlock: true);
-        
+
         return color * mesh.Tint.Select(positionTint);
     }
 }

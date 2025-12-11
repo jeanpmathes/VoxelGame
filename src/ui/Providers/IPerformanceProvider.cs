@@ -16,10 +16,10 @@ public interface IPerformanceProvider
     /// <summary>
     ///     The current FPS (frames per second).
     /// </summary>
-    public Double FPS { get; }
+    Double FPS { get; }
 
     /// <summary>
     ///     The current UPS (updates per second).
     /// </summary>
-    public Double UPS { get; }
+    Double UPS { get; }
 }

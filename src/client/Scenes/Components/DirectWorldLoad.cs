@@ -44,7 +44,7 @@ public partial class DirectWorldLoad : SceneComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)
     {
-        if (!isLoadingPossible) 
+        if (!isLoadingPossible)
             return;
 
         Result result = worldProvider.Refresh().Wait();

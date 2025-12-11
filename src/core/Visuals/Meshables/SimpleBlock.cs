@@ -123,14 +123,14 @@ public class SimpleBlock : Block, IOverlayTextureProvider
             mesh.IsTextureRotated,
             isSingleSided: true);
     }
-    
+
     /// <inheritdoc />
     public override ColorS GetDominantColor(State state, ColorS positionTint)
     {
         ref readonly Simple.MeshData mesh = ref meshData[Side.Front][state.Index];
 
         ColorS color = DominantColorProvider.GetDominantColor(mesh.TextureIndex, isBlock: true);
-        
+
         return color * mesh.Tint.Select(positionTint);
     }
 
@@ -145,7 +145,7 @@ public class SimpleBlock : Block, IOverlayTextureProvider
     public static Boolean IsHiddenFace(Block current, State neighbor, Side side)
     {
         Boolean blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
-                                                 || current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques;
+                                                 || (current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques);
 
         return neighbor.IsSideFull(side.Opposite()) && blockToCheckIsConsideredOpaque;
     }

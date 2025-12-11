@@ -44,16 +44,14 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     public Aspect<State, (State state, Vector3i part)> PartState { get; }
 
     /// <summary>
-    /// Is set by <see cref="Composite"/> and allows this behavior to publish placement completion events.
+    ///     Is set by <see cref="Composite" /> and allows this behavior to publish placement completion events.
     /// </summary>
-    [LateInitialization] 
-    public partial Action<World, Vector3i, Vector3i, Actor?> PublishPlacementCompleted { private get; set; }
+    [LateInitialization] public partial Action<World, Vector3i, Vector3i, Actor?> PublishPlacementCompleted { private get; set; }
 
     /// <summary>
-    /// Is set by <see cref="Composite"/> and allows this behavior to publish neighbor update events.
+    ///     Is set by <see cref="Composite" /> and allows this behavior to publish neighbor update events.
     /// </summary>
-    [LateInitialization] 
-    public partial Action<World, Vector3i, Vector3i, State, Side> PublishNeighborUpdate { private get; set; }
+    [LateInitialization] public partial Action<World, Vector3i, Vector3i, State, Side> PublishNeighborUpdate { private get; set; }
 
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
@@ -110,7 +108,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             state = SetPartPosition(state, part);
 
             message.World.SetBlock(state, position);
-            
+
             PublishPlacementCompleted(message.World, position, part, message.Actor);
         }
     }
@@ -153,14 +151,16 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             if (!IsGrowthPossible(message.World, root, oldSize, newSize, orientation))
             {
                 message.Undo();
-                
+
                 return;
             }
-            
+
             ResizeComposite(message.World, root, oldSize, newSize, orientation, newState);
         }
         else if (message.OldState.Block != message.NewState.Block)
+        {
             SetStateOnAllParts(message.World, newSize, root, currentPart, orientation, newState);
+        }
     }
 
     private void OnNeighborUpdate(Block.INeighborUpdateMessage message)
@@ -175,9 +175,9 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         Boolean isPartOfComposite = updatedPart is {X: >= 0, Y: >= 0, Z: >= 0}
                                     && updatedPart.X < size.X && updatedPart.Y < size.Y && updatedPart.Z < size.Z;
-        
+
         if (isPartOfComposite) return;
-        
+
         PublishNeighborUpdate(message.World, message.Position, currentPart, message.State, message.Side);
     }
 
@@ -190,10 +190,10 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         for (var z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
-            
+
             Boolean inOld = x < oldSize.X && y < oldSize.Y && z < oldSize.Z;
             Boolean inNew = x < newSize.X && y < newSize.Y && z < newSize.Z;
-            
+
             Boolean kept = inOld && inNew;
             Boolean removed = inOld && !inNew;
             Boolean added = !inOld && inNew;
@@ -209,7 +209,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
             }
         }
     }
-    
+
     private static Boolean IsGrowthPossible(World world, Vector3i position, Vector3i oldSize, Vector3i newSize, Orientation orientation)
     {
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
@@ -219,14 +219,14 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         for (var z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
-            
+
             Boolean inOld = x < oldSize.X && y < oldSize.Y && z < oldSize.Z;
             Boolean inNew = x < newSize.X && y < newSize.Y && z < newSize.Z;
 
             if (inOld || !inNew) continue;
 
             Vector3i current = position + Rotate(part, orientation);
-                
+
             State? block = world.GetBlock(current);
 
             if (block?.IsReplaceable != true)
@@ -275,7 +275,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     {
         return PartState.GetValue(original, (original, part));
     }
-    
+
     /// <summary>
     ///     Get the collider that encompasses all parts of the composite block for the provided state.
     /// </summary>
@@ -285,7 +285,7 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     public BoxCollider GetFullCollider(State state, Vector3i position)
     {
         CompositeColliderBuilder builder = new(composite, state, SetPartPosition);
-        
+
         return builder.Build(position);
     }
 }

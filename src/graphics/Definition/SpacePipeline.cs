@@ -53,10 +53,10 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
         internal IntPtr* symbols;
 
         internal UInt32 anisotropy;
-        
+
         internal MaterialDescriptionMarshaller.Unmanaged* materials;
         internal UInt32 materialCount;
-        
+
         internal IntPtr* textures;
         internal UInt32 textureCountFirstSlot;
         internal UInt32 textureCountSecondSlot;
@@ -148,7 +148,7 @@ internal static class ShaderFileDescriptionMarshaller
     {
         UnicodeStringMarshaller.Free(unmanaged.path);
     }
-    
+
 #pragma warning disable S1694
     internal abstract class Marshaller : IMarshaller<ShaderFileDescription, Unmanaged>
 #pragma warning restore S1694

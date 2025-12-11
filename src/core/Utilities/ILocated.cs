@@ -17,10 +17,10 @@ public interface ILocated
     /// <summary>
     ///     The resource-relative path to the directory containing all resources of this type.
     /// </summary>
-    public static abstract String[] Path { get; }
+    static abstract String[] Path { get; }
 
     /// <summary>
     ///     The file extension associated with this resource type, without the leading dot.
     /// </summary>
-    public static abstract String FileExtension { get; }
+    static abstract String FileExtension { get; }
 }

@@ -12,7 +12,7 @@ namespace VoxelGame.Core.Behaviors.Events;
 ///     Core interface for events.
 /// </summary>
 /// <typeparam name="TEventMessage">The message type of the event.</typeparam>
-public interface IEvent<in TEventMessage> 
+public interface IEvent<in TEventMessage>
 {
     /// <summary>
     ///     Get whether this event has any subscribers.
@@ -23,5 +23,5 @@ public interface IEvent<in TEventMessage>
     ///     Publish an event message to all subscribers of this event.
     /// </summary>
     /// <param name="message">The event message to publish.</param>
-    public void Publish(TEventMessage message);
+    void Publish(TEventMessage message);
 }

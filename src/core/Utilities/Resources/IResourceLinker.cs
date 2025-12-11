@@ -30,5 +30,5 @@ public interface IResourceLinker : ICatalogEntry
     ///     Links previously loaded resources together.
     /// </summary>
     /// <param name="context">The context in which the resources are loaded.</param>
-    public void Link(IResourceContext context);
+    void Link(IResourceContext context);
 }

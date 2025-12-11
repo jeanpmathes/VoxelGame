@@ -124,7 +124,7 @@ public readonly struct RequestLevel : IEquatable<RequestLevel>, IComparable<Requ
     {
         return !left.Equals(right);
     }
-    
+
     /// <inheritdoc />
     public Int32 CompareTo(RequestLevel other)
     {

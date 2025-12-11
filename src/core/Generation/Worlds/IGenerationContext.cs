@@ -21,7 +21,7 @@ public interface IGenerationContext : IDisposable
     /// <summary>
     ///     The generator that created this context.
     /// </summary>
-    public IWorldGenerator Generator { get; }
+    IWorldGenerator Generator { get; }
 
     /// <summary>
     ///     Generate a column of the world.

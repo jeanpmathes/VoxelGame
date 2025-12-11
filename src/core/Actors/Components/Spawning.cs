@@ -19,9 +19,6 @@ public partial class Spawning : ActorComponent
     /// <inheritdoc />
     public override void OnAdd()
     {
-        if (Subject.GetComponent<Transform>() is {} transform)
-        {
-            transform.Position = Subject.World.SpawnPosition;
-        }
+        if (Subject.GetComponent<Transform>() is {} transform) transform.Position = Subject.World.SpawnPosition;
     }
 }

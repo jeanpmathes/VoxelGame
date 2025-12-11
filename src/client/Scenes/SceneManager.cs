@@ -175,17 +175,17 @@ public partial class SceneManager : ApplicationComponent
     }
 
     #region DISPOSABLE
-    
+
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
-        
+
         if (!disposing) return;
-        
+
         Unload();
     }
-    
+
     #endregion DISPOSABLE
 
     #region LOGGING

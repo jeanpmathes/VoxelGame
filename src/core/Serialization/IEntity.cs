@@ -18,18 +18,18 @@ public interface IEntity
     /// <summary>
     ///     Get the current version of the entity.
     /// </summary>
-    public static abstract UInt32 CurrentVersion { get; }
+    static abstract UInt32 CurrentVersion { get; }
 
     /// <summary>
     ///     Serialize the entity.
     /// </summary>
     /// <param name="serializer">The serializer to use.</param>
     /// <param name="header">The header of the entity.</param>
-    public void Serialize(Serializer serializer, Header header);
+    void Serialize(Serializer serializer, Header header);
 
     /// <summary>
     ///     Header of an entity.
     /// </summary>
     /// <param name="Version">The version of the entity.</param>
-    public record struct Header(UInt32 Version);
+    record struct Header(UInt32 Version);
 }

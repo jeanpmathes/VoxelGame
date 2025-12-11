@@ -23,5 +23,5 @@ public interface IModelProvider : IResourceProvider
     ///     the full model.
     /// </param>
     /// <returns>The model, or a fallback model if the model is not found.</returns>
-    public Model GetModel(RID identifier, Vector3i? part = null);
+    Model GetModel(RID identifier, Vector3i? part = null);
 }

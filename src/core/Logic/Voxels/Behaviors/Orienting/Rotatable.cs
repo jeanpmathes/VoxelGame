@@ -24,7 +24,7 @@ public partial class Rotatable : BlockBehavior, IBehavior<Rotatable, BlockBehavi
     private Rotatable(Block subject) : base(subject)
     {
         subject.Require<Orientable>();
-        
+
         subject.RequireIfPresent<RotatableSimpleBlock, Simple>();
 
         Axis = Aspect<Axis, State>.New<Exclusive<Axis, State>>(nameof(Axis), this);

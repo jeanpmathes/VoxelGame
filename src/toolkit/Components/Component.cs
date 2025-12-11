@@ -20,9 +20,9 @@ public abstract class Component<TSubject>(TSubject subject) : IDisposable where 
     ///     Get the subject of this component.
     /// </summary>
     public TSubject Subject { get; } = subject;
-    
+
     /// <summary>
-    /// Remove this component from its subject.
+    ///     Remove this component from its subject.
     /// </summary>
     public void RemoveSelf()
     {

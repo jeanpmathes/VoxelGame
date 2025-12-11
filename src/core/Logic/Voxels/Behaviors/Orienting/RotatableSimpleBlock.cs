@@ -45,12 +45,12 @@ public partial class RotatableSimpleBlock : BlockBehavior, IBehavior<RotatableSi
 
         return onXAndRotated || onZAndRotated;
     }
-    
+
     private (Axis axis, Int32 turns) GetRotation((Axis axis, Int32 turns) original, State state)
     {
         Axis axis = rotatable.GetAxis(state);
         Int32 turns = MathTools.Mod(rotatable.GetTurns(state), m: 4);
-        
+
         return (axis, turns);
     }
 }

@@ -142,7 +142,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
             return null;
         }
     }
-    
+
     /// <summary>
     ///     Create a new color from a <see cref="Vector4" />.
     /// </summary>
@@ -177,14 +177,14 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     }
 
     /// <summary>
-    /// The luminance of this color, using the HSP color model.
+    ///     The luminance of this color, using the HSP color model.
     /// </summary>
     public Single Luminance
     {
         get
         {
             Debug.Assert(!IsNeutral);
-            
+
             return MathF.Sqrt(0.299f * R * R + 0.587f * G * G + 0.114f * B * B);
         }
     }
@@ -213,9 +213,9 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
 
         UInt32 bits = 0;
 
-        bits |= (UInt32) (rounded.R >> shift) << TintPrecision * 2;
-        bits |= (UInt32) (rounded.G >> shift) << TintPrecision * 1;
-        bits |= (UInt32) (rounded.B >> shift) << TintPrecision * 0;
+        bits |= (UInt32) (rounded.R >> shift) << (TintPrecision * 2);
+        bits |= (UInt32) (rounded.G >> shift) << (TintPrecision * 1);
+        bits |= (UInt32) (rounded.B >> shift) << (TintPrecision * 0);
 
         return bits;
     }
@@ -593,7 +593,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
         (nameof(Taupe), Taupe),
         (nameof(Viridian), Viridian)
     ];
-    
+
     /// <summary>
     ///     Gets the palette of named colors without their display names.
     /// </summary>
@@ -608,7 +608,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     {
         return namedColorEntries[index].color;
     }
-    
+
     /// <summary>
     ///     Gets the name of the named color at the specified index.
     /// </summary>

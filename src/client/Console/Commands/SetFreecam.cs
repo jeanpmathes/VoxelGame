@@ -26,6 +26,6 @@ public class SetFreecam : Command
     public void Invoke(Boolean freecam)
     {
         if (Context.Player.GetComponent<PlayerMovement>() is {} movement)
-            movement.SetFreecamMode(enabled: freecam);
+            movement.SetFreecamMode(freecam);
     }
 }

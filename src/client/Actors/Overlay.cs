@@ -74,7 +74,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
             {
                 newBounds = GetOverlayBounds(content.Block, position, frustum);
                 overlayTextureProvider = overlayBehavior.Provider;
-                
+
                 isBlock = true;
                 anyIsBlock = true;
             }

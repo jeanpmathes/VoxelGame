@@ -22,7 +22,7 @@ public partial class Sided : BlockBehavior, IBehavior<Sided, BlockBehavior, Bloc
     private Sided(Block subject) : base(subject)
     {
         subject.Require<Orientable>();
-        
+
         Sides = Aspect<Sides, State>.New<Exclusive<Sides, State>>(nameof(Sides), this);
         SidedState = Aspect<State?, (State state, Sides side)>.New<Exclusive<State?, (State state, Sides side)>>(nameof(SidedState), this);
     }

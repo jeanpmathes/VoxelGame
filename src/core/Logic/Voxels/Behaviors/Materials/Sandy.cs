@@ -10,7 +10,7 @@ using VoxelGame.Core.Behaviors;
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Materials;
 
 /// <summary>
-/// Marks a block as being sandy, meaning it is made up of loose sand particles.
+///     Marks a block as being sandy, meaning it is made up of loose sand particles.
 /// </summary>
 public partial class Sandy : BlockBehavior, IBehavior<Sandy, BlockBehavior, Block>
 {

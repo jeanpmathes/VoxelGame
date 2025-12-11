@@ -20,6 +20,7 @@ public class Input
 {
     private readonly List<Action<VirtualKeys>> callbackListForAnyPress = [];
     private readonly HashSet<VirtualKeys> ignoredKeys = [];
+
     private readonly HashSet<VirtualKeys> mouseButtons =
     [
         VirtualKeys.LeftButton,

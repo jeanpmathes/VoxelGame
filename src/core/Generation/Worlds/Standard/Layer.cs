@@ -268,7 +268,7 @@ public abstract class Layer
             Block block = loose
                 ? Blocks.Instance.Environment.PulverizedSnow
                 : Blocks.Instance.Environment.Snow;
-            
+
             snow = new Content(block.States.GenerationDefault.WithHeight(BlockHeight.Maximum), FluidInstance.Default);
             filled = Content.Default;
         }

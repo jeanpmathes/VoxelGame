@@ -23,9 +23,9 @@ public sealed class TargetingBoxPipeline : IDisposable
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly RasterPipeline pipeline;
     private readonly ShaderBuffer<Data> buffer;
-    
+
     private Boolean dataDirty = true;
-    
+
     private ColorS brightColor = ColorS.White;
     private ColorS darkColor = ColorS.Black;
 
@@ -94,7 +94,7 @@ public sealed class TargetingBoxPipeline : IDisposable
     public void UpdateData()
     {
         if (!dataDirty) return;
-        
+
         buffer.Data = new Data(darkColor.ToColor4(), brightColor.ToColor4());
 
         dataDirty = false;

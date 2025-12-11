@@ -30,9 +30,6 @@ public partial class ScreenshotController : SceneComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime, Timer? timer)
     {
-        if (scene.CanHandleGameInput && button.Pushed)
-        {
-            scene.Client.TakeScreenshot(Program.ScreenshotDirectory);
-        }
+        if (scene.CanHandleGameInput && button.Pushed) scene.Client.TakeScreenshot(Program.ScreenshotDirectory);
     }
 }

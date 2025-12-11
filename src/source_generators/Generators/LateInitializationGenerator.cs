@@ -49,7 +49,7 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
     {
         if (ModelExtensions.GetDeclaredSymbol(semanticModel, declarationSyntax) is not IPropertySymbol propertySymbol)
             return null;
-        
+
         if (!declarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
             return null;
 
@@ -59,9 +59,9 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         String type = propertySymbol.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
         String accessibility = SyntaxFacts.GetText(propertySymbol.DeclaredAccessibility);
         String name = propertySymbol.Name;
-        
+
         Boolean isStatic = propertySymbol.IsStatic;
-        
+
         String getAccessibility = propertySymbol.GetMethod != null ? SyntaxFacts.GetText(propertySymbol.GetMethod.DeclaredAccessibility) : accessibility;
         String setAccessibility = propertySymbol.SetMethod != null ? SyntaxFacts.GetText(propertySymbol.SetMethod.DeclaredAccessibility) : accessibility;
 
@@ -84,9 +84,9 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         sb.AppendPreamble<LateInitializationGenerator>().AppendNamespace(model.Namespace);
 
         var backingFieldName = $"@__{NameTools.ConvertPascalCaseToCamelCase(model.Name)}";
-        
+
         String staticModifier = model.IsStatic ? "static " : "";
-        
+
         String getAccessibility = model.GetAccessibility != model.Accessibility ? $"{model.GetAccessibility} " : "";
         String setAccessibility = model.SetAccessibility != model.Accessibility ? $"{model.SetAccessibility} " : "";
 
@@ -100,7 +100,7 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
                            {{i}}{
                            {{i}}    {{getAccessibility}}get => {{backingFieldName}} 
                            {{i}}        ?? throw new global::System.InvalidOperationException($"Property '{nameof({{model.Name}})}' is used before being initialized.");
-                           
+
                            {{i}}    {{setAccessibility}}set
                            {{i}}    {
                            {{i}}        if ({{backingFieldName}} is not null)
@@ -116,13 +116,13 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
     }
 
     private record struct PropertyModel(
-        ContainingType? ContainingType, 
-        String DeclaringType, 
-        String Namespace, 
-        String Accessibility, 
-        String Type, 
-        String Name, 
-        Boolean IsStatic, 
-        String GetAccessibility, 
+        ContainingType? ContainingType,
+        String DeclaringType,
+        String Namespace,
+        String Accessibility,
+        String Type,
+        String Name,
+        Boolean IsStatic,
+        String GetAccessibility,
         String SetAccessibility);
 }

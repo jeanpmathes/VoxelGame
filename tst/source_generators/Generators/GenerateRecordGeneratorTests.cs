@@ -18,7 +18,7 @@ public class GenerateRecordGeneratorTests
     {
         return TestTools.RunGenerator<GenerateRecordGenerator>(source, "_Record.g.cs", typeof(GenerateRecordAttribute));
     }
-    
+
     [Fact]
     public void GenerateRecordGenerator_ShouldGenerateForNestedInterface()
     {
@@ -59,7 +59,8 @@ public class GenerateRecordGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
@@ -100,7 +101,8 @@ public class GenerateRecordGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
@@ -137,7 +139,8 @@ public class GenerateRecordGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
@@ -178,7 +181,8 @@ public class GenerateRecordGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
@@ -221,11 +225,12 @@ public class GenerateRecordGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
-    
+
     [Fact]
     public void GenerateRecordGenerator_ShouldGenerateWithBaseType()
     {
@@ -258,11 +263,12 @@ public class GenerateRecordGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
-    
+
     [Fact]
     public void GenerateRecordGenerator_ShouldGenerateWithUnboundedGenericBaseType()
     {
@@ -294,12 +300,13 @@ public class GenerateRecordGeneratorTests
                                }
 
                                """;
-        
-        Assert.Equal(newText, RunGenerator(oldText),
+
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
-    
+
     [Fact]
     public void GenerateRecordGenerator_ShouldGenerateWithGenericBaseType()
     {
@@ -332,7 +339,8 @@ public class GenerateRecordGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }

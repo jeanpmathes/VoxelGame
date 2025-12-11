@@ -53,8 +53,8 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
 
         Model post = context.ModelProvider.GetModel(Models.Get().post);
         Model extension = context.ModelProvider.GetModel(Models.Get().extension);
-        
-        (Model north, Model east, Model south, Model west) extensions = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(extension, Model.TransformationMode.Reshape);
+
+        (Model north, Model east, Model south, Model west) extensions = Core.Visuals.Models.CreateModelsForAllOrientations(extension, Model.TransformationMode.Reshape);
 
         List<Model> models = new(capacity: 5);
 
@@ -65,10 +65,7 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
         {
             Model straightModel = context.ModelProvider.GetModel(straight);
 
-            if (useStraightX)
-            {
-                straightModel = straightModel.CreateModelForSide(Side.Left, Model.TransformationMode.Reshape);
-            }
+            if (useStraightX) straightModel = straightModel.CreateModelForSide(Side.Left, Model.TransformationMode.Reshape);
 
             models.Add(straightModel);
         }
@@ -86,15 +83,15 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
     {
         return connections is {north: false, east: true, south: false, west: true};
     }
-    
+
     private static Boolean IsStraightOnZ((Boolean north, Boolean east, Boolean south, Boolean west) connections)
     {
         return connections is {north: true, east: false, south: true, west: false};
     }
-    
+
     private static void AddExtensionsBasedOnConnections(
-        List<Model> models, 
-        (Boolean north, Boolean east, Boolean south, Boolean west) connections, 
+        List<Model> models,
+        (Boolean north, Boolean east, Boolean south, Boolean west) connections,
         (Model north, Model east, Model south, Model west) extensions)
     {
         if (connections.north) models.Add(extensions.north);

@@ -52,7 +52,7 @@ public class LateInitializationUsageAnalyzerTests
             }
         }.RunAsync();
     }
-    
+
     [Fact]
     public async Task LateInitializationUsageAnalyzer_ShouldDetectNullable()
     {

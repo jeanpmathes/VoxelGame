@@ -89,7 +89,7 @@ public readonly unsafe struct Draw2D
                 ctx = managed.ctx
             };
         }
-        
+
         internal static Internal ConvertToManaged(Unmanaged unmanaged)
         {
             return new Internal

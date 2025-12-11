@@ -37,7 +37,7 @@ public static class BehaviorExtensions
     {
         return state.Block.Get<Attached>() is {} attached ? attached.SetAttachment(state, attachment) : state;
     }
-    
+
     /// <summary>
     ///     Get the state with the given axis applied, if the owning block supports axis rotation.
     /// </summary>

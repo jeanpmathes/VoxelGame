@@ -38,7 +38,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Boolean Is<TConcreteBehavior>() 
+    public Boolean Is<TConcreteBehavior>()
         where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         return Get<TConcreteBehavior>() != null;
@@ -46,7 +46,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TConcreteBehavior? Get<TConcreteBehavior>() 
+    public TConcreteBehavior? Get<TConcreteBehavior>()
         where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         if (baked == null) return behaviors.OfType<TConcreteBehavior>().FirstOrDefault();
@@ -60,7 +60,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     }
 
     /// <inheritdoc />
-    public TConcreteBehavior Require<TConcreteBehavior>() 
+    public TConcreteBehavior Require<TConcreteBehavior>()
         where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
@@ -81,8 +81,8 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     }
 
     /// <inheritdoc />
-    public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null) 
-        where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSelf> 
+    public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null)
+        where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSelf>
         where TConditionConcreteBehavior : class, TBehavior, IBehavior<TConditionConcreteBehavior, TBehavior, TSelf>
     {
         // To prevent endless loops, we only process the watchers introduced by this behavior after it is fully constructed and added.
@@ -127,10 +127,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
         if (!allWatchers.TryGetValue(typeof(TConcreteBehavior), out List<Action<TBehavior>>? actions))
             return;
 
-        foreach (Action<TBehavior> action in actions)
-        {
-            action(behavior);
-        }
+        foreach (Action<TBehavior> action in actions) action(behavior);
 
         allWatchers.Remove(typeof(TConcreteBehavior));
     }
@@ -145,16 +142,9 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
             Int32 index = behaviors.FindIndex(b => key.IsInstanceOfType(b));
 
             if (index != -1)
-            {
                 foreach (Action<TBehavior> action in actions)
-                {
                     action(behaviors[index]);
-                }
-            }
-            else
-            {
-                allWatchers.GetOrAdd(key, []).AddRange(actions);
-            }
+            else allWatchers.GetOrAdd(key, []).AddRange(actions);
         }
     }
 

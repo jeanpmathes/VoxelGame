@@ -27,7 +27,7 @@ public class NoFluid : Fluid
             name,
             namedID,
             AirDensity,
-            new Viscosity { UpdateTicks = 1 },
+            new Viscosity {UpdateTicks = 1},
             checkContact: false,
             receiveContact: false,
             RenderType.NotRendered) {}

@@ -63,7 +63,7 @@ public interface IAttributeData : IScoped
     }
 
     /// <summary>
-    /// Get the state index for a given value index of a given attribute.
+    ///     Get the state index for a given value index of a given attribute.
     /// </summary>
     /// <param name="attribute">The attribute.</param>
     /// <param name="valueIndex">The value index.</param>

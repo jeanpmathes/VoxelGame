@@ -20,10 +20,10 @@ NativeClient::NativeClient(Configuration const& configuration)
 #endif
   , m_space(std::make_unique<Space>(*this))
 #if defined(USE_NSIGHT_AFTERMATH)
-  , m_gpuCrashTracker(
-        m_markerMap,
-        m_shaderDatabase,
-        GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
+, m_gpuCrashTracker(
+    m_markerMap,
+    m_shaderDatabase,
+    GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
 #endif
 {
     if (SupportPIX() && !PIXIsAttachedForGpuCapture()) PIXLoadLatestWinPixGpuCapturerLibrary();
@@ -114,12 +114,12 @@ void NativeClient::LoadDevice()
             GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
 
         AFTERMATH_CHECK_ERROR(
-            GFSDK_Aftermath_DX12_Initialize( GFSDK_Aftermath_Version_API, aftermathFlags, m_device.Get()));
+            GFSDK_Aftermath_DX12_Initialize(GFSDK_Aftermath_Version_API, aftermathFlags, m_device.Get()));
     }
 #endif
 
 #if defined(NATIVE_DEBUG)
-    auto                             callback = [](
+    auto callback = [](
         D3D12_MESSAGE_CATEGORY const category,
         D3D12_MESSAGE_SEVERITY const severity,
         D3D12_MESSAGE_ID const       id,
@@ -418,10 +418,7 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
         &dsvDesc,
         m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
 
-    if (m_postProcessingPipeline != nullptr)
-    {
-        CreatePostProcessingShaderResourceViews();
-    }
+    if (m_postProcessingPipeline != nullptr) CreatePostProcessingShaderResourceViews();
 }
 
 void NativeClient::EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> const commandList)
@@ -643,9 +640,9 @@ void NativeClient::RemoveDraw2DPipeline(UINT const id)
 void NativeClient::CreatePostProcessingShaderResourceViews() const
 {
     m_postProcessingPipeline->CreateShaderResourceView(
-            m_postProcessingPipeline->GetBindings().PostProcessing().color,
-            0,
-            {m_intermediateRenderTarget});
+        m_postProcessingPipeline->GetBindings().PostProcessing().color,
+        0,
+        {m_intermediateRenderTarget});
 
     // Because the depth buffer is created as TYPELESS, we cannot use the NULL descriptor.
 
@@ -714,9 +711,7 @@ void NativeClient::SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList
 
     GFSDK_Aftermath_ContextHandle contextHandle;
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
-}
-
-void NativeClient::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
+}void NativeClient::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
 {
     if (SupportPIX()) return;
 
@@ -850,7 +845,7 @@ void NativeClient::PopulateCommandLists()
 
     barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
     barriers[0].Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
-    
+
     barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     barriers[1].Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
 

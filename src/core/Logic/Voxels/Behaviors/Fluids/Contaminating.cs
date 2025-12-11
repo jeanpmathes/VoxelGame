@@ -26,16 +26,14 @@ public partial class Contaminating : BlockBehavior, IBehavior<Contaminating, Blo
     {
         bus.Subscribe<Block.IDestructionCompletedMessage>(OnDestructionCompleted);
     }
-    
+
     private static void OnDestructionCompleted(Block.IDestructionCompletedMessage message)
     {
         Content? content = message.World.GetContent(message.Position);
-        
+
         if (content is {Fluid: var fluid} && fluid.Fluid == Voxels.Fluids.Instance.FreshWater)
-        {
             message.World.SetFluid(
                 Voxels.Fluids.Instance.WasteWater.AsInstance(fluid.Level, fluid.IsStatic),
                 message.Position);
-        }
     }
 }

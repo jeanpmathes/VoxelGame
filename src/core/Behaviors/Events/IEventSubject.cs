@@ -14,10 +14,10 @@ public interface IEventSubject
     /// <summary>
     ///     Let the subject define its events in the given registry.
     /// </summary>
-    public void DefineEvents(IEventRegistry registry);
+    void DefineEvents(IEventRegistry registry);
 
     /// <summary>
     ///     Let the subject subscribe to events in the given event bus.
     /// </summary>
-    public void SubscribeToEvents(IEventBus bus);
+    void SubscribeToEvents(IEventBus bus);
 }

@@ -44,7 +44,7 @@ public class BlockBuilder
     ///     Get a dictionary mapping the content IDs to the blocks.
     /// </summary>
     public IReadOnlyDictionary<CID, Block> BlocksByContentID => factory.BlocksByContentID;
-    
+
     /// <summary>
     ///     Get a set of blocks that had a collision on their named ID during creation.
     /// </summary>
@@ -153,9 +153,9 @@ public class BlockBuilder
         ///     The content registry to register the block in.
         /// </summary>
         private readonly ContentRegistry registry = registry;
-        
+
         /// <summary>
-        /// Get the block being defined.
+        ///     Get the block being defined.
         /// </summary>
         protected Block Block => block;
 
@@ -223,7 +223,7 @@ public class BlockBuilder
 
             return this;
         }
-        
+
         /// <summary>
         ///     Set the wet tint color for the block. This will make the block able to be wet, changing its tint when that is the
         ///     case.
@@ -259,14 +259,11 @@ public class BlockBuilder
         /// <param name="definition">The conditional definition, will be called immediately if the condition is true.</param>
         public BlockDefinition WithConditionalDefinition(Boolean condition, Func<BlockDefinition, BlockDefinition> definition)
         {
-            if (condition)
-            {
-                definition(this);
-            }
+            if (condition) definition(this);
 
             return this;
         }
-        
+
         /// <summary>
         ///     Adds validation to the block.
         /// </summary>
@@ -277,10 +274,10 @@ public class BlockBuilder
             {
                 action(block, args.Validator);
             };
-            
+
             return this;
         }
-        
+
         /// <summary>
         ///     Completes the block definition and registers it in the content registry.
         /// </summary>

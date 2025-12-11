@@ -32,7 +32,7 @@ public interface IMeshing : IDisposable
     ///     As the used elements are implementation specific, different implementations can return different values.
     ///     If the mesh is empty, this should always return 0.
     /// </summary>
-    public Int32 Count { get; }
+    Int32 Count { get; }
 
     /// <summary>
     ///     Push a quad to the mesh, while applying modifications to the positions and data.

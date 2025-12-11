@@ -94,15 +94,15 @@ public abstract class Modifier : IIssueSource
                 context.ReportWarning($"Failed to provide parameter '{parameter.Name}'");
                 failed = true;
             }
-            else parsed[parameter] = parsedValue;
+            else
+            {
+                parsed[parameter] = parsedValue;
+            }
 
             unknown.Remove(parameter.Name);
         }
 
-        foreach (String name in unknown)
-        {
-            context.ReportWarning($"Unknown parameter '{name}'");
-        }
+        foreach (String name in unknown) context.ReportWarning($"Unknown parameter '{name}'");
 
         return failed ? null : new Parameters(parsed);
     }
@@ -159,18 +159,18 @@ public abstract class Modifier : IIssueSource
         /// <summary>
         ///     Get the position of the image in the sheet currently being processed.
         /// </summary>
-        public Vector2i Position { get; }
+        Vector2i Position { get; }
 
         /// <summary>
         ///     Get the size of the sheet currently being processed.
         /// </summary>
-        public Vector2i Size { get; }
+        Vector2i Size { get; }
 
         /// <summary>
         ///     Report a warning.
         /// </summary>
         /// <param name="message">The message of the warning.</param>
-        public void ReportWarning(String message);
+        void ReportWarning(String message);
     }
 
     /// <summary>
@@ -272,7 +272,7 @@ public abstract class Modifier : IIssueSource
         {
             if (text == "#animation_frames")
                 return Constants.BlockAnimationFrames;
-            
+
             return Int32.TryParse(text, CultureInfo.InvariantCulture, out Int32 result) ? result : null;
         }
     }

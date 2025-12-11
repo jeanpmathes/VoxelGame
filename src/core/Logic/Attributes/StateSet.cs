@@ -76,6 +76,33 @@ public class StateSet
     public State GenerationDefault => new(this, generationDefault);
 
     /// <summary>
+    ///     Get all states in this set.
+    ///     Note that this will generate the states on the fly, so do not use this after loading.
+    ///     The order of states is guaranteed to be the same as the order of state indices.
+    /// </summary>
+    public IEnumerable<State> AllStates
+    {
+        get
+        {
+            for (var index = 0; index < Count; index++) yield return GetStateByIndex(index);
+        }
+    }
+
+    /// <summary>
+    ///     Get all states in this set along with their indices.
+    ///     Note that this will generate the states on the fly, so do not use this after
+    ///     The order of states is guaranteed to be the same as the order of state indices.
+    /// </summary>
+    /// <returns>An enumerable of all states in this set along with their indices.</returns>
+    public IEnumerable<(State, Int32)> AllStatesWithIndex
+    {
+        get
+        {
+            for (var index = 0; index < Count; index++) yield return (GetStateByIndex(index), index);
+        }
+    }
+
+    /// <summary>
     ///     Get the state for a given state ID.
     /// </summary>
     /// <param name="id">The state ID, which is a number across all blocks.</param>
@@ -105,39 +132,6 @@ public class StateSet
     public static UInt32 GetStateID(State state)
     {
         return state.Owner.setOffset + (UInt32) state.Index;
-    }
-
-    /// <summary>
-    ///     Get all states in this set.
-    ///     Note that this will generate the states on the fly, so do not use this after loading.
-    ///     The order of states is guaranteed to be the same as the order of state indices.
-    /// </summary>
-    public IEnumerable<State> AllStates
-    {
-        get
-        {
-            for (var index = 0; index < Count; index++)
-            {
-                yield return GetStateByIndex(index);
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Get all states in this set along with their indices.
-    ///     Note that this will generate the states on the fly, so do not use this after
-    ///     The order of states is guaranteed to be the same as the order of state indices.
-    /// </summary>
-    /// <returns>An enumerable of all states in this set along with their indices.</returns>
-    public IEnumerable<(State, Int32)> AllStatesWithIndex
-    {
-        get
-        {
-            for (var index = 0; index < Count; index++)
-            {
-                yield return (GetStateByIndex(index), index);
-            }
-        }
     }
 
     /// <summary>

@@ -4,7 +4,7 @@ Effect::Effect(NativeClient& client)
     : Drawable(client)
 {
     m_instanceConstantDataBufferAlignedSize = sizeof EffectDataBuffer;
-    m_instanceConstantDataBuffer            = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantDataBufferAlignedSize);
+    m_instanceConstantDataBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantDataBufferAlignedSize);
     NAME_D3D12_OBJECT_WITH_ID(m_instanceConstantDataBuffer);
 
     m_instanceConstantDataBufferView.BufferLocation = m_instanceConstantDataBuffer.GetGPUVirtualAddress();
@@ -26,18 +26,14 @@ void Effect::Initialize(RasterPipeline& pipeline)
 void Effect::Update()
 {
     Camera const& camera = *GetClient().GetSpace()->GetCamera();
-    
+
     DirectX::XMMATRIX const m  = XMLoadFloat4x4(&GetTransform());
     DirectX::XMMATRIX const vp = XMLoadFloat4x4(&camera.GetViewProjectionMatrix());
 
     DirectX::XMFLOAT4X4 pvm;
     XMStoreFloat4x4(&pvm, XMMatrixTranspose(m * vp));
 
-    m_instanceConstantBufferMapping.Write({
-        .pvm = pvm,
-        .zNear = camera.GetNearPlane(),
-        .zFar  = camera.GetFarPlane()
-    });
+    m_instanceConstantBufferMapping.Write({.pvm = pvm, .zNear = camera.GetNearPlane(), .zFar = camera.GetFarPlane()});
 }
 
 void Effect::SetNewVertices(EffectVertex const* vertices, UINT const vertexCount)

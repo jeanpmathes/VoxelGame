@@ -18,5 +18,5 @@ public interface ISubBiomeDefinitionProvider
     /// </summary>
     /// <param name="identifier">The identifier of the sub-biome.</param>
     /// <returns>The sub-biome definition, or a fallback sub-biome definition if the sub-biome is not found.</returns>
-    public SubBiomeDefinition GetSubBiomeDefinition(RID identifier);
+    SubBiomeDefinition GetSubBiomeDefinition(RID identifier);
 }

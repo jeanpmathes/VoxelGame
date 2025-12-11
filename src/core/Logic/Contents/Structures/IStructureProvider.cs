@@ -18,5 +18,5 @@ public interface IStructureProvider : IResourceProvider
     /// </summary>
     /// <param name="identifier">The identifier of the structure.</param>
     /// <returns>The structure, or a fallback structure if the structure is not found.</returns>
-    public Structure GetStructure(RID identifier);
+    Structure GetStructure(RID identifier);
 }

@@ -31,11 +31,31 @@ namespace VoxelGame.Core.Visuals;
 ///     Models support many operations to create variants of a base model.
 ///     These operations can be costly and should be done during loading, not during gameplay.
 ///     At the end of loading, all models should be converted to meshes using <see cref="CreateMesh" />.
-///
 ///     This class should not be mutated as it may be shared through caching.
 /// </summary>
 public sealed partial class Model : IResource, ILocated
 {
+    /// <summary>
+    ///     How model transformations, e.g. <see cref="CreateModelForSide(Side, TransformationMode)" />, should be performed.
+    /// </summary>
+    public enum TransformationMode
+    {
+        /// <summary>
+        ///     The object is rotated, meaning the texture seems to visually rotate with the object.
+        ///     To achieve this, the texture coordinates are kept unchanged while the vertex positions are rotated.
+        ///     This solution is preferable for most cases, especially when the model represents a complete object.
+        /// </summary>
+        Rotate,
+
+        /// <summary>
+        ///     The object is reshaped, meaning the texture seems to stay in place while the object is rotated.
+        ///     To achieve this, the texture coordinates are rotated accordingly.
+        ///     This solution is used in some special cases, e.g. when the model represents a part of a larger object and is
+        ///     combined with other models.
+        /// </summary>
+        Reshape
+    }
+
     /// <summary>
     ///     Create an empty model.
     /// </summary>
@@ -46,7 +66,7 @@ public sealed partial class Model : IResource, ILocated
     /// </summary>
     /// <param name="original">The original model to copy.</param>
     private Model(Model original) : this(original.TextureNames, original.Quads) {}
-    
+
     [JsonConstructor]
     private Model(ImmutableArray<String> textureNames, ImmutableArray<Quad> quads)
     {
@@ -57,14 +77,12 @@ public sealed partial class Model : IResource, ILocated
     /// <summary>
     ///     The names of the textures used by this model.
     /// </summary>
-    [JsonInclude]
-    public ImmutableArray<String> TextureNames { get; private set; }
+    [JsonInclude] public ImmutableArray<String> TextureNames { get; private set; }
 
     /// <summary>
     ///     The quads that make up this model.
     /// </summary>
-    [JsonInclude]
-    public ImmutableArray<Quad> Quads { get; private set; }
+    [JsonInclude] public ImmutableArray<Quad> Quads { get; private set; }
 
     /// <inheritdoc />
     public static String[] Path { get; } = ["Models"];
@@ -118,12 +136,10 @@ public sealed partial class Model : IResource, ILocated
         Vector3d max = Quads[index: 0].Vert0.Position;
 
         foreach (Quad quad in Quads)
+        foreach (Vertex vert in (Vertex[]) [quad.Vert0, quad.Vert1, quad.Vert2, quad.Vert3])
         {
-            foreach (Vertex vert in (Vertex[]) [quad.Vert0, quad.Vert1, quad.Vert2, quad.Vert3])
-            {
-                min = Vector3d.ComponentMin(min, vert.Position);
-                max = Vector3d.ComponentMax(max, vert.Position);
-            }
+            min = Vector3d.ComponentMin(min, vert.Position);
+            max = Vector3d.ComponentMax(max, vert.Position);
         }
 
         return new Box3d(min, max);
@@ -172,11 +188,8 @@ public sealed partial class Model : IResource, ILocated
 
         var translation = Matrix4.CreateTranslation(-x, -y, -z);
 
-        for (var index = 0; index < bucket.Count; index++)
-        {
-            bucket[index] = bucket[index].ApplyMatrix(translation);
-        }
-            
+        for (var index = 0; index < bucket.Count; index++) bucket[index] = bucket[index].ApplyMatrix(translation);
+
         return new Model(TextureNames, [..bucket]);
     }
 
@@ -219,7 +232,7 @@ public sealed partial class Model : IResource, ILocated
         for (Int32 z = start.Z; z <= end.Z; z++)
             if (IsQuadWithinCell(vertices, (x, y, z), tolerance))
                 return new Vector3i(x, y, z).ClampComponents(Vector3i.Zero, size - Vector3i.One);
-        
+
         return quad.Center.Floor().ClampComponents(Vector3i.Zero, size - Vector3i.One);
     }
 
@@ -241,27 +254,8 @@ public sealed partial class Model : IResource, ILocated
     }
 
     /// <summary>
-    /// How model transformations, e.g. <see cref="CreateModelForSide(Side, TransformationMode)"/>, should be performed.
-    /// </summary>
-    public enum TransformationMode
-    {
-        /// <summary>
-        /// The object is rotated, meaning the texture seems to visually rotate with the object.
-        /// To achieve this, the texture coordinates are kept unchanged while the vertex positions are rotated.
-        /// This solution is preferable for most cases, especially when the model represents a complete object.
-        /// </summary>
-        Rotate,
-        
-        /// <summary>
-        /// The object is reshaped, meaning the texture seems to stay in place while the object is rotated.
-        /// To achieve this, the texture coordinates are rotated accordingly.
-        /// This solution is used in some special cases, e.g. when the model represents a part of a larger object and is combined with other models.
-        /// </summary>
-        Reshape
-    }
-    
-    /// <summary>
-    /// Create a model for the given orientation, under the assumption that the original model is aligned with the north orientation.
+    ///     Create a model for the given orientation, under the assumption that the original model is aligned with the north
+    ///     orientation.
     /// </summary>
     /// <param name="orientation">The orientation to create the model for.</param>
     /// <param name="mode">The transformation mode to use.</param>
@@ -272,7 +266,7 @@ public sealed partial class Model : IResource, ILocated
     }
 
     /// <summary>
-    /// Create a model for the given axis, under the assumption that the original model is aligned with the Z axis.
+    ///     Create a model for the given axis, under the assumption that the original model is aligned with the Z axis.
     /// </summary>
     /// <param name="axis">The axis to create the model for.</param>
     /// <param name="mode">The transformation mode to use.</param>
@@ -289,9 +283,9 @@ public sealed partial class Model : IResource, ILocated
             _ => throw Exceptions.UnsupportedEnumValue(axis)
         };
     }
-    
+
     /// <summary>
-    /// Create a model for the given side, under the assumption that the original model is for the front side.
+    ///     Create a model for the given side, under the assumption that the original model is for the front side.
     /// </summary>
     /// <param name="side">The side to create the model for.</param>
     /// <param name="mode">The transformation mode to use.</param>
@@ -299,7 +293,7 @@ public sealed partial class Model : IResource, ILocated
     public Model CreateModelForSide(Side side, TransformationMode mode = TransformationMode.Rotate)
     {
         // Pretty sure this is correct, so if there is any issue it's probably the individual model.
-        
+
         (Axis axis, Int32 turns) = side switch
         {
             Side.Front => (Axis.Y, 0),
@@ -311,11 +305,11 @@ public sealed partial class Model : IResource, ILocated
             _ => throw Exceptions.UnsupportedEnumValue(side)
         };
 
-        return CreateModelForRotation(axis, turns, mode: mode);
+        return CreateModelForRotation(axis, turns, mode);
     }
-    
+
     /// <summary>
-    /// Create a model for the given axis and turns, under the assumption that the original model is for the front side.
+    ///     Create a model for the given axis and turns, under the assumption that the original model is for the front side.
     /// </summary>
     /// <param name="axis">The axis to rotate around.</param>
     /// <param name="turns">The number of 90° clockwise turns to apply.</param>
@@ -324,7 +318,7 @@ public sealed partial class Model : IResource, ILocated
     public Model CreateModelForRotation(Axis axis, Int32 turns, TransformationMode mode = TransformationMode.Rotate)
     {
         turns = MathTools.Mod(turns, m: 4);
-        
+
         Model copy = new(this);
 
         Matrix4 rotation = axis switch
@@ -337,13 +331,13 @@ public sealed partial class Model : IResource, ILocated
 
         Matrix4 matrix = Matrix4.CreateTranslation(x: -0.5f, y: -0.5f, z: -0.5f) * rotation *
                          Matrix4.CreateTranslation(x: 0.5f, y: 0.5f, z: 0.5f);
-        
+
         if (mode == TransformationMode.Rotate && axis == Axis.Y)
             turns = 0;
 
         copy.ApplyMatrix(matrix);
         copy.RotateTextureCoordinates(axis.ToVector3d(), turns);
-        
+
         return copy;
     }
 
@@ -383,10 +377,7 @@ public sealed partial class Model : IResource, ILocated
             TID id = TID.FromString(TextureNames[texture], isBlock: true);
 
             if (textureOverrides != null && (textureOverrides.TryGetValue(texture, out TID overrideId) ||
-                                             textureOverrides.TryGetValue(key: -1, out overrideId)))
-            {
-                id = overrideId;
-            }
+                                             textureOverrides.TryGetValue(key: -1, out overrideId))) id = overrideId;
 
             textureIndexLookup[texture] = textureIndexProvider.GetTextureIndex(id);
         }
@@ -435,7 +426,7 @@ public sealed partial class Model : IResource, ILocated
     {
         return new Model(this);
     }
-    
+
     /// <summary>
     ///     Create a fallback model.
     ///     It does not rely on any textures and can be safely used when resources are not available.
@@ -448,14 +439,15 @@ public sealed partial class Model : IResource, ILocated
 
         Int32[][] uvs = Meshes.GetBlockUVs(isRotated: false);
 
-        return new Model([TID.MissingTextureKey], [
-                BuildQuad(Side.Front),
-                BuildQuad(Side.Back),
-                BuildQuad(Side.Left),
-                BuildQuad(Side.Right),
-                BuildQuad(Side.Bottom),
-                BuildQuad(Side.Top)
-            ]);
+        return new Model([TID.MissingTextureKey],
+        [
+            BuildQuad(Side.Front),
+            BuildQuad(Side.Back),
+            BuildQuad(Side.Left),
+            BuildQuad(Side.Right),
+            BuildQuad(Side.Bottom),
+            BuildQuad(Side.Top)
+        ]);
 
         Quad BuildQuad(Side side)
         {
@@ -483,7 +475,7 @@ public sealed partial class Model : IResource, ILocated
             }
         }
     }
-    
+
     /// <summary>
     ///     Load a model from a file.
     /// </summary>
@@ -501,11 +493,11 @@ public sealed partial class Model : IResource, ILocated
             return model;
         });
     }
-    
+
     /// <summary>
-    /// Combine a set of models into a single model.
-    /// If only a single model is provided, it is simply returned without copying.
-    /// If no models are provided, an empty model is returned.
+    ///     Combine a set of models into a single model.
+    ///     If only a single model is provided, it is simply returned without copying.
+    ///     If no models are provided, an empty model is returned.
     /// </summary>
     /// <param name="models">All models to combine.</param>
     /// <returns>The combined model.</returns>
@@ -526,19 +518,15 @@ public sealed partial class Model : IResource, ILocated
     {
         Dictionary<String, Int32> textureNameToIndex = new();
         List<String> textureNames = [];
-        
+
         List<Quad> quads = [];
-        
+
         foreach (Model model in array)
         {
             foreach (String textureName in model.TextureNames)
-            {
                 if (textureNameToIndex.TryAdd(textureName, textureNames.Count))
-                {
                     textureNames.Add(textureName);
-                }
-            }
-            
+
             foreach (Quad quad in model.Quads)
             {
                 Quad newQuad = quad;
@@ -548,7 +536,7 @@ public sealed partial class Model : IResource, ILocated
                 quads.Add(newQuad);
             }
         }
-        
+
         return new Model([..textureNames], [..quads]);
     }
 

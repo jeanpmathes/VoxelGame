@@ -44,7 +44,7 @@ public class AttachedBlockDecoration<TFilter> : Decoration where TFilter : Block
 
             if (neighbor is not {Block: {IsFullySolid: true} neighborBlock}) continue;
             if (!neighborBlock.Block.Is<TFilter>()) continue;
-            
+
             grid.SetContent(new Content(block.States.GenerationDefault.WithAttachment(orientation.ToSide()), FluidInstance.Default), position);
 
             break;

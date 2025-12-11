@@ -26,6 +26,16 @@ public sealed class GenerateMeasureUsageAnalyzer : DiagnosticAnalyzer
     public const String DiagnosticID = "VG0007";
 
     /// <summary>
+    ///     Reason message for the property not being static.
+    /// </summary>
+    public const String ReasonNotStatic = "it is not static";
+
+    /// <summary>
+    ///     Reason message for the property having an incorrect type.
+    /// </summary>
+    public const String ReasonWrongType = "its type is not VoxelGame.Core.Utilities.Units.Unit";
+
+    /// <summary>
     ///     Diagnostic message for attribute misuse.
     /// </summary>
     private static readonly DiagnosticDescriptor rule = new(
@@ -36,16 +46,6 @@ public sealed class GenerateMeasureUsageAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         "Properties marked with GenerateMeasure must be static properties of type Unit.");
-
-    /// <summary>
-    ///     Reason message for the property not being static.
-    /// </summary>
-    public const String ReasonNotStatic = "it is not static";
-
-    /// <summary>
-    ///     Reason message for the property having an incorrect type.
-    /// </summary>
-    public const String ReasonWrongType = "its type is not VoxelGame.Core.Utilities.Units.Unit";
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [rule];
@@ -64,14 +64,14 @@ public sealed class GenerateMeasureUsageAnalyzer : DiagnosticAnalyzer
         if (context.Node is not PropertyDeclarationSyntax propertyDeclaration)
             return;
 
-        if (context.SemanticModel.GetDeclaredSymbol(propertyDeclaration) is not { } propertySymbol)
+        if (context.SemanticModel.GetDeclaredSymbol(propertyDeclaration) is not {} propertySymbol)
             return;
 
         AttributeData? attribute = null;
 
         foreach (AttributeData? attributeData in propertySymbol.GetAttributes())
         {
-            if (attributeData?.AttributeClass is not { } attributeClass)
+            if (attributeData?.AttributeClass is not {} attributeClass)
                 continue;
 
             if (attributeClass.Name != nameof(GenerateMeasureAttribute)
@@ -79,6 +79,7 @@ public sealed class GenerateMeasureUsageAnalyzer : DiagnosticAnalyzer
                 continue;
 
             attribute = attributeData;
+
             break;
         }
 
@@ -87,15 +88,9 @@ public sealed class GenerateMeasureUsageAnalyzer : DiagnosticAnalyzer
 
         Location location = propertyDeclaration.Identifier.GetLocation();
 
-        if (!propertySymbol.IsStatic)
-        {
-            context.ReportDiagnostic(Diagnostic.Create(rule, location, propertySymbol.Name, ReasonNotStatic));
-        }
+        if (!propertySymbol.IsStatic) context.ReportDiagnostic(Diagnostic.Create(rule, location, propertySymbol.Name, ReasonNotStatic));
 
-        if (!IsUnitType(propertySymbol.Type))
-        {
-            context.ReportDiagnostic(Diagnostic.Create(rule, location, propertySymbol.Name, ReasonWrongType));
-        }
+        if (!IsUnitType(propertySymbol.Type)) context.ReportDiagnostic(Diagnostic.Create(rule, location, propertySymbol.Name, ReasonWrongType));
     }
 
     private static Boolean IsUnitType(ISymbol symbol)

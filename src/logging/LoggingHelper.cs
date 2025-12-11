@@ -17,11 +17,12 @@ namespace VoxelGame.Logging;
 /// </summary>
 public static partial class LoggingHelper
 {
+    private static Boolean isMockLoggingSetUp;
+
     /// <summary>
-    /// Get the logger factory.
+    ///     Get the logger factory.
     /// </summary>
-    [LateInitialization]
-    public static partial ILoggerFactory LoggerFactory { get; set; } 
+    [LateInitialization] public static partial ILoggerFactory LoggerFactory { get; set; }
 
     /// <summary>
     ///     Create a logger.
@@ -68,8 +69,6 @@ public static partial class LoggingHelper
 
         return LoggerFactory.CreateLogger(category);
     }
-    
-    private static Boolean isMockLoggingSetUp;
 
     /// <summary>
     ///     Set up a mock logger. All loggers created with this helper will be null loggers.
@@ -78,6 +77,7 @@ public static partial class LoggingHelper
     public static void SetUpMockLogging()
     {
         if (isMockLoggingSetUp) return;
+
         isMockLoggingSetUp = true;
 
         LoggerFactory = new NullLoggerFactory();

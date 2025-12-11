@@ -20,10 +20,10 @@ public class BlockFactory
 {
     private readonly List<Block> blocksByBlockID = [];
     private readonly Dictionary<CID, Block> blocksByContentID = [];
-    
+
     private readonly HashSet<Block> blocksWithCollisionOnID = [];
     private Int32 idCollisionCounter;
- 
+
     /// <summary>
     ///     Get a container associating block IDs to blocks.
     /// </summary>
@@ -33,7 +33,7 @@ public class BlockFactory
     ///     Get a container associating block content IDs to blocks.
     /// </summary>
     public IReadOnlyDictionary<CID, Block> BlocksByContentID => blocksByContentID;
-    
+
     /// <summary>
     ///     Get a set of blocks that had a collision on their named ID during creation.
     /// </summary>
@@ -48,23 +48,23 @@ public class BlockFactory
     public Block Create(CID contentID, String name, Meshable meshable)
     {
         var idCollision = false;
-        
+
         if (blocksByContentID.TryGetValue(contentID, out Block? collidedBlock))
         {
             Debugger.Break();
             idCollision = true;
-            
+
             blocksWithCollisionOnID.Add(collidedBlock);
-            
+
             contentID = new CID($"{contentID}_collision_{idCollisionCounter++}");
         }
-        
+
         Block block = CreateBlock(contentID, name, meshable);
 
         blocksByBlockID.Add(block);
         blocksByContentID.Add(contentID, block);
-        
-        if (idCollision) 
+
+        if (idCollision)
             blocksWithCollisionOnID.Add(block);
 
         return block;

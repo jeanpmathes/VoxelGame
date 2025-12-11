@@ -10,7 +10,7 @@ using VoxelGame.Core.Behaviors;
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 
 /// <summary>
-/// Blocks that can be oriented in some way, e.g. by rotation or siding.
+///     Blocks that can be oriented in some way, e.g. by rotation or siding.
 /// </summary>
 public partial class Orientable : BlockBehavior, IBehavior<Orientable, BlockBehavior, Block>
 {

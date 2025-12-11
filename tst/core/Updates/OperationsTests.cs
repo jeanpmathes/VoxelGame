@@ -18,6 +18,11 @@ public sealed class OperationsTests : IDisposable
 {
     private readonly OperationUpdateDispatch dispatch = new(singleton: false, Application.Instance);
 
+    public void Dispose()
+    {
+        dispatch.Dispose();
+    }
+
     [Fact]
     public void Operations_CreateDone_ShouldBeCompleted()
     {
@@ -398,10 +403,5 @@ public sealed class OperationsTests : IDisposable
 
         Assert.True(executed);
         Assert.Equal(result, capturedResult);
-    }
-
-    public void Dispose()
-    {
-        dispatch.Dispose();
     }
 }

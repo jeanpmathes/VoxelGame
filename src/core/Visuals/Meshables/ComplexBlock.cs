@@ -97,13 +97,13 @@ public class ComplexBlock : Block
     public override ColorS GetDominantColor(State state, ColorS positionTint)
     {
         ref readonly Complex.MeshData mesh = ref meshData[state.Index];
-        
+
         if (mesh.QuadCount == 0)
             return ColorS.Black;
-        
+
         Int32 textureIndex = Meshing.GetTextureIndex(ref mesh.Quads[0].data);
         ColorS color = DominantColorProvider.GetDominantColor(textureIndex, isBlock: true);
-        
+
         return color * mesh.Tint.Select(positionTint);
     }
 }

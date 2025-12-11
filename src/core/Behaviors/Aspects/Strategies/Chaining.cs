@@ -25,10 +25,7 @@ public class Chaining<TValue, TContext> : IContributionStrategy<TValue, TContext
     {
         TValue result = original;
 
-        foreach (IContributor<TValue, TContext> contributor in contributors)
-        {
-            result = contributor.Contribute(result, context);
-        }
+        foreach (IContributor<TValue, TContext> contributor in contributors) result = contributor.Contribute(result, context);
 
         return result;
     }

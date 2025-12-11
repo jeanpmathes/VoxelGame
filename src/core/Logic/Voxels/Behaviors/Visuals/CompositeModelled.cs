@@ -28,11 +28,11 @@ public partial class CompositeModelled : BlockBehavior, IBehavior<CompositeModel
     private Selector GetSelector(Selector original, State state)
     {
         Vector3i part = composite.GetPartPosition(state);
-        
+
         // Maybe the stored models are not correct?
         part.X = composite.GetSize(state).X - part.X - 1;
         part.Z = composite.GetSize(state).Z - part.Z - 1;
-        
+
         return original.WithPart(part);
     }
 }

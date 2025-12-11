@@ -23,7 +23,7 @@ public interface IConstructible<in TIn, out TOut>
     /// </summary>
     /// <param name="input">The input argument of type <typeparamref name="TIn" />.</param>
     /// <returns>The constructed object of type <typeparamref name="TOut" />.</returns>
-    public static abstract TOut Construct(TIn input);
+    static abstract TOut Construct(TIn input);
 }
 
 /// <summary>
@@ -40,5 +40,5 @@ public interface IConstructible<in TIn1, in TIn2, out TOut>
     /// <param name="input1">The first input argument of type <typeparamref name="TIn1" />.</param>
     /// <param name="input2">The second input argument of type <typeparamref name="TIn2" />.</param>
     /// <returns>The constructed object of type <typeparamref name="TOut" />.</returns>
-    public static abstract TOut Construct(TIn1 input1, TIn2 input2);
+    static abstract TOut Construct(TIn1 input1, TIn2 input2);
 }

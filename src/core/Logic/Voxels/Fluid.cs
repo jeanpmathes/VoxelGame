@@ -28,14 +28,14 @@ namespace VoxelGame.Core.Logic.Voxels;
 /// </summary>
 public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<String>, IResource
 {
+    private const UInt32 InvalidID = UInt32.MaxValue;
+
     /// <summary>
     ///     The density of air.
     /// </summary>
-    protected static readonly Density AirDensity = new() { KilogramsPerCubicMeter = 1.2f };
+    protected static readonly Density AirDensity = new() {KilogramsPerCubicMeter = 1.2f};
 
-    private static readonly Density gasFluidThreshold = new() { KilogramsPerCubicMeter = 10f };
-
-    private const UInt32 InvalidID = UInt32.MaxValue;
+    private static readonly Density gasFluidThreshold = new() {KilogramsPerCubicMeter = 10f};
 
     private static readonly BoundingVolume[] volumes = CreateVolumes();
 
@@ -156,7 +156,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Fluid;
-    
+
     private static BoundingVolume[] CreateVolumes()
     {
         BoundingVolume CreateVolume(FluidLevel level)
@@ -254,7 +254,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             Boolean meshAtSide = info.Level > neighborLevel && !blockToCheck.IsFullyOpaque;
 
             Boolean meshAtDrainEnd = !neighborLevel.IsFull && !blockToCheck.IsFullyOpaque;
-            Boolean meshAtSourceEnd = !info.Level.IsFull || fluidToCheck.Fluid != this && !blockToCheck.IsFullyOpaque;
+            Boolean meshAtSourceEnd = !info.Level.IsFull || (fluidToCheck.Fluid != this && !blockToCheck.IsFullyOpaque);
 
             Boolean meshAtEnd = flowsTowardsFace ? meshAtDrainEnd : meshAtSourceEnd;
 

@@ -174,8 +174,8 @@ public static class Meshing
         const Int32 lengthShift = 4;
 
         UInt32 repetition = !isRotated
-            ? height << heightShift | length << lengthShift
-            : length << heightShift | height << lengthShift;
+            ? (height << heightShift) | (length << lengthShift)
+            : (length << heightShift) | (height << lengthShift);
 
         data.c |= repetition;
     }
@@ -197,14 +197,14 @@ public static class Meshing
     {
         data.a |= (UInt32) index & textureIndexMask;
     }
-    
+
     /// <summary>
     ///     Get the texture index for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Int32 GetTextureIndex(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data)
     {
-        return (Int32)(data.a & textureIndexMask);
+        return (Int32) (data.a & textureIndexMask);
     }
 
     /// <summary>

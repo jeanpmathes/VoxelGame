@@ -45,7 +45,7 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
         modifyHeight.State = message.State;
 
         ModifyHeight.Publish(modifyHeight);
-        
+
         IEventMessage<ModifyHeightMessage>.Pool.Return(modifyHeight);
     }
 
@@ -65,16 +65,16 @@ public partial class Modifiable : BlockBehavior, IBehavior<Modifiable, BlockBeha
         /// <summary>
         ///     The world in which the block is located.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the block in the world.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The current state of the block.
         /// </summary>
-        public State State { get; }
+        State State { get; }
     }
 }

@@ -567,7 +567,7 @@
     <data name="GraphicsWindowSize" xml:space="preserve">
       <value>Fenstergröße</value>
   </data>
-  <data name="GraphicsRenderResolutionScale" xml:space="preserve">
+    <data name="GraphicsRenderResolutionScale" xml:space="preserve">
       <value>Skalierung der Renderingauflösung</value>
   </data>
     <data name="GraphicsPostProcessingAntiAliasingQuality" xml:space="preserve">

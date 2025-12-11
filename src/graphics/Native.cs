@@ -40,10 +40,11 @@ internal static class Native
     {
         var result = "";
 
-        NativeMethods.PassAllocatorStatistics(client, stringPointer =>
-        {
-            result = Utf16StringMarshaller.ConvertToManaged(stringPointer);
-        });
+        NativeMethods.PassAllocatorStatistics(client,
+            stringPointer =>
+            {
+                result = Utf16StringMarshaller.ConvertToManaged(stringPointer);
+            });
 
         return result;
     }
@@ -56,10 +57,11 @@ internal static class Native
     {
         var result = "";
 
-        NativeMethods.PassDRED(client, stringPointer =>
-        {
-            result = Utf16StringMarshaller.ConvertToManaged(stringPointer);
-        });
+        NativeMethods.PassDRED(client,
+            stringPointer =>
+            {
+                result = Utf16StringMarshaller.ConvertToManaged(stringPointer);
+            });
 
         return result;
     }

@@ -23,9 +23,7 @@ public partial class CompletableGround : BlockBehavior, IBehavior<CompletableGro
     private Block replacement = null!;
 
     [Constructible]
-    private CompletableGround(Block subject) : base(subject)
-    {
-    }
+    private CompletableGround(Block subject) : base(subject) {}
 
     /// <summary>
     ///     The block that will replace this block to complete it.

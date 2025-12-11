@@ -14,7 +14,10 @@ namespace native
 {
     namespace packing
     {
-        float2 GetNonZeroSign(in float2 const value) { return float2(value.x >= 0.0f ? 1.0f : -1.0f, value.y >= 0.0f ? 1.0f : -1.0f); }
+        float2 GetNonZeroSign(in float2 const value)
+        {
+            return float2(value.x >= 0.0f ? 1.0f : -1.0f, value.y >= 0.0f ? 1.0f : -1.0f);
+        }
 
         /**
          * Encode the normal vector.
@@ -58,18 +61,31 @@ namespace native
          */
         float4 UnpackColor4(in uint2 const packed)
         {
-            return float4(float(packed.x & 0xFFFF) / 65535.0f, float(packed.x >> 16) / 65535.0f, float(packed.y & 0xFFFF) / 65535.0f, float(packed.y >> 16) / 65535.0f);
+            return float4(
+                float(packed.x & 0xFFFF) / 65535.0f,
+                float(packed.x >> 16) / 65535.0f,
+                float(packed.y & 0xFFFF) / 65535.0f,
+                float(packed.y >> 16) / 65535.0f);
         }
 
         /**
          * Pack a RGB color into an integer.
          */
-        uint PackColor3(in float3 const color) { return uint(color.r * 255.0f) | int(color.g * 255.0f) << 8 | int(color.b * 255.0f) << 16; }
+        uint PackColor3(in float3 const color)
+        {
+            return uint(color.r * 255.0f) | int(color.g * 255.0f) << 8 | int(color.b * 255.0f) << 16;
+        }
 
         /**
          * Unpack a RGB color from an integer.
          */
-        float3 UnpackColor3(in uint const packed) { return float3(float(packed & 0xFF) / 255.0f, float(packed >> 8 & 0xFF) / 255.0f, float(packed >> 16 & 0xFF) / 255.0f); }
+        float3 UnpackColor3(in uint const packed)
+        {
+            return float3(
+                float(packed & 0xFF) / 255.0f,
+                float(packed >> 8 & 0xFF) / 255.0f,
+                float(packed >> 16 & 0xFF) / 255.0f);
+        }
     }
 }
 

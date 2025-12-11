@@ -35,10 +35,7 @@ public partial class PlayerUI : ActorComponent
 
         placement = player.GetComponent<PlacementSelection>();
 
-        if (placement != null)
-        {
-            placement.SelectionChanged += UpdatePlayerData;
-        }
+        if (placement != null) placement.SelectionChanged += UpdatePlayerData;
 
         debugViewButton = player.Input.Keybinds.GetPushButton(player.Input.Keybinds.DebugView);
     }
@@ -94,10 +91,7 @@ public partial class PlayerUI : ActorComponent
         if (!disposing)
             return;
 
-        if (placement != null)
-        {
-            placement.SelectionChanged -= UpdatePlayerData;
-        }
+        if (placement != null) placement.SelectionChanged -= UpdatePlayerData;
     }
 
     #endregion DISPOSABLE

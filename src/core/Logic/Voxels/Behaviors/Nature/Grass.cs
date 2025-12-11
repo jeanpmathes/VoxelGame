@@ -44,7 +44,7 @@ public partial class Grass : BlockBehavior, IBehavior<Grass, BlockBehavior, Bloc
                     spreadable.SpreadGrass(message.World, position, Subject);
             }
     }
-    
+
     private static State? GetBurnedState(State? original, (World world, Vector3i position, State state, Block fire) context)
     {
         return new State(Blocks.Instance.Environment.AshCoveredSoil);

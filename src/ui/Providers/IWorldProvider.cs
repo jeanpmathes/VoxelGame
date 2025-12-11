@@ -20,7 +20,7 @@ public interface IWorldProvider
     /// <summary>
     ///     The directory where the worlds are stored.
     /// </summary>
-    public DirectoryInfo WorldsDirectory { get; }
+    DirectoryInfo WorldsDirectory { get; }
 
     /// <summary>
     ///     Get all currently known worlds.
@@ -113,7 +113,7 @@ public interface IWorldProvider
     /// <summary>
     ///     Information about a single world.
     /// </summary>
-    public interface IWorldInfo
+    interface IWorldInfo
     {
         /// <summary>
         ///     The name of the world.

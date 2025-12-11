@@ -19,17 +19,17 @@ public interface IView : IOrientable
     /// <summary>
     ///     Get the view frustum, from near to far plane.
     /// </summary>
-    public Frustum Frustum => Definition.Frustum;
+    Frustum Frustum => Definition.Frustum;
 
     /// <summary>
     ///     Get the parameters that define the view.
     /// </summary>
-    public Parameters Definition { get; }
+    Parameters Definition { get; }
 
     /// <summary>
     ///     Get the parameters that define the view.
     /// </summary>
-    public record Parameters(Double FieldOfView, Double AspectRatio, (Double near, Double far) Clipping, Vector3d Position, (Vector3d front, Vector3d up, Vector3d right) Orientation)
+    record Parameters(Double FieldOfView, Double AspectRatio, (Double near, Double far) Clipping, Vector3d Position, (Vector3d front, Vector3d up, Vector3d right) Orientation)
     {
         /// <summary>
         ///     Create a frustum from the view parameters.

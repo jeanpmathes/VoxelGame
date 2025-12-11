@@ -19,12 +19,12 @@ public static class SourceCodeTools
     ///     The preferred symbol display format for generating source code, following the conventions of this project.
     /// </summary>
     public static SymbolDisplayFormat SymbolDisplayFormat { get; } = SymbolDisplayFormat.FullyQualifiedFormat.WithMiscellaneousOptions(
-        SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions & ~SymbolDisplayMiscellaneousOptions.UseSpecialTypes
+        (SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions & ~SymbolDisplayMiscellaneousOptions.UseSpecialTypes)
         | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier
         | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
-    
+
     /// <summary>
-    ///     The <see cref="SymbolDisplayFormat"/>, adapted to not include generic type arguments.
+    ///     The <see cref="SymbolDisplayFormat" />, adapted to not include generic type arguments.
     /// </summary>
     public static SymbolDisplayFormat SymbolDisplayFormatWithoutGenericTypeArguments { get; } = SymbolDisplayFormat.WithGenericsOptions(
         SymbolDisplayFormat.FullyQualifiedFormat.GenericsOptions & ~SymbolDisplayGenericsOptions.IncludeTypeParameters);

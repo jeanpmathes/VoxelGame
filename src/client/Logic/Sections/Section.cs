@@ -228,10 +228,7 @@ public class Section : Core.Logic.Sections.Section
     {
         if (disposed) return;
 
-        if (disposing)
-        {
-            vfx?.Dispose();
-        }
+        if (disposing) vfx?.Dispose();
 
         base.Dispose(disposing);
 

@@ -21,13 +21,13 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBehavior, Block>
 {
     private const Int32 StageCount = 5;
-    
+
     /// <summary>
-    /// The first full stage is actually the one before reaching double height.
-    /// This is necessary to prevent reaching double height on soil that cannot support it.
+    ///     The first full stage is actually the one before reaching double height.
+    ///     This is necessary to prevent reaching double height on soil that cannot support it.
     /// </summary>
     private const Int32 FirstFullStage = 1;
-    
+
     private readonly Composite composite;
     private readonly GrowingPlant plant;
 
@@ -69,7 +69,7 @@ public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant,
 
         return composite.GetPartPosition(state).Y == 0 ? Foliage.PartType.DoubleLower : Foliage.PartType.DoubleUpper;
     }
-    
+
     private Int32 GetHorizontalOffset(Int32 original, State state)
     {
         return plant.GetStage(state) + 1 ?? 0;
@@ -79,7 +79,7 @@ public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant,
     {
         return plant.GetStage(state) > FirstFullStage;
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Int32? currentStage = plant.GetStage(state);

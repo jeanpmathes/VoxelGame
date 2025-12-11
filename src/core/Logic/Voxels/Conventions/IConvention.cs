@@ -18,7 +18,7 @@ public interface IConvention : IContent
     /// <summary>
     ///     The content that is part of this convention instance.
     /// </summary>
-    public IEnumerable<IContent> Content { get; }
+    IEnumerable<IContent> Content { get; }
 
     /// <inheritdoc />
     ResourceType IResource.Type => ResourceTypes.Convention;

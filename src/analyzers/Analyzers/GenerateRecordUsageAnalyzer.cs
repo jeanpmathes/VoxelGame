@@ -15,13 +15,13 @@ using VoxelGame.Annotations.Attributes;
 namespace VoxelGame.Analyzers.Analyzers;
 
 /// <summary>
-/// Analyzes the usage of the <see cref="GenerateRecordAttribute"/>.
+///     Analyzes the usage of the <see cref="GenerateRecordAttribute" />.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
 public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>
-    /// The ID of diagnostics produced by this analyzer.
+    ///     The ID of diagnostics produced by this analyzer.
     /// </summary>
     public const String DiagnosticID = "VG0005";
 

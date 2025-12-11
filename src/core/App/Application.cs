@@ -8,9 +8,9 @@ using System;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Annotations.Attributes;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.Core.App;

@@ -151,11 +151,9 @@ public static partial class ManualBuilder
                             .Cell(cell => cell.Text(block.States.Count.ToString(CultureInfo.InvariantCulture))));
 
                     foreach ((String name, Boolean value) in GetProperties(block))
-                    {
                         table.Row(row => row
                             .Cell(cell => cell.Text(name))
                             .Cell(cell => cell.Boolean(value)));
-                    }
                 })
             .NewLine()
             .Text("Behaviors:")
@@ -164,7 +162,6 @@ public static partial class ManualBuilder
                 table =>
                 {
                     foreach ((String name, IEnumerable<String> attributes) in GetBehaviors(block))
-                    {
                         table.Row(row =>
                         {
                             row.Cell(cell => cell.Text(name));
@@ -172,7 +169,6 @@ public static partial class ManualBuilder
                             List<String> list = attributes.ToList();
 
                             if (list.Count > 0)
-                            {
                                 row.Cell(cell =>
                                 {
                                     var first = true;
@@ -187,13 +183,8 @@ public static partial class ManualBuilder
                                         first = false;
                                     }
                                 });
-                            }
-                            else
-                            {
-                                row.Cell(cell => cell.Text("—"));
-                            }
+                            else row.Cell(cell => cell.Text("—"));
                         });
-                    }
                 });
     }
 
@@ -218,12 +209,8 @@ public static partial class ManualBuilder
                 continue;
 
             foreach (IScoped entry in scope.Entries)
-            {
                 if (entry is IAttributeData attribute)
-                {
                     attributes.GetOrAdd(scoped.Name, []).Add(attribute);
-                }
-            }
         }
 
         foreach (BlockBehavior behavior in block.Behaviors)

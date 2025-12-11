@@ -32,6 +32,6 @@ public static class TestTool
     /// </summary>
     public static Func<Solution, ProjectId, Solution> DefaultSolutionTransform { get; } = (solution, projectId) => solution.WithProjectParseOptions(projectId,
         new CSharpParseOptions(
-            languageVersion: LanguageVersion.CSharp13
+            LanguageVersion.CSharp13
         ));
 }

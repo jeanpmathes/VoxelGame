@@ -17,38 +17,38 @@ public interface IWorldStates
     /// <summary>
     ///     Whether the world is active.
     /// </summary>
-    public Boolean IsActive { get; }
+    Boolean IsActive { get; }
 
     /// <summary>
     ///     Whether the world is terminating.
     /// </summary>
-    public Boolean IsTerminating { get; }
+    Boolean IsTerminating { get; }
 
     /// <summary>
     ///     Begin terminating the world.
     /// </summary>
     /// <returns>The started activity, or <c>null</c> if the world cannot be terminated.</returns>
-    public Activity? BeginTerminating();
+    Activity? BeginTerminating();
 
     /// <summary>
     ///     Begin saving the world.
     /// </summary>
     /// <returns>The started activity, or <c>null</c> if the world cannot be saved.</returns>
-    public Activity? BeginSaving();
+    Activity? BeginSaving();
 
     /// <summary>
     ///     Fired when the world enters an active state.
     ///     Note that this is also fired after saving is complete.
     /// </summary>
-    public event EventHandler<EventArgs>? Activating;
+    event EventHandler<EventArgs>? Activating;
 
     /// <summary>
     ///     Fired when the world leaves an active state.
     /// </summary>
-    public event EventHandler<EventArgs>? Deactivating;
+    event EventHandler<EventArgs>? Deactivating;
 
     /// <summary>
     ///     Fired when the world enters a terminating state.
     /// </summary>
-    public event EventHandler<EventArgs>? Terminating;
+    event EventHandler<EventArgs>? Terminating;
 }

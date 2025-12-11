@@ -58,7 +58,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
     ///     Which sides of the block can be attached to other blocks.
     /// </summary>
     public ResolvedProperty<Sides> AttachmentSides { get; } = ResolvedProperty<Sides>.New<Exclusive<Sides, Void>>(nameof(AttachmentSides), Sides.All);
-    
+
     /// <summary>
     ///     The attachment mode of the block.
     /// </summary>
@@ -184,10 +184,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
 
             Side side = sides.Single();
 
-            if (world.GetBlock(position.Offset(side))?.IsFullySolid != true)
-            {
-                Subject.ScheduleDestroy(world, position);
-            }
+            if (world.GetBlock(position.Offset(side))?.IsFullySolid != true) Subject.ScheduleDestroy(world, position);
         }
         else
         {
@@ -204,25 +201,21 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
             }
         }
     }
-    
+
     private static Sides GetAttachableSides(World world, Vector3i position, Sides allowed)
     {
         var sides = Sides.None;
 
         foreach (Side side in Side.All.Sides())
-        {
             if (allowed.HasFlag(side.ToFlag()) &&
                 world.GetBlock(position.Offset(side))?.IsFullySolid == true)
-            {
                 sides |= side.ToFlag();
-            }
-        }
 
         return sides;
     }
-    
+
     /// <summary>
-    /// Set the attachment on the given side, returning the new state.
+    ///     Set the attachment on the given side, returning the new state.
     /// </summary>
     /// <param name="state">The original state.</param>
     /// <param name="attachment">The side to attach to.</param>
@@ -234,16 +227,11 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
         if (!AttachmentSides.Get().HasFlag(attachmentFlag))
             return state;
 
-        if (Mode.Get() == AttachmentMode.Single)
-        {
-            return AttachedState.GetValue(state, (state, attachmentFlag)) ?? state;
-        }
-        else
-        {
-            Sides currentSides = AttachedSides.GetValue(Sides.None, state);
-            Sides newSides = currentSides | attachmentFlag;
+        if (Mode.Get() == AttachmentMode.Single) return AttachedState.GetValue(state, (state, attachmentFlag)) ?? state;
 
-            return AttachedState.GetValue(state, (state, newSides)) ?? state;
-        }
+        Sides currentSides = AttachedSides.GetValue(Sides.None, state);
+        Sides newSides = currentSides | attachmentFlag;
+
+        return AttachedState.GetValue(state, (state, newSides)) ?? state;
     }
 }

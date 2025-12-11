@@ -18,11 +18,6 @@ namespace VoxelGame.Annotations.Attributes;
 public sealed class GenerateRecordAttribute : Attribute
 {
     /// <summary>
-    ///     Initializes the attribute without a base type.
-    /// </summary>
-    public GenerateRecordAttribute() { }
-
-    /// <summary>
     ///     Initializes the attribute with a base type.
     ///     If the type has exactly one generic parameter, the generated record will be supplied as the argument.
     /// </summary>

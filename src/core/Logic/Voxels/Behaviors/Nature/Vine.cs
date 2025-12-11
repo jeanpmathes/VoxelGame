@@ -38,7 +38,7 @@ public partial class Vine : BlockBehavior, IBehavior<Vine, BlockBehavior, Block>
     }
 
     [LateInitialization] private partial IAttributeData<Int32> Age { get; set; }
-    
+
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {

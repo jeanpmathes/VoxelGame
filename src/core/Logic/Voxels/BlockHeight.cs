@@ -60,14 +60,14 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     public Boolean IsFull => value == MaxValue;
 
     /// <summary>
-    /// Get the ratio of this height to the maximum height of a block.
-    /// As a block is exactly 1 meter tall, this is also the height in meters.
+    ///     Get the ratio of this height to the maximum height of a block.
+    ///     As a block is exactly 1 meter tall, this is also the height in meters.
     /// </summary>
     public Double Ratio => IsNone ? 0.0 : ComputeRatio(value);
-    
+
     /// <summary>
-    /// Get the ratio of a given height to the maximum height of a block.
-    /// Note that using this is not equivalent to using <see cref="FromInt32"/> first, as that method clamps the value.
+    ///     Get the ratio of a given height to the maximum height of a block.
+    ///     Note that using this is not equivalent to using <see cref="FromInt32" /> first, as that method clamps the value.
     /// </summary>
     /// <param name="height">The height to get the ratio for.</param>
     /// <returns>>The ratio of the given height.</returns>
@@ -106,7 +106,10 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     /// <summary>
     ///     Get the integer representation of this height value.
     /// </summary>
-    public Int32 ToInt32() => value;
+    public Int32 ToInt32()
+    {
+        return value;
+    }
 
     /// <summary>
     ///     Adds a delta to the given height.
@@ -123,13 +126,13 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     {
         return FromInt32(height.ToInt32() - delta);
     }
-    
+
     /// <inheritdoc cref="op_Addition" />
     public static BlockHeight Add(BlockHeight height, Int32 delta)
     {
         return height + delta;
     }
-    
+
     /// <inheritdoc cref="op_Subtraction" />
     public static BlockHeight Subtract(BlockHeight height, Int32 delta)
     {

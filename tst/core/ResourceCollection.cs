@@ -18,11 +18,11 @@ namespace VoxelGame.Core.Tests;
 public sealed class ResourceFixture : DispatcherFixture
 {
     private readonly IResourceContext resources;
-    
+
     public ResourceFixture()
     {
         ResourceCatalogLoader loader = new();
-        
+
         loader.AddToEnvironment(new MockTextureIndexProvider());
         loader.AddToEnvironment(new MockModelProvider());
         loader.AddToEnvironment(new VisualConfiguration());
@@ -34,7 +34,7 @@ public sealed class ResourceFixture : DispatcherFixture
     {
         if (disposing)
             resources.Dispose();
-        
+
         base.Dispose(disposing);
     }
 }

@@ -55,16 +55,19 @@ public partial class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, B
 
         Model post = context.ModelProvider.GetModel(Models.Get().post);
 
-        (Model north, Model east, Model south, Model west) sides = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(
-            context.ModelProvider.GetModel(Models.Get().side), Model.TransformationMode.Reshape);
-        (Model north, Model east, Model south, Model west) extensions = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(
-            context.ModelProvider.GetModel(Models.Get().extension), Model.TransformationMode.Reshape);
+        (Model north, Model east, Model south, Model west) sides = Core.Visuals.Models.CreateModelsForAllOrientations(
+            context.ModelProvider.GetModel(Models.Get().side),
+            Model.TransformationMode.Reshape);
+
+        (Model north, Model east, Model south, Model west) extensions = Core.Visuals.Models.CreateModelsForAllOrientations(
+            context.ModelProvider.GetModel(Models.Get().extension),
+            Model.TransformationMode.Reshape);
 
         return Model.Combine(post,
-            north ? extensions.north : sides.north,
-            east ? extensions.east : sides.east,
-            south ? extensions.south : sides.south,
-            west ? extensions.west : sides.west)
+                north ? extensions.north : sides.north,
+                east ? extensions.east : sides.east,
+                south ? extensions.south : sides.south,
+                west ? extensions.west : sides.west)
             .CreateMesh(context.TextureIndexProvider);
     }
 

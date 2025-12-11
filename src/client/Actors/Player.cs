@@ -29,8 +29,6 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlacementSelection selector;
 
-    private readonly IInputControl input;
-
     /// <summary>
     ///     Create a client player.
     /// </summary>
@@ -47,8 +45,8 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
 
         Head = new PlayerHead(camera, Body.Transform);
         camera.Position = Head.Position;
-        
-        this.input = input;
+
+        Input = input;
 
         AddComponent<PlayerInput, Player>();
         AddComponent<PlayerMovement, Player>(); // Also updates the targeter.
@@ -76,11 +74,11 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     ///     Get access to the camera of the player.
     /// </summary>
     internal Camera Camera { get; }
-    
+
     /// <summary>
-    /// Get the input control used by this player.
+    ///     Get the input control used by this player.
     /// </summary>
-    public IInputControl Input => input;
+    public IInputControl Input { get; }
 
     /// <inheritdoc />
     public Property DebugData => new PlayerDebugProperties(this);

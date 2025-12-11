@@ -13,12 +13,9 @@ namespace VoxelGame.Core.Tests.Visuals;
 public class MockTextureIndexProvider : ITextureIndexProvider
 {
     public IResourceContext? Context { get; set; }
-    
-    public void SetUp()
-    {
-        
-    }
-    
+
+    public void SetUp() {}
+
     public Int32 GetTextureIndex(TID identifier)
     {
         return ITextureIndexProvider.MissingTextureIndex;

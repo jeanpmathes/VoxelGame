@@ -89,7 +89,7 @@ public interface IDecorationContext : IDisposable
     /// <summary>
     ///     The generator that created this context.
     /// </summary>
-    public IWorldGenerator Generator { get; }
+    IWorldGenerator Generator { get; }
 
     /// <summary>
     ///     Decorate a section of the world.
@@ -102,7 +102,7 @@ public interface IDecorationContext : IDisposable
     ///     Assumes that the chunk has been generated and the center already decorated.
     /// </summary>
     /// <param name="neighbors">The neighborhood of chunks around the chunk to decorate.</param>
-    public void Decorate(Neighborhood<Chunk?> neighbors)
+    void Decorate(Neighborhood<Chunk?> neighbors)
     {
         Debug.Assert(neighbors.Center != null);
         Debug.Assert(neighbors.Center.IsGenerated);
@@ -121,7 +121,7 @@ public interface IDecorationContext : IDisposable
     ///     Assumes that the chunk has been generated but not decorated yet.
     /// </summary>
     /// <param name="chunk">The chunk to decorate.</param>
-    public void DecorateCenter(Chunk chunk)
+    void DecorateCenter(Chunk chunk)
     {
         Debug.Assert(chunk.Decoration == DecorationLevels.None);
 
@@ -144,7 +144,7 @@ public interface IDecorationContext : IDisposable
     /// </summary>
     /// <param name="chunk">The chunk to decide for.</param>
     /// <returns>All chunks needed for decoration, or <c>null</c> if the chunk should not decorate now.</returns>
-    public static Neighborhood<Chunk?>? DecideWhetherToDecorate(Chunk chunk)
+    static Neighborhood<Chunk?>? DecideWhetherToDecorate(Chunk chunk)
     {
         // A chunk is only decorated if all needed neighbors are available at once.
         // As the request level is high enough (otherwise the chunk would not want to decorate),

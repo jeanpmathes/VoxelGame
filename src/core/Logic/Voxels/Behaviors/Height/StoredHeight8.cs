@@ -44,7 +44,7 @@ public partial class StoredHeight8 : BlockBehavior, IBehavior<StoredHeight8, Blo
     ///     The preferred height of the block at placement.
     /// </summary>
     public ResolvedProperty<BlockHeight> PlacementHeight { get; } = ResolvedProperty<BlockHeight>.New<Exclusive<BlockHeight, Void>>(nameof(PlacementHeight));
-    
+
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {

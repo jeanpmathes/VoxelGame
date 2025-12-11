@@ -10,7 +10,12 @@
 #include "Custom.hlsl"
 #include "Decoding.hlsl"
 
-void ApplySway(inout native::spatial::SpatialVertex vertex, float2 uv, bool const isUpperPart, bool const isDoublePlant, in fnl_state const noise)
+void ApplySway(
+    inout native::spatial::SpatialVertex vertex,
+    float2                               uv,
+    bool const                           isUpperPart,
+    bool const                           isDoublePlant,
+    in fnl_state const                   noise)
 {
     float const amplitude = 0.2f;
     float const speed     = 0.5f;

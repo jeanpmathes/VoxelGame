@@ -98,14 +98,14 @@ namespace nv_helpers_dx12
         offset = RoundUp(offset, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
         totalOffset += offset;
-        pData += offset;
+        pData       += offset;
         m_missStart = totalOffset;
 
         offset = CopyShaderData(raytracingPipeline, pData, m_miss, m_missEntrySize);
         offset = RoundUp(offset, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
-        totalOffset += offset;
-        pData += offset;
+        totalOffset     += offset;
+        pData           += offset;
         m_hitGroupStart = totalOffset;
 
         CopyShaderData(raytracingPipeline, pData, m_hitGroup, m_hitGroupEntrySize);

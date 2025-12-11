@@ -235,7 +235,7 @@ public partial class Client : Application
     private static unsafe void OnError(Int32 hr, Byte* messagePointer)
     {
         String message = Utf8StringMarshaller.ConvertToManaged(messagePointer) ?? "No message provided!";
-        
+
         Debugger.Break();
 
         Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
@@ -305,7 +305,7 @@ public partial class Client : Application
         return (hr, messagePointer) =>
         {
             String message = Utf8StringMarshaller.ConvertToManaged(messagePointer) ?? "No message provided!";
-            
+
             errorCallback(FormatErrorMessage(hr, message));
         };
     }

@@ -238,10 +238,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         {
             if (side == Side.Bottom) continue;
 
-            if (sides.HasFlag(side.ToFlag()))
-            {
-                canBurn |= BurnAt(message.World, message.Position.Offset(side));
-            }
+            if (sides.HasFlag(side.ToFlag())) canBurn |= BurnAt(message.World, message.Position.Offset(side));
         }
 
         if (!canBurn)
@@ -250,10 +247,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         }
         else
         {
-            if (Subject.CanPlace(message.World, message.Position.Above()))
-            {
-                PlaceFire(message.World, message.Position.Above(), leavesAsh: false);
-            }
+            if (Subject.CanPlace(message.World, message.Position.Above())) PlaceFire(message.World, message.Position.Above(), leavesAsh: false);
 
             Subject.ScheduleUpdate(message.World, message.Position, GetDelay(message.Position));
         }
@@ -275,14 +269,8 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
             leavesAsh = false;
         }
 
-        if (Subject.CanPlace(world, burnPosition))
-        {
-            PlaceFire(world, burnPosition, leavesAsh);
-        }
-        else if (leavesAsh)
-        {
-            PlaceAsh(world, burnPosition);
-        }
+        if (Subject.CanPlace(world, burnPosition)) PlaceFire(world, burnPosition, leavesAsh);
+        else if (leavesAsh) PlaceAsh(world, burnPosition);
 
         return true;
     }
@@ -393,7 +381,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     }
 
     /// <summary>
-    /// Attempt to place a fire block at the given position, sticking to just the given orientation.
+    ///     Attempt to place a fire block at the given position, sticking to just the given orientation.
     /// </summary>
     /// <param name="world">The world in which to place the fire.</param>
     /// <param name="position">The position at which to place the fire.</param>

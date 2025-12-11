@@ -68,8 +68,8 @@ internal sealed class Program : Client
     protected override void OnLogicUpdate(Double delta, Timer? timer)
     {
         updateFrameTimes.Write(delta);
-        
-        if (unitTestHarnessControls != null) 
+
+        if (unitTestHarnessControls != null)
             unitTestHarnessControls.UpdateFps = 1 / updateFrameTimes.Average;
 
         gui.Update();
@@ -78,8 +78,8 @@ internal sealed class Program : Client
     protected override void OnRenderUpdate(Double delta, Timer? timer)
     {
         renderFrameTimes.Write(delta);
-        
-        if (unitTestHarnessControls != null) 
+
+        if (unitTestHarnessControls != null)
             unitTestHarnessControls.RenderFps = 1 / renderFrameTimes.Average;
 
         gui.Render();

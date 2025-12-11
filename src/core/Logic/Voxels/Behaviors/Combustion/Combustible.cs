@@ -8,10 +8,10 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Behaviors.Events;
-using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
+using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Utilities;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
@@ -31,15 +31,16 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
     [LateInitialization] private partial IEvent<IBurnMessage> Burn { get; set; }
 
     /// <summary>
-    /// The chance that, on combustion, the block is completely destroyed instead of changing state into the <see cref="BurnedState"/>.
+    ///     The chance that, on combustion, the block is completely destroyed instead of changing state into the
+    ///     <see cref="BurnedState" />.
     /// </summary>
     public ResolvedProperty<Chance> CompleteDestructionChance { get; } = ResolvedProperty<Chance>.New<Exclusive<Chance, Void>>(nameof(CompleteDestructionChance), Chance.Impossible);
-    
+
     /// <summary>
     ///     Determine the state a block should change into after burning.
     /// </summary>
     public Aspect<State?, (World world, Vector3i position, State state, Block fire)> BurnedState { get; }
-    
+
     /// <inheritdoc />
     public override void DefineEvents(IEventRegistry registry)
     {
@@ -63,19 +64,19 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
     public Boolean DoBurn(World world, Vector3i position, Block fire)
     {
         State? state = world.GetBlock(position);
-        
-        if (state == null) 
+
+        if (state == null)
             return false;
 
         State? burnedState = BurnedState.GetValue(original: null, (world, position, state.Value, fire));
 
         if (!Burn.HasSubscribers)
         {
-            if (burnedState == null || NumberGenerator.GetPositionDependentOutcome(position, CompleteDestructionChance.Get())) 
+            if (burnedState == null || NumberGenerator.GetPositionDependentOutcome(position, CompleteDestructionChance.Get()))
                 return Subject.Destroy(world, position);
 
             world.SetBlock(burnedState.Value, position);
-            
+
             fire.Place(world, position.Above());
 
             foreach (Orientation orientation in Orientations.All)
@@ -100,14 +101,14 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
         if (burned)
             return true;
 
-        if (burnedState == null) 
+        if (burnedState == null)
             return false;
 
         world.SetBlock(burnedState.Value, position);
 
         return false;
     }
-    
+
     /// <summary>
     ///     Sent when a block is burned.
     /// </summary>
@@ -117,30 +118,30 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
         /// <summary>
         ///     The world the block is in.
         /// </summary>
-        public World World { get; }
-        
+        World World { get; }
+
         /// <summary>
         ///     The position of the block that is burning.
         /// </summary>
-        public Vector3i Position { get; }
-        
+        Vector3i Position { get; }
+
         /// <summary>
         ///     The fire block that caused the burning.
         /// </summary>
-        public Block Fire { get; }
-        
+        Block Fire { get; }
+
         /// <summary>
         ///     Whether the block has been destroyed by the burn operation.
         /// </summary>
-        public Boolean Burned { get; }
+        Boolean Burned { get; }
 
         /// <summary>
-        /// Set that the block has been burned (destroyed or changed).
-        /// This will set <see cref="Burned"/> to <c>true</c>.
+        ///     Set that the block has been burned (destroyed or changed).
+        ///     This will set <see cref="Burned" /> to <c>true</c>.
         /// </summary>
-        public void Burn();
+        void Burn();
     }
-    
+
     private sealed partial record BurnMessage
     {
         public void Burn()

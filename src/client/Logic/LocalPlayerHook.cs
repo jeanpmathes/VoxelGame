@@ -27,7 +27,7 @@ public partial class LocalPlayerHook : WorldComponent
     ///     Get the local player of the world.
     /// </summary>
     public Player Player { get; }
-    
+
     /// <inheritdoc />
     public override void OnActivate(Object? sender, EventArgs e)
     {

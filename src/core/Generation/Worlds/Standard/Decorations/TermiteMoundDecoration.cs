@@ -21,7 +21,7 @@ public class TermiteMoundDecoration : Decoration
     private readonly Shape3D shape;
 
     /// <summary>
-        ///     Creates a new instance of the <see cref="TermiteMoundDecoration" /> class.
+    ///     Creates a new instance of the <see cref="TermiteMoundDecoration" /> class.
     /// </summary>
     public TermiteMoundDecoration(String name, Decorator decorator) : base(name, decorator)
     {
@@ -43,9 +43,7 @@ public class TermiteMoundDecoration : Decoration
         for (var x = 0; x < Size; x++)
         for (var y = 0; y < Size; y++)
         for (var z = 0; z < Size; z++)
-        {
             CheckPosition(grid, center, (x, y, z), extents);
-        }
     }
 
     private void CheckPosition(IGrid grid, Vector3i center, Vector3i offset, Vector3i extents)

@@ -66,12 +66,8 @@ public class EnumUtilityGenerator : IIncrementalGenerator
         List<EnumMember> memberModel = new(members.Length);
 
         foreach (ISymbol member in members)
-        {
             if (member is IFieldSymbol {ConstantValue: {} value})
-            {
                 memberModel.Add(new EnumMember(member.Name, IntegerConstant.From(enumSymbol.EnumUnderlyingType, value)));
-            }
-        }
 
         var isFlag = false;
 

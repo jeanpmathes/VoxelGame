@@ -22,7 +22,7 @@ using VoxelGame.UI.Settings;
 namespace VoxelGame.Client.Inputs;
 
 /// <summary>
-/// Manages all keybinds and their settings.
+///     Manages all keybinds and their settings.
 /// </summary>
 public sealed partial class KeybindManager : ISettingsProvider, IDisposable
 {
@@ -322,7 +322,7 @@ public sealed partial class KeybindManager : ISettingsProvider, IDisposable
     }
 
     /// <summary>
-    /// Finalizer.
+    ///     Finalizer.
     /// </summary>
     ~KeybindManager()
     {

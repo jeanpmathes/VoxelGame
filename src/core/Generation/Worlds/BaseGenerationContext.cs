@@ -13,7 +13,7 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Generation.Worlds;
 
 /// <summary>
-/// Base class for generation contexts.
+///     Base class for generation contexts.
 /// </summary>
 /// <param name="generator">The world generator.</param>
 public abstract class BaseGenerationContext(IWorldGenerator generator) : IGenerationContext
@@ -23,19 +23,19 @@ public abstract class BaseGenerationContext(IWorldGenerator generator) : IGenera
 
     /// <inheritdoc />
     public abstract IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange);
-    
+
     /// <inheritdoc />
     public virtual void GenerateStructures(Section section)
     {
         // No structures to generate.
     }
-    
+
     #region DISPOSABLE
 
     private Boolean disposed;
 
     /// <summary>
-    /// Overridable dispose method.
+    ///     Overridable dispose method.
     /// </summary>
     /// <param name="disposing">Whether managed resources should be disposed.</param>
     protected virtual void Dispose(Boolean disposing)

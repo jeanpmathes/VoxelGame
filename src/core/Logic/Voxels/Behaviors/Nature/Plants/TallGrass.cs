@@ -25,6 +25,27 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 /// </summary>
 public partial class TallGrass : BlockBehavior, IBehavior<TallGrass, BlockBehavior, Block>
 {
+    /// <summary>
+    ///     The different height stages of tall grass.
+    /// </summary>
+    public enum StageState
+    {
+        /// <summary>
+        ///     The shortest stage of tall grass.
+        /// </summary>
+        Short,
+
+        /// <summary>
+        ///     The intermediate stage of tall grass.
+        /// </summary>
+        Tall,
+
+        /// <summary>
+        ///     The tallest stage of tall grass, occupying two blocks.
+        /// </summary>
+        Tallest
+    }
+
     private readonly Composite composite;
 
     [Constructible]
@@ -53,27 +74,6 @@ public partial class TallGrass : BlockBehavior, IBehavior<TallGrass, BlockBehavi
     /// </summary>
     public ResolvedProperty<(TID Short, TID Tall, TID Tallest)> Textures { get; } = ResolvedProperty<(TID, TID, TID)>.New<Exclusive<(TID, TID, TID), Void>>(nameof(Textures));
 
-    /// <summary>
-    ///     The different height stages of tall grass.
-    /// </summary>
-    public enum StageState
-    {
-        /// <summary>
-        ///     The shortest stage of tall grass.
-        /// </summary>
-        Short,
-
-        /// <summary>
-        ///     The intermediate stage of tall grass.
-        /// </summary>
-        Tall,
-
-        /// <summary>
-        ///     The tallest stage of tall grass, occupying two blocks.
-        /// </summary>
-        Tallest
-    }
-
     /// <inheritdoc />
     public override void SubscribeToEvents(IEventBus bus)
     {
@@ -92,13 +92,13 @@ public partial class TallGrass : BlockBehavior, IBehavior<TallGrass, BlockBehavi
         Stage = builder
             .Define(nameof(Stage))
             .Enum<StageState>()
-            .Attribute(placementDefault: StageState.Short, generationDefault: StageState.Short);
+            .Attribute(StageState.Short, StageState.Short);
     }
 
     private Int32 GetHorizontalOffset(Int32 original, State state)
     {
         StageState stage = state.Get(Stage);
-        
+
         return stage switch
         {
             StageState.Short => 0,
@@ -107,7 +107,7 @@ public partial class TallGrass : BlockBehavior, IBehavior<TallGrass, BlockBehavi
             _ => original
         };
     }
-    
+
     private Vector3i GetSize(Vector3i original, State state)
     {
         return state.Get(Stage) == StageState.Tallest ? (1, 2, 1) : Vector3i.One;
@@ -131,7 +131,7 @@ public partial class TallGrass : BlockBehavior, IBehavior<TallGrass, BlockBehavi
 
         return BoundingVolume.CrossBlock(height, width: 0.71);
     }
-    
+
     private Boolean GetIsReplaceable(Boolean original, State state)
     {
         return state.Get(Stage) != StageState.Tallest;
@@ -163,13 +163,13 @@ public partial class TallGrass : BlockBehavior, IBehavior<TallGrass, BlockBehavi
     }
 
     /// <summary>
-    /// Get the state of a tall grass block with the given stage.
+    ///     Get the state of a tall grass block with the given stage.
     /// </summary>
     /// <param name="state">The original state.</param>
     /// <param name="stageState">The desired stage.</param>
     /// <returns>The modified state, or the original state if the block is not tall grass.</returns>
     public static State GetState(State state, StageState stageState)
     {
-        return state.Block.Get<TallGrass>() is { } tallGrass ? tallGrass.SetStage(state, stageState) : state;
+        return state.Block.Get<TallGrass>() is {} tallGrass ? tallGrass.SetStage(state, stageState) : state;
     }
 }

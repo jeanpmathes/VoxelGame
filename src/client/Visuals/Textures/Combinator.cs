@@ -43,6 +43,6 @@ public abstract class Combinator(String type) : IIssueSource
         ///     Use this when a combinator will return <c>null</c>.
         /// </summary>
         /// <param name="message">The warning message.</param>
-        public void ReportWarning(String message);
+        void ReportWarning(String message);
     }
 }

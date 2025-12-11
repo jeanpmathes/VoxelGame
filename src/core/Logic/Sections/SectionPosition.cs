@@ -84,9 +84,9 @@ public readonly struct SectionPosition : IEquatable<SectionPosition>
     {
         get
         {
-            Int32 localX = X & Chunks.Chunk.Size - 1;
-            Int32 localY = Y & Chunks.Chunk.Size - 1;
-            Int32 localZ = Z & Chunks.Chunk.Size - 1;
+            Int32 localX = X & (Chunks.Chunk.Size - 1);
+            Int32 localY = Y & (Chunks.Chunk.Size - 1);
+            Int32 localZ = Z & (Chunks.Chunk.Size - 1);
 
             return (localX, localY, localZ);
         }

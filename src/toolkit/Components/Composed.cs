@@ -12,28 +12,25 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Toolkit.Components;
 
 /// <summary>
-/// Abstract base class for non-generic methods of <see cref="Composed{TSelf,TComponent}"/>.
+///     Abstract base class for non-generic methods of <see cref="Composed{TSelf,TComponent}" />.
 /// </summary>
 public abstract class Composed : IDisposable
 {
     /// <summary>
-    /// Remove a specified component by providing the component instance.
-    /// This should generally not be used directly.
-    /// If the component is not attached to this container, nothing happens.
+    ///     Remove a specified component by providing the component instance.
+    ///     This should generally not be used directly.
+    ///     If the component is not attached to this container, nothing happens.
     /// </summary>
     /// <param name="component">The component to remove.</param>
     public abstract void RemoveComponent(Object component);
-    
+
     #region DISPOSABLE
 
     /// <summary>
     ///     Called by the finalizer or Dispose method.
     /// </summary>
     /// <param name="disposing"><c>true</c> if called from Dispose, <c>false</c> if called from the finalizer.</param>
-    protected virtual void Dispose(Boolean disposing)
-    {
-        
-    }
+    protected virtual void Dispose(Boolean disposing) {}
 
     /// <inheritdoc />
     public void Dispose()
@@ -256,14 +253,14 @@ public abstract class Composed<TSelf, TComponent> : Composed
     /// </summary>
     /// <param name="component">The component that was removed.</param>
     protected virtual void OnComponentRemoved(TComponent component) {}
-    
+
     #region DISPOSABLE
 
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
-        
+
         if (!disposing)
             return;
 

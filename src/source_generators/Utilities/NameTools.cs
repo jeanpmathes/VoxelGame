@@ -39,14 +39,8 @@ public static class NameTools
                 continue;
             }
 
-            if (Char.IsLetterOrDigit(c) || c is '-' or '.' or '_')
-            {
-                sb.Append(c);
-            }
-            else
-            {
-                sb.Append(value: '_');
-            }
+            if (Char.IsLetterOrDigit(c) || c is '-' or '.' or '_') sb.Append(c);
+            else sb.Append(value: '_');
         }
 
         return sb.ToString();

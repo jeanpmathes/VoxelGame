@@ -38,15 +38,15 @@ public class SaltWaterFluid : BasicFluid
     {
         if (!isStatic || level != FluidLevel.One) return;
         if (world.GetBlock(position.Below())?.IsFullySolid != true) return;
-        
+
         world.SetDefaultFluid(position);
-        
+
         if (!Blocks.Instance.Environment.Salt.CanPlace(world, position)) return;
 
         State state = Blocks.Instance.Environment.Salt.GetPlacementState(world, position);
-        
+
         state = state.WithHeight(level.BlockHeight);
-        
+
         world.SetBlock(state, position);
     }
 }

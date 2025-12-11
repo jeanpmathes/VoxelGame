@@ -18,31 +18,13 @@ namespace VoxelGame.Core.Tests.Logic.Elements;
 
 public class MockBlock : Block
 {
-    private sealed class MockEventRegistry : IEventRegistry
-    {
-        private sealed class MockEvent<TEventMessage> : IEvent<TEventMessage>
-        {
-            public Boolean HasSubscribers => false;
-            
-            public void Publish(TEventMessage message)
-            {
-                
-            }
-        }
-        
-        public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single)
-        {
-            return new MockEvent<TEventMessage>();
-        }
-    }
-
     public MockBlock() : base(blockID: 0, new CID(nameof(MockBlock)), "Mock Block")
     {
         States = new StateSet(this, setOffset: 0, stateCount: 1, placementDefault: 0, generationDefault: 0, []);
-        
+
         DefineEvents(new MockEventRegistry());
     }
-    
+
     public override Meshable Meshable => Meshable.Unmeshed;
 
     protected override void OnValidate(IValidator validator) {}
@@ -54,5 +36,20 @@ public class MockBlock : Block
     public override ColorS GetDominantColor(State state, ColorS positionTint)
     {
         return ColorS.White;
+    }
+
+    private sealed class MockEventRegistry : IEventRegistry
+    {
+        public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single)
+        {
+            return new MockEvent<TEventMessage>();
+        }
+
+        private sealed class MockEvent<TEventMessage> : IEvent<TEventMessage>
+        {
+            public Boolean HasSubscribers => false;
+
+            public void Publish(TEventMessage message) {}
+        }
     }
 }

@@ -138,7 +138,7 @@ public partial class Chunk
                         LogChunkGenerationError(logger, e, Chunk.Position);
 
                         ExceptionDispatchInfo.Capture(e).Throw();
-                        
+
                         return false;
                     }
                 );
@@ -218,7 +218,7 @@ public partial class Chunk
                         LogChunkDecorationError(logger, e, Chunk.Position);
 
                         ExceptionDispatchInfo.Capture(e).Throw();
-                        
+
                         return false;
                     }
                 );
@@ -252,12 +252,8 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (saving == null)
-            {
-                saving = WaitForCompletion(async () => await Chunk.SaveAsync(Chunk.World.Data.ChunkDirectory).InAnyContext());
-            }
+            if (saving == null) saving = WaitForCompletion(async () => await Chunk.SaveAsync(Chunk.World.Data.ChunkDirectory).InAnyContext());
             else if (saving.IsCompleted)
-            {
                 saving.Result?.Switch(
                     () => TryActivation(),
                     exception =>
@@ -265,7 +261,6 @@ public partial class Chunk
                         LogChunkSavingError(logger, exception, Chunk.Position);
                     }
                 );
-            }
         }
     }
 

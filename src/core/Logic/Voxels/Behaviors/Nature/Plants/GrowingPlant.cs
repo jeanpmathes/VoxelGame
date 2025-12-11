@@ -26,7 +26,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     private GrowingPlant(Block subject) : base(subject)
     {
         subject.Require<Plant>();
-        
+
         CanGrow = Aspect<Boolean, State>.New<LogicalAnd<State>>(nameof(CanGrow), this);
     }
 
@@ -41,7 +41,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     ///     The index of the first stage considered a full growth stage.
     /// </summary>
     public ResolvedProperty<Int32> FirstFullStage { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(FirstFullStage));
-    
+
     /// <summary>
     ///     Whether the plant can grow in the current state.
     /// </summary>
@@ -94,21 +94,21 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
         if (aliveStage == MatureStage)
         {
             if (!MatureUpdate.HasSubscribers) return;
-            
+
             MatureUpdateMessage matureUpdate = IEventMessage<MatureUpdateMessage>.Pool.Get();
 
             matureUpdate.World = message.World;
             matureUpdate.Position = message.Position;
             matureUpdate.State = message.State;
             matureUpdate.Ground = plantable;
-            
+
             MatureUpdate.Publish(matureUpdate);
-            
+
             IEventMessage<MatureUpdateMessage>.Pool.Return(matureUpdate);
-            
+
             return;
         }
-        
+
         State newState = message.State;
 
         FluidInstance? fluid = message.World.GetFluid(message.Position.Below());
@@ -154,21 +154,21 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
         /// <summary>
         ///     The world in which the plant is located.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the plant in the world.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the plant block.
         /// </summary>
-        public State State { get; }
+        State State { get; }
 
         /// <summary>
         ///     The plantable ground this plant is growing on.
         /// </summary>
-        public Plantable Ground { get; }
+        Plantable Ground { get; }
     }
 }

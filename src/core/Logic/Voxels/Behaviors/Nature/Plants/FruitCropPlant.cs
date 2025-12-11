@@ -103,7 +103,6 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
                     message.Position.Below(),
                     Voxels.Fluids.Instance.FreshWater,
                     FluidLevel.Two))
-            {
                 foreach (Orientation orientation in Orientations.ShuffledStart(message.Position))
                 {
                     if (!fruit.Place(message.World, message.Position.Offset(orientation)))
@@ -113,7 +112,6 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
 
                     break;
                 }
-            }
 
             if (!placed)
                 return;

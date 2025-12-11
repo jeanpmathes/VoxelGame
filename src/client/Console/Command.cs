@@ -82,12 +82,12 @@ public interface ICommand
     /// <summary>
     ///     Get the name of this command.
     /// </summary>
-    public String Name { get; }
+    String Name { get; }
 
     /// <summary>
     ///     Get the help text for this command.
     /// </summary>
-    public String HelpText { get; }
+    String HelpText { get; }
 
     /// <summary>
     ///     Set the current command execution context.

@@ -76,7 +76,7 @@ public sealed class SessionScene : Scene, IInputControl
     ///     Whether it is OK to handle meta input currently.
     /// </summary>
     public Boolean CanHandleMetaInput => Client.IsFocused;
-    
+
     /// <inheritdoc />
     public KeybindManager Keybinds => Client.Keybinds;
 
@@ -128,7 +128,7 @@ public sealed class SessionScene : Scene, IInputControl
     private void SetUpUI(InGameUserInterface ui, Core.Logic.World world, IConsoleProvider console)
     {
         Debug.Assert(session != null);
-        
+
         List<SettingsProvider> settingsProviders =
         [
             SettingsProvider.Wrap(Client.Settings),
@@ -161,7 +161,7 @@ public sealed class SessionScene : Scene, IInputControl
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
-        
+
         if (!disposing) return;
 
         session?.Dispose();

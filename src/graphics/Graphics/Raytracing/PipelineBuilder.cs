@@ -57,7 +57,7 @@ public class PipelineBuilder
     private readonly List<ShaderFile> shaderFiles = [];
 
     private UInt32 anisotropy = 1;
-    
+
     private UInt32 customDataBufferSize;
     private UInt32 effectSpoolCount;
 
@@ -230,7 +230,7 @@ public class PipelineBuilder
             onShaderLoadingError = (_, messagePointer) =>
             {
                 String? message = Utf8StringMarshaller.ConvertToManaged(messagePointer);
-                
+
                 errors.AppendLine(message);
                 anyError = true;
 

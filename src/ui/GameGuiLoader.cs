@@ -55,32 +55,31 @@ public sealed class GameGuiLoader : IResourceLoader
 
             IGwenGui gui = GwenGuiFactory.CreateFromClient(
                 client,
-                GwenGuiSettings.Default.From(
-                    settings =>
-                    {
-                        settings.SkinFiles = skinFiles;
-                        settings.SkinLoadingErrorCallback = (file, exception) => skinLoadingErrors[file] = exception;
+                GwenGuiSettings.Default.From(settings =>
+                {
+                    settings.SkinFiles = skinFiles;
+                    settings.SkinLoadingErrorCallback = (file, exception) => skinLoadingErrors[file] = exception;
 
-                        settings.SkinLoadedCallback = (index, skin) =>
+                    settings.SkinLoadedCallback = (index, skin) =>
+                    {
+                        if (index == 0) resources.Add(new Skin(DefaultSkin, skin));
+                        else if (index == 1) resources.Add(new Skin(AlternativeSkin, skin));
+                    };
+
+                    settings.ShaderFile = shader;
+
+                    settings.ShaderLoadingErrorCallback =
+                        exception =>
                         {
-                            if (index == 0) resources.Add(new Skin(DefaultSkin, skin));
-                            else if (index == 1) resources.Add(new Skin(AlternativeSkin, skin));
+                            shaderLoadingError = exception;
+                            Debugger.Break();
                         };
 
-                        settings.ShaderFile = shader;
+                    foreach ((String _, TexturePreload texture) in textures)
+                        settings.TexturePreloads.Add(texture);
 
-                        settings.ShaderLoadingErrorCallback =
-                            exception =>
-                            {
-                                shaderLoadingError = exception;
-                                Debugger.Break();
-                            };
-
-                        foreach ((String _, TexturePreload texture) in textures)
-                            settings.TexturePreloads.Add(texture);
-
-                        settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture.Name] = exception;
-                    }));
+                    settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture.Name] = exception;
+                }));
 
             gui.Load();
 

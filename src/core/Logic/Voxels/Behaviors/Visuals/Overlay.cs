@@ -32,7 +32,7 @@ public partial class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, 
     public Aspect<IOverlayTextureProvider?, Block> OverlayTextureProvider { get; }
 
     /// <summary>
-    /// The overlay texture provider for the block.
+    ///     The overlay texture provider for the block.
     /// </summary>
     public IOverlayTextureProvider Provider
     {

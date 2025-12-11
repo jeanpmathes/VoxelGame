@@ -21,12 +21,12 @@ public interface IStuffer
     /// </summary>
     /// <param name="temperature">The temperature of the position.</param>
     /// <returns>The content of the stuffer.</returns>
-    public Content GetContent(Temperature temperature);
+    Content GetContent(Temperature temperature);
 
     /// <summary>
     ///     Simply stuffs with ice.
     /// </summary>
-    public sealed class Ice : IStuffer
+    sealed class Ice : IStuffer
     {
         private readonly Content content = new(Blocks.Instance.Environment.Ice.States.GenerationDefault.WithHeight(BlockHeight.Maximum), FluidInstance.Default);
 
@@ -40,7 +40,7 @@ public interface IStuffer
     /// <summary>
     ///     Stuffs with water, or ice if the temperature is low.
     /// </summary>
-    public sealed class Water : IStuffer
+    sealed class Water : IStuffer
     {
         private readonly Content ice = new(Blocks.Instance.Environment.Ice.States.GenerationDefault.WithHeight(BlockHeight.Maximum), FluidInstance.Default);
         private readonly Content water = new(Content.DefaultState, Fluids.Instance.FreshWater.AsInstance());

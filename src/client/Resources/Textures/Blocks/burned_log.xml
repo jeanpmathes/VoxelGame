@@ -1,8 +1,8 @@
 ﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="../texture.xsd">
     <Layers mode="replace">
-        <Layer source="p:burned_wood:all" />
-        <Layer source="p:burned_log:all" />
+        <Layer source="p:burned_wood:all"/>
+        <Layer source="p:burned_log:all"/>
     </Layers>
     <Modifiers/>
 </Texture>

@@ -22,14 +22,12 @@ public class RootDecoration : ShapeDecoration
     /// <summary>
     ///     Creates a new instance of the <see cref="RootDecoration" /> class.
     /// </summary>
-    public RootDecoration(String name, Decorator decorator) : base(name, decorator, new Sphere {Radius = Diameter / 2.0}, Diameter)
-    {
-    }
+    public RootDecoration(String name, Decorator decorator) : base(name, decorator, new Sphere {Radius = Diameter / 2.0}, Diameter) {}
 
     /// <inheritdoc />
     protected override void OnPlace(Vector3i position, IGrid grid, in PlacementContext placementContext)
     {
-        if (grid.GetContent(position)?.Block.Block != Blocks.Instance.Environment.Soil) 
+        if (grid.GetContent(position)?.Block.Block != Blocks.Instance.Environment.Soil)
             return;
 
         grid.SetContent(Content.CreateGenerated(Blocks.Instance.Environment.Roots), position);

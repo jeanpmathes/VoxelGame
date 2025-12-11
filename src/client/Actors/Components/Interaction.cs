@@ -92,7 +92,7 @@ public partial class Interaction : ActorComponent
 
         void TakeFluid(Vector3i position)
         {
-            var level = FluidLevel.One;
+            FluidLevel level = FluidLevel.One;
 
             if (!targetedBlock.IsReplaceable)
                 position = position.Offset(targeting.Side);

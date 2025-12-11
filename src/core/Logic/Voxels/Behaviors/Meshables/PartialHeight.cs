@@ -49,9 +49,9 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
 
         return new MeshData(textureIndex, tint, isAnimated && textureIndex != ITextureIndexProvider.MissingTextureIndex);
     }
-    
+
     /// <summary>
-    /// Get the size of a face with a given height, in world units.
+    ///     Get the size of a face with a given height, in world units.
     /// </summary>
     /// <param name="height">The height of the face.</param>
     /// <returns>The size of the face.</returns>

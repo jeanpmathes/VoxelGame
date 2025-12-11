@@ -16,12 +16,12 @@ public interface IAspectable
     /// <summary>
     ///     Invoked during resource validation.
     /// </summary>
-    public event EventHandler<ValidationEventArgs> Validation;
+    event EventHandler<ValidationEventArgs> Validation;
 
     /// <summary>
     ///     The resource validation event arguments.
     /// </summary>
-    public class ValidationEventArgs : EventArgs
+    class ValidationEventArgs : EventArgs
     {
         /// <summary>
         ///     The validator to use.

@@ -19,7 +19,7 @@ public interface IContributionStrategy<TValue, TContext>
     ///     The maximum number of contributors that can be combined by this strategy.
     ///     This number should be greater than or equal to 1.
     /// </summary>
-    public static abstract Int32 MaxContributorCount { get; }
+    static abstract Int32 MaxContributorCount { get; }
 
     /// <summary>
     ///     Apply the strategy to determine the final value.
@@ -28,5 +28,5 @@ public interface IContributionStrategy<TValue, TContext>
     /// <param name="context">The context in which the aspect is evaluated.</param>
     /// <param name="contributors">The contributors providing contributions to the original value.</param>
     /// <returns>The final value as determined by the strategy.</returns>
-    public TValue CombineContributions(TValue original, TContext context, Span<IContributor<TValue, TContext>> contributors);
+    TValue CombineContributions(TValue original, TContext context, Span<IContributor<TValue, TContext>> contributors);
 }

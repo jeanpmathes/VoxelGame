@@ -2,7 +2,7 @@
          xsi:noNamespaceSchemaLocation="../texture.xsd">
     <Layers mode="replace">
         <Layer source="p:burned_wood:0,0"/>
-        <Layer source="p:planks_pattern:0,0" />
+        <Layer source="p:planks_pattern:0,0"/>
     </Layers>
     <Modifiers/>
 </Texture>

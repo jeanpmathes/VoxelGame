@@ -23,9 +23,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 public partial class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, Block>
 {
     [Constructible]
-    private Slowing(Block subject) : base(subject)
-    {
-    }
+    private Slowing(Block subject) : base(subject) {}
 
     /// <summary>
     ///     The maximum velocity that entities can have when in contact with this block.
@@ -47,14 +45,11 @@ public partial class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, 
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
         var factor = 1.0;
-        
-        if (Subject.Get<PartialHeight>() is {} height)
-        {
-            factor = height.GetHeight(message.State).Ratio;
-        }
+
+        if (Subject.Get<PartialHeight>() is {} height) factor = height.GetHeight(message.State).Ratio;
 
         Vector3d newVelocity = MathTools.Clamp(message.Body.Velocity, min: -1.0, MaxVelocity.Get());
-        
+
         message.Body.Velocity = Vector3d.Lerp(message.Body.Velocity, newVelocity, factor);
     }
 }

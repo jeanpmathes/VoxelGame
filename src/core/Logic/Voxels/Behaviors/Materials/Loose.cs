@@ -19,16 +19,13 @@ public partial class Loose : BlockBehavior, IBehavior<Loose, BlockBehavior, Bloc
     [Constructible]
     private Loose(Block subject) : base(subject)
     {
-        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(new Viscosity { MilliPascalSeconds = 6.5 });
+        subject.Require<Membrane>().MaxViscosity.Initializer.ContributeConstant(new Viscosity {MilliPascalSeconds = 6.5});
         subject.Require<Fillable>().IsFluidMeshed.Initializer.ContributeConstant(value: false);
     }
 
     /// <inheritdoc />
     protected override void OnValidate(IValidator validator)
     {
-        if (!Subject.Is<Wet>())
-        {
-            validator.ReportWarning("Loose blocks must be able to get wet in some way, preferably with visual representation of that");
-        }
+        if (!Subject.Is<Wet>()) validator.ReportWarning("Loose blocks must be able to get wet in some way, preferably with visual representation of that");
     }
 }

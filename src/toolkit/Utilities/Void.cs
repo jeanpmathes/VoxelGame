@@ -7,14 +7,14 @@
 namespace VoxelGame.Toolkit.Utilities;
 
 /// <summary>
-/// A unit type placeholder.
+///     A unit type placeholder.
 /// </summary>
-public class Void 
+public class Void
 {
-    private Void() { }
-    
+    private Void() {}
+
     /// <summary>
-    /// Get the singleton instance of the unit type placeholder.
+    ///     Get the singleton instance of the unit type placeholder.
     /// </summary>
     public static Void Instance { get; } = new();
 }

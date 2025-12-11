@@ -18,5 +18,5 @@ public interface IDecorationProvider
     /// </summary>
     /// <param name="identifier">The identifier of the decoration.</param>
     /// <returns>The decoration, or a fallback decoration if the decoration is not found.</returns>
-    public Decoration GetDecoration(RID identifier);
+    Decoration GetDecoration(RID identifier);
 }

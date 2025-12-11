@@ -27,7 +27,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         String attributeName = typeof(ComponentSubjectAttribute).FullName ?? nameof(ConstructibleAttribute);
-        
+
         IncrementalValuesProvider<ComponentSubjectModel?> models = context.SyntaxProvider.ForAttributeWithMetadataName(
                 attributeName,
                 static (s, _) => IsSyntaxTargetForGeneration(s),
@@ -51,7 +51,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
             return null;
 
         AttributeData? attributeData = GetSubjectAttributeData(context);
-        
+
         if (attributeData?.ConstructorArguments.Length != 1)
             return null;
 
@@ -66,18 +66,18 @@ public sealed class ComponentGenerator : IIncrementalGenerator
         foreach (IMethodSymbol method in subjectSymbol.GetMembers().OfType<IMethodSymbol>())
         {
             AttributeData? eventAttribute = GetEventAttributeData(method);
-            
+
             if (eventAttribute == null)
                 continue;
-            
+
             ComponentEventModel? eventModel = CreateEventModel(method, eventAttribute);
 
             if (eventModel != null)
                 events.Add(eventModel.Value);
         }
-        
+
         ComponentModel? componentModel = CreateComponentModel(componentSymbol, context.SemanticModel);
-        
+
         if (componentModel == null)
             return null;
 
@@ -97,7 +97,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
     {
         foreach (AttributeData attribute in context.Attributes)
         {
-            if (attribute.AttributeClass is not { } attributeClass)
+            if (attribute.AttributeClass is not {} attributeClass)
                 continue;
 
             if (attributeClass.Name != nameof(ComponentSubjectAttribute)
@@ -106,15 +106,15 @@ public sealed class ComponentGenerator : IIncrementalGenerator
 
             return attribute;
         }
-        
+
         return null;
     }
-    
+
     private static AttributeData? GetEventAttributeData(ISymbol symbol)
     {
         foreach (AttributeData attribute in symbol.GetAttributes())
         {
-            if (attribute.AttributeClass is not { } attributeClass)
+            if (attribute.AttributeClass is not {} attributeClass)
                 continue;
 
             if (attributeClass.Name != nameof(ComponentEventAttribute)
@@ -123,7 +123,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
 
             return attribute;
         }
-        
+
         return null;
     }
 
@@ -131,23 +131,24 @@ public sealed class ComponentGenerator : IIncrementalGenerator
     {
         String subjectMethodName = subjectMethod.Name;
         String subjectMethodAccessibility = SyntaxFacts.GetText(subjectMethod.DeclaredAccessibility);
-        
+
         if (attribute.ConstructorArguments.Length != 1)
             return null;
 
         var componentMethodName = attribute.ConstructorArguments[index: 0].Value as String;
-        
+
         if (String.IsNullOrWhiteSpace(componentMethodName))
-            return null; 
-        
+            return null;
+
         ImmutableArray<ComponentEventParameterModel>.Builder parameters = ImmutableArray.CreateBuilder<ComponentEventParameterModel>();
 
         foreach (IParameterSymbol parameter in subjectMethod.Parameters)
         {
             String type = parameter.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
             String name = parameter.Name;
-            
+
             String declarationPrefix = parameter.IsParams ? "params " : String.Empty;
+
             String usagePrefix = parameter.RefKind switch
             {
                 RefKind.Out => "out ",
@@ -155,32 +156,32 @@ public sealed class ComponentGenerator : IIncrementalGenerator
                 RefKind.In => "in ",
                 _ => String.Empty
             };
-            
+
             if (parameter.RefKind is not RefKind.None)
                 declarationPrefix = usagePrefix + declarationPrefix;
 
             parameters.Add(new ComponentEventParameterModel(type, name, declarationPrefix, usagePrefix));
         }
-        
+
         return new ComponentEventModel(
             subjectMethodName,
             componentMethodName!,
             subjectMethodAccessibility,
             parameters.ToImmutable());
     }
-    
+
     private static ComponentModel? CreateComponentModel(ISymbol componentSymbol, SemanticModel semanticModel)
     {
         if (componentSymbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax() is not TypeDeclarationSyntax componentTypeDeclarationSyntax)
             return null;
-        
+
         String @namespace = SyntaxTools.GetNamespace(componentTypeDeclarationSyntax);
         ContainingType? containingType = SyntaxTools.GetContainingType(componentTypeDeclarationSyntax, semanticModel);
-        
+
         String name = componentTypeDeclarationSyntax.Identifier.Text;
         var typeParameters = componentTypeDeclarationSyntax.TypeParameterList?.ToString();
         var constraints = componentTypeDeclarationSyntax.ConstraintClauses.ToString();
-        
+
         String accessibility = SyntaxFacts.GetText(componentSymbol.DeclaredAccessibility);
 
         return new ComponentModel(
@@ -200,7 +201,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
 
         String subjectResult = GenerateSubjectSource(subjectModel);
         context.AddSource($"{NameTools.SanitizeForIO(subjectModel.FullName)}_ComponentSubject.g.cs", SourceText.From(subjectResult, Encoding.UTF8));
-        
+
         String componentResult = GenerateComponentSource(subjectModel);
         context.AddSource($"{NameTools.SanitizeForIO(subjectModel.Component.FullName)}_Component.g.cs", SourceText.From(componentResult, Encoding.UTF8));
     }
@@ -211,192 +212,180 @@ public sealed class ComponentGenerator : IIncrementalGenerator
 
         sb.AppendPreamble<ComponentGenerator>().AppendNamespace(subjectModel.Namespace);
 
-        sb.AppendNestedClass(subjectModel.ContainingType, (builder, i) =>
-        {
-            String typeParameters = subjectModel.TypeParameters ?? String.Empty;
-            String constraints = String.IsNullOrWhiteSpace(subjectModel.TypeConstraints) ? String.Empty : $" {subjectModel.TypeConstraints}";
-
-            builder.Append($$"""
-                             {{i}}{{subjectModel.Accessibility}} partial class {{subjectModel.Name}}{{typeParameters}}{{constraints}}
-                             {{i}}{
-                             {{i}}    /// <inheritdoc />
-                             {{i}}    protected override {{subjectModel.Name}} Self => this;
-                             """);
-
-            foreach (ComponentEventModel componentEvent in subjectModel.Events)
+        sb.AppendNestedClass(subjectModel.ContainingType,
+            (builder, i) =>
             {
-                builder.Append($"""
-                                 
-                                 
-                                 {i}    private readonly global::System.Collections.Generic.HashSet<{subjectModel.Component.FullName}> {componentEvent.FieldName} = new();
-                                 {i}    private readonly global::System.Collections.Generic.HashSet<{subjectModel.Component.FullName}> {componentEvent.PendingRemovalFieldName} = new();
-                                 """);
-            }
-            
-            builder.Append($$"""
-                            
-                            
-                            {{i}}    private global::System.Int32 {{subjectModel.IterationDepthFieldName}};
-                            
-                            {{i}}    /// <inheritdoc />
-                            {{i}}    protected override void OnComponentAdded({{subjectModel.Component.FullName}} component)
-                            {{i}}    {
-                            {{i}}        RegisterComponentEvents(component);
-                            {{i}}    }
-                            
-                            {{i}}    /// <inheritdoc />
-                            {{i}}    protected override void OnComponentRemoved({{subjectModel.Component.FullName}} component)
-                            {{i}}    {
-                            {{i}}        UnregisterComponentEvents(component);
-                            {{i}}    }
-                            
-                            {{i}}    private void RegisterComponentEvents({{subjectModel.Component.FullName}} component)
-                            {{i}}    {
-                            """);
-            
-            foreach (ComponentEventModel componentEvent in subjectModel.Events)
-            {
-                builder.Append($"""
-                                 
-                                 {i}        {componentEvent.FieldName}.Add(component);
-                                 {i}        {componentEvent.PendingRemovalFieldName}.Remove(component);
-                                 """);
-            }
-            
-            builder.Append($$"""
-                             
-                             {{i}}    }
-                             
-                             {{i}}    private void UnregisterComponentEvents({{subjectModel.Component.FullName}} component)
-                             {{i}}    {
-                             """);
-            
-            foreach (ComponentEventModel componentEvent in subjectModel.Events)
-            {
-                builder.Append($"""
+                String typeParameters = subjectModel.TypeParameters ?? String.Empty;
+                String constraints = String.IsNullOrWhiteSpace(subjectModel.TypeConstraints) ? String.Empty : $" {subjectModel.TypeConstraints}";
 
-                                 {i}        {componentEvent.DisableMethodName}(component);
-                                 """);
-            }
-            
-            builder.Append($$"""
-
-                             {{i}}    }
-                             """);
-
-            foreach (ComponentEventModel componentEvent in subjectModel.Events)
-            {
                 builder.Append($$"""
-                                 
-                                 
-                                 {{i}}    internal void {{componentEvent.DisableMethodName}}({{subjectModel.Component.FullName}} component)
+                                 {{i}}{{subjectModel.Accessibility}} partial class {{subjectModel.Name}}{{typeParameters}}{{constraints}}
+                                 {{i}}{
+                                 {{i}}    /// <inheritdoc />
+                                 {{i}}    protected override {{subjectModel.Name}} Self => this;
+                                 """);
+
+                foreach (ComponentEventModel componentEvent in subjectModel.Events)
+                    builder.Append($"""
+
+
+                                    {i}    private readonly global::System.Collections.Generic.HashSet<{subjectModel.Component.FullName}> {componentEvent.FieldName} = new();
+                                    {i}    private readonly global::System.Collections.Generic.HashSet<{subjectModel.Component.FullName}> {componentEvent.PendingRemovalFieldName} = new();
+                                    """);
+
+                builder.Append($$"""
+
+
+                                 {{i}}    private global::System.Int32 {{subjectModel.IterationDepthFieldName}};
+
+                                 {{i}}    /// <inheritdoc />
+                                 {{i}}    protected override void OnComponentAdded({{subjectModel.Component.FullName}} component)
                                  {{i}}    {
-                                 {{i}}        if ({{subjectModel.IterationDepthFieldName}} > 0)
-                                 {{i}}        {
-                                 {{i}}            {{componentEvent.PendingRemovalFieldName}}.Add(component);
-                                 {{i}}        }
-                                 {{i}}        else
-                                 {{i}}        {
-                                 {{i}}            {{componentEvent.PendingRemovalFieldName}}.Remove(component);
-                                 {{i}}            {{componentEvent.FieldName}}.Remove(component);
-                                 {{i}}        }
+                                 {{i}}        RegisterComponentEvents(component);
+                                 {{i}}    }
+
+                                 {{i}}    /// <inheritdoc />
+                                 {{i}}    protected override void OnComponentRemoved({{subjectModel.Component.FullName}} component)
+                                 {{i}}    {
+                                 {{i}}        UnregisterComponentEvents(component);
+                                 {{i}}    }
+
+                                 {{i}}    private void RegisterComponentEvents({{subjectModel.Component.FullName}} component)
+                                 {{i}}    {
+                                 """);
+
+                foreach (ComponentEventModel componentEvent in subjectModel.Events)
+                    builder.Append($"""
+
+                                    {i}        {componentEvent.FieldName}.Add(component);
+                                    {i}        {componentEvent.PendingRemovalFieldName}.Remove(component);
+                                    """);
+
+                builder.Append($$"""
+
+                                 {{i}}    }
+
+                                 {{i}}    private void UnregisterComponentEvents({{subjectModel.Component.FullName}} component)
+                                 {{i}}    {
+                                 """);
+
+                foreach (ComponentEventModel componentEvent in subjectModel.Events)
+                    builder.Append($"""
+
+                                    {i}        {componentEvent.DisableMethodName}(component);
+                                    """);
+
+                builder.Append($$"""
+
                                  {{i}}    }
                                  """);
-            }
-            
-            builder.Append($$"""
-                             
-                             
-                             {{i}}    private void {{subjectModel.FlushMethodName}}()
-                             {{i}}    {
-                             """);
 
-            foreach (ComponentEventModel componentEvent in subjectModel.Events)
-            {
+                foreach (ComponentEventModel componentEvent in subjectModel.Events)
+                    builder.Append($$"""
+
+
+                                     {{i}}    internal void {{componentEvent.DisableMethodName}}({{subjectModel.Component.FullName}} component)
+                                     {{i}}    {
+                                     {{i}}        if ({{subjectModel.IterationDepthFieldName}} > 0)
+                                     {{i}}        {
+                                     {{i}}            {{componentEvent.PendingRemovalFieldName}}.Add(component);
+                                     {{i}}        }
+                                     {{i}}        else
+                                     {{i}}        {
+                                     {{i}}            {{componentEvent.PendingRemovalFieldName}}.Remove(component);
+                                     {{i}}            {{componentEvent.FieldName}}.Remove(component);
+                                     {{i}}        }
+                                     {{i}}    }
+                                     """);
+
                 builder.Append($$"""
-                                 
-                                 {{i}}        foreach (var component in {{componentEvent.PendingRemovalFieldName}})
-                                 {{i}}        {
-                                 {{i}}            {{componentEvent.FieldName}}.Remove(component);
-                                 {{i}}        }
-                                 {{i}}        {{componentEvent.PendingRemovalFieldName}}.Clear();
-                                 """);
-            }
 
-            builder.Append($$"""
-                             
-                             {{i}}    }
-                             """);
 
-            foreach (ComponentEventModel componentEvent in subjectModel.Events)
-            {
-                builder.Append($$"""
-                                 
-                                 
-                                 {{i}}    {{componentEvent.SubjectMethodAccessibility}} partial void {{componentEvent.SubjectMethodName}}({{componentEvent.Signature}})
+                                 {{i}}    private void {{subjectModel.FlushMethodName}}()
                                  {{i}}    {
-                                 {{i}}        {{subjectModel.IterationDepthFieldName}} += 1;
-                                 {{i}}        try
-                                 {{i}}        {
-                                 {{i}}            foreach (var component in {{componentEvent.FieldName}})
-                                 {{i}}            {
-                                 {{i}}                component.{{componentEvent.ComponentMethodName}}({{componentEvent.Invocation}});
-                                 {{i}}            }
-                                 {{i}}        }
-                                 {{i}}        finally
-                                 {{i}}        {
-                                 {{i}}            {{subjectModel.IterationDepthFieldName}} -= 1;
-                                 {{i}}            if ({{subjectModel.IterationDepthFieldName}} == 0)
-                                 {{i}}                {{subjectModel.FlushMethodName}}();
-                                 {{i}}        }
+                                 """);
+
+                foreach (ComponentEventModel componentEvent in subjectModel.Events)
+                    builder.Append($$"""
+
+                                     {{i}}        foreach (var component in {{componentEvent.PendingRemovalFieldName}})
+                                     {{i}}        {
+                                     {{i}}            {{componentEvent.FieldName}}.Remove(component);
+                                     {{i}}        }
+                                     {{i}}        {{componentEvent.PendingRemovalFieldName}}.Clear();
+                                     """);
+
+                builder.Append($$"""
+
                                  {{i}}    }
                                  """);
-            }
 
-            builder.Append($$"""
-                             
-                             {{i}}}
-                             """);
-        });
-        
+                foreach (ComponentEventModel componentEvent in subjectModel.Events)
+                    builder.Append($$"""
+
+
+                                     {{i}}    {{componentEvent.SubjectMethodAccessibility}} partial void {{componentEvent.SubjectMethodName}}({{componentEvent.Signature}})
+                                     {{i}}    {
+                                     {{i}}        {{subjectModel.IterationDepthFieldName}} += 1;
+                                     {{i}}        try
+                                     {{i}}        {
+                                     {{i}}            foreach (var component in {{componentEvent.FieldName}})
+                                     {{i}}            {
+                                     {{i}}                component.{{componentEvent.ComponentMethodName}}({{componentEvent.Invocation}});
+                                     {{i}}            }
+                                     {{i}}        }
+                                     {{i}}        finally
+                                     {{i}}        {
+                                     {{i}}            {{subjectModel.IterationDepthFieldName}} -= 1;
+                                     {{i}}            if ({{subjectModel.IterationDepthFieldName}} == 0)
+                                     {{i}}                {{subjectModel.FlushMethodName}}();
+                                     {{i}}        }
+                                     {{i}}    }
+                                     """);
+
+                builder.Append($$"""
+
+                                 {{i}}}
+                                 """);
+            });
+
         return sb.ToString();
     }
-    
+
     private static String GenerateComponentSource(ComponentSubjectModel subjectModel)
     {
         ComponentModel componentModel = subjectModel.Component;
-        
+
         StringBuilder sb = new();
 
         sb.AppendPreamble<ComponentGenerator>().AppendNamespace(componentModel.Namespace);
 
-        sb.AppendNestedClass(componentModel.ContainingType, (builder, i) =>
-        {
-            String typeParameters = componentModel.TypeParameters ?? String.Empty;
-            String constraints = String.IsNullOrWhiteSpace(componentModel.TypeConstraints) ? String.Empty : $" {componentModel.TypeConstraints}";
-            
-            builder.Append($$"""
-                             {{i}}{{componentModel.Accessibility}} partial class {{componentModel.Name}}{{typeParameters}}{{constraints}}
-                             {{i}}{
-                             """);
-
-            foreach (ComponentEventModel componentEvent in subjectModel.Events)
+        sb.AppendNestedClass(componentModel.ContainingType,
+            (builder, i) =>
             {
+                String typeParameters = componentModel.TypeParameters ?? String.Empty;
+                String constraints = String.IsNullOrWhiteSpace(componentModel.TypeConstraints) ? String.Empty : $" {componentModel.TypeConstraints}";
+
                 builder.Append($$"""
-                                 
-                                 {{i}}    /// <inheritdoc cref="{{NameTools.SanitizeForDocumentationReference(subjectModel.FullName)}}.{{componentEvent.SubjectMethodName}}" />
-                                 {{i}}    public virtual void {{componentEvent.ComponentMethodName}}({{componentEvent.Signature}})
-                                 {{i}}    {
-                                 {{i}}        Subject.{{componentEvent.DisableMethodName}}(this);
-                                 {{i}}    }
+                                 {{i}}{{componentModel.Accessibility}} partial class {{componentModel.Name}}{{typeParameters}}{{constraints}}
+                                 {{i}}{
                                  """);
-            }
 
-            builder.Append($$"""
+                foreach (ComponentEventModel componentEvent in subjectModel.Events)
+                    builder.Append($$"""
 
-                             {{i}}}
-                             """);
-        });
+                                     {{i}}    /// <inheritdoc cref="{{NameTools.SanitizeForDocumentationReference(subjectModel.FullName)}}.{{componentEvent.SubjectMethodName}}" />
+                                     {{i}}    public virtual void {{componentEvent.ComponentMethodName}}({{componentEvent.Signature}})
+                                     {{i}}    {
+                                     {{i}}        Subject.{{componentEvent.DisableMethodName}}(this);
+                                     {{i}}    }
+                                     """);
+
+                builder.Append($$"""
+
+                                 {{i}}}
+                                 """);
+            });
 
         return sb.ToString();
     }

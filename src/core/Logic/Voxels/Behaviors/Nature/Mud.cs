@@ -17,8 +17,8 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 /// </summary>
 public partial class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
 {
-    private static readonly Temperature crackingTemperature = new() { DegreesCelsius = 35.0 };
-    
+    private static readonly Temperature crackingTemperature = new() {DegreesCelsius = 35.0};
+
     [Constructible]
     private Mud(Block subject) : base(subject)
     {
@@ -43,7 +43,7 @@ public partial class Mud : BlockBehavior, IBehavior<Mud, BlockBehavior, Block>
     private static void OnGrowthAttempt(Plantable.IGrowthAttemptMessage message)
     {
         if (message.Fluid != Voxels.Fluids.Instance.FreshWater) return;
-        
+
         FluidLevel remaining = FluidLevel.Full - message.Level;
 
         message.World.SetContent(remaining >= FluidLevel.One

@@ -16,15 +16,15 @@ public interface IOrientable
     /// <summary>
     ///     Gets the forward vector of this object.
     /// </summary>
-    public Vector3d Forward { get; }
+    Vector3d Forward { get; }
 
     /// <summary>
     ///     Gets the right vector of this object.
     /// </summary>
-    public Vector3d Right { get; }
+    Vector3d Right { get; }
 
     /// <summary>
     ///     Gets the position of this object.
     /// </summary>
-    public Vector3d Position { get; }
+    Vector3d Position { get; }
 }

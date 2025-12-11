@@ -37,7 +37,7 @@ public partial class Body : ActorComponent
     private Vector3d force;
 
     private Boolean isEnabled = true;
-    
+
     private Body(Actor subject, Double mass, BoundingVolume boundingVolume) : base(subject)
     {
         this.mass = mass;
@@ -45,12 +45,9 @@ public partial class Body : ActorComponent
 
         Transform = subject.GetRequiredComponent<Transform>();
     }
-    
+
     [Constructible]
-    private Body(Actor actor, Characteristics characteristics) : this(actor, characteristics.Mass, characteristics.BoundingVolume)
-    {
-        
-    }
+    private Body(Actor actor, Characteristics characteristics) : this(actor, characteristics.Mass, characteristics.BoundingVolume) {}
 
     /// <summary>
     ///     Get the transform of the body, which contains the position and orientation in the world.

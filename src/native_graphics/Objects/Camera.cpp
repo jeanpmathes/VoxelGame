@@ -61,27 +61,15 @@ void Camera::SetOrientation(DirectX::XMFLOAT3 const& front, DirectX::XMFLOAT3 co
 
 DirectX::XMFLOAT3 const& Camera::GetPosition() const { return m_position; }
 
-DirectX::XMFLOAT4X4 const& Camera::GetViewMatrix() const
-{
-    return m_vMatrix;
-}
+DirectX::XMFLOAT4X4 const& Camera::GetViewMatrix() const { return m_vMatrix; }
 
-DirectX::XMFLOAT4X4 const& Camera::GetProjectionMatrix() const
-{
-    return m_pMatrix;
-}
+DirectX::XMFLOAT4X4 const& Camera::GetProjectionMatrix() const { return m_pMatrix; }
 
 DirectX::XMFLOAT4X4 const& Camera::GetViewProjectionMatrix() const { return m_vpMatrix; }
 
-float Camera::GetNearPlane() const
-{
-    return m_near;
-}
+float Camera::GetNearPlane() const { return m_near; }
 
-float Camera::GetFarPlane() const
-{
-    return m_far;
-}
+float Camera::GetFarPlane() const { return m_far; }
 
 void Camera::SetFov(float const fov) { m_fov = fov; }
 

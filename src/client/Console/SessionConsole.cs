@@ -30,7 +30,7 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider
     private readonly ConsoleOutput output;
 
     private readonly Session session;
-    
+
     private Boolean executedWorldReadyScript;
 
     [Constructible]
@@ -56,8 +56,9 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider
     public void OnWorldReady()
     {
         if (executedWorldReadyScript) return;
+
         executedWorldReadyScript = true;
-        
+
         LogTryingToExecuteWorldReadyScript(logger);
 
         Boolean executed = RunScript.Do(new Context(output, commandInvoker, session.Player), WorldReadyScript, ignoreErrors: true);

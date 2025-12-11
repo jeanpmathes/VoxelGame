@@ -17,7 +17,7 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
     private readonly Dictionary<Type, Event> events = new();
 
     /// <inheritdoc />
-    public void Subscribe<TEventMessage>(Action<TEventMessage> handler) 
+    public void Subscribe<TEventMessage>(Action<TEventMessage> handler)
     {
         if (events.TryGetValue(typeof(TEventMessage), out Event? @event) && @event is Event<TEventMessage> specific) specific.Subscribe(handler, validator);
 
@@ -26,7 +26,7 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
 
 
     /// <inheritdoc />
-    public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single) 
+    public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single)
     {
         if (events.TryGetValue(typeof(TEventMessage), out Event? existingEvent))
         {
@@ -44,9 +44,9 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
         return @event;
     }
 
-    private class Event {}
+    private class Event;
 
-    private sealed class Event<TEventMessage>(Boolean single) : Event, IEvent<TEventMessage> 
+    private sealed class Event<TEventMessage>(Boolean single) : Event, IEvent<TEventMessage>
     {
         private readonly List<Action<TEventMessage>> handlers = [];
 

@@ -69,14 +69,12 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <summary>
     ///     The states of the block.
     /// </summary>
-    [LateInitialization]
-    public partial StateSet States { get; protected set; }
-    
+    [LateInitialization] public partial StateSet States { get; protected set; }
+
     /// <summary>
-    /// The dominant color provider for the block.
+    ///     The dominant color provider for the block.
     /// </summary>
-    [LateInitialization]
-    protected partial IDominantColorProvider DominantColorProvider { get; private set; }
+    [LateInitialization] protected partial IDominantColorProvider DominantColorProvider { get; private set; }
 
     [LateInitialization] private partial IEvent<IActorCollisionMessage> ActorCollision { get; set; }
 
@@ -152,9 +150,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Gets the unique integer ID of the block.
     /// </summary>
     public UInt32 BlockID { get; }
-    
+
     /// <summary>
-    /// The named ID of the block.
+    ///     The named ID of the block.
     /// </summary>
     public CID ContentID { get; }
 
@@ -183,11 +181,17 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Aspect to determine whether the block is replaceable in a given state.
     /// </summary>
     public Aspect<Boolean, State> Replaceability { get; }
-    
+
     /// <summary>
     ///     Defines the type of meshing this block uses.
     /// </summary>
     public abstract Meshable Meshable { get; }
+
+    /// <summary>
+    ///     Get whether the block is fully empty, meaning it has no physical presence.
+    ///     This also implies that the block is replaceable in any state.
+    /// </summary>
+    public Boolean IsEmpty { get; private set; }
 
     /// <inheritdoc />
     public RID Identifier => ContentID.GetResourceID<Block>();
@@ -196,13 +200,13 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     public ResourceType Type => ResourceTypes.Block;
 
     /// <inheritdoc />
+    CID IContent.ID => ContentID;
+
+    /// <inheritdoc />
     CID IIdentifiable<CID>.ID => ContentID;
 
     /// <inheritdoc />
     UInt32 IIdentifiable<UInt32>.ID => BlockID;
-    
-    /// <inheritdoc />
-    CID IContent.ID => ContentID;
 
     /// <summary>
     ///     Initialize the block with its states and internal values.
@@ -224,7 +228,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             validator.SetScope(behavior);
             builder.Enclose(Reflections.GetLongName(behavior.GetType()), behavior.DefineState);
         }
-        
+
         validator.SetScope(this);
 
         States = builder.Build(this, offset);
@@ -338,14 +342,14 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <param name="visuals">The visual configuration to use for the block.</param>
     /// <param name="validator">The validator to use for validation.</param>
     public void Activate(
-        ITextureIndexProvider textureIndexProvider, 
-        IDominantColorProvider dominantColorProvider, 
-        IModelProvider modelProvider, 
-        VisualConfiguration visuals, 
+        ITextureIndexProvider textureIndexProvider,
+        IDominantColorProvider dominantColorProvider,
+        IModelProvider modelProvider,
+        VisualConfiguration visuals,
         IValidator validator)
     {
         DominantColorProvider = dominantColorProvider;
-        
+
         BuildBoundingVolumes();
         BuildMeshes(textureIndexProvider, modelProvider, visuals, validator);
     }
@@ -415,19 +419,13 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     }
 
     /// <summary>
-    /// Get whether the block is fully empty, meaning it has no physical presence.
-    /// This also implies that the block is replaceable in any state.
-    /// </summary>
-    public Boolean IsEmpty { get; private set; }
-
-    /// <summary>
-    /// Get the dominant color of the block in the given state.
+    ///     Get the dominant color of the block in the given state.
     /// </summary>
     /// <param name="state">The state of the block.</param>
     /// <param name="positionTint">The tint at the block position.</param>
     /// <returns>The dominant color of the block.</returns>
     public abstract ColorS GetDominantColor(State state, ColorS positionTint);
-    
+
     /// <summary>
     ///     This method is called when an actor collides with this block.
     /// </summary>
@@ -446,7 +444,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         actorCollision.State = potentialBlock.Value;
 
         ActorCollision.Publish(actorCollision);
-        
+
         IEventMessage<ActorCollisionMessage>.Pool.Return(actorCollision);
     }
 
@@ -471,7 +469,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         actorInteraction.State = potentialBlock.Value;
 
         ActorInteraction.Publish(actorInteraction);
-        
+
         IEventMessage<ActorInteractionMessage>.Pool.Return(actorInteraction);
     }
 
@@ -487,7 +485,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         State? block = world.GetBlock(position);
 
         if (block == null) return false;
-        
+
         return block.Value.IsReplaceable && IsPlacementAllowed.GetValue(original: true, (world, position, actor));
     }
 
@@ -504,7 +502,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             return false;
 
         State placementState = GetPlacementState(world, position, actor);
-        
+
         if (Placement.HasSubscribers)
         {
             PlacementMessage placement = IEventMessage<PlacementMessage>.Pool.Get();
@@ -515,7 +513,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             placement.PlacementState = placementState;
 
             Placement.Publish(placement);
-            
+
             IEventMessage<PlacementMessage>.Pool.Return(placement);
         }
         else
@@ -528,9 +526,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         placementCompleted.World = world;
         placementCompleted.Position = position;
         placementCompleted.Actor = actor;
-        
+
         PlacementCompleted.Publish(placementCompleted);
-        
+
         IEventMessage<PlacementCompletedMessage>.Pool.Return(placementCompleted);
 
         return true;
@@ -586,30 +584,30 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         if (Destruction.HasSubscribers)
         {
             DestructionMessage destruction = IEventMessage<DestructionMessage>.Pool.Get();
-            
+
             destruction.World = world;
             destruction.Position = position;
             destruction.State = block;
             destruction.Actor = actor;
 
             Destruction.Publish(destruction);
-            
+
             IEventMessage<DestructionMessage>.Pool.Return(destruction);
         }
         else
         {
             world.SetDefaultBlock(position);
         }
-        
+
         DestructionCompletedMessage destructionCompleted = IEventMessage<DestructionCompletedMessage>.Pool.Get();
-        
+
         destructionCompleted.World = world;
         destructionCompleted.Position = position;
         destructionCompleted.State = block;
         destructionCompleted.Actor = actor;
-        
+
         DestructionCompleted.Publish(destructionCompleted);
-        
+
         IEventMessage<DestructionCompletedMessage>.Pool.Return(destructionCompleted);
 
         return true;
@@ -647,19 +645,19 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     public void DoStateUpdate(World world, Vector3i position, Content oldContent, Content newContent)
     {
         if (!StateUpdate.HasSubscribers) return;
-        
+
         if (oldContent.Block.Block != this)
             return;
-        
+
         StateUpdateMessage stateUpdate = IEventMessage<StateUpdateMessage>.Pool.Get();
 
         stateUpdate.World = world;
         stateUpdate.Position = position;
         stateUpdate.OldState = oldContent;
         stateUpdate.NewState = newContent;
-        
+
         StateUpdate.Publish(stateUpdate);
-        
+
         IEventMessage<StateUpdateMessage>.Pool.Return(stateUpdate);
     }
 
@@ -667,16 +665,16 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     public void DoNeighborUpdate(World world, Vector3i position, State state, Side side)
     {
         if (!NeighborUpdate.HasSubscribers) return;
-        
+
         NeighborUpdateMessage neighborUpdate = IEventMessage<NeighborUpdateMessage>.Pool.Get();
 
         neighborUpdate.World = world;
         neighborUpdate.Position = position;
         neighborUpdate.State = state;
         neighborUpdate.Side = side;
-        
+
         NeighborUpdate.Publish(neighborUpdate);
-        
+
         IEventMessage<NeighborUpdateMessage>.Pool.Return(neighborUpdate);
     }
 
@@ -692,7 +690,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         randomUpdate.State = state;
 
         RandomUpdate.Publish(randomUpdate);
-            
+
         IEventMessage<RandomUpdateMessage>.Pool.Return(randomUpdate);
     }
 
@@ -708,7 +706,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         scheduledUpdate.State = state;
 
         ScheduledUpdate.Publish(scheduledUpdate);
-            
+
         IEventMessage<ScheduledUpdateMessage>.Pool.Return(scheduledUpdate);
     }
 
@@ -722,9 +720,9 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         generatorUpdate.Content = content;
 
         GeneratorUpdate.Publish(generatorUpdate);
-        
+
         content = generatorUpdate.Content;
-        
+
         IEventMessage<GeneratorUpdateMessage>.Pool.Return(generatorUpdate);
 
         return content;
@@ -816,17 +814,17 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The body of the actor that collided with the block.
         /// </summary>
-        public Body Body { get; }
+        Body Body { get; }
 
         /// <summary>
         ///     The position of the block in the world.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block at the position.
         /// </summary>
-        public State State { get; }
+        State State { get; }
     }
 
     /// <summary>
@@ -838,17 +836,17 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The actor that interacted with the block.
         /// </summary>
-        public Actor Actor { get; }
+        Actor Actor { get; }
 
         /// <summary>
         ///     The position of the block in the world.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block at the position.
         /// </summary>
-        public State State { get; }
+        State State { get; }
     }
 
     /// <summary>
@@ -860,22 +858,22 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The world in which the placement occurs.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position at which the placement is requested.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The actor that performs placement.
         /// </summary>
-        public Actor? Actor { get; }
-        
+        Actor? Actor { get; }
+
         /// <summary>
-        /// The state this block would be placed as if there were no event subscribers.
+        ///     The state this block would be placed as if there were no event subscribers.
         /// </summary>
-        public State PlacementState { get; }
+        State PlacementState { get; }
     }
 
     /// <summary>
@@ -887,17 +885,17 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The world in which the placement was completed.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position at which the block was placed.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The actor that placed the block.
         /// </summary>
-        public Actor? Actor { get; }
+        Actor? Actor { get; }
     }
 
     /// <summary>
@@ -909,22 +907,22 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The world in which the destruction occurs.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position at which the destruction is requested.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block at the position.
         /// </summary>
-        public State State { get; }
+        State State { get; }
 
         /// <summary>
         ///     The actor that performs destruction.
         /// </summary>
-        public Actor? Actor { get; set; }
+        Actor? Actor { get; set; }
     }
 
     /// <summary>
@@ -936,22 +934,22 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The world in which the destruction was completed.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position at which the block was destroyed.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block that was destroyed.
         /// </summary>
-        public State State { get; }
+        State State { get; }
 
         /// <summary>
         ///     The actor that destroyed the block.
         /// </summary>
-        public Actor? Actor { get; }
+        Actor? Actor { get; }
     }
 
     /// <summary>
@@ -963,27 +961,27 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The world in which the content update occurs.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The old state of this block at the position.
         /// </summary>
-        public Content OldState { get; }
+        Content OldState { get; }
 
         /// <summary>
         ///     The new state of this block at the position.
         /// </summary>
-        public Content NewState { get; }
+        Content NewState { get; }
 
         /// <summary>
-        /// Undo the state update. Will not prevent the event from being sent to other subscribers.
+        ///     Undo the state update. Will not prevent the event from being sent to other subscribers.
         /// </summary>
-        public void Undo()
+        void Undo()
         {
             World.SetContent(OldState, Position, updateBlock: false);
         }
@@ -998,22 +996,22 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The world in which the neighbor update occurs.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of this, unchanged, block at the position.
         /// </summary>
-        public State State { get; }
+        State State { get; }
 
         /// <summary>
         ///     The side of the block where the change happened.
         /// </summary>
-        public Side Side { get; }
+        Side Side { get; }
     }
 
     /// <summary>
@@ -1025,17 +1023,17 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The world in which the random update occurs.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block.
         /// </summary>
-        public State State { get; }
+        State State { get; }
     }
 
     /// <summary>
@@ -1047,17 +1045,17 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The world in which the scheduled update occurs.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the block.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the block.
         /// </summary>
-        public State State { get; }
+        State State { get; }
     }
 
     /// <summary>
@@ -1069,7 +1067,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
         /// <summary>
         ///     The content that is generated, containing this block.
         /// </summary>
-        public Content Content { get; set; }
+        Content Content { get; set; }
     }
 
     /// <summary>

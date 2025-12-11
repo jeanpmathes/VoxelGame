@@ -28,7 +28,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
 
         subject.BoundingVolume.ContributeFunction(GetBoundingVolume, exclusive: true);
     }
-    
+
     /// <summary>
     ///     The height aspect.
     /// </summary>

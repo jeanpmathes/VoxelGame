@@ -17,7 +17,7 @@ public class LateInitializationGeneratorTests
     {
         return TestTools.RunGenerator<LateInitializationGenerator>(source, "_LateInitialization.g.cs");
     }
-    
+
     [Fact]
     public void LateInitializationGenerator_ShouldGeneratePropertyForReferenceTypeProperty()
     {
@@ -63,7 +63,8 @@ public class LateInitializationGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
@@ -112,12 +113,13 @@ public class LateInitializationGeneratorTests
                                }
 
                                """;
-        
-        Assert.Equal(newText, RunGenerator(oldText),
+
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }
-    
+
     [Fact]
     public void LateInitializationGenerator_ShouldPreserveAccessibilityModifiers()
     {
@@ -163,7 +165,8 @@ public class LateInitializationGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }

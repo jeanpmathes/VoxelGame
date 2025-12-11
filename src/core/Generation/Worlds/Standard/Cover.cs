@@ -19,27 +19,6 @@ namespace VoxelGame.Core.Generation.Worlds.Standard;
 /// </summary>
 public abstract class Cover
 {
-    /// <summary>
-    ///     How the snow is generated.
-    /// </summary>
-    protected enum Snow
-    {
-        /// <summary>
-        ///     No snow is generated.
-        /// </summary>
-        None,
-
-        /// <summary>
-        ///     Normal snow is generated.
-        /// </summary>
-        Normal,
-
-        /// <summary>
-        ///     Pulverized snow is generated.
-        /// </summary>
-        Pulverized
-    }
-
     private readonly Snow snowMode;
 
     /// <summary>
@@ -69,7 +48,7 @@ public abstract class Cover
                 1 => -1,
                 _ => 0
             };
-            
+
 
             Block snow = snowMode == Snow.Pulverized
                 ? Blocks.Instance.Environment.PulverizedSnow
@@ -89,6 +68,27 @@ public abstract class Cover
     private static Content GetTallGrassContent(TallGrass.StageState stageState)
     {
         return new Content(TallGrass.GetState(Blocks.Instance.Environment.TallGrass.States.GenerationDefault, stageState), FluidInstance.Default);
+    }
+
+    /// <summary>
+    ///     How the snow is generated.
+    /// </summary>
+    protected enum Snow
+    {
+        /// <summary>
+        ///     No snow is generated.
+        /// </summary>
+        None,
+
+        /// <summary>
+        ///     Normal snow is generated.
+        /// </summary>
+        Normal,
+
+        /// <summary>
+        ///     Pulverized snow is generated.
+        /// </summary>
+        Pulverized
     }
 
     /// <summary>

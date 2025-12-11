@@ -30,7 +30,7 @@ public partial class TargetingDisplay : ActorComponent
     private readonly Targeting targeting;
 
     private (State state, Vector3i position)? targeted;
-    
+
     [Constructible]
     private TargetingDisplay(Player player, Engine engine) : base(player)
     {
@@ -84,7 +84,7 @@ public partial class TargetingDisplay : ActorComponent
 
         if (collider != null && targeted != newTarget)
             effect.SetTarget(collider.Value, color);
-        
+
         targeted = newTarget;
         effect.IsEnabled = collider != null;
     }
@@ -96,10 +96,7 @@ public partial class TargetingDisplay : ActorComponent
     {
         base.Dispose(disposing);
 
-        if (disposing)
-        {
-            effect.Dispose();
-        }
+        if (disposing) effect.Dispose();
     }
 
     #endregion DISPOSABLE

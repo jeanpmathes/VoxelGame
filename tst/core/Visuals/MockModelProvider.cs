@@ -13,12 +13,9 @@ namespace VoxelGame.Core.Tests.Visuals;
 public class MockModelProvider : IModelProvider
 {
     public IResourceContext? Context { get; set; }
-    
-    public void SetUp()
-    {
-        
-    }
-    
+
+    public void SetUp() {}
+
     public Model GetModel(RID identifier, Vector3i? part = null)
     {
         return Model.CreateFallback();

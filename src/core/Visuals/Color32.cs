@@ -81,7 +81,7 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public static Color32 FromRGBA(Byte red, Byte green, Byte blue, Byte alpha)
     {
-        return new Color32(red << Format.R | green << Format.G | blue << Format.B | alpha << Format.A);
+        return new Color32((red << Format.R) | (green << Format.G) | (blue << Format.B) | (alpha << Format.A));
     }
 
     /// <summary>
@@ -175,8 +175,8 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public Byte R
     {
-        get => (Byte) (bgra >> Format.R & ChannelMask);
-        set => bgra = bgra & ~(ChannelMask << Format.R) | value << Format.R;
+        get => (Byte) ((bgra >> Format.R) & ChannelMask);
+        set => bgra = (bgra & ~(ChannelMask << Format.R)) | (value << Format.R);
     }
 
     /// <summary>
@@ -184,8 +184,8 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public Byte G
     {
-        get => (Byte) (bgra >> Format.G & ChannelMask);
-        set => bgra = bgra & ~(ChannelMask << Format.G) | value << Format.G;
+        get => (Byte) ((bgra >> Format.G) & ChannelMask);
+        set => bgra = (bgra & ~(ChannelMask << Format.G)) | (value << Format.G);
     }
 
     /// <summary>
@@ -193,8 +193,8 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public Byte B
     {
-        get => (Byte) (bgra >> Format.B & ChannelMask);
-        set => bgra = bgra & ~(ChannelMask << Format.B) | value << Format.B;
+        get => (Byte) ((bgra >> Format.B) & ChannelMask);
+        set => bgra = (bgra & ~(ChannelMask << Format.B)) | (value << Format.B);
     }
 
     /// <summary>
@@ -202,8 +202,8 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public Byte A
     {
-        get => (Byte) (bgra >> Format.A & ChannelMask);
-        set => bgra = bgra & ~(ChannelMask << Format.A) | value << Format.A;
+        get => (Byte) ((bgra >> Format.A) & ChannelMask);
+        set => bgra = (bgra & ~(ChannelMask << Format.A)) | (value << Format.A);
     }
 
     /// <inheritdoc />
@@ -227,7 +227,7 @@ public struct Color32 : IEquatable<Color32>
         if (bits == 0)
             return new Color32(bgra: 0);
 
-        var divisor = (Byte) (1 << 8 - bits);
+        var divisor = (Byte) (1 << (8 - bits));
 
         return FromRGBA(
             (Byte) (R / divisor * divisor),

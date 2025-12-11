@@ -19,7 +19,7 @@ namespace VoxelGame.Core.Generation.Worlds.Standard;
 public sealed class GenerationContext(Generator generator, ChunkPosition hint) : BaseGenerationContext(generator)
 {
     private ColumnSampleStore? columns = generator.GetColumns(hint);
-    
+
     /// <inheritdoc />
     public override IEnumerable<Content> GenerateColumn(Int32 x, Int32 z, (Int32 start, Int32 end) heightRange)
     {
@@ -47,7 +47,7 @@ public sealed class GenerationContext(Generator generator, ChunkPosition hint) :
         if (!disposed)
         {
             if (disposing && columns != null)
-                generator.AddColumns(columns);   
+                generator.AddColumns(columns);
 
             disposed = true;
         }

@@ -228,10 +228,7 @@ public sealed partial class Client : Graphics.Core.Client
     {
         if (disposed) return;
 
-        if (disposing)
-        {
-            SizeChanged -= OnSizeChanged;
-        }
+        if (disposing) SizeChanged -= OnSizeChanged;
 
         base.Dispose(disposing);
 

@@ -15,5 +15,5 @@ public interface IMeshable
     /// <summary>
     ///     The type of meshable this behavior supports.
     /// </summary>
-    public Meshable Type { get; }
+    Meshable Type { get; }
 }

@@ -18,5 +18,5 @@ public interface IContributor<TValue, in TContext>
     /// <param name="original">The original value to contribute to.</param>
     /// <param name="context">The context in which the value is being evaluated.</param>
     /// <returns>The value with the contribution applied.</returns>
-    public TValue Contribute(TValue original, TContext context);
+    TValue Contribute(TValue original, TContext context);
 }

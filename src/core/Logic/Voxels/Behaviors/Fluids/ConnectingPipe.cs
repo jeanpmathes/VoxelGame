@@ -79,20 +79,20 @@ public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, B
         Model frontSurface = context.ModelProvider.GetModel(Models.Get().surface);
 
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
-            connectors = VoxelGame.Core.Visuals.Models.CreateModelsForAllSides(frontConnector, Model.TransformationMode.Reshape);
+            connectors = Core.Visuals.Models.CreateModelsForAllSides(frontConnector, Model.TransformationMode.Reshape);
 
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
-            surfaces = VoxelGame.Core.Visuals.Models.CreateModelsForAllSides(frontSurface, Model.TransformationMode.Reshape);
+            surfaces = Core.Visuals.Models.CreateModelsForAllSides(frontSurface, Model.TransformationMode.Reshape);
 
         Sides sides = siding.GetSides(context.State);
 
         return Model.Combine(center,
-            sides.HasFlag(Sides.Front) ? connectors.front : surfaces.front,
-            sides.HasFlag(Sides.Back) ? connectors.back : surfaces.back,
-            sides.HasFlag(Sides.Left) ? connectors.left : surfaces.left,
-            sides.HasFlag(Sides.Right) ? connectors.right : surfaces.right,
-            sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
-            sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top)
+                sides.HasFlag(Sides.Front) ? connectors.front : surfaces.front,
+                sides.HasFlag(Sides.Back) ? connectors.back : surfaces.back,
+                sides.HasFlag(Sides.Left) ? connectors.left : surfaces.left,
+                sides.HasFlag(Sides.Right) ? connectors.right : surfaces.right,
+                sides.HasFlag(Sides.Bottom) ? connectors.bottom : surfaces.bottom,
+                sides.HasFlag(Sides.Top) ? connectors.top : surfaces.top)
             .CreateMesh(context.TextureIndexProvider, Subject.Get<TextureOverride>()?.Textures.Get());
     }
 
@@ -157,7 +157,6 @@ public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, B
         }
 
         if (sides.Count() == 1)
-        {
             sides = sides.Single() switch
             {
                 Side.Front or Side.Back => Sides.Front | Sides.Back,
@@ -166,7 +165,6 @@ public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, B
                 Side.All => Sides.All,
                 _ => throw Exceptions.UnsupportedEnumValue(sides)
             };
-        }
 
         return sides;
     }

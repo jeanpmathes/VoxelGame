@@ -163,11 +163,9 @@ public sealed partial class Map : IMap, IDisposable
         this.biomes = biomes;
     }
 
-    [LateInitialization]
-    internal partial SamplingNoise SamplingNoise { get; private set; }
-    
-    [LateInitialization]
-    internal partial GeneratingNoise GeneratingNoise { get; private set; }
+    [LateInitialization] internal partial SamplingNoise SamplingNoise { get; private set; }
+
+    [LateInitialization] internal partial GeneratingNoise GeneratingNoise { get; private set; }
 
     /// <inheritdoc />
     public Property GetPositionDebugData(Vector3d position)

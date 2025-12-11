@@ -29,7 +29,7 @@ public class Stone(CID contentID, BlockBuilder builder) : Convention<Stone>(cont
     public required Block Base { get; init; }
 
     /// <summary>
-        ///     When breaking the base stone, it will break into rubble.
+    ///     When breaking the base stone, it will break into rubble.
     ///     The block is loose and as such allows water to flow through it.
     /// </summary>
     public required Block Rubble { get; init; }
@@ -136,18 +136,16 @@ public static class StoneConvention
                 Wall = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Stone.Wall)}"), $"{Language.Wall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(
-                        connecting => connecting.Models.Initializer.ContributeConstant(
-                            (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+                        (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
                     .Complete(),
 
                 BrickWall = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Stone.BrickWall)}"), $"{Language.BrickWall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(
-                        connecting => connecting.Models.Initializer.ContributeConstant(
-                            (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+                        (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))
                     .Complete()
             };

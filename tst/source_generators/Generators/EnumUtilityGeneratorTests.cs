@@ -17,7 +17,7 @@ public class EnumUtilityGeneratorTests
     {
         return TestTools.RunGenerator<EnumUtilityGenerator>(source, "_EnumUtility.g.cs");
     }
-    
+
     [Fact]
     public void EnumUtilityGenerator_ShouldGenerateExtensionMethodForEnum()
     {
@@ -60,7 +60,8 @@ public class EnumUtilityGeneratorTests
 
                                """;
 
-        Assert.Equal(newText, RunGenerator(oldText),
+        Assert.Equal(newText,
+            RunGenerator(oldText),
             ignoreLineEndingDifferences: true,
             ignoreWhiteSpaceDifferences: true);
     }

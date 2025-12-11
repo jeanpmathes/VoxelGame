@@ -94,10 +94,7 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     {
         SideArray<Int32> sides = new();
 
-        foreach (Side side in Side.All.Sides())
-        {
-            sides[side] = GetTextureIndex(side, textureIndexProvider, isBlock, (Axis.Y, 0));
-        }
+        foreach (Side side in Side.All.Sides()) sides[side] = GetTextureIndex(side, textureIndexProvider, isBlock, (Axis.Y, 0));
 
         return sides;
     }
@@ -113,7 +110,7 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
     public Int32 GetTextureIndex(Side side, ITextureIndexProvider textureIndexProvider, Boolean isBlock, (Axis axis, Int32 turns) rotation)
     {
         (Axis axis, Int32 turns) = rotation;
-        
+
         side = MathTools.Mod(turns, m: 4) switch
         {
             0 => side,
@@ -122,7 +119,7 @@ public class TextureLayout(TID front, TID back, TID left, TID right, TID bottom,
             3 => side.Rotate(axis).Rotate(axis).Rotate(axis),
             _ => throw Exceptions.UnsupportedValue(turns)
         };
-        
+
         return side switch
         {
             Side.Front => textureIndexProvider.GetTextureIndex(front),

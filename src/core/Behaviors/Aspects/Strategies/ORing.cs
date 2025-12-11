@@ -22,10 +22,7 @@ public class ORing<TContext> : IContributionStrategy<Boolean, TContext>
     {
         Boolean result = original;
 
-        foreach (IContributor<Boolean, TContext> contributor in contributors)
-        {
-            result |= contributor.Contribute(result, context);
-        }
+        foreach (IContributor<Boolean, TContext> contributor in contributors) result |= contributor.Contribute(result, context);
 
         return result;
     }

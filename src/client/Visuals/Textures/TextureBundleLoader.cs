@@ -39,7 +39,7 @@ public sealed class TextureBundleLoader : IResourceLoader
     /// <param name="mipmap">The mipmap algorithm to use for the textures.</param>
     public TextureBundleLoader(RID identifier, Int32 resolution, Int32 maxTextures, Image.MipmapAlgorithm mipmap)
     {
-        Debug.Assert(resolution > 0 && (resolution & resolution - 1) == 0);
+        Debug.Assert(resolution > 0 && (resolution & (resolution - 1)) == 0);
 
         this.identifier = identifier;
         this.resolution = resolution;
