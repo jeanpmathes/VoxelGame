@@ -41,69 +41,73 @@ namespace vg
          * by T. Akenine-Möller, C. Crassin, J. Boksansky, L. Belcour, A. Panteleev, and O. Wright
          */
         void ComputeAnisotropicEllipseAxes(
-            in float3  intersectionPoint,
-            in float3  normal,
-            in float3  direction,
-            in float   rayConeRadiusAtIntersection,
-            in float3  positions[3],
-            in float2  textureCoordinates[3],
-            in float2  interpolatedTextureCoordinatesAtIntersection,
-            out float2 ddx,
-            out float2 ddy)
+            in float3   intersection,
+            in float3   normal,
+            in float3   direction,
+            in float    coneWidth,
+            in float3   position0,
+            in float3   position1,
+            in float3   position2,
+            in float3x2 uvs,
+            in float2   uv,
+            out float2  ddx,
+            out float2  ddy)
         {
             // Compute the two ellipse axes a1 and a2.
 
             float3       a1 = direction - dot(normal, direction) * normal;
             float3 const p1 = a1 - dot(direction, a1) * direction;
-            a1              *= rayConeRadiusAtIntersection / max(0.0001, length(p1));
+            a1              *= coneWidth / max(0.0001, length(p1));
 
             float3       a2 = cross(normal, a1);
             float3 const p2 = a2 - dot(direction, a2) * direction;
-            a2              *= rayConeRadiusAtIntersection / max(0.0001, length(p2));
+            a2              *= coneWidth / max(0.0001, length(p2));
 
-            float3       eP, delta           = intersectionPoint - positions[0];
-            float3 const e1                  = positions[1] - positions[0];
-            float3 const e2                  = positions[2] - positions[0];
+            float3       eP, delta           = intersection - position0;
+            float3 const e1                  = position1 - position0;
+            float3 const e2                  = position2 - position0;
             float const  oneOverAreaTriangle = 1.0 / dot(normal, cross(e1, e2));
 
             // Compute the two texture gradients ddx and ddy.
 
-            eP = delta + a1;
+            eP             = delta + a1;
             float const u1 = dot(normal, cross(eP, e2)) * oneOverAreaTriangle;
             float const v1 = dot(normal, cross(e1, eP)) * oneOverAreaTriangle;
-            ddx = (1.0 - u1 - v1) * textureCoordinates[0] + u1 * textureCoordinates[1] + v1 * textureCoordinates[2] -
-                interpolatedTextureCoordinatesAtIntersection;
+            ddx            = (1.0 - u1 - v1) * uvs[0] + u1 * uvs[1] + v1 * uvs[2] - uv;
 
-            eP = delta + a2;
+            eP             = delta + a2;
             float const u2 = dot(normal, cross(eP, e2)) * oneOverAreaTriangle;
             float const v2 = dot(normal, cross(e1, eP)) * oneOverAreaTriangle;
-            ddy = (1.0 - u2 - v2) * textureCoordinates[0] + u2 * textureCoordinates[1] + v2 * textureCoordinates[2] -
-                interpolatedTextureCoordinatesAtIntersection;
+            ddy            = (1.0 - u2 - v2) * uvs[0] + u2 * uvs[1] + v2 * uvs[2] - uv;
         }
 
         /**
          * \brief Calculate the final UV coordinates for a quad.
          * \param info Information about the quad.
+         * \param triangleUVs Output UV coordinates for the triangle vertices.
          * \param useTextureRepetition Whether to use texture repetition.
          * \return The final UV coordinates for the quad.
          */
-        float2 GetUV(in spatial::Info const info, bool const useTextureRepetition)
+        float2 GetUV(in spatial::Info const info, out float3x2 triangleUVs, bool const useTextureRepetition)
         {
-            float4x2 const uvs = decode::GetUVs(info.data);
+            float4x2 const quadUVs = decode::GetUVs(info.data);
 
-            float2 const uvX = uvs[info.indices.x];
-            float2 const uvY = uvs[info.indices.y];
-            float2 const uvZ = uvs[info.indices.z];
+            for (int index = 0; index < 3; index++) triangleUVs[index] = quadUVs[info.indices[index]];
 
-            float2 uv = uvX * info.barycentric.x + uvY * info.barycentric.y + uvZ * info.barycentric.z;
+            if (decode::GetTextureRotationFlag(info.data)) for (int index = 0; index < 3; index++) triangleUVs[index] =
+                spatial::RotateUV(triangleUVs[index]);
 
-            if (decode::GetTextureRotationFlag(info.data)) uv = spatial::RotateUV(uv);
+            for (int index = 0; index < 3; index++) triangleUVs[index] = native::TranslateUV(triangleUVs[index]);
 
-            uv = native::TranslateUV(uv);
+            if (useTextureRepetition)
+            {
+                float2 repetition = decode::GetTextureRepetition(info.data);
 
-            if (useTextureRepetition) uv *= decode::GetTextureRepetition(info.data);
+                for (int index = 0; index < 3; index++) triangleUVs[index] *= repetition;
+            }
 
-            return uv;
+            return triangleUVs[0] * info.barycentric.x + triangleUVs[1] * info.barycentric.y + triangleUVs[2] * info.
+                barycentric.z;
         }
 
         /**
@@ -132,63 +136,25 @@ namespace vg
             bool const             useTextureRepetition,
             bool const             isBlock)
         {
-            float2 uv           = GetUV(info, useTextureRepetition);
-            uint   textureIndex = animation::GetAnimatedTextureIndex(
+            float3x2 uvs;
+            float2   uv           = GetUV(info, uvs, useTextureRepetition);
+            uint     textureIndex = animation::GetAnimatedTextureIndex(
                 info.data,
                 PrimitiveIndex() / 2,
                 native::spatial::global.time,
                 isBlock);
 
-            // todo: optimize, as there is a lot of repeated calculation of these values, and aling storage format between ellipse function and this stuff
-
-            float3 intersectionPoint = WorldRayOrigin() + RayTCurrent() * WorldRayDirection();
-            // todo: compare with interpolated position from barycentric coords
-            float3 normal                      = info.normal;
-            float3 direction                   = WorldRayDirection();
-            float  rayConeRadiusAtIntersection = GetConeWidth(path) / 2.0f;
-            // todo: check if /2 is correct here, maybe put it into spread factor
-
-            float3 positions[3];
-            positions[0] = info.a;
-            positions[1] = info.b;
-            positions[2] = info.c;
-
-            float2         textureCoordinates[3]; // todo: the texture coordinates calculation is very ugly right now
-            float4x2 const uvs    = decode::GetUVs(info.data); // todo: align storage format
-            textureCoordinates[0] = uvs[info.indices.x];
-            textureCoordinates[1] = uvs[info.indices.y];
-            textureCoordinates[2] = uvs[info.indices.z];
-
-            if (decode::GetTextureRotationFlag(info.data))
-            {
-                textureCoordinates[0] = spatial::RotateUV(textureCoordinates[0]);
-                textureCoordinates[1] = spatial::RotateUV(textureCoordinates[1]);
-                textureCoordinates[2] = spatial::RotateUV(textureCoordinates[2]);
-            }
-
-            textureCoordinates[0] = native::TranslateUV(textureCoordinates[0]);
-            textureCoordinates[1] = native::TranslateUV(textureCoordinates[1]);
-            textureCoordinates[2] = native::TranslateUV(textureCoordinates[2]);
-
-            if (useTextureRepetition)
-            {
-                float2 repetition     = decode::GetTextureRepetition(info.data);
-                textureCoordinates[0] *= repetition;
-                textureCoordinates[1] *= repetition;
-                textureCoordinates[2] *= repetition;
-            }
-
-            float2 interpolatedTextureCoordinatesAtIntersection = uv;
-
             float2 ddx, ddy;
             ComputeAnisotropicEllipseAxes(
-                intersectionPoint,
-                normal,
-                direction,
-                rayConeRadiusAtIntersection,
-                positions,
-                textureCoordinates,
-                interpolatedTextureCoordinatesAtIntersection,
+                info.GetPosition(),
+                info.normal,
+                WorldRayDirection(),
+                GetConeWidth(path),
+                info.a,
+                info.b,
+                info.c,
+                uvs,
+                uv,
                 ddx,
                 ddy);
 
