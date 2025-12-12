@@ -114,9 +114,6 @@ public sealed partial class Client : Graphics.Core.Client
 
         if (startScene != null)
         {
-            if (MainResources.Get<Engine>() is {} engine)
-                Visuals.Graphics.Instance.Initialize(engine);
-
             sceneManager.BeginLoad(startScene);
         }
 

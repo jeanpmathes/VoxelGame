@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -27,7 +26,9 @@ public sealed class Engine : IResource
     /// </summary>
     public static readonly DirectoryInfo ShaderDirectory = FileSystem.GetResourceDirectory("Shaders");
 
+    private readonly Application.Client client;
     private readonly List<IDisposable> bindings = [];
+
     private readonly ShaderBuffer<RaytracingData>? raytracingDataBuffer;
     private readonly ShaderBuffer<PostProcessingData>? postProcessingBuffer;
 
@@ -39,24 +40,14 @@ public sealed class Engine : IResource
         ShaderBuffer<RaytracingData>? rtData,
         ShaderBuffer<PostProcessingData>? ppBuffer)
     {
+        this.client = client;
+
         CrosshairPipeline = crosshairPipeline;
         OverlayPipeline = overlayPipeline;
         TargetingBoxPipeline = targetingBoxPipeline;
 
         raytracingDataBuffer = rtData;
         postProcessingBuffer = ppBuffer;
-
-        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairPipeline.SetColor(args.NewValue)));
-        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairPipeline.SetScale(args.NewValue)));
-
-        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
-        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
-
-        bindings.Add(client.Graphics.PostProcessingAntiAliasingQuality.Bind(args =>
-            Graphics.Instance.ApplyPostProcessingAntiAliasingQuality(args.NewValue)));
-
-        bindings.Add(client.Graphics.RenderingAntiAliasingQuality.Bind(args =>
-            Graphics.Instance.ApplyRenderingAntiAliasingQuality(args.NewValue)));
     }
 
     /// <summary>
@@ -91,11 +82,34 @@ public sealed class Engine : IResource
     public ResourceType Type => ResourceTypes.Engine;
 
     /// <summary>
+    ///     Initialize the engine, must be called by <see cref="Graphics" />.
+    /// </summary>
+    internal void Initialize()
+    {
+        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairPipeline.SetColor(args.NewValue)));
+        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairPipeline.SetScale(args.NewValue)));
+
+        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
+        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
+
+        bindings.Add(client.Graphics.PostProcessingAntiAliasingQuality.Bind(args =>
+            Graphics.Instance.ApplyPostProcessingAntiAliasingQuality(args.NewValue)));
+
+        bindings.Add(client.Graphics.RenderingAntiAliasingQuality.Bind(args =>
+            Graphics.Instance.ApplyRenderingAntiAliasingQuality(args.NewValue)));
+    }
+
+    /// <summary>
     ///     Data defining the antialiasing settings used in raytracing.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
     public struct AntiAliasingSettings : IEquatable<AntiAliasingSettings>
     {
+        /// <summary>
+        ///     Creates a new instance of <see cref="AntiAliasingSettings" />.
+        /// </summary>
+        public AntiAliasingSettings() {}
+
         /// <summary>
         ///     Whether adaptive antialiasing for ray generation is enabled.
         /// </summary>
@@ -109,12 +123,12 @@ public sealed class Engine : IResource
         /// <summary>
         ///     The size of the sampling grid used initially per pixel.
         /// </summary>
-        public Int32 minGridSize;
+        public Int32 minGridSize = 1;
 
         /// <summary>
         ///     The size of the maximum sampling grid used per pixel.
         /// </summary>
-        public Int32 maxGridSize;
+        public Int32 maxGridSize = 1;
 
         /// <summary>
         ///     The color variance threshold, determining if more samples are needed for a pixel.
@@ -249,6 +263,11 @@ public sealed class Engine : IResource
     public struct RaytracingData : IEquatable<RaytracingData>
     {
         /// <summary>
+        ///     Creates a new instance of <see cref="RaytracingData" />.
+        /// </summary>
+        public RaytracingData() {}
+
+        /// <summary>
         ///     Whether to render in wireframe mode.
         /// </summary>
         public Bool wireframe;
@@ -256,7 +275,7 @@ public sealed class Engine : IResource
         /// <summary>
         ///     The wind direction, used for foliage swaying.
         /// </summary>
-        public Vector3 windDirection;
+        public Vector3 windDirection = new Vector3(x: 0.7f, y: 0.0f, z: 0.7f).Normalized();
 
         /// <summary>
         ///     The size of the part of the view plane that is inside a fog volume. Given in relative size, positive values start
@@ -268,8 +287,6 @@ public sealed class Engine : IResource
         ///     Color of the fog volume the view plane is currently in, represented as a RGB vector.
         /// </summary>
         public Vector3 fogOverlapColor;
-
-        [UsedImplicitly] private readonly Single padding0;
 
         /// <summary>
         ///     The antialiasing settings for ray generation.

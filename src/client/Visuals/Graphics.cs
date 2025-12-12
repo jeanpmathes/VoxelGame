@@ -7,7 +7,6 @@
 using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
@@ -20,35 +19,6 @@ namespace VoxelGame.Client.Visuals;
 /// </summary>
 public partial class Graphics
 {
-    private static readonly Engine.RaytracingData defaultRaytracingData = new()
-    {
-        wireframe = false,
-        windDirection = new Vector3(x: 0.7f, y: 0.0f, z: 0.7f).Normalized(),
-        fogOverlapColor = Vector3.Zero,
-        fogOverlapSize = 0.0f,
-        antiAliasing =
-        {
-            isEnabled = false,
-            minGridSize = 1,
-            maxGridSize = 1,
-            varianceThreshold = 0.0f
-        }
-    };
-
-    private static readonly Engine.PostProcessingData defaultPostProcessingData = new()
-    {
-        fxaa = new Engine.FxaaSettings
-        {
-            isEnabled = false,
-            contrastThreshold = 0.0f,
-            relativeThreshold = 0.0f,
-            subpixelBlending = 0.0f,
-            edgeStepCount = 0,
-            edgeStep = 0,
-            edgeGuess = 0.0f
-        }
-    };
-
     private Engine? engine;
 
     private Graphics() {}
@@ -67,20 +37,25 @@ public partial class Graphics
         Debug.Assert(engine == null);
         engine = e;
 
+        engine.Initialize();
+
         LogGraphicsInitialized(logger);
 
         Instance.Reset();
     }
 
     /// <summary>
-    ///     Resets the graphics to the default state.
+    ///     Resets changeable parameters to their default state.
+    ///     This does not reset quality settings.
     /// </summary>
     public void Reset()
     {
         if (engine == null) return;
 
-        engine.RaytracingDataBuffer.Data = defaultRaytracingData;
-        engine.PostProcessingBuffer.Data = defaultPostProcessingData;
+        SetWireframe(enable: false);
+        SetSamplingDisplay(enable: false);
+
+        SetFogOverlapConfiguration(size: 0.0, ColorS.Black);
 
         LogGraphicsReset(logger);
     }

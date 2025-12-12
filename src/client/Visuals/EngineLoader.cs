@@ -72,7 +72,11 @@ public sealed class EngineLoader : IResourceLoader
 
         client.SetPostProcessingPipeline(postProcessingPipeline);
 
-        return [new Engine(client, crosshairVFX, overlayVFX, selectionBoxVFX, rtData, ppData)];
+        Engine engine = new(client, crosshairVFX, overlayVFX, selectionBoxVFX, rtData, ppData);
+
+        Graphics.Instance.Initialize(engine);
+
+        return [engine];
     }
 
     private ShaderBuffer<Engine.RaytracingData>? LoadRaytracingPipeline(
