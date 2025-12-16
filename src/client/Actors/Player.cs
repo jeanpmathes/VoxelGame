@@ -46,8 +46,6 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
         Camera = camera;
 
         Head = new PlayerHead(camera, Body.Transform);
-        camera.Position = Head.Position;
-        
         this.input = input;
 
         AddComponent<PlayerInput, Player>();
@@ -81,6 +79,15 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     /// Get the input control used by this player.
     /// </summary>
     public IInputControl Input => input;
+
+    /// <summary>
+    ///     Synchronize the camera position with the player head position.
+    ///     Should be called after the player has been placed in the world.
+    /// </summary>
+    public void SynchronizeCamera()
+    {
+        Camera.Position = Head.Position;
+    }
 
     /// <inheritdoc />
     public Property DebugData => new PlayerDebugProperties(this);

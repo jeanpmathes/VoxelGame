@@ -48,6 +48,7 @@ public sealed class SessionScene : Scene, IInputControl
         world.State.Activating += (_, _) =>
         {
             console.OnWorldReady();
+            session.Player.SynchronizeCamera();
         };
 
         AddComponent<SessionHook, Session>(session);
