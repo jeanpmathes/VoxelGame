@@ -6,11 +6,13 @@
 
 using System;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -104,8 +106,11 @@ public sealed class TargetingBoxPipeline : IDisposable
     ///     Data used by the shader.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
-    private readonly struct Data : IEquatable<Data>
+    private readonly struct Data : IEquatable<Data>, IDefault<Data>
     {
+        /// <inheritdoc />
+        [UsedImplicitly] public static Data Default => new();
+
         /// <summary>
         ///     Create the shader data.
         /// </summary>

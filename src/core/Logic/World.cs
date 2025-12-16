@@ -26,7 +26,7 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
-using Generator = VoxelGame.Core.Generation.Worlds.Testing.Generator; // todo: change to Standard generator
+using Generator = VoxelGame.Core.Generation.Worlds.Standard.Generator;
 
 namespace VoxelGame.Core.Logic;
 

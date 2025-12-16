@@ -12,6 +12,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -42,7 +43,7 @@ internal sealed class PipelineFactory
     /// <param name="preset">The preset to use.</param>
     /// <typeparam name="T">The type of the buffer.</typeparam>
     /// <returns>The pipeline and the buffer, if loading was successful.</returns>
-    internal (RasterPipeline, ShaderBuffer<T>)? LoadPipelineWithBuffer<T>(String name, ShaderPresets.IPreset preset) where T : unmanaged, IEquatable<T>
+    internal (RasterPipeline, ShaderBuffer<T>)? LoadPipelineWithBuffer<T>(String name, ShaderPresets.IPreset preset) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         FileInfo path = Engine.ShaderDirectory.GetFile($"{name}.hlsl");
         var ok = true;

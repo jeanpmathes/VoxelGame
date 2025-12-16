@@ -11,6 +11,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
+using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
@@ -18,6 +19,7 @@ using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Graphics.Graphics.Raytracing;
 
@@ -192,7 +194,7 @@ public class PipelineBuilder
     {
         Debug.Assert(customDataBufferSize == 0);
 
-        return Build<Byte>(client, context, out _);
+        return Build<Empty>(client, context, out _);
     }
 
     /// <summary>
@@ -206,7 +208,7 @@ public class PipelineBuilder
     /// <param name="context">The context in which loading is happening.</param>
     /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
     /// <returns>An error, if any.</returns>
-    public unsafe ResourceIssue? Build<T>(Client client, IResourceContext context, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
+    public unsafe ResourceIssue? Build<T>(Client client, IResourceContext context, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         (ShaderFileDescription[] files, String[] symbols, MaterialDescription[] materialDescriptions, Texture[] textures) = BuildDescriptions();
 
@@ -283,6 +285,32 @@ public class PipelineBuilder
         IEnumerable<Texture> secondSlot = secondTextureSlot ?? Enumerable.Empty<Texture>();
 
         return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
+    }
+
+    private struct Empty : IEquatable<Empty>, IDefault<Empty>
+    {
+        [UsedImplicitly] private Byte _;
+
+        public static Empty Default => new();
+
+        #region EQUALITY
+
+        public Boolean Equals(Empty other)
+        {
+            return true;
+        }
+
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is Empty other && Equals(other);
+        }
+
+        public override Int32 GetHashCode()
+        {
+            return 0;
+        }
+
+        #endregion EQUALITY
     }
 
     private sealed record ShaderFile(FileInfo File, String[] Exports);

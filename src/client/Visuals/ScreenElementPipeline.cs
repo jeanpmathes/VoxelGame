@@ -6,12 +6,14 @@
 
 using System;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities.Constants;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals;
@@ -141,8 +143,11 @@ public sealed class ScreenElementPipeline : IDisposable
     ///     Data used by the shader.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    private readonly struct Data : IEquatable<Data>
+    private readonly struct Data : IEquatable<Data>, IDefault<Data>
     {
+        /// <inheritdoc />
+        [UsedImplicitly] public static Data Default => new();
+
         /// <summary>
         ///     The model-view-projection matrix.
         /// </summary>

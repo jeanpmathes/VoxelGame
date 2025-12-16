@@ -17,6 +17,7 @@ using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities.Constants;
 using Mesh = VoxelGame.Graphics.Objects.Mesh;
 
 namespace VoxelGame.Graphics;
@@ -94,7 +95,7 @@ internal static class Native
     /// <param name="client">The client.</param>
     /// <param name="description">A description of the raytracing pipeline.</param>
     /// <returns>The shader buffer, if any is created.</returns>
-    internal static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipelineDescription description) where T : unmanaged, IEquatable<T>
+    internal static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipelineDescription description) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         IntPtr buffer = NativeMethods.InitializeRaytracing(client, description);
 
@@ -255,7 +256,7 @@ internal static class Native
     internal static unsafe (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
         Client client,
         RasterPipelineDescription description,
-        Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
+        Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         description.BufferSize = (UInt32) sizeof(T);
 

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.Marshalling;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Graphics.Objects;
 
@@ -43,14 +44,14 @@ public class ShaderBuffer : NativeObject
 /// <summary>
 ///     Represents a shader constant buffer.
 /// </summary>
-public class ShaderBuffer<T> : ShaderBuffer where T : unmanaged, IEquatable<T>
+public class ShaderBuffer<T> : ShaderBuffer where T : unmanaged, IEquatable<T>, IDefault<T>
 {
     /// <summary>
     ///     Delegate for modifying the data of the buffer.
     /// </summary>
     public delegate void ModifyDelegate(ref T data);
 
-    private T data;
+    private T data = T.Default;
     private Boolean dirty = true;
 
     /// <summary>

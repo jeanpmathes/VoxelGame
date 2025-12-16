@@ -24,6 +24,7 @@ using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Interop;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Toolkit.Utilities.Constants;
 using Image = VoxelGame.Core.Visuals.Image;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
@@ -222,7 +223,7 @@ public partial class Client : Application
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
     /// </summary>
-    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipelineDescription description) where T : unmanaged, IEquatable<T>
+    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipelineDescription description) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         return VoxelGame.Graphics.Native.InitializeRaytracing<T>(this, description);
     }
@@ -293,7 +294,7 @@ public partial class Client : Application
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <typeparam name="T">The type of the shader buffer data.</typeparam>
     /// <returns>The created pipeline and shader buffer, or <c>null</c> if the pipeline could not be created.</returns>
-    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<String> errorCallback) where T : unmanaged, IEquatable<T>
+    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<String> errorCallback) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 

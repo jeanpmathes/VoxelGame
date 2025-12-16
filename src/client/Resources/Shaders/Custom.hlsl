@@ -74,14 +74,27 @@ namespace vg
         float3 fogOverlapColor;
 
         /**
+         * \brief The sky color.
+         */
+        float3 skyColor;
+
+        /**
+         * \brief The color of the air fog, used when not in a fog volume for the far distance.
+         */
+        float3 airFogColor;
+
+        /**
+         * \brief The density of the air fog, used when not in a fog volume for the far distance.
+         */
+        float airFogDensity;
+
+        /**
          * \brief The antialiasing settings.
          */
         AntiAliasing antiAliasing;
     };
 
     ConstantBuffer<Custom> custom : register(b1);
-
-    static float3 const SKY_COLOR = float3(0.5f, 0.8f, 0.9f);
 }
 
 #endif

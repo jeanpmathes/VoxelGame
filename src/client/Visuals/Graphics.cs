@@ -55,7 +55,7 @@ public partial class Graphics
         SetWireframe(enable: false);
         SetSamplingDisplay(enable: false);
 
-        SetFogOverlapConfiguration(size: 0.0, ColorS.Black);
+        SetFogVolumeOverlapConfiguration(size: 0.0, ColorS.Black);
 
         LogGraphicsReset(logger);
     }
@@ -79,12 +79,38 @@ public partial class Graphics
     ///     If the view plane is not inside the fog, this value should be 0.
     /// </param>
     /// <param name="color">The color of the fog.</param>
-    public void SetFogOverlapConfiguration(Double size, ColorS color)
+    public void SetFogVolumeOverlapConfiguration(Double size, ColorS color)
     {
         engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
         {
             data.fogOverlapSize = (Single) size;
             data.fogOverlapColor = color.ToVector4().Xyz;
+        });
+    }
+
+    /// <summary>
+    ///     Set the color of the sky.
+    /// </summary>
+    /// <param name="skyColor">The color of the sky.</param>
+    public void SetSkyColor(ColorS skyColor)
+    {
+        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
+        {
+            data.skyColor = skyColor.ToVector4().Xyz;
+        });
+    }
+
+    /// <summary>
+    ///     Set the color and density of the air fog, used in the distance.
+    /// </summary>
+    /// <param name="color">The color of the air fog.</param>
+    /// <param name="density">The density of the air fog.</param>
+    public void SetAirFog(ColorS color, Single density)
+    {
+        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
+        {
+            data.airFogColor = color.ToVector4().Xyz;
+            data.airFogDensity = density;
         });
     }
 

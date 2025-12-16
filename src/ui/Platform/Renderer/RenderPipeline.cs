@@ -7,8 +7,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using Gwen.Net;
 using Gwen.Net.Renderer;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
@@ -20,6 +22,7 @@ using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Toolkit.Utilities.Constants;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.UI.Platform.Renderer;
@@ -30,7 +33,7 @@ namespace VoxelGame.UI.Platform.Renderer;
 public sealed class RenderPipeline : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<RenderPipeline>();
-    private readonly ShaderBuffer<Vector2> buffer;
+    private readonly ShaderBuffer<Buffer> buffer;
 
     private readonly IDisposable disposable;
 
@@ -48,7 +51,7 @@ public sealed class RenderPipeline : IDisposable
     /// <summary>
     ///     Creates a new render pipeline.
     /// </summary>
-    private RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Vector2>) raster)
+    private RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Buffer>) raster)
     {
         this.renderer = renderer;
         this.preDraw = preDraw;
@@ -80,7 +83,7 @@ public sealed class RenderPipeline : IDisposable
         FileInfo shader,
         Action<String> errorCallback)
     {
-        (RasterPipeline pipeline, ShaderBuffer<Vector2>)? result = client.CreateRasterPipeline<Vector2>(
+        (RasterPipeline pipeline, ShaderBuffer<Buffer>)? result = client.CreateRasterPipeline<Buffer>(
             RasterPipelineDescription.Create(shader, new ShaderPresets.Draw2D()),
             errorCallback);
 
@@ -252,7 +255,47 @@ public sealed class RenderPipeline : IDisposable
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        buffer.Data = size;
+        buffer.Data = new Buffer
+        {
+            screenSize = size
+        };
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    private struct Buffer : IEquatable<Buffer>, IDefault<Buffer>
+    {
+        public Vector2 screenSize;
+
+        [UsedImplicitly] public static Buffer Default => new();
+
+        #region EQUALITY
+
+        public Boolean Equals(Buffer other)
+        {
+            return screenSize.Equals(other.screenSize);
+        }
+
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is Buffer other && Equals(other);
+        }
+
+        public override Int32 GetHashCode()
+        {
+            return screenSize.GetHashCode();
+        }
+
+        public static Boolean operator ==(Buffer left, Buffer right)
+        {
+            return left.Equals(right);
+        }
+
+        public static Boolean operator !=(Buffer left, Buffer right)
+        {
+            return !left.Equals(right);
+        }
+
+        #endregion
     }
 
     private sealed class DrawCall

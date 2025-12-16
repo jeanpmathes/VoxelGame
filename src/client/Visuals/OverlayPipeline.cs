@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Visuals;
@@ -14,6 +15,7 @@ using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -178,8 +180,11 @@ public sealed class OverlayPipeline : IDisposable
     ///     Data used by the shader.
     /// </summary>
     [StructLayout(LayoutKind.Sequential)]
-    private readonly struct Data : IEquatable<Data>
+    private readonly struct Data : IEquatable<Data>, IDefault<Data>
     {
+        /// <inheritdoc />
+        [UsedImplicitly] public static Data Default => new();
+
         /// <summary>
         ///     The matrix used to transform the vertices.
         /// </summary>
@@ -228,6 +233,8 @@ public sealed class OverlayPipeline : IDisposable
             return new Vector4i((Int32) attributes.a, (Int32) attributes.b, (Int32) attributes.c, (Int32) attributes.d);
         }
 
+        #region EQUALITY
+
         /// <summary>
         ///     Check equality.
         /// </summary>
@@ -264,6 +271,8 @@ public sealed class OverlayPipeline : IDisposable
         {
             return !left.Equals(right);
         }
+
+        #endregion EQUALITY
     }
 
     #region DISPOSABLE

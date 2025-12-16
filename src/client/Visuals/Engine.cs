@@ -8,11 +8,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
+using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Interop;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -260,12 +262,15 @@ public sealed class Engine : IResource
     ///     Data passed to the raytracing shaders.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
-    public struct RaytracingData : IEquatable<RaytracingData>
+    public struct RaytracingData : IEquatable<RaytracingData>, IDefault<RaytracingData>
     {
         /// <summary>
         ///     Creates a new instance of <see cref="RaytracingData" />.
         /// </summary>
         public RaytracingData() {}
+
+        /// <inheritdoc />
+        [UsedImplicitly] public static RaytracingData Default => new();
 
         /// <summary>
         ///     Whether to render in wireframe mode.
@@ -284,17 +289,34 @@ public sealed class Engine : IResource
         public Single fogOverlapSize;
 
         /// <summary>
-        ///     Color of the fog volume the view plane is currently in, represented as a RGB vector.
+        ///     Color of the fog volume the view plane is currently in, represented as an RGB vector.
         /// </summary>
         public Vector3 fogOverlapColor;
+
+        /// <summary>
+        ///     The color of the sky, represented as an RGB vector.
+        /// </summary>
+        public Vector3 skyColor = new(x: 0.5f, y: 0.8f, z: 0.9f);
+
+        [UsedImplicitly] private readonly Single padding0;
+
+        /// <summary>
+        ///     The color of the air (background) fog, represented as an RGB vector.
+        /// </summary>
+        public Vector3 airFogColor = new(x: 0.8f, y: 0.85f, z: 0.9f);
+
+        /// <summary>
+        ///     The density of the air (background) fog.
+        /// </summary>
+        public Single airFogDensity;
 
         /// <summary>
         ///     The antialiasing settings for ray generation.
         /// </summary>
         public AntiAliasingSettings antiAliasing;
 
-        private (Boolean, Vector3, Single, Vector3, AntiAliasingSettings) Pack =>
-            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, antiAliasing);
+        private (Boolean, Vector3, Single, Vector3, Vector3, Vector3, Single, AntiAliasingSettings) Pack =>
+            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, skyColor, airFogColor, airFogDensity, antiAliasing);
 
         /// <inheritdoc />
         public Boolean Equals(RaytracingData other)
@@ -335,12 +357,20 @@ public sealed class Engine : IResource
     ///     Data passed to the post-processing shader.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
-    public struct PostProcessingData : IEquatable<PostProcessingData>
+    public struct PostProcessingData : IEquatable<PostProcessingData>, IDefault<PostProcessingData>
     {
+        /// <summary>
+        ///     Creates a new instance of <see cref="PostProcessingData" />.
+        /// </summary>
+        public PostProcessingData() {}
+
+        /// <inheritdoc />
+        [UsedImplicitly] public static PostProcessingData Default => new();
+
         /// <summary>
         ///     The FXAA settings used during post-processing.
         /// </summary>
-        public FxaaSettings fxaa;
+        public FxaaSettings fxaa = new();
 
         private FxaaSettings Pack => fxaa;
 

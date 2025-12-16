@@ -97,6 +97,6 @@ public partial class OverlayDisplay : ActorComponent
                 size *= -1.0;
         }
 
-        Visuals.Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? ColorS.Black);
+        Visuals.Graphics.Instance.SetFogVolumeOverlapConfiguration(size, fog ?? ColorS.Black);
     }
 }

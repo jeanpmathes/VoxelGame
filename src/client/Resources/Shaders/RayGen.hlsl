@@ -51,13 +51,13 @@ struct Fog
     float  path;
 
     /**
-     * \brief Create a default configuration, creating weak sky-colored fog.
+     * \brief Create a default configuration, creating weak air-colored fog.
      */
     static Fog CreateDefault()
     {
         Fog fog;
-        fog.color   = vg::SKY_COLOR;
-        fog.density = 0.00002f;
+        fog.color   = vg::custom.airFogColor;
+        fog.density = vg::custom.airFogDensity;
         fog.path    = 0.0f;
         return fog;
     }
