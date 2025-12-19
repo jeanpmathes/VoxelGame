@@ -19,7 +19,6 @@ using VoxelGame.Client.Sessions;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Graphics.Core;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.UI;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -41,7 +40,7 @@ public sealed class SessionScene : Scene, IInputControl
     internal SessionScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine) : base(client)
     {
         InGameUserInterface ui = CreateUI(client, uiResources);
-        session = CreateSession(client.Space.Camera, world, ui, engine);
+        session = CreateSession(new Camera(client.Space.Camera), world, ui, engine);
 
         SessionConsole console = session.AddComponent<SessionConsole, CommandInvoker>(commands);
 

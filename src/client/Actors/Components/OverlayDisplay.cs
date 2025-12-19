@@ -54,8 +54,8 @@ public partial class OverlayDisplay : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime)
     {
-        Vector3i center = player.Camera.Position.Floor();
-        Frustum frustum = player.Camera.GetPartialFrustum(near: 0.0, player.Camera.Definition.Clipping.near);
+        Vector3i center = player.Camera.Transform.Position.Floor();
+        Frustum frustum = player.Camera.View.GetPartialFrustum(near: 0.0, player.Camera.View.Definition.Clipping.near);
 
         BuildOverlay(Raycast.CastFrustum(player.World, center, range: 1, frustum));
 
@@ -68,7 +68,7 @@ public partial class OverlayDisplay : ActorComponent
         var lowerBound = 1.0;
         var upperBound = 0.0;
 
-        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.View, ref lowerBound, ref upperBound).ToList();
+        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.Camera, ref lowerBound, ref upperBound).ToList();
 
         Overlay? selected = null;
 

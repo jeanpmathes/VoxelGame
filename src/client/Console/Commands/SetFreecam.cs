@@ -11,7 +11,8 @@ using VoxelGame.Client.Actors.Components;
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
-///     Sets the player flying speed.
+///     Enable free-cam mode, in which the player can move the camera independently of the player actor.
+///     This serves to investigate issues without causing chunk operations.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SetFreecam : Command

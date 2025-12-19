@@ -10,11 +10,9 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Actors.Components;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Client.Visuals;
-using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Physics;
-using VoxelGame.Graphics.Graphics;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -38,19 +36,13 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="ui">The user interface used for the game.</param>
     /// <param name="engine">The graphics engine to use for rendering.</param>
     /// <param name="input">The input control to use for this player.</param>
-    public Player(Double mass, BoundingVolume boundingVolume, Camera camera,
-        InGameUserInterface ui, Engine engine, IInputControl input) : base(mass, boundingVolume)
+    public Player(Double mass, BoundingVolume boundingVolume, Camera camera, InGameUserInterface ui, Engine engine, IInputControl input) : base(mass, boundingVolume)
     {
         Camera = camera;
-
-        Head = new PlayerHead(camera, Body.Transform);
-        camera.Position = Head.Position;
-
         Input = input;
 
         AddComponent<PlayerInput, Player>();
         AddComponent<PlayerMovement, Player>(); // Also updates the targeter.
-        AddComponent<PlayerRotator, Player>();
         selector = AddComponent<PlacementSelection, Player>();
         AddComponent<Interaction, Player>();
         AddComponent<OverlayDisplay, Engine, Player>(engine);
@@ -63,12 +55,7 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     }
 
     /// <inheritdoc />
-    public override IOrientable Head { get; }
-
-    /// <summary>
-    ///     Get the view of this player.
-    /// </summary>
-    public IView View => Camera;
+    public override Transform Head => Camera.Transform;
 
     /// <summary>
     ///     Get access to the camera of the player.

@@ -24,6 +24,9 @@ public partial class PlayerMovement : ActorComponent
 
     private MovementStrategy strategy;
 
+    private Double pitch;
+    private Double yaw;
+
     private Targeter? targeter;
 
     [Constructible]
@@ -58,14 +61,21 @@ public partial class PlayerMovement : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Double deltaTime)
     {
-        player.Body.Movement = Vector3d.Zero;
-        player.Camera.Position = strategy.GetCameraPosition();
+        if (player.Input.CanHandleGameInput)
+        {
+            (Double yawDelta, Double pitchDelta) = player.Input.Keybinds.LookBind.Value;
+
+            yaw += yawDelta;
+            pitch += pitchDelta;
+
+            pitch = MathHelper.Clamp(pitch, min: -89.0, max: 89.0);
+
+            strategy.Move(pitch, yaw, deltaTime);
+        }
 
         // The targeter is acquired here to ensure it is ordered after this component.
         // Targeting is update twice in total, as both camera movement and world manipulation can change the target.
         targeter ??= player.GetComponent<Targeter>();
         targeter?.Update();
-
-        if (player.Input.CanHandleGameInput) player.Body.Movement = strategy.ApplyMovement(deltaTime);
     }
 }

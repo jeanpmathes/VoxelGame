@@ -76,7 +76,7 @@ public class World : Core.Logic.World
         if (localPlayer == null)
             return;
 
-        Frustum frustum = localPlayer.Player.View.Frustum;
+        Frustum frustum = localPlayer.Player.Camera.View.Definition.Frustum;
 
         if (Core.App.Application.Instance.IsDebug)
             Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));

@@ -48,7 +48,8 @@ public partial class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavi
 
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
-        Vector3d forwardMovement = Vector3d.Dot(message.Body.Movement, message.Body.Transform.Forward) * message.Body.Transform.Forward;
+        Vector3d forwardDirection = message.Body.Transform.Forward;
+        Vector3d forwardMovement = Vector3d.Dot(message.Body.Movement, forwardDirection) * forwardDirection;
         Vector3d newVelocity;
 
         if (message.Body.Subject.Head != null &&

@@ -289,7 +289,9 @@ public class PipelineBuilder
 
     private struct Empty : IEquatable<Empty>, IDefault<Empty>
     {
+        #pragma warning disable CS0169
         [UsedImplicitly] private Byte _;
+        #pragma warning restore CS0169
 
         public static Empty Default => new();
 

@@ -13,10 +13,7 @@ namespace VoxelGame.Client.Actors.Components;
 /// <summary>
 ///     Default player movement, using physics.
 /// </summary>
-/// <param name="player">The player to move.</param>
-/// <param name="input">The player input to use for movement.</param>
-/// <param name="flyingSpeed">The initial flying speed.</param>
-internal sealed class DefaultMovement(Player player, PlayerInput input, Double flyingSpeed) : MovementStrategy(flyingSpeed)
+internal sealed class DefaultMovement : MovementStrategy
 {
     private const Single DiveSpeed = 8f;
     private const Single JumpForce = 25000f;
@@ -27,20 +24,31 @@ internal sealed class DefaultMovement(Player player, PlayerInput input, Double f
     private readonly Vector3d maxForce = new(x: 500f, y: 0f, z: 500f);
     private readonly Vector3d maxSwimForce = new(x: 0f, y: 2500f, z: 0f);
 
-    /// <inheritdoc />
-    internal override Vector3d GetCameraPosition()
+    private readonly Player player;
+    private readonly PlayerInput input;
+
+    /// <summary>
+    ///     Default player movement, using physics.
+    /// </summary>
+    /// <param name="player">The player to move.</param>
+    /// <param name="input">The player input to use for movement.</param>
+    /// <param name="flyingSpeed">The initial flying speed.</param>
+    internal DefaultMovement(Player player, PlayerInput input, Double flyingSpeed) : base(flyingSpeed)
     {
-        return player.Head.Position;
+        this.player = player;
+        this.input = input;
+
+        player.Camera.Transform.SetParent(player.Body.Transform);
+        player.Camera.Transform.LocalPosition = (0.0, 0.65, 0.0);
     }
 
-    internal override Vector3d ApplyMovement(Double deltaTime)
+    internal override void Move(Double pitch, Double yaw, Double deltaTime)
     {
-        Vector3d movement = Vector3d.Zero;
+        player.Body.Transform.LocalRotation = Quaterniond.FromAxisAngle(Vector3d.UnitY, MathHelper.DegreesToRadians(-yaw));
+        player.Head.LocalRotation = Quaterniond.FromAxisAngle(Vector3d.UnitX, MathHelper.DegreesToRadians(pitch));
 
-        if (player.Body.IsEnabled) movement = GetPhysicsBasedMovement();
+        if (player.Body.IsEnabled) player.Body.Movement = GetPhysicsBasedMovement();
         else player.Body.Transform.Position += GetFlyingMovement(input, player.Head) * deltaTime;
-
-        return movement;
     }
 
     private Vector3d GetPhysicsBasedMovement()

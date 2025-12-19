@@ -9,6 +9,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Input.Composite;
 using VoxelGame.Toolkit;
@@ -87,19 +88,19 @@ public sealed partial class PlayerInput : ActorComponent
     internal Boolean IsInteractionBlocked => blockInteractButton.IsDown;
 
     /// <summary>
-    ///     Get the movement decided by the user input for an orientable object.
+    ///     Get the movement decided by the user input for a given transform.
     /// </summary>
-    /// <param name="orientable">An orientable object.</param>
+    /// <param name="transform">The transform to use for orientation.</param>
     /// <param name="normalSpeed">The factor to use for normal speed.</param>
     /// <param name="sprintSpeed">The factor to use for sprint speed.</param>
     /// <param name="allowFlying">Whether flying is allowed.</param>
     /// <returns>The movement vector.</returns>
-    internal Vector3d GetMovement(IOrientable orientable, Double normalSpeed, Double sprintSpeed, Boolean allowFlying)
+    internal Vector3d GetMovement(Transform transform, Double normalSpeed, Double sprintSpeed, Boolean allowFlying)
     {
         (Single x, Single z) = movementInput.Value;
         Single y = (ShouldJump.ToInt() - ShouldCrouch.ToInt()) * allowFlying.ToInt();
 
-        Vector3d movement = x * orientable.Forward + z * orientable.Right + y * Vector3d.UnitY;
+        Vector3d movement = x * transform.Forward + z * transform.Right + y * Vector3d.UnitY;
 
         if (movement != Vector3d.Zero)
             movement = sprintButton.IsDown

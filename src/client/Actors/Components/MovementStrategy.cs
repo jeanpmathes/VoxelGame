@@ -6,7 +6,7 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -25,32 +25,23 @@ internal abstract class MovementStrategy(Double flyingSpeed)
     internal Double FlyingSpeed { get; set; } = flyingSpeed;
 
     /// <summary>
-    ///     Get the flying movement for a given orientable.
+    ///     Get the flying movement for a given transform.
     /// </summary>
-    protected Vector3d GetFlyingMovement(PlayerInput input, IOrientable orientable)
+    protected Vector3d GetFlyingMovement(PlayerInput input, Transform transform)
     {
         return input.GetMovement(
-            orientable,
+            transform,
             FlyingSpeed * FlyingSpeedFactor,
             FlyingSpeed * FlyingSprintSpeedFactor,
             allowFlying: true);
     }
 
     /// <summary>
-    ///     Determine the camera position based on the player head.
+    /// Perform the movement calculations and actions associated with the strategy.
+    /// Should be called once (or less) per update cycle.
     /// </summary>
-    /// <returns>The new camera position.</returns>
-    internal abstract Vector3d GetCameraPosition();
-
-    /// <summary>
-    ///     Apply the calculated movement to the player or camera.
-    ///     This method is allowed to directly modify positions, but to use physics it should return a vector.
-    ///     Should be called once (or less) per update cycle.
-    /// </summary>
+    /// <param name="pitch">The current look pitch.</param>
+    /// <param name="yaw">The current look yaw.</param>
     /// <param name="deltaTime">The time since the last update cycle.</param>
-    /// <returns>
-    ///     The target movement that is attempted to achieve using physics.
-    ///     If no physics are used, this will be zero.
-    /// </returns>
-    internal abstract Vector3d ApplyMovement(Double deltaTime);
+    internal abstract void Move(Double pitch, Double yaw, Double deltaTime);
 }

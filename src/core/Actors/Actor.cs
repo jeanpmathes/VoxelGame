@@ -5,6 +5,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
@@ -18,26 +19,31 @@ namespace VoxelGame.Core.Actors;
 [ComponentSubject(typeof(ActorComponent))]
 public abstract partial class Actor : Composed<Actor, ActorComponent>
 {
+    private World? world;
+
     /// <summary>
     ///     Gets the world in which this actor is located.
     ///     Using an actor without a world is not valid.
     /// </summary>
-    public World World { get; private set; } = null!;
+    public World World => world!;
 
     /// <summary>
     ///     The head of the actor, which allows to determine where the actor is looking at.
     ///     If an actor has no head or the concept of looking does not make sense, this will try to return the transform of the
-    ///     actor itself.
+    ///     actor itself, or <c>null</c> if no transform is present.
     /// </summary>
-    public virtual IOrientable? Head => GetComponent<Transform>();
+    public virtual Transform? Head => GetComponent<Transform>();
 
     /// <summary>
     ///     Called when this actor is added to a world.
+    ///     Before adding an actor to a world, it must be removed from any previous world.
     /// </summary>
-    /// <param name="world">The world to which this actor was added.</param>
-    public void OnAdd(World world)
+    /// <param name="newWorld">The world to which this actor was added.</param>
+    public void OnAdd(World newWorld)
     {
-        World = world;
+        Debug.Assert(world == null);
+
+        world = newWorld;
 
         OnAddComponents();
     }
@@ -51,9 +57,11 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     /// </summary>
     public void OnRemove()
     {
+        Debug.Assert(world != null);
+
         OnRemoveComponents();
 
-        World = null!;
+        world = null;
     }
 
     /// <inheritdoc cref="Actor.OnRemove" />
@@ -65,6 +73,8 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     /// </summary>
     public void Activate()
     {
+        Debug.Assert(world != null);
+
         OnActivateComponents();
     }
 
@@ -77,6 +87,8 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     /// </summary>
     public void Deactivate()
     {
+        Debug.Assert(world != null);
+
         OnDeactivateComponents();
     }
 
@@ -85,13 +97,14 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     private partial void OnDeactivateComponents();
 
     /// <summary>
-    ///     Update this actor.
+    ///     Update this actor. Not all actors are always updated, e.g. when in they are in an inactive chunk.
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     public void LogicUpdate(Double deltaTime)
     {
-        OnLogicUpdate(deltaTime);
+        Debug.Assert(world != null);
 
+        OnLogicUpdate(deltaTime);
         OnLogicUpdateComponents(deltaTime);
     }
 

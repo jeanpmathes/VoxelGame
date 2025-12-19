@@ -12,24 +12,30 @@ namespace VoxelGame.Client.Actors.Components;
 /// <summary>
 ///     Movement strategy that moves only the camera, keeping the player in place.
 /// </summary>
-/// <param name="player">The player to which this movement strategy belongs.</param>
-/// <param name="input">The player input to use for movement.</param>
-/// <param name="flyingSpeed">The initial flying speed.</param>
-internal sealed class FreecamMovement(Player player, PlayerInput input, Double flyingSpeed) : MovementStrategy(flyingSpeed)
+internal sealed class FreecamMovement : MovementStrategy
 {
-    private Vector3d cameraPosition = player.Head.Position;
+    private readonly Player player;
+    private readonly PlayerInput input;
 
-    /// <inheritdoc />
-    internal override Vector3d GetCameraPosition()
+    /// <summary>
+    ///     Movement strategy that moves only the camera, keeping the player in place.
+    /// </summary>
+    /// <param name="player">The player to which this movement strategy belongs.</param>
+    /// <param name="input">The player input to use for movement.</param>
+    /// <param name="flyingSpeed">The initial flying speed.</param>
+    internal FreecamMovement(Player player, PlayerInput input, Double flyingSpeed) : base(flyingSpeed)
     {
-        return cameraPosition;
+        this.player = player;
+        this.input = input;
+
+        this.player.Camera.Transform.SetParent(newParent: null);
     }
 
-    /// <inheritdoc />
-    internal override Vector3d ApplyMovement(Double deltaTime)
+    internal override void Move(Double pitch, Double yaw, Double deltaTime)
     {
-        cameraPosition += GetFlyingMovement(input, player.Head) * deltaTime;
+        player.Camera.Transform.LocalRotation = Quaterniond.FromAxisAngle(Vector3d.UnitY, MathHelper.DegreesToRadians(-yaw))
+                                                * Quaterniond.FromAxisAngle(Vector3d.UnitX, MathHelper.DegreesToRadians(pitch));
 
-        return Vector3d.Zero;
+        player.Camera.Transform.Position += GetFlyingMovement(input, player.Head) * deltaTime;
     }
 }

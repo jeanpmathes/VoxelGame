@@ -15,7 +15,6 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Graphics;
 
 namespace VoxelGame.Client.Actors;
 
@@ -39,13 +38,13 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
     ///     Measure the size of the overlay to display with the given positions and their contents.
     /// </summary>
     /// <param name="positions">The positions to consider.</param>
-    /// <param name="view">The view to measure the overlays in.</param>
+    /// <param name="camera">The camera to measure from.</param>
     /// <param name="lowerBound">The total lower bound of the final overlay.</param>
     /// <param name="upperBound">The total upper bound of the final overlay.</param>
     /// <returns>All overlays that can be displayed.</returns>
-    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, IView view, ref Double lowerBound, ref Double upperBound)
+    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, Camera camera, ref Double lowerBound, ref Double upperBound)
     {
-        IView.Parameters definition = view.Definition;
+        Graphics.Objects.Camera.Parameters definition = camera.View.Definition;
 
         // The following multiplier is a somewhat dirty hack to improve alignment of the overlay with the actual surface.
         // A potential reason for the misalignment could be the float-based calculations on the native side.

@@ -43,7 +43,7 @@ public partial class Targeter : ActorComponent
     public void Update()
     {
         World world = Subject.World;
-        IOrientable? start = Subject.Head;
+        Transform? start = Subject.Head;
 
         if (start != null)
         {
