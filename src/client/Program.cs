@@ -1,6 +1,19 @@
 ﻿// <copyright file="Program.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2025 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -62,6 +75,11 @@ internal static partial class Program
     [STAThread]
     private static Int32 Main(String[] commandLineArguments)
     {
+        System.Console.WriteLine(@"VoxelGame Client Copyright (C) 2020-2025 Jean Patrick Mathes");
+        System.Console.WriteLine(@"This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.");
+        System.Console.WriteLine(@"See the LICENSE file in the project root for details.");
+        System.Console.WriteLine();
+
         SetDebugMode();
 
         // Creating the directories could technically cause an exception.
