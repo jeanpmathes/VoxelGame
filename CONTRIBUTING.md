@@ -33,8 +33,8 @@ To file a bug report, simply open a new issue and fill out the bug template.
 ## Suggest a feature
 If you want to request a new feature, be it a small quality of life improvement or a large game mechanic, open an issue using the feature request template.
 
-## Any contributions you make will be under the MIT Software License
-In short, when you submit code changes, your submissions will be understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
+## Any contributions you make will be under the GNU General Public License
+In short, when you submit code changes, your submissions will be understood to be under the same [GPL License](https://www.gnu.org/licenses/) that covers the project. Feel free to contact the maintainers if that's a concern.
 
 ## References
 These guidelines were written using many different online templates, mainly [this](https://github.com/nayafia/contributing-template/blob/master/CONTRIBUTING-template.md) one.
