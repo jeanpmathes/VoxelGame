@@ -34,6 +34,14 @@ public:
     void                                   SetDirection(DirectX::XMFLOAT3 const& direction);
     [[nodiscard]] DirectX::XMFLOAT3 const& GetDirection() const;
 
+    void                                   SetColor(DirectX::XMFLOAT3 const& color);
+    [[nodiscard]] DirectX::XMFLOAT3 const& GetColor() const;
+
+    void                SetIntensity(float intensity);
+    [[nodiscard]] float GetIntensity() const;
+
 private:
     DirectX::XMFLOAT3 m_direction = {0.0f, 0.0f, 0.0f};
+    DirectX::XMFLOAT3 m_color     = {1.0f, 1.0f, 1.0f};
+    float             m_intensity = 1.0f;
 };

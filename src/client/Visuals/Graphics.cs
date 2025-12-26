@@ -102,18 +102,6 @@ public partial class Graphics
     }
 
     /// <summary>
-    ///     Set the color of the sky.
-    /// </summary>
-    /// <param name="skyColor">The color of the sky.</param>
-    public void SetSkyColor(ColorS skyColor)
-    {
-        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
-        {
-            data.skyColor = skyColor.ToVector4().Xyz;
-        });
-    }
-
-    /// <summary>
     ///     Set the color and density of the air fog, used in the distance.
     /// </summary>
     /// <param name="color">The color of the air fog.</param>
@@ -124,6 +112,18 @@ public partial class Graphics
         {
             data.airFogColor = color.ToVector4().Xyz;
             data.airFogDensity = density;
+        });
+    }
+
+    /// <summary>
+    ///     Set the time of day used for the sky rendering.
+    /// </summary>
+    /// <param name="timeOfDay">The time of day in the range [0.0, 1.0).</param>
+    public void SetTimeOfDay(Double timeOfDay)
+    {
+        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
+        {
+            data.timeOfDay = (Single) timeOfDay;
         });
     }
 

@@ -19,7 +19,6 @@
 
 using System;
 using System.IO;
-using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Physics;
@@ -34,8 +33,6 @@ namespace VoxelGame.Client.Logic;
 /// </summary>
 public class World : Core.Logic.World
 {
-    private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
-
     private LocalPlayerHook? localPlayer;
 
     /// <summary>
@@ -65,10 +62,10 @@ public class World : Core.Logic.World
 
     private void SetUp()
     {
-        Space.Light.Direction = sunLightDirection;
-
         AddComponent<SectionMeshing>();
         AddComponent<HideWorldOnTermination>();
+
+        AddComponent<TimeBasedLighting>();
     }
 
     /// <inheritdoc />

@@ -75,6 +75,11 @@ public partial class WorldInformation
     public SpawnInformation SpawnInformation { get; set; } = new(Vector3d.Zero);
 
     /// <summary>
+    ///     The time of day as a value in the range [0, 1).
+    /// </summary>
+    public Double TimeOfDay { get; set; }
+
+    /// <summary>
     ///     Save this world information to a file.
     /// </summary>
     /// <param name="path">The save path.</param>

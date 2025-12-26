@@ -83,8 +83,8 @@ internal static partial class NativeMethods
     [LibraryImport(DllFilePath, EntryPoint = "NativeGetLight")]
     internal static partial IntPtr GetLight(Client client);
 
-    [LibraryImport(DllFilePath, EntryPoint = "NativeSetLightDirection")]
-    internal static partial void SetLightDirection(Light light, [MarshalUsing(typeof(Vector3Marshaller))] Vector3 direction);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetLightConfiguration")]
+    internal static partial void SetLightConfiguration(Light light, [MarshalUsing(typeof(Vector3Marshaller))] Vector3 direction, [MarshalUsing(typeof(Vector3Marshaller))] Vector3 color, Single intensity);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeUpdateBasicCameraData")]
     internal static partial void UpdateBasicCameraData(Camera camera, BasicCameraData data);

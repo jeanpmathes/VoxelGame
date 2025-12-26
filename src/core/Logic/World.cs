@@ -39,7 +39,7 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
-using Generator = VoxelGame.Core.Generation.Worlds.Standard.Generator;
+using Generator = VoxelGame.Core.Generation.Worlds.Testing.Generator; // todo: undo
 
 namespace VoxelGame.Core.Logic;
 
@@ -194,6 +194,21 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     ///     Get the info map of this world.
     /// </summary>
     public IMap Map => ChunkContext.Generator.Map;
+
+    /// <summary>
+    ///     The length of one day, in seconds.
+    /// </summary>
+    public Double DayLength { get; set; } = 600.0;
+
+    /// <summary>
+    ///     Get or set the current time of day in the range [0, 1).
+    ///     Morning is 0, noon is 0.25, evening is 0.5, midnight is 0.75.
+    /// </summary>
+    public Double TimeOfDay
+    {
+        get => Data.Information.TimeOfDay;
+        set => Data.Information.TimeOfDay = value;
+    }
 
     /// <summary>
     ///     Get both the fluid and block instance at a given position.
@@ -674,8 +689,19 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// </summary>
     /// <param name="deltaTime">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
+    public void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    {
+        if (DayLength > 0)
+        {
+            TimeOfDay += deltaTime / DayLength;
+            TimeOfDay %= 1.0;
+        }
+
+        OnLogicUpdateInActiveStateComponent(deltaTime, updateTimer);
+    }
+
     [ComponentEvent(nameof(WorldComponent.OnLogicUpdateInActiveState))]
-    public partial void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer);
+    private partial void OnLogicUpdateInActiveStateComponent(Double deltaTime, Timer? updateTimer);
 
     /// <summary>
     ///     Event arguments for the <see cref="SectionChanged" /> event.

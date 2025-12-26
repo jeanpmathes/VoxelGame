@@ -307,11 +307,9 @@ public sealed class Engine : IResource
         public Vector3 fogOverlapColor;
 
         /// <summary>
-        ///     The color of the sky, represented as an RGB vector.
+        ///     The density of the air (background) fog.
         /// </summary>
-        public Vector3 skyColor = new(x: 0.5f, y: 0.8f, z: 0.9f);
-
-        [UsedImplicitly] private readonly Single padding0;
+        public Single airFogDensity;
 
         /// <summary>
         ///     The color of the air (background) fog, represented as an RGB vector.
@@ -319,17 +317,19 @@ public sealed class Engine : IResource
         public Vector3 airFogColor = new(x: 0.8f, y: 0.85f, z: 0.9f);
 
         /// <summary>
-        ///     The density of the air (background) fog.
+        ///     The time of day, ranging from 0.0 to 1.0, with 0.0 being morning and 0.5 being evening.
         /// </summary>
-        public Single airFogDensity;
+        public Single timeOfDay;
+
+        [UsedImplicitly] private Vector3 padding0;
 
         /// <summary>
         ///     The antialiasing settings for ray generation.
         /// </summary>
         public AntiAliasingSettings antiAliasing;
 
-        private (Boolean, Vector3, Single, Vector3, Vector3, Vector3, Single, AntiAliasingSettings) Pack =>
-            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, skyColor, airFogColor, airFogDensity, antiAliasing);
+        private (Boolean, Vector3, Single, Vector3, Vector3, Single, Single, AntiAliasingSettings) Pack =>
+            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, airFogColor, airFogDensity, timeOfDay, antiAliasing);
 
         /// <inheritdoc />
         public Boolean Equals(RaytracingData other)

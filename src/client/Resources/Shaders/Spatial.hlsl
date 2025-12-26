@@ -44,13 +44,7 @@ namespace vg
          * - The mesh must be a quad mesh.
          * - The vertex order is CW.
          */
-        void ReadMeshData(
-            out int3   indices,
-            out float3 posA,
-            out float3 posB,
-            out float3 posC,
-            out float3 normal,
-            out uint4  data)
+        void ReadMeshData(out int3 indices, out float3 posA, out float3 posB, out float3 posC, out float3 normal, out uint4 data)
         {
             // A quad looks like this:
             // 1 -- 2
@@ -197,8 +191,8 @@ namespace vg
         {
             bool const inner = decode::GetNormalInvertedFlag(info.data);
 
-            float3 const dirToLight = native::spatial::global.lightDir * -1.0f; // Normalized.
-            float3 const normal     = info.normal * (inner ? -1.0f : 1.0f);
+            float3 const directionToLight = native::spatial::global.lightDirection * -1.0f; // Normalized.
+            float3 const normal           = info.normal * (inner ? -1.0f : 1.0f);
 
             float3 color = baseColor;
 
@@ -209,33 +203,23 @@ namespace vg
             {
                 RayDesc ray;
                 ray.Origin    = info.GetPosition() + normal * native::rt::RAY_EPSILON;
-                ray.Direction = dirToLight;
+                ray.Direction = directionToLight;
                 ray.TMin      = 0.0f;
                 ray.TMax      = native::rt::RAY_DISTANCE;
 
                 native::rt::ShadowHitInfo shadowPayload;
                 shadowPayload.isHit = false;
 
-                TraceRay(
-                    native::rt::spaceBVH,
-                    RAY_FLAG_NONE,
-                    native::rt::MASK_SHADOW,
-                    RT_HIT_ARG(1),
-                    ray,
-                    shadowPayload);
+                TraceRay(native::rt::spaceBVH, RAY_FLAG_NONE, native::rt::MASK_SHADOW, RT_HIT_ARG(1), ray, shadowPayload);
 
-                float const energy = dot(normal, dirToLight);
+                float const energy = dot(normal, directionToLight) * native::spatial::global.lightIntensity;
 
                 if (!shadowPayload.isHit) intensity = clamp(energy, native::spatial::global.minLight, 1.0f);
-                else
-                    intensity = lerp(
-                        native::spatial::global.minShadow,
-                        native::spatial::global.minLight,
-                        clamp(abs(energy), 0.0f, 1.0f));
+                else intensity                      = lerp(native::spatial::global.minShadow, native::spatial::global.minLight, clamp(abs(energy), 0.0f, 1.0f));
             }
             else intensity = 1.0f;
 
-            color *= intensity;
+            color *= intensity * native::spatial::global.lightColor;
 
             if (custom.showWireframes)
             {

@@ -31,7 +31,9 @@ namespace native
             float time;
             uint3 textureSize;
 
-            float3 lightDir;
+            float3 lightDirection;
+            float  lightIntensity;
+            float3 lightColor;
             float  minLight;
             float  minShadow;
         };

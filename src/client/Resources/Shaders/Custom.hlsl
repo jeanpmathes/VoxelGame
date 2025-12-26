@@ -74,9 +74,9 @@ namespace vg
         float3 fogOverlapColor;
 
         /**
-         * \brief The sky color.
+         * \brief The density of the air fog, used when not in a fog volume for the far distance.
          */
-        float3 skyColor;
+        float airFogDensity;
 
         /**
          * \brief The color of the air fog, used when not in a fog volume for the far distance.
@@ -84,9 +84,9 @@ namespace vg
         float3 airFogColor;
 
         /**
-         * \brief The density of the air fog, used when not in a fog volume for the far distance.
+         * \brief The time of day, in [0, 1).
          */
-        float airFogDensity;
+        float timeOfDay;
 
         /**
          * \brief The antialiasing settings.

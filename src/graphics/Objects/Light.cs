@@ -20,6 +20,8 @@
 using System;
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 
 namespace VoxelGame.Graphics.Objects;
@@ -31,6 +33,8 @@ namespace VoxelGame.Graphics.Objects;
 public class Light : Spatial
 {
     private Vector3d direction = Vector3d.Zero;
+    private Vector4 color = Vector4.One;
+    private Single intensity = 1.0f;
     private Boolean dirty = true;
 
     /// <summary>
@@ -53,6 +57,36 @@ public class Light : Spatial
         }
     }
 
+    /// <summary>
+    ///     Get or set the light intensity.
+    /// </summary>
+    public Single Intensity
+    {
+        get => intensity;
+        set
+        {
+            if (MathTools.NearlyEqual(value, intensity)) return;
+
+            intensity = value;
+            dirty = true;
+        }
+    }
+
+    /// <summary>
+    ///     Get or set the color of the light.
+    /// </summary>
+    public ColorS Color
+    {
+        get => ColorS.FromVector4(color);
+        set
+        {
+            if (value.ToVector4() == color) return;
+
+            color = value.ToVector4();
+            dirty = true;
+        }
+    }
+
     /// <inheritdoc />
     internal override void Synchronize()
     {
@@ -62,7 +96,7 @@ public class Light : Spatial
 
         dirty = false;
 
-        NativeMethods.SetLightDirection(this, (Vector3) direction);
+        NativeMethods.SetLightConfiguration(this, (Vector3) direction, color.Xyz, intensity);
     }
 }
 
