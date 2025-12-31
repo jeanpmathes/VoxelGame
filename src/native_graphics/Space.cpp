@@ -194,9 +194,7 @@ void Space::CreateGlobalConstBuffer()
             .textureSize = DirectX::XMUINT3{1, 1, 1},
             .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
             .lightIntensity = 1.0f,
-            .lightColor = DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f},
-            .minLight = 0.4f,
-            .minShadow = 0.2f
+            .lightColor = DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}
         });
 }
 
@@ -501,10 +499,7 @@ void Space::SetUpDynamicResourceLayout(ShaderResources::Description* description
 
 void Space::SetUpAnimationResourceLayout(ShaderResources::Description* description) { for (auto& animation : m_animations) animation.SetUpResourceLayout(description); }
 
-void Space::InitializeAnimations()
-{
-    for (auto& animation : m_animations) animation.Initialize(*m_client, m_globalShaderResources->GetComputeRootSignature());
-}
+void Space::InitializeAnimations() { for (auto& animation : m_animations) animation.Initialize(*m_client, m_globalShaderResources->GetComputeRootSignature()); }
 
 void Space::CreateRaytracingOutputBuffer()
 {

@@ -50,9 +50,9 @@ public partial class TimeBasedLighting : WorldComponent
         Boolean isDay = timeOfDay < 0.5;
         Visuals.Graphics.Instance.SetTimeOfDay(timeOfDay);
 
-        Double maxIntensity = isDay ? 1.0 : 0.6;
-        Double intensity = Math.Clamp((Math.Cos(timeOfDay * 2.0 * Math.Tau) * -1.0 * 0.5 + 0.5) * Math.PI, min: 0.0, max: 1.0) * maxIntensity;
-        World.Space.Light.Intensity = (Single) intensity;
+        Double scale = isDay ? 1.0 : 0.6;
+        Double intensity = 1.0 - Math.Pow(Math.Cos(2.0 * Math.PI * timeOfDay), y: 32.0);
+        World.Space.Light.Intensity = (Single) (intensity * scale);
 
         World.Space.Light.Color = isDay
             ? ColorS.FromRGB(red: 0.97f, green: 0.97f, blue: 0.94f)

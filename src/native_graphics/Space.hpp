@@ -100,9 +100,6 @@ struct GlobalBuffer
     DirectX::XMFLOAT3 lightDirection;
     float             lightIntensity;
     DirectX::XMFLOAT3 lightColor;
-
-    float minLight;
-    float minShadow;
 };
 
 struct MaterialBuffer

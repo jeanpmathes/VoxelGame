@@ -214,8 +214,11 @@ namespace vg
 
                 float const energy = dot(normal, directionToLight) * native::spatial::global.lightIntensity;
 
-                if (!shadowPayload.isHit) intensity = clamp(energy, native::spatial::global.minLight, 1.0f);
-                else intensity                      = lerp(native::spatial::global.minShadow, native::spatial::global.minLight, clamp(abs(energy), 0.0f, 1.0f));
+                float const minLight  = native::spatial::global.lightIntensity * 0.4f;
+                float const minShadow = native::spatial::global.lightIntensity * 0.2f;
+
+                if (!shadowPayload.isHit) intensity = clamp(energy, minLight, 1.0f);
+                else intensity                      = lerp(minShadow, minLight, saturate(abs(energy)));
             }
             else intensity = 1.0f;
 

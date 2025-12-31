@@ -34,8 +34,6 @@ namespace native
             float3 lightDirection;
             float  lightIntensity;
             float3 lightColor;
-            float  minLight;
-            float  minShadow;
         };
 
         ConstantBuffer<Global> global : register(b2);
