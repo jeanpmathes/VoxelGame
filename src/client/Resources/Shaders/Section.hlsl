@@ -1,6 +1,19 @@
-﻿//  <copyright file="Section.hlsl" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+﻿// <copyright file="Section.hlsl" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2025 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -94,8 +107,8 @@ namespace vg
 
             for (int index = 0; index < 3; index++) triangleUVs[index] = quadUVs[info.indices[index]];
 
-            if (decode::GetTextureRotationFlag(info.data)) for (int index = 0; index < 3; index++) triangleUVs[index] =
-                spatial::RotateUV(triangleUVs[index]);
+            if (decode::GetTextureRotationFlag(info.data))
+                for (int index = 0; index < 3; index++) triangleUVs[index] = spatial::RotateUV(triangleUVs[index]);
 
             for (int index = 0; index < 3; index++) triangleUVs[index] = native::TranslateUV(triangleUVs[index]);
 
@@ -106,8 +119,7 @@ namespace vg
                 for (int index = 0; index < 3; index++) triangleUVs[index] *= repetition;
             }
 
-            return triangleUVs[0] * info.barycentric.x + triangleUVs[1] * info.barycentric.y + triangleUVs[2] * info.
-                barycentric.z;
+            return triangleUVs[0] * info.barycentric.x + triangleUVs[1] * info.barycentric.y + triangleUVs[2] * info.barycentric.z;
         }
 
         /**
@@ -130,33 +142,14 @@ namespace vg
          * \param isBlock Whether the quad is part of a block or a fluid.
          * \return The sampled base color for the quad.
          */
-        float4 SampleBaseColor(
-            float const            path,
-            in spatial::Info const info,
-            bool const             useTextureRepetition,
-            bool const             isBlock)
+        float4 SampleBaseColor(float const path, in spatial::Info const info, bool const useTextureRepetition, bool const isBlock)
         {
             float3x2 uvs;
             float2   uv           = GetUV(info, uvs, useTextureRepetition);
-            uint     textureIndex = animation::GetAnimatedTextureIndex(
-                info.data,
-                PrimitiveIndex() / 2,
-                native::spatial::global.time,
-                isBlock);
+            uint     textureIndex = animation::GetAnimatedTextureIndex(info.data, PrimitiveIndex() / 2, native::spatial::global.time, isBlock);
 
             float2 ddx, ddy;
-            ComputeAnisotropicEllipseAxes(
-                info.GetPosition(),
-                info.normal,
-                WorldRayDirection(),
-                GetConeWidth(path),
-                info.a,
-                info.b,
-                info.c,
-                uvs,
-                uv,
-                ddx,
-                ddy);
+            ComputeAnisotropicEllipseAxes(info.GetPosition(), info.normal, WorldRayDirection(), GetConeWidth(path), info.a, info.b, info.c, uvs, uv, ddx, ddy);
 
             // Because anisotropic filter implies linear filtering in DirectX, we need to center UVs manually.
 
@@ -166,12 +159,8 @@ namespace vg
 
             float4 color;
 
-            if (isBlock) color = native::rt::textureSlotOne[textureIndex].SampleGrad(
-                native::spatial::sampler,
-                uv,
-                ddx,
-                ddy);
-            else color = native::rt::textureSlotTwo[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
+            if (isBlock) color = native::rt::textureSlotOne[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
+            else color         = native::rt::textureSlotTwo[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
 
             return color;
         }
@@ -182,10 +171,7 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a basic quad.
          */
-        float4 GetBasicBaseColor(float const path, in spatial::Info const info)
-        {
-            return SampleBaseColor(path, info, true, true);
-        }
+        float4 GetBasicBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, true, true); }
 
         /**
          * \brief Get the base color (no shading) for a foliage quad.
@@ -193,10 +179,7 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a foliage quad.
          */
-        float4 GetFoliageBaseColor(float const path, in spatial::Info const info)
-        {
-            return SampleBaseColor(path, info, false, true);
-        }
+        float4 GetFoliageBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, false, true); }
 
         /**
          * \brief Get the base color (no shading) for a fluid quad.
@@ -204,10 +187,7 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a fluid quad.
          */
-        float4 GetFluidBaseColor(float const path, in spatial::Info const info)
-        {
-            return SampleBaseColor(path, info, true, false);
-        }
+        float4 GetFluidBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, true, false); }
 
         /**
          * \brief Get the dominant color for a fluid quad.
