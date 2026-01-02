@@ -1,3 +1,7 @@
 ﻿How to fix color banding with dithering, by Anisoptera Games
 Published on August 8, 2014; accessed on December 27, 2025
 https://www.anisopteragames.com/how-to-fix-color-banding-with-dithering/
+
+Sky and Atmosphere rendering: A physical approach, by Antoine Morrier
+Published on May 10, 2025; accessed on January 2, 2026
+https://cpp-rendering.io/sky-and-atmosphere-rendering/

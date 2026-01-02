@@ -25,6 +25,8 @@
 #define POW4(x) (POW2(x) * POW2(x))
 #define POW5(x) (POW3(x) * POW2(x))
 
+#define PI 3.14159265359f
+
 /**
  * \brief Contains common functions and constants for shaders.
  */
@@ -56,21 +58,6 @@ namespace native
      * \return The UV coordinates in the DirectX/OpenGL coordinate system.
      */
     float2 TranslateUV(in float2 const uv) { return float2(uv.x, 1.0f - uv.y); }
-
-    /**
-     * \brief The color red.
-     */
-    static float3 const RED = float3(1.0f, 0.0f, 0.0f);
-
-    /**
-     * \brief The color green.
-     */
-    static float3 const GREEN = float3(0.0f, 1.0f, 0.0f);
-
-    /**
-     * \brief The color blue.
-     */
-    static float3 const BLUE = float3(0.0f, 0.0f, 1.0f);
 }
 
 #endif
