@@ -1,24 +1,41 @@
 ﻿// <copyright file="RenderPipeline.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using Gwen.Net;
 using Gwen.Net.Renderer;
+using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Toolkit.Utilities.Constants;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.UI.Platform.Renderer;
@@ -29,15 +46,15 @@ namespace VoxelGame.UI.Platform.Renderer;
 public sealed class RenderPipeline : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<RenderPipeline>();
+    private readonly ShaderBuffer<Buffer> buffer;
+
+    private readonly IDisposable disposable;
 
     private readonly PooledList<DrawCall> drawCalls = new();
     private readonly RasterPipeline pipeline;
     private readonly Action preDraw;
 
-    private readonly IDisposable disposable;
-
     private readonly RendererBase renderer;
-    private readonly ShaderBuffer<Vector2> buffer;
 
     private readonly PooledList<Draw2D.Vertex> vertexBuffer = new();
 
@@ -47,7 +64,7 @@ public sealed class RenderPipeline : IDisposable
     /// <summary>
     ///     Creates a new render pipeline.
     /// </summary>
-    private RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Vector2>) raster)
+    private RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Buffer>) raster)
     {
         this.renderer = renderer;
         this.preDraw = preDraw;
@@ -79,7 +96,7 @@ public sealed class RenderPipeline : IDisposable
         FileInfo shader,
         Action<String> errorCallback)
     {
-        (RasterPipeline pipeline, ShaderBuffer<Vector2>)? result = client.CreateRasterPipeline<Vector2>(
+        (RasterPipeline pipeline, ShaderBuffer<Buffer>)? result = client.CreateRasterPipeline<Buffer>(
             RasterPipelineDescription.Create(shader, new ShaderPresets.Draw2D()),
             errorCallback);
 
@@ -91,7 +108,7 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void PushRect(Rectangle rect, Single u1 = 0, Single v1 = 0, Single u2 = 1, Single v2 = 1)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (IsClippingEnabled && PerformClip(ref rect, ref u1, ref v1, ref u2, ref v2)) return;
 
@@ -178,7 +195,7 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void PushCall(TextureList.Handle texture)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (currentVertexCount == 0) return;
 
@@ -249,9 +266,49 @@ public sealed class RenderPipeline : IDisposable
     /// </summary>
     public void Resize(Vector2 size)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        buffer.Data = size;
+        buffer.Data = new Buffer
+        {
+            screenSize = size
+        };
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    private struct Buffer : IEquatable<Buffer>, IDefault<Buffer>
+    {
+        public Vector2 screenSize;
+
+        [UsedImplicitly] public static Buffer Default => new();
+
+        #region EQUALITY
+
+        public Boolean Equals(Buffer other)
+        {
+            return screenSize.Equals(other.screenSize);
+        }
+
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is Buffer other && Equals(other);
+        }
+
+        public override Int32 GetHashCode()
+        {
+            return screenSize.GetHashCode();
+        }
+
+        public static Boolean operator ==(Buffer left, Buffer right)
+        {
+            return left.Equals(right);
+        }
+
+        public static Boolean operator !=(Buffer left, Buffer right)
+        {
+            return !left.Equals(right);
+        }
+
+        #endregion
     }
 
     private sealed class DrawCall
@@ -261,7 +318,7 @@ public sealed class RenderPipeline : IDisposable
         public TextureList.Handle Texture { get; set; }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -295,5 +352,5 @@ public sealed class RenderPipeline : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

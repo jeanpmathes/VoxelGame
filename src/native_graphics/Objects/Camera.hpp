@@ -1,6 +1,19 @@
 ﻿// <copyright file="Camera.hpp" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -60,7 +73,12 @@ public:
     void SetOrientation(DirectX::XMFLOAT3 const& front, DirectX::XMFLOAT3 const& up);
 
     [[nodiscard]] DirectX::XMFLOAT3 const&   GetPosition() const;
+    [[nodiscard]] DirectX::XMFLOAT4X4 const& GetViewMatrix() const;
+    [[nodiscard]] DirectX::XMFLOAT4X4 const& GetProjectionMatrix() const;
     [[nodiscard]] DirectX::XMFLOAT4X4 const& GetViewProjectionMatrix() const;
+
+    [[nodiscard]] float GetNearPlane() const;
+    [[nodiscard]] float GetFarPlane() const;
 
     void SetFov(float fov);
     void SetPlanes(float nearDistance, float farDistance);
@@ -82,6 +100,8 @@ private:
     float m_near = 0.0f;
     float m_far  = 0.0f;
 
+    DirectX::XMFLOAT4X4 m_vMatrix  = {};
+    DirectX::XMFLOAT4X4 m_pMatrix  = {};
     DirectX::XMFLOAT4X4 m_vpMatrix = {};
 
     Allocation<ID3D12Resource>                      m_spaceCameraBuffer        = {};

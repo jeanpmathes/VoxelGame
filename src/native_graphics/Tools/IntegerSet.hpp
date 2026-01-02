@@ -1,6 +1,19 @@
 ﻿// <copyright file="IntegerSet.hpp" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -126,9 +139,7 @@ public:
         using value_type      = I;
 
         const_iterator() = default;
-        const_iterator(
-            std::vector<BinaryData>::const_iterator dataIterator,
-            std::vector<BinaryData>::const_iterator dataEnd);
+        const_iterator(std::vector<BinaryData>::const_iterator dataIterator, std::vector<BinaryData>::const_iterator dataEnd);
         const_iterator& operator++();
         const_iterator& operator++(int);
         bool            operator==(const_iterator const& other) const;
@@ -212,21 +223,19 @@ template <UnsignedNativeSizedInteger I>
 bool IntegerSet<I>::IsEmpty() const { return data().count == 0; }
 
 template <UnsignedNativeSizedInteger I>
-IntegerSet<I>::const_iterator::const_iterator(
-    std::vector<BinaryData>::const_iterator const dataIterator,
-    std::vector<BinaryData>::const_iterator const dataEnd)
+IntegerSet<I>::const_iterator::const_iterator(std::vector<BinaryData>::const_iterator const dataIterator, std::vector<BinaryData>::const_iterator const dataEnd)
     : m_dataIterator(dataIterator)
   , m_dataEnd(dataEnd) { if (m_dataIterator != m_dataEnd && !GetBit(*m_dataIterator, m_inDataIndex)) Advance(); }
 
 template <UnsignedNativeSizedInteger I>
-typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++()
+IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++()
 {
     Advance();
     return *this;
 }
 
 template <UnsignedNativeSizedInteger I>
-typename IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++(int)
+IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++(int)
 {
     auto copy = *this;
     Advance();
@@ -249,39 +258,25 @@ void IntegerSet<I>::const_iterator::Advance()
 
     // First step is to increment the in-data index and handle out-of-bounds.
     std::tie(m_inDataIndex, m_totalIndex) = std::make_tuple(m_inDataIndex + 1, m_totalIndex + 1);
-    if (m_inDataIndex == BINARY_DATA_BITS) std::tie(m_inDataIndex, m_dataIterator) = std::make_tuple(
-        0,
-        std::next(m_dataIterator));
+    if (m_inDataIndex == BINARY_DATA_BITS) std::tie(m_inDataIndex, m_dataIterator) = std::make_tuple(0, std::next(m_dataIterator));
 
     // Then search for the next data unit that has a bit set that is not read yet.
-    while (m_dataIterator != m_dataEnd && *m_dataIterator >> m_inDataIndex == 0)
-        std::tie(m_dataIterator, m_inDataIndex, m_totalIndex) = std::make_tuple(
-            std::next(m_dataIterator),
-            0,
-            m_totalIndex + (BINARY_DATA_BITS - m_inDataIndex));
+    while (m_dataIterator != m_dataEnd && *m_dataIterator >> m_inDataIndex == 0) std::tie(m_dataIterator, m_inDataIndex, m_totalIndex) = std::make_tuple(
+        std::next(m_dataIterator),
+        0,
+        m_totalIndex + (BINARY_DATA_BITS - m_inDataIndex));
 
     if (m_dataIterator == m_dataEnd) return;
 
     // Lastly, search for the next bit in the current data unit that is set.
-    while (!GetBit(*m_dataIterator, m_inDataIndex)) std::tie(m_inDataIndex, m_totalIndex) = std::make_tuple(
-        m_inDataIndex + 1,
-        m_totalIndex + 1);
+    while (!GetBit(*m_dataIterator, m_inDataIndex)) std::tie(m_inDataIndex, m_totalIndex) = std::make_tuple(m_inDataIndex + 1, m_totalIndex + 1);
 }
 
 template <UnsignedNativeSizedInteger I>
-typename IntegerSet<I>::const_iterator IntegerSet<I>::begin() const
-{
-    return const_iterator(data().data.begin(), data().data.end());
-}
+IntegerSet<I>::const_iterator IntegerSet<I>::begin() const { return const_iterator(data().data.begin(), data().data.end()); }
 
 template <UnsignedNativeSizedInteger I>
-typename IntegerSet<I>::const_iterator IntegerSet<I>::end() const
-{
-    return const_iterator(data().data.end(), data().data.end());
-}
+IntegerSet<I>::const_iterator IntegerSet<I>::end() const { return const_iterator(data().data.end(), data().data.end()); }
 
 template <UnsignedNativeSizedInteger I>
-bool IntegerSet<I>::GetBit(BinaryData const data, size_t const bitIndex)
-{
-    return (data & (static_cast<BinaryData>(1) << bitIndex)) != 0;
-}
+bool IntegerSet<I>::GetBit(BinaryData const data, size_t const bitIndex) { return (data & (static_cast<BinaryData>(1) << bitIndex)) != 0; }

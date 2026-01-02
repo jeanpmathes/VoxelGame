@@ -1,6 +1,19 @@
-//  <copyright file="RayGen.hlsl" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+// <copyright file="RayGen.hlsl" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -8,7 +21,22 @@
 #include "RayGenRT.hlsl"
 
 #include "Custom.hlsl"
+#include "Hash.hlsl"
 #include "Payload.hlsl"
+
+/**
+ * See https://www.anisopteragames.com/how-to-fix-color-banding-with-dithering/
+ */
+static uint const bayerDitheringMatrix[8][8] = {
+    {0, 32, 8, 40, 2, 34, 10, 42},
+    {48, 16, 56, 24, 50, 18, 58, 26},
+    {12, 44, 4, 36, 14, 46, 6, 38},
+    {60, 28, 52, 20, 62, 30, 54, 22},
+    {3, 35, 11, 43, 1, 33, 9, 41},
+    {51, 19, 59, 27, 49, 17, 57, 25},
+    {15, 47, 7, 39, 13, 45, 5, 37},
+    {63, 31, 55, 23, 61, 29, 53, 21},
+};
 
 /**
  * \brief Trace a ray.
@@ -29,13 +57,7 @@ vg::ray::TraceResult Trace(float3 const origin, float3 const direction, float co
 
     native::rt::HitInfo payload = vg::ray::GetInitialHitInfo(path);
 
-    TraceRay(
-        native::rt::spaceBVH,
-        RAY_FLAG_CULL_BACK_FACING_TRIANGLES,
-        native::rt::MASK_VISIBLE,
-        RT_HIT_ARG(0),
-        ray,
-        payload);
+    TraceRay(native::rt::spaceBVH, RAY_FLAG_CULL_BACK_FACING_TRIANGLES, native::rt::MASK_VISIBLE, RT_HIT_ARG(0), ray, payload);
 
     return vg::ray::GetTraceResult(payload, origin);
 }
@@ -50,13 +72,13 @@ struct Fog
     float  path;
 
     /**
-     * \brief Create a default configuration, creating weak sky-colored fog.
+     * \brief Create a default configuration, creating weak air-colored fog.
      */
     static Fog CreateDefault()
     {
         Fog fog;
-        fog.color   = vg::SKY_COLOR;
-        fog.density = 0.00002f;
+        fog.color   = vg::custom.airFogColor;
+        fog.density = vg::custom.airFogDensity;
         fog.path    = 0.0f;
         return fog;
     }
@@ -102,8 +124,7 @@ struct Fog
  * \param n2 The refractive index of the medium the transmission ray is in.
  * \return The reflectance factor at the hit.
  */
-float GetReflectance(
-    float3 const normal, float3 const incident, float3 const transmission, float const n1, float const n2)
+float GetReflectance(float3 const normal, float3 const incident, float3 const transmission, float const n1, float const n2)
 {
     if (!any(transmission)) return 1.0f;
 
@@ -121,16 +142,28 @@ float GetReflectance(
     return clamp(r0 + (1.0f - r0) * POW5(1.0f - cos), 0.0f, 1.0f);
 }
 
-[shader("raygeneration")]void RayGen()
+float2 GetSampleOffset(uint2 launchIndex, uint sampleIndex, uint gridSize, float strength)
 {
-    uint2 const  launchIndex = DispatchRaysIndex().xy;
-    float2 const dimensions  = float2(DispatchRaysDimensions().xy);
+    uint sx = sampleIndex % gridSize;
+    uint sy = sampleIndex / gridSize;
 
+    float2 base = (float2(sx, sy) + 0.5f) / gridSize;
+
+    uint  seed = launchIndex.x * 1973u ^ launchIndex.y * 9277u ^ sampleIndex * 26699u;
+    float jx   = (Random(seed + 0u) - 0.5f) / gridSize;
+    float jy   = (Random(seed + 1u) - 0.5f) / gridSize;
+
+    return saturate(base + float2(jx, jy) * strength);
+}
+
+void SampleAt(float2 offset, uint2 launchIndex, float2 dimensions, out float4 color, out float depth)
+{
     // Given the dimension (w, h), the launch index is in the range [0, w - 1] x [0, h - 1].
     // This range is transformed to NDC space, i.e. [-1, 1] x [-1, 1].
-    float2 const pixel = (float2(launchIndex) + 0.5f) / dimensions * 2.0f - 1.0f;
+    // Before that, a jitter in [0, 1] x [0, 1] is added to the launch index for antialiasing.
+    float2 pixel = (float2(launchIndex) + offset) / dimensions * 2.0f - 1.0f;
 
-    // DirectX textures have their origin at the top-left corner, while NDC has it at the bottom-left corner.
+    // DirectX textures have their origin in the top-left corner, while NDC has it in the bottom-left corner.
     // Therefore, the y coordinate is inverted.
     float4 const targetInProjectionSpace = float4(pixel.x, pixel.y * -1.0f, 1.0f, 1.0f);
 
@@ -144,13 +177,15 @@ float GetReflectance(
 
     float const relativeY = 1.0f - (pixel.y + 1.0f) / 2.0f;
     Fog         fog       = Fog::CreateDefault();
-    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f
-        && relativeY > vg::custom.fogOverlapSize + 1.0f)) fog = Fog::CreateVolume(vg::custom.fogOverlapColor);
 
-    int    iteration = 0;
-    float4 color     = 0;
-    float  depth     = 0;
-    float  path      = length(direction);
+    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f && relativeY > vg::custom.fogOverlapSize + 1.0f)) fog =
+    Fog::CreateVolume(vg::custom.fogOverlapColor);
+
+    color = 0;
+    depth = 0;
+
+    int   iteration = 0;
+    float path      = length(direction);
 
     float                reflectance = 0.0f;
     vg::ray::TraceResult reflection  = vg::ray::GetEmptyTraceResult();
@@ -161,9 +196,9 @@ float GetReflectance(
 
         fog.Apply(main);
         fog.Extend(main.distance);
-        
+
         path += main.distance;
-        
+
         float const alpha = main.color.a;
 
         main.color = lerp(main.color, reflection.color, reflectance);
@@ -195,17 +230,9 @@ float GetReflectance(
         float3 const refracted = normalize(refract(direction, main.normal, n1 / n2));
         float3 const reflected = normalize(reflect(direction, main.normal));
 
-        // If an reflectance ray is needed for the current hit, it is traced this iteration.
+        // If a reflectance ray is needed for the current hit, it is traced this iteration.
         // The main ray of the next iteration is the refraction ray, except if the reflectance is total.
-
-        reflectance = alpha < 1.0f
-                          ? GetReflectance(
-                              incoming ? main.normal : main.normal * -1.0f,
-                              direction,
-                              refracted,
-                              n1,
-                              n2)
-                          : 0.0f;
+        reflectance = alpha < 1.0f ? GetReflectance(incoming ? main.normal : main.normal * -1.0f, direction, refracted, n1, n2) : 0.0f;
 
         origin    = main.position;
         normal    = main.normal;
@@ -215,7 +242,7 @@ float GetReflectance(
         iteration++;
 
         bool mainRayIsReflection = false;
-        
+
         if (reflectance > 0.0f)
         {
             // This shader normally has a main ray which can pass trough transparent objects.
@@ -228,7 +255,7 @@ float GetReflectance(
                 reflection = Trace(origin + normal * native::rt::RAY_EPSILON, reflected, min, path);
 
                 fog.Apply(reflection);
-                
+
                 // Intentionally not updating the path length.
             }
             else
@@ -249,7 +276,79 @@ float GetReflectance(
             else fog          = Fog::CreateDefault();
         }
     }
-    
-    native::rt::colorOutput[launchIndex] = RGBA(color);
-    native::rt::depthOutput[launchIndex] = depth;
+}
+
+[shader("raygeneration")]void RayGen()
+{
+    uint2 const  launchIndex = DispatchRaysIndex().xy;
+    float2 const dimensions  = float2(DispatchRaysDimensions().xy);
+
+    uint const minGrid = vg::custom.antiAliasing.isEnabled ? vg::custom.antiAliasing.minimumSamplingGridSize : 1;
+    uint const maxGrid = vg::custom.antiAliasing.isEnabled ? vg::custom.antiAliasing.maximumSamplingGridSize : 1;
+
+    float const varianceThreshold = vg::custom.antiAliasing.varianceThreshold;
+    float const depthThreshold    = vg::custom.antiAliasing.depthThreshold;
+
+    float const offsetStrength = vg::custom.antiAliasing.isEnabled ? 1.0f : 0.0f;
+
+    uint const minSampleCount = minGrid * minGrid;
+    uint const maxSampleCount = maxGrid * maxGrid;
+
+    uint samples = 0;
+
+    // Variance is estimated using the Welford online algorithm.
+    float meanLuminance         = 0;
+    float sumOfSquaresLuminance = 0;
+
+    float3 accumulator = 0;
+    float  minDepth    = 1.0f;
+    float  maxDepth    = 0.0f;
+
+    float4 color;
+    float  depth;
+
+    for (uint index = 0; index < minSampleCount; index++)
+    {
+        SampleAt(GetSampleOffset(launchIndex, index, minGrid, offsetStrength), launchIndex, dimensions, color, depth);
+
+        accumulator += color.rgb;
+        minDepth    = min(minDepth, depth);
+        maxDepth    = max(maxDepth, depth);
+        samples     += 1;
+
+        float luminance = native::GetLuminance(color.rgb);
+        float delta     = luminance - meanLuminance;
+
+        meanLuminance         += delta / samples;
+        sumOfSquaresLuminance += delta * (luminance - meanLuminance);
+    }
+
+    float variance = samples > 1 ? sumOfSquaresLuminance / samples : 0;
+
+    if (vg::custom.antiAliasing.isEnabled && (variance > varianceThreshold || (maxDepth - minDepth) > depthThreshold))
+        for (uint index = minSampleCount; index < maxSampleCount; index++)
+        {
+            SampleAt(GetSampleOffset(launchIndex, index, maxGrid, offsetStrength), launchIndex, dimensions, color, depth);
+
+            accumulator += color.rgb;
+            minDepth    = min(minDepth, depth);
+            // Maximum depth was only needed for the threshold check.
+            samples += 1;
+        }
+
+    float4 result = RGBA(accumulator / samples);
+
+    if (vg::custom.antiAliasing.showSamplingRate)
+    {
+        bool  hasUsedMaxSamples = samples > minSampleCount;
+        float luminance         = native::GetLuminance(result.rgb);
+
+        float3 visualization = hasUsedMaxSamples ? float3(1.0f, 0.0f, luminance) : float3(0.0f, 1.0f, luminance);
+        result               = RGBA(visualization);
+    }
+
+    float ditherOffset = ((bayerDitheringMatrix[launchIndex.y & 7][launchIndex.x & 7] + 0.5f) / 64.0f - 0.5f) / 255.0f;
+
+    native::rt::colorOutput[launchIndex] = RGBA(saturate(result.rgb + ditherOffset));
+    native::rt::depthOutput[launchIndex] = minDepth;
 }

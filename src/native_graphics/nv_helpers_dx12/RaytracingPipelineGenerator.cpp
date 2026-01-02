@@ -151,7 +151,7 @@ namespace nv_helpers_dx12
         shaderPayloadAssociation.NumExports = static_cast<UINT>(exportedSymbols.size());
         shaderPayloadAssociation.pExports   = shaderExports;
 
-        shaderPayloadAssociation.pSubobjectToAssociate = &subobjects[(currentIndex - 1)];
+        shaderPayloadAssociation.pSubobjectToAssociate = &subobjects[currentIndex - 1];
 
         D3D12_STATE_SUBOBJECT shaderPayloadAssociationObject;
         shaderPayloadAssociationObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
@@ -166,14 +166,14 @@ namespace nv_helpers_dx12
             rootSigObject.Type = assoc.local
                                      ? D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE
                                      : D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
-            rootSigObject.pDesc = assoc.rootSignature.GetAddressOf();
+            rootSigObject.pDesc = reinterpret_cast<void*>(assoc.rootSignature.GetAddressOf());
 
             subobjects[currentIndex] = rootSigObject;
             currentIndex++;
 
             assoc.association.NumExports            = static_cast<UINT>(assoc.symbolPointers.size());
             assoc.association.pExports              = assoc.symbolPointers.data();
-            assoc.association.pSubobjectToAssociate = &subobjects[(currentIndex - 1)];
+            assoc.association.pSubobjectToAssociate = &subobjects[currentIndex - 1];
 
             D3D12_STATE_SUBOBJECT rootSigAssociationObject;
             rootSigAssociationObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_SUBOBJECT_TO_EXPORTS_ASSOCIATION;
@@ -186,7 +186,7 @@ namespace nv_helpers_dx12
         D3D12_STATE_SUBOBJECT globalRootSig;
         globalRootSig.Type         = D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
         ID3D12RootSignature* dgSig = globalRootSignature.Get();
-        globalRootSig.pDesc        = &dgSig;
+        globalRootSig.pDesc        = reinterpret_cast<void*>(&dgSig);
 
         subobjects[currentIndex] = globalRootSig;
         currentIndex++;
@@ -194,7 +194,7 @@ namespace nv_helpers_dx12
         D3D12_STATE_SUBOBJECT dummyLocalRootSig;
         dummyLocalRootSig.Type     = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
         ID3D12RootSignature* dlSig = m_dummyLocalRootSignature.Get();
-        dummyLocalRootSig.pDesc    = &dlSig;
+        dummyLocalRootSig.pDesc    = reinterpret_cast<void*>(&dlSig);
 
         subobjects[currentIndex] = dummyLocalRootSig;
         currentIndex++;
@@ -258,9 +258,6 @@ namespace nv_helpers_dx12
 
     void RayTracingPipelineGenerator::BuildShaderExportList(std::vector<std::wstring>& exportedSymbols) const
     {
-        // ReSharper disable once CppInconsistentNaming
-        using is_transparent = void;
-
         std::unordered_set<std::wstring> exports;
 
         for (Library const& lib : m_libraries)

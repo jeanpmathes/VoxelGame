@@ -1,6 +1,19 @@
 ﻿// <copyright file="Space.hpp" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -53,6 +66,8 @@ struct SpacePipelineDescription
 
     LPWSTR* symbols;
 
+    UINT anisotropy;
+
     MaterialDescription* materials;
     UINT                 materialCount;
 
@@ -61,6 +76,9 @@ struct SpacePipelineDescription
     UINT      textureCountSecondSlot;
 
     UINT customDataBufferSize;
+
+    UINT meshSpoolCount;
+    UINT effectSpoolCount;
 
     NativeErrorFunc onShaderLoadingError;
 };
@@ -80,8 +98,8 @@ struct GlobalBuffer
     DirectX::XMUINT3 textureSize;
 
     DirectX::XMFLOAT3 lightDirection;
-    float             minLight;
-    float             minShadow;
+    float             lightIntensity;
+    DirectX::XMFLOAT3 lightColor;
 };
 
 struct MaterialBuffer
@@ -160,9 +178,7 @@ public:
      * Get a buffer containing indices for the given vertex count.
      * The indices are valid for a vertex buffer that contains a list of quads.
      */
-    [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(
-        UINT                                 vertexCount,
-        std::vector<D3D12_RESOURCE_BARRIER>* barriers);
+    [[nodiscard]] std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount, std::vector<D3D12_RESOURCE_BARRIER>* barriers);
 
     struct RenderData
     {
@@ -171,11 +187,10 @@ public:
         RasterInfo const*                  viewport;
     };
 
+    void SpoolUp();
+
     void Update(double delta);
-    void Render(
-        Allocation<ID3D12Resource> const& color,
-        Allocation<ID3D12Resource> const& depth,
-        RenderData const&                 data);
+    void Render(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth, RenderData const& data);
     void CleanupRender();
 
     /**
@@ -216,21 +231,18 @@ private:
 
     void InitializePipelineResourceViews(SpacePipelineDescription const& pipeline);
 
-    bool CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDescription);
+    bool                                                  CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDescription);
     static std::pair<std::vector<ComPtr<IDxcBlob>>, bool> CompileShaderLibraries(
-        NativeClient&                                 nativeClient,
+        NativeClient&                                 client,
         SpacePipelineDescription const&               pipelineDescription,
         nv_helpers_dx12::RayTracingPipelineGenerator& pipeline);
-    std::unique_ptr<Material> SetUpMaterial(
-        MaterialDescription const&                    description,
-        UINT                                          index,
-        nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
-    void CreateAnimations(SpacePipelineDescription const& pipeline);
-    void SetUpStaticResourceLayout(ShaderResources::Description* description);
-    void SetUpDynamicResourceLayout(ShaderResources::Description* description);
-    void SetUpAnimationResourceLayout(ShaderResources::Description* description);
-    void InitializeAnimations();
-    void CreateRaytracingOutputBuffer();
+    std::unique_ptr<Material> SetUpMaterial(MaterialDescription const& description, UINT index, nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const;
+    void                      CreateAnimations(SpacePipelineDescription const& pipeline);
+    void                      SetUpStaticResourceLayout(ShaderResources::Description* description);
+    void                      SetUpDynamicResourceLayout(ShaderResources::Description* description);
+    void                      SetUpAnimationResourceLayout(ShaderResources::Description* description);
+    void                      InitializeAnimations();
+    void                      CreateRaytracingOutputBuffer();
 
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateRayGenSignature() const;
     [[nodiscard]] ComPtr<ID3D12RootSignature> CreateMissSignature() const;
@@ -249,7 +261,7 @@ private:
     void UpdateTopLevelAccelerationStructureView() const;
     void UpdateGlobalShaderResources();
 
-    NativeClient* m_nativeClient;
+    NativeClient* m_client;
     Resolution    m_resolution = {};
 
     InBufferAllocator m_resultBufferAllocator;
@@ -257,6 +269,9 @@ private:
 
     Camera m_camera;
     Light  m_light;
+
+    UINT m_meshSpoolCount   = 0;
+    UINT m_effectSpoolCount = 0;
 
     Allocation<ID3D12Resource>            m_globalConstantBuffer        = {};
     UINT64                                m_globalConstantBufferSize    = 0;
@@ -310,8 +325,8 @@ private:
     ShaderResources::ListHandle   m_meshGeometryBufferList        = ShaderResources::ListHandle::INVALID;
 
     Drawable::BaseContainer m_drawables;
-    DrawablesGroup<Mesh>    m_meshes{*m_nativeClient, m_drawables};
-    DrawablesGroup<Effect>  m_effects{*m_nativeClient, m_drawables};
+    DrawablesGroup<Mesh>    m_meshes{*m_client, m_drawables};
+    DrawablesGroup<Effect>  m_effects{*m_client, m_drawables};
     std::vector<Drawables*> m_drawableGroups = {&m_meshes, &m_effects};
 
     nv_helpers_dx12::TopLevelASGenerator m_tlasGenerator;

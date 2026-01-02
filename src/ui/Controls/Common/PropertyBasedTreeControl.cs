@@ -1,11 +1,23 @@
 ﻿// <copyright file="PropertyBasedTreeControl.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
-using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.UI.UserInterfaces;
@@ -18,16 +30,12 @@ namespace VoxelGame.UI.Controls.Common;
 /// </summary>
 public class PropertyBasedTreeControl : TreeControl
 {
-    private readonly Context context;
-
     /// <summary>
     ///     Create a <see cref="PropertyBasedTreeControl" /> from a <see cref="Property" />.
     /// </summary>
-    internal PropertyBasedTreeControl(ControlBase parent, Property property, Context context) : base(parent)
+    internal PropertyBasedTreeControl(ControlBase parent, Property property) : base(parent)
     {
-        this.context = context;
-
-        TreeControlBuilder builder = new(this, context);
+        TreeControlBuilder builder = new(this);
         builder.Visit(property);
     }
 
@@ -37,11 +45,11 @@ public class PropertyBasedTreeControl : TreeControl
     /// <param name="property">The <see cref="Property" /> to update the <see cref="PropertyBasedTreeControl" /> with.</param>
     public void Update(Property property)
     {
-        TreeControlBuilder builder = new(this, context);
+        TreeControlBuilder builder = new(this);
         builder.Visit(property);
     }
 
-    private sealed class TreeControlBuilder(TreeControl tree, Context context) : Visitor
+    private sealed class TreeControlBuilder(TreeControl tree) : Visitor
     {
         private TreeNode current = tree.RootNode;
         private Int32 index;
@@ -112,8 +120,8 @@ public class PropertyBasedTreeControl : TreeControl
         {
             TreeNode node = FindOrCreateNode(error.Name, $"{error.Name}: {error.Message}");
 
-            String icon = error.IsCritical ? context.Resources.ErrorIcon : context.Resources.WarningIcon;
-            Color color = error.IsCritical ? Colors.Error : Colors.Warning;
+            String icon = error.IsCritical ? Icons.Instance.Error : Icons.Instance.Warning;
+            Gwen.Net.Color color = error.IsCritical ? Colors.Error : Colors.Warning;
 
             node.SetImage(icon, Context.SmallIconSize, color);
         }
@@ -136,6 +144,24 @@ public class PropertyBasedTreeControl : TreeControl
         public override void Visit(Measure measure)
         {
             FindOrCreateNode(measure.Name, $"{measure.Name}: {measure.Value}");
+        }
+
+        public override void Visit(Truth truth)
+        {
+            TreeNode node = FindOrCreateNode(truth.Name, truth.Name);
+
+            String icon = truth.Value ? Icons.Instance.Check : Icons.Instance.Close;
+            Gwen.Net.Color color = truth.Value ? Colors.Good : Colors.Bad;
+
+            node.SetImage(icon, Context.SmallIconSize, color);
+        }
+
+        public override void Visit(Color color)
+        {
+            TreeNode node = FindOrCreateNode(color.Name, color.Name);
+
+            var c = color.Value.ToColor();
+            node.SetColor(new Gwen.Net.Color(c.A, c.R, c.G, c.B));
         }
     }
 }

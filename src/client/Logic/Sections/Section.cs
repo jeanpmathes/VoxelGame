@@ -1,6 +1,19 @@
 ﻿// <copyright file="Section.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,13 +23,15 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Logic.Sections;
 
@@ -33,20 +48,13 @@ public class Section : Core.Logic.Sections.Section
     #endregion LOGGING
 
     private Boolean hasMesh;
-    private BlockSides missing;
-    private SectionVFX? vfx;
+    private Sides missing;
+
+    private SectionRenderer? vfx;
+    private Boolean vfxEnabled;
 
     /// <inheritdoc />
-    public Section(ArraySegment<UInt32> blocks) : base(blocks) {}
-
-    /// <inheritdoc />
-    public override void Initialize(SectionPosition newPosition)
-    {
-        base.Initialize(newPosition);
-
-        vfx = new SectionVFX(Application.Client.Instance.Space, Position.FirstBlock);
-        vfx.SetUp();
-    }
+    public Section(NativeSegment<UInt32> blocks) : base(blocks) {}
 
     /// <inheritdoc />
     public override void Reset()
@@ -54,12 +62,14 @@ public class Section : Core.Logic.Sections.Section
         base.Reset();
 
         hasMesh = false;
-        missing = BlockSides.All;
+        missing = Sides.All;
 
-        Debug.Assert(vfx != null);
+        vfxEnabled = false;
 
-#pragma warning disable S2952 // Object is diposed in Dispose() too, but is overridden here and thus must be disposed here.
-        vfx.TearDown();
+        if (vfx == null)
+            return;
+
+#pragma warning disable S2952 // Object is diposed in Dispose() too, but is set to null here and thus must be disposed here.
         vfx.Dispose();
 #pragma warning restore S2952
 
@@ -69,31 +79,33 @@ public class Section : Core.Logic.Sections.Section
     /// <summary>
     ///     Create a mesh for this section and activate it.
     /// </summary>
+    /// <param name="world">The world the section is in.</param>
     /// <param name="context">The context to use for mesh creation.</param>
-    public void CreateAndSetMesh(ChunkMeshingContext context)
+    public void CreateAndSetMesh(World world, ChunkMeshingContext context)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        BlockSides required = GetRequiredSides(Position);
-        missing = required & ~context.AvailableSides & BlockSides.All;
+        Sides required = GetRequiredSides(Position);
+        missing = required & ~context.AvailableSides & Sides.All;
 
         using SectionMeshData meshData = CreateMeshData(context);
-        SetMeshDataInternal(meshData);
+        SetMeshDataInternal(world, meshData);
     }
 
     /// <summary>
     ///     Recreate and set the mesh if it is incomplete, which means that it was meshed without all required neighbors.
     /// </summary>
+    /// <param name="world">The world the section is in.</param>
     /// <param name="context">The context to use for mesh creation.</param>
-    public void RecreateIncompleteMesh(ChunkMeshingContext context)
+    public void RecreateIncompleteMesh(World world, ChunkMeshingContext context)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        if (missing == BlockSides.None) return;
+        if (missing == Sides.None) return;
 
-        BlockSides required = GetRequiredSides(Position);
+        Sides required = GetRequiredSides(Position);
 
-        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(context);
+        if (context.AvailableSides.HasFlag(required)) CreateAndSetMesh(world, context);
     }
 
     /// <summary>
@@ -102,26 +114,26 @@ public class Section : Core.Logic.Sections.Section
     ///     No resource access is needed, as all written variables are only accessed from the main thread.
     /// </summary>
     /// <param name="sides">The sides that are missing for the section.</param>
-    public void SetAsIncomplete(BlockSides sides)
+    public void SetAsIncomplete(Sides sides)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         missing |= sides;
     }
 
-    private static BlockSides GetRequiredSides(SectionPosition position)
+    private static Sides GetRequiredSides(SectionPosition position)
     {
-        var required = BlockSides.None;
+        var required = Sides.None;
         (Int32 x, Int32 y, Int32 z) = position.Local;
 
-        if (x == 0) required |= BlockSides.Left;
-        if (x == Chunk.Size - 1) required |= BlockSides.Right;
+        if (x == 0) required |= Sides.Left;
+        if (x == Chunk.Size - 1) required |= Sides.Right;
 
-        if (y == 0) required |= BlockSides.Bottom;
-        if (y == Chunk.Size - 1) required |= BlockSides.Top;
+        if (y == 0) required |= Sides.Bottom;
+        if (y == Chunk.Size - 1) required |= Sides.Top;
 
-        if (z == 0) required |= BlockSides.Back;
-        if (z == Chunk.Size - 1) required |= BlockSides.Front;
+        if (z == 0) required |= Sides.Back;
+        if (z == Chunk.Size - 1) required |= Sides.Front;
 
         return required;
     }
@@ -131,9 +143,9 @@ public class Section : Core.Logic.Sections.Section
     /// </summary>
     /// <param name="chunkContext">The chunk context to use.</param>
     /// <returns>The created mesh data.</returns>
-    public SectionMeshData CreateMeshData(ChunkMeshingContext chunkContext)
+    public SectionMeshData CreateMeshData(IChunkMeshingContext chunkContext)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         using Timer? timer = logger.BeginTimedScoped("Section Meshing");
 
@@ -149,18 +161,16 @@ public class Section : Core.Logic.Sections.Section
 
                 Decode(
                     content,
-                    out Block currentBlock,
-                    out UInt32 data,
+                    out State state,
                     out Fluid currentFluid,
                     out FluidLevel level,
                     out Boolean isStatic);
 
-                IBlockMeshable meshable = currentBlock;
-                meshable.CreateMesh((x, y, z), new BlockMeshInfo(BlockSide.All, data, currentFluid), context);
+                state.Block.Mesh((x, y, z), state, context);
 
                 currentFluid.CreateMesh(
                     (x, y, z),
-                    FluidMeshInfo.Fluid(currentBlock.AsInstance(data), level, BlockSide.All, isStatic),
+                    FluidMeshInfo.Fluid(state, level, Side.All, isStatic),
                     context);
             }
         }
@@ -183,16 +193,17 @@ public class Section : Core.Logic.Sections.Section
     ///     Set the mesh data for this section. The mesh must be generated from this section.
     ///     Must be called from the main thread.
     /// </summary>
+    /// <param name="world">The world the section is in.</param>
     /// <param name="meshData">The mesh data to use and activate.</param>
-    public void SetMeshData(SectionMeshData meshData)
+    public void SetMeshData(World world, SectionMeshData meshData)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         // While the mesh is not necessarily complete,
         // missing neighbours are the reponsibility of the level that created the passed mesh, e.g. the chunk.
-        missing = BlockSides.None;
+        missing = Sides.None;
 
-        SetMeshDataInternal(meshData);
+        SetMeshDataInternal(world, meshData);
     }
 
     /// <summary>
@@ -200,24 +211,28 @@ public class Section : Core.Logic.Sections.Section
     /// </summary>
     public void SetVfxEnabledState(Boolean enabled)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        Debug.Assert(vfx != null);
+        vfxEnabled = enabled;
 
-        vfx.IsEnabled = enabled;
+        if (vfx != null) vfx.IsEnabled = enabled;
     }
 
-    private void SetMeshDataInternal(SectionMeshData meshData)
+    private void SetMeshDataInternal(World world, SectionMeshData meshData)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        Debug.Assert(vfx != null);
         Debug.Assert(hasMesh == meshData.IsFilled);
+
+        vfx ??= new SectionRenderer(world.Space, Position.FirstBlock)
+        {
+            IsEnabled = vfxEnabled
+        };
 
         vfx.SetData(meshData);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -226,16 +241,12 @@ public class Section : Core.Logic.Sections.Section
     {
         if (disposed) return;
 
-        if (disposing)
-        {
-            vfx?.TearDown();
-            vfx?.Dispose();
-        }
+        if (disposing) vfx?.Dispose();
 
         base.Dispose(disposing);
 
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

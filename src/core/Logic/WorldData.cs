@@ -1,6 +1,19 @@
 ﻿// <copyright file="WorldData.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,6 +22,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections.Properties;
@@ -27,9 +42,9 @@ public partial class WorldData
 {
     private const String InfoFileName = "info.json";
 
-    private readonly List<DirectoryInfo> subdirectories = [];
-
     private readonly FileInfo informationFile;
+
+    private readonly List<DirectoryInfo> subdirectories = [];
 
     /// <summary>
     ///     Creates a new world data object.
@@ -122,7 +137,7 @@ public partial class WorldData
 
         Vector3d validSpawn = ClampSpawn(information).Position;
 
-        if (!silent && !VMath.NearlyEqual(validSpawn, information.SpawnInformation.Position))
+        if (!silent && !MathTools.NearlyEqual(validSpawn, information.SpawnInformation.Position))
         {
             LogInvalidSpawnPosition(logger, information.SpawnInformation.Position, validSpawn);
             information.SpawnInformation = new SpawnInformation(validSpawn);
@@ -156,13 +171,13 @@ public partial class WorldData
 
     private static UInt32 ClampSize(UInt32 size)
     {
-        return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize);
+        return Math.Clamp(size, 16 * Chunk.BlockSize, World.BlockLimit - Chunk.BlockSize * (1 + RequestLevel.Range));
     }
 
     private static SpawnInformation ClampSpawn(WorldInformation information)
     {
         Vector3d size = new(information.Size);
-        Vector3d clamped = VMath.ClampComponents(information.SpawnInformation.Position, -size, size);
+        Vector3d clamped = information.SpawnInformation.Position.ClampComponents(-size, size);
 
         return new SpawnInformation(clamped);
     }
@@ -182,34 +197,41 @@ public partial class WorldData
     }
 
     /// <summary>
-    /// Read in a data blob that contains a serialized entity.
+    ///     Read in a data blob that contains a serialized entity.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
     /// <returns>The entity, or null if an error occurred.</returns>
-    public T? ReadBlob<T>(String name) where T : class, IEntity, new()
+    public async Task<T?> ReadBlobAsync<T>(String name, CancellationToken token = default) where T : class, IEntity, new()
     {
-        Exception? exception = Serialize.LoadBinary(BlobDirectory.GetFile(name), out T entity, typeof(T).FullName ?? "");
+        Result<T> result = await Serialize.LoadBinaryAsync<T>(BlobDirectory.GetFile(name), typeof(T).FullName ?? "", token).InAnyContext();
 
-        if (exception is FileFormatException) LogFailedToReadBlob(logger, exception, name);
-        else if (exception != null) LogFailedToReadBlobDebug(logger, exception, name);
-        else return entity;
+        return result.Switch(
+            T? (blob) => blob,
+            exception =>
+            {
+                if (exception is FileFormatException) LogFailedToReadBlob(logger, exception, name);
+                else LogFailedToReadBlobDebug(logger, exception, name);
 
-        return null;
+                return null;
+            });
     }
 
     /// <summary>
-    /// Write an entity to a data blob.
+    ///     Write an entity to a data blob.
     /// </summary>
     /// <param name="name">The name of the blob.</param>
     /// <param name="entity">The entity to write.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <typeparam name="T">The type of the entity.</typeparam>
-    public void WriteBlob<T>(String name, T entity) where T : class, IEntity, new()
+    public async Task WriteBlobAsync<T>(String name, T entity, CancellationToken token = default) where T : class, IEntity, new()
     {
-        Exception? exception = Serialize.SaveBinary(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "");
+        Result result = await Serialize.SaveBinaryAsync(entity, BlobDirectory.GetFile(name), typeof(T).FullName ?? "", token).InAnyContext();
 
-        if (exception != null)
-            LogFailedToWriteBlob(logger, exception, name);
+        result.Switch(
+            () => {},
+            exception => LogFailedToWriteBlob(logger, exception, name));
     }
 
     private FileInfo GetScriptPath(String name)
@@ -261,22 +283,23 @@ public partial class WorldData
     }
 
     /// <summary>
-    /// Save all information directly handled by this class.
-    /// This will not save any chunks or open blobs.
+    ///     Save all information directly handled by this class.
+    ///     This will not save any chunks or open blobs.
     /// </summary>
-    public void Save()
+    public async Task SaveAsync(CancellationToken token = default)
     {
-        Information.Save(informationFile);
+        await Information.SaveAsync(informationFile, token).InAnyContext();
     }
 
     /// <summary>
     ///     Load a world information structure and create the world data class.
     /// </summary>
     /// <param name="directory">The directory of the world.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <returns>The world information structure.</returns>
-    public static WorldData LoadInformation(DirectoryInfo directory)
+    public static async Task<WorldData> LoadInformationAsync(DirectoryInfo directory, CancellationToken token = default)
     {
-        WorldInformation information = WorldInformation.Load(directory.GetFile(InfoFileName));
+        WorldInformation information = await WorldInformation.LoadAsync(directory.GetFile(InfoFileName), token).InAnyContext();
 
         MakeWorldInformationValid(information);
 
@@ -296,9 +319,10 @@ public partial class WorldData
     /// <summary>
     ///     Determine the properties of the world.
     /// </summary>
-    public Property DetermineProperties()
+    /// <param name="token">A token to cancel the operation.</param>
+    public async Task<Property> DeterminePropertiesAsync(CancellationToken token = default)
     {
-        return new WorldProperties(Information, WorldDirectory);
+        return await WorldProperties.CreateAsync(Information, WorldDirectory, token).InAnyContext();
     }
 
     /// <summary>
@@ -319,7 +343,7 @@ public partial class WorldData
             // Ignore, because the next step will it try again and log the error.
         }
 
-        return Operations.Launch(() =>
+        return Operations.Launch(_ =>
         {
             try
             {
@@ -333,6 +357,8 @@ public partial class WorldData
 
                 throw;
             }
+
+            return Task.CompletedTask;
         });
     }
 
@@ -343,15 +369,15 @@ public partial class WorldData
     /// <returns>The operation that will copy the world.</returns>
     public Operation<WorldData> CopyTo(DirectoryInfo targetDirectory)
     {
-        return Operations.Launch(() =>
+        return Operations.Launch(async token =>
         {
             try
             {
-                WorldDirectory.CopyTo(targetDirectory);
+                await WorldDirectory.CopyToAsync(targetDirectory, token).InAnyContext();
 
                 LogCopiedWorld(logger, Information.Name, targetDirectory.FullName);
 
-                return LoadInformation(targetDirectory);
+                return await LoadInformationAsync(targetDirectory, token).InAnyContext();
             }
             catch (Exception e) when (e is IOException or SecurityException or UnauthorizedAccessException)
             {
@@ -366,56 +392,57 @@ public partial class WorldData
     ///     Rename the world.
     /// </summary>
     /// <param name="newName">The new name of the world. Must be a valid name.</param>
-    public void Rename(String newName)
+    /// <param name="token">A token to cancel the operation.</param>
+    public async Task RenameAsync(String newName, CancellationToken token = default)
     {
         LogRenamingWorld(logger, Information.Name, newName);
 
         Information.Name = newName;
 
-        Save();
+        await SaveAsync(token).InAnyContext();
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldData>();
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded world name '{Invalid}' was invalid, changed to '{Valid}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 0, Level = LogLevel.Warning, Message = "Loaded world name '{Invalid}' was invalid, changed to '{Valid}'")]
     private static partial void LogInvalidWorldName(ILogger logger, String invalid, String valid);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded world size {Invalid} was invalid, changed to {Valid}")]
+    [LoggerMessage(EventId = LogID.WorldData + 1, Level = LogLevel.Warning, Message = "Loaded world size {Invalid} was invalid, changed to {Valid}")]
     private static partial void LogInvalidWorldSize(ILogger logger, UInt32 invalid, UInt32 valid);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Warning, Message = "Loaded spawn position {Invalid} was invalid, changed to {Valid}")]
+    [LoggerMessage(EventId = LogID.WorldData + 2, Level = LogLevel.Warning, Message = "Loaded spawn position {Invalid} was invalid, changed to {Valid}")]
     private static partial void LogInvalidSpawnPosition(ILogger logger, Vector3d invalid, Vector3d valid);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to read blob '{Name}', format is incorrect")]
+    [LoggerMessage(EventId = LogID.WorldData + 3, Level = LogLevel.Error, Message = "Failed to read blob '{Name}', format is incorrect")]
     private static partial void LogFailedToReadBlob(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Failed to read blob '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 4, Level = LogLevel.Debug, Message = "Failed to read blob '{Name}'")]
     private static partial void LogFailedToReadBlobDebug(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to write blob '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 5, Level = LogLevel.Error, Message = "Failed to write blob '{Name}'")]
     private static partial void LogFailedToWriteBlob(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Failed to read script '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 6, Level = LogLevel.Debug, Message = "Failed to read script '{Name}'")]
     private static partial void LogFailedToReadScript(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to create script '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 7, Level = LogLevel.Error, Message = "Failed to create script '{Name}'")]
     private static partial void LogFailedToCreateScript(ILogger logger, Exception exception, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Deleted world '{Name}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 8, Level = LogLevel.Information, Message = "Deleted world '{Name}'")]
     private static partial void LogDeletedWorld(ILogger logger, String name);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to delete world")]
+    [LoggerMessage(EventId = LogID.WorldData + 9, Level = LogLevel.Error, Message = "Failed to delete world")]
     private static partial void LogFailedToDeleteWorld(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Copied world '{Name}' to '{Target}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 10, Level = LogLevel.Information, Message = "Copied world '{Name}' to '{Target}'")]
     private static partial void LogCopiedWorld(ILogger logger, String name, String target);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Error, Message = "Failed to copy world")]
+    [LoggerMessage(EventId = LogID.WorldData + 11, Level = LogLevel.Error, Message = "Failed to copy world")]
     private static partial void LogFailedToCopyWorld(ILogger logger, Exception exception);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Renaming world '{OldName}' to '{NewName}'")]
+    [LoggerMessage(EventId = LogID.WorldData + 12, Level = LogLevel.Information, Message = "Renaming world '{OldName}' to '{NewName}'")]
     private static partial void LogRenamingWorld(ILogger logger, String oldName, String newName);
 
     #endregion LOGGING

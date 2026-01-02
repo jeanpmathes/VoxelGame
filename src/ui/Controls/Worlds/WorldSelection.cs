@@ -1,6 +1,19 @@
 ﻿// <copyright file="WorldSelection.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -26,20 +39,19 @@ namespace VoxelGame.UI.Controls.Worlds;
 ///     The menu displaying worlds, allowing to select and create worlds.
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
-internal class WorldSelection : StandardMenu
+internal sealed class WorldSelection : StandardMenu
 {
-    private readonly IWorldProvider worldProvider;
-
     private readonly List<Button> buttonBar = new();
-
-    private Search search = null!;
-    private WorldList worlds = null!;
+    private readonly IWorldProvider worldProvider;
 
     private Boolean isFirstOpen = true;
 
     private CancellationTokenSource? refreshCancellation;
 
+    private Search search = null!;
+
     private Window? worldCreationWindow;
+    private WorldList worlds = null!;
 
     internal WorldSelection(ControlBase parent, IWorldProvider worldProvider, Context context) : base(
         parent,
@@ -59,7 +71,7 @@ internal class WorldSelection : StandardMenu
         back.Released += (_, _) =>
         {
             worldCreationWindow?.Close();
-            Cancel(this, EventArgs.Empty);
+            Cancel?.Invoke(this, EventArgs.Empty);
         };
     }
 
@@ -173,10 +185,10 @@ internal class WorldSelection : StandardMenu
 
         refreshCancellation = new CancellationTokenSource();
 
-        worlds.BuildText(Texts.FormatOperation(Language.SearchingWorlds, Status.Running));
+        worlds.BuildText(Texts.FormatWithStatus(Language.SearchingWorlds, Status.Running));
         SetButtonBarEnabled(enabled: false);
 
-        worldProvider.Refresh().OnCompletion(op =>
+        worldProvider.Refresh().OnCompletionSync(_ =>
             {
                 SetButtonBarEnabled(enabled: true);
 
@@ -184,9 +196,11 @@ internal class WorldSelection : StandardMenu
                 refreshCancellation?.Dispose();
                 refreshCancellation = null;
 #pragma warning disable S2952
-
-                if (op.IsOk) UpdateList();
-                else worlds.BuildText(Texts.FormatOperation(Language.SearchingWorlds, op.Status), isError: true);
+            },
+            UpdateList,
+            _ =>
+            {
+                worlds.BuildText(Texts.FormatWithStatus(Language.SearchingWorlds, Status.ErrorOrCancel), isError: true);
             },
             refreshCancellation.Token);
     }
@@ -270,11 +284,11 @@ internal class WorldSelection : StandardMenu
         {
             ValidateInput(out Boolean isValid);
 
-            if (isValid) worldProvider.BeginCreatingWorld(name.Text);
+            if (isValid) worldProvider.CreateAndActivateWorld(name.Text);
         }
     }
 
-    internal event EventHandler Cancel = delegate {};
+    internal event EventHandler? Cancel;
 
     public override void Dispose()
     {

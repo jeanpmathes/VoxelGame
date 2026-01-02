@@ -29,7 +29,7 @@ PSInput VSMain(float2 const position : POSITION, float2 const uv : TEXCOORD, flo
     result.color = color;
 
     float2 ndcPosition = 2.0f * (position / screen.size) - 1.0f;
-    ndcPosition.y *= -1.0f;
+    ndcPosition.y      *= -1.0f;
 
     result.position = float4(ndcPosition, 0.0f, 1.0f);
 

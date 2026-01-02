@@ -1,6 +1,19 @@
 ﻿// <copyright file="WorldActions.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -23,14 +36,13 @@ namespace VoxelGame.UI.Controls.Worlds;
 /// </summary>
 public class WorldActions : ControlBase
 {
-    private readonly IWorldProvider.IWorldInfo world;
-    private readonly IWorldProvider worldProvider;
-
     private readonly Context context;
     private readonly ControlBase menu;
+    private readonly IWorldProvider.IWorldInfo world;
+    private readonly IWorldProvider worldProvider;
+    private CancellationTokenSource? infoCancellation;
 
     private Window? worldInfoWindow;
-    private CancellationTokenSource? infoCancellation;
 
     /// <summary>
     ///     Creates a new instance of the <see cref="WorldActions" /> class.
@@ -54,10 +66,10 @@ public class WorldActions : ControlBase
 
         HorizontalLayout buttons = new(this);
 
-        Button info = context.CreateIconButton(buttons, context.Resources.InfoIcon, Language.Info);
+        Button info = context.CreateIconButton(buttons, Icons.Instance.Info, Language.Info);
         info.Released += (_, _) => OpenWorldInfoWindow(info);
 
-        Button duplicate = context.CreateIconButton(buttons, context.Resources.DuplicateIcon, Language.Duplicate);
+        Button duplicate = context.CreateIconButton(buttons, Icons.Instance.Duplicate, Language.Duplicate);
 
         duplicate.Released += (_, _) => Modals.OpenNameModal(menu,
             new NameBox.Parameters(Language.Duplicate, world.Name),
@@ -66,7 +78,7 @@ public class WorldActions : ControlBase
                 {
                     Operation op = worldProvider.DuplicateWorld(world, duplicateName);
 
-                    op.OnCompletion(_ =>
+                    op.OnCompletionSync(_ =>
                     {
                         menu.UpdateList();
                     });
@@ -76,10 +88,10 @@ public class WorldActions : ControlBase
                 worldProvider.IsWorldNameValid),
             context);
 
-        Button load = context.CreateIconButton(buttons, context.Resources.LoadIcon, Language.Load);
-        load.Released += (_, _) => worldProvider.BeginLoadingWorld(world);
+        Button load = context.CreateIconButton(buttons, Icons.Instance.Load, Language.Load);
+        load.Released += (_, _) => worldProvider.LoadAndActivateWorld(world);
 
-        Button delete = context.CreateIconButton(buttons, context.Resources.DeleteIcon, Language.Delete, Colors.Danger);
+        Button delete = context.CreateIconButton(buttons, Icons.Instance.Delete, Language.Delete, Colors.Danger);
 
         delete.Released += (_, _) => Modals.OpenDeletionModal(
             menu,
@@ -90,10 +102,7 @@ public class WorldActions : ControlBase
                 {
                     remove();
 
-                    worldProvider.DeleteWorld(world).OnCompletion(op =>
-                    {
-                        close(op.Status);
-                    });
+                    worldProvider.DeleteWorld(world).OnCompletionSync(close);
                 }),
             context);
     }
@@ -130,9 +139,9 @@ public class WorldActions : ControlBase
         cause.Disable();
         cause.Redraw();
 
-        Label status = new(layout)
+        Label statusLabel = new(layout)
         {
-            Text = Texts.FormatOperation(Language.Load, Status.Running),
+            Text = Texts.FormatWithStatus(Language.Load, Status.Running),
             TextColor = Colors.Secondary,
             HorizontalAlignment = HorizontalAlignment.Center
         };
@@ -141,30 +150,30 @@ public class WorldActions : ControlBase
 
         infoCancellation = new CancellationTokenSource();
 
-        worldProvider.GetWorldProperties(world).OnCompletion(op =>
+        worldProvider.GetWorldProperties(world).OnCompletionSync(status =>
             {
-                status.Text = Texts.FormatOperation(Language.Load, op.Status);
-                status.TextColor = op.IsOk ? Colors.Secondary : Colors.Error;
+                statusLabel.Text = Texts.FormatWithStatus(Language.Load, status);
+                statusLabel.TextColor = Texts.GetStatusColor(status);
 
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
                 infoCancellation?.Dispose();
                 infoCancellation = null;
 #pragma warning disable S2952
+            },
+            result =>
+            {
+                layout.RemoveChild(statusLabel, dispose: true);
 
-                if (op.Result == null)
-                    return;
-
-                layout.RemoveChild(status, dispose: true);
-
-                PropertyBasedListControl properties = new(layout, op.Result, context);
+                PropertyBasedListControl properties = new(layout, result, context);
                 Control.Used(properties);
             },
             infoCancellation.Token);
 
         worldInfoWindow.Closed += (_, _) =>
         {
-#pragma warning disable S2952 // Must be disposed because it is overwritten.
             infoCancellation?.Cancel();
+
+#pragma warning disable S2952 // Must be disposed because it is overwritten.
             infoCancellation?.Dispose();
             infoCancellation = null;
 #pragma warning disable S2952
@@ -180,6 +189,8 @@ public class WorldActions : ControlBase
     public override void Dispose()
     {
         base.Dispose();
+
+        GC.SuppressFinalize(this);
 
         worldInfoWindow?.Close();
 

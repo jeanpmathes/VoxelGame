@@ -1,6 +1,19 @@
 ﻿// <copyright file="ObjectPool.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -29,7 +42,7 @@ public class Polyline
     }
 
     /// <summary>
-    ///     The left function, which is used outside of the interval defined by the points.
+    ///     The left function, which is used outside the interval defined by the points.
     /// </summary>
     public Func<Double, Double> Left { get; init; }
 
@@ -39,7 +52,7 @@ public class Polyline
     public IList<Vector2d> Points { get; } = new List<Vector2d>();
 
     /// <summary>
-    ///     The right function, which is used outside of the interval defined by the points.
+    ///     The right function, which is used outside the interval defined by the points.
     /// </summary>
     public Func<Double, Double> Right { get; init; }
 
@@ -59,7 +72,7 @@ public class Polyline
             Vector2d a = Points[i];
             Vector2d b = Points[i + 1];
 
-            if (x < b.X) return MathHelper.Lerp(a.Y, b.Y, VMath.InverseLerp(a.X, b.X, x));
+            if (x < b.X) return MathHelper.Lerp(a.Y, b.Y, MathTools.InverseLerp(a.X, b.X, x));
         }
 
         return Right(x);

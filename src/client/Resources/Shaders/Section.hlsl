@@ -1,20 +1,31 @@
-﻿//  <copyright file="Section.hlsl" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+﻿// <copyright file="Section.hlsl" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 #ifndef VG_SHADER_SECTION_HLSL
-#define VG_SHADER_SECTION_HLSL
+#define VG_SHADER_SECTION_HLSL 
 
 #include "CameraRT.hlsl"
+#include "Common.hlsl"
 
 #include "Decoding.hlsl"
 #include "Spatial.hlsl"
 #include "TextureAnimation.hlsl"
-
-#define LOAD_SLOT_ONE(index) native::rt::textureSlotOne[index.w].Load(index.xyz)
-#define LOAD_SLOT_TWO(index) native::rt::textureSlotTwo[index.w].Load(index.xyz)
 
 /**
  * \brief Utilities providing operations for rendering sections.
@@ -36,129 +47,130 @@ namespace vg
         }
 
         /**
-         * \brief Calculate the (doubled) area of the triangle in world space.
+         * \brief Compute anisotropic ellipse axes and texture gradients to be used for anisotropic texture filtering.
+         * 
+         * The function is based on the method described in
+         * "Improved Shader and Texture Level of Detail Using Ray Cones" (Journal of Computer Graphics Techniques, 2021)
+         * by T. Akenine-Möller, C. Crassin, J. Boksansky, L. Belcour, A. Panteleev, and O. Wright
          */
-        float GetWorldAreaOfTriangle(in spatial::Info const info)
+        void ComputeAnisotropicEllipseAxes(
+            in float3   intersection,
+            in float3   normal,
+            in float3   direction,
+            in float    coneWidth,
+            in float3   position0,
+            in float3   position1,
+            in float3   position2,
+            in float3x2 uvs,
+            in float2   uv,
+            out float2  ddx,
+            out float2  ddy)
         {
-            // See: Ray Tracing Gems, Chapter 20.6
+            // Compute the two ellipse axes a1 and a2.
 
-            return length(cross(info.a - info.b, info.a - info.c));
-        }
+            float3       a1 = direction - dot(normal, direction) * normal;
+            float3 const p1 = a1 - dot(direction, a1) * direction;
+            a1              *= coneWidth / max(0.0001, length(p1));
 
-        /**
-         * \brief Calculate the (doubled) area of the triangle in texture space.
-         */
-        float GetTexelAreaOfTriangle(in spatial::Info const info)
-        {
-            // See: Ray Tracing Gems, Chapter 20.6
+            float3       a2 = cross(normal, a1);
+            float3 const p2 = a2 - dot(direction, a2) * direction;
+            a2              *= coneWidth / max(0.0001, length(p2));
 
-            float4x2 const uvs = decode::GetUVs(info.data);
+            float3       eP, delta           = intersection - position0;
+            float3 const e1                  = position1 - position0;
+            float3 const e2                  = position2 - position0;
+            float const  oneOverAreaTriangle = 1.0 / dot(normal, cross(e1, e2));
 
-            float2 const uv0 = uvs[info.indices.x];
-            float2 const uv1 = uvs[info.indices.y];
-            float2 const uv2 = uvs[info.indices.z];
+            // Compute the two texture gradients ddx and ddy.
 
-            float const textureSize = native::spatial::global.textureSize.x * native::spatial::global.textureSize.y;
-            return textureSize * abs((uv1.x - uv0.x) * (uv2.y - uv0.y) - (uv2.x - uv0.x) * (uv1.y - uv0.y));
-        }
+            eP             = delta + a1;
+            float const u1 = dot(normal, cross(eP, e2)) * oneOverAreaTriangle;
+            float const v1 = dot(normal, cross(e1, eP)) * oneOverAreaTriangle;
+            ddx            = (1.0 - u1 - v1) * uvs[0] + u1 * uvs[1] + v1 * uvs[2] - uv;
 
-        /**
-         * \brief Compute the level of detail to use for the texture at a hit.
-         * \param path The length of rays up to the previous hit.
-         * \param info Information about the hit.
-         * \return The computed LOD.
-         */
-        float GetLOD(float const path, in spatial::Info const info)
-        {
-            // See: Ray Tracing Gems, Chapter 20.6
-
-            float const width       = GetConeWidth(path);
-            float const textureSize = native::spatial::global.textureSize.x * native::spatial::global.textureSize.y;
-
-            float const world = GetWorldAreaOfTriangle(info);
-            float const texel = GetTexelAreaOfTriangle(info);
-            float       lod   = 0.5f * log2(world / texel);
-
-            lod += log2(width);
-            lod += 0.5f * log2(textureSize);
-
-            lod -= log2(abs(dot(WorldRayDirection(), info.normal)));
-
-            return lod;
+            eP             = delta + a2;
+            float const u2 = dot(normal, cross(eP, e2)) * oneOverAreaTriangle;
+            float const v2 = dot(normal, cross(e1, eP)) * oneOverAreaTriangle;
+            ddy            = (1.0 - u2 - v2) * uvs[0] + u2 * uvs[1] + v2 * uvs[2] - uv;
         }
 
         /**
          * \brief Calculate the final UV coordinates for a quad.
          * \param info Information about the quad.
+         * \param triangleUVs Output UV coordinates for the triangle vertices.
          * \param useTextureRepetition Whether to use texture repetition.
          * \return The final UV coordinates for the quad.
          */
-        float2 GetUV(in spatial::Info const info, bool const useTextureRepetition)
+        float2 GetUV(in spatial::Info const info, out float3x2 triangleUVs, bool const useTextureRepetition)
         {
-            float4x2 const uvs = decode::GetUVs(info.data);
+            float4x2 const quadUVs = decode::GetUVs(info.data);
 
-            float2 const uvX = uvs[info.indices.x];
-            float2 const uvY = uvs[info.indices.y];
-            float2 const uvZ = uvs[info.indices.z];
+            for (int index = 0; index < 3; index++) triangleUVs[index] = quadUVs[info.indices[index]];
 
-            float2 uv = uvX * info.barycentric.x + uvY * info.barycentric.y + uvZ * info.barycentric.z;
+            if (decode::GetTextureRotationFlag(info.data)) for (int index = 0; index < 3; index++) triangleUVs[index] = spatial::RotateUV(triangleUVs[index]);
 
-            if (decode::GetTextureRotationFlag(info.data)) uv = spatial::RotateUV(uv);
+            for (int index = 0; index < 3; index++) triangleUVs[index] = native::TranslateUV(triangleUVs[index]);
 
-            uv = native::TranslateUV(uv);
+            if (useTextureRepetition)
+            {
+                float2 repetition = decode::GetTextureRepetition(info.data);
 
-            if (useTextureRepetition) uv *= decode::GetTextureRepetition(info.data);
+                for (int index = 0; index < 3; index++) triangleUVs[index] *= repetition;
+            }
 
-            return uv;
+            return triangleUVs[0] * info.barycentric.x + triangleUVs[1] * info.barycentric.y + triangleUVs[2] * info.barycentric.z;
         }
 
         /**
-         * \brief Get the final texture index for a quad.
+         * \brief Sample the base color for a given texture index.
+         * \param index The texture index to sample.
+         * \param isBlock Whether the texture is part of a block or a fluid.
+         * \return The sampled base color.
+         */
+        float4 SampleBaseColor(uint4 const index, bool const isBlock)
+        {
+            if (isBlock) return native::rt::textureSlotOne[index.w].Load(index.xyz);
+            else return native::rt::textureSlotTwo[index.w].Load(index.xyz);
+        }
+
+        /**
+         * \brief Sample the base color for a hit against a quad.
          * \param path The length of rays up to the previous hit.
          * \param info Information about the quad.
          * \param useTextureRepetition Whether to use texture repetition.
          * \param isBlock Whether the quad is part of a block or a fluid.
-         * \return The final texture index for the quad.
+         * \return The sampled base color for the quad.
          */
-        int4 GetBaseColorIndex(
-            float const path, in spatial::Info const info, bool const useTextureRepetition, bool const isBlock)
+        float4 SampleBaseColor(float const path, in spatial::Info const info, bool const useTextureRepetition, bool const isBlock)
         {
-            float2 const uv           = GetUV(info, useTextureRepetition);
-            uint         textureIndex = animation::GetAnimatedTextureIndex(
-                info.data,
-                PrimitiveIndex() / 2,
-                native::spatial::global.time,
-                isBlock);
+            float3x2 uvs;
+            float2   uv           = GetUV(info, uvs, useTextureRepetition);
+            uint     textureIndex = animation::GetAnimatedTextureIndex(info.data, PrimitiveIndex() / 2, native::spatial::global.time, isBlock);
 
-            uint  mip  = 0;
-            uint2 size = native::spatial::global.textureSize.xy;
+            float2 ddx, ddy;
+            ComputeAnisotropicEllipseAxes(info.GetPosition(), info.normal, WorldRayDirection(), GetConeWidth(path), info.a, info.b, info.c, uvs, uv, ddx, ddy);
 
-            if (path >= 0.0f)
-            {
-                float const lod    = GetLOD(path, info);
-                uint const  maxMip = native::spatial::global.textureSize.z - 1;
+            // Because anisotropic filter implies linear filtering in DirectX, we need to center UVs manually.
 
-                mip  = clamp(uint(lod), 0, maxMip);
-                size = uint2(max(1, size.x >> mip), max(1, size.y >> mip));
-            }
+            uv *= native::spatial::global.textureSize.xy;
+            uv = floor(uv) + 0.5f;
+            uv /= native::spatial::global.textureSize.xy;
 
-            float2 const ts    = frac(uv) * float2(size);
-            uint2        texel = uint2(ts.x, ts.y);
+            float4 color;
 
-            return int4(texel.x, texel.y, mip, textureIndex);
+            if (isBlock) color = native::rt::textureSlotOne[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
+            else color         = native::rt::textureSlotTwo[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
+
+            return color;
         }
-        
+
         /**
          * \brief Get the base color (no shading) for a basic quad.
          * \param path The length of rays up to the previous hit.
          * \param info Information about the quad.
          * \return The base color (no shading) for a basic quad.
          */
-        float4 GetBasicBaseColor(float const path, in spatial::Info const info)
-        {
-            int4 const index = GetBaseColorIndex(path, info, true, true);
-            return LOAD_SLOT_ONE(index);
-        }
+        float4 GetBasicBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, true, true); }
 
         /**
          * \brief Get the base color (no shading) for a foliage quad.
@@ -166,11 +178,7 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a foliage quad.
          */
-        float4 GetFoliageBaseColor(float const path, in spatial::Info const info)
-        {
-            int4 const index = GetBaseColorIndex(path, info, false, true);
-            return LOAD_SLOT_ONE(index);
-        }
+        float4 GetFoliageBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, false, true); }
 
         /**
          * \brief Get the base color (no shading) for a fluid quad.
@@ -178,11 +186,7 @@ namespace vg
          * \param info Information about the quad.
          * \return The base color (no shading) for a fluid quad.
          */
-        float4 GetFluidBaseColor(float const path, in spatial::Info const info)
-        {
-            int4 const index = GetBaseColorIndex(path, info, true, false);
-            return LOAD_SLOT_TWO(index);
-        }
+        float4 GetFluidBaseColor(float const path, in spatial::Info const info) { return SampleBaseColor(path, info, true, false); }
 
         /**
          * \brief Get the dominant color for a fluid quad.
@@ -191,14 +195,13 @@ namespace vg
          */
         float4 GetFluidDominantColor(in spatial::Info const info)
         {
-            int4 const index = int4(
-                0,
-                0,
-                // Only one texel in highest mip level.
-                native::spatial::global.textureSize.z - 1,
-                // Index of the highest mip level.
-                decode::GetTextureIndex(info.data));
-            return LOAD_SLOT_TWO(index);
+            return native::rt::textureSlotTwo[decode::GetTextureIndex(info.data)].Load(
+                int3(
+                    0,
+                    0,
+                    // Only one texel in highest mip level.
+                    native::spatial::global.textureSize.z - 1 // Index of the highest mip level.
+                ));
         }
 
         /**

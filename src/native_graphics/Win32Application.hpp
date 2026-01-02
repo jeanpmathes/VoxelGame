@@ -18,7 +18,7 @@ public:
     static void ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain);
     static void SetWindowOrderToTopMost(bool setToTopMost);
 
-    static HWND GetHwnd() { return m_hwnd; }
+    static HWND GetWindowHandle() { return m_hwnd; }
     static bool IsFullscreen() { return m_fullscreenMode; }
     static bool IsRunning(DXApp const* pApp) { return m_app == pApp; }
 

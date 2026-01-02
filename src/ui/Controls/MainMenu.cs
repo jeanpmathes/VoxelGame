@@ -1,6 +1,19 @@
 ﻿// <copyright file="MainMenu.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -20,7 +33,7 @@ namespace VoxelGame.UI.Controls;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class MainMenu : StandardMenu
+internal sealed class MainMenu : StandardMenu
 {
     private Button? worlds;
 
@@ -29,10 +42,10 @@ internal class MainMenu : StandardMenu
         CreateContent();
     }
 
-    internal event EventHandler SelectExit = delegate {};
-    internal event EventHandler SelectWorlds = delegate {};
-    internal event EventHandler SelectSettings = delegate {};
-    internal event EventHandler SelectCredits = delegate {};
+    internal event EventHandler? SelectExit;
+    internal event EventHandler? SelectWorlds;
+    internal event EventHandler? SelectSettings;
+    internal event EventHandler? SelectCredits;
 
     protected override void CreateMenu(ControlBase menu)
     {
@@ -41,28 +54,28 @@ internal class MainMenu : StandardMenu
             Text = Language.Worlds
         };
 
-        worlds.Released += (_, _) => SelectWorlds(this, EventArgs.Empty);
+        worlds.Released += (_, _) => SelectWorlds?.Invoke(this, EventArgs.Empty);
 
         Button settings = new(menu)
         {
             Text = Language.Settings
         };
 
-        settings.Released += (_, _) => SelectSettings(this, EventArgs.Empty);
+        settings.Released += (_, _) => SelectSettings?.Invoke(this, EventArgs.Empty);
 
         Button credits = new(menu)
         {
             Text = Language.Credits
         };
 
-        credits.Released += (_, _) => SelectCredits(this, EventArgs.Empty);
+        credits.Released += (_, _) => SelectCredits?.Invoke(this, EventArgs.Empty);
 
         Button exit = new(menu)
         {
             Text = Language.Exit
         };
 
-        exit.Released += (_, _) => SelectExit(this, EventArgs.Empty);
+        exit.Released += (_, _) => SelectExit?.Invoke(this, EventArgs.Empty);
     }
 
     internal void DisableWorlds()
@@ -74,7 +87,7 @@ internal class MainMenu : StandardMenu
     {
         TrueRatioImagePanel image = new(display)
         {
-            ImageName = Context.Resources.StartImage,
+            ImageName = Icons.Instance.StartImage,
             Dock = Dock.Fill
         };
 

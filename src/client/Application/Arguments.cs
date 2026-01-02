@@ -1,6 +1,19 @@
 ﻿// <copyright file="Arguments.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,7 +23,6 @@ using System.CommandLine.Invocation;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application;
 
@@ -22,14 +34,14 @@ public static partial class Arguments
     /// <summary>
     ///     Handles the command line arguments.
     /// </summary>
-    public static Int32 Handle(String[] args, SetUpLogging setUpLogging, RunGame runGame)
+    public static Int32 Handle(String[] args, Boolean isDebug, SetUpLogging setUpLogging, RunGame runGame)
     {
         RootCommand command = new("Run VoxelGame.");
 
         var logDebugOption = new Option<Boolean>(
             "--log-debug",
             description: "Whether to log debug messages. Is enabled by default in DEBUG builds.",
-            getDefaultValue: () => Program.IsDebug
+            getDefaultValue: () => isDebug
         );
 
         logDebugOption.AddAlias("-dbg");
@@ -37,15 +49,15 @@ public static partial class Arguments
 
         var loadWorldDirectlyOption = new Option<Int32>(
             "--load-world-directly",
-            description: "Select the number of a world to load directly, skipping the main menu. Use 0 to disable.",
-            getDefaultValue: () => 0
+            description: "Select the index of a world to load directly, skipping the main menu. Use -1 to disable.",
+            getDefaultValue: () => -1
         );
 
         loadWorldDirectlyOption.AddAlias("-l");
 
         loadWorldDirectlyOption.AddValidator(result =>
         {
-            if (result.GetValueForOption(loadWorldDirectlyOption) < 0) result.ErrorMessage = "The value must be greater than or equal to 0.";
+            if (result.GetValueForOption(loadWorldDirectlyOption) < -1) result.ErrorMessage = "The value must be greater than or equal to -1.";
         });
 
         command.AddOption(loadWorldDirectlyOption);
@@ -69,7 +81,7 @@ public static partial class Arguments
         var enableProfilingOption = new Option<ProfilerConfiguration>(
             "--profile",
             description: "The profiler configuration to use. In DEBUG builds, basic profiling is used by default. Otherwise, no profiling is done.",
-            getDefaultValue: () => Program.IsDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled
+            getDefaultValue: () => isDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled
         );
 
         enableProfilingOption.AddAlias("-p");
@@ -110,7 +122,7 @@ public static partial class Arguments
 
     #region LOGGING
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Information, Message = "Exiting with code: {ExitCode}")]
+    [LoggerMessage(EventId = LogID.Arguments + 0, Level = LogLevel.Information, Message = "Exiting with code: {ExitCode}")]
     private static partial void LogExitingWithCode(ILogger logger, Int32 exitCode);
 
     #endregion LOGGING
@@ -139,5 +151,5 @@ public record GameParameters(Int32 LoadWorldDirectly, ProfilerConfiguration Prof
     /// <summary>
     ///     Gets the index of the world to load directly, or null if no world should be loaded directly.
     /// </summary>
-    public Int32? DirectlyLoadedWorldIndex => LoadWorldDirectly == 0 ? null : LoadWorldDirectly - 1;
+    public Int32? DirectlyLoadedWorldIndex => LoadWorldDirectly < 0 ? null : LoadWorldDirectly;
 }

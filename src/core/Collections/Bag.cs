@@ -1,6 +1,19 @@
 ﻿// <copyright file="GappedList.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -8,7 +21,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Runtime.InteropServices;
 
 namespace VoxelGame.Core.Collections;
@@ -20,10 +32,10 @@ namespace VoxelGame.Core.Collections;
 /// <typeparam name="T">The type of the items in the bag.</typeparam>
 public class Bag<T> : IEnumerable<T>
 {
-    private readonly List<T> items = [];
     private readonly PriorityQueue<Int32, Int32> gaps = new();
 
     private readonly T gapValue;
+    private readonly List<T> items = [];
 
     /// <summary>
     ///     Create a new gapped bag.
@@ -36,8 +48,9 @@ public class Bag<T> : IEnumerable<T>
 
     /// <summary>
     ///     Access this bag by index.
+    ///     Setting an item to the gap value is not allowed.
     /// </summary>
-    /// <param name="index">The index to access. Cannot be larger then the item count.</param>
+    /// <param name="index">The index to access. Cannot be larger than the item count.</param>
     public T this[Int32 index]
     {
         get => items[index];
@@ -49,16 +62,10 @@ public class Bag<T> : IEnumerable<T>
         }
     }
 
-    /// <inheritdoc />
-    public IEnumerator<T> GetEnumerator()
-    {
-        return items.Where(item => !Equals(item, gapValue)).GetEnumerator();
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        return GetEnumerator();
-    }
+    /// <summary>
+    ///     Get the number of items in the bag.
+    /// </summary>
+    public Int32 Count => items.Count - gaps.Count;
 
     /// <summary>
     ///     Gets a span of the bag. This also includes gaps.
@@ -136,4 +143,107 @@ public class Bag<T> : IEnumerable<T>
 
         return index;
     }
+
+    #region ENUMERABLE
+
+    /// <summary>
+    ///     The internally-used enumerator.
+    /// </summary>
+    public struct Enumerator : IEnumerator<T>, IEquatable<Enumerator>
+    {
+        private readonly Bag<T> bag;
+        private Int32 index;
+
+        /// <summary>
+        ///     Create a new enumerator.
+        /// </summary>
+        public Enumerator(Bag<T> bag)
+        {
+            this.bag = bag;
+            index = -1;
+        }
+
+        /// <inheritdoc />
+        public T Current => bag.items[index];
+
+        Object? IEnumerator.Current => Current;
+
+        /// <inheritdoc />
+        public Boolean MoveNext()
+        {
+            do
+            {
+                index += 1;
+            } while (index < bag.items.Count && Equals(bag.items[index], bag.gapValue));
+
+            return index < bag.items.Count;
+        }
+
+        /// <inheritdoc />
+        public void Reset()
+        {
+            index = -1;
+        }
+
+        /// <inheritdoc />
+        public void Dispose() {}
+
+        #region EQUALITY
+
+        /// <inheritdoc />
+        public Boolean Equals(Enumerator other)
+        {
+            return ReferenceEquals(bag, other.bag) && index == other.index;
+        }
+
+        /// <inheritdoc />
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is Enumerator other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override Int32 GetHashCode()
+        {
+            return HashCode.Combine(bag, index);
+        }
+
+        /// <summary>
+        ///     Test for equality.
+        /// </summary>
+        public static Boolean operator ==(Enumerator left, Enumerator right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Test for inequality.
+        /// </summary>
+        public static Boolean operator !=(Enumerator left, Enumerator right)
+        {
+            return !left.Equals(right);
+        }
+
+        #endregion EQUALITY
+    }
+
+    /// <summary>
+    ///     Get an enumerator for the bag.
+    /// </summary>
+    public Enumerator GetEnumerator()
+    {
+        return new Enumerator(this);
+    }
+
+    IEnumerator<T> IEnumerable<T>.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    #endregion ENUMERABLE
 }

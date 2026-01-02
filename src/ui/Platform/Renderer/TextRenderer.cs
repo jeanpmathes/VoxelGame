@@ -10,7 +10,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Drawing.Text;
 using Gwen.Net;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
 using Image = VoxelGame.Core.Visuals.Image;
@@ -43,7 +43,15 @@ public sealed class TextRenderer : IDisposable
     /// <summary>
     ///     Gets the backing store.
     /// </summary>
-    public Texture Texture => disposed ? throw new ObjectDisposedException(nameof(TextRenderer)) : texture;
+    public Texture Texture
+    {
+        get
+        {
+            ExceptionTools.ThrowIfDisposed(disposed);
+
+            return texture;
+        }
+    }
 
     /// <summary>
     ///     Draws the specified string to the backing store.
@@ -58,7 +66,7 @@ public sealed class TextRenderer : IDisposable
     /// <param name="format">The <see cref="StringFormat" /> that will be used.</param>
     public void SetString(String text, Font font, Brush brush, Point point, StringFormat format)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         using Bitmap bitmap = new(Texture.Width, Texture.Height, PixelFormat.Format32bppArgb);
 
@@ -76,7 +84,7 @@ public sealed class TextRenderer : IDisposable
         renderer.LoadTextureDirectly(Texture, new Image(bitmap));
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -106,5 +114,5 @@ public sealed class TextRenderer : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

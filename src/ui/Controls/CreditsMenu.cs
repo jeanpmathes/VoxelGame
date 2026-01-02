@@ -1,11 +1,25 @@
 ﻿// <copyright file="CreditsMenu.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.RichText;
@@ -20,14 +34,14 @@ namespace VoxelGame.UI.Controls;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class CreditsMenu : StandardMenu
+internal sealed class CreditsMenu : StandardMenu
 {
     internal CreditsMenu(ControlBase parent, Context context) : base(parent, context)
     {
         CreateContent();
     }
 
-    internal event EventHandler Cancel = delegate {};
+    internal event EventHandler? Cancel;
 
     protected override void CreateMenu(ControlBase menu)
     {
@@ -36,7 +50,7 @@ internal class CreditsMenu : StandardMenu
             Text = Language.Back
         };
 
-        exit.Released += (_, _) => Cancel(this, EventArgs.Empty);
+        exit.Released += (_, _) => Cancel?.Invoke(this, EventArgs.Empty);
     }
 
     protected override void CreateDisplay(ControlBase display)
@@ -46,7 +60,7 @@ internal class CreditsMenu : StandardMenu
             Dock = Dock.Fill
         };
 
-        foreach ((Document credits, String name) in Context.Resources.CreateAttributions(Context))
+        foreach ((Document credits, String name) in Context.Resources.Attributions.Select(attribution => attribution.CreateDocument(Context)))
         {
             ScrollControl page = new(tabs)
             {

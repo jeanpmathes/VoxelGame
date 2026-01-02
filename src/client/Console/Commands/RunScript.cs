@@ -1,6 +1,19 @@
 ﻿// <copyright file="RunScript.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,7 +23,6 @@ using JetBrains.Annotations;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Runs a script.
@@ -28,7 +40,7 @@ public class RunScript : Command
     public void Invoke(String name)
     {
         if (!Context.IsScript) Do(Context, name);
-        else Context.Console.WriteError("Cannot run scripts from scripts.");
+        else Context.Output.WriteError("Cannot run scripts from scripts.");
     }
 
     /// <summary>
@@ -51,7 +63,7 @@ public class RunScript : Command
         if (script == null)
         {
             if (!ignoreErrors)
-                context.Console.WriteError($"Script '{name}' does not exist.", followUp);
+                context.Output.WriteError($"Script '{name}' does not exist.", [followUp]);
 
             return false;
         }
@@ -69,7 +81,7 @@ public class RunScript : Command
             loc++;
         }
 
-        context.Console.WriteResponse($"Executed {loc} line(s) of the '{name}' script.", followUp);
+        context.Output.WriteResponse($"Executed {loc} line(s) of the '{name}' script.", [followUp]);
 
         return true;
     }

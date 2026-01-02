@@ -1,6 +1,19 @@
 ﻿// <copyright file="IWorldProvider.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -20,11 +33,11 @@ public interface IWorldProvider
     /// <summary>
     ///     The directory where the worlds are stored.
     /// </summary>
-    public DirectoryInfo WorldsDirectory { get; }
+    DirectoryInfo WorldsDirectory { get; }
 
     /// <summary>
     ///     Get all currently known worlds.
-    ///     Only valid after a successful <see cref="Refresh"/>.
+    ///     Only valid after a successful <see cref="Refresh" />.
     /// </summary>
     IEnumerable<IWorldInfo> Worlds { get; }
 
@@ -48,21 +61,24 @@ public interface IWorldProvider
 
     /// <summary>
     ///     Load a specific world from disk.
-    ///     Only valid after a successful <see cref="Refresh"/>.
+    ///     Only valid after a successful <see cref="Refresh" />.
     ///     Will cause a scene change.
     /// </summary>
-    /// <param name="info">The world to load, must be an object from <see cref="Worlds"/>, retrieved after a successful <see cref="Refresh"/>.</param>
-    void BeginLoadingWorld(IWorldInfo info);
+    /// <param name="info">
+    ///     The world to load, must be an object from <see cref="Worlds" />, retrieved after a successful
+    ///     <see cref="Refresh" />.
+    /// </param>
+    void LoadAndActivateWorld(IWorldInfo info);
 
     /// <summary>
     ///     Create a new world and then load it. Will cause a scene change.
     /// </summary>
     /// <param name="name">The name of the world to create.</param>
-    void BeginCreatingWorld(String name);
+    void CreateAndActivateWorld(String name);
 
     /// <summary>
     ///     Delete a world.
-    ///     Only valid after a successful <see cref="Refresh"/>.
+    ///     Only valid after a successful <see cref="Refresh" />.
     /// </summary>
     /// <param name="info">
     ///     The world to delete, must be an object from <see cref="Worlds" />, retrieved after a successful
@@ -110,7 +126,7 @@ public interface IWorldProvider
     /// <summary>
     ///     Information about a single world.
     /// </summary>
-    public interface IWorldInfo
+    interface IWorldInfo
     {
         /// <summary>
         ///     The name of the world.

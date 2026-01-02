@@ -67,8 +67,8 @@ Documentation of all members: D3D12MemAlloc.h
 // will include them rather the ones provided by the Windows SDK.
 #ifndef D3D12MA_D3D12_HEADERS_ALREADY_INCLUDED
 #if defined(D3D12MA_USING_DIRECTX_HEADERS)
-        #include <directx/d3d12.h>
-        #include <dxguids/dxguids.h>
+#include <directx/d3d12.h>
+#include <dxguids/dxguids.h>
 #else
 #include <d3d12.h>
 #endif
@@ -81,7 +81,7 @@ Documentation of all members: D3D12MemAlloc.h
 #ifdef __IDXGIAdapter3_INTERFACE_DEFINED__
 #define D3D12MA_DXGI_1_4 1
 #else
-        #define D3D12MA_DXGI_1_4 0
+#define D3D12MA_DXGI_1_4 0
 #endif
 #endif
 
@@ -134,9 +134,9 @@ If providing your own implementation, you need to implement a subset of std::ato
 #endif
 
 #ifdef D3D12MA_EXPORTS
-    #define D3D12MA_API __declspec(dllexport)
+#define D3D12MA_API __declspec(dllexport)
 #elif defined(D3D12MA_IMPORTS)
-    #define D3D12MA_API __declspec(dllimport)
+#define D3D12MA_API __declspec(dllimport)
 #else
 #define D3D12MA_API
 #endif
@@ -149,9 +149,9 @@ struct ID3D12ProtectedResourceSession;
 typedef enum D3D12_RESIDENCY_PRIORITY
 {
     D3D12_RESIDENCY_PRIORITY_MINIMUM = 0x28000000,
-    D3D12_RESIDENCY_PRIORITY_LOW = 0x50000000,
-    D3D12_RESIDENCY_PRIORITY_NORMAL = 0x78000000,
-    D3D12_RESIDENCY_PRIORITY_HIGH = 0xa0010000,
+    D3D12_RESIDENCY_PRIORITY_LOW     = 0x50000000,
+    D3D12_RESIDENCY_PRIORITY_NORMAL  = 0x78000000,
+    D3D12_RESIDENCY_PRIORITY_HIGH    = 0xa0010000,
     D3D12_RESIDENCY_PRIORITY_MAXIMUM = 0xc8000000
 } D3D12_RESIDENCY_PRIORITY;
 #endif

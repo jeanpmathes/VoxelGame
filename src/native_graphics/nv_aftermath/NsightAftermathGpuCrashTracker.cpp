@@ -266,7 +266,7 @@ void GpuCrashTracker::CrashDumpDescriptionCallback(
     PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription,
     void*                                          pUserData)
 {
-    auto* pGpuCrashTracker = static_cast<GpuCrashTracker*>(pUserData);
+    auto const* pGpuCrashTracker = static_cast<GpuCrashTracker*>(pUserData);
     pGpuCrashTracker->OnDescription(addDescription);
 }
 

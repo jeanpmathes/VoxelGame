@@ -1,6 +1,19 @@
 ﻿// <copyright file="Texture.hpp" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -42,11 +55,7 @@ public:
      */
     static Texture* Create(NativeClient& client, TextureDescription description);
 
-    Texture(
-        NativeClient&                          client,
-        Allocation<ID3D12Resource> const&      resource,
-        DirectX::XMUINT3                       size,
-        D3D12_SHADER_RESOURCE_VIEW_DESC const& srvDesc);
+    Texture(NativeClient& client, Allocation<ID3D12Resource> const& resource, DirectX::XMUINT3 size, D3D12_SHADER_RESOURCE_VIEW_DESC const& srvDesc);
 
     /**
      * Free this texture. This will detach the texture from the client, causing it to be destroyed.
@@ -74,9 +83,7 @@ public:
      */
     void TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> commandList);
 
-    static void CreateUsabilityBarrier(
-        ComPtr<ID3D12GraphicsCommandList> commandList,
-        Allocation<ID3D12Resource>        resource);
+    static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, Allocation<ID3D12Resource> resource);
 
 private:
     Allocation<ID3D12Resource>      m_resource;

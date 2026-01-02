@@ -1,13 +1,28 @@
 ﻿// <copyright file="ChunkPool.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 using Chunk = VoxelGame.Core.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Core.Collections;
@@ -17,15 +32,30 @@ namespace VoxelGame.Core.Collections;
 /// </summary>
 public sealed class ChunkPool : IDisposable
 {
-    private readonly ObjectPool<Chunk> pool;
+    private readonly Stack<Allocation> allocations = new();
+    private readonly NativeAllocator allocator = new();
+    private readonly ObjectPool<Chunk> chunks;
+
+    private readonly Func<NativeSegment<UInt32>, Chunk> factory;
 
     /// <summary>
     ///     Create a new chunk pool.
     /// </summary>
     /// <param name="factory">The factory to use for creating chunks.</param>
-    public ChunkPool(Func<Chunk> factory)
+    public ChunkPool(Func<NativeSegment<UInt32>, Chunk> factory)
     {
-        pool = new ObjectPool<Chunk>(factory);
+        this.factory = factory;
+
+        chunks = new ObjectPool<Chunk>(CreateChunk);
+
+        allocations.Push(new Allocation(allocator));
+    }
+
+    private Chunk CreateChunk()
+    {
+        if (allocations.Peek().IsExhausted) allocations.Push(new Allocation(allocator));
+
+        return factory(allocations.Peek().GetNextSegment());
     }
 
     /// <summary>
@@ -37,9 +67,9 @@ public sealed class ChunkPool : IDisposable
     /// <returns>A chunk.</returns>
     public Chunk Get(World world, ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        Chunk chunk = pool.Get();
+        Chunk chunk = chunks.Get();
 
         chunk.Initialize(world, position);
 
@@ -52,26 +82,51 @@ public sealed class ChunkPool : IDisposable
     /// <param name="chunk">A chunk that was previously gotten from the pool.</param>
     public void Return(Chunk chunk)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         chunk.Reset();
 
-        pool.Return(chunk);
+        chunks.Return(chunk);
     }
 
-    #region IDisposable Support
+    private sealed class Allocation(NativeAllocator allocator)
+    {
+        private const Int32 ChunksPerAllocation = 64;
+        private const Int32 BlocksPerChunk = Chunk.BlockSize * Chunk.BlockSize * Chunk.BlockSize;
+        private const Int32 AllocationCount = ChunksPerAllocation * BlocksPerChunk;
+
+        private readonly NativeAllocation<UInt32> allocation = allocator.Allocate<UInt32>(AllocationCount);
+
+        private Int32 nextChunkIndex;
+
+        public Boolean IsExhausted => nextChunkIndex >= ChunksPerAllocation;
+
+        public NativeSegment<UInt32> GetNextSegment()
+        {
+            Int32 offset = nextChunkIndex * BlocksPerChunk;
+
+            nextChunkIndex += 1;
+
+            return allocation.Segment.Slice(offset, BlocksPerChunk);
+        }
+    }
+
+    #region DISPOSABLE
 
     private Boolean disposed;
 
     /// <inheritdoc />
     public void Dispose()
     {
-        Chunk[] chunks = pool.Clear();
+        Chunk[] cleared = chunks.Clear();
 
-        foreach (Chunk chunk in chunks) chunk.Dispose();
+        foreach (Chunk chunk in cleared)
+            chunk.Dispose();
+
+        allocator.Dispose();
 
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

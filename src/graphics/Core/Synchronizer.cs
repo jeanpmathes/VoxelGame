@@ -1,12 +1,27 @@
 ﻿// <copyright file="Synchronizer.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Graphics.Core;
@@ -42,7 +57,7 @@ public class Synchronizer
     /// <summary>
     ///     Update the synchronizer and synchronize all objects.
     /// </summary>
-    public void Update()
+    public void LogicUpdate()
     {
         foreach (NativeObject? nativeObject in preSyncBag.AsSpan()) nativeObject?.PrepareSynchronization();
         foreach (NativeObject? nativeObject in syncBag.AsSpan()) nativeObject?.Synchronize();
@@ -53,7 +68,7 @@ public class Synchronizer
     /// </summary>
     internal Handle RegisterObject(NativeObject nativeObject)
     {
-        Throw.IfNotOnMainThread(objects);
+        Application.ThrowIfNotOnMainThread(objects);
 
         Int32 preSyncIndex = preSyncBag.Add(nativeObject);
         Int32 syncIndex = syncBag.Add(nativeObject);
@@ -66,7 +81,7 @@ public class Synchronizer
     /// </summary>
     internal void DisablePreSync(Handle handle)
     {
-        Throw.IfNotOnMainThread(objects);
+        Application.ThrowIfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);
@@ -82,7 +97,7 @@ public class Synchronizer
     /// </summary>
     internal void DisableSync(Handle handle)
     {
-        Throw.IfNotOnMainThread(objects);
+        Application.ThrowIfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);
@@ -98,7 +113,7 @@ public class Synchronizer
     /// </summary>
     internal void DeRegisterObject(Handle handle)
     {
-        Throw.IfNotOnMainThread(objects);
+        Application.ThrowIfNotOnMainThread(objects);
 
         Entry? entry = objects[handle.Index];
         Debug.Assert(entry != null);

@@ -1,18 +1,33 @@
 ﻿// <copyright file="ChunkStates.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
@@ -24,10 +39,7 @@ public partial class Chunk
     public class Unloaded : ChunkState
     {
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -44,10 +56,7 @@ public partial class Chunk
         private Future<LoadingResult>? loading;
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -55,25 +64,24 @@ public partial class Chunk
             if (loading == null)
             {
                 FileInfo path = Chunk.World.Data.ChunkDirectory.GetFile(GetChunkFileName(Chunk.Position));
-                loading = WaitForCompletion(() => Load(path, Chunk));
+                loading = WaitForCompletion(async () => await LoadAsync(path, Chunk).InAnyContext());
             }
             else if (loading.IsCompleted)
             {
-                if (loading.Exception != null) HandleFaultedFuture(loading);
-                else HandleSuccessfulFuture(loading);
+                loading.Result?.Switch(HandleSuccessful, HandleFaulted);
             }
         }
 
-        private void HandleFaultedFuture(Future future)
+        private void HandleFaulted(Exception exception)
         {
-            LogChunkLoadingError(logger, future.Exception!.GetBaseException(), Chunk.Position);
+            LogChunkLoadingError(logger, exception, Chunk.Position);
 
             SetNextState<Generating>();
         }
 
-        private void HandleSuccessfulFuture(Future<LoadingResult> future)
+        private void HandleSuccessful(LoadingResult result)
         {
-            switch (future.Value!)
+            switch (result)
             {
                 case LoadingResult.Success:
                     TryActivation();
@@ -99,7 +107,7 @@ public partial class Chunk
                 }
 
                 default:
-                    throw new InvalidOperationException();
+                    throw Exceptions.UnsupportedEnumValue(result);
             }
         }
     }
@@ -109,16 +117,13 @@ public partial class Chunk
     /// </summary>
     public class Generating : ChunkState
     {
+        private IDecorationContext? decorationContext;
         private Future? generating;
 
         private IGenerationContext? generationContext;
-        private IDecorationContext? decorationContext;
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnUpdate()
@@ -127,20 +132,29 @@ public partial class Chunk
             {
                 generationContext = Context.Generator.CreateGenerationContext(Chunk.Position);
                 decorationContext = Context.Generator.CreateDecorationContext(Chunk.Position);
-                generating = WaitForCompletion(() => Chunk.Generate(generationContext, decorationContext));
+
+                generating = WaitForCompletion(() =>
+                {
+                    Chunk.Generate(generationContext, decorationContext);
+
+                    return Task.CompletedTask;
+                });
             }
             else if (generating.IsCompleted)
             {
                 Cleanup();
 
-                if (generating.Exception is {} exception)
-                {
-                    LogChunkGenerationError(logger, exception.GetBaseException(), Chunk.Position);
+                generating.Result?.Switch(
+                    TryActivation,
+                    e =>
+                    {
+                        LogChunkGenerationError(logger, e, Chunk.Position);
 
-                    throw exception.GetBaseException();
-                }
+                        ExceptionDispatchInfo.Capture(e).Throw();
 
-                TryActivation();
+                        return false;
+                    }
+                );
             }
         }
 
@@ -163,19 +177,19 @@ public partial class Chunk
         private readonly Neighborhood<Chunk?> chunks;
         private readonly PooledList<Guard> guards;
 
+        private Boolean cleaned;
+
         private Future? decorating;
 
         private IDecorationContext? decorationContext;
 
-        private Boolean cleaned;
-
         /// <summary>
         ///     Creates a new decorating state.
         /// </summary>
-        /// <param name="self">The guard for the core write access to the chunk itself.</param>
-        /// <param name="guards">The guards for the core write access to the neighboring chunks.</param>
+        /// <param name="self">The guard for the write access to the chunk itself.</param>
+        /// <param name="guards">The guards for the write access to the neighboring chunks.</param>
         /// <param name="chunks">The neighborhood of chunks.</param>
-        public Decorating(Guard self, PooledList<Guard> guards, Neighborhood<Chunk?> chunks) : base(self, extended: null)
+        public Decorating(Guard self, PooledList<Guard> guards, Neighborhood<Chunk?> chunks) : base(self)
         {
             Debug.Assert(chunks.Center != null);
 
@@ -184,10 +198,7 @@ public partial class Chunk
         }
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnEnter()
@@ -201,20 +212,29 @@ public partial class Chunk
             if (decorating == null)
             {
                 decorationContext = Context.Generator.CreateDecorationContext(Chunk.Position, extents: 1);
-                decorating = WaitForCompletion(() => Chunk.Decorate(chunks, decorationContext));
+
+                decorating = WaitForCompletion(() =>
+                {
+                    Chunk.Decorate(chunks, decorationContext);
+
+                    return Task.CompletedTask;
+                });
             }
             else if (decorating.IsCompleted)
             {
                 Cleanup();
 
-                if (decorating.Exception is {} exception)
-                {
-                    LogChunkDecorationError(logger, exception.GetBaseException(), Chunk.Position);
+                decorating.Result?.Switch(
+                    TryActivation,
+                    e =>
+                    {
+                        LogChunkDecorationError(logger, e, Chunk.Position);
 
-                    throw exception.GetBaseException();
-                }
+                        ExceptionDispatchInfo.Capture(e).Throw();
 
-                TryActivation();
+                        return false;
+                    }
+                );
             }
         }
 
@@ -240,25 +260,20 @@ public partial class Chunk
         private Future? saving;
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Read;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
+        protected override Access Access => Access.Read;
 
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            if (saving == null)
-            {
-                saving = WaitForCompletion(() => Chunk.Save(Chunk.World.Data.ChunkDirectory));
-            }
+            if (saving == null) saving = WaitForCompletion(async () => await Chunk.SaveAsync(Chunk.World.Data.ChunkDirectory).InAnyContext());
             else if (saving.IsCompleted)
-            {
-                if (saving.Exception is {} exception)
-                    LogChunkSavingError(logger, exception.GetBaseException(), Chunk.Position);
-
-                TryActivation();
-            }
+                saving.Result?.Switch(
+                    () => TryActivation(),
+                    exception =>
+                    {
+                        LogChunkSavingError(logger, exception, Chunk.Position);
+                    }
+                );
         }
     }
 
@@ -269,10 +284,7 @@ public partial class Chunk
     public class Active : ChunkState
     {
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override Boolean AllowSharingAccess => true;
@@ -311,10 +323,7 @@ public partial class Chunk
     public class Hidden : ChunkState
     {
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override Boolean AllowStealing => true;
@@ -336,28 +345,7 @@ public partial class Chunk
                 AllowTransition();
 
             // The wait will only have an effect if no transition happens.
-            WaitForEvents(onNeighborUsable: true, onTransitionRequest: true);
-        }
-    }
-
-    /// <summary>
-    ///     The chunk is used by a different chunk or operation.
-    /// </summary>
-    public class Used : ChunkState
-    {
-        /// <inheritdoc />
-        protected override Access CoreAccess => Access.None;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.None;
-
-        /// <inheritdoc />
-        protected override Boolean CanDiscard => true;
-
-        /// <inheritdoc />
-        protected override void OnUpdate()
-        {
-            TryActivation();
+            WaitForEvents(onNeighborUsable: true, onTransitionRequest: true, onRequestLevelChange: true);
         }
     }
 
@@ -367,10 +355,7 @@ public partial class Chunk
     public class Deactivating : ChunkState
     {
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Write;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Write;
 
         /// <inheritdoc />
         protected override void OnEnter()
@@ -391,26 +376,26 @@ public partial class Chunk
 
     #region LOGGING
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "An exception occurred when loading the chunk {Position} - the chunk has been scheduled for generation")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 0, Level = LogLevel.Error, Message = "An exception occurred when loading the chunk {Position} - the chunk has been scheduled for generation")]
     private static partial void LogChunkLoadingError(ILogger logger, Exception exception, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError,
+    [LoggerMessage(EventId = LogID.ChunkStates + 1,
         Level = LogLevel.Debug,
         Message = "The chunk file for {Position} could not be loaded, which is likely because the file does not exist - position will be scheduled for generation")]
     private static partial void LogChunkFileNotFound(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError,
+    [LoggerMessage(EventId = LogID.ChunkStates + 2,
         Level = LogLevel.Error,
         Message = "The chunk for {Position} could not be loaded, which can be caused by a corrupted or manipulated chunk file - position will be scheduled for generation")]
     private static partial void LogChunkLoadingCorruptedFile(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "A critical exception occurred when generating the chunk {Position}")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 3, Level = LogLevel.Error, Message = "A critical exception occurred when generating the chunk {Position}")]
     private static partial void LogChunkGenerationError(ILogger logger, Exception exception, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkLoadingError, Level = LogLevel.Error, Message = "A critical exception occurred when decorating the chunk {Position}")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 4, Level = LogLevel.Error, Message = "A critical exception occurred when decorating the chunk {Position}")]
     private static partial void LogChunkDecorationError(ILogger logger, Exception exception, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkSavingError, Level = LogLevel.Error, Message = "An exception occurred when saving chunk {Position} - chunk loss is possible")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 5, Level = LogLevel.Error, Message = "An exception occurred when saving chunk {Position} - chunk loss is possible")]
     private static partial void LogChunkSavingError(ILogger logger, Exception exception, ChunkPosition position);
 
     #endregion LOGGING

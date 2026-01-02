@@ -1,14 +1,29 @@
 ﻿// <copyright file="Orientation.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -43,7 +58,7 @@ public enum Orientation
 /// </summary>
 public static class Orientations
 {
-    private static readonly IReadOnlyList<Orientation> orientations = new List<Orientation>
+    private static readonly ReadOnlyCollection<Orientation> orientations = new List<Orientation>
         {Orientation.North, Orientation.East, Orientation.South, Orientation.West}.AsReadOnly();
 
     /// <summary>
@@ -58,7 +73,7 @@ public static class Orientations
     /// <returns>All orientations.</returns>
     public static IEnumerable<Orientation> ShuffledStart(Vector3i position)
     {
-        Int32 start = BlockUtilities.GetPositionDependentNumber(position, mod: 4);
+        Int32 start = NumberGenerator.GetPositionDependentNumber(position, mod: 4);
 
         for (Int32 i = start; i < start + 4; i++) yield return orientations[i % 4];
     }
@@ -122,7 +137,7 @@ public static class OrientationExtensions
             Orientation.East => Vector3i.UnitX,
             Orientation.South => Vector3i.UnitZ,
             Orientation.West => -Vector3i.UnitX,
-            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
+            _ => -Vector3i.UnitZ
         };
     }
 
@@ -136,17 +151,17 @@ public static class OrientationExtensions
     }
 
     /// <summary>
-    ///     Convert an orientation to a <see cref="BlockSide" />.
+    ///     Convert an orientation to a <see cref="Side" />.
     /// </summary>
-    public static BlockSide ToBlockSide(this Orientation orientation)
+    public static Side ToSide(this Orientation orientation)
     {
         return orientation switch
         {
-            Orientation.North => BlockSide.Back,
-            Orientation.East => BlockSide.Right,
-            Orientation.South => BlockSide.Front,
-            Orientation.West => BlockSide.Left,
-            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
+            Orientation.North => Side.Back,
+            Orientation.East => Side.Right,
+            Orientation.South => Side.Front,
+            Orientation.West => Side.Left,
+            _ => Side.Back
         };
     }
 
@@ -172,18 +187,18 @@ public static class OrientationExtensions
     {
         return orientation switch
         {
-            Orientation.North => Orientation.East,
             Orientation.East => Orientation.South,
-            Orientation.South => Orientation.West,
             Orientation.West => Orientation.North,
-            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
+            Orientation.North => Orientation.East,
+            Orientation.South => Orientation.West,
+            _ => Orientation.North
         };
     }
 
     /// <summary>
     ///     Offset a vector along an orientation.
     /// </summary>
-    public static Vector3i Offset(this Orientation orientation, Vector3i vector)
+    public static Vector3i Offset(this Vector3i vector, Orientation orientation)
     {
         return vector + orientation.ToVector3i();
     }
@@ -245,7 +260,7 @@ public static class OrientationExtensions
             Orientation.East => Utilities.Axis.X,
             Orientation.South => Utilities.Axis.Z,
             Orientation.West => Utilities.Axis.X,
-            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(orientation)
         };
     }
 
@@ -254,13 +269,15 @@ public static class OrientationExtensions
     /// </summary>
     public static Orientation NextOrientation(this Random random)
     {
+        Int32 value = random.Next(minValue: 0, maxValue: 4);
+
         return random.Next(minValue: 0, maxValue: 4) switch
         {
             0 => Orientation.North,
             1 => Orientation.East,
             2 => Orientation.South,
             3 => Orientation.West,
-            _ => throw new ArgumentOutOfRangeException(nameof(random), random, message: null)
+            _ => throw Exceptions.UnsupportedValue(value)
         };
     }
 }

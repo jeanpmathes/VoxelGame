@@ -1,6 +1,19 @@
 ﻿// <copyright file="CommandInvoker.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,73 +23,56 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Console;
 
 /// <summary>
 ///     Discovers and executes commands using the <see cref="Command" /> class.
 /// </summary>
-public partial class CommandInvoker
+public sealed partial class CommandInvoker : IResource
 {
-    private readonly Dictionary<String, CommandGroup> commandGroups = new();
-    private readonly Dictionary<Type, Parser> parsers = new();
+    private readonly CommandLibrary library = new();
+    private readonly ArgumentResolver resolver = new();
 
     /// <summary>
     ///     Get the names of all registered commands.
     /// </summary>
-    public IEnumerable<String> CommandNames => commandGroups.Keys;
+    public IEnumerable<String> CommandNames => library.Names;
+
+    /// <inheritdoc />
+    public RID Identifier { get; } = RID.Named<CommandInvoker>("Default");
+
+    /// <inheritdoc />
+    public ResourceType Type => ResourceTypes.CommandInvoker;
+
+    #region DISPOSABLE
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose.
+    }
+
+    #endregion DISPOSABLE
 
     /// <summary>
     ///     Invoked when new commands are added or discovered.
     /// </summary>
-    public event EventHandler CommandsUpdated = delegate {};
+    public event EventHandler? CommandsUpdated;
 
-    /// <summary>
-    ///     Get the help text for a command.
-    /// </summary>
-    /// <param name="commandName">The name of the command. Must correspond to a discovered command.</param>
-    /// <returns>The help text.</returns>
+    /// <inheritdoc cref="CommandLibrary.GetHelpText" />
     public String GetCommandHelpText(String commandName)
     {
-        return commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup)
-            ? commandGroup.Command.HelpText
-            : throw new ArgumentException("Command not found.");
+        return library.GetHelpText(commandName);
     }
 
-    /// <summary>
-    ///     Get all signatures for a command.
-    /// </summary>
-    /// <param name="commandName">The name of the command. Must correspond to a discovered command.</param>
-    /// <returns>All signatures for the command.</returns>
+    /// <inheritdoc cref="CommandLibrary.GetSignatures" />
     public IEnumerable<String> GetCommandSignatures(String commandName)
     {
-        if (!commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup))
-            throw new ArgumentException("Command not found.");
-
-        return GetCommandSignatures(commandName, commandGroup);
-    }
-
-    private static IEnumerable<String> GetCommandSignatures(String commandName, CommandGroup commandGroup)
-    {
-        foreach (MethodInfo commandOverload in commandGroup.Overloads)
-        {
-            StringBuilder signature = new();
-            signature.Append(commandName);
-
-            foreach (ParameterInfo parameter in commandOverload.GetParameters())
-            {
-                signature.Append(value: ' ');
-
-                signature.Append(value: '<');
-                signature.Append(parameter.Name);
-                signature.Append(" : ");
-                signature.Append(parameter.ParameterType.Name);
-                signature.Append(value: '>');
-            }
-
-            yield return signature.ToString();
-        }
+        return library.GetSignatures(commandName);
     }
 
     /// <summary>
@@ -85,43 +81,31 @@ public partial class CommandInvoker
     /// <param name="parser">The parser to add. Will replace any existing parser for the same type.</param>
     public void AddParser(Parser parser)
     {
-        parsers[parser.ParsedType] = parser;
+        resolver.AddParser(parser);
     }
 
     /// <summary>
     ///     Search and discover all commands in the calling assembly.
     /// </summary>
-    public void SearchCommands()
+    /// <param name="context">The context in which loading is done.</param>
+    public void SearchCommands(IResourceContext context)
     {
         LogSearchingCommands(logger);
 
         var count = 0;
 
-        foreach (Type type in Assembly.GetCallingAssembly().GetTypes()
-                     .Where(t => t is {IsClass: true, IsAbstract: false} && t.IsSubclassOf(typeof(Command))))
+        foreach (Command command in Reflections.GetSubclassInstances<Command>())
         {
-            ICommand? command = null;
+            library.AddCommand(command);
 
-            try
-            {
-                command = (ICommand?) Activator.CreateInstance(type);
-            }
-            catch (Exception e) when (e is MethodAccessException or MemberAccessException)
-            {
-                // Commands that have no public constructor are ignored but can be added manually.
-            }
+            context.ReportDiscovery(ResourceTypes.Command, RID.Named<Command>(command.Name));
 
-            if (command == null) continue;
-
-            List<MethodInfo> overloads = GetOverloads(type);
-
-            commandGroups[command.Name] = new CommandGroup(command, overloads);
             LogFoundCommand(logger, command.Name);
             count++;
         }
 
         LogFoundCommandsCount(logger, count);
-        CommandsUpdated.Invoke(this, EventArgs.Empty);
+        CommandsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -130,11 +114,10 @@ public partial class CommandInvoker
     /// <param name="command">The command to add.</param>
     public void AddCommand(ICommand command)
     {
-        List<MethodInfo> overloads = GetOverloads(command.GetType());
-        commandGroups[command.Name] = new CommandGroup(command, overloads);
+        library.AddCommand(command);
 
         LogAddedCommand(logger, command.Name);
-        CommandsUpdated.Invoke(this, EventArgs.Empty);
+        CommandsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -146,23 +129,23 @@ public partial class CommandInvoker
     {
         (String commandName, String[] args) = ParseInput(input);
 
-        if (commandGroups.TryGetValue(commandName, out CommandGroup? commandGroup))
+        if (library.GetCommand(commandName) is {command: var command, overloads: var overloads})
         {
-            MethodInfo? method = ResolveOverload(commandGroup.Overloads, args);
+            MethodInfo? method = resolver.ResolveOverload(overloads, args);
 
             if (method != null)
             {
-                Invoke(commandGroup.Command, method, args, context);
+                Invoke(command, method, args, context);
             }
             else
             {
-                context.Console.WriteError($"No overload found, use 'help {commandName}' for more info.");
+                context.Output.WriteError($"No overload found, use 'help {commandName}' for more info.");
                 LogNoOverloadFound(logger, commandName);
             }
         }
         else
         {
-            context.Console.WriteError($"No command '{commandName}' found, use 'help' for more info.");
+            context.Output.WriteError($"No command '{commandName}' found, use 'help' for more info.");
             LogCommandNotFound(logger, commandName);
         }
     }
@@ -217,49 +200,11 @@ public partial class CommandInvoker
         return (commandName.ToString(), args.Select(a => a.ToString()).ToArray());
     }
 
-    private MethodInfo? ResolveOverload(List<MethodInfo> overloads, IReadOnlyList<String> args)
-    {
-        foreach (MethodInfo method in overloads)
-        {
-            ParameterInfo[] parameters = method.GetParameters();
-
-            if (parameters.Length != args.Count) continue;
-
-            var isValid = true;
-
-            for (var i = 0; i < parameters.Length; i++)
-            {
-                if (!parsers.TryGetValue(parameters[i].ParameterType, out Parser? parser))
-                {
-                    isValid = false;
-
-                    break;
-                }
-
-                if (!parser.CanParse(args[i]))
-                {
-                    isValid = false;
-
-                    break;
-                }
-            }
-
-            if (isValid) return method;
-        }
-
-        return null;
-    }
-
     private void Invoke(ICommand command, MethodBase method, IReadOnlyList<String> args, Context context)
     {
-        ParameterInfo[] parameters = method.GetParameters();
-
         try
         {
-            var parsedArgs = new Object[args.Count];
-
-            for (var i = 0; i < args.Count; i++)
-                parsedArgs[i] = parsers[parameters[i].ParameterType].Parse(args[i]);
+            Object[] parsedArgs = resolver.ParseArguments(method, args);
 
             command.SetContext(context);
             method.Invoke(command, parsedArgs);
@@ -269,44 +214,47 @@ public partial class CommandInvoker
         catch (TargetInvocationException e)
         {
             LogErrorInvokingCommand(logger, e.InnerException, method.Name);
+
+            context.Output.WriteError($"Error while invoking command '{command.Name}', see log for details");
+        }
+        catch (Exception e)
+        {
+            LogErrorExecutingCommand(logger, e, command.Name);
+
+            context.Output.WriteError($"Error while executing command '{command.Name}', see log for details");
         }
     }
-
-    private static List<MethodInfo> GetOverloads(Type type)
-    {
-        return type.GetMethods()
-            .Where(m => m.Name.Equals("Invoke", StringComparison.InvariantCulture) && !m.IsStatic).ToList();
-    }
-
-    private sealed record CommandGroup(ICommand Command, List<MethodInfo> Overloads);
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<CommandInvoker>();
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Searching commands")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 0, Level = LogLevel.Debug, Message = "Searching commands")]
     private static partial void LogSearchingCommands(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Found command '{Name}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 1, Level = LogLevel.Debug, Message = "Found command '{Name}'")]
     private static partial void LogFoundCommand(ILogger logger, String name);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Found {Count} commands")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 2, Level = LogLevel.Information, Message = "Found {Count} commands")]
     private static partial void LogFoundCommandsCount(ILogger logger, Int32 count);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Added command '{Name}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 3, Level = LogLevel.Debug, Message = "Added command '{Name}'")]
     private static partial void LogAddedCommand(ILogger logger, String name);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "No overload found for command '{Command}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 4, Level = LogLevel.Information, Message = "No overload found for command '{Command}'")]
     private static partial void LogNoOverloadFound(ILogger logger, String command);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Information, Message = "Command '{Command}' not found")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 5, Level = LogLevel.Information, Message = "Command '{Command}' not found")]
     private static partial void LogCommandNotFound(ILogger logger, String command);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Debug, Message = "Invoked command '{Command}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 6, Level = LogLevel.Debug, Message = "Invoked command '{Command}'")]
     private static partial void LogInvokedCommand(ILogger logger, String command);
 
-    [LoggerMessage(EventId = Events.Console, Level = LogLevel.Error, Message = "Error while invoking command '{Command}'")]
+    [LoggerMessage(EventId = LogID.CommandInvoker + 7, Level = LogLevel.Error, Message = "Error while invoking command '{Command}'")]
     private static partial void LogErrorInvokingCommand(ILogger logger, Exception? exception, String command);
 
-    #endregion
+    [LoggerMessage(EventId = LogID.CommandInvoker + 8, Level = LogLevel.Error, Message = "Error while executing command '{Command}'")]
+    private static partial void LogErrorExecutingCommand(ILogger logger, Exception? exception, String command);
+
+    #endregion LOGGING
 }

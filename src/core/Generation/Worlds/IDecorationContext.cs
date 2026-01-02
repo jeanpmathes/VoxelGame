@@ -1,6 +1,19 @@
 ﻿// <copyright file="IDecorationContext.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -13,6 +26,7 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds;
 
@@ -67,28 +81,28 @@ public enum DecorationLevels
 /// </summary>
 public interface IDecorationContext : IDisposable
 {
-    private static readonly Vector3i[] corners = VMath.Range3(x: 2, y: 2, z: 2).Select(corner => (Vector3i) corner).ToArray();
+    private static readonly Vector3i[] corners = MathTools.Range3(x: 2, y: 2, z: 2).Select(corner => (Vector3i) corner).ToArray();
 
-    private static readonly (Int32, Int32, Int32)[] centerSectionOffsets = VMath.Range3((1, 1, 1), (2, 2, 2)).ToArray();
-    private static readonly (Int32, Int32, Int32)[] cornerSectionOffsets = VMath.Range3(x: 4, y: 4, z: 4).Where(IsNotCubeTip).ToArray();
+    private static readonly (Int32, Int32, Int32)[] centerSectionOffsets = MathTools.Range3((1, 1, 1), (2, 2, 2)).ToArray();
+    private static readonly (Int32, Int32, Int32)[] cornerSectionOffsets = MathTools.Range3(x: 4, y: 4, z: 4).Where(IsNotCubeTip).ToArray();
 
     private static readonly (Vector3i, DecorationLevels)[][] cornerPositions =
-        VMath.Range3(x: 2, y: 2, z: 2)
+        MathTools.Range3(x: 2, y: 2, z: 2)
             .Select(corner => (Vector3i) corner)
             .OrderBy(GetCornerIndex)
             .Select(corner =>
-                VMath.Range3(x: 2, y: 2, z: 2)
+                MathTools.Range3(x: 2, y: 2, z: 2)
                     .Select(offset => (Vector3i) offset)
                     .Select(offset => (
                         corner + offset, // Localized position of the chunk.
-                        GetFlagForCorner(Vector3i.One - offset))) // Flag - inverse is necessary, e.g. chunk at 0,0,0 decorates the corner at 1,1,1 .
+                        GetFlagForCorner(Vector3i.One - offset))) // Flag - inverse is necessary, e.g., chunk at 0,0,0 decorates the corner at 1,1,1.
                     .ToArray())
             .ToArray();
 
     /// <summary>
     ///     The generator that created this context.
     /// </summary>
-    public IWorldGenerator Generator { get; }
+    IWorldGenerator Generator { get; }
 
     /// <summary>
     ///     Decorate a section of the world.
@@ -101,7 +115,7 @@ public interface IDecorationContext : IDisposable
     ///     Assumes that the chunk has been generated and the center already decorated.
     /// </summary>
     /// <param name="neighbors">The neighborhood of chunks around the chunk to decorate.</param>
-    public void Decorate(Neighborhood<Chunk?> neighbors)
+    void Decorate(Neighborhood<Chunk?> neighbors)
     {
         Debug.Assert(neighbors.Center != null);
         Debug.Assert(neighbors.Center.IsGenerated);
@@ -120,7 +134,7 @@ public interface IDecorationContext : IDisposable
     ///     Assumes that the chunk has been generated but not decorated yet.
     /// </summary>
     /// <param name="chunk">The chunk to decorate.</param>
-    public void DecorateCenter(Chunk chunk)
+    void DecorateCenter(Chunk chunk)
     {
         Debug.Assert(chunk.Decoration == DecorationLevels.None);
 
@@ -143,7 +157,7 @@ public interface IDecorationContext : IDisposable
     /// </summary>
     /// <param name="chunk">The chunk to decide for.</param>
     /// <returns>All chunks needed for decoration, or <c>null</c> if the chunk should not decorate now.</returns>
-    public static Neighborhood<Chunk?>? DecideWhetherToDecorate(Chunk chunk)
+    static Neighborhood<Chunk?>? DecideWhetherToDecorate(Chunk chunk)
     {
         // A chunk is only decorated if all needed neighbors are available at once.
         // As the request level is high enough (otherwise the chunk would not want to decorate),
@@ -182,21 +196,8 @@ public interface IDecorationContext : IDisposable
             {
                 ChunkPosition position = chunk.Position.Offset((x, y, z) - Neighborhood.Center);
 
-                if (chunk.World.TryGetChunk(position, out Chunk? neighbor) && neighbor.IsGenerated && neighbor.CanAcquireCore(Access.Write))
-                {
-                    available[x, y, z] = neighbor;
-
-                    // An undecorated neighbor in a lower stage has priority,
-                    // but only if the neighbor will actually decorate.
-
-                    if (neighbor is {IsFullyDecorated: false, IsRequestedToActivate: true}
-                        && neighbor.DecorationStage < chunk.DecorationStage)
-                        return null;
-                }
-                else
-                {
-                    return null;
-                }
+                if (chunk.World.TryGetChunk(position, out Chunk? neighbor) && neighbor.IsGenerated && neighbor.CanAcquire(Access.Write)) available[x, y, z] = neighbor;
+                else return null;
             }
 
         return available;
@@ -340,7 +341,7 @@ public interface IDecorationContext : IDisposable
             (1, 0, 1) => DecorationLevels.Corner101,
             (1, 1, 0) => DecorationLevels.Corner110,
             (1, 1, 1) => DecorationLevels.Corner111,
-            _ => throw new ArgumentOutOfRangeException(nameof(corner), corner, message: null)
+            _ => throw Exceptions.UnsupportedValue((corner.X, corner.Y, corner.Z))
         };
     }
 }

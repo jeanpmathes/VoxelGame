@@ -101,7 +101,7 @@ void AnimationController::Update(ShaderResources& resources)
     m_removedMeshes.Clear();
 }
 
-void AnimationController::Run(ShaderResources& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList)
+void AnimationController::Run(ShaderResources const& resources, ComPtr<ID3D12GraphicsCommandList4> const& commandList)
 {
     if (m_meshes.IsEmpty()) return;
 

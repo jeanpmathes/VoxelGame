@@ -1,15 +1,27 @@
 ﻿// <copyright file="TextGraphics.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
-using System.ComponentModel;
 using System.Drawing;
 using Gwen.Net;
 using Gwen.Net.Renderer;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 using Font = Gwen.Net.Font;
 using FontStyle = System.Drawing.FontStyle;
 using Point = System.Drawing.Point;
@@ -38,7 +50,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     private Single ConvertToPixels(Single value, GraphicsUnit unit)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         switch (unit)
         {
@@ -59,7 +71,7 @@ public sealed class TextSupport : IDisposable
                 value *= graphics.DpiX / 72;
 
                 break;
-            default: throw new InvalidEnumArgumentException("Unknown unit " + unit);
+            default: throw Exceptions.UnsupportedEnumValue(unit);
         }
 
         return value;
@@ -70,7 +82,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public Boolean LoadFont(Font font)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         font.RealSize = (Single) Math.Ceiling(font.Size * renderer.Scale);
 
@@ -109,7 +121,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public FontMetrics GetFontMetrics(Font font)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (font.RendererData is not System.Drawing.Font sysFont
             || Math.Abs(font.RealSize - font.Size * renderer.Scale) > 2)
@@ -149,7 +161,7 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public SizeF MeasureTab(System.Drawing.Font font)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return graphics.MeasureString(
             "....",
@@ -161,12 +173,12 @@ public sealed class TextSupport : IDisposable
     /// </summary>
     public SizeF MeasureString(String text, System.Drawing.Font font, StringFormat format)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return graphics.MeasureString(text, font, Point.Empty, format);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -194,5 +206,5 @@ public sealed class TextSupport : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

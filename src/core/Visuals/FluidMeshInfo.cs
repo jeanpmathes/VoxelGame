@@ -1,11 +1,25 @@
 ﻿// <copyright file="FluidMeshInfo.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -14,7 +28,7 @@ namespace VoxelGame.Core.Visuals;
 /// </summary>
 public readonly record struct FluidMeshInfo
 {
-    private FluidMeshInfo(BlockInstance block, FluidLevel level, BlockSide side, Boolean isStatic)
+    private FluidMeshInfo(State block, FluidLevel level, Side side, Boolean isStatic)
     {
         Block = block;
         Level = level;
@@ -25,7 +39,7 @@ public readonly record struct FluidMeshInfo
     /// <summary>
     ///     Get the current block.
     /// </summary>
-    public BlockInstance Block { get; init; }
+    public State Block { get; init; }
 
     /// <summary>
     ///     The level of the fluid.
@@ -35,7 +49,7 @@ public readonly record struct FluidMeshInfo
     /// <summary>
     ///     The side of the fluid that is being meshed.
     /// </summary>
-    public BlockSide Side { get; init; }
+    public Side Side { get; init; }
 
     /// <summary>
     ///     Whether the fluid is static.
@@ -45,7 +59,7 @@ public readonly record struct FluidMeshInfo
     /// <summary>
     ///     Create fluid meshing information.
     /// </summary>
-    public static FluidMeshInfo Fluid(BlockInstance block, FluidLevel level, BlockSide side, Boolean isStatic)
+    public static FluidMeshInfo Fluid(State block, FluidLevel level, Side side, Boolean isStatic)
     {
         return new FluidMeshInfo(block, level, side, isStatic);
     }

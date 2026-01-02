@@ -1,6 +1,19 @@
 ﻿// <copyright file="Chainable.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -67,19 +80,22 @@ public abstract class Chainable
     }
 
     /// <summary>
-    ///     Begin a list, and increase the level.
+    ///     Add a list to the section.
     /// </summary>
-    /// <returns>The list chainable. Must be ended.</returns>
-    public Chainable BeginList()
+    /// <param name="builder">The builder for the list.</param>
+    /// <returns>This.</returns>
+    public Chainable List(Func<Chainable, Chainable> builder)
     {
-        List list = new(this);
+        List list = new();
         AddElement(list);
 
-        return list;
+        builder(list);
+
+        return this;
     }
 
     /// <summary>
-    ///     Add an item to a list.
+    ///     Add an item. Only makes sense in a list.
     /// </summary>
     /// <param name="bullet">An optional bullet leading the item.</param>
     /// <returns>This.</returns>
@@ -91,20 +107,31 @@ public abstract class Chainable
     }
 
     /// <summary>
-    ///     Decrease the level.
+    ///     Add a subsection to this chainable.
     /// </summary>
-    /// <returns>The chainable of a lower level.</returns>
-    public virtual Chainable Finish()
+    /// <param name="title">The title of the subsection.</param>
+    /// <param name="builder">The builder for the subsection.</param>
+    /// <returns>This.</returns>
+    public Chainable SubSection(String title, Func<Chainable, Chainable> builder)
     {
-        throw new InvalidOperationException();
+        AddElement(Manual.SubSection.Create(title, builder));
+
+        return this;
     }
 
     /// <summary>
-    ///     End the chain. Only valid on the lowest level.
+    ///     Add a table to the section.
     /// </summary>
-    /// <returns>The section defined by this chain.</returns>
-    public virtual Section EndSection()
+    /// <param name="columns">The column specification of the table.</param>
+    /// <param name="builder">The builder for the table.</param>
+    /// <returns>This.</returns>
+    public Chainable Table(String columns, Action<Table> builder)
     {
-        throw new InvalidOperationException();
+        Table table = new(columns);
+        AddElement(table);
+
+        builder(table);
+
+        return this;
     }
 }

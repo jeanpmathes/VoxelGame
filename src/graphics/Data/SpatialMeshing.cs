@@ -1,13 +1,27 @@
 ﻿// <copyright file="SpatialMeshing.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Data;
 
@@ -38,7 +52,7 @@ public sealed class SpatialMeshing : IMeshing
         in (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data,
         Vector3 offset)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         mesh.Add(new SpatialVertex
         {
@@ -68,7 +82,7 @@ public sealed class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public void PushQuad(in (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, in (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         mesh.Add(new SpatialVertex
         {
@@ -98,11 +112,11 @@ public sealed class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public void Grow(IMeshing.Primitive primitive, Int32 count)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Int32 size = primitive == IMeshing.Primitive.Quad
             ? 4
-            : throw new ArgumentOutOfRangeException(nameof(primitive), primitive, message: null);
+            : throw Exceptions.UnsupportedEnumValue(primitive);
 
         mesh.EnsureCapacity(mesh.Count + size * count);
     }
@@ -110,7 +124,7 @@ public sealed class SpatialMeshing : IMeshing
     /// <inheritdoc />
     public Int32 Count => mesh.Count;
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -140,5 +154,5 @@ public sealed class SpatialMeshing : IMeshing
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

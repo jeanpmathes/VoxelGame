@@ -1,0 +1,59 @@
+﻿<Wix
+    xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
+    xmlns="http://wixtoolset.org/schemas/v4/wxs">
+    <Package Name="$(ProductName)"
+             Language="1033" Version="$(ProductVersion)"
+             Manufacturer="$(ProductManufacturer)"
+             UpgradeCode="017E7E7E-DE39-49AF-BE55-Af2EB194E8E7">
+
+        <MajorUpgrade DowngradeErrorMessage="A newer version of $(ProductName) is already installed."/>
+        <MediaTemplate EmbedCab="yes"/>
+
+        <ui:WixUI Id="WixUI_Mondo"/>
+        <WixVariable Id="WixUILicenseRtf" Value="$(LicensePath)"/>
+        <WixVariable Id="WixUIBannerBmp" Value="$(ImageResourcesDirectory)/banner.bmp"/>
+        <WixVariable Id="WixUIDialogBmp" Value="$(ImageResourcesDirectory)/dialog.bmp"/>
+
+        <UIRef Id="WixUI_ErrorProgressText"/>
+
+        <Feature Id="MainFeature" Title="VoxelGame" Level="1" AllowAbsent="no">
+            <ComponentGroupRef Id="ExecutionEnvironment"/>
+            <ComponentGroupRef Id="ApplicationFiles"/>
+            <Feature Id="ManualFeature" Title="Manual" Level="2">
+                <ComponentGroupRef Id="HelpingFiles"/>
+            </Feature>
+        </Feature>
+    </Package>
+
+    <Fragment>
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="ManufacturerFolder" Name="$(ProductManufacturer)">
+                <Directory Id="INSTALLFOLDER" Name="VoxelGame">
+                    <Directory Id="MANUALFOLDER" Name="Manual"/>
+                </Directory>
+            </Directory>
+        </StandardDirectory>
+        <StandardDirectory Id="DesktopFolder"/>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="ExecutionEnvironment" Directory="INSTALLFOLDER">
+            <Component Id="Executable" Bitness="always64">
+                <File Id="VoxelGameEXE" Name="VoxelGame.exe" Source="$(ApplicationExecutablePath)" KeyPath="yes">
+                    <Shortcut Id="DesktopEXE" Directory="DesktopFolder" WorkingDirectory="INSTALLFOLDER"
+                              Name="VoxelGame $(ProductVersion)" Advertise="yes" Icon="DesktopIcon.exe">
+                        <Icon Id="DesktopIcon.exe" SourceFile="$(ApplicationExecutablePath)"/>
+                    </Shortcut>
+                </File>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+
+    <Fragment>
+        <ComponentGroup Id="HelpingFiles" Directory="MANUALFOLDER">
+            <Component Id="ManualFile" Bitness="always64">
+                <File Id="ManualPDF" Name="Manual.pdf" Source="$(ManualResourcesDirectory)/manual.pdf" KeyPath="yes"/>
+            </Component>
+        </ComponentGroup>
+    </Fragment>
+</Wix>

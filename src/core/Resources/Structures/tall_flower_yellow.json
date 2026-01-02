@@ -1,0 +1,61 @@
+{
+    "Extents": {
+        "Values": [
+            1,
+            2,
+            1
+        ]
+    },
+    "Placements": [
+        {
+            "Position": {
+                "Values": [
+                    0,
+                    0,
+                    0
+                ]
+            },
+            "Block": "FlowerYellowTall",
+            "State": {
+                "VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants.Plant": {
+                    "IsLowered": false
+                },
+                "VoxelGame.Core.Logic.Elements.Behaviors.Composite": {
+                    "Part": {
+                        "X": 0,
+                        "Y": 0,
+                        "Z": 0
+                    }
+                }
+            },
+            "Fluid": "None",
+            "Level": 7,
+            "IsStatic": true
+        },
+        {
+            "Position": {
+                "Values": [
+                    0,
+                    1,
+                    0
+                ]
+            },
+            "Block": "FlowerYellowTall",
+            "State": {
+                "VoxelGame.Core.Logic.Elements.Behaviors.Nature.Plants.Plant": {
+                    "IsLowered": false
+                },
+                "VoxelGame.Core.Logic.Elements.Behaviors.Composite": {
+                    "Part": {
+                        "X": 0,
+                        "Y": 1,
+                        "Z": 0
+                    }
+                }
+            },
+            "Fluid": "None",
+            "Level": 7,
+            "IsStatic": true
+        }
+    ]
+}

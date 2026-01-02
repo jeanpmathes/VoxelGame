@@ -1,0 +1,11 @@
+<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers mode="replace">
+        <Layer source="p:checkerboard_tiles:1,0"/>
+        <Layer source="p:checkerboard_tiles:0,0">
+            <Modifier type="colorize" color="#262626"/>
+            <Modifier type="no-tint"/>
+        </Layer>
+    </Layers>
+    <Modifiers/>
+</Texture>

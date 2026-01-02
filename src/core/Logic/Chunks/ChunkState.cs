@@ -1,44 +1,54 @@
 ﻿// <copyright file="ChunkState.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Microsoft.Extensions.Logging;
-using VoxelGame.Core.Profiling;
+using System.Threading;
+using System.Threading.Tasks;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic.Chunks;
 
 /// <summary>
 ///     Abstract base class for chunk states.
 /// </summary>
-public abstract partial class ChunkState
+public abstract class ChunkState
 {
-    private Guard? coreGuard;
-    private Guard? extendedGuard;
+    private Guard? guard;
 
     /// <summary>
     ///     Whether this state has acquired all required access. This can be true when the state is waiting on something.
     /// </summary>
     private Boolean isAccessSufficient;
 
+    private ChunkState? next;
+    private ChunkState? previous;
+
     /// <summary>
     ///     Whether this state has exited and released all resources.
     /// </summary>
     private Boolean released;
 
-    private ChunkState? next;
-    private ChunkState? previous;
     private RequestQueue requests = null!;
-
-    private Boolean inUpdate;
-    private ChunkState? inUpdateUsed;
 
     /// <summary>
     ///     Create a new chunk state.
@@ -46,15 +56,13 @@ public abstract partial class ChunkState
     protected ChunkState() {}
 
     /// <summary>
-    ///     Create a new chunk state with guards already acquired.
-    ///     The acquired guards must fit the access requirements of the state.
+    ///     Create a new chunk state with guard already acquired.
+    ///     The acquired guard must fit the access requirements of the state.
     /// </summary>
-    /// <param name="core">The core guard.</param>
-    /// <param name="extended">The extended guard.</param>
-    protected ChunkState(Guard? core, Guard? extended)
+    /// <param name="guard">The guard.</param>
+    protected ChunkState(Guard? guard)
     {
-        coreGuard = core;
-        extendedGuard = extended;
+        this.guard = guard;
     }
 
     /// <summary>
@@ -74,19 +82,14 @@ public abstract partial class ChunkState
 
     /// <summary>
     ///     Get whether the chunk with this state is active.
-    ///     Is the case when the state is <see cref="IsActive"/> and entered.
+    ///     Is the case when the state is <see cref="IsActive" /> and entered.
     /// </summary>
     public Boolean IsChunkActive => IsEntered && IsActive && !IsExited;
 
     /// <summary>
     ///     Get whether this state will result in the chunk being active.
     /// </summary>
-    private Boolean IsActive => RequiresFullAccess && AllowSharingAccess;
-
-    /// <summary>
-    /// Whether this state requires full access to all resources of the chunk.
-    /// </summary>
-    private Boolean RequiresFullAccess => CoreAccess == Access.Write && ExtendedAccess == Access.Write;
+    private Boolean IsActive => Access == Access.Write && AllowSharingAccess;
 
     /// <summary>
     ///     Get whether this state has been entered.
@@ -125,24 +128,16 @@ public abstract partial class ChunkState
     protected virtual Boolean IsHidden => false;
 
     /// <summary>
-    ///     The required access level of this state to core chunk resources.
+    ///     The required access level of this state to chunk resources.
     /// </summary>
-    protected abstract Access CoreAccess { get; }
-
-    /// <summary>
-    ///     The required access level of this state to extended chunk resources.
-    /// </summary>
-    protected abstract Access ExtendedAccess { get; }
+    protected abstract Access Access { get; }
 
     /// <summary>
     ///     Whether it is currently possible to steal access from this state.
     /// </summary>
     public Boolean CanStealAccess => AllowStealing && isAccessSufficient;
 
-    private static Boolean IsSameStateType(ChunkState a, ChunkState b)
-    {
-        return a.GetType() == b.GetType();
-    }
+    private Boolean IsInHiddenState => IsHidden && IsEntered && !IsExited;
 
     /// <summary>
     ///     Perform updates.
@@ -154,14 +149,14 @@ public abstract partial class ChunkState
     {
         requests.RemoveDuplicates(this);
 
-        if (previous != null) LogChunkStateChange(logger, Chunk.Position, previous, this);
+        Chunk.OnStateTransition(previous, this);
 
         Context.UpdateList.Add(Chunk);
 
         IsEntered = true;
         OnEnter();
 
-        if (CanStealAccess && CoreAccess == Access.Write && ExtendedAccess == Access.Write) Chunk.OnUsableState();
+        if (CanStealAccess && Access == Access.Write) Chunk.OnUsableState();
     }
 
     private void Exit()
@@ -186,7 +181,7 @@ public abstract partial class ChunkState
     protected virtual void OnExit() {}
 
     /// <summary>
-    /// Perform cleanup in the case that the state is not transitioned to.
+    ///     Perform cleanup in the case that the state is not transitioned to.
     /// </summary>
     protected virtual void Cleanup() {}
 
@@ -214,7 +209,7 @@ public abstract partial class ChunkState
 
     /// <summary>
     ///     Try to set the next state according to the world chunk activation rules.
-    ///     Either <see cref="TryStrongActivation"/> or <see cref="TryWeakActivation"/> will be used.
+    ///     Either <see cref="TryStrongActivation" /> or <see cref="TryWeakActivation" /> will be used.
     /// </summary>
     /// <returns><c>true</c> if this results in a transition to a different state, otherwise <c>false</c>.</returns>
     protected Boolean TryActivation()
@@ -231,11 +226,11 @@ public abstract partial class ChunkState
     /// </summary>
     private Boolean TryStrongActivation()
     {
-        if (!IsHidden)
+        if (!IsInHiddenState)
             // If the chunk is not hidden, this method will always result in a transition to a different state.
             // This is because we transition to hidden if the activation does not provide a next state.
             // As such, we can already release resources here, which will allow more options during activation.
-            ReleaseResources();
+            ReleaseResource();
 
         ChunkState? state = Context.ActivateStrongly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
@@ -252,11 +247,11 @@ public abstract partial class ChunkState
     /// </summary>
     private Boolean TryWeakActivation()
     {
-        if (!IsHidden)
+        if (!IsInHiddenState)
             // If the chunk is not hidden, this method will always result in a transition to a different state.
             // This is because we transition to hidden if the activation does not provide a next state.
             // As such, we can already release resources here, which will allow more option during activation.
-            ReleaseResources();
+            ReleaseResource();
 
         ChunkState? state = Context.ActivateWeakly(Chunk);
         Debug.Assert(state is not Chunk.Hidden);
@@ -268,11 +263,11 @@ public abstract partial class ChunkState
     {
         if (state == null)
         {
-            if (!IsHidden) state = new Chunk.Hidden();
+            if (!IsInHiddenState) state = new Chunk.Hidden();
             else return false;
         }
 
-        ReleaseResources();
+        ReleaseResource();
         SetNextState(state);
 
         return true;
@@ -281,44 +276,56 @@ public abstract partial class ChunkState
     /// <summary>
     ///     Wait until the function is completed before calling update again.
     /// </summary>
-    /// <param name="func">The function to wait for.</param>
-    protected Future<T> WaitForCompletion<T>(Func<T> func)
+    /// <param name="func">The async function to wait for.</param>
+    protected Future<T> WaitForCompletion<T>(Func<Task<T>> func)
     {
         Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForCompletion));
 
         WaitMode |= StateWaitModes.WaitForCompletion;
 
-        return Future.Create(() =>
+        return Future.Create(async () =>
+            {
+                try
+                {
+                    T result = await func().InAnyContext();
+
+                    return result;
+                }
+                finally
+                {
+                    await Context.UpdateList.AddToUpdateAsync(Chunk, ClearWait).InAnyContext();
+                }
+            },
+            CancellationToken.None);
+
+        static void ClearWait(Chunk chunk)
         {
-            T result = func();
-
-            Context.UpdateList.AddOnUpdate(Chunk, ClearFlag);
-
-            return result;
-        });
-
-        static void ClearFlag(Chunk chunk)
-        {
-            chunk.State.WaitMode &= ~StateWaitModes.WaitForCompletion;
+            chunk.State.WaitMode = StateWaitModes.None;
         }
     }
 
     /// <summary>
     ///     Wait until the action is completed before calling update again.
     /// </summary>
-    /// <param name="action">The action to wait for.</param>
-    protected Future WaitForCompletion(Action action)
+    /// <param name="action">The async action to wait for.</param>
+    protected Future WaitForCompletion(Func<Task> action)
     {
         Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForCompletion));
 
         WaitMode |= StateWaitModes.WaitForCompletion;
 
-        return Future.Create(() =>
-        {
-            action();
-
-            Context.UpdateList.AddOnUpdate(Chunk, ClearWait);
-        });
+        return Future.Create(async () =>
+            {
+                try
+                {
+                    await action().InAnyContext();
+                }
+                finally
+                {
+                    await Context.UpdateList.AddToUpdateAsync(Chunk, ClearWait).InAnyContext();
+                }
+            },
+            CancellationToken.None);
 
         static void ClearWait(Chunk chunk)
         {
@@ -339,7 +346,13 @@ public abstract partial class ChunkState
     /// <param name="onTransitionRequest">
     ///     Wait until a transition request is made.
     /// </param>
-    protected void WaitForEvents(Boolean onNeighborUsable = false, Boolean onTransitionRequest = false)
+    /// <param name="onRequestLevelChange">
+    ///     Wait until the request level of the chunk changes.
+    /// </param>
+    protected void WaitForEvents(
+        Boolean onNeighborUsable = false,
+        Boolean onTransitionRequest = false,
+        Boolean onRequestLevelChange = false)
     {
         Debug.Assert(onNeighborUsable || onTransitionRequest);
 
@@ -352,9 +365,16 @@ public abstract partial class ChunkState
 
         if (onTransitionRequest)
         {
-            Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForRequest));
+            Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForTransitionRequest));
 
-            WaitMode |= StateWaitModes.WaitForRequest;
+            WaitMode |= StateWaitModes.WaitForTransitionRequest;
+        }
+
+        if (onRequestLevelChange)
+        {
+            Debug.Assert(!WaitMode.HasFlag(StateWaitModes.WaitForRequestLevelChange));
+
+            WaitMode |= StateWaitModes.WaitForRequestLevelChange;
         }
 
         Context.UpdateList.Remove(Chunk);
@@ -376,9 +396,14 @@ public abstract partial class ChunkState
     {
         if (!WaitMode.HasFlag(StateWaitModes.WaitForNeighborUsability)) return;
 
-        WaitMode = StateWaitModes.None;
+        ScheduleUpdate();
+    }
 
-        Context.UpdateList.Add(Chunk);
+    internal void OnRequestLevelChange()
+    {
+        if (!WaitMode.HasFlag(StateWaitModes.WaitForRequestLevelChange)) return;
+
+        ScheduleUpdate();
     }
 
     /// <summary>
@@ -388,9 +413,7 @@ public abstract partial class ChunkState
     {
         if (!WaitMode.HasFlag(StateWaitModes.WaitForResource)) return;
 
-        WaitMode = StateWaitModes.None;
-
-        Context.UpdateList.Add(Chunk);
+        ScheduleUpdate();
     }
 
     /// <summary>
@@ -414,11 +437,9 @@ public abstract partial class ChunkState
 
         requests.Enqueue(this, state);
 
-        if (!WaitMode.HasFlag(StateWaitModes.WaitForRequest)) return;
+        if (!WaitMode.HasFlag(StateWaitModes.WaitForTransitionRequest)) return;
 
-        WaitMode = StateWaitModes.None;
-
-        Context.UpdateList.Add(Chunk);
+        ScheduleUpdate();
     }
 
     /// <summary>
@@ -428,15 +449,6 @@ public abstract partial class ChunkState
     public void RequestNextState<T>() where T : ChunkState, new()
     {
         RequestNextState(new T());
-    }
-
-    /// <summary>
-    ///     Request a transition to a given state, but only if the queue is empty.
-    /// </summary>
-    private void RequestIfQueueEmpty(ChunkState state)
-    {
-        if (requests.Empty) RequestNextState(state);
-        else CleanupAndRelease(state);
     }
 
     /// <summary>
@@ -457,10 +469,16 @@ public abstract partial class ChunkState
 
         Exit();
 
-        WaitMode = StateWaitModes.None;
-        Context.UpdateList.Add(Chunk);
+        ScheduleUpdate();
 
         return nextState;
+    }
+
+    private void ScheduleUpdate()
+    {
+        WaitMode = StateWaitModes.None;
+
+        Context.UpdateList.Add(Chunk);
     }
 
     private Boolean IsWaitingForAccess()
@@ -476,8 +494,7 @@ public abstract partial class ChunkState
             return true;
         }
 
-        Debug.Assert((coreGuard == null && CoreAccess == Access.None) || (coreGuard != null && Chunk.IsCoreHeldBy(coreGuard, CoreAccess)));
-        Debug.Assert((extendedGuard == null && ExtendedAccess == Access.None) || (extendedGuard != null && Chunk.IsExtendedHeldBy(extendedGuard, ExtendedAccess)));
+        Debug.Assert((guard == null && Access == Access.None) || (guard != null && Chunk.IsHeldBy(guard, Access)));
 
         return false;
     }
@@ -486,16 +503,7 @@ public abstract partial class ChunkState
     {
         if (released) return;
 
-        inUpdate = true;
         OnUpdate();
-        inUpdate = false;
-
-        if (inUpdateUsed == null) return;
-
-        if (next == null) SetTransitionToUsedState(inUpdateUsed);
-        else CleanupAndRelease(inUpdateUsed);
-
-        inUpdateUsed = null;
     }
 
     private Boolean EnsureRequiredAccess()
@@ -503,28 +511,17 @@ public abstract partial class ChunkState
         var isSufficient = true;
         var canAcquire = true;
 
-        if (CoreAccess != Access.None && coreGuard == null)
+        if (Access != Access.None && guard == null)
         {
             isSufficient = false;
-            canAcquire &= Chunk.CanAcquireCore(CoreAccess);
+            canAcquire &= Chunk.CanAcquire(Access);
         }
-
-        if (ExtendedAccess != Access.None && extendedGuard == null)
-        {
-            isSufficient = false;
-            canAcquire &= Chunk.CanAcquireExtended(ExtendedAccess);
-        }
-
-        // Acquire all required resources at once to prevent deadlocks.
 
         if (isSufficient || !canAcquire)
             return isSufficient;
 
-        if (CoreAccess != Access.None)
-            coreGuard = Chunk.AcquireCore(CoreAccess);
-
-        if (ExtendedAccess != Access.None)
-            extendedGuard = Chunk.AcquireExtended(ExtendedAccess);
+        if (Access != Access.None)
+            guard = Chunk.Acquire(Access);
 
         return true;
     }
@@ -532,13 +529,10 @@ public abstract partial class ChunkState
     /// <summary>
     ///     Release all held resources. A state will not be updated when released, and must transition until the next update.
     /// </summary>
-    private void ReleaseResources()
+    private void ReleaseResource()
     {
-        coreGuard?.Dispose();
-        extendedGuard?.Dispose();
-
-        coreGuard = null;
-        extendedGuard = null;
+        guard?.Dispose();
+        guard = null;
 
         released = true;
         isAccessSufficient = false;
@@ -555,9 +549,22 @@ public abstract partial class ChunkState
 
     private ChunkState DetermineNextState()
     {
-        if (next == null) return this;
+        if (next == null)
+        {
+            if (IsExited)
+            {
+                // Chunk access was stolen, as stealing exits the state but does not set a next state.
+                // The only other way to exit a state is to transition to another state, which would set the next state.
 
-        Debug.Assert(next != null);
+                TryActivation();
+
+                Debug.Assert(next != null);
+            }
+            else
+            {
+                return this;
+            }
+        }
 
         ChunkState nextState = DetermineNextState(next);
 
@@ -586,8 +593,8 @@ public abstract partial class ChunkState
     ///     Update the state of a chunk. This can change the state.
     /// </summary>
     /// <param name="state">A reference to the state.</param>
-    /// <param name="tracker">A tracker to profile state transitions.</param>
-    public static void Update(ref ChunkState state, StateTracker tracker)
+    /// <returns>If the state has changed, this will be the previous state, otherwise <c>null</c>.</returns>
+    public static ChunkState? Update(ref ChunkState state)
     {
         ChunkState previousState = state;
 
@@ -596,10 +603,13 @@ public abstract partial class ChunkState
         state.previous ??= previousState;
         state.requests = previousState.requests;
 
-        if (state == previousState) return;
+        if (state == previousState)
+            return null;
 
-        tracker.Transition(previousState, state);
+        ChunkState? previous = previousState.previous;
         previousState.previous = null;
+
+        return previous;
     }
 
     /// <summary>
@@ -618,7 +628,7 @@ public abstract partial class ChunkState
         };
     }
 
-    private ChunkState CreateFinalState()
+    private Chunk.Deactivating CreateFinalState()
     {
         var state = new Chunk.Deactivating
         {
@@ -637,49 +647,30 @@ public abstract partial class ChunkState
     ///     A use-case of this is when threaded work on one chunk requires access to the resources of another chunk.
     /// </summary>
     /// <param name="state">The current state. Will be exited if access is stolen.</param>
-    /// <param name="tracker">A tracker to profile state transitions.</param>
     /// <returns>Guards holding write-access to all resources, or null if access could not be stolen.</returns>
-    public static (Guard core, Guard extended)? TryStealAccess(ref ChunkState state, StateTracker tracker)
+    public static Guard? TryStealAccess(ref ChunkState state)
     {
-        Throw.IfNotOnMainThread(state.Chunk);
+        Application.ThrowIfNotOnMainThread(state.Chunk);
 
         if (!state.CanStealAccess) return null;
 
-        (Guard core, Guard extended) access = state.StealAccess();
+        Guard access = state.StealAccess();
 
         state.Exit();
-
-        ChunkState used = new Chunk.Used();
-
-        // If the state is currently in the update method, it could set the transition.
-        // This would conflict with setting the transition to the used state here.
-
-        if (state.inUpdate)
-            state.inUpdateUsed = used;
-        else
-            state.SetTransitionToUsedState(used);
+        state.ScheduleUpdate();
 
         return access;
     }
 
-    private void SetTransitionToUsedState(ChunkState used)
+    private Guard StealAccess()
     {
-        RequestIfQueueEmpty(used);
-        AllowTransition();
-    }
+        Debug.Assert(this is {Access: Access.Write, guard: not null});
 
-    private (Guard core, Guard extended) StealAccess()
-    {
-        Debug.Assert(this is {CoreAccess: Access.Write, coreGuard: not null});
-        Debug.Assert(this is {ExtendedAccess: Access.Write, extendedGuard: not null});
+        Guard stolen = guard!;
 
-        Guard core = coreGuard!;
-        Guard extended = extendedGuard!;
+        guard = null;
 
-        coreGuard = null;
-        extendedGuard = null;
-
-        return (core, extended);
+        return stolen;
     }
 
     /// <inheritdoc />
@@ -691,7 +682,7 @@ public abstract partial class ChunkState
     private static void CleanupAndRelease(ChunkState? state)
     {
         state?.Cleanup();
-        state?.ReleaseResources();
+        state?.ReleaseResource();
     }
 
     /// <summary>
@@ -700,11 +691,6 @@ public abstract partial class ChunkState
     private sealed class RequestQueue
     {
         private readonly List<ChunkState> requests = [];
-
-        /// <summary>
-        ///     Get whether the queue is empty.
-        /// </summary>
-        public Boolean Empty => requests.Count == 0;
 
         /// <summary>
         ///     Enqueue a new request. If the same state type is already requested, the request is ignored, unless the correct
@@ -718,8 +704,7 @@ public abstract partial class ChunkState
             // This is because transitions taken before the request is processed might also need that access.
             // As such, a deadlock could occur.
 
-            Debug.Assert(state.coreGuard == null);
-            Debug.Assert(state.extendedGuard == null);
+            Debug.Assert(state.guard == null);
 
             if (current.next is {CanDiscard: false} next && IsSameStateType(next, state))
             {
@@ -757,7 +742,7 @@ public abstract partial class ChunkState
         /// <returns>The first request, or null if no request is available.</returns>
         public ChunkState? Dequeue(Boolean isDeactivating)
         {
-            if (Empty) return null;
+            if (requests.Count == 0) return null;
 
             Int32 target = -1;
 
@@ -792,23 +777,20 @@ public abstract partial class ChunkState
             var index = 0;
 
             while (index < requests.Count)
-            {
                 if (IsSameStateType(current, requests[index]))
                 {
                     CleanupAndRelease(requests[index]);
                     requests.RemoveAt(index);
                 }
-                else index++;
-            }
+                else
+                {
+                    index++;
+                }
+        }
+
+        private static Boolean IsSameStateType(ChunkState a, ChunkState b)
+        {
+            return a.GetType() == b.GetType();
         }
     }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ChunkState>();
-
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Chunk {Position} state changed from {PreviousState} to {State}")]
-    private static partial void LogChunkStateChange(ILogger logger, ChunkPosition position, ChunkState previousState, ChunkState state);
-
-    #endregion LOGGING
 }

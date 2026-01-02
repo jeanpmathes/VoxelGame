@@ -1,9 +1,23 @@
 ﻿// <copyright file="Marshalling.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Runtime.InteropServices.Marshalling;
 
 namespace VoxelGame.Toolkit.Interop;
@@ -54,7 +68,7 @@ public static class Marshalling
         where TUnmanaged : unmanaged
         where TMarshaller : IMarshaller<TManaged, TUnmanaged>
     {
-        for (var index = 0; index < length; index++) TMarshaller.Free(unmanaged[index]);
+        for (UInt32 index = 0; index < length; index++) TMarshaller.Free(unmanaged[index]);
 
         ArrayMarshaller<TManaged, TUnmanaged>.Free(unmanaged);
     }
@@ -71,11 +85,11 @@ public interface IMarshaller<in TManaged, TUnmanaged>
     /// </summary>
     /// <param name="managed">The managed value to convert.</param>
     /// <returns>The unmanaged value.</returns>
-    public static abstract TUnmanaged ConvertToUnmanaged(TManaged managed);
+    static abstract TUnmanaged ConvertToUnmanaged(TManaged managed);
 
     /// <summary>
     ///     Free an unmanaged value.
     /// </summary>
     /// <param name="unmanaged">The unmanaged value to free, created by <see cref="ConvertToUnmanaged" />.</param>
-    public static abstract void Free(TUnmanaged unmanaged);
+    static abstract void Free(TUnmanaged unmanaged);
 }

@@ -1,9 +1,24 @@
 ﻿// <copyright file="Input.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Collections.Generic;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input.Devices;
@@ -16,24 +31,23 @@ namespace VoxelGame.Graphics.Input;
 /// </summary>
 public class Input
 {
-    private readonly ISet<VirtualKeys> mouseButtons = new HashSet<VirtualKeys>
-    {
+    private readonly List<Action<VirtualKeys>> callbackListForAnyPress = [];
+    private readonly HashSet<VirtualKeys> ignoredKeys = [];
+
+    private readonly HashSet<VirtualKeys> mouseButtons =
+    [
         VirtualKeys.LeftButton,
         VirtualKeys.RightButton,
         VirtualKeys.MiddleButton,
         VirtualKeys.ExtraButton1,
         VirtualKeys.ExtraButton2
-    };
-
-    private readonly ISet<VirtualKeys> ignoredKeys = new HashSet<VirtualKeys>();
-
-    private readonly List<Action<VirtualKeys>> callbackListForAnyPress = new();
+    ];
 
     internal Input(Client client)
     {
         Mouse = new Mouse(client);
 
-        client.OnFocusChange += (_, _) =>
+        client.FocusChanged += (_, _) =>
         {
             if (!client.IsFocused) KeyState.Wipe();
         };
@@ -71,11 +85,11 @@ public class Input
     /// <summary>
     ///     Called before the core game update.
     /// </summary>
-    internal void PreUpdate()
+    internal void PreLogicUpdate()
     {
-        Mouse.Update();
+        Mouse.LogicUpdate();
 
-        OnInputUpdate(this, EventArgs.Empty);
+        InputUpdated?.Invoke(this, EventArgs.Empty);
 
         HandleAnyKeyCallbacks();
     }
@@ -84,9 +98,11 @@ public class Input
     {
         if (!KeyState.IsAnyKeyDown || callbackListForAnyPress.Count <= 0) return;
 
-        VirtualKeys any = KeyState.Any;
+        VirtualKeys? any = KeyState.Any;
 
-        foreach (Action<VirtualKeys> callback in callbackListForAnyPress) callback(any);
+        if (any == null) return;
+
+        foreach (Action<VirtualKeys> callback in callbackListForAnyPress) callback(any.Value);
 
         callbackListForAnyPress.Clear();
     }
@@ -94,9 +110,9 @@ public class Input
     /// <summary>
     ///     Called after the core game update.
     /// </summary>
-    internal void PostUpdate()
+    internal void PostLogicUpdate()
     {
-        KeyState.Update();
+        KeyState.LogicUpdate();
     }
 
     internal void OnKeyDown(Byte key)
@@ -113,12 +129,8 @@ public class Input
     {
         var virtualKey = (VirtualKeys) key;
 
-        if (ignoredKeys.Contains(virtualKey))
-        {
-            ignoredKeys.Remove(virtualKey);
-
+        if (ignoredKeys.Remove(virtualKey))
             return;
-        }
 
         KeyState.SetKeyState(virtualKey, down: false);
         HandleKey(virtualKey, down: false);
@@ -126,7 +138,7 @@ public class Input
 
     internal void OnChar(Char character)
     {
-        TextInput(this,
+        TextInput?.Invoke(this,
             new TextInputEventArgs
             {
                 Character = character
@@ -137,7 +149,7 @@ public class Input
     {
         Mouse.OnMouseMove((x, y));
 
-        MouseMove(this,
+        MouseMove?.Invoke(this,
             new MouseMoveEventArgs
             {
                 Position = Mouse.Position
@@ -146,7 +158,7 @@ public class Input
 
     internal void OnMouseWheel(Double delta)
     {
-        MouseWheel(this,
+        MouseWheel?.Invoke(this,
             new MouseWheelEventArgs
             {
                 Delta = delta
@@ -157,7 +169,7 @@ public class Input
     {
         if (mouseButtons.Contains(key))
         {
-            MouseButton(this,
+            MouseButton?.Invoke(this,
                 new MouseButtonEventArgs
                 {
                     Button = key,
@@ -171,43 +183,43 @@ public class Input
                 Key = key
             };
 
-            if (down) KeyDown(this, args);
-            else KeyUp(this, args);
+            if (down) KeyDown?.Invoke(this, args);
+            else KeyUp?.Invoke(this, args);
         }
     }
 
     /// <summary>
     ///     Called once per frame, when the input system should update itself.
     /// </summary>
-    internal event EventHandler OnInputUpdate = delegate {};
+    internal event EventHandler? InputUpdated;
 
     /// <summary>
     ///     Called when a mouse button is pressed or released.
     /// </summary>
-    public event EventHandler<MouseButtonEventArgs> MouseButton = delegate {};
+    public event EventHandler<MouseButtonEventArgs>? MouseButton;
 
     /// <summary>
     ///     Called when the mouse moves.
     /// </summary>
-    public event EventHandler<MouseMoveEventArgs> MouseMove = delegate {};
+    public event EventHandler<MouseMoveEventArgs>? MouseMove;
 
     /// <summary>
     ///     Called when the mouse wheel is scrolled.
     /// </summary>
-    public event EventHandler<MouseWheelEventArgs> MouseWheel = delegate {};
+    public event EventHandler<MouseWheelEventArgs>? MouseWheel;
 
     /// <summary>
     ///     Called when a keyboard key is pressed.
     /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs> KeyDown = delegate {};
+    public event EventHandler<KeyboardKeyEventArgs>? KeyDown;
 
     /// <summary>
     ///     Called when a keyboard key is released.
     /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs> KeyUp = delegate {};
+    public event EventHandler<KeyboardKeyEventArgs>? KeyUp;
 
     /// <summary>
     ///     Called when a text input is received.
     /// </summary>
-    public event EventHandler<TextInputEventArgs> TextInput = delegate {};
+    public event EventHandler<TextInputEventArgs>? TextInput;
 }

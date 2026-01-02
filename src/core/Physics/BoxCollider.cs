@@ -1,6 +1,19 @@
 ﻿// <copyright file="BoxCollider.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -8,8 +21,10 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
+using Block = VoxelGame.Core.Logic.Voxels.Block;
 
 namespace VoxelGame.Core.Physics;
 
@@ -122,9 +137,10 @@ public struct BoxCollider : IEquatable<BoxCollider>
         return Check(other.Volume, ref x, ref y, ref z);
     }
 
-    private Boolean IntersectsTerrain_NonRecursive(World world, out Boolean xCollision, out Boolean yCollision,
-        out Boolean zCollision, ISet<(Vector3i position, Block block)> blockIntersections,
-        ISet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
+    private Boolean IntersectsTerrain_NonRecursive(World world,
+        out Boolean xCollision, out Boolean yCollision, out Boolean zCollision,
+        HashSet<(Vector3i position, Block block)> blockIntersections,
+        HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
         var intersects = false;
 
@@ -154,7 +170,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
 
             if (content == null) continue;
 
-            (BlockInstance currentBlock, FluidInstance currentFluid) = content.Value;
+            (State currentBlock, FluidInstance currentFluid) = content.Value;
 
             BoxCollider blockCollider = currentBlock.Block.GetCollider(
                 world,

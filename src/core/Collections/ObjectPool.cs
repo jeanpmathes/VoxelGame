@@ -1,6 +1,19 @@
 ﻿// <copyright file="ObjectPool.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -19,7 +32,7 @@ public class ObjectPool<T> where T : class
     private readonly ConcurrentBag<T> objects = [];
 
     /// <summary>
-    /// Create a new object pool.
+    ///     Create a new object pool.
     /// </summary>
     /// <param name="factory">A factory function to create new objects.</param>
     public ObjectPool(Func<T> factory)
@@ -76,10 +89,8 @@ public class SimpleObjectPool<T> : ObjectPool<T> where T : class, new()
     /// </summary>
     public SimpleObjectPool() : base(() => new T()) {}
 
-#pragma warning disable CA1000 // Do not declare static members on generic types
     /// <summary>
     ///     Get a shared instance of this object pool.
     /// </summary>
     public static SimpleObjectPool<T> Shared { get; } = new();
-#pragma warning restore CA1000 // Do not declare static members on generic types
 }

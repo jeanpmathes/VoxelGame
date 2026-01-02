@@ -1,10 +1,11 @@
-﻿//  <copyright file="KeyState.cs" company="OpenTK">
-//      Copyright (C) 2018 OpenTK
-// 	 This software may be modified and distributed under the terms
-//   of the MIT license. See the LICENSE file for details.
-//  </copyright>
-//  <author>OpenTK</author>
+﻿// <copyright file="KeyState.cs" company="OpenTK">
+//     Copyright (C) 2018 OpenTK
+//     This software may be modified and distributed under the terms
+//     of the MIT license. See the LICENSE file for details.
+// </copyright>
+// <author>OpenTK</author>
 
+using System;
 using System.Collections;
 using System.Globalization;
 using System.Text;
@@ -17,9 +18,10 @@ namespace VoxelGame.Graphics.Input;
 /// </summary>
 public class KeyState
 {
-    private static readonly VirtualKeys[] allKeys = (VirtualKeys[]) Enum.GetValues(typeof(VirtualKeys));
-    private readonly BitArray keys = new((Int32) VirtualKeys.LastKey + 1);
-    private readonly BitArray keysPrevious = new((Int32) VirtualKeys.LastKey + 1);
+    private static readonly VirtualKeys[] allKeys = Enum.GetValues<VirtualKeys>();
+
+    private readonly BitArray keys = new(length: 0xFF);
+    private readonly BitArray keysPrevious = new(length: 0xFF);
 
     internal KeyState() {}
 
@@ -30,10 +32,9 @@ public class KeyState
     public Boolean IsAnyKeyDown => GetAnyKeyDown() != null;
 
     /// <summary>
-    ///     Get the first key that is down.
+    ///     Get the first key that is down, or <c>null</c> if no key is down.
     /// </summary>
-    /// <exception cref="InvalidOperationException">No key is down.</exception>
-    public VirtualKeys Any => GetAnyKeyDown() ?? throw new InvalidOperationException("No key is down.");
+    public VirtualKeys? Any => GetAnyKeyDown() ?? null;
 
     private VirtualKeys? GetAnyKeyDown()
     {
@@ -76,7 +77,7 @@ public class KeyState
         return builder.ToString();
     }
 
-    internal void Update()
+    internal void LogicUpdate()
     {
         keysPrevious.SetAll(value: false);
         keysPrevious.Or(keys);

@@ -1,10 +1,24 @@
 ﻿// <copyright file="CircularTimeBuffer.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Linq;
 using VoxelGame.Core.Utilities;
 
@@ -19,9 +33,9 @@ public class CircularTimeBuffer
     private readonly Double[] buffer;
     private readonly Int32 capacity;
 
-    private Double total;
-
     private Int32 filledSlots;
+
+    private Double total;
     private Int32 writeIndex;
 
     /// <summary>
@@ -30,8 +44,7 @@ public class CircularTimeBuffer
     /// <param name="capacity">The capacity, must be larger than zero.</param>
     public CircularTimeBuffer(Int32 capacity)
     {
-        if (capacity < 1)
-            throw new ArgumentOutOfRangeException(nameof(capacity), @"Capacity has to be larger than zero.");
+        Debug.Assert(capacity > 0);
 
         this.capacity = capacity;
         buffer = new Double[capacity];
@@ -75,10 +88,10 @@ public class CircularTimeBuffer
         Max = Math.Max(Max, time);
         Min = Math.Min(Min, time);
 
-        if (VMath.NearlyEqual(old, Max))
+        if (MathTools.NearlyEqual(old, Max))
             Max = buffer.Take(filledSlots).Max();
 
-        if (VMath.NearlyEqual(old, Min))
+        if (MathTools.NearlyEqual(old, Min))
             Min = buffer.Take(filledSlots).Min();
     }
 }

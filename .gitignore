@@ -281,7 +281,6 @@ __pycache__/
 *.pdfsync
 
 # Custom Ignore
-/.editorconfig
 .sonarlint/
 *.DotSettings
 *.xcf

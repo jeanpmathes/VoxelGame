@@ -1,13 +1,25 @@
 ﻿// <copyright file="Texture.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 
 namespace VoxelGame.Graphics.Objects;
@@ -37,34 +49,6 @@ public class Texture : NativeObject
     ///     Gets the height of the texture.
     /// </summary>
     public Int32 Height => size.Y;
-
-    /// <summary>
-    ///     Load a texture from a file. This is only allowed during the loading phase.
-    /// </summary>
-    /// <param name="client">The client instance, used to determine texture lifetime and to access the graphics API.</param>
-    /// <param name="path">The path to the texture file.</param>
-    /// <param name="loadingContext">The loading context.</param>
-    /// <param name="fallbackResolution">The resolution to use for the fallback texture.</param>
-    /// <returns></returns>
-    public static Texture Load(Client client, FileInfo path, ILoadingContext? loadingContext, Int32 fallbackResolution = 16)
-    {
-        Image image;
-
-        try
-        {
-            image = Image.LoadFromFile(path);
-            loadingContext?.ReportSuccess(nameof(Texture), path);
-        }
-        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or ArgumentException)
-        {
-            image = Image.CreateFallback(fallbackResolution);
-            loadingContext?.ReportWarning(nameof(Texture), path, exception);
-        }
-
-        Texture texture = client.LoadTexture(image);
-
-        return texture;
-    }
 
     /// <summary>
     ///     Frees the texture. Not allowed in same frame as creation.

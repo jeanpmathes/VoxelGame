@@ -1,6 +1,19 @@
 ﻿// <copyright file="DrawablesGroup.hpp" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -51,7 +64,7 @@ public:
      * \param common A common bag of drawables of all subtypes.
      */
     explicit DrawablesGroup(NativeClient& client, Drawable::BaseContainer& common)
-        : m_nativeClient(&client)
+        : m_client(&client)
       , m_common(&common)
     {
     }
@@ -64,6 +77,12 @@ public:
     ~DrawablesGroup() override = default;
 
     /**
+     * \brief Spool a number of drawables. This fills the internal pool with new drawables.
+     * @param count The number of drawables to spool.
+     */
+    void Spool(UINT const count) { for (UINT i = 0; i < count; i++) m_pool.push_back(std::make_unique<D>(*m_client)); }
+
+    /**
      * \brief Creates and stores a new drawable.
      * \param initializer The initializer function.
      * \return A reference to the created drawable.
@@ -72,7 +91,7 @@ public:
     {
         std::unique_ptr<D> stored;
 
-        if (m_pool.empty()) stored = std::make_unique<D>(*m_nativeClient);
+        if (m_pool.empty()) stored = std::make_unique<D>(*m_client);
         else
         {
             stored = std::move(m_pool.back());
@@ -160,13 +179,14 @@ public:
     {
         return std::ranges::views::transform(
             m_modified,
-            [this](Drawable::EntryIndex const entry) -> D* {
+            [this](Drawable::EntryIndex const entry) -> D*
+            {
                 Require(m_entries[entry] != nullptr);
                 return m_entries[entry].get();
             });
     }
 
-    size_t GetModifiedCount() const { return m_modified.Count(); }
+    [[nodiscard]] size_t GetModifiedCount() const { return m_modified.Count(); }
 
     /**
      * \brief Get all changed drawables. A drawable is changed if it is active and either newly activated or modified.
@@ -213,7 +233,7 @@ public:
     }
 
 private:
-    NativeClient*            m_nativeClient;
+    NativeClient*            m_client;
     Drawable::BaseContainer* m_common;
 
     Bag<std::unique_ptr<D>, Drawable::EntryIndex> m_entries = {};

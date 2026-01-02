@@ -71,10 +71,10 @@ namespace
         auto bindings  = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::POST_PROCESSING);
 
         resources->Initialize(
-            [&client, &shaderBuffer, &description, &bindings](auto& graphics)
+            [&client, &shaderBuffer, &description, &bindings](ShaderResources::Description& graphics)
             {
                 graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0}, GetFilter(description));
+                graphics.AddStaticSampler({.reg = 0}, GetFilter(description), D3D12_TEXTURE_ADDRESS_MODE_BORDER);
 
                 if (shaderBuffer != nullptr) graphics.AddConstantBufferView(
                     shaderBuffer->GetGPUVirtualAddress(),
@@ -83,12 +83,16 @@ namespace
                 graphics.AddRootConstant(
                     [&client]() -> ShaderResources::Value32
                     {
-                        return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+                        return {.floating = static_cast<FLOAT>(client.GetTotalRenderUpdateTime())};
                     },
                     {.reg = 0, .space = 1});
 
                 graphics.AddHeapDescriptorTable(
-                    [&](auto& table) { bindings->PostProcessing().input = table.AddShaderResourceView({.reg = 0}); });
+                    [&](auto& table)
+                    {
+                        bindings->PostProcessing().color = table.AddShaderResourceView({.reg = 0});
+                        bindings->PostProcessing().depth = table.AddShaderResourceView({.reg = 1});
+                    });
             },
             [](auto&)
             {
@@ -130,10 +134,10 @@ namespace
         auto bindings  = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::DRAW_2D);
 
         resources->Initialize(
-            [&client, &shaderBuffer, &description, &bindings](auto& graphics)
+            [&client, &shaderBuffer, &description, &bindings](ShaderResources::Description& graphics)
             {
                 graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0}, GetFilter(description));
+                graphics.AddStaticSampler({.reg = 0}, GetFilter(description), D3D12_TEXTURE_ADDRESS_MODE_BORDER);
 
                 if (shaderBuffer != nullptr) graphics.AddConstantBufferView(
                     shaderBuffer->GetGPUVirtualAddress(),
@@ -142,7 +146,7 @@ namespace
                 graphics.AddRootConstant(
                     [&client]() -> ShaderResources::Value32
                     {
-                        return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+                        return {.floating = static_cast<FLOAT>(client.GetTotalRenderUpdateTime())};
                     },
                     {.reg = 0, .space = 1});
 
@@ -384,7 +388,7 @@ std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetUpEffectBindings(
     description.AddRootConstant(
         [&client]() -> ShaderResources::Value32
         {
-            return {.floating = static_cast<FLOAT>(client.GetTotalRenderTime())};
+            return {.floating = static_cast<FLOAT>(client.GetTotalRenderUpdateTime())};
         },
         {.reg = 0, .space = 1});
 

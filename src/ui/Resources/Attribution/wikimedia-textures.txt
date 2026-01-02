@@ -1,3 +1,0 @@
-﻿Some textures are created by editing real-life images.
-granite: Tastenquäler - Own work, CC BY-SA 4.0, https://commons.wikimedia.org/w/index.php?curid=79090090
-marble: Amada44 - Own work, CC BY 3.0, https://commons.wikimedia.org/w/index.php?curid=19280576

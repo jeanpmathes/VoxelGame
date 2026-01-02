@@ -1,10 +1,25 @@
 ﻿// <copyright file="Array3D.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
@@ -40,7 +55,7 @@ public class Array3D<T> : IEnumerable<T>, IArray<T>
     }
 
     /// <summary>
-    /// Get the total number of elements in the array.
+    ///     Get the total number of elements in the array.
     /// </summary>
     protected Int32 Count => array.Length;
 
@@ -95,10 +110,13 @@ public class Array3D<T> : IEnumerable<T>, IArray<T>
     }
 
     /// <summary>
-    /// Get the array as a span.
+    ///     Get the array as a span.
     /// </summary>
     /// <returns>The array as a span.</returns>
-    public Span<T> AsSpan() => array;
+    public Span<T> AsSpan()
+    {
+        return array;
+    }
 
     private ref T GetRef(Int32 x, Int32 y, Int32 z)
     {

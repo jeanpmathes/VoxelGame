@@ -1,10 +1,25 @@
 ﻿// <copyright file="Array2D.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
@@ -36,6 +51,22 @@ public sealed class Array2D<T> : IEnumerable<T>, IArray<T>
         Length = length;
 
         (xFactor, yFactor) = !transpose ? (length, 1) : (1, length);
+    }
+
+    /// <summary>
+    ///     Create a new array with the given values.
+    /// </summary>
+    /// <param name="values">The values to initialize the array with.</param>
+    public Array2D(T[][] values) : this(values.Length)
+    {
+        Debug.Assert(values.Length == Length);
+
+        for (var x = 0; x < Length; x++)
+        {
+            Debug.Assert(values[x].Length == Length);
+
+            for (var y = 0; y < Length; y++) this[x, y] = values[x][y];
+        }
     }
 
     /// <summary>
@@ -104,10 +135,13 @@ public sealed class Array2D<T> : IEnumerable<T>, IArray<T>
     }
 
     /// <summary>
-    /// Get the array as a span.
+    ///     Get the array as a span.
     /// </summary>
     /// <returns>The array as a span.</returns>
-    public Span<T> AsSpan() => array;
+    public Span<T> AsSpan()
+    {
+        return array;
+    }
 
     /// <summary>
     ///     Get a reference to the element at the given position.

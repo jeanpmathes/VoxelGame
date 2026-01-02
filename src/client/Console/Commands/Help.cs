@@ -1,6 +1,19 @@
 ﻿// <copyright file="Help.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -11,7 +24,6 @@ using JetBrains.Annotations;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Provides help with using the commands.
@@ -20,10 +32,8 @@ namespace VoxelGame.Client.Console.Commands;
 public class Help : Command
 {
     private const Int32 PageSize = 5;
-
     private readonly Dictionary<String, List<Entry>> commandDescriptions = new();
     private readonly CommandInvoker commandInvoker;
-
     private readonly List<List<Entry>> commandPages = [];
 
     /// <summary>
@@ -72,11 +82,11 @@ public class Help : Command
 
         foreach (String command in commandInvoker.CommandNames)
         {
-            List<Entry> description = [new Entry($"{command} # {commandInvoker.GetCommandHelpText(command)}", Array.Empty<FollowUp>())];
+            List<Entry> description = [new($"{command} # {commandInvoker.GetCommandHelpText(command)}", [])];
 
             description.AddRange(commandInvoker
                 .GetCommandSignatures(command)
-                .Select(signature => new Entry(signature, Array.Empty<FollowUp>())));
+                .Select(signature => new Entry(signature, [])));
 
             commandDescriptions.Add(command, description);
         }
@@ -85,9 +95,9 @@ public class Help : Command
     /// <exclude />
     public void Invoke()
     {
-        Context.Console.WriteResponse("Use 'help' to get information on available commands.");
-        Context.Console.WriteResponse("Use 'help <page : Int32>' to get a specific command list page.");
-        Context.Console.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
+        Context.Output.WriteResponse("Use 'help' to get information on available commands.");
+        Context.Output.WriteResponse("Use 'help <page : Int32>' to get a specific command list page.");
+        Context.Output.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
     }
 
     /// <exclude />
@@ -95,15 +105,17 @@ public class Help : Command
     {
         if (page > commandPages.Count || page <= 0)
         {
-            Context.Console.WriteError($"There are only {commandPages.Count} pages of commands.");
+            Context.Output.WriteError($"There are only {commandPages.Count} pages of commands.");
         }
         else
         {
-            Context.Console.WriteResponse($"Page {page} of {commandPages.Count}:",
+            Context.Output.WriteResponse($"Page {page} of {commandPages.Count}:",
+            [
                 new FollowUp("Show next page", () => { Invoke(page + 1); }),
-                new FollowUp("Show previous page", () => { Invoke(page - 1); }));
+                new FollowUp("Show previous page", () => { Invoke(page - 1); })
+            ]);
 
-            commandPages[page - 1].ForEach(entry => Context.Console.WriteResponse(entry.Text, entry.FollowUp));
+            commandPages[page - 1].ForEach(entry => Context.Output.WriteResponse(entry.Text, entry.FollowUp));
         }
     }
 
@@ -111,8 +123,8 @@ public class Help : Command
     public void Invoke(String command)
     {
         if (commandDescriptions.TryGetValue(command, out List<Entry>? description))
-            description.ForEach(entry => Context.Console.WriteResponse(entry.Text, entry.FollowUp));
-        else Context.Console.WriteError($"Command '{command}' not found.");
+            description.ForEach(entry => Context.Output.WriteResponse(entry.Text, entry.FollowUp));
+        else Context.Output.WriteError($"Command '{command}' not found.");
     }
 
     private sealed record Entry(String Text, FollowUp[] FollowUp);

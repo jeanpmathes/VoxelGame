@@ -1,18 +1,32 @@
 ﻿// <copyright file="ChunkStates.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Logic.Chunks;
 
@@ -20,10 +34,10 @@ public partial class Chunk
 {
     #region LOGGING
 
-    [LoggerMessage(EventId = Events.ChunkMeshingError, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
+    [LoggerMessage(EventId = LogID.ChunkStates + 0, Level = LogLevel.Critical, Message = "An exception (critical) occurred when meshing the chunk {Position} and will be re-thrown")]
     private static partial void LogChunkMeshingError(ILogger logger, Exception exception, ChunkPosition position);
 
-    #endregion
+    #endregion LOGGING
 
     /// <summary>
     ///     Utility to allow easier access without casting.
@@ -31,7 +45,7 @@ public partial class Chunk
     public abstract class ChunkState : Core.Logic.Chunks.ChunkState
     {
         /// <inheritdoc />
-        protected ChunkState((Guard? core, Guard? extended) guards) : base(guards.core, guards.extended) {}
+        protected ChunkState(Guard? guard) : base(guard) {}
 
         /// <inheritdoc />
         protected ChunkState() {}
@@ -48,9 +62,9 @@ public partial class Chunk
     public class Meshing : ChunkState
     {
         private ChunkMeshingContext? context;
+        private ChunkMeshData? meshData;
 
         private Future<ChunkMeshData>? meshing;
-        private ChunkMeshData? meshData;
 
         /// <summary>
         ///     Meshes a chunk and sets the data to the GPU.
@@ -62,10 +76,7 @@ public partial class Chunk
         }
 
         /// <inheritdoc />
-        protected override Access CoreAccess => Access.Read;
-
-        /// <inheritdoc />
-        protected override Access ExtendedAccess => Access.Write;
+        protected override Access Access => Access.Read;
 
         /// <inheritdoc />
         protected override Boolean CanDiscard => true;
@@ -77,7 +88,7 @@ public partial class Chunk
             {
                 Debug.Assert(context != null);
 
-                meshing = WaitForCompletion(() => Chunk.CreateMeshData(context));
+                meshing = WaitForCompletion(() => Task.FromResult(Chunk.CreateMeshData(context)));
             }
             else if (meshing.IsCompleted)
             {
@@ -86,21 +97,23 @@ public partial class Chunk
                 context.Dispose();
                 context = null;
 
-                if (meshing.Exception != null)
-                {
-                    Exception e = meshing.Exception.GetBaseException();
+                meshing.Result?.Switch(
+                    data =>
+                    {
+                        meshData = data;
+                        Chunk.SetMeshData(meshData);
 
-                    LogChunkMeshingError(logger, e, Chunk.Position);
+                        Cleanup();
 
-                    throw e;
-                }
+                        TryActivation();
+                    },
+                    e =>
+                    {
+                        LogChunkMeshingError(logger, e, Chunk.Position);
 
-                meshData = meshing.Value!;
-                Chunk.SetMeshData(meshData);
-
-                Cleanup();
-
-                TryActivation();
+                        ExceptionDispatchInfo.Capture(e).Throw();
+                    }
+                );
             }
         }
 

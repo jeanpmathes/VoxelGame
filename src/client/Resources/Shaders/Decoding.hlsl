@@ -1,6 +1,19 @@
-﻿//  <copyright file="Decoding.hlsl" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+﻿// <copyright file="Decoding.hlsl" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -31,11 +44,11 @@ namespace vg
          */
         float4 GetTintColor(uint4 const data)
         {
-            uint r = (data[1] >> 29) & BITMASK(3);
-            uint g = (data[1] >> 26) & BITMASK(3);
-            uint b = (data[1] >> 23) & BITMASK(3);
+            uint r = (data[1] >> 28) & BITMASK(4);
+            uint g = (data[1] >> 24) & BITMASK(4);
+            uint b = (data[1] >> 20) & BITMASK(4);
 
-            return float4(float3(r, g, b) / 7.0f, 1.0f);
+            return float4(float3(r, g, b) / 15.0f, 1.0f);
         }
 
         /**
@@ -65,7 +78,7 @@ namespace vg
          * \return Whether the quad's normal is inverted.
          */
         bool GetNormalInvertedFlag(uint4 const data) { return (data[1] >> 3) & BITMASK(1); }
-        
+
         /**
          * \brief Decode a float4 from a base 17 number.
          * \param value The value to decode.

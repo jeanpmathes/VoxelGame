@@ -1,6 +1,19 @@
-﻿//  <copyright file="Payload.hlsl" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+﻿// <copyright file="Payload.hlsl" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -39,22 +52,13 @@ namespace vg
 {
     namespace ray
     {
-        float4 GetColor(in native::rt::HitInfo const payload)
-        {
-            return float4(native::packing::UnpackColor4(payload.color));
-        }
+        float4 GetColor(in native::rt::HitInfo const payload) { return float4(native::packing::UnpackColor4(payload.color)); }
 
-        void SetColor(inout native::rt::HitInfo payload, in float4 const color)
-        {
-            payload.color = native::packing::PackColor4(color);
-        }
+        void SetColor(inout native::rt::HitInfo payload, in float4 const color) { payload.color = native::packing::PackColor4(color); }
 
         float3 GetNormal(in native::rt::HitInfo const payload) { return native::packing::UnpackNormal(payload.normal); }
 
-        void SetNormal(inout native::rt::HitInfo payload, in float3 const normal)
-        {
-            payload.normal = native::packing::PackNormal(normal);
-        }
+        void SetNormal(inout native::rt::HitInfo payload, in float3 const normal) { payload.normal = native::packing::PackNormal(normal); }
 
         float GetPathLength(in native::rt::HitInfo const payload) { return payload.position.x; }
 
@@ -62,10 +66,7 @@ namespace vg
 
         float GetRayDistance(in native::rt::HitInfo const payload) { return payload.position.y; }
 
-        void SetRayDistance(inout native::rt::HitInfo payload, in float const distance)
-        {
-            payload.position.y = distance;
-        }
+        void SetRayDistance(inout native::rt::HitInfo payload, in float const distance) { payload.position.y = distance; }
 
         float3 GetPosition(in native::rt::HitInfo const payload) { return payload.position; }
 
@@ -77,16 +78,10 @@ namespace vg
 
         static int const FOG_COLOR_MASK = 0x00FFFFFF;
 
-        float3 GetFogColor(in native::rt::HitInfo const payload)
-        {
-            return float3(native::packing::UnpackColor3(payload.data.x & FOG_COLOR_MASK));
-        }
+        float3 GetFogColor(in native::rt::HitInfo const payload) { return float3(native::packing::UnpackColor3(payload.data.x & FOG_COLOR_MASK)); }
 
-        void SetFogColor(inout native::rt::HitInfo payload, in float3 const color)
-        {
-            payload.data.x = (payload.data.x & ~FOG_COLOR_MASK) | native::packing::PackColor3(color);
-        }
-        
+        void SetFogColor(inout native::rt::HitInfo payload, in float3 const color) { payload.data.x = (payload.data.x & ~FOG_COLOR_MASK) | native::packing::PackColor3(color); }
+
         /**
          * \brief Create an initialized hit info / ray payload struct.
          * \param path The total path length.
@@ -156,7 +151,7 @@ namespace vg
     }
 }
 
-#define RGBA(color) float4(color.rgb, 1.0f)
+#define RGBA(color) float4((color).rgb, 1.0f)
 
 #define SET_INTERMEDIATE_HIT_INFO(payload, info, shadingColor) \
     { \

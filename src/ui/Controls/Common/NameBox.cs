@@ -1,6 +1,19 @@
 ﻿// <copyright file="NameBox.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -45,8 +58,8 @@ public class NameBox : Window
 
         TextBox name = new(windowLayout);
 
-        Label status = new(windowLayout);
-        status.Hide();
+        Label statusLabel = new(windowLayout);
+        statusLabel.Hide();
 
         Empty space = new(windowLayout)
         {
@@ -104,15 +117,15 @@ public class NameBox : Window
                 cancel.Disable();
                 cancel.Redraw();
 
-                status.Text = Texts.FormatOperation(parameters.Title, Status.Running);
-                status.TextColor = Colors.Secondary;
+                statusLabel.Text = Texts.FormatWithStatus(parameters.Title, Status.Running);
+                statusLabel.TextColor = Colors.Secondary;
 
-                status.Show();
+                statusLabel.Show();
 
-                op.OnCompletion(_ =>
+                op.OnCompletionSync(status =>
                 {
-                    status.Text = Texts.FormatOperation(parameters.Title, op.Status);
-                    status.TextColor = op.IsOk ? Colors.Secondary : Colors.Error;
+                    statusLabel.Text = Texts.FormatWithStatus(parameters.Title, status);
+                    statusLabel.TextColor = Texts.GetStatusColor(status);
 
                     ok.Enable();
                     ok.Redraw();

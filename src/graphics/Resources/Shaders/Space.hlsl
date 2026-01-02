@@ -1,6 +1,19 @@
-﻿//  <copyright file="Space.hlsl" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+﻿// <copyright file="Space.hlsl" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -31,9 +44,9 @@ namespace native
             float time;
             uint3 textureSize;
 
-            float3 lightDir;
-            float  minLight;
-            float  minShadow;
+            float3 lightDirection;
+            float  lightIntensity;
+            float3 lightColor;
         };
 
         ConstantBuffer<Global> global : register(b2);
@@ -48,6 +61,8 @@ namespace native
         };
 
         static uint const VERTICES_PER_QUAD = 4;
+
+        SamplerState sampler : register(s0);
     }
 }
 

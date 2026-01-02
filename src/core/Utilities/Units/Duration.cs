@@ -1,6 +1,19 @@
 ﻿// <copyright file="Duration.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -8,16 +21,8 @@ using System;
 
 namespace VoxelGame.Core.Utilities.Units;
 
-/// <summary>
-///     A real-time duration. Do not use this for time spans or time intervals.
-/// </summary>
-public readonly struct Duration : IMeasure, IEquatable<Duration>
+public readonly partial struct Duration
 {
-    /// <summary>
-    ///     Get the duration, in seconds.
-    /// </summary>
-    public Double Seconds { get; init; }
-
     /// <summary>
     ///     Get the duration, in milliseconds.
     /// </summary>
@@ -25,50 +30,5 @@ public readonly struct Duration : IMeasure, IEquatable<Duration>
     {
         get => Seconds * 1000;
         init => Seconds = value / 1000;
-    }
-
-    /// <inheritdoc />
-    public static Unit Unit => Unit.Second;
-
-    Double IMeasure.Value => Seconds;
-
-    /// <inheritdoc />
-    public Boolean Equals(Duration other)
-    {
-        return Seconds.Equals(other.Seconds);
-    }
-
-    /// <inheritdoc />
-    public override Boolean Equals(Object? obj)
-    {
-        return obj is Duration other && Equals(other);
-    }
-
-    /// <inheritdoc />
-    public override Int32 GetHashCode()
-    {
-        return Seconds.GetHashCode();
-    }
-
-    /// <summary>
-    ///     Equality operator.
-    /// </summary>
-    public static Boolean operator ==(Duration left, Duration right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Inequality operator.
-    /// </summary>
-    public static Boolean operator !=(Duration left, Duration right)
-    {
-        return !left.Equals(right);
-    }
-
-    /// <inheritdoc />
-    public override String ToString()
-    {
-        return IMeasure.ToString(this);
     }
 }

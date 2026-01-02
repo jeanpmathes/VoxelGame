@@ -122,39 +122,26 @@ void ShaderResources::Description::AddUnorderedAccessView(
     AddRootParameter(location, D3D12_ROOT_PARAMETER_TYPE_UAV, RootUnorderedAccessView{gpuAddress});
 }
 
-ShaderResources::TableHandle ShaderResources::Description::AddHeapDescriptorTable(
-    std::function<void(Table&)> const& builder)
-{
-    auto const handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
-    Table      table(handle);
-
-    builder(table);
-
-    m_heapDescriptorTableCount += table.m_offsets.back();
-
-    m_rootSignatureGenerator.AddHeapRangesParameter(table.m_heapRanges);
-    m_rootParameters.push_back(RootHeapDescriptorTable{});
-    m_heapDescriptorTableOffsets.push_back(std::move(table.m_offsets));
-
-    return static_cast<TableHandle>(handle);
-}
-
-void ShaderResources::Description::AddStaticSampler(ShaderLocation const location, D3D12_FILTER const filter)
+void ShaderResources::Description::AddStaticSampler(
+    ShaderLocation const             location,
+    D3D12_FILTER const               filter,
+    D3D12_TEXTURE_ADDRESS_MODE const mode,
+    UINT const                       maxAnisotropy)
 {
     D3D12_STATIC_SAMPLER_DESC sampler;
     sampler.Filter           = filter;
-    sampler.AddressU         = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-    sampler.AddressV         = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
-    sampler.AddressW         = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+    sampler.AddressU         = mode;
+    sampler.AddressV         = mode;
+    sampler.AddressW         = mode;
     sampler.MipLODBias       = 0;
-    sampler.MaxAnisotropy    = 1;
+    sampler.MaxAnisotropy    = maxAnisotropy;
     sampler.ComparisonFunc   = D3D12_COMPARISON_FUNC_NEVER;
     sampler.BorderColor      = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
     sampler.MinLOD           = 0.0f;
     sampler.MaxLOD           = D3D12_FLOAT32_MAX;
     sampler.ShaderRegister   = location.reg;
     sampler.RegisterSpace    = location.space;
-    sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+    sampler.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 
     m_rootSignatureGenerator.AddStaticSampler(&sampler);
 }

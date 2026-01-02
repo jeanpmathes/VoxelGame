@@ -1,0 +1,187 @@
+﻿// <copyright file="GrowingPlant.cs" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
+using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
+using VoxelGame.Core.Behaviors;
+using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Behaviors.Aspects.Strategies;
+using VoxelGame.Core.Behaviors.Events;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
+
+namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
+
+/// <summary>
+///     An extension of a <see cref="Plant" /> which grows over time.
+/// </summary>
+public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, BlockBehavior, Block>
+{
+    [Constructible]
+    private GrowingPlant(Block subject) : base(subject)
+    {
+        subject.Require<Plant>();
+
+        CanGrow = Aspect<Boolean, State>.New<LogicalAnd<State>>(nameof(CanGrow), this);
+    }
+
+    [LateInitialization] private partial IAttributeData<Int32?> Stage { get; set; }
+
+    /// <summary>
+    ///     The number of growth stages this plant has.
+    /// </summary>
+    public ResolvedProperty<Int32> StageCount { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(StageCount), initial: 1);
+
+    /// <summary>
+    ///     The index of the first stage considered a full growth stage.
+    /// </summary>
+    public ResolvedProperty<Int32> FirstFullStage { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(FirstFullStage));
+
+    /// <summary>
+    ///     Whether the plant can grow in the current state.
+    /// </summary>
+    public Aspect<Boolean, State> CanGrow { get; }
+
+    private Int32 MatureStage => StageCount.Get() - 1;
+
+    [LateInitialization] private partial IEvent<IMatureUpdateMessage> MatureUpdate { get; set; }
+
+    /// <inheritdoc />
+    public override void DefineEvents(IEventRegistry registry)
+    {
+        MatureUpdate = registry.RegisterEvent<IMatureUpdateMessage>();
+    }
+
+    /// <inheritdoc />
+    public override void SubscribeToEvents(IEventBus bus)
+    {
+        bus.Subscribe<Block.IRandomUpdateMessage>(OnRandomUpdate);
+    }
+
+    /// <inheritdoc />
+    public override void OnInitialize(BlockProperties properties)
+    {
+        StageCount.Initialize(this);
+        FirstFullStage.Initialize(this);
+    }
+
+    /// <inheritdoc />
+    public override void DefineState(IStateBuilder builder)
+    {
+        Stage = builder.Define(nameof(Stage)).Int32(min: 0, StageCount.Get()).NullableAttribute(placementDefault: 0, generationDefault: 0);
+    }
+
+    private void OnRandomUpdate(Block.IRandomUpdateMessage message)
+    {
+        if (!CanGrow.GetValue(original: true, message.State))
+            return;
+
+        Int32? currentStage = message.State.Get(Stage);
+
+        if (currentStage is not {} aliveStage)
+            return;
+
+        State? below = message.World.GetBlock(message.Position.Below());
+
+        if (below?.Block.Get<Plantable>() is not {} plantable)
+            return;
+
+        if (aliveStage == MatureStage)
+        {
+            if (!MatureUpdate.HasSubscribers) return;
+
+            MatureUpdateMessage matureUpdate = IEventMessage<MatureUpdateMessage>.Pool.Get();
+
+            matureUpdate.World = message.World;
+            matureUpdate.Position = message.Position;
+            matureUpdate.State = message.State;
+            matureUpdate.Ground = plantable;
+
+            MatureUpdate.Publish(matureUpdate);
+
+            IEventMessage<MatureUpdateMessage>.Pool.Return(matureUpdate);
+
+            return;
+        }
+
+        State newState = message.State;
+
+        FluidInstance? fluid = message.World.GetFluid(message.Position.Below());
+
+        if (fluid?.Fluid.IsLiquid == true && fluid.Value.Fluid != Voxels.Fluids.Instance.FreshWater)
+        {
+            newState.Set(Stage, value: null);
+        }
+        else if (currentStage >= FirstFullStage.Get())
+        {
+            if (!plantable.SupportsFullGrowth.Get()) return;
+            if (!plantable.TryGrow(message.World, message.Position.Below(), Voxels.Fluids.Instance.FreshWater, FluidLevel.One)) return;
+
+            newState.Set(Stage, aliveStage + 1);
+        }
+        else
+        {
+            newState.Set(Stage, aliveStage + 1);
+        }
+
+        message.World.SetBlock(newState, message.Position);
+    }
+
+    /// <summary>
+    ///     Get the current growth stage of the plant from the given state.
+    /// </summary>
+    /// <param name="state">The state of the block to get the growth stage for.</param>
+    /// <returns>
+    ///     The current growth stage, which is either a number between <c>0</c> and <see cref="StageCount" />, or
+    ///     <c>null</c> if the plant died.
+    /// </returns>
+    public Int32? GetStage(State state)
+    {
+        return state.Get(Stage);
+    }
+
+    /// <summary>
+    ///     Sent when the plant receives a random update and has already reached the last stage.
+    /// </summary>
+    [GenerateRecord(typeof(IEventMessage<>))]
+    public interface IMatureUpdateMessage
+    {
+        /// <summary>
+        ///     The world in which the plant is located.
+        /// </summary>
+        World World { get; }
+
+        /// <summary>
+        ///     The position of the plant in the world.
+        /// </summary>
+        Vector3i Position { get; }
+
+        /// <summary>
+        ///     The state of the plant block.
+        /// </summary>
+        State State { get; }
+
+        /// <summary>
+        ///     The plantable ground this plant is growing on.
+        /// </summary>
+        Plantable Ground { get; }
+    }
+}

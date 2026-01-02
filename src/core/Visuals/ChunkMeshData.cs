@@ -1,12 +1,26 @@
 ﻿// <copyright file="ChunkMeshData.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Core.Visuals;
 
@@ -16,9 +30,9 @@ namespace VoxelGame.Core.Visuals;
 /// <param name="SectionMeshData">The mesh data included for the sections.</param>
 /// <param name="Sides">The sides to consider to be meshed after applying the mesh data.</param>
 /// <param name="Indices">The indices of the included sections.</param>
-public sealed record ChunkMeshData(SectionMeshData?[] SectionMeshData, BlockSides Sides, IReadOnlyCollection<Int32> Indices) : IDisposable
+public sealed record ChunkMeshData(SectionMeshData?[] SectionMeshData, Sides Sides, IReadOnlyCollection<Int32> Indices) : IDisposable
 {
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -48,7 +62,7 @@ public sealed record ChunkMeshData(SectionMeshData?[] SectionMeshData, BlockSide
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }
 
 /// <summary>
@@ -63,15 +77,15 @@ public sealed class SectionMeshData : IDisposable
 
     /// <summary>
     ///     The basic mesh data.
-    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.ISimple" />,
-    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IComplex" />, and
-    ///     <see cref="VoxelGame.Core.Visuals.Meshables.IVaryingHeight" /> meshables.
+    ///     It is created by the <see cref="SimpleBlock" />,
+    ///     <see cref="ComplexBlock" />, and
+    ///     <see cref="PartialHeightBlock" /> meshables.
     /// </summary>
     public required (IMeshing opaque, IMeshing transparent) BasicMeshing { get; init; }
 
     /// <summary>
     ///     The foliage mesh data.
-    ///     It is created by the <see cref="VoxelGame.Core.Visuals.Meshables.IFoliage" /> meshable.
+    ///     It is created by the <see cref="FoliageBlock" /> meshable.
     /// </summary>
     public required IMeshing FoliageMeshing { get; init; }
 
@@ -93,7 +107,7 @@ public sealed class SectionMeshData : IDisposable
         return size;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -128,5 +142,5 @@ public sealed class SectionMeshData : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

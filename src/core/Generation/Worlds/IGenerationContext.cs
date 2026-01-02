@@ -1,6 +1,19 @@
 ﻿// <copyright file="IGenerationContext.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -8,8 +21,8 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Generation.Worlds;
 
@@ -21,7 +34,7 @@ public interface IGenerationContext : IDisposable
     /// <summary>
     ///     The generator that created this context.
     /// </summary>
-    public IWorldGenerator Generator { get; }
+    IWorldGenerator Generator { get; }
 
     /// <summary>
     ///     Generate a column of the world.
@@ -62,11 +75,10 @@ public interface IGenerationContext : IDisposable
             {
                 Vector3i blockPosition = (x, y, z);
 
-                Content modifiedContent = content.Block.Block.GenerateUpdate(content);
+                Content modifiedContent = content.Block.Block.DoGeneratorUpdate(content);
 
                 UInt32 encodedContent = Section.Encode(
-                    modifiedContent.Block.Block,
-                    modifiedContent.Block.Data,
+                    modifiedContent.Block,
                     modifiedContent.Fluid.Fluid,
                     modifiedContent.Fluid.Level,
                     modifiedContent.Fluid.IsStatic);

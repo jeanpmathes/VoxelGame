@@ -1,6 +1,19 @@
 ﻿// <copyright file="KeyOrButtonSetting.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -23,7 +36,7 @@ namespace VoxelGame.UI.Settings;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 [SuppressMessage("ReSharper", "CA1001")]
 #pragma warning disable S2931
-internal class KeyOrButtonSetting : Setting
+internal sealed class KeyOrButtonSetting : Setting
 #pragma warning restore S2931
 {
     private readonly Func<VirtualKeys> get;
@@ -56,7 +69,7 @@ internal class KeyOrButtonSetting : Setting
 
         rebind = new Button(layout)
         {
-            Text = get().ToString(),
+            Text = get().ToStringFast(),
             Dock = Dock.Fill
         };
 
@@ -64,21 +77,20 @@ internal class KeyOrButtonSetting : Setting
         {
             CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton, context);
 
-            context.Input.ListenForAnyKeyOrButton(
-                keyOrButton =>
-                {
-                    modal.Close();
+            context.Input.ListenForAnyKeyOrButton(keyOrButton =>
+            {
+                modal.Close();
 
-                    set(keyOrButton);
-                    rebind.Text = keyOrButton.ToString();
+                set(keyOrButton);
+                rebind.Text = keyOrButton.ToStringFast();
 
-                    Validator.Validate();
-                });
+                Validator.Validate();
+            });
         };
 
         Button resetBind = new(layout)
         {
-            ImageName = context.Resources.ResetIcon,
+            ImageName = Icons.Instance.Reset,
             Size = new Size(width: 40, height: 40),
             ToolTipText = Language.Reset,
             Dock = Dock.Right
@@ -87,7 +99,7 @@ internal class KeyOrButtonSetting : Setting
         resetBind.Released += (_, _) =>
         {
             reset();
-            rebind.Text = get().ToString();
+            rebind.Text = get().ToStringFast();
 
             Validator.Validate();
         };

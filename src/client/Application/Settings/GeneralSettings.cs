@@ -1,14 +1,27 @@
 ﻿// <copyright file="GeneralSettings.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
@@ -40,11 +53,11 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
                 max: 3f,
                 step: 0.05f));
 
-        CrosshairColor = new Bindable<Color>(
-            () => clientSettings.CrosshairColor,
+        CrosshairColor = new Bindable<ColorS>(
+            () => ColorS.FromColor(clientSettings.CrosshairColor),
             color =>
             {
-                clientSettings.CrosshairColor = color;
+                clientSettings.CrosshairColor = color.ToColor();
                 clientSettings.Save();
             });
 
@@ -70,11 +83,11 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
                 min: 0f,
                 max: 0.5f));
 
-        DarkSelectionColor = new Bindable<Color>(
-            () => clientSettings.DarkSelectionColor,
+        DarkSelectionColor = new Bindable<ColorS>(
+            () => ColorS.FromColor(clientSettings.DarkSelectionColor),
             color =>
             {
-                clientSettings.DarkSelectionColor = color;
+                clientSettings.DarkSelectionColor = color.ToColor();
                 clientSettings.Save();
             });
 
@@ -84,11 +97,11 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
                 Language.SelectionBoxDarkColor,
                 DarkSelectionColor.Accessors));
 
-        BrightSelectionColor = new Bindable<Color>(
-            () => clientSettings.BrightSelectionColor,
+        BrightSelectionColor = new Bindable<ColorS>(
+            () => ColorS.FromColor(clientSettings.BrightSelectionColor),
             color =>
             {
-                clientSettings.BrightSelectionColor = color;
+                clientSettings.BrightSelectionColor = color.ToColor();
                 clientSettings.Save();
             });
 
@@ -123,7 +136,7 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
     /// <summary>
     ///     The color of the crosshair.
     /// </summary>
-    public Bindable<Color> CrosshairColor { get; }
+    public Bindable<ColorS> CrosshairColor { get; }
 
     /// <summary>
     ///     Get or set the crosshair scale setting.
@@ -133,12 +146,12 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
     /// <summary>
     ///     The color of the selection box on bright background.
     /// </summary>
-    public Bindable<Color> DarkSelectionColor { get; }
+    public Bindable<ColorS> DarkSelectionColor { get; }
 
     /// <summary>
     ///     The color of the selection box on dark background.
     /// </summary>
-    public Bindable<Color> BrightSelectionColor { get; }
+    public Bindable<ColorS> BrightSelectionColor { get; }
 
     /// <summary>
     ///     Get or set the mouse sensitivity setting.

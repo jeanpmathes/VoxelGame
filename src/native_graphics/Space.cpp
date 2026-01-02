@@ -3,7 +3,7 @@
 bool Material::IsAnimated() const { return animationID.has_value(); }
 
 Space::Space(NativeClient& nativeClient)
-    : m_nativeClient(&nativeClient)
+    : m_client(&nativeClient)
   , m_resultBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE)
   , m_scratchBufferAllocator(nativeClient, D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
   , m_camera(nativeClient)
@@ -17,7 +17,7 @@ void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& command
     Require(m_drawables.IsEmpty());
 
     auto* spaceCommandGroup = &m_commandGroup; // Improves the naming of the objects.
-    INITIALIZE_COMMAND_ALLOCATOR_GROUP(*m_nativeClient, spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
+    INITIALIZE_COMMAND_ALLOCATOR_GROUP(*m_client, spaceCommandGroup, D3D12_COMMAND_LIST_TYPE_DIRECT);
     m_commandGroup.Reset(0);
 
     CreateTLAS();
@@ -26,11 +26,11 @@ void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& command
     std::array<ID3D12CommandList*, 1> const commandLists = {GetCommandList().Get()};
     commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
 
-    m_nativeClient->WaitForGPU();
+    m_client->WaitForGPU();
 
     m_camera.Initialize();
 
-    m_sentinelTexture    = Texture::Create(*m_nativeClient, TextureDescription());
+    m_sentinelTexture    = Texture::Create(*m_client, TextureDescription());
     m_sentinelTextureSRV = m_sentinelTexture->GetView();
 }
 
@@ -44,6 +44,9 @@ void Space::PerformResolutionDependentSetup(Resolution const& resolution)
 
 bool Space::PerformInitialSetupStepTwo(SpacePipelineDescription const& pipeline)
 {
+    m_meshSpoolCount   = pipeline.meshSpoolCount;
+    m_effectSpoolCount = pipeline.effectSpoolCount;
+
     CreateGlobalConstBuffer();
 
     if (!CreateRaytracingPipeline(pipeline)) return false;
@@ -56,15 +59,9 @@ bool Space::PerformInitialSetupStepTwo(SpacePipelineDescription const& pipeline)
     return true;
 }
 
-Mesh& Space::CreateMesh(UINT const materialIndex)
-{
-    return m_meshes.Create([&materialIndex](Mesh& mesh) { mesh.Initialize(materialIndex); });
-}
+Mesh& Space::CreateMesh(UINT const materialIndex) { return m_meshes.Create([&materialIndex](Mesh& mesh) { mesh.Initialize(materialIndex); }); }
 
-Effect& Space::CreateEffect(RasterPipeline* pipeline)
-{
-    return m_effects.Create([&pipeline](Effect& effect) { effect.Initialize(*pipeline); });
-}
+Effect& Space::CreateEffect(RasterPipeline* pipeline) { return m_effects.Create([&pipeline](Effect& effect) { effect.Initialize(*pipeline); }); }
 
 void Space::MarkDrawableModified(Drawable* drawable)
 {
@@ -74,8 +71,7 @@ void Space::MarkDrawableModified(Drawable* drawable)
             {
                 m_meshes.MarkModified(mesh);
 
-                if (mesh.GetMaterial().IsAnimated() && mesh.GetActiveIndex().has_value())
-                    m_animations[mesh.GetMaterial().animationID.value()].UpdateMesh(mesh);
+                if (mesh.GetMaterial().IsAnimated() && mesh.GetActiveIndex().has_value()) m_animations[mesh.GetMaterial().animationID.value()].UpdateMesh(mesh);
             }).OnEffect([this](Effect& effect) { m_effects.MarkModified(effect); }).OnElseFail());
 }
 
@@ -99,41 +95,44 @@ void Space::DeactivateDrawable(Drawable* drawable)
             {
                 m_meshes.Deactivate(mesh);
 
-                if (mesh.GetMaterial().IsAnimated())
-                    m_animations[mesh.GetMaterial().animationID.value()].RemoveMesh(mesh);
+                if (mesh.GetMaterial().IsAnimated()) m_animations[mesh.GetMaterial().animationID.value()].RemoveMesh(mesh);
             }).OnEffect([this](Effect& effect) { m_effects.Deactivate(effect); }).OnElseFail());
 }
 
 void Space::ReturnDrawable(Drawable* drawable)
 {
-    drawable->Accept(
-        Drawable::Visitor::Empty().OnMesh([this](Mesh& mesh) { m_meshes.Return(mesh); }).OnEffect(
-            [this](Effect& effect) { m_effects.Return(effect); }).OnElseFail());
+    drawable->Accept(Drawable::Visitor::Empty().OnMesh([this](Mesh& mesh) { m_meshes.Return(mesh); }).OnEffect([this](Effect& effect) { m_effects.Return(effect); }).OnElseFail());
 }
 
 Material const& Space::GetMaterial(UINT const index) const { return *m_materials[index]; }
 
 void Space::Reset(UINT const frameIndex) { m_commandGroup.Reset(frameIndex); }
 
-std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(
-    UINT const                           vertexCount,
-    std::vector<D3D12_RESOURCE_BARRIER>* barriers) { return m_indexBuffer.GetIndexBuffer(vertexCount, barriers); }
+std::pair<Allocation<ID3D12Resource>, UINT> Space::GetIndexBuffer(UINT const vertexCount, std::vector<D3D12_RESOURCE_BARRIER>* barriers)
+{
+    return m_indexBuffer.GetIndexBuffer(vertexCount, barriers);
+}
+
+void Space::SpoolUp()
+{
+    m_meshes.Spool(m_meshSpoolCount);
+    m_effects.Spool(m_effectSpoolCount);
+}
 
 void Space::Update(double)
 {
     m_globalConstantBufferMapping->lightDirection = m_light.GetDirection();
+    m_globalConstantBufferMapping->lightIntensity = m_light.GetIntensity();
+    m_globalConstantBufferMapping->lightColor     = m_light.GetColor();
 
     m_camera.Update();
 
     m_drawables.ForEach([](Drawable* drawable) { drawable->Update(); });
 }
 
-void Space::Render(
-    Allocation<ID3D12Resource> const& color,
-    Allocation<ID3D12Resource> const& depth,
-    RenderData const&                 data)
+void Space::Render(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth, RenderData const& data)
 {
-    m_globalConstantBufferMapping->time = static_cast<float>(m_nativeClient->GetTotalRenderTime());
+    m_globalConstantBufferMapping->time = static_cast<float>(m_client->GetTotalRenderUpdateTime());
 
     {
         PIXScopedEvent(GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
@@ -158,7 +157,7 @@ void Space::CleanupRender()
     m_indexBuffer.CleanupRender();
 }
 
-NativeClient& Space::GetNativeClient() const { return *m_nativeClient; }
+NativeClient& Space::GetNativeClient() const { return *m_client; }
 
 ShaderBuffer* Space::GetCustomDataBuffer() const { return m_customDataBuffer.get(); }
 
@@ -176,18 +175,15 @@ ComPtr<ID3D12GraphicsCommandList4> Space::GetCommandList() const { return m_comm
 
 BLAS Space::AllocateBLAS(UINT64 const resultSize, UINT64 const scratchSize)
 {
-    return {
-        .result = m_resultBufferAllocator.Allocate(resultSize),
-        .scratch = m_scratchBufferAllocator.Allocate(scratchSize)
-    };
+    return {.result = m_resultBufferAllocator.Allocate(resultSize), .scratch = m_scratchBufferAllocator.Allocate(scratchSize)};
 }
 
-ComPtr<ID3D12Device5> Space::GetDevice() const { return m_nativeClient->GetDevice(); }
+ComPtr<ID3D12Device5> Space::GetDevice() const { return m_client->GetDevice(); }
 
 void Space::CreateGlobalConstBuffer()
 {
     m_globalConstantBufferSize = sizeof(GlobalBuffer);
-    m_globalConstantBuffer     = util::AllocateConstantBuffer(*m_nativeClient, &m_globalConstantBufferSize);
+    m_globalConstantBuffer     = util::AllocateConstantBuffer(*m_client, &m_globalConstantBufferSize);
     NAME_D3D12_OBJECT(m_globalConstantBuffer);
 
     TryDo(m_globalConstantBuffer.Map(&m_globalConstantBufferMapping, 1));
@@ -197,8 +193,8 @@ void Space::CreateGlobalConstBuffer()
             .time = 0.0f,
             .textureSize = DirectX::XMUINT3{1, 1, 1},
             .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
-            .minLight = 0.4f,
-            .minShadow = 0.2f
+            .lightIntensity = 1.0f,
+            .lightColor = DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}
         });
 }
 
@@ -215,10 +211,7 @@ void Space::InitializePipelineResourceViews(SpacePipelineDescription const& pipe
             if (count == 0) return std::nullopt;
             return count;
         };
-        auto fillSlots = [&](
-            ShaderResources::Table::Entry const entry,
-            UINT const                          base,
-            std::optional<UINT> const           count)
+        auto fillSlots = [&](ShaderResources::Table::Entry const entry, UINT const base, std::optional<UINT> const count)
         {
             if (count.has_value())
             {
@@ -232,17 +225,10 @@ void Space::InitializePipelineResourceViews(SpacePipelineDescription const& pipe
                     Require(texture->GetSize().x == textureSize.value().x);
                     Require(texture->GetSize().y == textureSize.value().y);
 
-                    m_globalShaderResources->CreateShaderResourceView(
-                        entry,
-                        index,
-                        {texture->GetResource(), &texture->GetView()});
+                    m_globalShaderResources->CreateShaderResourceView(entry, index, {texture->GetResource(), &texture->GetView()});
                 }
             }
-            else
-                m_globalShaderResources->CreateShaderResourceView(
-                    entry,
-                    0,
-                    {m_sentinelTexture->GetResource(), &m_sentinelTextureSRV});
+            else m_globalShaderResources->CreateShaderResourceView(entry, 0, {m_sentinelTexture->GetResource(), &m_sentinelTextureSRV});
         };
 
         UINT const firstSlotArraySize  = pipeline.textureCountFirstSlot;
@@ -260,13 +246,12 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     m_textureSlot1.size = std::max(pipelineDescription.textureCountFirstSlot, 1u);
     m_textureSlot2.size = std::max(pipelineDescription.textureCountSecondSlot, 1u);
 
-    if (pipelineDescription.customDataBufferSize > 0)
-        m_customDataBuffer = std::make_unique<ShaderBuffer>(*m_nativeClient, pipelineDescription.customDataBufferSize);
+    if (pipelineDescription.customDataBufferSize > 0) m_customDataBuffer = std::make_unique<ShaderBuffer>(*m_client, pipelineDescription.customDataBufferSize);
 
     nv_helpers_dx12::RayTracingPipelineGenerator pipeline(GetDevice());
 
     bool ok                     = true;
-    std::tie(m_shaderBlobs, ok) = CompileShaderLibraries(*m_nativeClient, pipelineDescription, pipeline);
+    std::tie(m_shaderBlobs, ok) = CompileShaderLibraries(*m_client, pipelineDescription, pipeline);
     if (!ok) return false;
 
     m_rayGenSignature = CreateRayGenSignature();
@@ -275,17 +260,19 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     m_missSignature = CreateMissSignature();
     NAME_D3D12_OBJECT(m_missSignature);
 
-    for (UINT index = 0; index < pipelineDescription.materialCount; index++) m_materials.push_back(
-        SetUpMaterial(pipelineDescription.materials[index], index, pipeline));
+    for (UINT index = 0; index < pipelineDescription.materialCount; index++) m_materials.push_back(SetUpMaterial(pipelineDescription.materials[index], index, pipeline));
 
     CreateAnimations(pipelineDescription);
 
     pipeline.AddRootSignatureAssociation(m_rayGenSignature.Get(), true, {L"RayGen"});
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
+    constexpr D3D12_FILTER               filter = D3D12_FILTER_ANISOTROPIC;
+    constexpr D3D12_TEXTURE_ADDRESS_MODE mode   = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+
     m_globalShaderResources = std::make_shared<ShaderResources>();
     m_globalShaderResources->Initialize(
-        [this](auto& graphics)
+        [&pipelineDescription, this](ShaderResources::Description& graphics)
         {
             graphics.AddHeapDescriptorTable(
                 [&](auto& table)
@@ -294,14 +281,18 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
                     m_rtDepthDataForRasterEntry = table.AddShaderResourceView({.reg = 1});
                 });
 
-            m_effectBindings = RasterPipeline::SetUpEffectBindings(*m_nativeClient, graphics);
+            m_effectBindings = RasterPipeline::SetUpEffectBindings(*m_client, graphics);
+
+            graphics.AddStaticSampler({.reg = 0}, filter, mode, pipelineDescription.anisotropy);
         },
-        [this](auto& compute)
+        [&pipelineDescription, this](ShaderResources::Description& compute)
         {
             SetUpStaticResourceLayout(&compute);
             SetUpDynamicResourceLayout(&compute);
 
             for (auto& animation : m_animations) animation.SetUpResourceLayout(&compute);
+
+            compute.AddStaticSampler({.reg = 0}, filter, mode, pipelineDescription.anisotropy);
         },
         GetDevice());
 
@@ -323,7 +314,7 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
 }
 
 std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
-    NativeClient&                                 nativeClient,
+    NativeClient&                                 client,
     SpacePipelineDescription const&               pipelineDescription,
     nv_helpers_dx12::RayTracingPipelineGenerator& pipeline)
 {
@@ -334,12 +325,7 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
 
     auto compileShaderLibrary = [&](UINT const shader)
     {
-        shaderBlobs[shader] = CompileShader(
-            pipelineDescription.shaderFiles[shader].path,
-            L"",
-            L"lib_6_7",
-            VG_SHADER_REGISTRY(nativeClient),
-            pipelineDescription.onShaderLoadingError);
+        shaderBlobs[shader] = CompileShader(pipelineDescription.shaderFiles[shader].path, L"", L"lib_6_7", VG_SHADER_REGISTRY(client), pipelineDescription.onShaderLoadingError);
 
         if (shaderBlobs[shader] == nullptr) return false;
 
@@ -348,8 +334,7 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
         std::vector<std::wstring> symbols;
         symbols.reserve(currentSymbolCount);
 
-        for (UINT symbolOffset = 0; symbolOffset < currentSymbolCount; symbolOffset++) symbols.emplace_back(
-            pipelineDescription.symbols[currentSymbolIndex++]);
+        for (UINT symbolOffset = 0; symbolOffset < currentSymbolCount; symbolOffset++) symbols.emplace_back(pipelineDescription.symbols[currentSymbolIndex++]);
 
         pipeline.AddLibrary(shaderBlobs[shader].Get(), symbols);
 
@@ -358,27 +343,25 @@ std::pair<std::vector<ComPtr<IDxcBlob>>, bool> Space::CompileShaderLibraries(
 
     auto compileComputeShader = [&](UINT const shader)
     {
-        shaderBlobs[shader] = CompileShader(
-            pipelineDescription.shaderFiles[shader].path,
-            L"Main",
-            L"cs_6_7",
-            VG_SHADER_REGISTRY(nativeClient),
-            pipelineDescription.onShaderLoadingError);
+        shaderBlobs[shader] = CompileShader(pipelineDescription.shaderFiles[shader].path, L"Main", L"cs_6_7", VG_SHADER_REGISTRY(client), pipelineDescription.onShaderLoadingError);
 
         return shaderBlobs[shader] != nullptr;
     };
 
     for (UINT shader = 0; shader < pipelineDescription.shaderCount; shader++)
-        if (pipelineDescription.shaderFiles[shader].symbolCount > 0) ok &= compileShaderLibrary(shader);
-        else ok &= compileComputeShader(shader);
+    {
+        bool shaderOk;
+
+        if (pipelineDescription.shaderFiles[shader].symbolCount > 0) shaderOk = compileShaderLibrary(shader);
+        else shaderOk                                                         = compileComputeShader(shader);
+
+        ok = ok && shaderOk;
+    }
 
     return {shaderBlobs, ok};
 }
 
-std::unique_ptr<Material> Space::SetUpMaterial(
-    MaterialDescription const&                    description,
-    UINT const                                    index,
-    nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const
+std::unique_ptr<Material> Space::SetUpMaterial(MaterialDescription const& description, UINT const index, nv_helpers_dx12::RayTracingPipelineGenerator& pipeline) const
 {
     auto material = std::make_unique<Material>();
 
@@ -420,12 +403,10 @@ std::unique_ptr<Material> Space::SetUpMaterial(
     std::wstring const shadowIntersectionSymbol = description.shadowIntersectionSymbol;
     Require(normalIntersectionSymbol.empty() == shadowIntersectionSymbol.empty());
 
-    material->geometryType = normalIntersectionSymbol.empty()
-                                 ? D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES
-                                 : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
+    material->geometryType = normalIntersectionSymbol.empty() ? D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES : D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS;
 
     UINT64 materialConstantBufferSize = sizeof MaterialBuffer;
-    material->materialConstantBuffer  = util::AllocateConstantBuffer(*m_nativeClient, &materialConstantBufferSize);
+    material->materialConstantBuffer  = util::AllocateConstantBuffer(*m_client, &materialConstantBufferSize);
     NAME_D3D12_OBJECT(material->materialConstantBuffer);
 
     MaterialBuffer const materialConstantBufferData = {.index = index};
@@ -474,20 +455,18 @@ void Space::CreateAnimations(SpacePipelineDescription const& pipeline)
 void Space::SetUpStaticResourceLayout(ShaderResources::Description* description)
 {
     description->AddConstantBufferView(m_camera.GetCameraBufferAddress(), {.reg = 0});
-    if (m_customDataBuffer != nullptr) description->AddConstantBufferView(
-        m_customDataBuffer->GetGPUVirtualAddress(),
-        {.reg = 1});
+    if (m_customDataBuffer != nullptr) description->AddConstantBufferView(m_customDataBuffer->GetGPUVirtualAddress(), {.reg = 1});
     description->AddConstantBufferView(m_globalConstantBuffer.GetGPUVirtualAddress(), {.reg = 2});
 
     m_unchangedCommonResourceHandle = description->AddHeapDescriptorTable(
-        [this](auto& table)
+        [this](ShaderResources::Table& table)
         {
             m_textureSlot1.entry = table.AddShaderResourceView({.reg = 0, .space = 1}, m_textureSlot1.size);
             m_textureSlot2.entry = table.AddShaderResourceView({.reg = 0, .space = 2}, m_textureSlot2.size);
         });
 
     m_changedCommonResourceHandle = description->AddHeapDescriptorTable(
-        [this](auto& table)
+        [this](ShaderResources::Table& table)
         {
             m_bvhEntry         = table.AddShaderResourceView({.reg = 0});
             m_colorOutputEntry = table.AddUnorderedAccessView({.reg = 0});
@@ -508,33 +487,19 @@ void Space::SetUpDynamicResourceLayout(ShaderResources::Description* description
     m_meshInstanceDataList = description->AddConstantBufferViewDescriptorList(
         {.reg = 4, .space = 0},
         CreateSizeGetter(&m_meshes.GetActive()),
-        [this](UINT const index)
-        {
-            return m_meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->GetInstanceDataViewDescriptor();
-        },
+        [this](UINT const index) { return m_meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->GetInstanceDataViewDescriptor(); },
         CreateBagBuilder(&m_meshes.GetActive(), getIndexOfMesh));
 
     m_meshGeometryBufferList = description->AddShaderResourceViewDescriptorList(
         {.reg = 1, .space = 0},
         CreateSizeGetter(&m_meshes.GetActive()),
-        [this](UINT const index)
-        {
-            return m_meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->GetGeometryBufferViewDescriptor();
-        },
+        [this](UINT const index) { return m_meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->GetGeometryBufferViewDescriptor(); },
         CreateBagBuilder(&m_meshes.GetActive(), getIndexOfMesh));
 }
 
-void Space::SetUpAnimationResourceLayout(ShaderResources::Description* description)
-{
-    for (auto& animation : m_animations) animation.SetUpResourceLayout(description);
-}
+void Space::SetUpAnimationResourceLayout(ShaderResources::Description* description) { for (auto& animation : m_animations) animation.SetUpResourceLayout(description); }
 
-void Space::InitializeAnimations()
-{
-    for (auto& animation : m_animations) animation.Initialize(
-        *m_nativeClient,
-        m_globalShaderResources->GetComputeRootSignature());
-}
+void Space::InitializeAnimations() { for (auto& animation : m_animations) animation.Initialize(*m_client, m_globalShaderResources->GetComputeRootSignature()); }
 
 void Space::CreateRaytracingOutputBuffer()
 {
@@ -549,11 +514,7 @@ void Space::CreateRaytracingOutputBuffer()
     m_colorOutputDescription.MipLevels        = 1;
     m_colorOutputDescription.SampleDesc.Count = 1;
 
-    m_colorOutput = util::AllocateResource<ID3D12Resource>(
-        *m_nativeClient,
-        m_colorOutputDescription,
-        D3D12_HEAP_TYPE_DEFAULT,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    m_colorOutput = util::AllocateResource<ID3D12Resource>(*m_client, m_colorOutputDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
     NAME_D3D12_OBJECT(m_colorOutput);
 
     m_depthOutputDescription.DepthOrArraySize = 1;
@@ -567,11 +528,7 @@ void Space::CreateRaytracingOutputBuffer()
     m_depthOutputDescription.MipLevels        = 1;
     m_depthOutputDescription.SampleDesc.Count = 1;
 
-    m_depthOutput = util::AllocateResource<ID3D12Resource>(
-        *m_nativeClient,
-        m_depthOutputDescription,
-        D3D12_HEAP_TYPE_DEFAULT,
-        D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    m_depthOutput = util::AllocateResource<ID3D12Resource>(*m_client, m_depthOutputDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     m_outputResourcesFresh = true;
     UpdateOutputResourceViews();
@@ -618,13 +575,7 @@ void Space::CreateShaderBindingTable()
 
     uint32_t const sbtSize = m_sbtHelper.ComputeSBTSize();
 
-    util::ReAllocateBuffer(
-        &m_sbtStorage,
-        *m_nativeClient,
-        sbtSize,
-        D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        D3D12_HEAP_TYPE_UPLOAD);
+    util::ReAllocateBuffer(&m_sbtStorage, *m_client, sbtSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT(m_sbtStorage);
 
     m_sbtHelper.Generate(m_sbtStorage.Get(), m_rtStateObjectProperties.Get());
@@ -632,10 +583,7 @@ void Space::CreateShaderBindingTable()
 
 void Space::EnqueueUploads() const { for (auto* group : m_drawableGroups) group->EnqueueDataUpload(GetCommandList()); }
 
-void Space::RunAnimations()
-{
-    for (auto& animation : m_animations) animation.Run(*m_globalShaderResources, GetCommandList());
-}
+void Space::RunAnimations() { for (auto& animation : m_animations) animation.Run(*m_globalShaderResources, GetCommandList()); }
 
 void Space::BuildAccelerationStructures()
 {
@@ -660,7 +608,7 @@ void Space::CreateTLAS()
         [this](Mesh* mesh)
         {
             Require(mesh->GetActiveIndex().has_value());
-            UINT const instanceID = static_cast<UINT>(mesh->GetActiveIndex().value());
+            auto const instanceID = static_cast<UINT>(mesh->GetActiveIndex().value());
 
             // The CCW flag is used because DirectX uses left-handed coordinates.
 
@@ -679,11 +627,11 @@ void Space::CreateTLAS()
 
     m_tlasGenerator.ComputeASBufferSizes(GetDevice().Get(), false, &scratchSize, &resultSize, &instanceDescriptionSize);
 
-    bool const committed = m_nativeClient->SupportPIX();
+    bool const committed = m_client->SupportPIX();
 
     util::ReAllocateBuffer(
         &m_topLevelASBuffers.scratch,
-        *m_nativeClient,
+        *m_client,
         scratchSize,
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
         D3D12_RESOURCE_STATE_COMMON,
@@ -691,7 +639,7 @@ void Space::CreateTLAS()
         committed);
     util::ReAllocateBuffer(
         &m_topLevelASBuffers.result,
-        *m_nativeClient,
+        *m_client,
         resultSize,
         D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
         D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
@@ -699,7 +647,7 @@ void Space::CreateTLAS()
         committed);
     util::ReAllocateBuffer(
         &m_topLevelASBuffers.instanceDescription,
-        *m_nativeClient,
+        *m_client,
         instanceDescriptionSize,
         D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ,
@@ -710,32 +658,21 @@ void Space::CreateTLAS()
     NAME_D3D12_OBJECT(m_topLevelASBuffers.result);
     NAME_D3D12_OBJECT(m_topLevelASBuffers.instanceDescription);
 
-    m_tlasGenerator.Generate(
-        GetCommandList().Get(),
-        m_topLevelASBuffers.scratch,
-        m_topLevelASBuffers.result,
-        m_topLevelASBuffers.instanceDescription);
+    m_tlasGenerator.Generate(GetCommandList().Get(), m_topLevelASBuffers.scratch, m_topLevelASBuffers.result, m_topLevelASBuffers.instanceDescription);
 }
 
 void Space::DispatchRays() const
 {
     std::array const barriers = {
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            m_colorOutput.Get(),
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            m_depthOutput.Get(),
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
+        CD3DX12_RESOURCE_BARRIER::Transition(m_colorOutput.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
+        CD3DX12_RESOURCE_BARRIER::Transition(m_depthOutput.Get(), D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS)
     };
     GetCommandList()->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
 
     D3D12_DISPATCH_RAYS_DESC desc = {};
 
-    desc.RayGenerationShaderRecord.StartAddress = m_sbtStorage.GetGPUVirtualAddress() + m_sbtHelper.
-        GetRayGenSectionOffset();
-    desc.RayGenerationShaderRecord.SizeInBytes = m_sbtHelper.GetRayGenSectionSize();
+    desc.RayGenerationShaderRecord.StartAddress = m_sbtStorage.GetGPUVirtualAddress() + m_sbtHelper.GetRayGenSectionOffset();
+    desc.RayGenerationShaderRecord.SizeInBytes  = m_sbtHelper.GetRayGenSectionSize();
 
     desc.MissShaderTable.StartAddress  = m_sbtStorage.GetGPUVirtualAddress() + m_sbtHelper.GetMissSectionOffset();
     desc.MissShaderTable.SizeInBytes   = m_sbtHelper.GetMissSectionSize();
@@ -756,22 +693,10 @@ void Space::DispatchRays() const
 void Space::CopyOutputToBuffers(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth) const
 {
     std::array const entry = {
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            m_colorOutput.Get(),
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-            D3D12_RESOURCE_STATE_COPY_SOURCE),
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            m_depthOutput.Get(),
-            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-            D3D12_RESOURCE_STATE_COPY_SOURCE),
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            color.Get(),
-            D3D12_RESOURCE_STATE_RENDER_TARGET,
-            D3D12_RESOURCE_STATE_COPY_DEST),
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            depth.Get(),
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            D3D12_RESOURCE_STATE_COPY_DEST)
+        CD3DX12_RESOURCE_BARRIER::Transition(m_colorOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(m_depthOutput.Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_COPY_SOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(color.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_COPY_DEST),
+        CD3DX12_RESOURCE_BARRIER::Transition(depth.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_COPY_DEST)
     };
     GetCommandList()->ResourceBarrier(static_cast<UINT>(entry.size()), entry.data());
 
@@ -779,14 +704,8 @@ void Space::CopyOutputToBuffers(Allocation<ID3D12Resource> const& color, Allocat
     GetCommandList()->CopyResource(depth.Get(), m_depthOutput.Get());
 
     std::array const exit = {
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            color.Get(),
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            D3D12_RESOURCE_STATE_RENDER_TARGET),
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            depth.Get(),
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE)
+        CD3DX12_RESOURCE_BARRIER::Transition(color.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_RENDER_TARGET),
+        CD3DX12_RESOURCE_BARRIER::Transition(depth.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_DEPTH_WRITE)
     };
     GetCommandList()->ResourceBarrier(static_cast<UINT>(exit.size()), exit.data());
 }
@@ -794,14 +713,8 @@ void Space::CopyOutputToBuffers(Allocation<ID3D12Resource> const& color, Allocat
 void Space::DrawEffects(RenderData const& data)
 {
     std::array const barriers = {
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            m_colorOutput.Get(),
-            D3D12_RESOURCE_STATE_COPY_SOURCE,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            m_depthOutput.Get(),
-            D3D12_RESOURCE_STATE_COPY_SOURCE,
-            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
+        CD3DX12_RESOURCE_BARRIER::Transition(m_colorOutput.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(m_depthOutput.Get(), D3D12_RESOURCE_STATE_COPY_SOURCE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
     };
     GetCommandList()->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
 
@@ -847,8 +760,7 @@ void Space::UpdateTopLevelAccelerationStructureView() const
     srvDescription.Format                                   = DXGI_FORMAT_UNKNOWN;
     srvDescription.ViewDimension                            = D3D12_SRV_DIMENSION_RAYTRACING_ACCELERATION_STRUCTURE;
     srvDescription.Shader4ComponentMapping                  = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
-    srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->
-        GetGPUVirtualAddress();
+    srvDescription.RaytracingAccelerationStructure.Location = m_topLevelASBuffers.result.resource->GetGPUVirtualAddress();
 
     m_globalShaderResources->CreateShaderResourceView(m_bvhEntry, 0, {{}, &srvDescription});
 }

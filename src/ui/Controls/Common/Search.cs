@@ -1,6 +1,19 @@
 ﻿// <copyright file="Search.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -27,7 +40,7 @@ public class Search : ControlBase
     {
         DockLayout layout = new(this);
 
-        ImagePanel icon = context.CreateIcon(layout, context.Resources.SearchIcon);
+        ImagePanel icon = context.CreateIcon(layout, Icons.Instance.Search);
         icon.Dock = Dock.Left;
 
         TextBox filter = new(layout)
@@ -38,7 +51,7 @@ public class Search : ControlBase
 
         filter.TextChanged += (_, _) => UpdateFilter(filter.Text);
 
-        Button button = context.CreateIconButton(layout, context.Resources.ClearIcon, Language.ClearInput);
+        Button button = context.CreateIconButton(layout, Icons.Instance.Clear, Language.ClearInput);
         button.Dock = Dock.Right;
 
         button.Released += (_, _) =>

@@ -1,18 +1,28 @@
 ﻿// <copyright file="StartScene.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Extensions.Logging;
-using OpenTK.Mathematics;
 using VoxelGame.Client.Application.Worlds;
-using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Logging;
+using VoxelGame.Client.Scenes.Components;
+using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.UI;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
 
@@ -21,184 +31,51 @@ namespace VoxelGame.Client.Scenes;
 /// <summary>
 ///     The scene the game starts in. It contains the main menu.
 /// </summary>
-public sealed partial class StartScene : IScene
+public sealed class StartScene : Scene
 {
-    private readonly Application.Client client;
+    private readonly Func<Boolean> isSafeToClose;
 
-    private readonly ResourceLoadingFailure? resourceLoadingFailure;
-    private readonly StartUserInterface ui;
-
-    private readonly WorldProvider worldProvider;
-
-    private Boolean isFirstUpdate = true;
-
-    private Int32? loadWorldDirectly;
-
-    internal StartScene(Application.Client client, ResourceLoadingFailure? resourceLoadingFailure, Int32? loadWorldDirectly)
+    internal StartScene(Application.Client client, UserInterfaceResources uiResources, ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly) : base(client)
     {
-        this.client = client;
-        this.resourceLoadingFailure = resourceLoadingFailure;
-        this.loadWorldDirectly = loadWorldDirectly;
-
-        worldProvider = new WorldProvider(Program.WorldsDirectory);
-        worldProvider.WorldActivation += (_, world) => client.StartGame(world);
+        WorldProvider worldProvider = new(client, Program.WorldsDirectory);
+        worldProvider.WorldActivation += (_, world) => client.StartSession(world);
 
         List<SettingsProvider> settingsProviders =
         [
             SettingsProvider.Wrap(client.Settings),
-            SettingsProvider.Wrap(Application.Client.Instance.Keybinds),
+            SettingsProvider.Wrap(client.Keybinds),
             SettingsProvider.Wrap(client.Graphics)
         ];
 
-        ui = new StartUserInterface(
+        StartUserInterface ui = new(
             client.Input,
             client.Settings,
             worldProvider,
             settingsProviders,
-            client.Resources.UI,
+            uiResources,
             drawBackground: true);
+
+        isSafeToClose = () => ui.IsSafeToClose;
+
+        AddComponent<UserInterfaceHook, UserInterface>(ui);
+        AddComponent<SetExitAction, StartUserInterface>(ui);
+
+        if (resourceLoadingIssueReport != null)
+            AddComponent<ResourceLoadingReportHook, (ResourceLoadingIssueReport, StartUserInterface)>(
+                (resourceLoadingIssueReport, ui));
+
+        if (loadWorldDirectly.HasValue) AddComponent<DirectWorldLoad, (IWorldProvider, Int32)>((worldProvider, loadWorldDirectly.Value));
     }
 
     /// <inheritdoc />
-    public void Load()
+    protected override void OnLoad()
     {
-        Throw.IfDisposed(disposed);
-
-        client.Input.Mouse.SetCursorLock(locked: false);
-
-        ui.Load();
-        ui.Resize(client.Size);
-
-        ui.CreateControl();
-        ui.SetExitAction(() => client.Close());
-
-        if (resourceLoadingFailure == null) return;
-
-        ui.PresentResourceLoadingFailure(resourceLoadingFailure.MissingResources, resourceLoadingFailure.IsCritical);
-
-        if (loadWorldDirectly is null) return;
-
-        LogResourceLoadingFailurePreventsDirectWorldLoading(logger);
-        loadWorldDirectly = null;
+        Client.Input.Mouse.SetCursorLock(locked: false);
     }
 
     /// <inheritdoc />
-    public void Render(Double deltaTime, Timer? timer)
+    public override Boolean CanCloseWindow()
     {
-        Throw.IfDisposed(disposed);
-
-        ui.Render();
+        return isSafeToClose();
     }
-
-    /// <inheritdoc />
-    public void Update(Double deltaTime, Timer? timer)
-    {
-        Throw.IfDisposed(disposed);
-
-        if (isFirstUpdate)
-        {
-            LoadWorldDirectlyIfRequested();
-            isFirstUpdate = false;
-        }
-
-        ui.Update();
-    }
-
-    /// <inheritdoc />
-    public void OnResize(Vector2i size)
-    {
-        Throw.IfDisposed(disposed);
-
-        ui.Resize(size);
-    }
-
-    /// <inheritdoc />
-    public void Unload()
-    {
-        Throw.IfDisposed(disposed);
-
-        // Method intentionally left empty.
-    }
-
-    /// <inheritdoc />
-    public Boolean CanCloseWindow()
-    {
-        return ui.IsSafeToClose;
-    }
-
-    private void LoadWorldDirectlyIfRequested()
-    {
-        if (loadWorldDirectly is not {} index) return;
-
-        Exception? exception = worldProvider.Refresh().WaitForCompletion();
-
-        if (exception != null)
-        {
-            LogCouldNotRefreshWorldsToDirectlyLoadWorld(logger, exception, index);
-            return;
-        }
-
-        IWorldProvider.IWorldInfo? info = worldProvider.Worlds.ElementAtOrDefault(index);
-
-        if (info != null)
-        {
-            LogLoadingWorldDirectly(logger, index);
-
-            worldProvider.BeginLoadingWorld(info);
-        }
-        else
-        {
-            LogCouldNotDirectlyLoadWorld(logger, index);
-        }
-    }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<StartScene>();
-
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Warning, Message = "Resource loading failure prevents direct world loading, going to main menu")]
-    private static partial void LogResourceLoadingFailurePreventsDirectWorldLoading(ILogger logger);
-
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Error, Message = "Could not refresh worlds to directly-load world at index {Index}, going to main menu")]
-    private static partial void LogCouldNotRefreshWorldsToDirectlyLoadWorld(ILogger logger, Exception exception, Int32 index);
-
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Information, Message = "Loading world at index {Index} directly")]
-    private static partial void LogLoadingWorldDirectly(ILogger logger, Int32 index);
-
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Error, Message = "Could not directly-load world at index {Index}, going to main menu")]
-    private static partial void LogCouldNotDirectlyLoadWorld(ILogger logger, Int32 index);
-
-    #endregion LOGGING
-
-    #region IDisposable Support
-
-    private Boolean disposed;
-
-    private void Dispose(Boolean disposing)
-    {
-        if (disposed) return;
-
-        if (disposing) ui.Dispose();
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     Disposes of the scene.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~StartScene()
-    {
-        Dispose(disposing: false);
-    }
-
-    #endregion IDisposable Support
 }

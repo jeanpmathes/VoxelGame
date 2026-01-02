@@ -1,16 +1,30 @@
 ﻿// <copyright file="SetBlock.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Contents;
+using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Client.Console.Commands;
-    #pragma warning disable CA1822
 
 /// <summary>
 ///     Sets the block at the target position. Can cause invalid block state.
@@ -25,36 +39,29 @@ public class SetBlock : Command
     public override String HelpText => "Sets the block at the target position. Can cause invalid block state.";
 
     /// <exclude />
-    public void Invoke(String namedID, Int32 data, Int32 x, Int32 y, Int32 z)
+    public void Invoke(String contentID, Int32 x, Int32 y, Int32 z)
     {
-        Set(namedID, data, (x, y, z));
+        Set(new CID(contentID), (x, y, z));
     }
 
     /// <exclude />
-    public void Invoke(String namedID, Int32 data)
+    public void Invoke(String contentID)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Set(namedID, data, targetPosition);
-        else Context.Console.WriteError("No position targeted.");
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(new CID(contentID), targetPosition);
+        else Context.Output.WriteError("No position targeted.");
     }
 
-    private void Set(String namedID, Int32 data, Vector3i position)
+    private void Set(CID contentID, Vector3i position)
     {
-        Block? block = Blocks.Instance.TranslateNamedID(namedID);
+        Block? block = Blocks.Instance.TranslateContentID(contentID);
 
         if (block == null)
         {
-            Context.Console.WriteError("Cannot find block.");
+            Context.Output.WriteError("Cannot find block.");
 
             return;
         }
 
-        if (data is < 0 or > 0b11_1111)
-        {
-            Context.Console.WriteError("Invalid data value.");
-
-            return;
-        }
-
-        Context.Player.World.SetBlock(block.AsInstance((UInt32) data), position);
+        Context.Player.World.SetBlock(block.States.Default, position);
     }
 }

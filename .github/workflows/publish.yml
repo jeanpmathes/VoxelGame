@@ -2,7 +2,7 @@ name: publish
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   publish:
@@ -10,11 +10,14 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v4.1.1
+    - uses: actions/checkout@v4
+      with:
+        submodules: recursive
+        fetch-depth: 0
     - name: Setup .NET
       uses: actions/setup-dotnet@v4.0.0
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: 9.0.x
     - name: Setup msbuild
       uses: microsoft/setup-msbuild@v2
     - name: Restore dependencies
@@ -22,10 +25,10 @@ jobs:
     - name: Publish
       run: msbuild -t:Publish -p:RestorePackages=false -p:SelfContained=true -p:Configuration=Release -p:RuntimeIdentifier=win-x64 -p:RuntimeIdentifiers=win-x64
     - name: Build installer
-      run: msbuild ./Setup/Setup.wixproj -restore -t:Build -p:Configuration=Release -p:Platform=x64 -p:RuntimeIdentifier=win-x64 -p:RuntimeIdentifiers=win-x64
+      run: msbuild ./stp/SetUp.wixproj -restore -t:Build -p:Configuration=Release -p:Platform=x64 -p:RuntimeIdentifier=win-x64 -p:RuntimeIdentifiers=win-x64
     - name: Upload installer
       uses: actions/upload-artifact@v4.3.1
       with:
         name: installer
-        path: Setup/bin/x64/Release/Setup.msi
+        path: stp/bin/x64/Release/Setup.msi
         retention-days: 3

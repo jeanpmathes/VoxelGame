@@ -1,6 +1,19 @@
 ﻿// <copyright file="Chunk.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,13 +22,15 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 using Section = VoxelGame.Client.Logic.Sections.Section;
 
 namespace VoxelGame.Client.Logic.Chunks;
@@ -28,8 +43,9 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <summary>
     ///     Create a new client chunk.
     /// </summary>
+    /// <param name="blocks">The block memory of the chunk.</param>
     /// <param name="context">The context of the chunk.</param>
-    public Chunk(ChunkContext context) : base(context, CreateSection) {}
+    public Chunk(NativeSegment<UInt32> blocks, ChunkContext context) : base(context, blocks, CreateSection) {}
 
     /// <summary>
     ///     Get the client world this chunk is in.
@@ -44,7 +60,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <summary>
     ///     Get the sides that are currently meshed.
     /// </summary>
-    public BlockSides MeshedSides { get; private set; }
+    public Sides MeshedSides { get; private set; }
 
     /// <inheritdoc />
     public override void Initialize(Core.Logic.World world, ChunkPosition position)
@@ -52,7 +68,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         base.Initialize(world, position);
 
         HasMeshData = false;
-        MeshedSides = BlockSides.None;
+        MeshedSides = Sides.None;
     }
 
     /// <inheritdoc />
@@ -61,7 +77,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         base.Reset();
 
         HasMeshData = false;
-        MeshedSides = BlockSides.None;
+        MeshedSides = Sides.None;
     }
 
     private Section GetSection(Int32 index)
@@ -70,20 +86,20 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     }
 
     /// <summary>
-    /// Ask a chunk to consider re-meshing because of a (newly) active neighbor.
+    ///     Ask a chunk to consider re-meshing because of a (newly) active neighbor.
     /// </summary>
     public void ReMesh()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        if (!this.IsUsableForMeshing()) return;
+        if (!this.IsAbleToMesh()) return;
         if (!this.IsReMeshingValuable()) return;
 
         // The hidden state will then try to activate, which then meshes if necessary.
         State.RequestNextState<Hidden>();
     }
 
-    private static Core.Logic.Sections.Section CreateSection(ArraySegment<UInt32> blocks)
+    private static Core.Logic.Sections.Section CreateSection(NativeSegment<UInt32> blocks)
     {
         return new Section(blocks);
     }
@@ -98,9 +114,9 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <param name="context">The chunk meshing context.</param>
     public void CreateAndSetMesh(Int32 x, Int32 y, Int32 z, ChunkMeshingContext context)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(context);
+        GetSection(LocalSectionToIndex(x, y, z)).CreateAndSetMesh(World, context);
     }
 
     /// <summary>
@@ -110,11 +126,11 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <returns>A target state if the chunk should mesh, null otherwise.</returns>
     public Core.Logic.Chunks.ChunkState? ProcessMeshingOption(out Boolean allowActivation)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         allowActivation = false;
 
-        if (!this.IsUsableForMeshing()) return null;
+        if (!this.IsAbleToMesh()) return null;
 
         ChunkMeshingContext? context = ChunkMeshingContext.TryAcquire(this,
             SpatialMeshingFactory.Shared,
@@ -122,26 +138,26 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
 
         if (context == null) return null;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
             context.GetChunk(side)?.Cast().ReMesh();
 
         return new Meshing(context);
     }
 
     /// <inheritdoc />
-    protected override void OnActivation()
+    protected override void OnActivate()
     {
         RecreateIncompleteSectionMeshes();
     }
 
     /// <inheritdoc />
-    protected override void OnDeactivation()
+    protected override void OnDeactivate()
     {
         DisableAllVfx();
     }
 
     /// <inheritdoc />
-    protected override void OnNeighborActivation()
+    protected override void OnNeighborActivate()
     {
         RecreateIncompleteSectionMeshes();
     }
@@ -150,7 +166,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         using ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this, SpatialMeshingFactory.Shared);
 
-        for (var index = 0; index < SectionCount; index++) GetSection(index).RecreateIncompleteMesh(context);
+        for (var index = 0; index < SectionCount; index++) GetSection(index).RecreateIncompleteMesh(World, context);
     }
 
     /// <summary>
@@ -160,25 +176,23 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// </summary>
     /// <param name="local">The local position of the section.</param>
     /// <param name="sides">The sides that are missing for the section.</param>
-    public void SetSectionAsIncomplete((Int32 x, Int32 y, Int32 z) local, BlockSides sides)
+    public void SetSectionAsIncomplete((Int32 x, Int32 y, Int32 z) local, Sides sides)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         GetLocalSection(local.x, local.y, local.z).Cast().SetAsIncomplete(sides);
     }
 
     private ChunkMeshData CreateMeshData(ChunkMeshingContext context)
     {
-        if (logger.IsEnabled(LogLevel.Debug))
-            LogStartedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
+        LogStartedCreatingMeshData(logger, Position, context);
 
         var sectionMeshes = new SectionMeshData?[SectionCount];
 
         foreach (Int32 index in context.SectionIndices)
             sectionMeshes[index] = GetSection(index).CreateMeshData(context);
 
-        if (logger.IsEnabled(LogLevel.Debug))
-            LogFinishedCreatingMeshData(logger, Position, context.AvailableSides.ToCompactString());
+        LogFinishedCreatingMeshData(logger, Position, context);
 
         return context.CreateMeshData(sectionMeshes, MeshedSides);
     }
@@ -189,13 +203,16 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <param name="meshData">The mesh data to apply.</param>
     public void SetMeshData(ChunkMeshData meshData)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        if (logger.IsEnabled(LogLevel.Debug))
+            LogSettingMeshData(logger, Position, MeshedSides.ToCompactString(), meshData.Sides.ToCompactString());
 
         HasMeshData = true;
         MeshedSides = meshData.Sides;
 
         foreach (Int32 index in meshData.Indices)
-            GetSection(index).SetMeshData(meshData.SectionMeshData[index]!);
+            GetSection(index).SetMeshData(World, meshData.SectionMeshData[index]!);
     }
 
     /// <summary>
@@ -204,9 +221,9 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// <param name="frustum">The view frustum to use for culling.</param>
     public void CullSections(Frustum frustum)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        Box3d chunkBox = VMath.CreateBox3(Position.Center, Extents);
+        Box3d chunkBox = MathTools.CreateBox3(Position.Center, Extents);
 
         const Double tolerance = 16.0;
 
@@ -224,31 +241,49 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
             SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
             Vector3d position = sectionPosition.FirstBlock;
 
-            Box3d sectionBox = VMath.CreateBox3(position + Core.Logic.Sections.Section.Extents, Core.Logic.Sections.Section.Extents);
+            Box3d sectionBox = MathTools.CreateBox3(position + Core.Logic.Sections.Section.Extents, Core.Logic.Sections.Section.Extents);
             Boolean visible = frustum.IsBoxVisible(sectionBox, tolerance);
 
             GetSection(LocalSectionToIndex(x, y, z)).SetVfxEnabledState(visible);
         }
     }
 
+    /// <summary>
+    ///     Hide all sections.
+    ///     Equivalent to performing frustum culling with a frustum that does not see the chunk.
+    /// </summary>
+    public void HideAllSections()
+    {
+        for (var index = 0; index < SectionCount; index++)
+            GetSection(index).SetVfxEnabledState(enabled: false);
+    }
+
     private void DisableAllVfx()
     {
-        for (var index = 0; index < SectionCount; index++) GetSection(index).SetVfxEnabledState(enabled: false);
+        for (var index = 0; index < SectionCount; index++)
+            GetSection(index).SetVfxEnabledState(enabled: false);
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Chunk>();
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Started creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", SkipEnabledCheck = true)]
-    private static partial void LogStartedCreatingMeshData(ILogger logger, ChunkPosition position, String availableSides);
+    [LoggerMessage(EventId = LogID.Chunk + 0, Level = LogLevel.Debug, Message = "Started creating mesh data for chunk {Position} using {Context}", SkipEnabledCheck = true)]
+    private static partial void LogStartedCreatingMeshData(ILogger logger, ChunkPosition position, ChunkMeshingContext context);
 
-    [LoggerMessage(EventId = Events.ChunkOperation, Level = LogLevel.Debug, Message = "Finished creating mesh data for chunk {Position} using [{AvailableSides}] neighbors", SkipEnabledCheck = true)]
-    private static partial void LogFinishedCreatingMeshData(ILogger logger, ChunkPosition position, String availableSides);
+    [LoggerMessage(EventId = LogID.Chunk + 1, Level = LogLevel.Debug, Message = "Finished creating mesh data for chunk {Position} using {Context}", SkipEnabledCheck = true)]
+    private static partial void LogFinishedCreatingMeshData(ILogger logger, ChunkPosition position, ChunkMeshingContext context);
+
+    [LoggerMessage(
+        EventId = LogID.Chunk + 2,
+        Level = LogLevel.Debug,
+        Message = "Setting mesh data of chunk {Position}, changing meshed sides from [{OldSides}] to [{NewSides}]",
+        SkipEnabledCheck = true)]
+    private static partial void LogSettingMeshData(ILogger logger, ChunkPosition position, String oldSides, String newSides);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -262,5 +297,5 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
         disposed = true;
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

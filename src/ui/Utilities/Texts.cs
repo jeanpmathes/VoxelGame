@@ -1,13 +1,28 @@
 ﻿// <copyright file="Formatter.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Globalization;
+using Gwen.Net;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.UI.Utilities;
 
@@ -69,16 +84,30 @@ public static class Texts
         {
             Status.Ok => Language.OperationStatusOk,
             Status.Running => Language.OperationStatusRunning,
-            Status.Error => Language.OperationStatusError,
-            _ => throw new ArgumentOutOfRangeException(nameof(status), status, message: null)
+            Status.ErrorOrCancel => Language.OperationStatusError,
+            _ => throw Exceptions.UnsupportedEnumValue(status)
         };
     }
 
     /// <summary>
     ///     Format an operation and its status.
     /// </summary>
-    public static String FormatOperation(String operation, Status status)
+    public static String FormatWithStatus(String operation, Status status)
     {
         return $"{operation}: {FormatStatus(status)}";
+    }
+
+    /// <summary>
+    ///     Get the color for a status.
+    /// </summary>
+    public static Color GetStatusColor(Status status)
+    {
+        return status switch
+        {
+            Status.Ok => Colors.Secondary,
+            Status.Running => Colors.Secondary,
+            Status.ErrorOrCancel => Colors.Error,
+            _ => throw Exceptions.UnsupportedEnumValue(status)
+        };
     }
 }

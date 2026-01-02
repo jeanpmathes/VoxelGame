@@ -51,4 +51,6 @@
 // General
 
 #include "native.hpp"
+
+#include "Allocator.hpp"
 #include "Noise.hpp"

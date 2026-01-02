@@ -1,16 +1,33 @@
 ﻿// <copyright file="WorldInformation.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -58,46 +75,63 @@ public partial class WorldInformation
     public SpawnInformation SpawnInformation { get; set; } = new(Vector3d.Zero);
 
     /// <summary>
+    ///     The time of day as a value in the range [0, 1).
+    /// </summary>
+    public Double TimeOfDay { get; set; }
+
+    /// <summary>
     ///     Save this world information to a file.
     /// </summary>
     /// <param name="path">The save path.</param>
-    public void Save(FileInfo path)
+    /// <param name="token">The cancellation token.</param>
+    public async Task SaveAsync(FileInfo path, CancellationToken token = default)
     {
-        Exception? exception = Serialize.SaveJSON(this, path);
+        Result result = await Serialize.SaveJsonAsync(this, path, token).InAnyContext();
 
-        if (exception != null) LogInfoSavingError(logger, exception, path.FullName);
-        else LogInfoSaved(logger, Name, path.FullName);
+        result.Switch(
+            () => LogInfoSaved(logger, Name, path.FullName),
+            exception => LogInfoSavingError(logger, exception, path.FullName));
     }
 
     /// <summary>
-    ///     Load a world information from a file. If loading fails, a default world information is returned.
+    ///     Load the world information from a file. If loading fails, default world information is returned.
     /// </summary>
     /// <param name="path">The path to load from.</param>
+    /// <param name="token">The cancellation token.</param>
     /// <returns>The loaded world information.</returns>
-    public static WorldInformation Load(FileInfo path)
+    public static async Task<WorldInformation> LoadAsync(FileInfo path, CancellationToken token = default)
     {
-        Exception? exception = Serialize.LoadJSON(path, out WorldInformation information);
+        Result<WorldInformation> result = await Serialize.LoadJsonAsync<WorldInformation>(path, token).InAnyContext();
 
-        if (exception != null) LogInfoLoadingError(logger, exception, path.FullName);
-        else LogInfoLoaded(logger, information.Name, path.FullName);
+        return result.Switch(
+            information =>
+            {
+                LogInfoLoaded(logger, information.Name, path.FullName);
 
-        return information;
+                return information;
+            },
+            exception =>
+            {
+                LogInfoLoadingError(logger, exception, path.FullName);
+
+                return new WorldInformation();
+            });
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldInformation>();
 
-    [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "The info file could not be saved: {Path}")]
+    [LoggerMessage(EventId = LogID.WorldInformation + 0, Level = LogLevel.Error, Message = "The info file could not be saved: {Path}")]
     private static partial void LogInfoSavingError(ILogger logger, Exception exception, String path);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Information for World '{Name}' was saved to: {Path}")]
+    [LoggerMessage(EventId = LogID.WorldInformation + 1, Level = LogLevel.Debug, Message = "Information for World '{Name}' was saved to: {Path}")]
     private static partial void LogInfoSaved(ILogger logger, String name, String path);
 
-    [LoggerMessage(EventId = Events.WorldLoadingError, Level = LogLevel.Error, Message = "The info file could not be loaded: {Path}")]
+    [LoggerMessage(EventId = LogID.WorldInformation + 2, Level = LogLevel.Error, Message = "The info file could not be loaded: {Path}")]
     private static partial void LogInfoLoadingError(ILogger logger, Exception exception, String path);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Debug, Message = "Information for World '{Name}' was loaded from: {Path}")]
+    [LoggerMessage(EventId = LogID.WorldInformation + 3, Level = LogLevel.Debug, Message = "Information for World '{Name}' was loaded from: {Path}")]
     private static partial void LogInfoLoaded(ILogger logger, String name, String path);
 
     #endregion LOGGING

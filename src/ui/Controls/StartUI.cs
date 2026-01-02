@@ -1,6 +1,19 @@
 ﻿// <copyright file="StartUI.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -23,29 +36,23 @@ namespace VoxelGame.UI.Controls;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class StartUI : ControlBase
+internal sealed class StartUI : ControlBase
 {
     private const Int32 MainMenuIndex = 0;
     private const Int32 SettingsMenuIndex = 1;
     private const Int32 WorldSelectionMenuIndex = 2;
     private const Int32 CreditsMenuIndex = 3;
-
-    private readonly List<StandardMenu> menus = new();
     private readonly MainMenu mainMenu;
 
-    private readonly Context context;
+    private readonly List<StandardMenu> menus = [];
 
     internal StartUI(StartUserInterface parent, IWorldProvider worldProvider,
         IEnumerable<SettingsProvider> settingsProviders) : base(parent.Root)
     {
-        context = parent.Context;
-
         Dock = Dock.Fill;
 
-        Exit = delegate {};
-
         mainMenu = new MainMenu(this, parent.Context);
-        mainMenu.SelectExit += (_, _) => Exit(this, EventArgs.Empty);
+        mainMenu.SelectExit += (_, _) => Exit?.Invoke(this, EventArgs.Empty);
         mainMenu.SelectSettings += (_, _) => OpenMenu(SettingsMenuIndex);
         mainMenu.SelectWorlds += (_, _) => OpenMenu(WorldSelectionMenuIndex);
         mainMenu.SelectCredits += (_, _) => OpenMenu(CreditsMenuIndex);
@@ -88,13 +95,13 @@ internal class StartUI : ControlBase
             StartPosition = StartPosition.CenterCanvas,
             HorizontalAlignment = HorizontalAlignment.Center,
             VerticalAlignment = VerticalAlignment.Center,
-            MinimumSize = new Size(width: 1000, height: 1000)
+            MinimumSize = new Size(width: 1200, height: 1000)
         };
 
-        PropertyBasedTreeControl tree = new(window, resources, context);
+        PropertyBasedTreeControl tree = new(window, resources);
 
         tree.ExpandAll();
     }
 
-    internal event EventHandler Exit;
+    internal event EventHandler? Exit;
 }

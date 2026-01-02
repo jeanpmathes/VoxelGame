@@ -1,12 +1,26 @@
 ﻿// <copyright file="Command.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
+using VoxelGame.Client.Actors.Components;
 
 namespace VoxelGame.Client.Console;
 
@@ -46,10 +60,30 @@ public abstract class Command : ICommand
             "spawn" => Context.Player.World.SpawnPosition,
             "min-corner" => -Context.Player.World.Extents,
             "max-corner" => Context.Player.World.Extents,
-            "self" => Context.Player.Position,
-            "prev-self" => Context.Player.PreviousPosition,
+            "self" => Context.Player.Body.Transform.Position,
+            "prev-self" => GetPreviousPlayerPosition(),
             _ => null
         };
+    }
+
+    /// <summary>
+    ///     Get the previous position of the player, e.g. before a teleportation.
+    ///     This is only set by the command system, so normal movement does not change it.
+    /// </summary>
+    /// <returns>The previous position, or spawn position if not set.</returns>
+    private Vector3d? GetPreviousPlayerPosition()
+    {
+        return Context.Player.GetComponent<PreviousPosition>()?.Value ?? Context.Player.World.SpawnPosition;
+    }
+
+    /// <summary>
+    ///     Set the previous position of the player, e.g. before a teleportation.
+    /// </summary>
+    /// <param name="position">The position to set as previous.</param>
+    public void SetPreviousPlayerPosition(Vector3d position)
+    {
+        var previousPosition = Context.Player.AddComponent<PreviousPosition>();
+        previousPosition.Value = position;
     }
 }
 
@@ -61,12 +95,12 @@ public interface ICommand
     /// <summary>
     ///     Get the name of this command.
     /// </summary>
-    public String Name { get; }
+    String Name { get; }
 
     /// <summary>
     ///     Get the help text for this command.
     /// </summary>
-    public String HelpText { get; }
+    String HelpText { get; }
 
     /// <summary>
     ///     Set the current command execution context.

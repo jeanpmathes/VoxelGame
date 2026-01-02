@@ -1,6 +1,19 @@
 ﻿// <copyright file="Cache.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -20,10 +33,9 @@ public class Cache<TK, TV>
     where TK : notnull
     where TV : notnull
 {
+    private readonly Action<TV>? cleanup;
     private readonly LinkedList<Entry> list = [];
     private readonly Dictionary<TK, LinkedListNode<Entry>> map = new();
-
-    private readonly Action<TV>? cleanup;
 
     /// <summary>
     ///     Create a new cache with the given capacity.
@@ -152,7 +164,7 @@ public sealed class DisposableCache<TK, TV> : Cache<TK, TV>, IDisposable
         value.Dispose();
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -180,5 +192,5 @@ public sealed class DisposableCache<TK, TV> : Cache<TK, TV>, IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion
+    #endregion DISPOSABLE
 }

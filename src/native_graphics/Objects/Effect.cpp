@@ -3,14 +3,14 @@
 Effect::Effect(NativeClient& client)
     : Drawable(client)
 {
-    m_instanceDataBufferAlignedSize = sizeof MeshDataBuffer;
-    m_instanceDataBuffer            = util::AllocateConstantBuffer(GetClient(), &m_instanceDataBufferAlignedSize);
-    NAME_D3D12_OBJECT_WITH_ID(m_instanceDataBuffer);
+    m_instanceConstantDataBufferAlignedSize = sizeof EffectDataBuffer;
+    m_instanceConstantDataBuffer = util::AllocateConstantBuffer(GetClient(), &m_instanceConstantDataBufferAlignedSize);
+    NAME_D3D12_OBJECT_WITH_ID(m_instanceConstantDataBuffer);
 
-    m_instanceDataBufferView.BufferLocation = m_instanceDataBuffer.GetGPUVirtualAddress();
-    m_instanceDataBufferView.SizeInBytes    = static_cast<UINT>(m_instanceDataBufferAlignedSize);
+    m_instanceConstantDataBufferView.BufferLocation = m_instanceConstantDataBuffer.GetGPUVirtualAddress();
+    m_instanceConstantDataBufferView.SizeInBytes    = static_cast<UINT>(m_instanceConstantDataBufferAlignedSize);
 
-    TryDo(m_instanceDataBuffer.Map(&m_instanceConstantBufferMapping, 1));
+    TryDo(m_instanceConstantDataBuffer.Map(&m_instanceConstantBufferMapping, 1));
 
     {
         m_geometryVBV.StrideInBytes = sizeof(SpatialVertex);
@@ -25,13 +25,15 @@ void Effect::Initialize(RasterPipeline& pipeline)
 
 void Effect::Update()
 {
+    Camera const& camera = *GetClient().GetSpace()->GetCamera();
+
     DirectX::XMMATRIX const m  = XMLoadFloat4x4(&GetTransform());
-    DirectX::XMMATRIX const vp = XMLoadFloat4x4(&GetClient().GetSpace()->GetCamera()->GetViewProjectionMatrix());
+    DirectX::XMMATRIX const vp = XMLoadFloat4x4(&camera.GetViewProjectionMatrix());
 
-    DirectX::XMFLOAT4X4 mvp;
-    XMStoreFloat4x4(&mvp, XMMatrixTranspose(m * vp));
+    DirectX::XMFLOAT4X4 pvm;
+    XMStoreFloat4x4(&pvm, XMMatrixTranspose(m * vp));
 
-    m_instanceConstantBufferMapping.Write({mvp});
+    m_instanceConstantBufferMapping.Write({.pvm = pvm, .zNear = camera.GetNearPlane(), .zFar = camera.GetFarPlane()});
 }
 
 void Effect::SetNewVertices(EffectVertex const* vertices, UINT const vertexCount)
@@ -63,7 +65,15 @@ void Effect::Draw(ComPtr<ID3D12GraphicsCommandList4> const& commandList) const
     m_pipeline->CreateConstantBufferView(
         m_pipeline->GetBindings().SpatialEffect().instanceData,
         0,
-        &m_instanceDataBufferView);
+        &m_instanceConstantDataBufferView);
+
+    D3D12_RESOURCE_BARRIER const transitionShaderResourceToVertexBuffer = {
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_geometryBuffer.Get(),
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER)
+    };
+    commandList->ResourceBarrier(1, &transitionShaderResourceToVertexBuffer);
 
     commandList->IASetVertexBuffers(0, 1, &m_geometryVBV);
     commandList->DrawInstanced(GetDataElementCount(), 1, 0, 0);

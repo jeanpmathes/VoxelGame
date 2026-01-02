@@ -1,6 +1,19 @@
 ﻿// <copyright file="Section.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,8 +22,11 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Sections;
 
@@ -26,14 +42,9 @@ public class Section : IDisposable
     public const Int32 Size = 16;
 
     /// <summary>
-    /// Number of entries in a section.
+    ///     Number of entries in a section.
     /// </summary>
     public const Int32 Count = Size * Size * Size;
-
-    /// <summary>
-    ///     The shift to get the data.
-    /// </summary>
-    public const Int32 DataShift = 12;
 
     /// <summary>
     ///     The shift to get the fluid.
@@ -51,14 +62,9 @@ public class Section : IDisposable
     public const Int32 StaticShift = 26;
 
     /// <summary>
-    ///     Mask to get only the block.
+    ///     Mask to get only the block state.
     /// </summary>
-    public const UInt32 BlockMask = 0b0000_0000_0000_0000_0000_1111_1111_1111;
-
-    /// <summary>
-    ///     Mask to get only the data.
-    /// </summary>
-    public const UInt32 DataMask = 0b0000_0000_0000_0011_1111_0000_0000_0000;
+    public const UInt32 BlockStateMask = 0b0000_0000_0000_0011_1111_1111_1111_1111;
 
     /// <summary>
     ///     Mask to get only the fluid.
@@ -88,7 +94,7 @@ public class Section : IDisposable
     /// <summary>
     ///     The blocks stored in this section.
     /// </summary>
-    private readonly ArraySegment<UInt32> blocks;
+    private readonly NativeSegment<UInt32> blocks;
 
     /// <summary>
     ///     The position of this section.
@@ -98,7 +104,7 @@ public class Section : IDisposable
     /// <summary>
     ///     Creates a new section.
     /// </summary>
-    public Section(ArraySegment<UInt32> blocks)
+    public Section(NativeSegment<UInt32> blocks)
     {
         Debug.Assert(blocks.Count == Count);
 
@@ -119,7 +125,7 @@ public class Section : IDisposable
     ///     Initializes the section.
     /// </summary>
     /// <param name="newPosition">The position of the section.</param>
-    public virtual void Initialize(SectionPosition newPosition)
+    public void Initialize(SectionPosition newPosition)
     {
         position = newPosition;
     }
@@ -142,7 +148,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UInt32 GetContent(Int32 x, Int32 y, Int32 z)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return blocks[(x << SizeExp2) + (y << SizeExp) + z];
     }
@@ -155,7 +161,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public UInt32 GetContent(Vector3i blockPosition)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return GetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1));
     }
@@ -170,7 +176,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Int32 x, Int32 y, Int32 z, UInt32 data)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         blocks[(x << SizeExp2) + (y << SizeExp) + z] = data;
     }
@@ -183,7 +189,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Vector3i blockPosition, UInt32 value)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         SetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1), value);
     }
@@ -234,25 +240,24 @@ public class Section : IDisposable
     /// <param name="world">The world this section is in.</param>
     public void SendRandomUpdate(World world)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         UInt32 content = GetRandomPositionContent(out Vector3i localPosition);
 
         Decode(content,
-            out Block block,
-            out UInt32 data,
+            out State state,
             out Fluid fluid,
             out FluidLevel level,
             out Boolean isStatic);
 
         Vector3i globalPosition = localPosition + position.FirstBlock;
 
-        block.RandomUpdate(
+        state.Owner.Block.DoRandomUpdate(
             world,
             globalPosition,
-            data);
+            state);
 
-        fluid.RandomUpdate(
+        fluid.DoRandomUpdate(
             world,
             globalPosition,
             level,
@@ -278,13 +283,13 @@ public class Section : IDisposable
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Decode(UInt32 value,
-        out Block block, out UInt32 data,
+        out State state,
         out Fluid fluid, out FluidLevel level, out Boolean isStatic)
     {
-        block = Blocks.Instance.TranslateID(value & BlockMask);
-        data = (value & DataMask) >> DataShift;
+        state = Blocks.Instance.TranslateStateID(value & BlockStateMask);
+
         fluid = Fluids.Instance.TranslateID((value & FluidMask) >> FluidShift);
-        level = (FluidLevel) ((value & LevelMask) >> LevelShift);
+        level = FluidLevel.FromInt32((Int32) ((value & LevelMask) >> LevelShift));
         isStatic = (value & StaticMask) != 0;
     }
 
@@ -294,22 +299,21 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void Decode(UInt32 value, out Content content)
     {
-        Decode(value, out Block block, out UInt32 data, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
+        Decode(value, out State state, out Fluid fluid, out FluidLevel level, out Boolean isStatic);
 
-        content = new Content(block.AsInstance(data), fluid.AsInstance(level, isStatic));
+        content = new Content(state, fluid.AsInstance(level, isStatic));
     }
 
     /// <summary>
     ///     Encode block and fluid information into section content.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static UInt32 Encode(IBlockBase block, UInt32 data, Fluid fluid, FluidLevel level, Boolean isStatic)
+    public static UInt32 Encode(State state, Fluid fluid, FluidLevel level, Boolean isStatic)
     {
         return (UInt32) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
-                         | (((UInt32) level << LevelShift) & LevelMask)
+                         | (((UInt32) level.ToInt32() << LevelShift) & LevelMask)
                          | ((fluid.ID << FluidShift) & FluidMask)
-                         | ((data << DataShift) & DataMask)
-                         | (block.ID & BlockMask));
+                         | (state.ID & BlockStateMask));
     }
 
     /// <summary>
@@ -318,7 +322,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt32 Encode(in Content content)
     {
-        return Encode(content.Block.Block, content.Block.Data, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
+        return Encode(content.Block, content.Fluid.Fluid, content.Fluid.Level, content.Fluid.IsStatic);
     }
 
     /// <summary>
@@ -327,15 +331,13 @@ public class Section : IDisposable
     /// <param name="blockPosition">The position.</param>
     /// <returns>The block at the position.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance GetBlock(Vector3i blockPosition)
+    public State GetBlock(Vector3i blockPosition)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
+        UInt32 value = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z) & BlockStateMask;
 
-        UInt32 data = (val & DataMask) >> DataShift;
-
-        return Blocks.Instance.TranslateID(val & BlockMask).AsInstance(data);
+        return Blocks.Instance.TranslateStateID(value & BlockStateMask);
     }
 
     /// <summary>
@@ -346,16 +348,16 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FluidInstance GetFluid(Vector3i blockPosition)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         UInt32 val = GetContent(blockPosition.X, blockPosition.Y, blockPosition.Z);
 
-        var level = (FluidLevel) ((val & LevelMask) >> LevelShift);
+        FluidLevel level = FluidLevel.FromInt32((Int32) ((val & LevelMask) >> LevelShift));
 
         return Fluids.Instance.TranslateID((val & FluidMask) >> FluidShift).AsInstance(level);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     /// <summary>
     ///     Whether the section is disposed.
@@ -390,5 +392,5 @@ public class Section : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

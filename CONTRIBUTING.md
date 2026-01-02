@@ -4,7 +4,7 @@ First off, thank you for considering contributing to VoxelGame.
 
 When contributing to this repository, please first discuss the change you wish to make via issue or any other method with the owners of this repository before making a change.
 
-Contributiosn are welcomed, whether it's:
+Contributions are welcomed, whether it's:
 - Reporting a bug
 - Correcting spelling and grammar
 - Discussing the current state of the code
@@ -13,7 +13,7 @@ Contributiosn are welcomed, whether it's:
 - Proposing new features
 - Changing some textures or other assets
 - Writing documentation
-- Expanding the wiki and 
+- Expanding the wiki
 
 ## Rules
 
@@ -37,4 +37,4 @@ If you want to request a new feature, be it a small quality of life improvement 
 In short, when you submit code changes, your submissions will be understood to be under the same [MIT License](http://choosealicense.com/licenses/mit/) that covers the project. Feel free to contact the maintainers if that's a concern.
 
 ## References
-These guidelines where written using many different online templates, mainly [this](https://github.com/nayafia/contributing-template/blob/master/CONTRIBUTING-template.md) one.
+These guidelines were written using many different online templates, mainly [this](https://github.com/nayafia/contributing-template/blob/master/CONTRIBUTING-template.md) one.

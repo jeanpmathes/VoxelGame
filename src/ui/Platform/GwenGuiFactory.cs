@@ -20,6 +20,6 @@ public static class GwenGuiFactory
     {
         settings ??= GwenGuiSettings.Default;
 
-        return new VGui(window, settings);
+        return new GameGui(window, settings);
     }
 }

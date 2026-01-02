@@ -1,17 +1,31 @@
 ﻿// <copyright file="MeshFaceHolder.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Buffers;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Interfaces;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Collections;
 
@@ -26,10 +40,11 @@ public class MeshFaceHolder
     /// </summary>
     public const Boolean DefaultDirection = true;
 
-    private readonly BlockSide side;
+    private readonly Vector3 inset;
 
     private readonly MeshFace?[][] lastFaces;
-    private readonly Vector3 inset;
+
+    private readonly Side side;
 
     private Int32 count;
 
@@ -38,7 +53,7 @@ public class MeshFaceHolder
     /// </summary>
     /// <param name="side">The side the faces held belong too.</param>
     /// <param name="insetScale">How much to move the faces inwards.</param>
-    public MeshFaceHolder(BlockSide side, Single insetScale)
+    public MeshFaceHolder(Side side, Single insetScale)
     {
         this.side = side;
 
@@ -80,13 +95,13 @@ public class MeshFaceHolder
     {
         return side switch
         {
-            BlockSide.Front => (0, 1, 0),
-            BlockSide.Back => (0, 1, 0),
-            BlockSide.Left => (0, 0, 1),
-            BlockSide.Right => (0, 0, 1),
-            BlockSide.Bottom => (0, 0, 1),
-            BlockSide.Top => (0, 0, 1),
-            _ => throw new InvalidOperationException()
+            Side.Front => (0, 1, 0),
+            Side.Back => (0, 1, 0),
+            Side.Left => (0, 0, 1),
+            Side.Right => (0, 0, 1),
+            Side.Bottom => (0, 0, 1),
+            Side.Top => (0, 0, 1),
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -94,13 +109,13 @@ public class MeshFaceHolder
     {
         return side switch
         {
-            BlockSide.Front => (-1, 0, 0),
-            BlockSide.Back => (-1, 0, 0),
-            BlockSide.Left => (0, -1, 0),
-            BlockSide.Right => (0, -1, 0),
-            BlockSide.Bottom => (-1, 0, 0),
-            BlockSide.Top => (-1, 0, 0),
-            _ => throw new InvalidOperationException()
+            Side.Front => (-1, 0, 0),
+            Side.Back => (-1, 0, 0),
+            Side.Left => (0, -1, 0),
+            Side.Right => (0, -1, 0),
+            Side.Bottom => (-1, 0, 0),
+            Side.Top => (-1, 0, 0),
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -108,13 +123,13 @@ public class MeshFaceHolder
     {
         return side switch
         {
-            BlockSide.Front => (1, 0, 1),
-            BlockSide.Back => (1, 0, 0),
-            BlockSide.Left => (0, 1, 0),
-            BlockSide.Right => (1, 1, 0),
-            BlockSide.Bottom => (1, 0, 0),
-            BlockSide.Top => (1, 1, 0),
-            _ => throw new InvalidOperationException()
+            Side.Front => (1, 0, 1),
+            Side.Back => (1, 0, 0),
+            Side.Left => (0, 1, 0),
+            Side.Right => (1, 1, 0),
+            Side.Bottom => (1, 0, 0),
+            Side.Top => (1, 1, 0),
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -129,24 +144,24 @@ public class MeshFaceHolder
     {
         switch (side)
         {
-            case BlockSide.Front:
-            case BlockSide.Back:
+            case Side.Front:
+            case Side.Back:
                 layer = pos.Z;
                 row = pos.X;
                 position = pos.Y;
 
                 break;
 
-            case BlockSide.Left:
-            case BlockSide.Right:
+            case Side.Left:
+            case Side.Right:
                 layer = pos.X;
                 row = pos.Y;
                 position = pos.Z;
 
                 break;
 
-            case BlockSide.Bottom:
-            case BlockSide.Top:
+            case Side.Bottom:
+            case Side.Top:
                 layer = pos.Y;
                 row = pos.X;
                 position = pos.Z;
@@ -154,7 +169,7 @@ public class MeshFaceHolder
                 break;
 
             default:
-                throw new InvalidOperationException();
+                throw Exceptions.UnsupportedEnumValue(side);
         }
     }
 
@@ -165,13 +180,13 @@ public class MeshFaceHolder
     {
         return side switch
         {
-            BlockSide.Front => new Vector3i(row, position, layer),
-            BlockSide.Back => new Vector3i(row, position, layer),
-            BlockSide.Left => new Vector3i(layer, row, position),
-            BlockSide.Right => new Vector3i(layer, row, position),
-            BlockSide.Bottom => new Vector3i(row, layer, position),
-            BlockSide.Top => new Vector3i(row, layer, position),
-            _ => throw new InvalidOperationException()
+            Side.Front => new Vector3i(row, position, layer),
+            Side.Back => new Vector3i(row, position, layer),
+            Side.Left => new Vector3i(layer, row, position),
+            Side.Right => new Vector3i(layer, row, position),
+            Side.Bottom => new Vector3i(row, layer, position),
+            Side.Top => new Vector3i(row, layer, position),
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
@@ -181,17 +196,23 @@ public class MeshFaceHolder
     /// <param name="pos">The position of the face, relative to the section origin.</param>
     /// <param name="data">The binary encoded data of the quad.</param>
     /// <param name="isRotated">True if the face is rotated.</param>
-    /// <param name="isSingleSided">True if the face is single sided, false if double sided.</param>
+    /// <param name="isSingleSided">True if the face is single sided, false if double-sided.</param>
     public void AddFace(Vector3i pos, (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, Boolean isRotated, Boolean isSingleSided)
     {
-        AddFace(pos, (IHeightVariable.MaximumHeight, IHeightVariable.NoHeight), data, isSingleSided, isFull: true, isRotated, DefaultDirection);
+        AddFace(pos,
+            (BlockHeight.Maximum.ToInt32(), BlockHeight.None.ToInt32()),
+            data,
+            isSingleSided,
+            isFull: true,
+            isRotated,
+            DefaultDirection);
     }
 
     /// <summary>
     ///     Add a face to the holder.
     /// </summary>
     /// <param name="pos">The position of the face, in section block coordinates.</param>
-    /// <param name="size">The size of the face, <see cref="IHeightVariable" /> units.</param>
+    /// <param name="size">The size of the face, <see cref="PartialHeight" /> units.</param>
     /// <param name="skip">
     ///     The portion of the face that is skipped, in size units. This means <c>0</c> is one step and
     ///     <c>-1</c> is no skip.
@@ -225,7 +246,7 @@ public class MeshFaceHolder
             isRotated);
 
         // Front and Back faces cannot be extended (along the y axis) when the face is not all full level.
-        Boolean levelPermitsExtending = side is not (BlockSide.Front or BlockSide.Back) || isFull;
+        Boolean levelPermitsExtending = side is not (Side.Front or Side.Back) || isFull;
 
         // Check if an already existing face can be extended.
         if (levelPermitsExtending && (lastFaces[layer][row]?.IsExtendable(currentFace) ?? false))
@@ -249,7 +270,7 @@ public class MeshFaceHolder
         MeshFace? lastCombinationRowFace = null;
 
         // Left and right faces cannot be combined (along the y axis) when the face is not all full level.
-        if (side is BlockSide.Left or BlockSide.Right && !isFull) return;
+        if (side is Side.Left or Side.Right && !isFull) return;
 
         // Check if the current face can be combined with a face in the previous row.
         while (combinationRowFace != null)
@@ -304,7 +325,7 @@ public class MeshFaceHolder
 
             while (currentFace != null)
             {
-                if (side is not BlockSide.Left and not BlockSide.Right)
+                if (side is not Side.Left and not Side.Right)
                     currentFace.isRotated = !currentFace.isRotated;
 
                 Meshing.SetTextureRepetition(ref currentFace.data,
@@ -347,19 +368,19 @@ public class MeshFaceHolder
 
         return side switch
         {
-            BlockSide.Front => (v01, v11, v10, v00),
-            BlockSide.Back => (v00, v10, v11, v01),
-            BlockSide.Left => (v01, v00, v10, v11),
-            BlockSide.Right => (v11, v10, v00, v01),
-            BlockSide.Bottom => (v01, v11, v10, v00),
-            BlockSide.Top => (v11, v01, v00, v10),
-            _ => throw new InvalidOperationException()
+            Side.Front => (v01, v11, v10, v00),
+            Side.Back => (v00, v10, v11, v01),
+            Side.Left => (v01, v00, v10, v11),
+            Side.Right => (v11, v10, v00, v01),
+            Side.Bottom => (v01, v11, v10, v00),
+            Side.Top => (v11, v01, v00, v10),
+            _ => throw Exceptions.UnsupportedEnumValue(side)
         };
     }
 
     private void ApplyVaryingHeight(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
-        if (side is BlockSide.Top or BlockSide.Bottom) ApplyVaryingHeightToVerticalSide(ref positions, face);
+        if (side is Side.Top or Side.Bottom) ApplyVaryingHeightToVerticalSide(ref positions, face);
         else ApplyVaryingHeightToLateralSide(ref positions, face);
     }
 
@@ -368,8 +389,8 @@ public class MeshFaceHolder
         Vector3 bottomOffset;
         Vector3 topOffset;
 
-        Single gap = IHeightVariable.GetGap(face.size);
-        Single skip = IHeightVariable.GetSize(face.skip);
+        Single gap = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetGap(face.size);
+        Single skip = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetSize(face.skip);
 
         if (face.direction)
         {
@@ -390,11 +411,11 @@ public class MeshFaceHolder
 
     private void ApplyVaryingHeightToVerticalSide(ref (Vector3 a, Vector3 b, Vector3 c, Vector3 d) positions, MeshFace face)
     {
-        Single gap = IHeightVariable.GetGap(face.size);
+        Single gap = Logic.Voxels.Behaviors.Meshables.PartialHeight.GetGap(face.size);
         Vector3 offset = inset;
 
-        if (face.direction && side == BlockSide.Top) offset += (0, -gap, 0);
-        if (!face.direction && side == BlockSide.Bottom) offset += (0, gap, 0);
+        if (face.direction && side == Side.Top) offset += (0, -gap, 0);
+        if (!face.direction && side == Side.Bottom) offset += (0, gap, 0);
 
         positions.a += offset;
         positions.b += offset;
@@ -439,8 +460,17 @@ public class MeshFaceHolder
         /// </summary>
         public Boolean direction;
 
+        public UInt32 height;
+        public Boolean isRotated;
+
+        public Boolean isSingleSided;
+        public UInt32 length;
+        public Int32 position;
+
+        public MeshFace? previous;
+
         /// <summary>
-        ///     The size of the face, in the units used by <see cref="IHeightVariable" />.
+        ///     The size of the face, in the units used by <see cref="PartialHeight" />.
         ///     Is referred to as the height of the face outside of this class.
         /// </summary>
         public Int32 size;
@@ -450,15 +480,6 @@ public class MeshFaceHolder
         ///     This can be the height of a neighboring block.
         /// </summary>
         public Int32 skip;
-
-        public UInt32 height;
-        public UInt32 length;
-        public Int32 position;
-
-        public Boolean isSingleSided;
-        public Boolean isRotated;
-
-        public MeshFace? previous;
 
         #pragma warning disable S1067
         public Boolean IsExtendable(MeshFace extension)

@@ -1,6 +1,19 @@
 ﻿// <copyright file="World.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -12,48 +25,43 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
+using VoxelGame.Core.Actors;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Generation.Worlds;
+using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using Generator = VoxelGame.Core.Generation.Worlds.Default.Generator;
+using VoxelGame.Toolkit.Components;
+using VoxelGame.Toolkit.Memory;
+using VoxelGame.Toolkit.Utilities;
+using Generator = VoxelGame.Core.Generation.Worlds.Standard.Generator;
 
 namespace VoxelGame.Core.Logic;
 
 /// <summary>
 ///     Represents the world. Contains everything that is in the world, e.g. chunks, entities, etc.
 /// </summary>
-public abstract partial class World : IDisposable, IGrid
+[ComponentSubject(typeof(WorldComponent))]
+public abstract partial class World : Composed<World, WorldComponent>, IGrid
 {
     /// <summary>
-    ///     The highest absolute value of a block position coordinate component.
+    ///     The largest absolute value of a block position coordinate component.
     ///     This value also describes the word extents in blocks, thus the world size is two times this value.
     ///     The actual active size of the world can be smaller, but never larger.
     /// </summary>
-    public const UInt32 BlockLimit = 10_000_000;
+    public const UInt32 BlockLimit = 100_000;
 
+    private const UInt32 SectionLimit = BlockLimit / Section.Size;
     private const UInt32 ChunkLimit = BlockLimit / Chunk.BlockSize;
 
-    /// <summary>
-    ///     The limit of the world extents, in sections.
-    /// </summary>
-    public const UInt32 SectionLimit = BlockLimit / Section.Size;
+    private readonly SectionChangedEventArgs pooledSectionChangedEventArgs = new(null!, Vector3i.Zero);
 
-    private readonly ChunkSet chunks;
-
-    /// <summary>
-    ///     A timer to profile different states and world operations.
-    ///     Will be started on world creation, inheritors are free to stop, override or restart it.
-    /// </summary>
-    protected Timer? timer;
-
-    private State currentState = State.Activating;
-
-    private (Future saving, Action callback)? deactivation;
+    private readonly WorldStateMachine state;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
@@ -66,12 +74,15 @@ public abstract partial class World : IDisposable, IGrid
                     UpperSeed = seed.upper,
                     LowerSeed = seed.lower,
                     Creation = DateTime.UtcNow,
-                    Version = ApplicationInformation.Instance.Version
+                    Version = Application.Instance.Version.ToString()
                 },
                 path),
             isNew: true)
     {
-        Data.Save();
+        Operations.Launch(async token =>
+        {
+            await Data.SaveAsync(token).InAnyContext();
+        });
 
         LogCreatedNewWorld(logger);
     }
@@ -88,32 +99,45 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Set up of readonly fields and non-optional steps.
     /// </summary>
-    [SuppressMessage("ReSharper", "UnusedParameter.Local")]
     private World(WorldData data, Boolean isNew)
     {
-        timer = Timer.Start("World Setup", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
+        Timer? timer = Timer.Start(isNew ? "World Setup (new)" : "World Setup (existing)", TimingStyle.Once, Profile.GetSingleUseActiveProfiler());
+
+        state = new WorldStateMachine(this, timer);
 
         Data = data;
 
         Data.EnsureValidDirectory();
         Data.EnsureValidInformation();
 
-        IWorldGenerator generator = GetAndInitializeGenerator(this, timer);
+        IWorldGenerator generator = GetAndInitializeGenerator(this, timer) ?? throw Exceptions.InvalidOperation("The generator could not be initialized.");
 
         ChunkContext = new ChunkContext(generator, CreateChunk, ProcessNewlyActivatedChunk, ProcessActivatedChunk, UnloadChunk);
+        Chunks = new ChunkSet(this, ChunkContext);
 
-        chunks = new ChunkSet(this, ChunkContext);
+        state.Initialize();
+
+        state.Activating += OnActivate;
+        state.Deactivating += OnDeactivate;
+        state.Terminating += OnTerminate;
+
+        AddComponent<ChunkSimulator>();
     }
 
     /// <summary>
-    ///     Get all currently existing chunks.
+    ///     Access to the world state.
     /// </summary>
-    public IEnumerable<Chunk> Chunks => chunks.All;
+    public IWorldStates State => state;
 
     /// <summary>
-    ///     Set up the chunk context.
+    ///     Get the chunks of this world.
     /// </summary>
-    protected ChunkContext ChunkContext { get; }
+    public ChunkSet Chunks { get; }
+
+    /// <summary>
+    ///     Get the chunk context of this world.
+    /// </summary>
+    public ChunkContext ChunkContext { get; }
 
     /// <summary>
     ///     Get the stored world data.
@@ -124,27 +148,6 @@ public abstract partial class World : IDisposable, IGrid
     ///     Get the world creation seed.
     /// </summary>
     public (Int32 upper, Int32 lower) Seed => (Data.Information.UpperSeed, Data.Information.LowerSeed);
-
-    /// <summary>
-    ///     Get whether the world is active.
-    /// </summary>
-    public Boolean IsActive => CurrentState == State.Active;
-
-    /// <summary>
-    ///     Get the world state.
-    /// </summary>
-    protected State CurrentState
-    {
-        get => currentState;
-        set
-        {
-            State oldState = currentState;
-            currentState = value;
-
-            if (oldState != currentState)
-                StateChanged(this, EventArgs.Empty);
-        }
-    }
 
     /// <summary>
     ///     The number of chunk state updates that have been performed in the last update cycle.
@@ -193,14 +196,19 @@ public abstract partial class World : IDisposable, IGrid
     public IMap Map => ChunkContext.Generator.Map;
 
     /// <summary>
-    ///     Get the active chunk count.
+    ///     The length of one day, in seconds.
     /// </summary>
-    protected Int32 ActiveChunkCount => chunks.ActiveCount;
+    public Double DayLength { get; set; } = 600.0;
 
     /// <summary>
-    ///     All active chunks.
+    ///     Get or set the current time of day in the range [0, 1).
+    ///     Morning is 0, noon is 0.25, evening is 0.5, midnight is 0.75.
     /// </summary>
-    protected IEnumerable<Chunk> ActiveChunks => chunks.AllActive;
+    public Double TimeOfDay
+    {
+        get => Data.Information.TimeOfDay;
+        set => Data.Information.TimeOfDay = value;
+    }
 
     /// <summary>
     ///     Get both the fluid and block instance at a given position.
@@ -211,7 +219,7 @@ public abstract partial class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Content? GetContent(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         RetrieveContent(position, out Content? content);
 
@@ -221,85 +229,71 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Set the content of a world position.
     /// </summary>
+    /// <param name="content">The new content.</param>
+    /// <param name="position">The world position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        SetContent(content, position, tickFluid: true);
+        SetContent(content, position, updateBlock: true, updateFluid: true);
     }
 
     /// <summary>
-    ///     Begin deactivating the world, saving all chunks and the meta information.
+    ///     Set the content of a world position.
     /// </summary>
-    /// <param name="onFinished">The action to be called when the world is deactivated.</param>
-    public void BeginDeactivating(Action onFinished)
+    /// <param name="content">The new content.</param>
+    /// <param name="position">The world position.</param>
+    /// <param name="updateBlock">
+    ///     Whether to update the block at the position.
+    ///     Should generally be true, exceptions include cases where block states are changed in reaction to a previous state
+    ///     change.
+    /// </param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public void SetContent(Content content, Vector3i position, Boolean updateBlock)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        Debug.Assert(CurrentState == State.Active);
-        CurrentState = State.Deactivating;
-
-        LogUnloadingWorld(logger);
-
-        OnDeactivation();
-
-        chunks.BeginSaving();
-
-        Data.Information.Version = ApplicationInformation.Instance.Version;
-        var saving = Future.Create(Data.Save);
-
-        deactivation = (saving, onFinished);
+        SetContent(content, position, updateBlock, updateFluid: true);
     }
 
     /// <summary>
-    ///     Process the deactivation, assuming it has been started.
+    ///     Called when the world becomes active.
     /// </summary>
-    /// <returns>Whether the deactivation is finished.</returns>
-    protected Boolean ProcessDeactivation()
-    {
-        Throw.IfDisposed(disposed);
-
-        Debug.Assert(deactivation != null);
-
-        (Future saving, Action callback) = deactivation.Value;
-
-        Boolean done = saving.IsCompleted && chunks.IsEmpty;
-
-        if (!done) return false;
-
-        LogUnloadedWorld(logger);
-        callback();
-
-        if (saving.Exception is {} exception)
-            LogFailedToSaveWorldMetaInformation(logger, exception);
-
-        return true;
-    }
+    [ComponentEvent(nameof(WorldComponent.OnActivate))]
+    private partial void OnActivate(Object? sender, EventArgs e);
 
     /// <summary>
-    ///     Called when the world deactivates.
+    ///     Called when the world becomes inactive.
     /// </summary>
-    protected virtual void OnDeactivation() {}
+    [ComponentEvent(nameof(WorldComponent.OnDeactivate))]
+    private partial void OnDeactivate(Object? sender, EventArgs e);
+
+    /// <summary>
+    ///     Called when the world is terminated, which means it begins unloading. Disposal will happen later, when unloading is
+    ///     complete.
+    /// </summary>
+    [ComponentEvent(nameof(WorldComponent.OnTerminate))]
+    private partial void OnTerminate(Object? sender, EventArgs e);
 
     private void UnloadChunk(Chunk chunk)
     {
-        chunks.Unload(chunk);
+        Chunks.Unload(chunk);
     }
 
-    private static IWorldGenerator GetAndInitializeGenerator(World world, Timer? timer)
+    private static IWorldGenerator? GetAndInitializeGenerator(World world, Timer? timer)
     {
-        return new Generator(new WorldGeneratorContext(world, timer));
+        return Generator.Create(new WorldGeneratorContext(world, timer));
     }
 
     /// <summary>
-    ///     Emit views of global world data for debugging.
+    ///     Emit information about of global world data for debugging.
     /// </summary>
-    public void EmitViews(DirectoryInfo directory)
+    public Operation EmitWorldInfo(DirectoryInfo directory)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        ChunkContext.Generator.EmitViews(directory);
+        return ChunkContext.Generator.EmitWorldInfo(directory);
     }
 
     /// <summary>
@@ -312,18 +306,19 @@ public abstract partial class World : IDisposable, IGrid
     /// <returns>The positions of the elements, or null if the name is not valid.</returns>
     public IEnumerable<Vector3i>? SearchNamedGeneratedElements(Vector3i start, String name, UInt32 maxDistance)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return ChunkContext.Generator.SearchNamedGeneratedElements(start, name, maxDistance);
     }
 
     /// <summary>
-    ///     Let all chunks that need it run their state updates.
+    ///     Process chunk requests and chunk state updates.
     /// </summary>
-    protected void UpdateChunkStates()
+    protected void UpdateChunks()
     {
-        Profile.Instance?.UpdateStateDurations(nameof(Chunk));
+        Chunks.ProcessRequests();
 
+        Profile.Instance?.UpdateStateDurations(nameof(Chunk));
         ChunkStateUpdateCount = ChunkContext.UpdateList.Update();
     }
 
@@ -333,9 +328,9 @@ public abstract partial class World : IDisposable, IGrid
     /// <param name="position">The block position.</param>
     /// <returns>The block instance at the given position or null if the block was not found.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public BlockInstance? GetBlock(Vector3i position)
+    public State? GetBlock(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         RetrieveContent(position, out Content? content);
 
@@ -373,7 +368,7 @@ public abstract partial class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public FluidInstance? GetFluid(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         RetrieveContent(position, out Content? content);
 
@@ -384,18 +379,18 @@ public abstract partial class World : IDisposable, IGrid
     ///     Sets a block in the world, adds the changed sections to the re-mesh set and sends updates to the neighbors of
     ///     the changed block. The fluid at the position is preserved.
     /// </summary>
-    /// <param name="block">The block which should be set at the position.</param>
+    /// <param name="block">The block and its state which should be set at the position.</param>
     /// <param name="position">The block position.</param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void SetBlock(BlockInstance block, Vector3i position)
+    public void SetBlock(State block, Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         FluidInstance? potentialFluid = GetFluid(position);
 
         if (potentialFluid is not {} fluid) return;
 
-        SetContent(new Content(block, fluid), position, tickFluid: true);
+        SetContent(new Content(block, fluid), position, updateBlock: true, updateFluid: true);
     }
 
     /// <summary>
@@ -405,13 +400,13 @@ public abstract partial class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetFluid(FluidInstance fluid, Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        BlockInstance? potentialBlock = GetBlock(position);
+        State? potentialBlock = GetBlock(position);
 
         if (potentialBlock is not {} block) return;
 
-        SetContent(new Content(block, fluid), position, tickFluid: false);
+        SetContent(new Content(block, fluid), position, updateBlock: true, updateFluid: false);
     }
 
     /// <summary>
@@ -424,43 +419,51 @@ public abstract partial class World : IDisposable, IGrid
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void SetContent(in Content content, Vector3i position, Boolean tickFluid)
+    private void SetContent(Content newContent, Vector3i position, Boolean updateBlock, Boolean updateFluid)
     {
         Chunk? chunk = GetActiveChunk(position);
 
         if (chunk == null) return;
 
-        UInt32 val = Section.Encode(content);
+        Section section = chunk.GetSection(position);
 
-        chunk.GetSection(position).SetContent(position, val);
+        UInt32 oldValue = section.GetContent(position);
+        UInt32 newValue = Section.Encode(newContent);
+        Section.Decode(oldValue, out Content oldContent);
 
-        content.Block.Block.ContentUpdate(this, position, content);
-        if (tickFluid) content.Fluid.Fluid.TickNow(this, position, content.Fluid);
+        if (newContent.Fluid.Level == FluidLevel.None)
+            newContent.Fluid = FluidInstance.Default;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        section.SetContent(position, newValue);
+
+        if (updateBlock) newContent.Block.Block.DoStateUpdate(this, position, oldContent, newContent);
+        if (updateFluid) newContent.Fluid.Fluid.UpdateNow(this, position, newContent.Fluid);
+
+        foreach (Side side in Side.All.Sides())
         {
-            Vector3i neighborPosition = side.Offset(position);
+            Vector3i neighborPosition = position.Offset(side);
 
             Content? neighborContent = GetContent(neighborPosition);
 
             if (neighborContent == null) continue;
 
-            (BlockInstance blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
+            (State blockNeighbor, FluidInstance fluidNeighbor) = neighborContent.Value;
 
             // Side is passed out of the perspective of the block receiving the block update.
-            blockNeighbor.Block.NeighborUpdate(this, neighborPosition, blockNeighbor.Data, side.Opposite());
-            fluidNeighbor.Fluid.TickSoon(this, neighborPosition, fluidNeighbor.IsStatic);
+            blockNeighbor.Block.DoNeighborUpdate(this, neighborPosition, blockNeighbor, side.Opposite());
+            fluidNeighbor.Fluid.UpdateSoon(this, neighborPosition, fluidNeighbor.IsStatic);
         }
 
-        ProcessChangedSection(chunk, position);
+        HandleChangedSection(chunk, position);
     }
 
-    /// <summary>
-    ///     Process that a section was changed.
-    /// </summary>
-    /// <param name="chunk">The chunk containing the section.</param>
-    /// <param name="position">The position of the block that caused the section change.</param>
-    protected abstract void ProcessChangedSection(Chunk chunk, Vector3i position);
+    private void HandleChangedSection(Chunk chunk, Vector3i position)
+    {
+        pooledSectionChangedEventArgs.Chunk = chunk;
+        pooledSectionChangedEventArgs.Position = position;
+
+        SectionChanged?.Invoke(this, pooledSectionChangedEventArgs);
+    }
 
     /// <summary>
     ///     Modify the data of a position, without causing any updates.
@@ -479,17 +482,22 @@ public abstract partial class World : IDisposable, IGrid
 
         chunk.GetSection(position).SetContent(position, val);
 
-        ProcessChangedSection(chunk, position);
+        HandleChangedSection(chunk, position);
     }
+
+    /// <summary>
+    ///     Invoked whenever the content of a section has changed.
+    /// </summary>
+    public event EventHandler<SectionChangedEventArgs>? SectionChanged;
 
     /// <summary>
     ///     Set a position to the default block.
     /// </summary>
     public void SetDefaultBlock(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        SetBlock(BlockInstance.Default, position);
+        SetBlock(Content.DefaultState, position);
     }
 
     /// <summary>
@@ -497,7 +505,7 @@ public abstract partial class World : IDisposable, IGrid
     /// </summary>
     public void SetDefaultFluid(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         SetFluid(FluidInstance.Default, position);
     }
@@ -509,16 +517,16 @@ public abstract partial class World : IDisposable, IGrid
     /// <returns>True if both the fluid and block at the position received a random update.</returns>
     public Boolean DoRandomUpdate(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Content? content = GetContent(position);
 
         if (content == null) return false;
 
-        (BlockInstance block, FluidInstance fluid) = content.Value;
+        (State block, FluidInstance fluid) = content.Value;
 
-        block.Block.RandomUpdate(this, position, block.Data);
-        fluid.Fluid.RandomUpdate(this, position, fluid.Level, fluid.IsStatic);
+        block.Block.DoRandomUpdate(this, position, block);
+        fluid.Fluid.DoRandomUpdate(this, position, fluid.Level, fluid.IsStatic);
 
         return true;
     }
@@ -527,7 +535,7 @@ public abstract partial class World : IDisposable, IGrid
     ///     Get whether a chunk position is in the maximum allowed world limits.
     ///     Such a position can still be outside the reachable <see cref="Extents" />.
     /// </summary>
-    private static Boolean IsInLimits(ChunkPosition position)
+    public static Boolean IsInLimits(ChunkPosition position)
     {
         return Math.Abs(position.X) <= ChunkLimit && Math.Abs(position.Y) <= ChunkLimit && Math.Abs(position.Z) <= ChunkLimit;
     }
@@ -543,7 +551,7 @@ public abstract partial class World : IDisposable, IGrid
 
     /// <summary>
     ///     Get whether a block position is in the maximum allowed world limits.
-    ///     Such a position can still be outside of the reachable <see cref="Extents" />.
+    ///     Such a position can still be outside the reachable <see cref="Extents" />.
     /// </summary>
     private static Boolean IsInLimits(Vector3i position)
     {
@@ -557,9 +565,10 @@ public abstract partial class World : IDisposable, IGrid
     /// <summary>
     ///     Factory method that creates a new chunk.
     /// </summary>
+    /// <param name="blocks">The blocks of the chunk.</param>
     /// <param name="context">The context of the chunk.</param>
     /// <returns>The new chunk.</returns>
-    protected abstract Chunk CreateChunk(ChunkContext context);
+    protected abstract Chunk CreateChunk(NativeSegment<UInt32> blocks, ChunkContext context);
 
     /// <summary>
     ///     Process a chunk that has been just activated.
@@ -575,38 +584,32 @@ public abstract partial class World : IDisposable, IGrid
     /// <returns>The next state of the chunk, or <c>null</c> if no activation is currently possible.</returns>
     protected abstract ChunkState? ProcessActivatedChunk(Chunk activatedChunk);
 
-    /// <summary>
-    ///     Requests the activation of a chunk. This chunk will either be loaded or generated.
-    /// </summary>
-    /// <param name="position">The position of the chunk.</param>
-    public void RequestChunk(ChunkPosition position)
+    /// <inheritdoc cref="ChunkSet.Request" />
+    public Request? RequestChunk(ChunkPosition position, Actor actor)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        Debug.Assert(CurrentState != State.Deactivating);
+        Debug.Assert(!State.IsTerminating);
 
-        if (!IsInLimits(position)) return;
+        if (!IsInLimits(position)) return null;
 
-        chunks.Request(position);
+        Request? request = Chunks.Request(position, actor);
 
         LogChunkRequested(logger, position);
+
+        return request;
     }
 
-    /// <summary>
-    ///     Notifies the world that a chunk is no longer needed. The world decides if the chunk is deactivated.
-    /// </summary>
-    /// <param name="position">The position of the chunk.</param>
-    public void ReleaseChunk(ChunkPosition position)
+    /// <inheritdoc cref="ChunkSet.Release" />
+    public void ReleaseChunk(Request? request)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        Debug.Assert(CurrentState != State.Deactivating);
+        if (request == null) return;
 
-        if (!IsInLimits(position)) return;
+        Chunks.Release(request);
 
-        chunks.Release(position);
-
-        LogChunkReleased(logger, position);
+        LogChunkReleased(logger, request.Position);
     }
 
     /// <summary>
@@ -617,9 +620,9 @@ public abstract partial class World : IDisposable, IGrid
     /// <returns>The chunk at the given position or null if no active chunk was found.</returns>
     public Chunk? GetActiveChunk(ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        return !IsInLimits(position) ? null : chunks.GetActive(position);
+        return !IsInLimits(position) ? null : Chunks.GetActive(position);
     }
 
     /// <summary>
@@ -631,7 +634,7 @@ public abstract partial class World : IDisposable, IGrid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Chunk? GetActiveChunk(Vector3i position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return IsInLimits(position) ? GetActiveChunk(ChunkPosition.From(position)) : null;
     }
@@ -643,7 +646,7 @@ public abstract partial class World : IDisposable, IGrid
     /// <returns>True if the chunk is active.</returns>
     protected Boolean IsChunkActive(ChunkPosition position)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return GetActiveChunk(position) != null;
     }
@@ -657,112 +660,114 @@ public abstract partial class World : IDisposable, IGrid
     /// <returns>True if a chunk was found.</returns>
     public Boolean TryGetChunk(ChunkPosition position, [NotNullWhen(returnValue: true)] out Chunk? chunk)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        chunk = chunks.GetAny(position);
+        chunk = Chunks.GetAny(position);
 
         return chunk != null;
     }
 
     /// <summary>
-    ///     Fired anytime the world switches to the ready-state.
+    ///     Process an update step for this world.
     /// </summary>
-    public event EventHandler<EventArgs> StateChanged = delegate {};
+    /// <param name="deltaTime">Time since the last update.</param>
+    /// <param name="updateTimer">A timer for profiling.</param>
+    public void LogicUpdate(Double deltaTime, Timer? updateTimer)
+    {
+        using Timer? subTimer = logger.BeginTimedSubScoped("World LogicUpdate", updateTimer);
+
+        using (logger.BeginTimedSubScoped("World LogicUpdate Chunks", subTimer))
+        {
+            UpdateChunks();
+        }
+
+        state.LogicUpdate(deltaTime, updateTimer);
+    }
 
     /// <summary>
-    ///     The world state.
+    ///     Called by the active state during <see cref="LogicUpdate" /> when the world is active.
     /// </summary>
-    protected enum State
+    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="updateTimer">A timer for profiling.</param>
+    public void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    {
+        if (DayLength > 0)
+        {
+            TimeOfDay += deltaTime / DayLength;
+            TimeOfDay %= 1.0;
+        }
+
+        OnLogicUpdateInActiveStateComponent(deltaTime, updateTimer);
+    }
+
+    [ComponentEvent(nameof(WorldComponent.OnLogicUpdateInActiveState))]
+    private partial void OnLogicUpdateInActiveStateComponent(Double deltaTime, Timer? updateTimer);
+
+    /// <summary>
+    ///     Event arguments for the <see cref="SectionChanged" /> event.
+    ///     Note that this event is pooled and as such should not be kept after the event has been handled.
+    /// </summary>
+    /// <param name="chunk">The chunk in which the section was changed.</param>
+    /// <param name="position">The position of the block that caused the section change.</param>
+    public class SectionChangedEventArgs(Chunk chunk, Vector3i position) : EventArgs
     {
         /// <summary>
-        ///     The initial state.
+        ///     The chunk in which the section was changed.
         /// </summary>
-        Activating,
+        public Chunk Chunk { get; set; } = chunk;
 
         /// <summary>
-        ///     In the active state, normal operations like physics are performed.
+        ///     The position of the block that caused the section change.
         /// </summary>
-        Active,
-
-        /// <summary>
-        ///     The final state, the world is being deactivated.
-        /// </summary>
-        Deactivating
+        public Vector3i Position { get; set; } = position;
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Created new world")]
+    [LoggerMessage(EventId = LogID.World + 0, Level = LogLevel.Information, Message = "Created new world")]
     private static partial void LogCreatedNewWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Loaded existing world")]
+    [LoggerMessage(EventId = LogID.World + 1, Level = LogLevel.Information, Message = "Loaded existing world")]
     private static partial void LogLoadedExistingWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloading world")]
+    [LoggerMessage(EventId = LogID.World + 2, Level = LogLevel.Information, Message = "Unloading world")]
     private static partial void LogUnloadingWorld(ILogger logger);
 
-    [LoggerMessage(EventId = Events.WorldIO, Level = LogLevel.Information, Message = "Unloaded world")]
-    private static partial void LogUnloadedWorld(ILogger logger);
-
-    [LoggerMessage(EventId = Events.WorldSavingError, Level = LogLevel.Error, Message = "Failed to save world meta information")]
-    private static partial void LogFailedToSaveWorldMetaInformation(ILogger logger, Exception exception);
-
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
+    [LoggerMessage(EventId = LogID.World + 3, Level = LogLevel.Information, Message = "World spawn position has been set to: {Position}")]
     private static partial void LogWorldSpawnPositionSet(ILogger logger, Vector3d position);
 
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World size has been set to: {Size}")]
+    [LoggerMessage(EventId = LogID.World + 4, Level = LogLevel.Information, Message = "World size has been set to: {Size}")]
     private static partial void LogWorldSizeSet(ILogger logger, UInt32 size);
 
-    [LoggerMessage(EventId = Events.ChunkRequest, Level = LogLevel.Debug, Message = "Chunk {Position} has been requested")]
+    [LoggerMessage(EventId = LogID.World + 5, Level = LogLevel.Debug, Message = "Chunk {Position} has been requested")]
     private static partial void LogChunkRequested(ILogger logger, ChunkPosition position);
 
-    [LoggerMessage(EventId = Events.ChunkRelease, Level = LogLevel.Debug, Message = "Released chunk {Position}")]
+    [LoggerMessage(EventId = LogID.World + 6, Level = LogLevel.Debug, Message = "Released chunk {Position}")]
     private static partial void LogChunkReleased(ILogger logger, ChunkPosition position);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
-    /// <summary>
-    ///     Dispose of the world.
-    /// </summary>
-    /// <param name="disposing">True when disposing intentionally.</param>
-    protected virtual void Dispose(Boolean disposing)
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
     {
+        base.Dispose(disposing);
+
         if (disposed) return;
 
         if (disposing)
         {
-            chunks.Dispose();
-
+            Chunks.Dispose();
             ChunkContext.Dispose();
-
-            timer?.Dispose();
         }
 
         disposed = true;
     }
 
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~World()
-    {
-        Dispose(disposing: false);
-    }
-
-    /// <summary>
-    ///     Dispose of the world.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

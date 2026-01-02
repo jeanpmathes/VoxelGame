@@ -1,6 +1,19 @@
 ﻿// <copyright file="Context.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,6 +23,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Graphics.Input;
 using VoxelGame.UI.Controls.Common;
+using VoxelGame.UI.Resources;
 using VoxelGame.UI.Utilities;
 
 namespace VoxelGame.UI.UserInterfaces;
@@ -24,7 +38,7 @@ internal sealed class Context
 
     private Int32 modalDepth;
 
-    internal Context(Input input, UIResources resources)
+    internal Context(Input input, UserInterfaceResources resources)
     {
         Fonts = resources.Fonts;
         Input = input;
@@ -35,7 +49,7 @@ internal sealed class Context
     ///     All fonts available to be used.
     ///     Each font is associated with a role.
     /// </summary>
-    internal FontHolder Fonts { get; }
+    internal FontBundle Fonts { get; }
 
     /// <summary>
     ///     The input manager.
@@ -45,7 +59,7 @@ internal sealed class Context
     /// <summary>
     ///     Loaded resources like icons and the names to access them.
     /// </summary>
-    internal UIResources Resources { get; }
+    internal UserInterfaceResources Resources { get; }
 
     /// <summary>
     ///     Whether the user interface currently shows any modal windows.
@@ -71,7 +85,8 @@ internal sealed class Context
             IconOverrideColor = color
         };
 
-        button.SetSkin(useAlternativeSkin ? Resources.AlternativeSkin : Resources.DefaultSkin, doChildren: true);
+        Skin skin = useAlternativeSkin ? Resources.AlternativeSkin : Resources.DefaultSkin;
+        button.SetSkin(skin.Value, doChildren: true);
 
         return button;
     }

@@ -1,11 +1,24 @@
 ﻿// <copyright file="Guard.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -16,20 +29,19 @@ public sealed class Guard : IDisposable
 {
     private readonly Action release;
     private readonly Object resource;
-
-    private readonly StackTrace? stackTrace;
+    private readonly String? source;
 
     /// <summary>
     ///     Create a new guard.
     /// </summary>
     /// <param name="resource">The resource to guard.</param>
+    /// <param name="source">Where the guard was created.</param>
     /// <param name="release">The method to call when the guard is disposed.</param>
-    public Guard(Object resource, Action release)
+    public Guard(Object resource, String source, Action release)
     {
         this.resource = resource;
+        this.source = source;
         this.release = release;
-
-        if (ApplicationInformation.Instance.IsDebug) stackTrace = new StackTrace(skipFrames: 1, fNeedFileInfo: false);
     }
 
     /// <summary>
@@ -39,12 +51,12 @@ public sealed class Guard : IDisposable
     /// <returns>True if the guard is guarding the resource.</returns>
     public Boolean IsGuarding(Object @object)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return resource == @object;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -56,7 +68,7 @@ public sealed class Guard : IDisposable
         if (disposed) return;
 
         if (disposing) release();
-        else Throw.ForMissedDispose(resource, stackTrace);
+        else ExceptionTools.ThrowForMissedDispose(resource, source);
 
         disposed = true;
     }
@@ -78,5 +90,5 @@ public sealed class Guard : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

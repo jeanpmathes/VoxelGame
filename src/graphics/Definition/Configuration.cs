@@ -1,13 +1,28 @@
-﻿//  <copyright file="NativeConfiguration.cs" company="VoxelGame">
-//      MIT License
-// 	 For full license see the repository.
-//  </copyright>
-//  <author>jeanpmathes</author>
+﻿// <copyright file="NativeConfiguration.cs" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
 
+using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
 using VoxelGame.Graphics.Interop;
+using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics.Definition;
 
@@ -38,7 +53,7 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives a bool value.
     /// </summary>
-    internal delegate void NativeBoolFunc([MarshalAs(UnmanagedType.Bool)] Boolean arg);
+    internal delegate void NativeBoolFunc(Bool arg);
 
     /// <summary>
     ///     A simple callback function.
@@ -48,28 +63,27 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives a char value describing an input event.
     /// </summary>
-    internal delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] Char arg);
+    internal delegate void NativeCharFunc(Char arg);
 
     /// <summary>
     ///     Checks if a condition is true.
     /// </summary>
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal delegate Boolean NativeCheckFunc();
+    internal delegate Bool NativeCheckFunc();
 
     /// <summary>
     ///     A callback that receives an HRESULT and an error message, indicating a fatal error.
     /// </summary>
-    internal delegate void NativeErrorFunc(Int32 hresult, [MarshalAs(UnmanagedType.LPStr)] String message);
+    internal unsafe delegate void NativeErrorFunc(Int32 hresult, Byte* message);
 
     /// <summary>
     ///     A callback that receives a byte value describing an input event.
     /// </summary>
-    internal delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] Byte arg);
+    internal delegate void NativeInputFunc(Byte arg);
 
     /// <summary>
     ///     A callback that receives the new mouse position on a mouse move event.
     /// </summary>
-    internal delegate void NativeMouseMoveFunc([MarshalAs(UnmanagedType.I4)] Int32 x, [MarshalAs(UnmanagedType.I4)] Int32 y);
+    internal delegate void NativeMouseMoveFunc(Int32 x, Int32 y);
 
     /// <summary>
     ///     A callback that receives the mouse wheel delta on a mouse wheel event.
@@ -79,17 +93,17 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives the new window size on a resize event.
     /// </summary>
-    internal delegate void NativeResizeFunc([MarshalAs(UnmanagedType.U4)] UInt32 width, [MarshalAs(UnmanagedType.U4)] UInt32 height);
+    internal delegate void NativeResizeFunc(UInt32 width, UInt32 height);
 
     /// <summary>
     ///     A callback that receives a double delta time value.
     /// </summary>
-    internal delegate void NativeStepFunc([MarshalAs(UnmanagedType.R8)] Double arg);
+    internal delegate void NativeStepFunc(Double arg);
 
     /// <summary>
     ///     A callback that receives a wide string value.
     /// </summary>
-    internal delegate void NativeWStringFunc([MarshalAs(UnmanagedType.LPWStr)] String arg);
+    internal unsafe delegate void NativeWStringFunc(UInt16* arg);
 
     /// <summary>
     ///     Flags that can be used to configure the native side.
@@ -128,17 +142,17 @@ internal static partial class Native
         /// <summary>
         ///     Called for each rendering step.
         /// </summary>
-        internal NativeStepFunc onRender;
+        internal NativeStepFunc onRenderUpdate;
 
         /// <summary>
         ///     Called for each update event.
         /// </summary>
-        internal NativeStepFunc onUpdate;
+        internal NativeStepFunc onLogicUpdate;
 
         /// <summary>
         ///     Called on initialization of the native client.
         /// </summary>
-        internal NativeCallbackFunc onInit;
+        internal NativeCallbackFunc onInitialization;
 
         /// <summary>
         ///     Called on shutdown of the native client.
@@ -238,9 +252,9 @@ internal static partial class Native
         {
             return new Unmanaged
             {
-                onRender = Marshal.GetFunctionPointerForDelegate(managed.onRender),
-                onUpdate = Marshal.GetFunctionPointerForDelegate(managed.onUpdate),
-                onInit = Marshal.GetFunctionPointerForDelegate(managed.onInit),
+                onRender = Marshal.GetFunctionPointerForDelegate(managed.onRenderUpdate),
+                onUpdate = Marshal.GetFunctionPointerForDelegate(managed.onLogicUpdate),
+                onInit = Marshal.GetFunctionPointerForDelegate(managed.onInitialization),
                 onDestroy = Marshal.GetFunctionPointerForDelegate(managed.onDestroy),
                 canClose = Marshal.GetFunctionPointerForDelegate(managed.canClose),
                 onKeyDown = Marshal.GetFunctionPointerForDelegate(managed.onKeyDown),

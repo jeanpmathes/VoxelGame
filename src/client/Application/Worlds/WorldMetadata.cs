@@ -1,15 +1,32 @@
 ﻿// <copyright file="WorldMetadata.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Serialization;
+using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application.Worlds;
@@ -49,61 +66,59 @@ public partial class WorldDirectoryMetadata
     ///     Save the metadata to a file.
     /// </summary>
     /// <param name="file">The file to save to.</param>
-    public void Save(FileInfo file)
+    /// <param name="token">The cancellation token.</param>
+    public async Task SaveAsync(FileInfo file, CancellationToken token = default)
     {
-        Exception? exception = Serialize.SaveJSON(this, file);
+        Result result = await Serialize.SaveJsonAsync(this, file, token).InAnyContext();
 
-        if (exception == null)
-            LogSaveMetadataSuccess(logger, file);
-        else
-            LogSaveMetadataFailure(logger, exception, file);
+        result.Switch(
+            () => LogSaveMetadataSuccess(logger, file),
+            exception => LogSaveMetadataFailure(logger, exception, file));
     }
 
     /// <summary>
     ///     Load the metadata from a file.
     ///     If the file does not exist, empty metadata is returned and this is not considered a failure.
+    ///     Other errors are considered failures.
     /// </summary>
     /// <param name="file">The file to load from.</param>
-    /// <param name="exception">The exception that occurred during loading, if any. </param>
-    /// <returns>The metadata.</returns>
-    public static WorldDirectoryMetadata Load(FileInfo file, out Exception? exception)
+    /// <param name="token">The cancellation token.</param>
+    /// <returns>The metadata result.</returns>
+    public static async Task<Result<WorldDirectoryMetadata>> LoadAsync(FileInfo file, CancellationToken token = default)
     {
-        exception = Serialize.LoadJSON(file, out WorldDirectoryMetadata metadata);
-
         if (!file.Exists)
         {
             LogMetadataFileDoesNotExist(logger, file);
-            exception = null;
-        }
-        else if (exception == null)
-        {
-            LogLoadMetadataSuccess(logger, file);
-        }
-        else
-        {
-            LogLoadMetadataFailure(logger, exception, file);
+
+            return Result.Ok(new WorldDirectoryMetadata());
         }
 
-        return metadata;
+        Result<WorldDirectoryMetadata> result = await Serialize.LoadJsonAsync<WorldDirectoryMetadata>(file, token).InAnyContext();
+
+        result.Switch(
+            _ => LogLoadMetadataSuccess(logger, file),
+            exception => LogLoadMetadataFailure(logger, exception, file));
+
+        return result;
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<WorldDirectoryMetadata>();
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata saved to {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 0, Level = LogLevel.Debug, Message = "World directory metadata saved to {File}")]
     private static partial void LogSaveMetadataSuccess(ILogger logger, FileInfo file);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Error, Message = "Failed to save world directory metadata to {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 1, Level = LogLevel.Error, Message = "Failed to save world directory metadata to {File}")]
     private static partial void LogSaveMetadataFailure(ILogger logger, Exception exception, FileInfo file);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata file does not exist: {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 2, Level = LogLevel.Debug, Message = "World directory metadata file does not exist: {File}")]
     private static partial void LogMetadataFileDoesNotExist(ILogger logger, FileInfo file);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Debug, Message = "World directory metadata loaded from {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 3, Level = LogLevel.Debug, Message = "World directory metadata loaded from {File}")]
     private static partial void LogLoadMetadataSuccess(ILogger logger, FileInfo file);
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Error, Message = "Failed to load world directory metadata from {File}")]
+    [LoggerMessage(EventId = LogID.WorldMetadata + 4, Level = LogLevel.Error, Message = "Failed to load world directory metadata from {File}")]
     private static partial void LogLoadMetadataFailure(ILogger logger, Exception exception, FileInfo file);
 
     #endregion LOGGING

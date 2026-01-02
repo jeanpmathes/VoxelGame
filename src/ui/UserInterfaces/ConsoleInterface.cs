@@ -1,6 +1,19 @@
 ﻿// <copyright file="ConsoleInterface.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -12,6 +25,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Controls.Common;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Utilities;
@@ -27,19 +41,17 @@ namespace VoxelGame.UI.UserInterfaces;
 public class ConsoleInterface
 {
     private const Int32 MaxConsoleLogLength = 200;
-
     private const String DefaultMarker = "[ ]";
     private const String FollowUpMarker = "[a]";
+
     private static readonly Color echoColor = Colors.Secondary;
     private static readonly Color responseColor = Colors.Primary;
     private static readonly Color errorColor = Colors.Error;
+
     private readonly IConsoleProvider console;
-
-    private readonly LinkedList<Entry> consoleLog = new();
-    private readonly LinkedList<String> consoleMemory = new();
-
+    private readonly LinkedList<Entry> consoleLog = [];
+    private readonly LinkedList<String> consoleMemory = [];
     private readonly Context context;
-
     private readonly ControlBase root;
 
     private MemorizingTextBox? consoleInput;
@@ -53,10 +65,20 @@ public class ConsoleInterface
         this.console = console;
         this.context = context;
 
+        console.MessageAdded += (_, args) =>
+        {
+            Write(
+                args.Message,
+                args.IsError ? EntryType.Error : EntryType.Response,
+                args.FollowUp);
+        };
+
+        console.Cleared += (_, _) => Clear();
+
         consoleLog.AddLast(new Entry(
             $"Welcome! Enter your commands below, and note that entries with {FollowUpMarker} offer follow-up actions in their right-click menu.",
             EntryType.Echo,
-            Array.Empty<FollowUp>()));
+            []));
     }
 
     internal Boolean IsOpen => consoleWindow != null;
@@ -136,7 +158,7 @@ public class ConsoleInterface
 
             if (input.Length == 0) return;
 
-            Write(input, EntryType.Echo, Array.Empty<FollowUp>());
+            Write(input, EntryType.Echo, []);
             console.ProcessInput(input);
         }
     }
@@ -209,33 +231,13 @@ public class ConsoleInterface
         };
     }
 
-    /// <summary>
-    ///     Write a response message to the console.
-    /// </summary>
-    /// <param name="message">The message text.</param>
-    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    public void WriteResponse(String message, FollowUp[] followUp)
-    {
-        Write(message, EntryType.Response, followUp);
-    }
-
-    /// <summary>
-    ///     Write an error message to the console.
-    /// </summary>
-    /// <param name="message">The message text.</param>
-    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
-    public void WriteError(String message, FollowUp[] followUp)
-    {
-        Write(message, EntryType.Error, followUp);
-    }
-
     internal void CloseWindow()
     {
         Debug.Assert(consoleWindow != null);
         consoleWindow.Close();
     }
 
-    internal event EventHandler WindowClosed = delegate {};
+    internal event EventHandler? WindowClosed;
 
     private void CleanupAfterClose()
     {
@@ -248,13 +250,10 @@ public class ConsoleInterface
         consoleInput = null;
         consoleOutput = null;
 
-        WindowClosed(this, EventArgs.Empty);
+        WindowClosed?.Invoke(this, EventArgs.Empty);
     }
 
-    /// <summary>
-    ///     Clear all console messages.
-    /// </summary>
-    public void Clear()
+    private void Clear()
     {
         consoleOutput?.Clear();
         consoleLog.Clear();
@@ -276,7 +275,7 @@ public class ConsoleInterface
                 EntryType.Response => (context.Fonts.Console, responseColor),
                 EntryType.Error => (context.Fonts.ConsoleError, errorColor),
                 EntryType.Echo => (context.Fonts.Console, echoColor),
-                _ => throw new InvalidOperationException()
+                _ => throw Exceptions.UnsupportedEnumValue(Type)
             };
         }
     }

@@ -33,11 +33,12 @@ public:
     [[nodiscard]] ComPtr<ID3D12Device5>      GetDevice() const;
     [[nodiscard]] ComPtr<D3D12MA::Allocator> GetAllocator() const;
 
-    void OnInit() override;
-    void OnPostInit() override;
-    void OnUpdate(double delta) override;
-    void OnPreRender() override;
-    void OnRender(double delta) override;
+    void OnPreInitialization() override;
+    void OnPostInitialization() override;
+    void OnInitializationComplete() override;
+    void OnLogicUpdate(double delta) override;
+    void OnPreRenderUpdate() override;
+    void OnRenderUpdate(double delta) override;
     void OnDestroy() override;
 
     void OnSizeChanged(UINT width, UINT height, bool minimized) override;
@@ -91,6 +92,8 @@ public:
      */
     void RemoveDraw2DPipeline(UINT id);
 
+    void CreatePostProcessingShaderResourceViews() const;
+
     using ObjectHandle = size_t;
 
     ObjectHandle StoreObject(std::unique_ptr<Object> object);
@@ -122,8 +125,10 @@ private:
 
     Resolution m_resolution;
 
+#if defined(NATIVE_DEBUG)
     D3D12MessageFunc m_debugCallback;
     DWORD            m_callbackCookie{};
+#endif
 
     std::unique_ptr<Uploader>    m_uploader = nullptr;
     Bag<std::unique_ptr<Object>> m_objects  = {};
@@ -177,15 +182,10 @@ private:
     bool m_windowedMode  = true;
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    GpuCrashTracker::MarkerMap m_markerMap      = {};
-    ShaderDatabase             m_shaderDatabase = {};
-    GpuCrashTracker            m_gpuCrashTracker;
-
-public:
-    void SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
-    void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);
-
-private:
+    GpuCrashTracker::MarkerMap m_markerMap = {}; ShaderDatabase m_shaderDatabase = {}; GpuCrashTracker
+    m_gpuCrashTracker;public: void SetUpCommandListForAftermath(
+        ComPtr<ID3D12GraphicsCommandList> const& commandList) const; void SetUpShaderForAftermath(
+        ComPtr<IDxcResult> const& result);private:
 #endif
 
     void CheckRaytracingSupport() const;

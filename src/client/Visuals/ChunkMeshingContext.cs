@@ -1,6 +1,19 @@
 ﻿// <copyright file="ChunkMeshingContext.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -12,10 +25,11 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -27,20 +41,21 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     private static readonly IReadOnlyCollection<Int32>[] sideIndices;
     private static readonly IReadOnlyCollection<Int32> allIndices;
 
+    private readonly Side? exclusiveSide;
+
     private readonly Chunk mid;
 
-    private readonly BlockSide? exclusiveSide;
-    private (Guard core, Guard extended)? guards;
-    private Sides<(Chunk chunk, Guard? guard)?> neighbors;
+    private Guard? guard;
+    private SideArray<(Chunk chunk, Guard? guard)?> neighbors;
 
     static ChunkMeshingContext()
     {
-        const Int32 left = (Int32) BlockSide.Left;
-        const Int32 right = (Int32) BlockSide.Right;
-        const Int32 bottom = (Int32) BlockSide.Bottom;
-        const Int32 top = (Int32) BlockSide.Top;
-        const Int32 back = (Int32) BlockSide.Back;
-        const Int32 front = (Int32) BlockSide.Front;
+        const Int32 left = (Int32) Side.Left;
+        const Int32 right = (Int32) Side.Right;
+        const Int32 bottom = (Int32) Side.Bottom;
+        const Int32 top = (Int32) Side.Top;
+        const Int32 back = (Int32) Side.Back;
+        const Int32 front = (Int32) Side.Front;
 
         List<Int32>[] sides = Enumerable.Range(start: 0, count: 6).Select(_ => new List<Int32>()).ToArray();
         List<Int32> all = [];
@@ -66,14 +81,14 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     }
 
     private ChunkMeshingContext(
-        Chunk mid, (Guard core, Guard extended)? guards,
-        Sides<(Chunk, Guard?)?> neighbors,
-        BlockSides availableSides,
-        BlockSide? exclusiveSide,
+        Chunk mid, Guard? guard,
+        SideArray<(Chunk, Guard?)?> neighbors,
+        Sides availableSides,
+        Side? exclusiveSide,
         IMeshingFactory meshingFactory)
     {
         this.mid = mid;
-        this.guards = guards;
+        this.guard = guard;
 
         this.neighbors = neighbors;
         this.exclusiveSide = exclusiveSide;
@@ -85,7 +100,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <summary>
     ///     Get the sides at which neighbors are available for meshing in this context.
     /// </summary>
-    public BlockSides AvailableSides { get; }
+    public Sides AvailableSides { get; }
 
     /// <summary>
     ///     Get the map of the world.
@@ -115,7 +130,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     }
 
     /// <inheritdoc />
-    public (TintColor block, TintColor fluid) GetPositionTint(Vector3i position)
+    public (ColorS block, ColorS fluid) GetPositionTint(Vector3i position)
     {
         return Map.GetPositionTint(position);
     }
@@ -123,18 +138,18 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <summary>
     ///     Take the access to the chunk from the context.
     ///     This transfers ownership of the guards to the caller.
-    ///     If the chunk was created for meshing on the main thread, this call is not allowed.
+    ///     If the context was created for meshing on the main thread, this call is not allowed.
     /// </summary>
     /// <returns>The guards for the chunk.</returns>
-    public (Guard core, Guard extended) TakeAccess()
+    public Guard TakeAccess()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
-        if (guards == null)
-            throw new InvalidOperationException();
+        if (guard == null)
+            throw Exceptions.InvalidOperation("Cannot take access from main thread meshing context.");
 
-        (Guard core, Guard extended) result = guards.Value;
-        guards = null;
+        Guard result = guard;
+        guard = null;
 
         return result;
     }
@@ -146,11 +161,11 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <returns>Whether re-meshing would be valuable.</returns>
     public static Boolean IsReMeshingValuable(Logic.Chunks.Chunk chunk)
     {
-        Sides<(Chunk chunk, Guard? guard)?> neighbors = new();
+        SideArray<(Chunk chunk, Guard? guard)?> neighbors = new();
 
-        DetermineNeighborAvailability(chunk, neighbors, out BlockSides considered, out BlockSides acquirable);
+        DetermineNeighborAvailability(chunk, neighbors, out Sides considered, out Sides acquirable);
 
-        return !CanActivate(chunk, considered) && CanMeshNow(chunk, considered, acquirable, out _);
+        return !CanActivate(chunk, considered) && CanMeshNow(chunk, acquirable, ref considered, out _);
     }
 
     /// <summary>
@@ -163,16 +178,15 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <returns>A context that can be used to mesh the chunk, or null if meshing is either not possible or worthwhile.</returns>
     public static ChunkMeshingContext? TryAcquire(Logic.Chunks.Chunk chunk, IMeshingFactory meshingFactory, out Boolean allowActivation)
     {
-        Debug.Assert(chunk.IsUsableForMeshing());
+        Debug.Assert(chunk.IsAbleToMesh());
 
         allowActivation = false;
 
-        if (!chunk.CanAcquireCore(Access.Read)) return null;
-        if (!chunk.CanAcquireExtended(Access.Write)) return null;
+        if (!chunk.CanAcquire(Access.Read)) return null;
 
-        Sides<(Chunk chunk, Guard? guard)?> neighbors = new();
+        SideArray<(Chunk chunk, Guard? guard)?> neighbors = new();
 
-        DetermineNeighborAvailability(chunk, neighbors, out BlockSides considered, out BlockSides acquirable);
+        DetermineNeighborAvailability(chunk, neighbors, out Sides considered, out Sides acquirable);
 
         if (CanActivate(chunk, considered))
         {
@@ -185,23 +199,21 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         // Because a side still has width, all neighbors except the opposite side are needed.
         // Exclusive meshing serves to reduce the number of chunks that are deactivated on meshing.
 
-        if (!CanMeshNow(chunk, considered, acquirable, out BlockSide? exclusive))
+        if (!CanMeshNow(chunk, acquirable, ref considered, out Side? exclusive))
             return null;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
-        {
+        foreach (Side side in Side.All.Sides())
             // If the side is considered, it is also acquirable because we checked that before.
             // If using an exclusive side, that was already removed from the considered sides.
-
             if (considered.HasFlag(side.ToFlag()))
             {
                 Chunk? neighbor = neighbors[side]?.chunk;
                 Debug.Assert(neighbor != null);
 
-                Guard? guard = neighbor.AcquireCore(Access.Read);
+                Guard? guard = neighbor.Acquire(Access.Read);
                 Debug.Assert(guard != null);
 
-                Debug.Assert(neighbor.IsUsableForMeshing());
+                Debug.Assert(neighbor.IsAbleToParticipateInMeshing());
 
                 neighbors[side] = (neighbor, guard);
             }
@@ -209,17 +221,14 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
             {
                 neighbors[side] = null;
             }
-        }
 
-        (Guard core, Guard extended)? guards = (chunk.AcquireCore(Access.Read)!, chunk.AcquireExtended(Access.Write)!);
-
-        return new ChunkMeshingContext(chunk, guards, neighbors, considered, exclusive, meshingFactory);
+        return new ChunkMeshingContext(chunk, chunk.Acquire(Access.Read)!, neighbors, considered, exclusive, meshingFactory);
     }
 
     /// <summary>
     ///     If all wanted (considered) sides were used the last time, there is no need to mesh.
     /// </summary>
-    private static Boolean CanActivate(Logic.Chunks.Chunk chunk, BlockSides considered)
+    private static Boolean CanActivate(Logic.Chunks.Chunk chunk, Sides considered)
     {
         return chunk.HasMeshData && chunk.MeshedSides.HasFlag(considered);
     }
@@ -227,19 +236,23 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <summary>
     ///     If not all wanted (considered) sides are acquirable, it is preferable to mesh later.
     /// </summary>
-    private static Boolean CanMeshNow(Logic.Chunks.Chunk chunk, BlockSides considered, BlockSides acquirable, out BlockSide? exclusive)
+    private static Boolean CanMeshNow(Logic.Chunks.Chunk chunk, Sides acquirable, ref Sides considered, out Side? exclusive)
     {
         exclusive = null;
 
-        BlockSides additional = considered & ~chunk.MeshedSides;
+        Sides additional = considered & ~chunk.MeshedSides;
 
         if (additional.Count() != 1)
             return acquirable.HasFlag(considered);
 
-        BlockSide added = additional.Single();
-        BlockSides oppositeOfAdded = added.Opposite().ToFlag();
+        Side added = additional.Single();
+        Sides oppositeOfAdded = added.Opposite().ToFlag();
 
-        if (chunk.MeshedSides.HasFlag(oppositeOfAdded) || !considered.HasFlag(oppositeOfAdded))
+        // If no sides have been meshed yet, no exclusive meshing can be done as this would miss the center.
+        // Otherwise, do exclusive meshing if the exclusive side is either already meshed or not considered at all.
+
+        if (chunk.MeshedSides != Sides.None
+            && (chunk.MeshedSides.HasFlag(oppositeOfAdded) || !considered.HasFlag(oppositeOfAdded)))
         {
             exclusive = added;
             considered &= ~oppositeOfAdded;
@@ -256,44 +269,44 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <returns>A context that can be used to mesh the chunk.</returns>
     public static ChunkMeshingContext UsingActive(Chunk chunk, IMeshingFactory meshingFactory)
     {
-        Throw.IfNotOnMainThread(chunk);
+        Core.App.Application.ThrowIfNotOnMainThread(chunk);
 
-        Sides<(Chunk, Guard?)?> neighbors = new();
-        var availableSides = BlockSides.None;
+        SideArray<(Chunk, Guard?)?> neighbors = new();
+        var availableSides = Sides.None;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
-            Chunk? neighbor = chunk.World.GetActiveChunk(side.Offset(chunk.Position));
+            Chunk? neighbor = chunk.World.GetActiveChunk(chunk.Position.Offset(side));
 
             if (neighbor == null) continue;
-            if (!neighbor.IsUsableForMeshing()) continue;
+            if (!neighbor.IsAbleToParticipateInMeshing()) continue;
 
             neighbors[side] = (neighbor, null);
             availableSides |= side.ToFlag();
         }
 
-        return new ChunkMeshingContext(chunk, guards: null, neighbors, availableSides, exclusiveSide: null, meshingFactory);
+        return new ChunkMeshingContext(chunk, guard: null, neighbors, availableSides, exclusiveSide: null, meshingFactory);
     }
 
     private static void DetermineNeighborAvailability(
-        Chunk chunk, Sides<(Chunk, Guard?)?>? neighbors,
-        out BlockSides considered, out BlockSides acquirable)
+        Chunk chunk, SideArray<(Chunk, Guard?)?>? neighbors,
+        out Sides considered, out Sides acquirable)
     {
-        considered = BlockSides.None;
-        acquirable = BlockSides.None;
+        considered = Sides.None;
+        acquirable = Sides.None;
 
-        foreach (BlockSide side in BlockSide.All.Sides())
+        foreach (Side side in Side.All.Sides())
         {
-            if (!chunk.World.TryGetChunk(side.Offset(chunk.Position), out Chunk? neighbor)) continue;
+            if (!chunk.World.TryGetChunk(chunk.Position.Offset(side), out Chunk? neighbor))
+                continue;
 
             neighbors?.Set(side, (neighbor, null));
 
-            if (!neighbor.IsWantedForMeshing()) continue;
+            if (!neighbor.IsAbleToParticipateInMeshing()) continue;
 
             considered |= side.ToFlag();
 
-            if (!neighbor.IsUsableForMeshing()) continue;
-            if (!neighbor.CanAcquireCore(Access.Read)) continue;
+            if (!neighbor.CanAcquire(Access.Read)) continue;
 
             acquirable |= side.ToFlag();
         }
@@ -304,7 +317,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// </summary>
     /// <param name="side">The side to get the chunk of.</param>
     /// <returns>The chunk, or null if there is no chunk on that side.</returns>
-    public Chunk? GetChunk(BlockSide side)
+    public Chunk? GetChunk(Side side)
     {
         return neighbors[side]?.chunk;
     }
@@ -315,7 +328,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
         Vector3i offset = mid.Position.OffsetTo(position);
 
-        return GetChunk(offset.ToBlockSide());
+        return GetChunk(offset.ToSide());
     }
 
     /// <summary>
@@ -324,23 +337,34 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <param name="sectionMeshData">The mesh data of the sections.</param>
     /// <param name="meshed">The sides that were meshed in the previous meshing process.</param>
     /// <returns>The mesh data for the chunk.</returns>
-    public ChunkMeshData CreateMeshData(SectionMeshData?[] sectionMeshData, BlockSides meshed)
+    public ChunkMeshData CreateMeshData(SectionMeshData?[] sectionMeshData, Sides meshed)
     {
-        BlockSides sides = AvailableSides;
+        Sides sides = AvailableSides;
 
         if (exclusiveSide is {} side)
         {
             // Exclusive meshing of one side does not touch the sections of the opposite side.
             // If they were meshed before, the remain meshed now.
 
-            BlockSides opposite = side.Opposite().ToFlag();
+            Sides opposite = side.Opposite().ToFlag();
             if (meshed.HasFlag(opposite)) sides |= opposite;
         }
 
         return new ChunkMeshData(sectionMeshData, sides, SectionIndices);
     }
 
-    #region IDisposable Support
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        var text = $"[{AvailableSides.ToCompactString()}]";
+
+        if (exclusiveSide is {} side)
+            text += $"+({side.ToCompactString()})";
+
+        return text;
+    }
+
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -370,19 +394,18 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 
             neighbors = null!;
 
-            guards?.core.Dispose();
-            guards?.extended.Dispose();
-            guards = null!;
+            guard?.Dispose();
+            guard = null!;
         }
         else
         {
-            Throw.ForMissedDispose(nameof(ChunkMeshingContext));
+            ExceptionTools.ThrowForMissedDispose(nameof(ChunkMeshingContext));
         }
 
         disposed = true;
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }
 
 /// <summary>
@@ -391,21 +414,22 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
 public static class ChunkMeshingExtensions
 {
     /// <summary>
-    /// Whether the chunk is generally wanted to be included in the meshing process.
-    /// A chunk is wanted if it is requested to activate.
+    ///     Whether the chunk has progressed far enough to be generally able to participate in meshing as a neighbor.
+    ///     This means it should be considered by other meshing chunks when they look at their neighbors.
     /// </summary>
-    public static Boolean IsWantedForMeshing(this Chunk chunk)
+    public static Boolean IsAbleToParticipateInMeshing(this Chunk chunk)
     {
-        return chunk.IsRequestedToActivate;
+        return chunk.IsFullyDecorated;
     }
 
     /// <summary>
-    ///     Whether the chunk has progressed far enough to be generally usable for meshing.
-    ///     A chunk is usable if it is wanted and fully decorated.
+    ///     Whether the chunk is generally able to mesh itself.
+    ///     A chunk is able if it is requested to activate and would be able to participate as a neighbor.
+    ///     This is a stronger condition than <see cref="IsAbleToParticipateInMeshing" />.
     /// </summary>
-    public static Boolean IsUsableForMeshing(this Chunk chunk)
+    public static Boolean IsAbleToMesh(this Chunk chunk)
     {
-        return chunk.IsWantedForMeshing() && chunk.IsFullyDecorated;
+        return chunk.IsRequestedToActivate && chunk.IsAbleToParticipateInMeshing();
     }
 
     /// <inheritdoc cref="ChunkMeshingContext.IsReMeshingValuable" />

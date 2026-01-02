@@ -1,6 +1,19 @@
 ﻿// <copyright file="Meshing.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -77,19 +90,19 @@ public static class Meshing
     /// </summary>
     public const Int32 MaxFluidTextureCount = 1 << BitsPerFluidTextureIndex;
 
-    private static readonly UInt32 uvMask = BitHelper.GetMask(32 - UVShift) << UVShift;
+    private static readonly UInt32 uvMask = BitTools.GetMask(32 - UVShift) << UVShift;
 
-    private static readonly UInt32 textureIndexMask = BitHelper.GetMask(Math.Max(BitsPerTextureIndex, BitsPerFluidTextureIndex));
+    private static readonly UInt32 textureIndexMask = BitTools.GetMask(Math.Max(BitsPerTextureIndex, BitsPerFluidTextureIndex));
 
     /// <summary>
     ///     Encode a vector in base 17, assuming all components are in the range [0, 1].
     /// </summary>
     private static UInt32 EncodeInBase17(Vector4 vector)
     {
-        UInt32 x = VMath.RoundedToUInt(vector.X * 16);
-        UInt32 y = VMath.RoundedToUInt(vector.Y * 16);
-        UInt32 z = VMath.RoundedToUInt(vector.Z * 16);
-        UInt32 w = VMath.RoundedToUInt(vector.W * 16);
+        UInt32 x = MathTools.RoundedToUInt(vector.X * 16);
+        UInt32 y = MathTools.RoundedToUInt(vector.Y * 16);
+        UInt32 z = MathTools.RoundedToUInt(vector.Z * 16);
+        UInt32 w = MathTools.RoundedToUInt(vector.W * 16);
 
         return w * 17 * 17 * 17 +
                z * 17 * 17 +
@@ -199,15 +212,24 @@ public static class Meshing
     }
 
     /// <summary>
+    ///     Get the texture index for a quad.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static Int32 GetTextureIndex(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data)
+    {
+        return (Int32) (data.a & textureIndexMask);
+    }
+
+    /// <summary>
     ///     Set the tint for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetTint(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, TintColor tint)
+    public static void SetTint(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, ColorS tint)
     {
         Debug.Assert(!tint.IsNeutral);
 
-        const Int32 tintShift = 23;
-        data.b |= tint.ToBits << tintShift;
+        const Int32 tintShift = 32 - ColorS.TintPrecision * 3;
+        data.b |= tint.ToBits() << tintShift;
     }
 
     /// <summary>

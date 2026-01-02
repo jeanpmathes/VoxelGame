@@ -1,0 +1,10 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers mode="replace">
+        <Layer source="ash:all">
+            <Modifier type="repeat" x="#animation_frames"/>
+        </Layer>
+        <Layer source="p:embers:all"/>
+    </Layers>
+    <Modifiers/>
+</Texture>

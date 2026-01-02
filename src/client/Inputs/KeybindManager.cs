@@ -1,6 +1,19 @@
 ﻿// <copyright file="KeybindManager.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,36 +22,40 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Application.Settings;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Logging;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Input.Collections;
+using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.Settings;
 
 namespace VoxelGame.Client.Inputs;
 
-internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
+/// <summary>
+///     Manages all keybinds and their settings.
+/// </summary>
+public sealed partial class KeybindManager : ISettingsProvider, IDisposable
 {
+    private readonly IDisposable binding;
     private readonly Dictionary<Keybind, Button> keybinds = new();
 
     private readonly Dictionary<Keybind, PushButton> pushButtons = new();
+
+    private readonly List<Setting> settings = [];
     private readonly Dictionary<Keybind, SimpleButton> simpleButtons = new();
     private readonly Dictionary<Keybind, ToggleButton> toggleButtons = new();
 
     private readonly KeyMap usageMap = new();
 
-    private readonly List<Setting> settings = [];
-
-    private readonly IDisposable binding;
-
     /// <summary>
     ///     Creates a new instance of the <see cref="KeybindManager" /> class.
     /// </summary>
+    /// <param name="settings">The general settings.</param>
     /// <param name="input">The input system.</param>
-    internal KeybindManager(Input input)
+    internal KeybindManager(GeneralSettings settings, Input input)
     {
         Input = input;
 
@@ -48,8 +65,8 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
         InitializeUsages();
         InitializeSettings();
 
-        LookBind = new LookInput(Input.Mouse, Application.Client.Instance.Settings.MouseSensitivity);
-        binding = Application.Client.Instance.Settings.MouseSensitivity.Bind(args => LookBind.SetSensitivity(args.NewValue));
+        LookBind = new LookInput(Input.Mouse, settings.MouseSensitivity);
+        binding = settings.MouseSensitivity.Bind(args => LookBind.SetSensitivity(args.NewValue));
     }
 
     /// <summary>
@@ -60,7 +77,7 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
     /// <summary>
     ///     Get the look input provided by this manager.
     /// </summary>
-    internal LookInput LookBind { get; }
+    public LookInput LookBind { get; }
 
     /// <summary>
     ///     All keybinds managed by this class.
@@ -154,28 +171,28 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 
     internal ToggleButton GetToggle(Keybind bind)
     {
-        Debug.Assert(toggleButtons.ContainsKey(bind), "No toggle associated with this keybind.");
+        Debug.Assert(toggleButtons.ContainsKey(bind));
 
         return toggleButtons[bind];
     }
 
     internal Button GetButton(Keybind bind)
     {
-        Debug.Assert(simpleButtons.ContainsKey(bind), "No simple button associated with this keybind.");
+        Debug.Assert(simpleButtons.ContainsKey(bind));
 
         return simpleButtons[bind];
     }
 
     internal PushButton GetPushButton(Keybind bind)
     {
-        Debug.Assert(pushButtons.ContainsKey(bind), "No push button associated with this keybind.");
+        Debug.Assert(pushButtons.ContainsKey(bind));
 
         return pushButtons[bind];
     }
 
     private void Rebind(Keybind bind, VirtualKeys key, Boolean isDefault)
     {
-        Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
+        Debug.Assert(keybinds.ContainsKey(bind));
 
         usageMap.RemoveBinding(keybinds[bind].Key);
         keybinds[bind].SetBinding(key);
@@ -197,7 +214,7 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 
     private VirtualKeys GetCurrentBind(Keybind bind)
     {
-        Debug.Assert(keybinds.ContainsKey(bind), "No keybind associated with this keybind.");
+        Debug.Assert(keybinds.ContainsKey(bind));
 
         return keybinds[bind].Key;
     }
@@ -283,21 +300,21 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<KeybindManager>();
 
-    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Debug, Message = "Created keybind: {Bind}")]
+    [LoggerMessage(EventId = LogID.KeybindManager + 0, Level = LogLevel.Debug, Message = "Created keybind: {Bind}")]
     private static partial void LogCreatedKeybind(ILogger logger, Keybind bind);
 
-    [LoggerMessage(EventId = Events.InputSystem, Level = LogLevel.Information, Message = "Finished initializing keybind settings")]
+    [LoggerMessage(EventId = LogID.KeybindManager + 1, Level = LogLevel.Information, Message = "Finished initializing keybind settings")]
     private static partial void LogFinishedInitializingKeybindSettings(ILogger logger);
 
-    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Warning, Message = "Key '{Key}' is used by multiple bindings")]
+    [LoggerMessage(EventId = LogID.KeybindManager + 2, Level = LogLevel.Warning, Message = "Key '{Key}' is used by multiple bindings")]
     private static partial void LogKeyUsedByMultipleBindings(ILogger logger, VirtualKeys key);
 
-    [LoggerMessage(EventId = Events.SetKeyBind, Level = LogLevel.Information, Message = "Rebind '{Bind}' to: {Key}")]
+    [LoggerMessage(EventId = LogID.KeybindManager + 3, Level = LogLevel.Information, Message = "Rebind '{Bind}' to: {Key}")]
     private static partial void LogRebindKeybind(ILogger logger, Keybind bind, VirtualKeys key);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -310,16 +327,20 @@ internal sealed partial class KeybindManager : ISettingsProvider, IDisposable
         disposed = true;
     }
 
+    /// <inheritdoc />
     public void Dispose()
     {
         Dispose(disposing: true);
         GC.SuppressFinalize(this);
     }
 
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
     ~KeybindManager()
     {
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -1,14 +1,30 @@
 ﻿// <copyright file="SceneFactory.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Console;
 using VoxelGame.Client.Logic;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Client.Visuals;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
+using VoxelGame.UI;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -18,6 +34,11 @@ namespace VoxelGame.Client.Scenes;
 public partial class SceneFactory
 {
     private readonly Application.Client client;
+    private CommandInvoker? commands;
+
+    private Engine? engine;
+
+    private UserInterfaceResources? uiResources;
 
     /// <summary>
     ///     Create a new scene factory.
@@ -28,39 +49,68 @@ public partial class SceneFactory
     }
 
     /// <summary>
-    ///     Create a new game scene.
+    ///     Initialize all resources after loading.
     /// </summary>
-    /// <param name="world">The world in which the game takes place.</param>
-    /// <returns>The created game scene.</returns>
-    public IScene CreateGameScene(World world)
+    /// <param name="context">The context in which the resources are loaded.</param>
+    public void InitializeResources(IResourceContext context)
     {
+        engine = context.Get<Engine>();
+        commands = context.Get<CommandInvoker>();
+
+        uiResources = UserInterfaceResources.Retrieve(context);
+    }
+
+    /// <summary>
+    ///     Create a new session scene.
+    /// </summary>
+    /// <param name="world">The world in which the session takes place.</param>
+    /// <returns>The created session scene, or <c>null</c> if required resources are not loaded.</returns>
+    public Scene? CreateSessionScene(World world)
+    {
+        if (engine == null || commands == null || uiResources == null)
+        {
+            LogMissingResources(logger);
+
+            return null;
+        }
+
         LogCreatingGameScene(logger, world.Data.Information.Name);
-        
-        return new GameScene(client, world);
+
+        return new SessionScene(client, world, commands, uiResources, engine);
     }
 
     /// <summary>
     ///     Create a new start scene.
     /// </summary>
-    /// <param name="resourceLoadingFailure">A resource loading failure that occurred during the game start, if any.</param>
+    /// <param name="resourceLoadingIssueReport">A report of loading issues that occurred when loading the resources.</param>
     /// <param name="loadWorldDirectly">The index of the world to load directly, if any.</param>
-    /// <returns>The created scene.</returns>
-    public IScene CreateStartScene(ResourceLoadingFailure? resourceLoadingFailure, Int32? loadWorldDirectly)
+    /// <returns>The created scene, or <c>null</c> if required resources are not loaded.</returns>
+    public Scene? CreateStartScene(ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly)
     {
+        if (uiResources == null)
+        {
+            LogMissingResources(logger);
+
+            return null;
+        }
+
         LogCreatingStartScene(logger);
-        
-        return new StartScene(client, resourceLoadingFailure, loadWorldDirectly);
+
+        return new StartScene(client, uiResources, resourceLoadingIssueReport, loadWorldDirectly);
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SceneFactory>();
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Debug, Message = "Creating game scene for world {WorldName}")]
+    [LoggerMessage(EventId = LogID.SceneFactory + 0, Level = LogLevel.Debug, Message = "Creating session scene for world {WorldName}")]
     private static partial void LogCreatingGameScene(ILogger logger, String worldName);
 
-    [LoggerMessage(EventId = Events.Scene, Level = LogLevel.Debug, Message = "Creating start scene")]
+    [LoggerMessage(EventId = LogID.SceneFactory + 1, Level = LogLevel.Debug, Message = "Creating start scene")]
     private static partial void LogCreatingStartScene(ILogger logger);
+
+    [LoggerMessage(EventId = LogID.SceneFactory + 2, Level = LogLevel.Warning, Message = "Missing resources to create scene")]
+    private static partial void LogMissingResources(ILogger logger);
 
     #endregion LOGGING
 }

@@ -1,6 +1,19 @@
 ﻿// <copyright file="FileSystem.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -11,9 +24,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -131,6 +148,37 @@ public static partial class FileSystem
     }
 
     /// <summary>
+    ///     Get the path of a resource folder in the application resources directory.
+    /// </summary>
+    /// <typeparam name="T">The type of the resource.</typeparam>
+    /// <returns>The directory path.</returns>
+    public static DirectoryInfo GetResourceDirectory<T>() where T : ILocated
+    {
+        return GetResourceDirectory(T.Path);
+    }
+
+    /// <summary>
+    ///     Get a file pattern searching for all files of a specific resource type in a directory.
+    /// </summary>
+    /// <typeparam name="T">The type of the resource.</typeparam>
+    /// <returns>The file pattern.</returns>
+    public static String GetResourceSearchPattern<T>() where T : ILocated
+    {
+        return $"*.{T.FileExtension}";
+    }
+
+    /// <summary>
+    ///     Get the name of a resource file.
+    /// </summary>
+    /// <param name="name">The name of the resource.</param>
+    /// <typeparam name="T">The type of the resource.</typeparam>
+    /// <returns>The file name.</returns>
+    public static String GetResourceFileName<T>(String name) where T : ILocated
+    {
+        return $"{name}.{T.FileExtension}";
+    }
+
+    /// <summary>
     ///     Get the path to this resource file or directory relative to the resource directory.
     /// </summary>
     public static String GetResourceRelativePath(this FileSystemInfo resource)
@@ -228,47 +276,82 @@ public static partial class FileSystem
     /// </summary>
     /// <param name="source">The source directory.</param>
     /// <param name="destination">The destination directory.</param>
-    public static void CopyTo(this DirectoryInfo source, DirectoryInfo destination)
+    /// <param name="token">A token to cancel the operation.</param>
+    public static async Task CopyToAsync(this DirectoryInfo source, DirectoryInfo destination, CancellationToken token = default)
     {
         destination.Create();
 
-        foreach (FileInfo file in source.EnumerateFiles()) file.CopyTo(destination.GetFile(file.Name).FullName, overwrite: true);
+        foreach (FileInfo file in source.EnumerateFiles())
+        {
+            token.ThrowIfCancellationRequested();
 
-        foreach (DirectoryInfo directory in source.EnumerateDirectories()) directory.CopyTo(destination.GetDirectory(directory.Name));
+            file.CopyTo(destination.GetFile(file.Name).FullName, overwrite: true);
+        }
+
+        foreach (DirectoryInfo directory in source.EnumerateDirectories())
+        {
+            token.ThrowIfCancellationRequested();
+
+            await directory.CopyToAsync(destination.GetDirectory(directory.Name), token).InAnyContext();
+        }
     }
 
     /// <summary>
     ///     Get the size of a file or directory.
     /// </summary>
     /// <param name="info">The file or directory.</param>
+    /// <param name="token">A token to cancel the operation.</param>
     /// <returns>The size of the file or directory, or null if the size could not be determined.</returns>
-    public static Memory? GetSize(this FileSystemInfo info)
+    public static Task<Memory?> GetSizeAsync(this FileSystemInfo info, CancellationToken token = default)
     {
+        Memory? result;
+
         try
         {
-            return new Memory
+            switch (info)
             {
-                Bytes = info switch
+                case FileInfo fileInfo:
                 {
-                    FileInfo fileInfo => fileInfo.Length,
-                    DirectoryInfo directoryInfo => directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories).Sum(file => file.Length),
-                    _ => 0
+                    result = new Memory {Bytes = fileInfo.Length};
+
+                    break;
                 }
-            };
+
+                case DirectoryInfo directoryInfo:
+                {
+                    Int64 size = 0;
+
+                    foreach (FileInfo file in directoryInfo.EnumerateFiles("*", SearchOption.AllDirectories))
+                    {
+                        token.ThrowIfCancellationRequested();
+
+                        size += file.Length;
+                    }
+
+                    result = new Memory {Bytes = size};
+
+                    break;
+                }
+
+                default:
+                    throw Exceptions.UnsupportedValue(info);
+            }
         }
         catch (IOException exception)
         {
             LogGetSizeFailure(logger, exception, info.FullName);
 
-            return null;
+            result = null;
         }
+
+        return Task.FromResult(result);
     }
 
     #region LOGGING
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
 
-    [LoggerMessage(EventId = Events.FileIO, Level = LogLevel.Warning, Message = "Could not get the size of: {Path}")]
+    [LoggerMessage(EventId = LogID.FileSystem + 0, Level = LogLevel.Warning, Message = "Could not get the size of: {Path}")]
     private static partial void LogGetSizeFailure(ILogger logger, IOException exception, String path);
 
     #endregion LOGGING

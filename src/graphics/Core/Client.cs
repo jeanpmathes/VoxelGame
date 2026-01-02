@@ -1,24 +1,45 @@
-﻿//  <copyright file="Client.cs" company="VoxelGame">
-//      MIT License
-// 	 For full license see the repository.
-//  </copyright>
-//  <author>jeanpmathes</author>
+﻿// <copyright file="Client.cs" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.App;
+using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Interop;
+using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Toolkit.Utilities.Constants;
 using Image = VoxelGame.Core.Visuals.Image;
+using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.Graphics.Core;
 
@@ -26,20 +47,18 @@ namespace VoxelGame.Graphics.Core;
 ///     A proxy class for the native client.
 /// </summary>
 [NativeMarshalling(typeof(ClientMarshaller))]
-public partial class Client : IDisposable
+public partial class Client : Application
 {
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
 #pragma warning restore S1450 // Keep the callback functions alive.
-
-    private Thread mainThread = null!;
 
     private Cycle? cycle = new();
 
     /// <summary>
     ///     Creates a new native client and initializes it.
     /// </summary>
-    protected Client(WindowSettings windowSettings)
+    protected unsafe Client(WindowSettings windowSettings, Version version) : base(version)
     {
         Debug.Assert(windowSettings.Size.X > 0);
         Debug.Assert(windowSettings.Size.Y > 0);
@@ -50,41 +69,52 @@ public partial class Client : IDisposable
 
         Definition.Native.NativeConfiguration configuration = new()
         {
-            onInit = () =>
+            onInitialization = () =>
             {
-                mainThread = Thread.CurrentThread;
+                using Timer? timer = logger.BeginTimedScoped("Client Initialization");
 
-                OnInit();
+                ThrowIfNotOnMainThread(this);
+
+                DoInitialization(timer);
             },
-            onUpdate = delta =>
+            onLogicUpdate = delta =>
             {
+                using Timer? timer = logger.BeginTimedScoped("Client Logic Update");
+
                 cycle = Cycle.Update;
 
                 Time += delta;
 
-                Input.PreUpdate();
+                Input.PreLogicUpdate();
 
-                OnUpdate(delta);
+                DoLogicUpdate(delta, timer);
 
-                Sync.Update();
+                Sync.LogicUpdate();
 
-                Input.PostUpdate();
+                Input.PostLogicUpdate();
 
                 cycle = null;
+
             },
-            onRender = delta =>
+            onRenderUpdate = delta =>
             {
+                using Timer? timer = logger.BeginTimedScoped("Client Render Update");
+
                 cycle = Cycle.Render;
 
-                OnRender(delta);
+                DoRenderUpdate(delta, timer);
 
                 cycle = null;
+
             },
             onDestroy = () =>
             {
+                using Timer? timer = logger.BeginTimedScoped("Client Destroy");
+
                 LogClosingWindow(logger);
 
-                OnDestroy();
+                DoDestroy(timer);
+
             },
             canClose = CanClose,
             onKeyDown = Input.OnKeyDown,
@@ -97,14 +127,15 @@ public partial class Client : IDisposable
                 Vector2i oldSize = Size;
                 Size = new Vector2i((Int32) width, (Int32) height);
 
-                OnSizeChange(this, new SizeChangeEventArgs(oldSize, Size));
+                SizeChanged?.Invoke(this, new SizeChangeEventArgs(oldSize, Size));
             },
             onActiveStateChange = newState =>
             {
                 Boolean oldState = IsFocused;
                 IsFocused = newState;
 
-                if (oldState != newState) OnFocusChange(this, new FocusChangeEventArgs(oldState, IsFocused));
+                if (oldState != newState)
+                    FocusChanged?.Invoke(this, new FocusChangeEventArgs(oldState, IsFocused));
             },
             onDebug = D3D12Debug.Enable(this),
             width = (UInt32) windowSettings.Size.X,
@@ -126,25 +157,28 @@ public partial class Client : IDisposable
         Space = new Space(this);
     }
 
+    /// <inheritdoc />
+    protected override Client Self => this;
+
     /// <summary>
     ///     Get the input system of the client.
     /// </summary>
     public Input.Input Input { get; }
 
     /// <summary>
-    ///     Whether the client is currently in the update cycle.
+    ///     Whether the client is currently in the logic update cycle.
     /// </summary>
-    internal Boolean IsInUpdate => cycle == Cycle.Update && Thread.CurrentThread == mainThread;
+    internal Boolean IsInLogicUpdate => cycle == Cycle.Update && IsOnMainThread;
 
     /// <summary>
-    ///     Whether the client is currently in the render cycle.
+    ///     Whether the client is currently in the render update cycle.
     /// </summary>
-    internal Boolean IsInRender => cycle == Cycle.Render && Thread.CurrentThread == mainThread;
+    internal Boolean IsInRenderUpdate => cycle == Cycle.Render && IsOnMainThread;
 
     /// <summary>
-    ///     Whether the client is currently outside of any cycle but still on the main thread.
+    ///     Whether the client is currently outside any cycle but still on the main thread.
     /// </summary>
-    internal Boolean IsOutOfCycle => cycle == null && Thread.CurrentThread == mainThread;
+    internal Boolean IsOutOfCycle => cycle == null && IsOnMainThread;
 
     internal Synchronizer Sync { get; } = new();
 
@@ -171,7 +205,18 @@ public partial class Client : IDisposable
     /// <summary>
     ///     Get the current aspect ratio <c>x/y</c>.
     /// </summary>
-    public Double AspectRatio => Size.X / (Double) Size.Y;
+    public Double AspectRatio
+    {
+        get
+        {
+            Double ratio = Size.X / (Double) Size.Y;
+
+            if (Double.IsNaN(ratio) || Double.IsInfinity(ratio))
+                return 1.0;
+
+            return ratio;
+        }
+    }
 
     /// <summary>
     ///     Get whether the window is focused.
@@ -181,17 +226,17 @@ public partial class Client : IDisposable
     /// <summary>
     ///     Called when the focus / active state of the window changes.
     /// </summary>
-    public event EventHandler<FocusChangeEventArgs> OnFocusChange = delegate {};
+    public event EventHandler<FocusChangeEventArgs>? FocusChanged;
 
     /// <summary>
     ///     Called when the window is resized.
     /// </summary>
-    public event EventHandler<SizeChangeEventArgs> OnSizeChange = delegate {};
+    public event EventHandler<SizeChangeEventArgs>? SizeChanged;
 
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
     /// </summary>
-    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipelineDescription description) where T : unmanaged, IEquatable<T>
+    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipelineDescription description) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         return VoxelGame.Graphics.Native.InitializeRaytracing<T>(this, description);
     }
@@ -201,8 +246,10 @@ public partial class Client : IDisposable
         return $"{message} | {Marshal.GetExceptionForHR(hr)?.Message ?? "No Description"}";
     }
 
-    private static void OnError(Int32 hr, String message)
+    private static unsafe void OnError(Int32 hr, Byte* messagePointer)
     {
+        String message = Utf8StringMarshaller.ConvertToManaged(messagePointer) ?? "No message provided!";
+
         Debugger.Break();
 
         Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
@@ -235,32 +282,10 @@ public partial class Client : IDisposable
     /// <summary>
     ///     Decide whether the window can be closed right now.
     /// </summary>
-    protected virtual Boolean CanClose()
+    protected virtual Bool CanClose()
     {
         return true;
     }
-
-    /// <summary>
-    ///     Called on initialization of the client.
-    /// </summary>
-    protected virtual void OnInit() {}
-
-    /// <summary>
-    ///     Called for each update step.
-    /// </summary>
-    /// <param name="delta">The time since the last update in seconds.</param>
-    protected virtual void OnUpdate(Double delta) {}
-
-    /// <summary>
-    ///     Called for each render step.
-    /// </summary>
-    /// <param name="delta">The time since the last render in seconds.</param>
-    protected virtual void OnRender(Double delta) {}
-
-    /// <summary>
-    ///     Called when the client is destroyed.
-    /// </summary>
-    protected virtual void OnDestroy() {}
 
     /// <summary>
     ///     Create a raster pipeline.
@@ -270,7 +295,7 @@ public partial class Client : IDisposable
     /// <returns>The created pipeline, or <c>null</c> if the pipeline could not be created.</returns>
     public RasterPipeline? CreateRasterPipeline(RasterPipelineDescription description, Action<String> errorCallback)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.CreateRasterPipeline(this, description, CreateErrorFunc(errorCallback));
     }
@@ -282,24 +307,29 @@ public partial class Client : IDisposable
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <typeparam name="T">The type of the shader buffer data.</typeparam>
     /// <returns>The created pipeline and shader buffer, or <c>null</c> if the pipeline could not be created.</returns>
-    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<String> errorCallback) where T : unmanaged, IEquatable<T>
+    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<String> errorCallback) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
 
-    private static Definition.Native.NativeErrorFunc CreateErrorFunc(Action<String> errorCallback)
+    private static unsafe Definition.Native.NativeErrorFunc CreateErrorFunc(Action<String> errorCallback)
     {
-        return (hr, message) => errorCallback(FormatErrorMessage(hr, message));
+        return (hr, messagePointer) =>
+        {
+            String message = Utf8StringMarshaller.ConvertToManaged(messagePointer) ?? "No message provided!";
+
+            errorCallback(FormatErrorMessage(hr, message));
+        };
     }
 
     /// <summary>
-    ///     Set which pipeline is used for post processing.
+    ///     Set which pipeline is used for post-processing.
     /// </summary>
     public void SetPostProcessingPipeline(RasterPipeline pipeline)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         NativeMethods.DesignatePostProcessingPipeline(this, pipeline);
     }
@@ -310,14 +340,14 @@ public partial class Client : IDisposable
     /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" /> preset.</param>
     /// <param name="priority">
     ///     The priority of the pipeline, higher priority pipelines are rendered later.
-    ///     Use the constants <see cref="Draw2D.Foreground" /> and <see cref="Draw2D.Background" /> to add the the current
+    ///     Use the constants <see cref="Draw2D.Foreground" /> and <see cref="Draw2D.Background" /> to add the current
     ///     front and back.
     /// </param>
     /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>
     /// <returns>A disposable object which can be used to remove the pipeline.</returns>
     public IDisposable AddDraw2dPipeline(RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
     }
@@ -329,7 +359,7 @@ public partial class Client : IDisposable
     /// <returns>The loaded texture.</returns>
     public Texture LoadTexture(Image image)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.LoadTexture(this, [image]);
     }
@@ -341,7 +371,7 @@ public partial class Client : IDisposable
     /// <returns>The loaded texture.</returns>
     public Texture LoadTexture(Span<Image> images)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.LoadTexture(this, images);
     }
@@ -351,7 +381,7 @@ public partial class Client : IDisposable
     /// </summary>
     public void ToggleFullscreen()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         NativeMethods.ToggleFullscreen(this);
     }
@@ -362,7 +392,7 @@ public partial class Client : IDisposable
     /// <param name="directory">The directory to save the screenshot to.</param>
     public void TakeScreenshot(DirectoryInfo directory)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         VoxelGame.Graphics.Native.EnqueueScreenshot(this,
             (data, width, height) =>
@@ -372,24 +402,25 @@ public partial class Client : IDisposable
 
                 FileInfo path = directory.GetFile($"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");
 
-                Operations.Launch(() =>
+                Operations.Launch(async token =>
                 {
                     Image screenshot = new(copy, Image.Format.BGRA, (Int32) width, (Int32) height);
-                    Exception? exception = screenshot.Save(path);
+                    Result result = await screenshot.SaveAsync(path, token).InAnyContext();
 
-                    if (exception == null) LogSavedScreenshot(logger, path.FullName);
-                    else LogFailedToSaveScreenshot(logger, exception, path.FullName);
+                    result.Switch(
+                        () => LogSavedScreenshot(logger, path.FullName),
+                        exception => LogFailedToSaveScreenshot(logger, exception, path.FullName));
                 });
             });
     }
 
     /// <summary>
-    ///     Run the client. This methods returns when the client is closed.
+    ///     Run the client. This method returns when the client is closed.
     /// </summary>
     /// <returns>The exit code of the client.</returns>
     public Int32 Run()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Int32 exit = NativeMethods.Run(this);
 
@@ -406,36 +437,35 @@ public partial class Client : IDisposable
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger<Client>();
 
-    [LoggerMessage(EventId = Events.WindowState, Level = LogLevel.Information, Message = "Closing window")]
+    [LoggerMessage(EventId = LogID.Client + 0, Level = LogLevel.Information, Message = "Closing window")]
     private static partial void LogClosingWindow(ILogger logger);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Debug, Message = "Client stopped running with exit code: {ExitCode}")]
+    [LoggerMessage(EventId = LogID.Client + 1, Level = LogLevel.Debug, Message = "Client stopped running with exit code: {ExitCode}")]
     private static partial void LogClientStoppedRunning(ILogger logger, Int32 exitCode);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Debug, Message = "Disposing client")]
+    [LoggerMessage(EventId = LogID.Client + 2, Level = LogLevel.Debug, Message = "Disposing client")]
     private static partial void LogDisposingClient(ILogger logger);
 
-    [LoggerMessage(EventId = Events.Screenshot, Level = LogLevel.Information, Message = "Saved a screenshot to: {Path}")]
+    [LoggerMessage(EventId = LogID.Client + 3, Level = LogLevel.Information, Message = "Saved a screenshot to: {Path}")]
     private static partial void LogSavedScreenshot(ILogger logger, String path);
 
-    [LoggerMessage(EventId = Events.Screenshot, Level = LogLevel.Error, Message = "Failed to save a screenshot to: {Path}")]
+    [LoggerMessage(EventId = LogID.Client + 4, Level = LogLevel.Error, Message = "Failed to save a screenshot to: {Path}")]
     private static partial void LogFailedToSaveScreenshot(ILogger logger, Exception exception, String path);
 
-    [LoggerMessage(EventId = Events.ApplicationState, Level = LogLevel.Critical, Message = "Fatal error ({HR}): {Message}")]
+    [LoggerMessage(EventId = LogID.Client + 5, Level = LogLevel.Critical, Message = "Fatal error ({HR}): {Message}")]
     private static partial void LogFatalError(ILogger logger, Exception exception, String hr, String message);
 
     #endregion LOGGING
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
-    /// <summary>
-    ///     Dispose the client.
-    /// </summary>
-    /// <param name="disposing">Whether the method was called by the user.</param>
-    protected virtual void Dispose(Boolean disposing)
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
     {
+        base.Dispose(disposing);
+
         if (disposed) return;
 
         if (disposing)
@@ -448,27 +478,10 @@ public partial class Client : IDisposable
         }
         else
         {
-            Throw.ForMissedDispose(nameof(Client));
+            ExceptionTools.ThrowForMissedDispose(nameof(Client));
         }
 
         disposed = true;
-    }
-
-    /// <summary>
-    ///     Dispose the client.
-    /// </summary>
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
-
-    /// <summary>
-    ///     Finalizer.
-    /// </summary>
-    ~Client()
-    {
-        Dispose(disposing: false);
     }
 
     #endregion
@@ -480,10 +493,5 @@ internal static class ClientMarshaller
     internal static IntPtr ConvertToUnmanaged(Client managed)
     {
         return managed.Native;
-    }
-
-    internal static void Free(IntPtr unmanaged)
-    {
-        // Nothing to do here.
     }
 }

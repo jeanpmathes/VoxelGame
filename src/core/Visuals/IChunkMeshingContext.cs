@@ -1,6 +1,19 @@
 ﻿// <copyright file="IChunkMeshingContext.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -17,19 +30,19 @@ public interface IChunkMeshingContext
     /// <summary>
     ///     Get the meshing factory of the context.
     /// </summary>
-    public IMeshingFactory MeshingFactory { get; }
+    IMeshingFactory MeshingFactory { get; }
 
     /// <summary>
     ///     Gets the section with the given position, if it is part of the context.
     /// </summary>
     /// <param name="position">The position of the section.</param>
     /// <returns>The section, or null if it is not part of the context.</returns>
-    public Section? GetSection(SectionPosition position);
+    Section? GetSection(SectionPosition position);
 
     /// <summary>
     ///     Get the tint for a position.
     /// </summary>
     /// <param name="position">The world/block position.</param>
     /// <returns>The tint colors.</returns>
-    public (TintColor block, TintColor fluid) GetPositionTint(Vector3i position);
+    (ColorS block, ColorS fluid) GetPositionTint(Vector3i position);
 }

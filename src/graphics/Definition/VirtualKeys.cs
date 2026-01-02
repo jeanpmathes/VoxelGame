@@ -1,9 +1,23 @@
-﻿//  <copyright file="VirtualKeys.cs" company="VoxelGame">
-//      MIT License
-// 	 For full license see the repository.
-//  </copyright>
-//  <author>jeanpmathes</author>
+﻿// <copyright file="VirtualKeys.cs" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Graphics.Definition;
@@ -14,12 +28,12 @@ namespace VoxelGame.Graphics.Definition;
 /// <remarks>
 ///     Adapted from https://www.pinvoke.net/default.aspx/Enums/VirtualKeys.html
 /// </remarks>
-[SuppressMessage("ReSharper", "InconsistentNaming")]
-[SuppressMessage("ReSharper", "IdentifierTypo")]
+[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Must match original definitions.")]
+[SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Must match original definitions.")]
+[SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "Must match original definitions.")]
+[SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Must match original definitions.")]
 #pragma warning disable CS1591
-#pragma warning disable S4022 // Enumeration storage type should match the native type.
-public enum VirtualKeys
-    : byte
+public enum VirtualKeys : Byte
 {
     Undefined = 0x00,
     LeftButton = 0x01,
@@ -32,9 +46,9 @@ public enum VirtualKeys
     Tab = 0x09,
     Clear = 0x0C,
     Return = 0x0D,
-    [Obsolete("Use Left<X> or Right<X>")] Shift = 0x10,
-    [Obsolete("Use Left<X> or Right<X>")] Control = 0x11,
-    [Obsolete("Use Left<X> or Right<X>")] Menu = 0x12,
+    Shift = 0x10, // Use LeftShift or RightShift
+    Control = 0x11, // Use LeftControl or RightControl
+    Menu = 0x12, // Use LeftMenu or RightMenu
     Pause = 0x13,
     CapsLock = 0x14,
     Kana = 0x15,

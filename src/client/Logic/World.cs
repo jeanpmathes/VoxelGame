@@ -1,29 +1,29 @@
 ﻿// <copyright file="World.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
-using System.Runtime.CompilerServices;
-using Microsoft.Extensions.Logging;
-using OpenTK.Mathematics;
-using VoxelGame.Client.Visuals;
-using VoxelGame.Core.Actors;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Logic.Elements;
-using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Graphics.Core;
-using VoxelGame.Graphics.Data;
-using VoxelGame.Logging;
+using VoxelGame.Toolkit.Memory;
 using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
 
 namespace VoxelGame.Client.Logic;
@@ -31,28 +31,16 @@ namespace VoxelGame.Client.Logic;
 /// <summary>
 ///     The game world, specifically for the client.
 /// </summary>
-public partial class World : Core.Logic.World
+public class World : Core.Logic.World
 {
-    private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
-    private static readonly Int32 minLoadedChunksAtStart = VMath.Cube(Player.LoadDistance * 2 + 1);
-
-    /// <summary>
-    ///     A set of chunks with information on which sections of them are to mesh.
-    /// </summary>
-    private readonly HashSet<(Chunk chunk, (Int32 x, Int32 y, Int32 z))> sectionsToMesh = [];
-
-    private readonly Space space;
-
-    private Int64 worldUpdateCount;
-    private Int64 chunkUpdateCount;
-    private Actors.Player? player;
+    private LocalPlayerHook? localPlayer;
 
     /// <summary>
     ///     This constructor is meant for worlds that are new.
     /// </summary>
-    public World(DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) : base(path, name, seed)
+    internal World(Space space, DirectoryInfo path, String name, (Int32 upper, Int32 lower) seed) : base(path, name, seed)
     {
-        space = Application.Client.Instance.Space;
+        Space = space;
 
         SetUp();
     }
@@ -60,159 +48,52 @@ public partial class World : Core.Logic.World
     /// <summary>
     ///     This constructor is meant for worlds that already exist.
     /// </summary>
-    public World(WorldData data) : base(data)
+    internal World(Space space, WorldData data) : base(data)
     {
-        space = Application.Client.Instance.Space;
+        Space = space;
 
         SetUp();
     }
 
+    /// <summary>
+    ///     Get the space in which all objects of this world are placed in.
+    /// </summary>
+    public Space Space { get; }
+
     private void SetUp()
     {
-        space.Light.Direction = sunLightDirection;
+        AddComponent<SectionMeshing>();
+        AddComponent<HideWorldOnTermination>();
+
+        AddComponent<TimeBasedLighting>();
     }
 
     /// <inheritdoc />
-    protected override Core.Logic.Chunks.Chunk CreateChunk(ChunkContext context)
+    protected override Core.Logic.Chunks.Chunk CreateChunk(NativeSegment<UInt32> blocks, ChunkContext context)
     {
-        return new Chunk(context);
-    }
-
-    /// <summary>
-    ///     Add a client player to the world.
-    /// </summary>
-    /// <param name="newPlayer">The new player.</param>
-    public void AddPlayer(Actors.Player newPlayer)
-    {
-        player = newPlayer;
-
-        space.Light.Direction = sunLightDirection;
+        return new Chunk(blocks, context);
     }
 
     /// <summary>
     ///     Render this world and everything in it.
     /// </summary>
-    public void Render()
+    public void RenderUpdate()
     {
-        if (!IsActive) return;
+        if (!State.IsActive) return;
 
-        Frustum frustum = player!.View.Frustum;
+        localPlayer ??= GetComponent<LocalPlayerHook>();
 
-        CullActiveChunks();
+        if (localPlayer == null)
+            return;
 
-        return;
+        Frustum frustum = localPlayer.Player.Camera.View.Definition.Frustum;
 
-        void CullActiveChunks()
-        {
-            foreach (Core.Logic.Chunks.Chunk chunk in ActiveChunks)
-            {
-                chunk.Cast().CullSections(frustum);
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Process an update step for this world.
-    /// </summary>
-    /// <param name="deltaTime">Time since the last update.</param>
-    /// <param name="updateTimer">A timer for profiling.</param>
-    public void Update(Double deltaTime, Timer? updateTimer)
-    {
-        using Timer? subTimer = logger.BeginTimedSubScoped("World Update", updateTimer);
-
-        using (logger.BeginTimedSubScoped("World Update Chunks", subTimer))
-        {
-            UpdateChunkStates();
-        }
-
-        switch (CurrentState)
-        {
-            case State.Activating:
-                ProcessActivating();
-
-                break;
-
-            case State.Active:
-                ProcessActive();
-
-                break;
-
-            case State.Deactivating:
-                ProcessDeactivation();
-
-                break;
-
-            default:
-                Debug.Fail("Invalid world state.");
-
-                break;
-        }
-
-        void ProcessActive()
-        {
-            using (Timer? tickTimer = logger.BeginTimedSubScoped("World Update Ticks", subTimer))
-            {
-                DoTicksOnEverything(deltaTime, tickTimer);
-            }
-
-            using (logger.BeginTimedSubScoped("World Update Meshing", subTimer))
-            {
-                MeshAndClearSectionList();
-            }
-        }
-
-        void ProcessActivating()
-        {
-            worldUpdateCount += 1;
-            chunkUpdateCount += ChunkStateUpdateCount;
-
-            if (ActiveChunkCount < minLoadedChunksAtStart) return;
-
-            Duration readyTime = timer?.Elapsed ?? default;
-            LogWorldReady(logger, readyTime, worldUpdateCount, chunkUpdateCount);
-
-            timer?.Dispose();
-            timer = null;
-
-            CurrentState = State.Active;
-
-            OnActivation();
-        }
-    }
-
-    private void OnActivation()
-    {
-        player?.OnActivate();
-    }
-
-    /// <inheritdoc />
-    protected override void OnDeactivation()
-    {
-        player?.OnDeactivate();
-    }
-
-    private void DoTicksOnEverything(Double deltaTime, Timer? tickTimer)
-    {
-        using (logger.BeginTimedSubScoped("World Tick Chunks", tickTimer))
-        {
-            foreach (Core.Logic.Chunks.Chunk chunk in ActiveChunks) chunk.Tick();
-        }
-
-        using (logger.BeginTimedSubScoped("World Tick Player", tickTimer))
-        {
-            player!.Tick(deltaTime);
-        }
-    }
-
-    private void MeshAndClearSectionList()
-    {
-        foreach ((Chunk chunk, (Int32 x, Int32 y, Int32 z)) in sectionsToMesh)
-        {
-            using ChunkMeshingContext context = ChunkMeshingContext.UsingActive(chunk, SpatialMeshingFactory.Shared);
-            chunk.CreateAndSetMesh(x, y, z, context);
-        }
-
-        sectionsToMesh.Clear();
+        if (Core.App.Application.Instance.IsDebug)
+            Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));
+        else
+            // Rendering chunks even if they are used by an off-thread operation is safe.
+            // The rendering resources are only modified on the main thread anyway.
+            Chunks.ForEachComplete(chunk => chunk.Cast().CullSections(frustum));
     }
 
     /// <inheritdoc />
@@ -232,69 +113,4 @@ public partial class World : Core.Logic.World
             ? new Core.Logic.Chunks.Chunk.Active()
             : null;
     }
-
-    /// <inheritdoc />
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    protected override void ProcessChangedSection(Core.Logic.Chunks.Chunk chunk, Vector3i position)
-    {
-        EnqueueMeshingForAllAffectedSections(chunk, position);
-    }
-
-    /// <summary>
-    ///     Find all sections that need to be meshed because of a block change in a section.
-    ///     If the block position is on the edge of a section, the neighbor is also considered to be affected.
-    /// </summary>
-    /// <param name="chunk">The chunk in which the block change happened.</param>
-    /// <param name="position">The position of the block change, in block coordinates.</param>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private void EnqueueMeshingForAllAffectedSections(Core.Logic.Chunks.Chunk chunk, Vector3i position)
-    {
-        sectionsToMesh.Add((chunk.Cast(), SectionPosition.From(position).Local));
-
-        CheckAxis(axis: 0);
-        CheckAxis(axis: 1);
-        CheckAxis(axis: 2);
-
-        void CheckAxis(Int32 axis)
-        {
-            Int32 axisSectionPosition = position[axis] & (Section.Size - 1);
-
-            Vector3i direction = new()
-            {
-                [axis] = 1
-            };
-
-            if (axisSectionPosition == 0) CheckNeighbor(direction * -1);
-            else if (axisSectionPosition == Section.Size - 1) CheckNeighbor(direction);
-        }
-
-        void CheckNeighbor(Vector3i direction)
-        {
-            Vector3i neighborPosition = position + direction;
-
-            if (!TryGetChunk(ChunkPosition.From(neighborPosition), out Core.Logic.Chunks.Chunk? neighbor)) return;
-
-            if (neighbor.IsActive)
-            {
-                sectionsToMesh.Add((neighbor.Cast(), SectionPosition.From(neighborPosition).Local));
-            }
-            else
-            {
-                // We set the section as incomplete.
-                // The next time the neighbor chunk is activated (if it is), the section will be meshed.
-
-                BlockSides missing = direction.ToBlockSide().ToFlag();
-                neighbor.Cast().SetSectionAsIncomplete(SectionPosition.From(neighborPosition).Local, missing);
-            }
-        }
-    }
-
-    #region LOGGING
-
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<World>();
-
-    [LoggerMessage(EventId = Events.WorldState, Level = LogLevel.Information, Message = "World ready after {ReadyTime}, using {WorldUpdates} world updates with {ChunkUpdates} chunk updates")]
-    private static partial void LogWorldReady(ILogger logger, Duration readyTime, Int64 worldUpdates, Int64 chunkUpdates);
-
-    #endregion LOGGING
 }

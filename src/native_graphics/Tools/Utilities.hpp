@@ -310,6 +310,12 @@ namespace util
                     return L"Barrier";
                 case D3D12_AUTO_BREADCRUMB_OP_BEGIN_COMMAND_LIST:
                     return L"BeginCommandList";
+                case D3D12_AUTO_BREADCRUMB_OP_DISPATCHGRAPH:
+                    return L"DispatchGraph";
+                case D3D12_AUTO_BREADCRUMB_OP_SETPROGRAM:
+                    return L"SetProgram";
+                default:
+                    break;
                 }
                 return L"<unknown>";
             };

@@ -1,6 +1,19 @@
 ﻿// <copyright file="TextStorage.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,7 +22,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using Gwen.Net;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 using Font = Gwen.Net.Font;
 using Point = Gwen.Net.Point;
 using Size = Gwen.Net.Size;
@@ -21,8 +34,8 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// </summary>
 public sealed class TextStorage : IDisposable
 {
-    private readonly DirectXRenderer rendering;
     private readonly DisposableCache<(String, Font), TextRenderer> cache = new(capacity: 200);
+    private readonly DirectXRenderer rendering;
 
     private Dictionary<(String, Font), Entry> used = new();
 
@@ -47,7 +60,7 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public Texture? GetTexture(Font font, String text)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         if (used.TryGetValue((text, font), out Entry? entry))
         {
@@ -72,7 +85,7 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public Texture GetOrCreateTexture(Font font, String text)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Texture? texture = GetTexture(font, text);
 
@@ -93,7 +106,7 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public void Update()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Dictionary<(String, Font), Entry> newStrings = new();
 
@@ -116,7 +129,7 @@ public sealed class TextStorage : IDisposable
     /// </summary>
     public void Flush()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         foreach (Entry entry in used.Values) entry.Renderer.Dispose();
         used.Clear();
@@ -136,7 +149,7 @@ public sealed class TextStorage : IDisposable
         public Boolean Accessed { get; set; }
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -171,5 +184,5 @@ public sealed class TextStorage : IDisposable
         Dispose(disposing: false);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

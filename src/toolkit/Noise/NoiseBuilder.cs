@@ -1,9 +1,23 @@
 ﻿// <copyright file="NoiseBuilder.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Toolkit.Noise;
@@ -11,49 +25,44 @@ namespace VoxelGame.Toolkit.Noise;
 #pragma warning disable CA1033 // Used to create builder.
 
 /// <summary>
-/// Some common methods of all builder parts.
+///     Some common methods of all builder parts.
 /// </summary>
 public interface INoiseBuilder
 {
     /// <summary>
-    /// Get the noise builder.
-    /// </summary>
-    NoiseBuilder And();
-
-    /// <summary>
-    /// Builds and returns the configured <see cref="NoiseGenerator"/>.
+    ///     Builds and returns the configured <see cref="NoiseGenerator" />.
     /// </summary>
     NoiseGenerator Build();
 }
 
 /// <summary>
-/// Step to define the fractal noise.
+///     Step to define the fractal noise.
 /// </summary>
 public interface IFractalNoiseBuilder : INoiseBuilder
 {
     /// <summary>
-    /// Set the number of fractal octaves.
+    ///     Set the number of fractal octaves.
     /// </summary>
     IFractalNoiseBuilder WithOctaves(Int32 octaves);
 
     /// <summary>
-    /// Set the lacunarity.
+    ///     Set the lacunarity.
     /// </summary>
     IFractalNoiseBuilder WithLacunarity(Single lacunarity);
 
     /// <summary>
-    /// Set the gain.
+    ///     Set the gain.
     /// </summary>
     IFractalNoiseBuilder WithGain(Single gain);
 
     /// <summary>
-    /// Set the weighted strength.
+    ///     Set the weighted strength.
     /// </summary>
     IFractalNoiseBuilder WithWeightedStrength(Single weightedStrength);
 }
 
 /// <summary>
-/// Use this to build instances of <see cref="NoiseGenerator"/>.
+///     Use this to build instances of <see cref="NoiseGenerator" />.
 /// </summary>
 [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types")]
 public class NoiseBuilder : IFractalNoiseBuilder
@@ -65,11 +74,6 @@ public class NoiseBuilder : IFractalNoiseBuilder
         definition = new NoiseDefinition {Seed = seed};
     }
 
-    NoiseBuilder INoiseBuilder.And()
-    {
-        return this;
-    }
-
     /// <inheritdoc />
     public NoiseGenerator Build()
     {
@@ -77,7 +81,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Start building a new <see cref="NoiseGenerator"/>.
+    ///     Start building a new <see cref="NoiseGenerator" />.
     /// </summary>
     public static NoiseBuilder Create(Int32 seed)
     {
@@ -85,7 +89,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Sets the type of noise generator.
+    ///     Sets the type of noise generator.
     /// </summary>
     public NoiseBuilder WithType(NoiseType type)
     {
@@ -95,7 +99,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Sets the frequency of the generated noise.
+    ///     Sets the frequency of the generated noise.
     /// </summary>
     public NoiseBuilder WithFrequency(Single frequency)
     {
@@ -105,7 +109,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Enables and returns a fractal noise builder.
+    ///     Enables and returns a fractal noise builder.
     /// </summary>
     public IFractalNoiseBuilder WithFractals()
     {
@@ -115,7 +119,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
     }
 
     /// <summary>
-    /// Disables fractal noise.
+    ///     Disables fractal noise.
     /// </summary>
     public NoiseBuilder WithoutFractals()
     {
@@ -124,7 +128,7 @@ public class NoiseBuilder : IFractalNoiseBuilder
         return this;
     }
 
-    #region IFractalNoiseBuilder
+    #region FRACTALS
 
     IFractalNoiseBuilder IFractalNoiseBuilder.WithOctaves(Int32 octaves)
     {
@@ -154,5 +158,5 @@ public class NoiseBuilder : IFractalNoiseBuilder
         return this;
     }
 
-    #endregion IFractalNoiseBuilder
+    #endregion FRACTALS
 }

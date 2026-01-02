@@ -1,9 +1,24 @@
 ﻿// <copyright file="PipelineDescription.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.IO;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
 using VoxelGame.Graphics.Interop;
@@ -11,7 +26,6 @@ using VoxelGame.Graphics.Interop;
 namespace VoxelGame.Graphics.Definition;
 
 #pragma warning disable S3898 // No equality comparison used.
-#pragma warning disable S4022 // Enum storage type is explicit as it is passed to native code.
 
 /// <summary>
 ///     Describes a pipeline for raster-based rendering.
@@ -112,10 +126,10 @@ public static class ShaderPresets
     /// <summary>
     ///     All presets, as an enum for the native code.
     /// </summary>
-    public enum ShaderPreset : byte
+    public enum ShaderPreset : Byte
     {
         /// <summary>
-        ///     The post processing preset, see <see cref="ShaderPresets.PostProcessing" />.
+        ///     The post-processing preset, see <see cref="ShaderPresets.PostProcessing" />.
         /// </summary>
         PostProcessing,
 
@@ -140,12 +154,12 @@ public static class ShaderPresets
         /// <summary>
         ///     Gets the topology of the mesh.
         /// </summary>
-        public Topology Topology => Topology.Triangle;
+        Topology Topology => Topology.Triangle;
 
         /// <summary>
         ///     Gets the filter set on the texture sampler.
         /// </summary>
-        public Filter Filter => Filter.Linear;
+        Filter Filter => Filter.Linear;
     }
 
     /// <summary>
@@ -179,7 +193,7 @@ public static class ShaderPresets
 /// <summary>
 ///     The topology of the raster pipeline.
 /// </summary>
-public enum Topology : byte
+public enum Topology : Byte
 {
     /// <summary>
     ///     The mesh is a list of triangles.
@@ -195,7 +209,7 @@ public enum Topology : byte
 /// <summary>
 ///     The filter set on the texture sampler.
 /// </summary>
-public enum Filter : byte
+public enum Filter : Byte
 {
     /// <summary>
     ///     A linear filter.

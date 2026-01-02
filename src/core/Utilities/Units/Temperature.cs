@@ -1,6 +1,19 @@
 ﻿// <copyright file="Temperature.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -8,67 +21,10 @@ using System;
 
 namespace VoxelGame.Core.Utilities.Units;
 
-/// <summary>
-///     A measure for temperature.
-/// </summary>
-public readonly struct Temperature : IMeasure, IEquatable<Temperature>
+public readonly partial struct Temperature
 {
-    /// <summary>
-    ///     Get the temperature in degrees Celsius.
-    /// </summary>
-    public Double DegreesCelsius { get; init; }
-
     /// <summary>
     ///     Whether the temperature is below the freezing point of water.
     /// </summary>
     public Boolean IsFreezing => DegreesCelsius <= 0;
-
-    /// <inheritdoc />
-    public static Unit Unit => Unit.Celsius;
-
-    /// <inheritdoc />
-    public Prefix Prefix => Prefix.None;
-
-    /// <inheritdoc />
-    Double IMeasure.Value => DegreesCelsius;
-
-    /// <inheritdoc />
-    public Boolean Equals(Temperature other)
-    {
-        return DegreesCelsius.Equals(other.DegreesCelsius);
-    }
-
-    /// <inheritdoc />
-    public override Boolean Equals(Object? obj)
-    {
-        return obj is Temperature other && Equals(other);
-    }
-
-    /// <inheritdoc />
-    public override Int32 GetHashCode()
-    {
-        return DegreesCelsius.GetHashCode();
-    }
-
-    /// <summary>
-    ///     Equality operator.
-    /// </summary>
-    public static Boolean operator ==(Temperature left, Temperature right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Inequality operator.
-    /// </summary>
-    public static Boolean operator !=(Temperature left, Temperature right)
-    {
-        return !left.Equals(right);
-    }
-
-    /// <inheritdoc />
-    public override String ToString()
-    {
-        return IMeasure.ToString(this);
-    }
 }

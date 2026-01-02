@@ -12,6 +12,7 @@ using Gwen.Net;
 using Gwen.Net.Renderer;
 using OpenTK.Mathematics;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Toolkit.Utilities;
 using Color = Gwen.Net.Color;
 using Font = Gwen.Net.Font;
 using Image = VoxelGame.Core.Visuals.Image;
@@ -45,7 +46,7 @@ public sealed class DirectXRenderer : RendererBase
 
         renderPipeline
             = RenderPipeline.Create(client, this, PreDraw, settings.ShaderFile, settings.ShaderLoadingErrorCallback)
-              ?? throw new InvalidOperationException("Failed to create render pipeline.");
+              ?? throw Exceptions.InvalidOperation("Failed to create render pipeline.");
 
         textureSupport = new TextureSupport(renderPipeline.Textures, settings);
     }
@@ -251,7 +252,7 @@ public sealed class DirectXRenderer : RendererBase
         renderPipeline.Resize(size);
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     /// <inheritdoc />
     public override void Dispose()
@@ -264,5 +265,5 @@ public sealed class DirectXRenderer : RendererBase
         base.Dispose();
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

@@ -1,11 +1,24 @@
 ﻿// <copyright file="Mouse.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 
@@ -18,21 +31,21 @@ public class Mouse
 {
     private readonly Client client;
 
-    private Vector2d oldDelta;
+    private Boolean isCursorLocked;
+    private Boolean isCursorLockRequiredOnFocus;
 
-    private Vector2i? storedPosition;
+    private Vector2d oldDelta;
 
     private Vector2i oldPosition;
     private Vector2i position;
 
-    private Boolean isCursorLocked;
-    private Boolean isCursorLockRequiredOnFocus;
+    private Vector2i? storedPosition;
 
     internal Mouse(Client client)
     {
         this.client = client;
 
-        this.client.OnFocusChange += (_, _) =>
+        this.client.FocusChanged += (_, _) =>
         {
             if (this.client.IsFocused && isCursorLockRequiredOnFocus)
             {
@@ -47,7 +60,7 @@ public class Mouse
             }
         };
 
-        this.client.OnSizeChange += (_, e) =>
+        this.client.SizeChanged += (_, e) =>
         {
             if (!isCursorLocked) return;
 
@@ -59,7 +72,7 @@ public class Mouse
 
             Vector2i CalculateResizedPosition(Vector2i previous)
             {
-                return (previous.ToVector2() / e.OldSize * e.NewSize).ToVector2i();
+                return (Vector2i) (previous.ToVector2() / e.OldSize * e.NewSize);
             }
         };
     }
@@ -85,7 +98,7 @@ public class Mouse
 
     private Vector2i Center => client.Size / 2;
 
-    internal void Update()
+    internal void LogicUpdate()
     {
         NativeMethods.GetMousePosition(client, out Int64 x, out Int64 y);
         position = new Vector2i((Int32) x, (Int32) y);

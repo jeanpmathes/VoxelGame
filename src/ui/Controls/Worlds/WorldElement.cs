@@ -1,6 +1,19 @@
 ﻿// <copyright file="WorldElement.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,7 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
-using VoxelGame.Core;
+using VoxelGame.Core.App;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Controls.Common;
@@ -57,9 +70,9 @@ public sealed class WorldElement : VerticalLayout
             worldProvider.RenameWorld(world, name.Text);
         };
 
-        IconButton favorite = context.CreateIconButton(top, context.Resources.StarEmptyIcon, Language.Favorite, isSmall: true);
-        favorite.ToggledOnIconName = context.Resources.StarFilledIcon;
-        favorite.ToggledOffIconName = context.Resources.StarEmptyIcon;
+        IconButton favorite = context.CreateIconButton(top, Icons.Instance.StarEmpty, Language.Favorite, isSmall: true);
+        favorite.ToggledOnIconName = Icons.Instance.StarFilled;
+        favorite.ToggledOffIconName = Icons.Instance.StarEmpty;
         favorite.IsToggle = true;
         favorite.ShouldDrawToggleDepressedWhenOn = false;
         favorite.Dock = Dock.Right;
@@ -119,7 +132,7 @@ public sealed class WorldElement : VerticalLayout
         {
             Text = world.Version,
             Font = context.Fonts.Small,
-            TextColor = ApplicationInformation.Instance.Version == world.Version ? Colors.Good : Colors.Bad
+            TextColor = Application.Instance.Version.ToString() == world.Version ? Colors.Good : Colors.Bad
         };
 
         Control.Used(version);

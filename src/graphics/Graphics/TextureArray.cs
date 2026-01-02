@@ -1,17 +1,32 @@
 ﻿// <copyright file="TextureArray.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
+using System.Linq;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Objects;
-using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Graphics.Graphics;
 
@@ -20,10 +35,10 @@ namespace VoxelGame.Graphics.Graphics;
 /// </summary>
 public sealed class TextureArray : IEnumerable<Texture>
 {
+    private readonly ColorS[] dominantColors;
     private readonly Texture[] textures;
-    private readonly Color[] dominantColors;
 
-    private TextureArray(Texture[] textures, Color[] dominantColors)
+    private TextureArray(Texture[] textures, ColorS[] dominantColors)
     {
         this.textures = textures;
         this.dominantColors = dominantColors;
@@ -54,7 +69,7 @@ public sealed class TextureArray : IEnumerable<Texture>
     /// </summary>
     /// <param name="index">The index of the texture.</param>
     /// <returns>The dominant color.</returns>
-    public Color GetDominantColor(Int32 index)
+    public ColorS GetDominantColor(Int32 index)
     {
         return dominantColors[index];
     }
@@ -73,7 +88,7 @@ public sealed class TextureArray : IEnumerable<Texture>
         Debug.Assert(images.Length == mips * count);
 
         var data = new Texture[count];
-        var colors = new Color[count];
+        var colors = new ColorS[count];
 
         // ReSharper disable once RedundantAssignment
         Vector2i size = images[index: 0].Size;
@@ -88,7 +103,8 @@ public sealed class TextureArray : IEnumerable<Texture>
 
             Int32 last = end - 1;
 
-            if (images[last].Size == (1, 1)) colors[index] = images[last].GetPixel(x: 0, y: 0);
+            if (images[last].Size == (1, 1))
+                colors[index] = images[last].GetPixel(x: 0, y: 0).ToColorS();
         }
 
         return new TextureArray(data, colors);

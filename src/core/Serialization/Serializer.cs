@@ -1,14 +1,28 @@
 ﻿// <copyright file="Serializer.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
+using VoxelGame.Toolkit.Memory;
 
 namespace VoxelGame.Core.Serialization;
 
@@ -29,8 +43,8 @@ public abstract class Serializer
     public abstract void SerializeSmall(ref Int32 value);
 
     /// <summary>
-    /// Serialize an unsigned integer that is expected to be small but positive.
-    /// Serializers can use this to optimize for space usage.
+    ///     Serialize an unsigned integer that is expected to be small but positive.
+    ///     Serializers can use this to optimize for space usage.
     /// </summary>
     public void SerializeSmall(ref UInt32 value)
     {
@@ -144,6 +158,20 @@ public abstract class Serializer
     }
 
     /// <summary>
+    ///     Serialize a segment.
+    ///     Will not serialize the number of entries in the segment.
+    /// </summary>
+    /// <param name="segment">The segment to serialize.</param>
+    /// <typeparam name="T">The type of the values in the segment.</typeparam>
+    public void Serialize<T>(NativeSegment<T> segment) where T : unmanaged
+    {
+        Span<T> content = segment.AsSpan();
+        Span<Byte> bytes = MemoryMarshal.AsBytes(content);
+
+        Serialize(bytes);
+    }
+
+    /// <summary>
     ///     Serialize a span of bytes. Does NOT serialize the length of the span.
     /// </summary>
     protected abstract void Serialize(Span<Byte> value);
@@ -154,35 +182,11 @@ public abstract class Serializer
     public void Serialize<T>(ref T value)
         where T : unmanaged, Enum
     {
-        Int64 data = default;
-
-        if (Unsafe.SizeOf<T>() == sizeof(Int32)) data = Unsafe.As<T, Int32>(ref value);
-        else if (Unsafe.SizeOf<T>() == sizeof(Byte)) data = Unsafe.As<T, Byte>(ref value);
-        else if (Unsafe.SizeOf<T>() == sizeof(Int16)) data = Unsafe.As<T, Int16>(ref value);
-        else if (Unsafe.SizeOf<T>() == sizeof(Int64)) data = Unsafe.As<T, Int64>(ref value);
-        else Fail($"Unsupported enum size: {Unsafe.SizeOf<T>()}");
+        UInt64 data = EnumTools.GetUnsignedValue(value);
 
         SerializeSmall(ref data);
 
-        if (Unsafe.SizeOf<T>() == sizeof(Int32))
-        {
-            var small = (Int32) data;
-            value = Unsafe.As<Int32, T>(ref small);
-        }
-        else if (Unsafe.SizeOf<T>() == sizeof(Byte))
-        {
-            var small = (Byte) data;
-            value = Unsafe.As<Byte, T>(ref small);
-        }
-        else if (Unsafe.SizeOf<T>() == sizeof(Int16))
-        {
-            var small = (Int16) data;
-            value = Unsafe.As<Int16, T>(ref small);
-        }
-        else if (Unsafe.SizeOf<T>() == sizeof(Int64))
-        {
-            value = Unsafe.As<Int64, T>(ref data);
-        }
+        value = EnumTools.GetEnumValue<T>(data);
     }
 
     /// <summary>
@@ -195,28 +199,8 @@ public abstract class Serializer
     }
 
     /// <summary>
-    ///     Serialize a nullable value.
-    /// </summary>
-    public void SerializeNullableValue<T>(ref T? value)
-        where T : IValue, new()
-    {
-        Boolean hasValue = !Equals(value, default(T));
-        Serialize(ref hasValue);
-
-        if (hasValue)
-        {
-            value ??= new T();
-            SerializeValue(ref value);
-        }
-        else
-        {
-            value = default;
-        }
-    }
-
-    /// <summary>
     ///     Serialize a list of values. This is equivalent to serializing each value individually.
-    ///     The passed list will be modified, e.g. resized and some entries might be cleared.
+    ///     The passed list will be modified, e.g., resized, and some entries might be cleared.
     /// </summary>
     public void SerializeValues<T>(IList<T> values)
         where T : IValue, new()
@@ -259,15 +243,12 @@ public abstract class Serializer
     public void SerializeEntity<T>(T entity)
         where T : IEntity
     {
-        Int32 version = T.Version;
+        UInt32 version = T.CurrentVersion;
 
-        if (Unit.Version <= MetaVersion.Initial) Serialize(ref version);
-#pragma warning disable S3717
-        else throw new NotImplementedException("Entity headers are not implemented for the current version of the serialization system.");
-#pragma warning restore S3717
+        Serialize(ref version);
 
-        if (version > T.Version)
-            Fail($"Entity {typeof(T).Name} has been serialized with a newer version {version} than the current {T.Version}.");
+        if (version > T.CurrentVersion)
+            Fail($"Entity {typeof(T).Name} has been serialized with a newer version {version} than the current {T.CurrentVersion}.");
 
         entity.Serialize(this, new IEntity.Header(version));
     }

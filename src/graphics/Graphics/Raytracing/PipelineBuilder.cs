@@ -1,15 +1,38 @@
 ﻿// <copyright file="PipelineBuilder.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Collections.Generic;
 using System.Diagnostics;
-using System.Runtime.InteropServices;
+using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices.Marshalling;
+using System.Text;
+using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Utilities.Resources;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
+using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Graphics.Graphics.Raytracing;
 
@@ -48,10 +71,15 @@ public class PipelineBuilder
     private readonly List<MaterialConfig> materials = [];
     private readonly List<ShaderFile> shaderFiles = [];
 
-    private TextureArray? firstTextureSlot;
-    private TextureArray? secondTextureSlot;
+    private UInt32 anisotropy = 1;
 
     private UInt32 customDataBufferSize;
+    private UInt32 effectSpoolCount;
+
+    private TextureArray? firstTextureSlot;
+
+    private UInt32 meshSpoolCount;
+    private TextureArray? secondTextureSlot;
 
     /// <summary>
     ///     Add a shader file to the pipeline.
@@ -61,14 +89,14 @@ public class PipelineBuilder
     /// <param name="names">The ungrouped symbols in the file.</param>
     public void AddShaderFile(FileInfo file, HitGroup[]? groups = null, String[]? names = null)
     {
-        List<String> exports = [..names ?? Array.Empty<String>()];
+        List<String> exports = [..names ?? []];
 
         void AddIfNotEmpty(String? name)
         {
             if (!String.IsNullOrEmpty(name)) exports.Add(name);
         }
 
-        foreach (HitGroup group in groups ?? Array.Empty<HitGroup>())
+        foreach (HitGroup group in groups ?? [])
         {
             AddIfNotEmpty(group.ClosestHitSymbol);
             AddIfNotEmpty(group.AnyHitSymbol);
@@ -87,7 +115,7 @@ public class PipelineBuilder
     {
         AddShaderFile(file);
 
-        return new Animation((UInt32) shaderFiles.Count - 1);
+        return new Animation((UInt32) (shaderFiles.Count - 1));
     }
 
     private static String CleanUpName(String name)
@@ -115,6 +143,22 @@ public class PipelineBuilder
     }
 
     /// <summary>
+    ///     Set the quality level of anisotropic texture filtering.
+    /// </summary>
+    /// <param name="level">The anisotropy quality level.</param>
+    public void SetAnisotropyQuality(Quality level)
+    {
+        anisotropy = level switch
+        {
+            Quality.Low => 1,
+            Quality.Medium => 2,
+            Quality.High => 4,
+            Quality.Ultra => 8,
+            _ => throw Exceptions.UnsupportedEnumValue(level)
+        };
+    }
+
+    /// <summary>
     ///     Set which textures should be used in the first texture slot.
     /// </summary>
     /// <param name="texture">The texture array.</param>
@@ -137,21 +181,33 @@ public class PipelineBuilder
     ///     Using this will enable the creation of a custom data buffer.
     /// </summary>
     /// <typeparam name="T">The type of the custom data buffer.</typeparam>
-    public void SetCustomDataBufferType<T>() where T : unmanaged
+    public unsafe void SetCustomDataBufferType<T>() where T : unmanaged
     {
-        customDataBufferSize = (UInt32) Marshal.SizeOf<T>();
+        customDataBufferSize = (UInt32) sizeof(T);
+    }
+
+    /// <summary>
+    ///     Set the number of instances to be spooled up for meshes and effects initially.
+    /// </summary>
+    /// <param name="mesh">The number of mesh instances to spool up.</param>
+    /// <param name="effect">The number of effect instances to spool up.</param>
+    public void SetSpoolCounts(UInt32 mesh, UInt32 effect)
+    {
+        meshSpoolCount = mesh;
+        effectSpoolCount = effect;
     }
 
     /// <summary>
     ///     Build the pipeline, without a custom data buffer.
     /// </summary>
     /// <param name="client">The client that will use the pipeline.</param>
-    /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
-    public Boolean Build(Client client, ILoadingContext loadingContext)
+    /// <param name="context">The context in which loading is happening.</param>
+    /// <returns>An error, if any.</returns>
+    public ResourceIssue? Build(Client client, IResourceContext context)
     {
         Debug.Assert(customDataBufferSize == 0);
 
-        return Build<Byte>(client, loadingContext, out _);
+        return Build<Empty>(client, context, out _);
     }
 
     /// <summary>
@@ -162,39 +218,48 @@ public class PipelineBuilder
     ///     <see cref="SetCustomDataBufferType{T}" />.
     /// </typeparam>
     /// <param name="client">The client that will use the pipeline.</param>
-    /// <param name="loadingContext">The loading context, used to report shader compilation and loading errors.</param>
+    /// <param name="context">The context in which loading is happening.</param>
     /// <param name="buffer">Will be set to the created buffer if the pipeline produced one.</param>
-    public Boolean Build<T>(Client client, ILoadingContext loadingContext, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>
+    /// <returns>An error, if any.</returns>
+    public unsafe ResourceIssue? Build<T>(Client client, IResourceContext context, out ShaderBuffer<T>? buffer) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         (ShaderFileDescription[] files, String[] symbols, MaterialDescription[] materialDescriptions, Texture[] textures) = BuildDescriptions();
 
-        Debug.Assert((customDataBufferSize > 0).Implies(Marshal.SizeOf<T>() == customDataBufferSize));
+        Debug.Assert((customDataBufferSize > 0).Implies(sizeof(T) == customDataBufferSize));
 
-        var success = true;
+        StringBuilder errors = new();
+        var anyError = false;
 
         buffer = client.InitializeRaytracing<T>(new SpacePipelineDescription
         {
             shaderFiles = files,
             symbols = symbols,
+            anisotropy = anisotropy,
             materials = materialDescriptions,
             textures = textures,
             textureCountFirstSlot = (UInt32) (firstTextureSlot?.Count ?? 0),
             textureCountSecondSlot = (UInt32) (secondTextureSlot?.Count ?? 0),
             customDataBufferSize = customDataBufferSize,
-            onShaderLoadingError = (_, message) =>
+            meshSpoolCount = meshSpoolCount,
+            effectSpoolCount = effectSpoolCount,
+            onShaderLoadingError = (_, messagePointer) =>
             {
-                ReportFailure(loadingContext, message);
-                success = false;
+                String? message = Utf8StringMarshaller.ConvertToManaged(messagePointer);
+
+                errors.AppendLine(message);
+                anyError = true;
 
                 Debugger.Break();
             }
         });
 
-        if (!success) return false;
+        if (anyError)
+            return ResourceIssue.FromMessage(Level.Error, errors.ToString());
 
-        ReportSuccess(loadingContext);
+        foreach (ShaderFile shader in shaderFiles)
+            context.ReportDiscovery(ResourceTypes.Shader, RID.Path(shader.File));
 
-        return true;
+        return null;
     }
 
     private (ShaderFileDescription[], String[], MaterialDescription[], Texture[]) BuildDescriptions()
@@ -219,8 +284,8 @@ public class PipelineBuilder
             isVisible = material.Groups.HasFlag(Groups.Visible),
             isShadowCaster = material.Groups.HasFlag(Groups.ShadowCaster),
             isOpaque = material.IsOpaque,
-            isAnimated = material.Animation.HasValue,
-            animationShaderIndex = material.Animation ?? 0,
+            isAnimated = material.AnimationIndex.HasValue,
+            animationShaderIndex = material.AnimationIndex ?? 0,
             normalClosestHitSymbol = material.Normal.ClosestHitSymbol,
             normalAnyHitSymbol = material.Normal.AnyHitSymbol,
             normalIntersectionSymbol = material.Normal.IntersectionSymbol,
@@ -235,19 +300,37 @@ public class PipelineBuilder
         return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
     }
 
-    private static void ReportFailure(ILoadingContext loadingContext, String message)
+    private struct Empty : IEquatable<Empty>, IDefault<Empty>
     {
-        loadingContext.ReportFailure(nameof(SpacePipelineDescription), "RT_Pipeline", message);
-    }
+        #pragma warning disable CS0169
+        [UsedImplicitly] private Byte _;
+        #pragma warning restore CS0169
 
-    private void ReportSuccess(ILoadingContext loadingContext)
-    {
-        foreach (ShaderFile shader in shaderFiles) loadingContext.ReportSuccess(nameof(SpacePipelineDescription), shader.File);
+        public static Empty Default => new();
+
+        #region EQUALITY
+
+        public Boolean Equals(Empty other)
+        {
+            return true;
+        }
+
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is Empty other && Equals(other);
+        }
+
+        public override Int32 GetHashCode()
+        {
+            return 0;
+        }
+
+        #endregion EQUALITY
     }
 
     private sealed record ShaderFile(FileInfo File, String[] Exports);
 
-    private sealed record MaterialConfig(String Name, Groups Groups, Boolean IsOpaque, UInt32? Animation, HitGroup Normal, HitGroup Shadow);
+    private sealed record MaterialConfig(String Name, Groups Groups, Boolean IsOpaque, UInt32? AnimationIndex, HitGroup Normal, HitGroup Shadow);
 
     /// <summary>
     ///     Defines a hit group which is a combination of shaders that are executed when a ray hits a geometry.

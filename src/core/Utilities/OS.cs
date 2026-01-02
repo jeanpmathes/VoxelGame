@@ -1,6 +1,19 @@
 ﻿// <copyright file="OS.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -36,7 +49,7 @@ public static partial class OS
         catch (IOException e)
         {
             LogFailedToFillFile(logger, e, file.FullName, text);
-            
+
             return;
         }
 
@@ -73,13 +86,13 @@ public static partial class OS
 
     private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(OS));
 
-    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Error, Message = "Failed to fill {File} with: {Text}")]
+    [LoggerMessage(EventId = LogID.OS + 0, Level = LogLevel.Error, Message = "Failed to fill {File} with: {Text}")]
     private static partial void LogFailedToFillFile(ILogger logger, IOException e, String file, String text);
 
-    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Debug, Message = "File to start not found: {File}")]
+    [LoggerMessage(EventId = LogID.OS + 1, Level = LogLevel.Debug, Message = "File to start not found: {File}")]
     private static partial void LogFileToStartNotFound(ILogger logger, String file);
 
-    [LoggerMessage(EventId = Events.OS, Level = LogLevel.Debug, Message = "Failed to start file: {File}")]
+    [LoggerMessage(EventId = LogID.OS + 2, Level = LogLevel.Debug, Message = "Failed to start file: {File}")]
     private static partial void LogFailedToStartFile(ILogger logger, Win32Exception e, String file);
 
     #endregion LOGGING

@@ -1,9 +1,23 @@
 ﻿// <copyright file="SpacePipeline.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
@@ -25,6 +39,7 @@ internal struct SpacePipelineDescription
     internal ShaderFileDescription[] shaderFiles;
     internal String[] symbols;
 
+    internal UInt32 anisotropy;
     internal MaterialDescription[] materials;
 
     internal Texture[] textures;
@@ -32,6 +47,9 @@ internal struct SpacePipelineDescription
     internal UInt32 textureCountSecondSlot;
 
     internal UInt32 customDataBufferSize;
+
+    internal UInt32 meshSpoolCount;
+    internal UInt32 effectSpoolCount;
 
     internal Native.NativeErrorFunc onShaderLoadingError;
 }
@@ -47,6 +65,8 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
 
         internal IntPtr* symbols;
 
+        internal UInt32 anisotropy;
+
         internal MaterialDescriptionMarshaller.Unmanaged* materials;
         internal UInt32 materialCount;
 
@@ -55,6 +75,10 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
         internal UInt32 textureCountSecondSlot;
 
         internal UInt32 customDataBufferSize;
+
+        internal UInt32 meshSpoolCount;
+        internal UInt32 effectSpoolCount;
+
         internal IntPtr onShaderLoadingError;
     }
 
@@ -74,6 +98,7 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
                 shaderFileCount = shaderFileCount,
                 symbols = Marshalling.ConvertToUnmanaged<String, IntPtr,
                     UnicodeStringMarshaller>(managed.symbols, out symbolCount),
+                anisotropy = managed.anisotropy,
                 materials = Marshalling.ConvertToUnmanaged<MaterialDescription, MaterialDescriptionMarshaller.Unmanaged,
                     MaterialDescriptionMarshaller.Marshaller>(managed.materials, out UInt32 materialCount),
                 materialCount = materialCount,
@@ -82,7 +107,9 @@ internal unsafe ref struct SpacePipelineDescriptionMarshaller
                 textureCountFirstSlot = managed.textureCountFirstSlot,
                 textureCountSecondSlot = managed.textureCountSecondSlot,
                 customDataBufferSize = managed.customDataBufferSize,
-                onShaderLoadingError = Marshal.GetFunctionPointerForDelegate(managed.onShaderLoadingError)
+                onShaderLoadingError = Marshal.GetFunctionPointerForDelegate(managed.onShaderLoadingError),
+                meshSpoolCount = managed.meshSpoolCount,
+                effectSpoolCount = managed.effectSpoolCount
             };
         }
 
@@ -134,6 +161,7 @@ internal static class ShaderFileDescriptionMarshaller
     {
         UnicodeStringMarshaller.Free(unmanaged.path);
     }
+
 #pragma warning disable S1694
     internal abstract class Marshaller : IMarshaller<ShaderFileDescription, Unmanaged>
 #pragma warning restore S1694

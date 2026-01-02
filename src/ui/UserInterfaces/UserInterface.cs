@@ -1,6 +1,19 @@
 ﻿// <copyright file="UserInterface.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,6 +22,7 @@ using Gwen.Net.Control;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input;
+using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.UI.UserInterfaces;
@@ -19,11 +33,11 @@ namespace VoxelGame.UI.UserInterfaces;
 public abstract class UserInterface : IDisposable
 {
     private static readonly Vector2 targetSize = new(x: 1920, y: 1080);
+    private readonly Boolean drawBackground;
 
     private readonly Input input;
+    private readonly UserInterfaceResources resources;
     private readonly IScaleProvider scale;
-    private readonly UIResources resources;
-    private readonly Boolean drawBackground;
 
     private readonly IDisposable scaleSubscription;
 
@@ -36,7 +50,7 @@ public abstract class UserInterface : IDisposable
     /// <param name="scale">Provides the scale of the ui.</param>
     /// <param name="resources">The ui resources.</param>
     /// <param name="drawBackground">Whether to draw background of the ui.</param>
-    protected UserInterface(Input input, IScaleProvider scale, UIResources resources, Boolean drawBackground)
+    protected UserInterface(Input input, IScaleProvider scale, UserInterfaceResources resources, Boolean drawBackground)
     {
         this.input = input;
         this.scale = scale;
@@ -63,7 +77,7 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void Load()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Root.ShouldDrawBackground = drawBackground;
 
@@ -75,7 +89,7 @@ public abstract class UserInterface : IDisposable
     /// </summary>
     public void CreateControl()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         Root.DeleteAllChildren();
         CreateNewControl();
@@ -89,9 +103,9 @@ public abstract class UserInterface : IDisposable
     /// <summary>
     ///     Update the user interface. This handles the input.
     /// </summary>
-    public void Update()
+    public void LogicUpdate()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         resources.GUI.Update();
     }
@@ -99,9 +113,9 @@ public abstract class UserInterface : IDisposable
     /// <summary>
     ///     Render the user interface.
     /// </summary>
-    public void Render()
+    public void RenderUpdate()
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         resources.GUI.Render();
     }
@@ -112,7 +126,7 @@ public abstract class UserInterface : IDisposable
     /// <param name="size">The new size.</param>
     public void Resize(Vector2i size)
     {
-        Throw.IfDisposed(disposed);
+        ExceptionTools.ThrowIfDisposed(disposed);
 
         SetSize(size);
     }
@@ -129,12 +143,12 @@ public abstract class UserInterface : IDisposable
     {
         Single newScale = (currentSize.ToVector2() / targetSize).MinComponent() * scale.Scale;
 
-        if (VMath.NearlyZero(newScale)) return;
+        if (MathTools.NearlyZero(newScale)) return;
 
         resources.GUI.Root.Scale = newScale;
     }
 
-    #region IDisposable Support
+    #region DISPOSABLE
 
     private Boolean disposed;
 
@@ -165,5 +179,5 @@ public abstract class UserInterface : IDisposable
         GC.SuppressFinalize(this);
     }
 
-    #endregion IDisposable Support
+    #endregion DISPOSABLE
 }

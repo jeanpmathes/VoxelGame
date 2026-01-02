@@ -9,19 +9,21 @@
 constexpr std::array<float, 4> NativeClient::CLEAR_COLOR     = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr std::array<float, 4> NativeClient::LETTERBOX_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 
-UINT const   NativeClient::AGILITY_SDK_VERSION = 613;
+UINT const   NativeClient::AGILITY_SDK_VERSION = 614;
 LPCSTR const NativeClient::AGILITY_SDK_PATH    = ".\\D3D12\\";
 
 NativeClient::NativeClient(Configuration const& configuration)
     : DXApp(configuration)
   , m_resolution(Resolution{configuration.width, configuration.height} * configuration.renderScale)
+#if defined(NATIVE_DEBUG)
   , m_debugCallback(configuration.onDebug)
+#endif
   , m_space(std::make_unique<Space>(*this))
 #if defined(USE_NSIGHT_AFTERMATH)
-  , m_gpuCrashTracker(
-        m_markerMap,
-        m_shaderDatabase,
-        GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
+, m_gpuCrashTracker(
+    m_markerMap,
+    m_shaderDatabase,
+    GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
 #endif
 {
     if (SupportPIX() && !PIXIsAttachedForGpuCapture()) PIXLoadLatestWinPixGpuCapturerLibrary();
@@ -31,7 +33,7 @@ ComPtr<ID3D12Device5> NativeClient::GetDevice() const { return m_device; }
 
 ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const { return m_allocator; }
 
-void NativeClient::OnInit()
+void NativeClient::OnPreInitialization()
 {
     LoadDevice();
     InitializeFences();
@@ -46,7 +48,7 @@ void NativeClient::OnInit()
     LoadRasterPipeline();
 }
 
-void NativeClient::OnPostInit()
+void NativeClient::OnPostInitialization()
 {
     if (!m_spaceInitialized) m_space = nullptr;
 
@@ -55,6 +57,8 @@ void NativeClient::OnPostInit()
     WaitForGPU();
     m_uploader = nullptr;
 }
+
+void NativeClient::OnInitializationComplete() { if (m_space) m_space->SpoolUp(); }
 
 void NativeClient::LoadDevice()
 {
@@ -110,12 +114,12 @@ void NativeClient::LoadDevice()
             GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
 
         AFTERMATH_CHECK_ERROR(
-            GFSDK_Aftermath_DX12_Initialize( GFSDK_Aftermath_Version_API, aftermathFlags, m_device.Get()));
+            GFSDK_Aftermath_DX12_Initialize(GFSDK_Aftermath_Version_API, aftermathFlags, m_device.Get()));
     }
 #endif
 
 #if defined(NATIVE_DEBUG)
-    auto                             callback = [](
+    auto callback = [](
         D3D12_MESSAGE_CATEGORY const category,
         D3D12_MESSAGE_SEVERITY const severity,
         D3D12_MESSAGE_ID const       id,
@@ -184,13 +188,13 @@ void NativeClient::LoadDevice()
     TryDo(
         dxgiFactory->CreateSwapChainForHwnd(
             m_commandQueue.Get(),
-            Win32Application::GetHwnd(),
+            Win32Application::GetWindowHandle(),
             &swapChainDesc,
             nullptr,
             nullptr,
             &swapChain));
 
-    TryDo(dxgiFactory->MakeWindowAssociation(Win32Application::GetHwnd(), DXGI_MWA_NO_ALT_ENTER));
+    TryDo(dxgiFactory->MakeWindowAssociation(Win32Application::GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER));
 
     TryDo(swapChain.As(&m_swapChain));
     m_frameIndex = m_swapChain->GetCurrentBackBufferIndex();
@@ -387,7 +391,7 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
     if (m_space) m_space->PerformResolutionDependentSetup(m_resolution);
 
     D3D12_RESOURCE_DESC depthResourceDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-        DXGI_FORMAT_D32_FLOAT,
+        DXGI_FORMAT_R32_TYPELESS,
         m_resolution.width,
         m_resolution.height,
         1,
@@ -414,11 +418,7 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
         &dsvDesc,
         m_dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
 
-    if (m_postProcessingPipeline != nullptr)
-        m_postProcessingPipeline->CreateShaderResourceView(
-            m_postProcessingPipeline->GetBindings().PostProcessing().input,
-            0,
-            {m_intermediateRenderTarget});
+    if (m_postProcessingPipeline != nullptr) CreatePostProcessingShaderResourceViews();
 }
 
 void NativeClient::EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> const commandList)
@@ -429,9 +429,9 @@ void NativeClient::EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsComm
     commandList->DiscardResource(m_intermediateRenderTarget.Get(), nullptr);
 }
 
-void NativeClient::OnUpdate(double const delta) { if (m_space) m_space->Update(delta); }
+void NativeClient::OnLogicUpdate(double const delta) { if (m_space) m_space->Update(delta); }
 
-void NativeClient::OnPreRender()
+void NativeClient::OnPreRenderUpdate()
 {
     if (!m_windowVisible) return;
 
@@ -439,7 +439,7 @@ void NativeClient::OnPreRender()
     m_uploader = std::make_unique<Uploader>(*this, m_uploadGroup.commandList);
 }
 
-void NativeClient::OnRender(double const)
+void NativeClient::OnRenderUpdate(double const)
 {
     if (!m_windowVisible) return;
 
@@ -540,7 +540,7 @@ void NativeClient::OnSizeChanged(UINT const width, UINT const height, bool const
         UpdateForSizeChange(width, height);
         SetUpSizeDependentResources();
 
-        if (Resolution const newResolution = Resolution{width, height} * GetRenderScale();
+        if (Resolution const newResolution = Resolution{.width = width, .height = height} * GetRenderScale();
             newResolution != m_resolution)
         {
             m_resolution = newResolution;
@@ -588,10 +588,7 @@ void NativeClient::AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline)
 void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 {
     m_postProcessingPipeline = pipeline;
-    m_postProcessingPipeline->CreateShaderResourceView(
-        m_postProcessingPipeline->GetBindings().PostProcessing().input,
-        0,
-        {m_intermediateRenderTarget});
+    CreatePostProcessingShaderResourceViews();
 }
 
 UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT const priority, draw2d::Callback const callback)
@@ -638,6 +635,27 @@ void NativeClient::RemoveDraw2DPipeline(UINT const id)
 
     m_draw2dPipelines.erase(iterator);
     m_draw2dPipelineIDs.erase(id);
+}
+
+void NativeClient::CreatePostProcessingShaderResourceViews() const
+{
+    m_postProcessingPipeline->CreateShaderResourceView(
+        m_postProcessingPipeline->GetBindings().PostProcessing().color,
+        0,
+        {m_intermediateRenderTarget});
+
+    // Because the depth buffer is created as TYPELESS, we cannot use the NULL descriptor.
+
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc = {};
+    srvDesc.ViewDimension                   = D3D12_SRV_DIMENSION_TEXTURE2D;
+    srvDesc.Format                          = DXGI_FORMAT_R32_FLOAT;
+    srvDesc.Shader4ComponentMapping         = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
+    srvDesc.Texture2D.MipLevels             = 1;
+
+    m_postProcessingPipeline->CreateShaderResourceView(
+        m_postProcessingPipeline->GetBindings().PostProcessing().depth,
+        0,
+        {m_intermediateDepthStencilBuffer, &srvDesc});
 }
 
 NativeClient::ObjectHandle NativeClient::StoreObject(std::unique_ptr<Object> object)
@@ -693,9 +711,7 @@ void NativeClient::SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList
 
     GFSDK_Aftermath_ContextHandle contextHandle;
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
-}
-
-void NativeClient::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
+}void NativeClient::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
 {
     if (SupportPIX()) return;
 
@@ -789,7 +805,7 @@ void NativeClient::PopulateCommandLists()
     EnsureValidDepthBuffers(m_2dGroup.commandList);
     EnsureValidIntermediateRenderTarget(m_2dGroup.commandList);
 
-    std::array<D3D12_RESOURCE_BARRIER, 2> barriers = {
+    std::array<D3D12_RESOURCE_BARRIER, 3> barriers = {
         CD3DX12_RESOURCE_BARRIER::Transition(
             m_finalRenderTargets[m_frameIndex].Get(),
             D3D12_RESOURCE_STATE_PRESENT,
@@ -797,6 +813,10 @@ void NativeClient::PopulateCommandLists()
         CD3DX12_RESOURCE_BARRIER::Transition(
             m_intermediateRenderTarget.Get(),
             D3D12_RESOURCE_STATE_RENDER_TARGET,
+            D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_intermediateDepthStencilBuffer.Get(),
+            D3D12_RESOURCE_STATE_DEPTH_WRITE,
             D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
     };
 
@@ -825,8 +845,12 @@ void NativeClient::PopulateCommandLists()
 
     barriers[0].Transition.StateBefore = D3D12_RESOURCE_STATE_RENDER_TARGET;
     barriers[0].Transition.StateAfter  = D3D12_RESOURCE_STATE_PRESENT;
+
     barriers[1].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
     barriers[1].Transition.StateAfter  = D3D12_RESOURCE_STATE_RENDER_TARGET;
+
+    barriers[2].Transition.StateBefore = D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
+    barriers[2].Transition.StateAfter  = D3D12_RESOURCE_STATE_DEPTH_WRITE;
 
     m_2dGroup.commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
     m_2dGroup.Close();

@@ -1,0 +1,165 @@
+﻿// <copyright file="Foliage.cs" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
+using VoxelGame.Annotations.Attributes;
+using VoxelGame.Core.Behaviors;
+using VoxelGame.Core.Behaviors.Aspects;
+using VoxelGame.Core.Behaviors.Aspects.Strategies;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
+using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Toolkit.Utilities;
+using Void = VoxelGame.Toolkit.Utilities.Void;
+
+namespace VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
+
+/// <summary>
+///     Corresponds to <see cref="Meshable.Foliage" />.
+/// </summary>
+public partial class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, Block>, IMeshable
+{
+    /// <summary>
+    ///     Defines the layout of the foliage mesh.
+    /// </summary>
+    public enum LayoutType
+    {
+        /// <summary>
+        ///     The foliage uses a two planes forming a cross.
+        /// </summary>
+        Cross,
+
+        /// <summary>
+        ///     The foliage uses two times two parallel planes.
+        ///     Used primarily for double block crops.
+        /// </summary>
+        Crop,
+
+        /// <summary>
+        ///     The foliage uses two times three parallel planes, essentially a denser version of <see cref="Crop" />.
+        ///     Used primarily for single block crops.
+        /// </summary>
+        DenseCrop
+    }
+
+    /// <summary>
+    ///     Foliage blocks can occupy one or two block positions.
+    ///     This enum defines which part of a plant the meshed block represents.
+    /// </summary>
+    public enum PartType
+    {
+        /// <summary>
+        ///     The block occupies a single position.
+        /// </summary>
+        Single,
+
+        /// <summary>
+        ///     The block occupies the lower part of a double plant which occupies two positions.
+        /// </summary>
+        DoubleLower,
+
+        /// <summary>
+        ///     The block occupies the upper part of a double plant which occupies two positions.
+        /// </summary>
+        DoubleUpper
+    }
+
+    private readonly Meshed meshed;
+    private readonly SingleTextured textured;
+
+    [Constructible]
+    private Foliage(Block subject) : base(subject)
+    {
+        meshed = subject.Require<Meshed>();
+        textured = subject.Require<SingleTextured>();
+
+        Part = Aspect<PartType, State>.New<Exclusive<PartType, State>>(nameof(Part), this);
+        IsLowered = Aspect<Boolean, State>.New<Exclusive<Boolean, State>>(nameof(IsLowered), this);
+    }
+
+    /// <summary>
+    ///     The mesh layout of the foliage.
+    /// </summary>
+    public ResolvedProperty<LayoutType> Layout { get; } = ResolvedProperty<LayoutType>.New<Exclusive<LayoutType, Void>>(nameof(Layout));
+
+    /// <summary>
+    ///     The part of the foliage a block in a certain state represents.
+    /// </summary>
+    public Aspect<PartType, State> Part { get; }
+
+    /// <summary>
+    ///     Whether the block is lowered towards the ground, so it aligns with a partial ground that is lowered by one partial
+    ///     height unit.
+    ///     See <see cref="Contents.Environment.Farmland" /> as an example of a block that allows plant growth and is lowered,
+    ///     not
+    ///     filling a full block position.
+    /// </summary>
+    public Aspect<Boolean, State> IsLowered { get; }
+
+    /// <inheritdoc />
+    public Meshable Type => Meshable.Foliage;
+
+    /// <inheritdoc />
+    public override void OnInitialize(BlockProperties properties)
+    {
+        properties.IsOpaque.ContributeConstant(value: false);
+
+        Layout.Initialize(this);
+    }
+
+    /// <summary>
+    ///     Get the mesh data for a given state of the block.
+    /// </summary>
+    /// <param name="state">The state to get the mesh data for.</param>
+    /// <param name="textureIndexProvider">Provides texture indices for given texture IDs.</param>
+    /// <param name="visuals">The visual configuration to use.</param>
+    /// <returns>The mesh data for the given state.</returns>
+    public MeshData GetMeshData(State state, ITextureIndexProvider textureIndexProvider, VisualConfiguration visuals)
+    {
+        PartType part = Part.GetValue(PartType.Single, state);
+        Boolean isLowered = IsLowered.GetValue(original: false, state);
+        ColorS tint = meshed.Tint.GetValue(ColorS.NoTint, state);
+        Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
+
+        Int32 textureIndex = textured.GetTextureIndex(state, textureIndexProvider, isBlock: true);
+
+        Mesh mesh = Layout.Get() switch
+        {
+            LayoutType.Cross => Meshes.CreateCrossPlantMesh(visuals.FoliageQuality, textureIndex, isLowered),
+            LayoutType.Crop => Meshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: false, textureIndex, isLowered),
+            LayoutType.DenseCrop => Meshes.CreateCropPlantMesh(visuals.FoliageQuality, createMiddlePiece: true, textureIndex, isLowered),
+            _ => throw Exceptions.UnsupportedEnumValue(Layout.Get())
+        };
+
+        Mesh.Quad[] quads = mesh.GetMeshData(out UInt32 quadCount);
+
+        return new MeshData(quads, quadCount, tint, part, isAnimated && textureIndex != ITextureIndexProvider.MissingTextureIndex);
+    }
+
+    /// <summary>
+    ///     The mesh data for a foliage block.
+    /// </summary>
+    /// <param name="Quads">The quads that make up the mesh.</param>
+    /// <param name="QuadCount">Number of quads in the mesh.</param>
+    /// <param name="Tint">The tint color to apply to the mesh.</param>
+    /// <param name="IsAnimated">Whether the texture is animated.</param>
+    /// <param name="Part">What part of a foliage block this mesh represents.</param>
+    public readonly record struct MeshData(Mesh.Quad[] Quads, UInt32 QuadCount, ColorS Tint, PartType Part, Boolean IsAnimated);
+}

@@ -1,0 +1,8 @@
+﻿<Texture xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="../texture.xsd">
+    <Layers>
+        <Layer source="p:pine:all"/>
+        <Layer source="p:pine_log:all"/>
+    </Layers>
+    <Modifiers/>
+</Texture>

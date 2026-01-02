@@ -1,6 +1,19 @@
 ﻿// <copyright file="LoggingEvents.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,214 +22,53 @@ using System;
 namespace VoxelGame.Logging;
 
 /// <summary>
-///     Event IDs for important logging events.
+///     Defines basic ranges of the event IDs for the logging system.
+///     The ranges are aligned with the project structure.
 /// </summary>
 public static class Events
 {
     /// <summary>
-    ///     The default ID, which is also used if no ID is given.
+    ///     The increment between event IDs of different classes.
     /// </summary>
-    public const Int32 Default = 0;
+    public const UInt16 Increment = 0x010;
 
     /// <summary>
-    ///     Events related to the logging system itself.
+    ///     The VoxelGame.Core project.
     /// </summary>
-    public const Int32 Meta = 60000;
-
-    #region GENERAL APPLICATION
+    public const UInt16 CoreID = 0x0000;
 
     /// <summary>
-    ///     Information related to the application.
+    ///     The VoxelGame.Client project.
     /// </summary>
-    public const Int32 ApplicationInformation = 1;
+    public const UInt16 ClientID = 0x1000;
 
     /// <summary>
-    ///     Information related to the application settings.
+    ///     The VoxelGame.Server project.
     /// </summary>
-    public const Int32 ApplicationSettings = 2;
+    public const UInt16 ServerID = 0x2000;
 
     /// <summary>
-    ///     Events that indicate a change of the general application state.
+    ///     The VoxelGame.Graphics project.
     /// </summary>
-    public const Int32 ApplicationState = 10;
+    public const UInt16 GraphicsID = 0x3000;
 
     /// <summary>
-    ///     Occurs when the state of the application window has changed.
+    ///     The VoxelGame.Toolkit project.
     /// </summary>
-    public const Int32 WindowState = 11;
+    public const UInt16 ToolkitID = 0x4000;
 
     /// <summary>
-    ///     Events related to OS interactions.
+    ///     The VoxelGame.UI project.
     /// </summary>
-    public const Int32 OS = 20;
+    public const UInt16 UserInterfaceID = 0x5000;
 
     /// <summary>
-    ///     Events related to the integrated profiler.
+    ///     The VoxelGame.Manual project.
     /// </summary>
-    public const Int32 Profiling = 30;
+    public const UInt16 ManualID = 0x6000;
 
     /// <summary>
-    ///     Events related to file system operations.
+    ///     Any plugins and extensions.
     /// </summary>
-    public const Int32 FileIO = 50;
-
-    /// <summary>
-    ///     Events related to the scene system.
-    /// </summary>
-    public const Int32 Scene = 60;
-
-    /// <summary>
-    ///     Events related to the in-game console.
-    /// </summary>
-    public const Int32 Console = 70;
-
-    /// <summary>
-    ///     Events related to the disposal of objects.
-    /// </summary>
-    public const Int32 Dispose = 99;
-
-    /// <summary>
-    ///     Occurs with events or information connected to the successful loading of resources.
-    /// </summary>
-    public const Int32 ResourceLoad = 100;
-
-    /// <summary>
-    ///     Occurs with events or information connected to the successful loading of creations.
-    ///     Creations are user-made resources that are loaded during an active game session.
-    /// </summary>
-    public const Int32 CreationLoad = 101;
-
-    /// <summary>
-    ///     Occurs when a texture or model that is requested could not be loaded and a fallback is used.
-    /// </summary>
-    public const Int32 MissingResource = 110;
-    
-    /// <summary>
-    ///     Occurs when a creation is not available or could not be loaded.
-    /// </summary>
-    public const Int32 MissingCreation = 111;
-
-    /// <summary>
-    ///     A general event category for everything input related.
-    /// </summary>
-    public const Int32 InputSystem = 200;
-
-    /// <summary>
-    ///     Occurs when a key bind is registered or the binding is changed.
-    /// </summary>
-    public const Int32 SetKeyBind = 210;
-
-    /// <summary>
-    ///     Occurs when the active scene is changed.
-    /// </summary>
-    public const Int32 SceneChange = 300;
-
-    #endregion GENERAL APPLICATION
-
-    #region WORLD LOGIC
-
-    /// <summary>
-    ///     Events indicating a change of the world state.
-    /// </summary>
-    public const Int32 WorldState = 1000;
-
-    /// <summary>
-    ///     Events related to saving and loading worlds.
-    /// </summary>
-    public const Int32 WorldIO = 1001;
-
-    /// <summary>
-    ///     An error that occurs when saving the world.
-    /// </summary>
-    public const Int32 WorldSavingError = 1010;
-
-    /// <summary>
-    ///     An error that occurs when loading a world, e.g. when the meta file is damaged.
-    /// </summary>
-    public const Int32 WorldLoadingError = 1011;
-
-    /// <summary>
-    ///     An error that occurs when saving a chunk.
-    /// </summary>
-    public const Int32 ChunkSavingError = 1012;
-
-    /// <summary>
-    ///     An error that occurs when loading a chunk.
-    /// </summary>
-    public const Int32 ChunkLoadingError = 1013;
-
-    /// <summary>
-    ///     An error that occurs when meshing a chunk.
-    /// </summary>
-    public const Int32 ChunkMeshingError = 1014;
-
-    /// <summary>
-    ///     Different chunk operations like loading, saving or generating.
-    /// </summary>
-    public const Int32 ChunkOperation = 1030;
-
-    /// <summary>
-    ///     Occurs when a chunk is requested.
-    /// </summary>
-    public const Int32 ChunkRequest = 1031;
-
-    /// <summary>
-    ///     Occurs when a chunk is released.
-    /// </summary>
-    public const Int32 ChunkRelease = 1032;
-
-    /// <summary>
-    ///     Events related to world generation.
-    /// </summary>
-    public const Int32 WorldGeneration = 1060;
-
-    /// <summary>
-    ///     Any event concerning the physics system.
-    /// </summary>
-    public const Int32 PhysicsSystem = 1200;
-    
-    /// <summary>
-    ///     Any event concerning general simulation systems.
-    /// </summary>
-    public const Int32 Simulation = 1201;
-    
-    /// <summary>
-    ///     Any event related to player actions.
-    /// </summary>
-    public const Int32 Player = 1400;
-
-    #endregion WORLD LOGIC
-
-    #region CONTENT
-    
-    /// <summary>
-    ///     Occurs when stored block information refers to unknown blocks.
-    /// </summary>
-    public const Int32 UnknownBlock = 2000;
-    
-    /// <summary>
-    ///     Occurs when stored block information refers to unknown blocks.
-    /// </summary>
-    public const Int32 UnknownFluid = 2500;
-
-    #endregion CONTENT
-
-    #region RENDERING AND VISUALS
-    
-    /// <summary>
-    ///     Events related to the render pipeline and other graphics-related operations.
-    /// </summary>
-    public const Int32 Graphics = 3000;
-
-    /// <summary>
-    ///     Occurs when a screenshot is taken.
-    /// </summary>
-    public const Int32 Screenshot = 3150;
-
-    /// <summary>
-    ///     Occurs when DirectX issues a debug message.
-    /// </summary>
-    public const Int32 DirectXDebug = 3500;
-
-    #endregion RENDERING AND VISUALS
+    public const UInt16 PluginID = 0xF000;
 }

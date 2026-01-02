@@ -1,12 +1,30 @@
 ﻿// <copyright file="Operations.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
+using VoxelGame.Core.App;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Updates;
 
@@ -16,38 +34,45 @@ namespace VoxelGame.Core.Updates;
 [SuppressMessage("Design", "CA1001:Types that own disposable fields should be disposable", Justification = "Not disposing tasks is fine here.")]
 public static class Operations
 {
-    private static void RegisterOperation(Operation operation)
+    private const String NoDispatchMessage = "No global dispatch available.";
+
+    private static void RegisterOperation(Operation operation, OperationUpdateDispatch dispatch)
     {
-        if (UpdateDispatch.Instance == null)
-            throw new InvalidOperationException();
-
-        operation.Start();
-
-        UpdateDispatch.Instance.Add(operation);
+        dispatch.Add(operation);
     }
 
     /// <summary>
     ///     Launch an action as an operation.
+    ///     The action should be async code.
     ///     It will run on a background thread.
     /// </summary>
-    public static Operation Launch(Action action)
+    /// <param name="action">The action to run.</param>
+    /// <param name="dispatch">The dispatch to use for the operation. If <c>null</c>, the global dispatch will be used.</param>
+    public static Operation Launch(Func<CancellationToken, Task> action, OperationUpdateDispatch? dispatch = null)
     {
-        TaskOperation operation = new(action);
+        dispatch ??= OperationUpdateDispatch.Instance ?? throw Exceptions.InvalidOperation(NoDispatchMessage);
 
-        RegisterOperation(operation);
+        FutureOperation operation = new(action, dispatch);
+
+        RegisterOperation(operation, dispatch);
 
         return operation;
     }
 
     /// <summary>
     ///     Launch a function as an operation.
+    ///     The function should be async code.
     ///     The result will be available when the operation is finished.
     /// </summary>
-    public static Operation<T> Launch<T>(Func<T> function)
+    /// <param name="function">The function to run.</param>
+    /// <param name="dispatch">The dispatch to use for the operation. If <c>null</c>, the global dispatch will be used.</param>
+    public static Operation<T> Launch<T>(Func<CancellationToken, Task<T>> function, OperationUpdateDispatch? dispatch = null)
     {
-        TaskOperation<T> operation = new(function);
+        dispatch ??= OperationUpdateDispatch.Instance ?? throw Exceptions.InvalidOperation(NoDispatchMessage);
 
-        RegisterOperation(operation);
+        FutureOperation<T> operation = new(function, dispatch);
+
+        RegisterOperation(operation, dispatch);
 
         return operation;
     }
@@ -72,109 +97,223 @@ public static class Operations
         return new WrapperOperation<T>(result);
     }
 
-    private sealed class TaskOperation : Operation
+    #pragma warning disable S2931 // Dispose is called in Cleanup, which runs on completion. Implementing IDisposable would harm the Operation interface.
+    private sealed class FutureOperationInternal
+    #pragma warning restore S2931
     {
-        private readonly Action work;
+        private CancellationTokenSource? cancellation;
+        private Boolean cancelled;
+        private Future? future;
 
-        private readonly Task? previous;
-        private Task? current;
-
-        public TaskOperation(Action action, Task? previous = null)
+        public FutureOperationInternal()
         {
+            cancellation = new CancellationTokenSource();
+            Token = cancellation.Token;
+        }
+
+        public CancellationToken Token { get; }
+
+        public Future Run(Func<Task> work, FutureOperationInternal? previous)
+        {
+            if (previous?.cancelled == true)
+                return Future.CreateCanceled();
+
+            CancellationToken token = previous?.Token ?? Token;
+
+            Future running = previous?.future == null
+                ? Future.Create(work, token)
+                : Future.CreateContinuation(previous.future, work, token);
+
+            future = running;
+
+            return running;
+        }
+
+        public Future<T> Run<T>(Func<Task<T>> work, FutureOperationInternal? previous)
+        {
+            if (previous?.cancelled == true)
+                return Future.CreateCanceled<T>();
+
+            CancellationToken token = previous?.Token ?? Token;
+
+            Future<T> running = previous?.future == null
+                ? Future.Create(work, token)
+                : Future.CreateContinuation(previous.future, work, token);
+
+            future = running;
+
+            return running;
+        }
+
+        public void Cleanup()
+        {
+            Application.ThrowIfNotOnMainThread(this);
+
+            cancellation?.Dispose();
+            cancellation = null;
+        }
+
+        public void Cancel()
+        {
+            Application.ThrowIfNotOnMainThread(this);
+
+            cancelled = true;
+            cancellation?.Cancel();
+        }
+    }
+
+    private sealed class FutureOperation : Operation
+    {
+        private readonly FutureOperationInternal current;
+        private readonly OperationUpdateDispatch dispatch;
+        private readonly FutureOperationInternal? previous;
+        private readonly Func<Task> work;
+
+        private Future? future;
+
+        public FutureOperation(Func<CancellationToken, Task> action, OperationUpdateDispatch dispatch, FutureOperationInternal? previous = null)
+        {
+            this.dispatch = dispatch;
             this.previous = previous;
 
-            work = () =>
-            {
-                Exception? exception = null;
+            current = new FutureOperationInternal();
 
-                try
-                {
-                    action();
-                }
-#pragma warning disable S2221 // Action might throw any exception.
-                catch (Exception e)
-#pragma warning restore S2221 // Action might throw any exception.
-                {
-                    exception = e;
-                }
-                finally
-                {
-                    Complete(exception);
-                }
-            };
+            work = async () => await action(current.Token).InAnyContext();
         }
 
         protected override void Run()
         {
-            current = previous == null ? Task.Run(work) : previous.ContinueWith(_ => work());
+            future = current.Run(work, previous);
         }
 
-        public override Operation Then(Action action)
+        protected override Result? CheckCompletion()
         {
-            Operation next = new TaskOperation(() =>
+            Debug.Assert(future != null);
+
+            return future.Result;
+        }
+
+        protected override Result DoWait()
+        {
+            Debug.Assert(future != null);
+
+            return future.Wait();
+        }
+
+        protected override void OnCompletion()
+        {
+            current.Cleanup();
+        }
+
+        public override void Cancel()
+        {
+            current.Cancel();
+            previous?.Cancel();
+        }
+
+        public override Operation Then(Func<CancellationToken, Task> action)
+        {
+            Operation next = new FutureOperation(token =>
                 {
-                    if (IsWorkStatusOk)
-                        action();
+                    Debug.Assert(future != null);
+                    Debug.Assert(future.Result != null);
+
+                    return future.Result.Switch(
+                        () => action(token),
+                        exception => throw exception);
                 },
+                dispatch,
                 current);
 
-            RegisterOperation(next);
+            RegisterOperation(next, dispatch);
 
             return next;
         }
     }
 
-    private sealed class TaskOperation<T> : Operation<T>
+    private sealed class FutureOperation<T> : Operation<T>
     {
-        private readonly Action work;
+        private readonly FutureOperationInternal current;
+        private readonly OperationUpdateDispatch dispatch;
+        private readonly FutureOperationInternal? previous;
+        private readonly Func<Task<T>> work;
 
-        private readonly Task? previous;
-        private Task? current;
+        private Future<T>? future;
 
-        public TaskOperation(Func<T> function, Task? previous = null)
+        public FutureOperation(Func<CancellationToken, Task<T>> function, OperationUpdateDispatch dispatch, FutureOperationInternal? previous = null)
         {
+            this.dispatch = dispatch;
             this.previous = previous;
 
-            work = () =>
-            {
-                try
-                {
-                    T result = function();
-                    Complete(result);
-                }
-#pragma warning disable S2221 // Action might throw any exception.
-                catch (Exception e)
-#pragma warning restore S2221 // Action might throw any exception.
-                {
-                    Complete(e);
-                }
-            };
+            current = new FutureOperationInternal();
+
+            work = async () => await function(current.Token).InAnyContext();
         }
 
         protected override void Run()
         {
-            current = previous == null ? Task.Run(work) : previous.ContinueWith(_ => work());
+            future = current.Run(work, previous);
         }
 
-        public override Operation Then(Action action)
+        protected override Result<T>? CheckCompletionT()
         {
-            Operation next = new TaskOperation(() =>
+            Debug.Assert(future != null);
+
+            return future.Result;
+        }
+
+        protected override Result<T> DoWaitT()
+        {
+            Debug.Assert(future != null);
+
+            return future.Wait();
+        }
+
+        protected override void OnCompletion()
+        {
+            current.Cleanup();
+        }
+
+        public override void Cancel()
+        {
+            current.Cancel();
+            previous?.Cancel();
+        }
+
+        public override Operation Then(Func<CancellationToken, Task> action)
+        {
+            Operation next = new FutureOperation(token =>
                 {
-                    if (IsWorkStatusOk)
-                        action();
+                    Debug.Assert(future != null);
+                    Debug.Assert(future.Result != null);
+
+                    return future.Result.Switch(
+                        _ => action(token),
+                        exception => throw exception);
                 },
+                dispatch,
                 current);
 
-            RegisterOperation(next);
+            RegisterOperation(next, dispatch);
 
             return next;
         }
 
-        public override Operation<TNext> Then<TNext>(Func<T, TNext> function)
+        public override Operation<TNext> Then<TNext>(Func<T, CancellationToken, Task<TNext>> function)
         {
-            Operation<TNext> next = new TaskOperation<TNext>(() => IsWorkStatusOk ? function(WorkResult!) : throw new InvalidOperationException(), current);
+            Operation<TNext> next = new FutureOperation<TNext>(token =>
+                {
+                    Debug.Assert(future != null);
+                    Debug.Assert(future.Result != null);
 
-            RegisterOperation(next);
+                    return future.Result.Switch(
+                        result => function(result, token),
+                        exception => throw exception);
+                },
+                dispatch,
+                current);
+
+            RegisterOperation(next, dispatch);
 
             return next;
         }
@@ -182,29 +321,51 @@ public static class Operations
 
     private sealed class WrapperOperation<T> : Operation<T>
     {
+        private readonly Result<T> result;
+
         /// <summary>
         ///     Create a new wrapper operation that directly completes with a result.
         /// </summary>
         /// <param name="result">The result of the operation.</param>
         public WrapperOperation(T result)
         {
-            CompleteWith(result);
-        }
+            this.result = Utilities.Result.Ok(result);
 
-        /// <summary>
-        ///     Complete the operation with a result.
-        /// </summary>
-        /// <param name="result">The result of the operation.</param>
-        private void CompleteWith(T result)
-        {
-            Complete(result);
-            WaitForCompletion();
+            Wait(); // Force immediate completion.
         }
 
         /// <inheritdoc />
         protected override void Run()
         {
             // Nothing to do here.
+        }
+
+        protected override Result<T> CheckCompletionT()
+        {
+            return result;
+        }
+
+        protected override Result<T> DoWaitT()
+        {
+            return result;
+        }
+
+        public override void Cancel()
+        {
+            // Nothing to do here.
+        }
+
+        public override Operation Then(Func<CancellationToken, Task> action)
+        {
+            return Launch(async token =>
+            {
+                await action(token).InAnyContext();
+            });
+        }
+
+        public override Operation<TNext> Then<TNext>(Func<T, CancellationToken, Task<TNext>> function)
+        {
+            return Launch(async token => await function(result.UnwrapOrThrow(), token).InAnyContext());
         }
     }
 }

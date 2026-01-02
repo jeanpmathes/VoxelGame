@@ -1,6 +1,19 @@
 ﻿// <copyright file="ClassDocumentation.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -51,7 +64,7 @@ public class Documentation
         if (doc.DocumentElement == null) return loadedDocumentation;
 
         IEnumerable<XmlElement> members =
-            doc.DocumentElement["members"]?.ChildNodes.OfType<XmlElement>() ?? Enumerable.Empty<XmlElement>();
+            doc.DocumentElement["members"]?.ChildNodes.OfType<XmlElement>() ?? [];
 
         foreach (XmlElement member in members)
         {
@@ -75,11 +88,7 @@ public class Documentation
     /// <returns>The summary.</returns>
     public String GetFieldSummary(MemberInfo field)
     {
-        return documentation.TryGetValue(
-            $"F:{field.DeclaringType?.FullName ?? ""}.{field.Name}",
-            out String? summary)
-            ? summary
-            : "";
+        return documentation.GetValueOrDefault($"F:{field.DeclaringType?.FullName ?? ""}.{field.Name}", "");
     }
 
     /// <summary>
@@ -89,10 +98,16 @@ public class Documentation
     /// <returns>The summary.</returns>
     public String GetPropertySummary(MemberInfo property)
     {
-        return documentation.TryGetValue(
-            $"P:{property.DeclaringType?.FullName ?? ""}.{property.Name}",
-            out String? summary)
-            ? summary
-            : "";
+        return documentation.GetValueOrDefault($"P:{property.DeclaringType?.FullName ?? ""}.{property.Name}", "");
+    }
+
+    /// <summary>
+    ///     Get the documentation for a type.
+    /// </summary>
+    /// <param name="type">The type to get the summary for.</param>
+    /// <returns>The summary.</returns>
+    public String GetTypeSummary(Type type)
+    {
+        return documentation.GetValueOrDefault($"T:{type.FullName}", "");
     }
 }

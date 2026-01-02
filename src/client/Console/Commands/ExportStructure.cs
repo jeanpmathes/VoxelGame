@@ -1,18 +1,34 @@
 ﻿// <copyright file="ExportStructure.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Logic.Definitions.Structures;
+using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Logic.Contents.Structures;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
-#pragma warning disable CA1822
 
 /// <summary>
 ///     Export a structure to a file.
@@ -35,21 +51,37 @@ public class ExportStructure : Command
     /// <exclude />
     public void Invoke(Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name)
     {
-        if (Context.Player.TargetPosition is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name);
-        else Context.Console.WriteError("No position targeted.");
+        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name);
+        else Context.Output.WriteError("No position targeted.");
     }
 
     private void Export(Vector3i position, Vector3i extents, String name)
     {
         StaticStructure? structure = StaticStructure.Read(Context.Player.World, position, extents);
 
+        Operations.Launch(async token =>
+        {
+            await ExportAsync(structure, name, token).InAnyContext();
+        });
+    }
+
+    private async Task ExportAsync(StaticStructure? structure, String name, CancellationToken token = default)
+    {
         var success = false;
 
-        if (structure != null) success = structure.Store(Program.StructureDirectory, name);
+        if (structure != null)
+        {
+            Result result = await structure.SaveAsync(Program.StructureDirectory, name, token).InAnyContext();
+
+            success = result.Switch(
+                () => true,
+                _ => false);
+        }
 
         if (success)
-            Context.Console.WriteResponse($"Structure exported to: {Program.StructureDirectory}",
-                new FollowUp("Open directory", () => { OS.Start(Program.StructureDirectory); }));
-        else Context.Console.WriteError("Failed to export structure.");
+            await Context.Output.WriteResponseAsync($"Structure exported to: {Program.StructureDirectory}",
+                [new FollowUp("Open directory", () => { OS.Start(Program.StructureDirectory); })],
+                token).InAnyContext();
+        else await Context.Output.WriteErrorAsync("Failed to export structure.", [], token).InAnyContext();
     }
 }

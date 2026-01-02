@@ -1,6 +1,19 @@
 ﻿// <copyright file="Raycast.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -8,7 +21,8 @@ using System;
 using System.Collections.Generic;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics;
@@ -19,12 +33,12 @@ namespace VoxelGame.Core.Physics;
 public static class Raycast
 {
     /// <summary>
-    ///     Checks if a ray intersects with a block that is not <see cref="Blocks.Air" />.
+    ///     Checks if a ray intersects with a block that is not air.
     /// </summary>
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
     /// <returns>Intersection information, if a hit occurred.</returns>
-    public static (Vector3i hit, BlockSide side)? CastBlockRay(World world, Ray ray)
+    public static (Vector3i hit, Side side)? CastBlockRay(World world, Ray ray)
     {
         return CastVoxelRay(ray, (r, pos) => BlockIntersectionCheck(world, r, pos));
     }
@@ -35,15 +49,15 @@ public static class Raycast
     /// <param name="world">The world in which to cast the ray.</param>
     /// <param name="ray">The ray.</param>
     /// <returns>Intersection information, if a hit occurred.</returns>
-    public static (Vector3i hit, BlockSide side)? CastFluidRay(World world, Ray ray)
+    public static (Vector3i hit, Side side)? CastFluidRay(World world, Ray ray)
     {
         return CastVoxelRay(ray, (r, pos) => FluidIntersectionCheck(world, r, pos));
     }
 
-    private static (Vector3i hit, BlockSide side)? CastVoxelRay(Ray ray, Func<Ray, Vector3i, Boolean> rayIntersectionCheck)
+    private static (Vector3i hit, Side side)? CastVoxelRay(Ray ray, Func<Ray, Vector3i, Boolean> rayIntersectionCheck)
     {
         Vector3i hit;
-        BlockSide side;
+        Side side;
 
         /*
          * Voxel Traversal Algorithm
@@ -87,7 +101,7 @@ public static class Raycast
             hit = current;
 
             // As the ray starts in this voxel, no side is selected.
-            side = BlockSide.All;
+            side = Side.All;
 
             return (hit, side);
         }
@@ -101,14 +115,14 @@ public static class Raycast
                     current.X += step.X;
                     tMaxX += tDeltaX;
 
-                    side = step.X > 0 ? BlockSide.Left : BlockSide.Right;
+                    side = step.X > 0 ? Side.Left : Side.Right;
                 }
                 else
                 {
                     current.Z += step.Z;
                     tMaxZ += tDeltaZ;
 
-                    side = step.Z > 0 ? BlockSide.Back : BlockSide.Front;
+                    side = step.Z > 0 ? Side.Back : Side.Front;
                 }
             }
             else
@@ -118,14 +132,14 @@ public static class Raycast
                     current.Y += step.Y;
                     tMaxY += tDeltaY;
 
-                    side = step.Y > 0 ? BlockSide.Bottom : BlockSide.Top;
+                    side = step.Y > 0 ? Side.Bottom : Side.Top;
                 }
                 else
                 {
                     current.Z += step.Z;
                     tMaxZ += tDeltaZ;
 
-                    side = step.Z > 0 ? BlockSide.Back : BlockSide.Front;
+                    side = step.Z > 0 ? Side.Back : Side.Front;
                 }
             }
 
@@ -145,12 +159,12 @@ public static class Raycast
 
     private static Boolean BlockIntersectionCheck(World world, Ray ray, Vector3i position)
     {
-        BlockInstance? potentialBlock = world.GetBlock(position);
+        State? potentialBlock = world.GetBlock(position);
 
         if (potentialBlock is not {} block) return false;
 
         // Check if the ray intersects the bounding box of the block.
-        return block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(ray);
+        return !block.Block.IsEmpty && block.Block.GetCollider(world, position).Intersects(ray);
     }
 
     private static Boolean FluidIntersectionCheck(World world, Ray ray, Vector3i position)
@@ -179,14 +193,14 @@ public static class Raycast
 
         List<(Content content, Vector3i position)> positions = new(extents * extents * extents);
 
-        foreach ((Int32 x, Int32 y, Int32 z) offset in VMath.Range3(extents, extents, extents))
+        foreach ((Int32 x, Int32 y, Int32 z) offset in MathTools.Range3(extents, extents, extents))
         {
             Vector3i position = min + offset;
             Content? content = world.GetContent(position);
 
             if (content is not var (block, fluid)) continue;
 
-            if (block.Block != Blocks.Instance.Air && block.Block.GetCollider(world, position).Intersects(frustum)) positions.Add((content.Value, position));
+            if (!block.Block.IsEmpty && block.Block.GetCollider(world, position).Intersects(frustum)) positions.Add((content.Value, position));
             else if (fluid.Fluid != Fluids.Instance.None && Fluid.GetCollider(position, fluid.Level).Intersects(frustum)) positions.Add((content.Value, position));
         }
 

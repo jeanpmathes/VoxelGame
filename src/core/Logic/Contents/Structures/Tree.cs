@@ -1,0 +1,106 @@
+﻿// <copyright file="Tree.cs" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
+using System.Diagnostics;
+using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Logic.Voxels.Behaviors;
+using VoxelGame.Core.Utilities;
+
+namespace VoxelGame.Core.Logic.Contents.Structures;
+
+/// <summary>
+///     A dynamically created tree structure.
+/// </summary>
+public class Tree : DynamicStructure
+{
+    private readonly Vector3d crownOffset;
+    private readonly Double crownRandomization;
+
+    private readonly Shape3D crownShape;
+    private readonly Content leaf;
+    private readonly Content roots;
+    private readonly Content trunk;
+
+    private readonly Int32 trunkHeight;
+
+    /// <summary>
+    ///     Creates a new tree.
+    /// </summary>
+    /// <param name="trunkHeight">The height of the trunk.</param>
+    /// <param name="crownRandomization">The randomization factor of the crown, a smaller factor causes a more dense crown.</param>
+    /// <param name="crownShape">The shape of the crown, will be centered on the X-Z-plane.</param>
+    /// <param name="log">The log block.</param>
+    /// <param name="leaves">The leaves block.</param>
+    public Tree(Int32 trunkHeight, Double crownRandomization, Shape3D crownShape, Block log, Block leaves)
+    {
+        this.trunkHeight = trunkHeight;
+        this.crownRandomization = crownRandomization;
+        this.crownShape = crownShape;
+
+        trunk = new Content(log.States.Default.WithAxis(Axis.Y), FluidInstance.Default);
+        leaf = Content.Create(leaves);
+        roots = Content.Create(Blocks.Instance.Environment.Roots);
+
+        Box3d box = crownShape.BoundingBox;
+        Vector3i min = box.Min.Floor();
+        Vector3i max = box.Max.Ceiling();
+        Vector3i size = (max - min).Abs();
+
+        Extents = new Vector3i(
+            Math.Max(size.X, val2: 1),
+            Math.Max(size.Y, trunkHeight) + 1,
+            Math.Max(size.Z, val2: 1)
+        );
+
+        crownOffset = new Vector3d(
+            Math.Floor(size.X / 2.0),
+            y: 0.0,
+            Math.Floor(size.Z / 2.0)
+        );
+    }
+
+    /// <inheritdoc />
+    public override Vector3i Extents { get; }
+
+    /// <inheritdoc />
+    protected override (Content content, Boolean overwrite)? GetContent(Vector3i offset, Single random)
+    {
+        Int32 center = Extents.X / 2;
+        Debug.Assert(Extents.X == Extents.Z);
+
+        if (offset.X == center && offset.Z == center)
+        {
+            if (offset.Y == 0)
+                return (roots, overwrite: true);
+
+            if (offset.Y < trunkHeight)
+                return (trunk, overwrite: true);
+
+            if (offset.Y == trunkHeight)
+                return (leaf, overwrite: true);
+        }
+
+        if (!crownShape.Contains(offset - crownOffset, out Double closeness)) return null;
+        if (closeness < crownRandomization * random) return null;
+
+        return (leaf, overwrite: false);
+    }
+}

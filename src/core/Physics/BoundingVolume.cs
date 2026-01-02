@@ -1,11 +1,27 @@
 ﻿// <copyright file="BoundingVolume.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Physics;
@@ -42,14 +58,14 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <summary>
     ///     Create a bounding box.
     /// </summary>
-    public BoundingVolume(Vector3d extents) : this(new Box3d(-extents, extents), Array.Empty<BoundingVolume>()) {}
+    public BoundingVolume(Vector3d extents) : this(new Box3d(-extents, extents), []) {}
 
     /// <summary>
     ///     Create a bounding box with a given offset.
     /// </summary>
     public BoundingVolume(Vector3d offset, Vector3d extents) : this(
-        VMath.CreateBox3(offset, extents),
-        Array.Empty<BoundingVolume>()) {}
+        MathTools.CreateBox3(offset, extents),
+        []) {}
 
     /// <summary>
     ///     Create a bounding box with children.
@@ -62,7 +78,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Create a bounding box with children, and a given offset.
     /// </summary>
     public BoundingVolume(Vector3d offset, Vector3d extents, params BoundingVolume[] boundingBoxes) : this(
-        VMath.CreateBox3(offset, extents),
+        MathTools.CreateBox3(offset, extents),
         boundingBoxes) {}
 
     /// <summary>
@@ -94,6 +110,22 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     private Box3d Box { get; }
 
     /// <summary>
+    ///     Get the number of boxes in this bounding volume, including children.
+    /// </summary>
+    public Int32 NumberOfBoxes
+    {
+        get
+        {
+            var count = 1;
+
+            for (var index = 0; index < ChildCount; index++)
+                count += this[index].NumberOfBoxes;
+
+            return count;
+        }
+    }
+
+    /// <summary>
     ///     Get a child bounding box.
     /// </summary>
     /// <param name="i">The index of the child.</param>
@@ -105,17 +137,104 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     public Int32 ChildCount => children.Length;
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Elements.Block" />.
+    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Voxels.Block" />.
     /// </summary>
     public static BoundingVolume Block =>
         new(new Vector3d(x: 0.5, y: 0.5, z: 0.5), new Vector3d(x: 0.5, y: 0.5, z: 0.5));
 
     /// <summary>
-    ///     Gets a <see cref="BoundingVolume" /> with the size of a <see cref="Logic.Definitions.Blocks.CrossBlock" />.
+    ///     Gets a <see cref="BoundingVolume" /> with the given height and width.
     /// </summary>
-    public static BoundingVolume CrossBlock => new(
-        new Vector3d(x: 0.5, y: 0.5, z: 0.5),
-        new Vector3d(x: 0.355, y: 0.5, z: 0.355));
+    public static BoundingVolume CrossBlock(Double height, Double width)
+    {
+        return new BoundingVolume(
+            new Vector3d(x: 0.5, height / 2.0, z: 0.5),
+            new Vector3d(width / 2.0, height / 2.0, width / 2.0));
+    }
+
+    /// <summary>
+    ///     Creates a flat block bounding volume with the given depth.
+    /// </summary>
+    /// <param name="side">The side the bounding volume is on.</param>
+    /// <param name="width">
+    ///     The width of the bounding volume, meaning the distance perpendicular to the orientation. Ignored
+    ///     for non-lateral sides.
+    /// </param>
+    /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
+    /// <returns>A bounding volume with the given depth.</returns>
+    public static BoundingVolume FlatBlock(Side side, Double width, Double depth)
+    {
+        Double halfWidth = width / 2.0;
+        Double halfDepth = depth / 2.0;
+
+        Vector3d offset = side.Direction();
+        offset *= 0.5 - halfDepth;
+        offset += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
+
+        Vector3d widthDirection = side.IsLateral()
+            ? side.Rotate(Axis.Y).Direction().Abs()
+            : new Vector3d(x: 0.0, y: 0.0, z: 0.0);
+
+        Vector3d extents = side.Direction().Abs();
+        extents *= halfDepth - 0.5;
+        extents += widthDirection * (halfWidth - 0.5);
+        extents += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
+
+        return new BoundingVolume(offset, extents);
+    }
+
+    /// <summary>
+    ///     Creates a flat block bounding volume with the given depth, on all specified sides.
+    /// </summary>
+    /// <param name="sides">The sides the bounding volume is on.</param>
+    /// <param name="width">The width of the bounding volume, meaning the distance perpendicular to the orientation.</param>
+    /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
+    /// <returns>>A bounding volume with the given depth.</returns>
+    public static BoundingVolume FlatBlock(Sides sides, Double width, Double depth)
+    {
+        List<BoundingVolume> volumes = [];
+
+        foreach (Side side in Side.All.Sides())
+        {
+            if (!sides.HasFlag(side.ToFlag())) continue;
+
+            volumes.Add(FlatBlock(side, width, depth));
+        }
+
+        return Combine(volumes);
+    }
+
+    /// <summary>
+    ///     Translate this bounding volume by the given translation.
+    /// </summary>
+    /// <param name="translation">The translation to apply.</param>
+    /// <returns>>The translated bounding volume.</returns>
+    public BoundingVolume Translated(Vector3d translation)
+    {
+        var translated = new BoundingVolume[ChildCount];
+
+        for (var i = 0; i < ChildCount; i++)
+            translated[i] = this[i].Translated(translation);
+
+        return new BoundingVolume(Box.Translated(translation), translated);
+    }
+
+    /// <summary>
+    ///     Combine a sequence of bounding volumes into a single bounding volume.
+    /// </summary>
+    /// <param name="boundingVolumes">Bounding volumes to combine, should not be empty.</param>
+    /// <returns>The combined bounding volume.</returns>
+    public static BoundingVolume Combine(params IEnumerable<BoundingVolume> boundingVolumes)
+    {
+        List<BoundingVolume> boundingVolumesList = boundingVolumes.ToList();
+
+        return boundingVolumesList.Count switch
+        {
+            0 => Block,
+            1 => boundingVolumesList[index: 0],
+            _ => new BoundingVolume(boundingVolumesList[index: 0].Box, boundingVolumesList[1 ..].ToArray())
+        };
+    }
 
     /// <summary>
     ///     Gets the child bounds of this bounding volume, or the bounds of this bounding volume if it has no children.
@@ -245,7 +364,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return false;
     }
 
-    #region Equality Support
+    #region EQUALITY
 
     /// <inheritdoc />
     public Boolean Equals(BoundingVolume? other)
@@ -274,5 +393,5 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         return HashCode.Combine(Center.GetHashCode(), Extents.GetHashCode(), children);
     }
 
-    #endregion Equality Support
+    #endregion EQUALITY
 }

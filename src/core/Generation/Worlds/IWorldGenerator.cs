@@ -1,6 +1,19 @@
 ﻿// <copyright file="IWorldGenerator.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,7 +22,8 @@ using System.Collections.Generic;
 using System.IO;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Generation.Worlds;
 
@@ -24,45 +38,55 @@ public interface IWorldGenerator : IDisposable
     IMap Map { get; }
 
     /// <summary>
-    ///     Initialize the world generator and all systems it depends on.
-    ///     Will be called once on program start.
+    ///     Get the resource catalog containing the resources the generator uses.
     /// </summary>
-    /// <param name="loadingContext">The loading context.</param>
-    static abstract void Initialize(ILoadingContext loadingContext);
+    static abstract ICatalogEntry CreateResourceCatalog();
+
+    /// <summary>
+    ///     Link all loaded resources so the generator can access them later.
+    /// </summary>
+    /// <param name="context">The context in which the resources are loaded.</param>
+    static abstract void LinkResources(IResourceContext context);
 
     /// <summary>
     ///     Create an instance of the world generator.
     ///     Each instance is meant to generate a single world - a generator is stateful.
     /// </summary>
     /// <param name="context">The context in which the generator is created.</param>
-    /// <returns>The world generator.</returns>
-    static abstract IWorldGenerator Create(IWorldGeneratorContext context);
+    /// <returns>The world generator, or <c>null</c> if there are missing resources.</returns>
+    static abstract IWorldGenerator? Create(IWorldGeneratorContext context);
 
     /// <summary>
-    /// Create a context in which chunks can be generated.
-    /// Must be called and disposed on the main thread.
+    ///     Create a context in which chunks can be generated.
+    ///     Must be called and disposed on the main thread.
     /// </summary>
     /// <param name="hint">A hint on which chunks will be generated with the context.</param>
     /// <returns>The generation context.</returns>
     IGenerationContext CreateGenerationContext(ChunkPosition hint);
 
     /// <summary>
-    /// Create a context in which decorations can be generated.
-    /// Must be called and disposed on the main thread.
+    ///     Create a context in which decorations can be generated.
+    ///     Must be called and disposed on the main thread.
     /// </summary>
     /// <param name="hint">A hint on which chunks will be decorated with the context.</param>
-    /// <param name="extents">A hint on th size of the neighborhood that is decorated, use 0 for single chunk and 1 for 3x3x3 chunks.</param>
+    /// <param name="extents">
+    ///     A hint on th size of the neighborhood that is decorated, use 0 for single chunk and 1 for 3x3x3
+    ///     chunks.
+    /// </param>
     /// <returns>The decoration context.</returns>
     IDecorationContext CreateDecorationContext(ChunkPosition hint, Int32 extents = 0);
 
     /// <summary>
-    ///     Emit views of global generated data for debugging.
+    ///     Emit info about world data for debugging.
     /// </summary>
     /// <param name="path">A path to the debug directory.</param>
-    void EmitViews(DirectoryInfo path);
+    /// <returns>The operation emitting the world info.</returns>
+    Operation EmitWorldInfo(DirectoryInfo path);
 
     /// <summary>
     ///     Search for named generated elements, such as structures.
+    ///     The search must be lazy, only starting on enumeration.
+    ///     The search must be thread-safe.
     /// </summary>
     /// <param name="start">The start position.</param>
     /// <param name="name">The name of the element.</param>
