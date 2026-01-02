@@ -113,7 +113,7 @@ public static class OrientationExtensions
             {X: 1, Y: 0} => Orientation.East,
             {X: 0, Y: 1} => Orientation.South,
             {X: -1, Y: 0} => Orientation.West,
-            _ => throw new ArgumentOutOfRangeException(nameof(vector), vector, message: null)
+            _ => throw Exceptions.UnsupportedValue(vector)
         };
     }
 
@@ -161,7 +161,7 @@ public static class OrientationExtensions
             Orientation.East => Side.Right,
             Orientation.South => Side.Front,
             Orientation.West => Side.Left,
-            _ => Side.Back
+            _ => throw Exceptions.UnsupportedEnumValue(orientation)
         };
     }
 
@@ -176,7 +176,7 @@ public static class OrientationExtensions
             Orientation.East => Orientation.West,
             Orientation.South => Orientation.North,
             Orientation.West => Orientation.East,
-            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
+            _ => throw Exceptions.UnsupportedEnumValue(orientation)
         };
     }
 
@@ -191,7 +191,7 @@ public static class OrientationExtensions
             Orientation.West => Orientation.North,
             Orientation.North => Orientation.East,
             Orientation.South => Orientation.West,
-            _ => Orientation.North
+            _ => throw Exceptions.UnsupportedEnumValue(orientation)
         };
     }
 
@@ -201,36 +201,6 @@ public static class OrientationExtensions
     public static Vector3i Offset(this Vector3i vector, Orientation orientation)
     {
         return vector + orientation.ToVector3i();
-    }
-
-    /// <summary>
-    ///     Pick an element from a tuple based on an orientation.
-    /// </summary>
-    public static T Pick<T>(this Orientation orientation, (T north, T east, T south, T west) tuple)
-    {
-        return orientation switch
-        {
-            Orientation.North => tuple.north,
-            Orientation.East => tuple.east,
-            Orientation.South => tuple.south,
-            Orientation.West => tuple.west,
-            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
-        };
-    }
-
-    /// <summary>
-    ///     Convert an orientation to an integer flag.
-    /// </summary>
-    public static UInt32 ToFlag(this Orientation orientation)
-    {
-        return orientation switch
-        {
-            Orientation.North => 0b1000,
-            Orientation.East => 0b0100,
-            Orientation.South => 0b0010,
-            Orientation.West => 0b0001,
-            _ => throw new ArgumentOutOfRangeException(nameof(orientation), orientation, message: null)
-        };
     }
 
     /// <summary>

@@ -31,12 +31,10 @@ using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Updates;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Interop;
 using VoxelGame.UI.Resources;
-using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application;
 
@@ -68,8 +66,8 @@ public sealed partial class Client : Graphics.Core.Client
         sceneManager = AddComponent<SceneManager>();
         sceneFactory = new SceneFactory(this);
 
-        AddComponent<SceneOperationDispatch>();
-        AddComponent<GlobalOperationDispatch>();
+        AddComponent<SceneUpdateDispatch>();
+        AddComponent<GlobalUpdateDispatch>();
 
         Settings = new GeneralSettings(Properties.Settings.Default);
         Graphics = graphicsSettings;

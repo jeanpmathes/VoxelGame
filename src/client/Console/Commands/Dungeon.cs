@@ -10,8 +10,8 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Dungeons;
 using VoxelGame.Core.Logic;
-using VoxelGame.Core.Logic.Definitions.Blocks;
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Attributes;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Collections;
@@ -34,11 +34,8 @@ public class Dungeon : Command
     /// <exclude />
     public void Invoke()
     {
-        Vector3i start = Context.Player.Position.Floor();
+        Vector3i start = Context.Player.Body.Transform.Position.Floor();
         World world = Context.Player.World;
-
-        var concrete = (ConcreteBlock) Blocks.Instance.Concrete; // todo: fix this
-        BlockInstance glass = Blocks.Instance.Glass.AsInstance();
 
         Coroutine.Start(GenerateDungeon);
 
@@ -59,36 +56,50 @@ public class Dungeon : Command
 
                 if (area == null)
                 {
-                    world.SetBlock(glass, position);
+                    PlaceBlock(world, position, category: null);
                 }
                 else if (area.Category == AreaCategory.Corridor)
                 {
-                    concrete.Place(world, FluidLevel.Eight, position);
+                    PlaceBlock(world, position, area.Category);
 
-                    foreach (BlockSide side in BlockSide.All.Sides())
+                    foreach (Side side in Side.All.Sides())
                     {
                         if (!area.Connections.HasFlag(side.ToFlag())) continue;
 
-                        Vector3i offset = side.Direction();
-                        concrete.Place(world, FluidLevel.Eight, position + offset);
+                        PlaceBlock(world, position + side.Direction(), AreaCategory.Corridor);
                     }
                 }
                 else
                 {
-                    BlockColor color = area.Category switch
-                    {
-                        AreaCategory.Start => BlockColor.Blue,
-                        AreaCategory.Generic => BlockColor.Default,
-                        AreaCategory.End => BlockColor.Orange,
-                        _ => BlockColor.Red
-                    };
-
                     for (Int32 dx = -1; dx <= 1; dx++)
                     for (Int32 dy = -1; dy <= 1; dy++)
                     for (Int32 dz = -1; dz <= 1; dz++)
-                        concrete.Place(world, FluidLevel.Eight, position + (dx, dy, dz), color);
+                        PlaceBlock(world, position + new Vector3i(dx, dy, dz), area.Category);
                 }
             }
         }
+    }
+
+    private static void PlaceBlock(World world, Vector3i position, AreaCategory? category)
+    {
+        State state;
+
+        if (category == null)
+            state = Blocks.Instance.Construction.Glass.States.Default;
+        else
+        {
+            Block block = category.Value switch
+            {
+                AreaCategory.Start => Blocks.Instance.Metals.Steel,
+                AreaCategory.End => Blocks.Instance.Woods.Ebony.Planks,
+                AreaCategory.Generic => Blocks.Instance.Stones.Limestone.Base,
+                AreaCategory.Corridor => Blocks.Instance.Stones.Limestone.Bricks,
+                _ => Blocks.Instance.Construction.Concrete
+            };
+
+            state = block.States.Default;
+        }
+
+        world.SetBlock(state, position);
     }
 }

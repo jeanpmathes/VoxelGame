@@ -39,7 +39,7 @@ namespace VoxelGame.Client.Scenes;
 public partial class SceneManager : ApplicationComponent
 {
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
-    private readonly SceneOperationDispatch? dispatch;
+    private readonly SceneUpdateDispatch? dispatch;
 
     private Scene? current;
     private (Scene? scene, Action completion)? next;
@@ -47,7 +47,7 @@ public partial class SceneManager : ApplicationComponent
     [Constructible]
     private SceneManager(Core.App.Application application) : base(application)
     {
-        dispatch = application.GetComponent<SceneOperationDispatch>();
+        dispatch = application.GetComponent<SceneUpdateDispatch>();
     }
 
     /// <summary>
@@ -138,7 +138,7 @@ public partial class SceneManager : ApplicationComponent
         Unload();
     }
 
-    private static void CancelOrCompleteDispatch(OperationUpdateDispatch dispatch)
+    private static void CancelOrCompleteDispatch(UpdateDispatch dispatch)
     {
         LogCompletingDispatch(logger);
 

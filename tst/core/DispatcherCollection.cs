@@ -29,7 +29,7 @@ public class DispatcherFixture : LoggerFixture
 {
     public DispatcherFixture()
     {
-        OperationUpdateDispatch.SetUpMockInstance();
+        UpdateDispatch.SetUpMockInstance();
     }
 }
 

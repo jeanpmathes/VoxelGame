@@ -13,7 +13,7 @@ namespace VoxelGame.Core.Updates;
 ///     A type of <see cref="Operation" /> that runs entirely on the main thread but can yield to wait.
 ///     By default, yielding <c>null</c> will wait for the next update cycle.
 /// </summary>
-public class Coroutine : IUpdate
+public class Coroutine : IUpdateableProcess
 {
     private readonly IEnumerator coroutine;
 
@@ -33,6 +33,17 @@ public class Coroutine : IUpdate
             // Nothing to do.
         }
         else if (coroutine is IDisposable disposable)
+        {
+            disposable.Dispose();
+        }
+    }
+
+    /// <inheritdoc />
+    public void Cancel()
+    {
+        IsRunning = false;
+
+        if (coroutine is IDisposable disposable)
         {
             disposable.Dispose();
         }

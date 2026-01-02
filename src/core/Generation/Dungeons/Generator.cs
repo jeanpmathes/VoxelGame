@@ -96,7 +96,6 @@ public class Generator
                 return false;
 
             return !CanReachFromTarget(Orientation.East);
-
             return !Orientations.All.Any(CanReachFromTarget);
 
             Boolean CanReachFromTarget(Orientation orientation)

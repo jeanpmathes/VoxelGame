@@ -1,4 +1,4 @@
-﻿// <copyright file="SceneOperationDispatch.cs" company="VoxelGame">
+﻿// <copyright file="SceneUpdateDispatch.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -24,13 +24,13 @@ using VoxelGame.Core.Updates;
 namespace VoxelGame.Client.Application.Components;
 
 /// <summary>
-///     Specific variant of <see cref="OperationUpdateDispatch" /> for scene operations.
+///     Specific variant of <see cref="UpdateDispatch" /> for scene operations.
 ///     Scene operations are completed or canceled when the scene is changed.
 /// </summary>
-public partial class SceneOperationDispatch : OperationUpdateDispatch
+public partial class SceneUpdateDispatch : UpdateDispatch
 {
     [Constructible]
-    private SceneOperationDispatch(Core.App.Application application) : base(singleton: true, application) {}
+    private SceneUpdateDispatch(Core.App.Application application) : base(singleton: true, application) {}
 
     /// <inheritdoc />
     public override String Name => "Scene Operations";

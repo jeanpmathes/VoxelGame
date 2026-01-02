@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Core.Logic.Elements;
+using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Generation.Dungeons;
@@ -31,7 +31,7 @@ public class Area
     /// <summary>
     ///     Get the sides of the area that are connected to other areas.
     /// </summary>
-    public BlockSides Connections { get; private set; }
+    public Sides Connections { get; private set; }
 
     /// <summary>
     ///     Add a connection to the area.
@@ -39,6 +39,6 @@ public class Area
     /// <param name="orientation">The orientation of the connection.</param>
     public void Connect(Orientation orientation)
     {
-        Connections |= orientation.ToBlockSide().ToFlag();
+        Connections |= orientation.ToSide().ToFlag();
     }
 }
