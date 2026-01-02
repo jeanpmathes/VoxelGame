@@ -1,6 +1,6 @@
 ﻿// <copyright file="Uploader.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -36,10 +36,7 @@ public:
     /**
      * Upload a texture to the GPU.
      */
-    void UploadTexture(
-        std::byte**                       data,
-        TextureDescription const&         description,
-        Allocation<ID3D12Resource> const& destination);
+    void UploadTexture(std::byte** data, TextureDescription const& description, Allocation<ID3D12Resource> const& destination);
 
     /**
      * Upload a buffer to the GPU.

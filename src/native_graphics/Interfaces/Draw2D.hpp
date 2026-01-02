@@ -1,6 +1,6 @@
 ﻿// <copyright file="Draw2D.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -36,8 +36,8 @@ namespace draw2d
 #pragma pack(pop)
 
     using InitializeTextures = void(*)(Texture** textures, UINT textureCount, Pipeline* ctx);
-    using UploadBuffer = void(*)(Vertex const* vertices, UINT vertexCount, Pipeline* ctx);
-    using DrawBuffer = void(*)(UINT firstVertex, UINT vertexCount, UINT textureIndex, BOOL useTexture, Pipeline* ctx);
+    using UploadBuffer       = void(*)(Vertex const* vertices, UINT vertexCount, Pipeline* ctx);
+    using DrawBuffer         = void(*)(UINT firstVertex, UINT vertexCount, UINT textureIndex, BOOL useTexture, Pipeline* ctx);
 
     struct Drawer
     {

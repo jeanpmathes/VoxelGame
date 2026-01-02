@@ -1,6 +1,6 @@
 ﻿// <copyright file="RasterPipeline.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -81,10 +81,7 @@ public:
      * Shader compile errors are reported to the callback.
      * Should a shader compile error occur, the pipeline is not created and nullptr is returned.
      */
-    static std::unique_ptr<RasterPipeline> Create(
-        NativeClient&                    client,
-        RasterPipelineDescription const& description,
-        NativeErrorFunc                  callback);
+    static std::unique_ptr<RasterPipeline> Create(NativeClient& client, RasterPipelineDescription const& description, NativeErrorFunc callback);
 
     struct Bindings
     {
@@ -138,9 +135,7 @@ public:
      * \param description The description (builder) of the shader resources.
      * \return The bindings to use for spatial effects.
      */
-    static std::shared_ptr<Bindings> SetUpEffectBindings(
-        NativeClient const&           client,
-        ShaderResources::Description& description);
+    static std::shared_ptr<Bindings> SetUpEffectBindings(NativeClient const& client, ShaderResources::Description& description);
 
     struct PipelineConfiguration
     {
@@ -180,18 +175,9 @@ public:
     [[nodiscard]] D3D12_PRIMITIVE_TOPOLOGY GetTopology() const;
     [[nodiscard]] ShaderBuffer*            GetShaderBuffer() const;
 
-    void CreateConstantBufferView(
-        ShaderResources::Table::Entry                        entry,
-        UINT                                                 index,
-        ShaderResources::ConstantBufferViewDescriptor const& descriptor);
-    void CreateShaderResourceView(
-        ShaderResources::Table::Entry                        entry,
-        UINT                                                 index,
-        ShaderResources::ShaderResourceViewDescriptor const& descriptor);
-    void CreateUnorderedAccessView(
-        ShaderResources::Table::Entry                         entry,
-        UINT                                                  index,
-        ShaderResources::UnorderedAccessViewDescriptor const& descriptor);
+    void CreateConstantBufferView(ShaderResources::Table::Entry entry, UINT index, ShaderResources::ConstantBufferViewDescriptor const& descriptor);
+    void CreateShaderResourceView(ShaderResources::Table::Entry entry, UINT index, ShaderResources::ShaderResourceViewDescriptor const& descriptor);
+    void CreateUnorderedAccessView(ShaderResources::Table::Entry entry, UINT index, ShaderResources::UnorderedAccessViewDescriptor const& descriptor);
 
     /**
      * \brief Set the content of a selection list.
@@ -200,9 +186,7 @@ public:
      * \param descriptors The descriptors to set.
      */
     template <class Descriptor>
-    void SetSelectionListContent(
-        ShaderResources::SelectionList<Descriptor>& selectionList,
-        std::vector<Descriptor> const&              descriptors)
+    void SetSelectionListContent(ShaderResources::SelectionList<Descriptor>& selectionList, std::vector<Descriptor> const& descriptors)
     {
         m_resources->SetSelectionListContent(selectionList, descriptors);
     }
@@ -215,10 +199,10 @@ public:
      * \param index The index of the entry to bind.
      */
     template <class Descriptor>
-    void BindSelectionIndex(
-        ComPtr<ID3D12GraphicsCommandList4> commandList,
-        ShaderResources::SelectionList<Descriptor>& selectionList,
-        UINT index) { m_resources->BindSelectionListIndex(selectionList, index, commandList); }
+    void BindSelectionIndex(ComPtr<ID3D12GraphicsCommandList4> commandList, ShaderResources::SelectionList<Descriptor>& selectionList, UINT index)
+    {
+        m_resources->BindSelectionListIndex(selectionList, index, commandList);
+    }
 
 private:
     /**

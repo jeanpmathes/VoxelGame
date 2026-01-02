@@ -1,6 +1,6 @@
 ﻿// <copyright file="SharedIndexBuffer.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -30,10 +30,8 @@ class SharedIndexBuffer
 public:
     explicit SharedIndexBuffer(Space& space);
 
-    std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(
-        UINT                                 vertexCount,
-        std::vector<D3D12_RESOURCE_BARRIER>* barriers);
-    void CleanupRender();
+    std::pair<Allocation<ID3D12Resource>, UINT> GetIndexBuffer(UINT vertexCount, std::vector<D3D12_RESOURCE_BARRIER>* barriers);
+    void                                        CleanupRender();
 
 private:
     Space& m_space;

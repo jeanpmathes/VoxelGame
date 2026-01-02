@@ -1,6 +1,6 @@
 ﻿// <copyright file="Effect.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -65,9 +65,7 @@ public:
     void Accept(Visitor& visitor) override;
 
 protected:
-    void DoDataUpload(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<D3D12_RESOURCE_BARRIER>*     barriers) override;
+    void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers) override;
     void DoReset() override;
 
 private:

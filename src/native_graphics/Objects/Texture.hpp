@@ -1,6 +1,6 @@
 ﻿// <copyright file="Texture.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -55,11 +55,7 @@ public:
      */
     static Texture* Create(NativeClient& client, TextureDescription description);
 
-    Texture(
-        NativeClient&                          client,
-        Allocation<ID3D12Resource> const&      resource,
-        DirectX::XMUINT3                       size,
-        D3D12_SHADER_RESOURCE_VIEW_DESC const& srvDesc);
+    Texture(NativeClient& client, Allocation<ID3D12Resource> const& resource, DirectX::XMUINT3 size, D3D12_SHADER_RESOURCE_VIEW_DESC const& srvDesc);
 
     /**
      * Free this texture. This will detach the texture from the client, causing it to be destroyed.
@@ -87,9 +83,7 @@ public:
      */
     void TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> commandList);
 
-    static void CreateUsabilityBarrier(
-        ComPtr<ID3D12GraphicsCommandList> commandList,
-        Allocation<ID3D12Resource>        resource);
+    static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, Allocation<ID3D12Resource> resource);
 
 private:
     Allocation<ID3D12Resource>      m_resource;

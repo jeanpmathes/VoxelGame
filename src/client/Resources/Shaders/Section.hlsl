@@ -1,6 +1,6 @@
 ﻿// <copyright file="Section.hlsl" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -107,8 +107,7 @@ namespace vg
 
             for (int index = 0; index < 3; index++) triangleUVs[index] = quadUVs[info.indices[index]];
 
-            if (decode::GetTextureRotationFlag(info.data))
-                for (int index = 0; index < 3; index++) triangleUVs[index] = spatial::RotateUV(triangleUVs[index]);
+            if (decode::GetTextureRotationFlag(info.data)) for (int index = 0; index < 3; index++) triangleUVs[index] = spatial::RotateUV(triangleUVs[index]);
 
             for (int index = 0; index < 3; index++) triangleUVs[index] = native::TranslateUV(triangleUVs[index]);
 

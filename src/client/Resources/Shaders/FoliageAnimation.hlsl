@@ -1,6 +1,6 @@
 ﻿// <copyright file="FoliageAnimation.hlsl" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -23,12 +23,7 @@
 #include "Custom.hlsl"
 #include "Decoding.hlsl"
 
-void ApplySway(
-    inout native::spatial::SpatialVertex vertex,
-    float2                               uv,
-    bool const                           isUpperPart,
-    bool const                           isDoublePlant,
-    in fnl_state const                   noise)
+void ApplySway(inout native::spatial::SpatialVertex vertex, float2 uv, bool const isUpperPart, bool const isDoublePlant, in fnl_state const noise)
 {
     float const amplitude = 0.2f;
     float const speed     = 0.5f;

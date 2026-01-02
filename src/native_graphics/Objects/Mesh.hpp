@@ -1,6 +1,6 @@
 ﻿// <copyright file="Mesh.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
-//     Copyright (C) 2025 Jean Patrick Mathes
+//     Copyright (C) 2026 Jean Patrick Mathes
 //      
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -83,10 +83,7 @@ public:
      * \param uavs The UAVs to use for the BLAS.
      * \param isForAnimation Whether the BLAS is created for animation. If true and the mesh is modified and a BLAS will be created later anyway, this call will be ignored.
      */
-    void CreateBLAS(
-        ComPtr<ID3D12GraphicsCommandList4> const& commandList,
-        std::vector<ID3D12Resource*>*             uavs,
-        bool                                      isForAnimation = false);
+    void        CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<ID3D12Resource*>* uavs, bool isForAnimation = false);
     BLAS const& GetBLAS();
 
     void                                      SetAnimationHandle(AnimationController::Handle handle);
@@ -95,9 +92,7 @@ public:
     void Accept(Visitor& visitor) override;
 
 protected:
-    void DoDataUpload(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<D3D12_RESOURCE_BARRIER>*     barriers) override;
+    void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers) override;
     void DoReset() override;
 
 private:
@@ -106,9 +101,7 @@ private:
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers);
 
-    void CreateBottomLevelASFromBounds(
-        ComPtr<ID3D12GraphicsCommandList4> const&                           commandList,
-        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> const& boundsBuffers);
+    void CreateBottomLevelASFromBounds(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> const& boundsBuffers);
 
     void CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList);
 
