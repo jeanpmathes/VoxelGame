@@ -34,9 +34,13 @@ public sealed class ResourceFixture : DispatcherFixture
 
     public ResourceFixture()
     {
-        ResourceCatalogLoader loader = new();
+        ResourceCatalogLoader loader = new()
+        {
+            FailFast = true
+        };
 
         loader.AddToEnvironment(new MockTextureIndexProvider());
+        loader.AddToEnvironment(new MockDominantColorProvider());
         loader.AddToEnvironment(new MockModelProvider());
         loader.AddToEnvironment(new VisualConfiguration());
 

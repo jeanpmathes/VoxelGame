@@ -31,4 +31,8 @@
         <ProjectReference Include="..\..\src\core\VoxelGame.Core.csproj"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <Folder Include="Domain\"/>
+    </ItemGroup>
+
 </Project>
