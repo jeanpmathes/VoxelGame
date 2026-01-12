@@ -609,6 +609,132 @@ namespace VoxelGame.Core.Resources.Language {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Friday.
+        /// </summary>
+        public static string DayFriday {
+            get {
+                return ResourceManager.GetString("DayFriday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Fri.
+        /// </summary>
+        public static string DayFridayShort {
+            get {
+                return ResourceManager.GetString("DayFridayShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Monday.
+        /// </summary>
+        public static string DayMonday {
+            get {
+                return ResourceManager.GetString("DayMonday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Mon.
+        /// </summary>
+        public static string DayMondayShort {
+            get {
+                return ResourceManager.GetString("DayMondayShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Saturday.
+        /// </summary>
+        public static string DaySaturday {
+            get {
+                return ResourceManager.GetString("DaySaturday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sat.
+        /// </summary>
+        public static string DaySaturdayShort {
+            get {
+                return ResourceManager.GetString("DaySaturdayShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sunday.
+        /// </summary>
+        public static string DaySunday {
+            get {
+                return ResourceManager.GetString("DaySunday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sun.
+        /// </summary>
+        public static string DaySundayShort {
+            get {
+                return ResourceManager.GetString("DaySundayShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thursday.
+        /// </summary>
+        public static string DayThursday {
+            get {
+                return ResourceManager.GetString("DayThursday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Thu.
+        /// </summary>
+        public static string DayThursdayShort {
+            get {
+                return ResourceManager.GetString("DayThursdayShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tuesday.
+        /// </summary>
+        public static string DayTuesday {
+            get {
+                return ResourceManager.GetString("DayTuesday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tue.
+        /// </summary>
+        public static string DayTuesdayShort {
+            get {
+                return ResourceManager.GetString("DayTuesdayShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wednesday.
+        /// </summary>
+        public static string DayWednesday {
+            get {
+                return ResourceManager.GetString("DayWednesday", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Wed.
+        /// </summary>
+        public static string DayWednesdayShort {
+            get {
+                return ResourceManager.GetString("DayWednesdayShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Decorated Stone.
         /// </summary>
         public static string DecoratedStone {
@@ -1649,6 +1775,78 @@ namespace VoxelGame.Core.Resources.Language {
         public static string MissingResources {
             get {
                 return ResourceManager.GetString("MissingResources", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Autumn.
+        /// </summary>
+        public static string MonthAutumn {
+            get {
+                return ResourceManager.GetString("MonthAutumn", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aut.
+        /// </summary>
+        public static string MonthAutumnShort {
+            get {
+                return ResourceManager.GetString("MonthAutumnShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spring.
+        /// </summary>
+        public static string MonthSpring {
+            get {
+                return ResourceManager.GetString("MonthSpring", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Spr.
+        /// </summary>
+        public static string MonthSpringShort {
+            get {
+                return ResourceManager.GetString("MonthSpringShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Summer.
+        /// </summary>
+        public static string MonthSummer {
+            get {
+                return ResourceManager.GetString("MonthSummer", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Sum.
+        /// </summary>
+        public static string MonthSummerShort {
+            get {
+                return ResourceManager.GetString("MonthSummerShort", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Winter.
+        /// </summary>
+        public static string MonthWinter {
+            get {
+                return ResourceManager.GetString("MonthWinter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Win.
+        /// </summary>
+        public static string MonthWinterShort {
+            get {
+                return ResourceManager.GetString("MonthWinterShort", resourceCulture);
             }
         }
         

@@ -1161,4 +1161,70 @@
     <data name="Tall" xml:space="preserve">
         <value>Tall</value>
     </data>
+    <data name="DayMonday" xml:space="preserve">
+        <value>Monday</value>
+    </data>
+    <data name="DayTuesday" xml:space="preserve">
+        <value>Tuesday</value>
+    </data>
+    <data name="DayWednesday" xml:space="preserve">
+        <value>Wednesday</value>
+    </data>
+    <data name="DayThursday" xml:space="preserve">
+        <value>Thursday</value>
+    </data>
+    <data name="DayFriday" xml:space="preserve">
+        <value>Friday</value>
+    </data>
+    <data name="DaySaturday" xml:space="preserve">
+        <value>Saturday</value>
+    </data>
+    <data name="DaySunday" xml:space="preserve">
+        <value>Sunday</value>
+    </data>
+    <data name="DayMondayShort" xml:space="preserve">
+        <value>Mon</value>
+    </data>
+    <data name="DayTuesdayShort" xml:space="preserve">
+        <value>Tue</value>
+    </data>
+    <data name="DayWednesdayShort" xml:space="preserve">
+        <value>Wed</value>
+    </data>
+    <data name="DayThursdayShort" xml:space="preserve">
+        <value>Thu</value>
+    </data>
+    <data name="DayFridayShort" xml:space="preserve">
+        <value>Fri</value>
+    </data>
+    <data name="DaySaturdayShort" xml:space="preserve">
+        <value>Sat</value>
+    </data>
+    <data name="DaySundayShort" xml:space="preserve">
+        <value>Sun</value>
+    </data>
+    <data name="MonthSpring" xml:space="preserve">
+        <value>Spring</value>
+    </data>
+    <data name="MonthSummer" xml:space="preserve">
+        <value>Summer</value>
+    </data>
+    <data name="MonthAutumn" xml:space="preserve">
+        <value>Autumn</value>
+    </data>
+    <data name="MonthWinter" xml:space="preserve">
+        <value>Winter</value>
+    </data>
+    <data name="MonthSpringShort" xml:space="preserve">
+        <value>Spr</value>
+    </data>
+    <data name="MonthSummerShort" xml:space="preserve">
+        <value>Sum</value>
+    </data>
+    <data name="MonthAutumnShort" xml:space="preserve">
+        <value>Aut</value>
+    </data>
+    <data name="MonthWinterShort" xml:space="preserve">
+        <value>Win</value>
+    </data>
 </root>

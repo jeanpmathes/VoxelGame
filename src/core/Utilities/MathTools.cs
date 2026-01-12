@@ -686,6 +686,14 @@ public static class MathTools
     }
 
     /// <summary>
+    ///     Get the modulo of a value. The result will always be positive.
+    /// </summary>
+    public static Int64 Mod(Int64 value, Int64 m)
+    {
+        return (value % m + m) % m;
+    }
+
+    /// <summary>
     ///     Get the fractional part of a double.
     /// </summary>
     /// <param name="value">The value to get the fractional part of.</param>
