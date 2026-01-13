@@ -31,7 +31,7 @@ public static class Calendar
     /// <summary>
     ///     Number of ticks in a real-time second.
     /// </summary>
-    public const Int64 TicksPerRealSecond = 60; // todo: in C++, pass this value to DxApp::Init, also switch all tick storage to Int64 (so no UInt64)
+    public const Int64 TicksPerRealSecond = 60; // todo: in C++, pass this value to DxApp::Init
 
     // todo: add somewhere in planning to have a year 9999 check and end game there, have special event, add game over screen later and way to continue even later
 
