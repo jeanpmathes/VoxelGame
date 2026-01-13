@@ -99,9 +99,18 @@ public class Cache<TK, TV>
     {
         if (map.TryGetValue(key, out LinkedListNode<Entry>? existing))
         {
+            // PERF: The entry already exists, so we just update it and move it to the end of the list.
+            // This avoids allocating a new LinkedListNode, reducing GC pressure.
+            existing.Value = new Entry(key, value);
+
             list.Remove(existing);
+            list.AddLast(existing);
+
+            // The map entry is already pointing to the correct node.
+            return;
         }
-        else if (list.Count >= Capacity)
+
+        if (list.Count >= Capacity)
         {
             LinkedListNode<Entry> node = list.First!;
 
