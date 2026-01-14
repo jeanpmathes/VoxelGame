@@ -19,6 +19,7 @@
 
 using System;
 using System.Diagnostics;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -29,7 +30,7 @@ namespace VoxelGame.Core.Domain.Chrono;
 ///     This struct does not contain a specific time of day, only the day, month, and year.
 ///     It should be used as a starting point for most user-entered dates, as well as for repeated events.
 /// </summary>
-public readonly struct Date : IEquatable<Date>, IComparable<Date>
+public struct Date : IEquatable<Date>, IComparable<Date>, IValue
 {
     /// <summary>
     ///     The data is encoded to use minimal space.
@@ -37,7 +38,7 @@ public readonly struct Date : IEquatable<Date>, IComparable<Date>
     ///     The month is stored in the next 2 bits and can represent values from 0 to 4 (exclusive).
     ///     All remaining 25 bits are used to store the year.
     /// </summary>
-    private readonly UInt32 data;
+    private UInt32 data;
 
     private const Int32 BitsForDay = 5;
     private const Int32 ShiftForDay = 0;
@@ -216,6 +217,12 @@ public readonly struct Date : IEquatable<Date>, IComparable<Date>
     public static Date operator -(Date date, Period period)
     {
         return date + period.Negated();
+    }
+
+    /// <inheritdoc />
+    public void Serialize(Serializer serializer)
+    {
+        serializer.Serialize(ref data);
     }
 
     /// <inheritdoc />

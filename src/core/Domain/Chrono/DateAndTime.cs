@@ -19,23 +19,37 @@
 
 using System;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using VoxelGame.Core.Serialization;
 
 namespace VoxelGame.Core.Domain.Chrono;
 
 /// <summary>
 ///     This struct combines a <see cref="Date" /> and a <see cref="Time" />.
 /// </summary>
-public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAndTime>
+public struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAndTime>, IValue
 {
+    private Date date;
+    private Time time;
+
     /// <summary>
     ///     The date.
     /// </summary>
-    public Date Date { get; init; }
+    public Date Date
+    {
+        get => date;
+        init => date = value;
+    }
 
     /// <summary>
     ///     The time.
     /// </summary>
-    public Time Time { get; init; }
+    public Time Time
+    {
+        get => time;
+        init => time = value;
+    }
 
     /// <summary>
     ///     Create a new date and time.
@@ -44,8 +58,8 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
     /// <param name="time">The time.</param>
     public DateAndTime(Date date, Time time)
     {
-        Date = date;
-        Time = time;
+        this.date = date;
+        this.time = time;
     }
 
     /// <summary>
@@ -146,6 +160,13 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
         return $"{Date} {Time}";
     }
 
+    /// <inheritdoc />
+    public void Serialize(Serializer serializer)
+    {
+        serializer.SerializeValue(ref date);
+        serializer.SerializeValue(ref time);
+    }
+
     #region EQUALITY
 
     /// <inheritdoc />
@@ -225,4 +246,22 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
     }
 
     #endregion COMPARISON
+}
+
+/// <summary>
+///     JSON converter for <see cref="DateAndTime" />.
+/// </summary>
+public class DateTimeJsonConverter : JsonConverter<DateAndTime>
+{
+    /// <inheritdoc />
+    public override DateAndTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return DateAndTime.FromUpdates(reader.GetInt64());
+    }
+
+    /// <inheritdoc />
+    public override void Write(Utf8JsonWriter writer, DateAndTime value, JsonSerializerOptions options)
+    {
+        writer.WriteNumberValue(value.Date.TotalDaysSinceStart * Calendar.UpdatesPerDay + value.Time.TotalUpdates);
+    }
 }

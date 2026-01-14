@@ -19,6 +19,7 @@
 
 using System;
 using System.Diagnostics;
+using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -29,8 +30,14 @@ namespace VoxelGame.Core.Domain.Chrono;
 ///     This struct does not contain a specific date, only the time of day in hours, minutes, and seconds.
 ///     It should be used as a starting point for most user-entered times, as well as for repeated events.
 /// </summary>
-public readonly struct Time : IEquatable<Time>, IComparable<Time>
+public struct Time : IEquatable<Time>, IComparable<Time>, IValue
 {
+    /// <summary>
+    ///     Updates since start of the day are used.
+    ///     The value will be smaller than <see cref="Calendar.UpdatesPerDay" />.
+    /// </summary>
+    private Int64 totalUpdates;
+
     /// <summary>
     ///     Create a new time.
     /// </summary>
@@ -47,7 +54,7 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
         Int64 minuteUpdates = minutes * Calendar.UpdatesPerMinute;
         Int64 secondUpdates = seconds * Calendar.UpdatesPerSecond;
 
-        TotalUpdates = hourUpdates + minuteUpdates + secondUpdates;
+        totalUpdates = hourUpdates + minuteUpdates + secondUpdates;
     }
 
     /// <summary>
@@ -61,7 +68,7 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
     {
         Debug.Assert(totalUpdates is >= 0 and < Calendar.UpdatesPerDay);
 
-        TotalUpdates = totalUpdates;
+        this.totalUpdates = totalUpdates;
     }
 
     /// <summary>
@@ -93,11 +100,7 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
     /// <summary>
     ///     Get the total number of updates since the start of the day.
     /// </summary>
-    /// <remarks>
-    ///     Updates since start of the day are used.
-    ///     The value will be smaller than <see cref="Calendar.UpdatesPerDay" />.
-    /// </remarks>
-    public Int64 TotalUpdates { get; }
+    public Int64 TotalUpdates => totalUpdates;
 
     /// <summary>
     ///     Whether this time is during daytime (between sunrise and sunset).
@@ -197,6 +200,12 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
         }
 
         return this >= start || this <= end;
+    }
+
+    /// <inheritdoc />
+    public void Serialize(Serializer serializer)
+    {
+        serializer.Serialize(ref totalUpdates);
     }
 
     /// <inheritdoc />
