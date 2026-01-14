@@ -99,10 +99,10 @@ public static class Meshing
     /// </summary>
     private static UInt32 EncodeInBase17(Vector4 vector)
     {
-        UInt32 x = MathTools.RoundedToUInt(vector.X * 16);
-        UInt32 y = MathTools.RoundedToUInt(vector.Y * 16);
-        UInt32 z = MathTools.RoundedToUInt(vector.Z * 16);
-        UInt32 w = MathTools.RoundedToUInt(vector.W * 16);
+        UInt32 x = MathTools.RoundToUInt(vector.X * 16);
+        UInt32 y = MathTools.RoundToUInt(vector.Y * 16);
+        UInt32 z = MathTools.RoundToUInt(vector.Z * 16);
+        UInt32 w = MathTools.RoundToUInt(vector.W * 16);
 
         return w * 17 * 17 * 17 +
                z * 17 * 17 +

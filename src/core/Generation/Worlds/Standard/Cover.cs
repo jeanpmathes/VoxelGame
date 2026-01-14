@@ -53,7 +53,7 @@ public abstract class Cover
         if (climate.Temperature.IsFreezing && snowMode != Snow.None)
         {
             var maximumHeight = BlockHeight.Maximum.ToInt32();
-            Int32 height = MathTools.RoundedToInt(maximumHeight * heightFraction * 0.75);
+            Int32 height = MathTools.RoundToInt(maximumHeight * heightFraction * 0.75);
 
             height += NumberGenerator.GetPositionDependentNumber(position, mod: 5) switch
             {
@@ -137,7 +137,7 @@ public abstract class Cover
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 100);
-            Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
+            Int32 humidity = MathTools.RoundToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
                 return Content.Default;
@@ -170,7 +170,7 @@ public abstract class Cover
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 100);
-            Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
+            Int32 humidity = MathTools.RoundToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
                 return Content.Default;

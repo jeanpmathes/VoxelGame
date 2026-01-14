@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Domain.Chrono;
 
@@ -27,8 +28,6 @@ namespace VoxelGame.Core.Domain.Chrono;
 /// </summary>
 public readonly struct Period : IEquatable<Period>, IComparable<Period>
 {
-    private const MidpointRounding RoundingMode = MidpointRounding.ToEven;
-
     private Period(Int32 totalDays)
     {
         TotalDays = totalDays;
@@ -81,7 +80,7 @@ public readonly struct Period : IEquatable<Period>, IComparable<Period>
     /// <returns>The corresponding period.</returns>
     public static Period FromTotalWeeks(Double totalWeeks)
     {
-        return FromDays((Int32) Math.Round(totalWeeks * Calendar.DaysPerWeek, RoundingMode));
+        return FromDays(MathTools.RoundToInt(totalWeeks * Calendar.DaysPerWeek));
     }
 
     /// <summary>
@@ -91,7 +90,7 @@ public readonly struct Period : IEquatable<Period>, IComparable<Period>
     /// <returns>The corresponding period.</returns>
     public static Period FromTotalMonths(Double totalMonths)
     {
-        return FromDays((Int32) Math.Round(totalMonths * Calendar.DaysPerMonth, RoundingMode));
+        return FromDays(MathTools.RoundToInt(totalMonths * Calendar.DaysPerMonth));
     }
 
     /// <summary>
@@ -101,7 +100,7 @@ public readonly struct Period : IEquatable<Period>, IComparable<Period>
     /// <returns>The corresponding period.</returns>
     public static Period FromTotalYears(Double totalYears)
     {
-        return FromDays((Int32) Math.Round(totalYears * Calendar.DaysPerYear, RoundingMode));
+        return FromDays(MathTools.RoundToInt(totalYears * Calendar.DaysPerYear));
     }
 
     /// <summary>
@@ -238,8 +237,7 @@ public readonly struct Period : IEquatable<Period>, IComparable<Period>
     /// </summary>
     public static Period operator *(Period duration, Double factor)
     {
-        return new Period((Int32) Math.Round(duration.TotalDays * factor, RoundingMode));
-        // todo: check if MathTools has a utility for this
+        return new Period(MathTools.RoundToInt(duration.TotalDays * factor));
     }
 
     /// <summary>
@@ -247,7 +245,7 @@ public readonly struct Period : IEquatable<Period>, IComparable<Period>
     /// </summary>
     public static Period operator *(Double factor, Period duration)
     {
-        return new Period((Int32) Math.Round(duration.TotalDays * factor, RoundingMode));
+        return new Period(MathTools.RoundToInt(duration.TotalDays * factor));
     }
 
     /// <summary>
@@ -255,7 +253,13 @@ public readonly struct Period : IEquatable<Period>, IComparable<Period>
     /// </summary>
     public static Period operator /(Period duration, Double factor)
     {
-        return new Period((Int32) Math.Round(duration.TotalDays / factor, RoundingMode));
+        return new Period(MathTools.RoundToInt(duration.TotalDays / factor));
+    }
+
+    /// <inheritdoc cref="operator -(Period)" />
+    public static Period Negate(Period period)
+    {
+        return -period;
     }
 
     /// <inheritdoc cref="operator -(Period, Period)" />

@@ -115,7 +115,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalSeconds">The total number of seconds in this duration. May be negative.</param>
     public static Duration FromTotalSeconds(Double totalSeconds)
     {
-        return new Duration(MathTools.RoundedToInt(totalSeconds * Calendar.UpdatesPerSecond));
+        return new Duration(MathTools.RoundToInt(totalSeconds * Calendar.UpdatesPerSecond));
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalMinutes">The total number of minutes in this duration. May be negative.</param>
     public static Duration FromTotalMinutes(Double totalMinutes)
     {
-        return new Duration(MathTools.RoundedToInt(totalMinutes * Calendar.UpdatesPerMinute));
+        return new Duration(MathTools.RoundToInt(totalMinutes * Calendar.UpdatesPerMinute));
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalHours">The total number of hours in this duration. May be negative.</param>
     public static Duration FromTotalHours(Double totalHours)
     {
-        return new Duration(MathTools.RoundedToInt(totalHours * Calendar.UpdatesPerHour));
+        return new Duration(MathTools.RoundToInt(totalHours * Calendar.UpdatesPerHour));
     }
 
     /// <summary>
@@ -142,7 +142,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalDays">The total number of days in this duration. May be negative.</param>
     public static Duration FromTotalDays(Double totalDays)
     {
-        return new Duration(MathTools.RoundedToInt(totalDays * Calendar.UpdatesPerDay));
+        return new Duration(MathTools.RoundToInt(totalDays * Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalWeeks">The total number of weeks in this duration. May be negative.</param>
     public static Duration FromTotalWeeks(Double totalWeeks)
     {
-        return new Duration(MathTools.RoundedToInt(totalWeeks * Calendar.DaysPerWeek * Calendar.UpdatesPerDay));
+        return new Duration(MathTools.RoundToInt(totalWeeks * Calendar.DaysPerWeek * Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -160,7 +160,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalMonths">The total number of months in this duration. May be negative.</param>
     public static Duration FromTotalMonths(Double totalMonths)
     {
-        return new Duration(MathTools.RoundedToInt(totalMonths * Calendar.DaysPerMonth * Calendar.UpdatesPerDay));
+        return new Duration(MathTools.RoundToInt(totalMonths * Calendar.DaysPerMonth * Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalYears">The total number of years in this duration. May be negative.</param>
     public static Duration FromTotalYears(Double totalYears)
     {
-        return new Duration(MathTools.RoundedToInt(totalYears * Calendar.DaysPerYear * Calendar.UpdatesPerDay));
+        return new Duration(MathTools.RoundToInt(totalYears * Calendar.DaysPerYear * Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -449,7 +449,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator *(Duration duration, Double factor)
     {
-        return new Duration(MathTools.RoundedToInt(duration.TotalUpdates * factor));
+        return new Duration(MathTools.RoundToInt(duration.TotalUpdates * factor));
     }
 
     /// <summary>
@@ -457,7 +457,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator *(Double factor, Duration duration)
     {
-        return new Duration(MathTools.RoundedToInt(duration.TotalUpdates * factor));
+        return new Duration(MathTools.RoundToInt(duration.TotalUpdates * factor));
     }
 
     /// <summary>
@@ -465,7 +465,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator /(Duration duration, Double factor)
     {
-        return new Duration(MathTools.RoundedToInt(duration.TotalUpdates / factor));
+        return new Duration(MathTools.RoundToInt(duration.TotalUpdates / factor));
     }
 
     /// <summary>
