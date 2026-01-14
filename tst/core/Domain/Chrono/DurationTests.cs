@@ -34,7 +34,7 @@ public class DurationTests
 
         Assert.True(duration.IsZero);
         Assert.False(duration.IsNegative);
-        Assert.Equal(expected: 0, duration.TotalTicks);
+        Assert.Equal(expected: 0, duration.TotalUpdates);
 
         Assert.Equal(expected: 0, duration.Years);
         Assert.Equal(expected: 0, duration.Months);
@@ -53,12 +53,12 @@ public class DurationTests
     [InlineData(-1)]
     [InlineData(12345)]
     [InlineData(-12345)]
-    public void Duration_FromTicks_ShouldPreserveTotalTicks(Int64 ticks)
+    public void Duration_FromUpdates_ShouldPreserveTotalUpdates(Int64 updates)
     {
-        Duration duration = Duration.FromTicks(ticks);
-        Assert.Equal(ticks, duration.TotalTicks);
-        Assert.Equal(ticks == 0, duration.IsZero);
-        Assert.Equal(ticks < 0, duration.IsNegative);
+        Duration duration = Duration.FromUpdates(updates);
+        Assert.Equal(updates, duration.TotalUpdates);
+        Assert.Equal(updates == 0, duration.IsZero);
+        Assert.Equal(updates < 0, duration.IsNegative);
     }
 
     [Theory]
@@ -66,10 +66,10 @@ public class DurationTests
     [InlineData(-1)]
     [InlineData(30)]
     [InlineData(-30)]
-    public void Duration_FromSeconds_ShouldMatchTickConversion(Int32 seconds)
+    public void Duration_FromSeconds_ShouldMatchUpdateConversion(Int32 seconds)
     {
         Duration duration = Duration.FromSeconds(seconds);
-        Assert.Equal(seconds * Calendar.TicksPerSecond, duration.TotalTicks);
+        Assert.Equal(seconds * Calendar.UpdatesPerSecond, duration.TotalUpdates);
     }
 
     [Theory]
@@ -77,10 +77,10 @@ public class DurationTests
     [InlineData(-1)]
     [InlineData(10)]
     [InlineData(-10)]
-    public void Duration_FromMinutes_ShouldMatchTickConversion(Int32 minutes)
+    public void Duration_FromMinutes_ShouldMatchUpdateConversion(Int32 minutes)
     {
         Duration duration = Duration.FromMinutes(minutes);
-        Assert.Equal(minutes * Calendar.TicksPerMinute, duration.TotalTicks);
+        Assert.Equal(minutes * Calendar.UpdatesPerMinute, duration.TotalUpdates);
     }
 
     [Theory]
@@ -88,10 +88,10 @@ public class DurationTests
     [InlineData(-1)]
     [InlineData(5)]
     [InlineData(-5)]
-    public void Duration_FromHours_ShouldMatchTickConversion(Int32 hours)
+    public void Duration_FromHours_ShouldMatchUpdateConversion(Int32 hours)
     {
         Duration duration = Duration.FromHours(hours);
-        Assert.Equal(hours * Calendar.TicksPerHour, duration.TotalTicks);
+        Assert.Equal(hours * Calendar.UpdatesPerHour, duration.TotalUpdates);
     }
 
     [Theory]
@@ -99,10 +99,10 @@ public class DurationTests
     [InlineData(-1)]
     [InlineData(7)]
     [InlineData(-7)]
-    public void Duration_FromDays_ShouldMatchTickConversion(Int32 days)
+    public void Duration_FromDays_ShouldMatchUpdateConversion(Int32 days)
     {
         Duration duration = Duration.FromDays(days);
-        Assert.Equal(days * Calendar.TicksPerDay, duration.TotalTicks);
+        Assert.Equal(days * Calendar.UpdatesPerDay, duration.TotalUpdates);
     }
 
     [Fact]
@@ -178,11 +178,11 @@ public class DurationTests
         Duration negated = duration.Negated();
 
         Assert.True(negated.IsNegative);
-        Assert.Equal(-duration.TotalTicks, negated.TotalTicks);
+        Assert.Equal(-duration.TotalUpdates, negated.TotalUpdates);
 
         Duration absolute = negated.Absolute();
         Assert.False(absolute.IsNegative);
-        Assert.Equal(duration.TotalTicks, absolute.TotalTicks);
+        Assert.Equal(duration.TotalUpdates, absolute.TotalUpdates);
     }
 
     [Fact]
@@ -209,7 +209,7 @@ public class DurationTests
     }
 
     [Fact]
-    public void Duration_Comparison_ShouldRespectTickOrdering()
+    public void Duration_Comparison_ShouldRespectUpdateOrdering()
     {
         Duration a = Duration.FromMinutes(1);
         Duration b = Duration.FromMinutes(2);
@@ -218,7 +218,7 @@ public class DurationTests
         Assert.True(b > a);
         Assert.True(b >= a);
         Assert.True(a != b);
-        Assert.True(a == Duration.FromTicks(a.TotalTicks));
+        Assert.True(a == Duration.FromUpdates(a.TotalUpdates));
     }
 
     [Fact]
@@ -245,11 +245,11 @@ public class DurationTests
     [InlineData(-1.5)]
     public void Duration_MultiplicationByDouble_ShouldRoundToEven(Double factor)
     {
-        Duration baseDuration = Duration.FromTicks(3);
+        Duration baseDuration = Duration.FromUpdates(3);
         Duration scaled = baseDuration * factor;
 
-        var expected = (Int64) Math.Round(baseDuration.TotalTicks * factor, MidpointRounding.ToEven);
-        Assert.Equal(expected, scaled.TotalTicks);
+        var expected = (Int64) Math.Round(baseDuration.TotalUpdates * factor, MidpointRounding.ToEven);
+        Assert.Equal(expected, scaled.TotalUpdates);
     }
 
     [Fact]

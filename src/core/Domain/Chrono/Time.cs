@@ -43,61 +43,61 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
         Debug.Assert(minutes is >= 0 and < (Int32) Calendar.MinutesPerHour);
         Debug.Assert(seconds is >= 0 and < (Int32) Calendar.SecondsPerMinute);
 
-        Int64 hourTicks = hours * Calendar.TicksPerHour;
-        Int64 minuteTicks = minutes * Calendar.TicksPerMinute;
-        Int64 secondTicks = seconds * Calendar.TicksPerSecond;
+        Int64 hourUpdates = hours * Calendar.UpdatesPerHour;
+        Int64 minuteUpdates = minutes * Calendar.UpdatesPerMinute;
+        Int64 secondUpdates = seconds * Calendar.UpdatesPerSecond;
 
-        TotalTicks = hourTicks + minuteTicks + secondTicks;
+        TotalUpdates = hourUpdates + minuteUpdates + secondUpdates;
     }
 
     /// <summary>
     ///     Create a new time.
     /// </summary>
-    /// <param name="totalTicks">
-    ///     The number of totalTicks since the start of the day. Must be smaller than
-    ///     <see cref="Calendar.TicksPerDay" />.
+    /// <param name="totalUpdates">
+    ///     The number of total Updates since the start of the day. Must be smaller than
+    ///     <see cref="Calendar.UpdatesPerDay" />.
     /// </param>
-    public Time(Int64 totalTicks)
+    public Time(Int64 totalUpdates)
     {
-        Debug.Assert(totalTicks is >= 0 and < Calendar.TicksPerDay);
+        Debug.Assert(totalUpdates is >= 0 and < Calendar.UpdatesPerDay);
 
-        TotalTicks = totalTicks;
+        TotalUpdates = totalUpdates;
     }
 
     /// <summary>
     ///     Get the hour of this time, will not be larger than <see cref="Calendar.HoursPerDay" />.
     /// </summary>
-    public Int32 Hours => (Int32) (TotalTicks / Calendar.TicksPerHour);
+    public Int32 Hours => (Int32) (TotalUpdates / Calendar.UpdatesPerHour);
 
     /// <summary>
     ///     Get the minute of this time, will not be larger than <see cref="Calendar.MinutesPerHour" />.
     /// </summary>
-    public Int32 Minutes => (Int32) (TotalTicks % Calendar.TicksPerHour / Calendar.TicksPerMinute);
+    public Int32 Minutes => (Int32) (TotalUpdates % Calendar.UpdatesPerHour / Calendar.UpdatesPerMinute);
 
     /// <summary>
     ///     Get the second of this time, will not be larger than <see cref="Calendar.SecondsPerMinute" />.
     /// </summary>
-    public Int32 Seconds => (Int32) (TotalTicks % Calendar.TicksPerMinute / Calendar.TicksPerSecond);
+    public Int32 Seconds => (Int32) (TotalUpdates % Calendar.UpdatesPerMinute / Calendar.UpdatesPerSecond);
 
     /// <summary>
     ///     Get the total number of seconds since the start of the day.
     /// </summary>
-    public Double TotalSeconds => TotalTicks / (Double) Calendar.TicksPerSecond;
+    public Double TotalSeconds => TotalUpdates / (Double) Calendar.UpdatesPerSecond;
 
     /// <summary>
     ///     Get the time of day as a value between 0.0 and 1.0, relative to sunrise and sunset.
     ///     A value of 0.0 represents sunrise (06:00:00), a value of 0.5 represents sunset (18:00:00).
     /// </summary>
-    public Double TimeOfDay => (TotalTicks - Sunrise.TotalTicks + Calendar.TicksPerDay) % Calendar.TicksPerDay / (Double) Calendar.TicksPerDay;
+    public Double TimeOfDay => (TotalUpdates - Sunrise.TotalUpdates + Calendar.UpdatesPerDay) % Calendar.UpdatesPerDay / (Double) Calendar.UpdatesPerDay;
 
     /// <summary>
-    ///     Get the total number of ticks since the start of the day.
+    ///     Get the total number of updates since the start of the day.
     /// </summary>
     /// <remarks>
-    ///     Ticks since start of the day are used.
-    ///     The value will be smaller than <see cref="Calendar.TicksPerDay" />.
+    ///     Updates since start of the day are used.
+    ///     The value will be smaller than <see cref="Calendar.UpdatesPerDay" />.
     /// </remarks>
-    public Int64 TotalTicks { get; }
+    public Int64 TotalUpdates { get; }
 
     /// <summary>
     ///     Whether this time is during daytime (between sunrise and sunset).
@@ -139,7 +139,7 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
     /// </summary>
     public static Duration operator -(Time left, Time right)
     {
-        return Duration.FromTicks(left.TotalTicks - right.TotalTicks);
+        return Duration.FromUpdates(left.TotalUpdates - right.TotalUpdates);
     }
 
     /// <summary>
@@ -148,7 +148,7 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
     /// </summary>
     public static Time operator +(Time time, Duration duration)
     {
-        return new Time(MathTools.Mod(time.TotalTicks + duration.TotalTicks, Calendar.TicksPerDay));
+        return new Time(MathTools.Mod(time.TotalUpdates + duration.TotalUpdates, Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -224,7 +224,7 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
     /// <inheritdoc />
     public Boolean Equals(Time other)
     {
-        return TotalTicks == other.TotalTicks;
+        return TotalUpdates == other.TotalUpdates;
     }
 
     /// <inheritdoc />
@@ -236,7 +236,7 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
     /// <inheritdoc />
     public override Int32 GetHashCode()
     {
-        return TotalTicks.GetHashCode();
+        return TotalUpdates.GetHashCode();
     }
 
     /// <summary>
@@ -262,7 +262,7 @@ public readonly struct Time : IEquatable<Time>, IComparable<Time>
     /// <inheritdoc />
     public Int32 CompareTo(Time other)
     {
-        return TotalTicks.CompareTo(other.TotalTicks);
+        return TotalUpdates.CompareTo(other.TotalUpdates);
     }
 
     /// <summary>

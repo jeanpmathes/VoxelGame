@@ -23,27 +23,27 @@ using VoxelGame.Core.Utilities;
 namespace VoxelGame.Core.Domain.Chrono;
 
 /// <summary>
-///     A duration is a length of time, measured in game ticks.
+///     A duration is a length of time, measured in game updates.
 ///     Compare with <see cref="Period" />.
 /// </summary>
 public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
 {
     /// <summary>
-    ///     Create a duration from a number of ticks.
+    ///     Create a duration from a number of updates.
     /// </summary>
-    /// <param name="ticks">The number of ticks in this duration. May be negative.</param>
-    private Duration(Int64 ticks)
+    /// <param name="updates">The number of updates in this duration. May be negative.</param>
+    private Duration(Int64 updates)
     {
-        TotalTicks = ticks;
+        TotalUpdates = updates;
     }
 
     /// <summary>
-    ///     Create a duration from a number of ticks.
+    ///     Create a duration from a number of updates.
     /// </summary>
-    /// <param name="ticks">The number of ticks in this duration. May be negative.</param>
-    public static Duration FromTicks(Int64 ticks)
+    /// <param name="updates">The number of updates in this duration. May be negative.</param>
+    public static Duration FromUpdates(Int64 updates)
     {
-        return new Duration(ticks);
+        return new Duration(updates);
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="seconds">The number of seconds in this duration. May be negative.</param>
     public static Duration FromSeconds(Int32 seconds)
     {
-        return new Duration(seconds * Calendar.TicksPerSecond);
+        return new Duration(seconds * Calendar.UpdatesPerSecond);
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="minutes">The number of minutes in this duration. May be negative.</param>
     public static Duration FromMinutes(Int32 minutes)
     {
-        return new Duration(minutes * Calendar.TicksPerMinute);
+        return new Duration(minutes * Calendar.UpdatesPerMinute);
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="hours">The number of hours in this duration. May be negative.</param>
     public static Duration FromHours(Int32 hours)
     {
-        return new Duration(hours * Calendar.TicksPerHour);
+        return new Duration(hours * Calendar.UpdatesPerHour);
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="days">The number of days in this duration. May be negative.</param>
     public static Duration FromDays(Int32 days)
     {
-        return new Duration(days * Calendar.TicksPerDay);
+        return new Duration(days * Calendar.UpdatesPerDay);
     }
 
     /// <summary>
@@ -115,7 +115,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalSeconds">The total number of seconds in this duration. May be negative.</param>
     public static Duration FromTotalSeconds(Double totalSeconds)
     {
-        return new Duration(MathTools.RoundedToInt(totalSeconds * Calendar.TicksPerSecond));
+        return new Duration(MathTools.RoundedToInt(totalSeconds * Calendar.UpdatesPerSecond));
     }
 
     /// <summary>
@@ -124,7 +124,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalMinutes">The total number of minutes in this duration. May be negative.</param>
     public static Duration FromTotalMinutes(Double totalMinutes)
     {
-        return new Duration(MathTools.RoundedToInt(totalMinutes * Calendar.TicksPerMinute));
+        return new Duration(MathTools.RoundedToInt(totalMinutes * Calendar.UpdatesPerMinute));
     }
 
     /// <summary>
@@ -133,7 +133,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalHours">The total number of hours in this duration. May be negative.</param>
     public static Duration FromTotalHours(Double totalHours)
     {
-        return new Duration(MathTools.RoundedToInt(totalHours * Calendar.TicksPerHour));
+        return new Duration(MathTools.RoundedToInt(totalHours * Calendar.UpdatesPerHour));
     }
 
     /// <summary>
@@ -142,7 +142,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalDays">The total number of days in this duration. May be negative.</param>
     public static Duration FromTotalDays(Double totalDays)
     {
-        return new Duration(MathTools.RoundedToInt(totalDays * Calendar.TicksPerDay));
+        return new Duration(MathTools.RoundedToInt(totalDays * Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -151,7 +151,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalWeeks">The total number of weeks in this duration. May be negative.</param>
     public static Duration FromTotalWeeks(Double totalWeeks)
     {
-        return new Duration(MathTools.RoundedToInt(totalWeeks * Calendar.DaysPerWeek * Calendar.TicksPerDay));
+        return new Duration(MathTools.RoundedToInt(totalWeeks * Calendar.DaysPerWeek * Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -160,7 +160,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalMonths">The total number of months in this duration. May be negative.</param>
     public static Duration FromTotalMonths(Double totalMonths)
     {
-        return new Duration(MathTools.RoundedToInt(totalMonths * Calendar.DaysPerMonth * Calendar.TicksPerDay));
+        return new Duration(MathTools.RoundedToInt(totalMonths * Calendar.DaysPerMonth * Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -169,7 +169,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <param name="totalYears">The total number of years in this duration. May be negative.</param>
     public static Duration FromTotalYears(Double totalYears)
     {
-        return new Duration(MathTools.RoundedToInt(totalYears * Calendar.DaysPerYear * Calendar.TicksPerDay));
+        return new Duration(MathTools.RoundedToInt(totalYears * Calendar.DaysPerYear * Calendar.UpdatesPerDay));
     }
 
     /// <summary>
@@ -192,9 +192,9 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     public static Duration Zero => new(0);
 
     /// <summary>
-    ///     Get a duration of one tick.
+    ///     Get a duration of one update.
     /// </summary>
-    public static Duration Tick => FromTicks(1);
+    public static Duration Update => FromUpdates(1);
 
     /// <summary>
     ///     Get a duration of one second.
@@ -234,94 +234,94 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <summary>
     ///     Whether this duration is zero.
     /// </summary>
-    public Boolean IsZero => TotalTicks == 0;
+    public Boolean IsZero => TotalUpdates == 0;
 
     /// <summary>
     ///     Whether this duration is negative.
     /// </summary>
-    public Boolean IsNegative => TotalTicks < 0;
+    public Boolean IsNegative => TotalUpdates < 0;
 
     /// <summary>
-    ///     The total number of ticks in this duration.
+    ///     The total number of updates in this duration.
     /// </summary>
-    public Int64 TotalTicks { get; }
+    public Int64 TotalUpdates { get; }
 
     /// <summary>
     ///     The second component of this duration, not including full minutes.
     /// </summary>
-    public Int64 Seconds => TotalTicks % Calendar.TicksPerMinute / Calendar.TicksPerSecond;
+    public Int64 Seconds => TotalUpdates % Calendar.UpdatesPerMinute / Calendar.UpdatesPerSecond;
 
     /// <summary>
     ///     The minute component of this duration, not including full hours.
     /// </summary>
-    public Int64 Minutes => TotalTicks % Calendar.TicksPerHour / Calendar.TicksPerMinute;
+    public Int64 Minutes => TotalUpdates % Calendar.UpdatesPerHour / Calendar.UpdatesPerMinute;
 
     /// <summary>
     ///     The hour component of this duration, not including full days.
     /// </summary>
-    public Int64 Hours => TotalTicks % Calendar.TicksPerDay / Calendar.TicksPerHour;
+    public Int64 Hours => TotalUpdates % Calendar.UpdatesPerDay / Calendar.UpdatesPerHour;
 
     /// <summary>
     ///     The day component of this duration, not including full weeks.
     /// </summary>
-    public Int64 Days => TotalTicks % (Calendar.TicksPerDay * Calendar.DaysPerWeek) / Calendar.TicksPerDay;
+    public Int64 Days => TotalUpdates % (Calendar.UpdatesPerDay * Calendar.DaysPerWeek) / Calendar.UpdatesPerDay;
 
     /// <summary>
     ///     The week component of this duration, not including full months.
     /// </summary>
-    public Int64 Weeks => TotalTicks % (Calendar.TicksPerDay * Calendar.DaysPerMonth) / (Calendar.TicksPerDay * Calendar.DaysPerWeek);
+    public Int64 Weeks => TotalUpdates % (Calendar.UpdatesPerDay * Calendar.DaysPerMonth) / (Calendar.UpdatesPerDay * Calendar.DaysPerWeek);
 
     /// <summary>
     ///     The month component of this duration, not including full years.
     /// </summary>
-    public Int64 Months => TotalTicks % (Calendar.TicksPerDay * Calendar.DaysPerYear) / (Calendar.TicksPerDay * Calendar.DaysPerMonth);
+    public Int64 Months => TotalUpdates % (Calendar.UpdatesPerDay * Calendar.DaysPerYear) / (Calendar.UpdatesPerDay * Calendar.DaysPerMonth);
 
     /// <summary>
     ///     The year component of this duration.
     /// </summary>
-    public Int64 Years => TotalTicks / (Calendar.TicksPerDay * Calendar.DaysPerYear);
+    public Int64 Years => TotalUpdates / (Calendar.UpdatesPerDay * Calendar.DaysPerYear);
 
     /// <summary>
     ///     The total number of seconds in this duration.
     /// </summary>
-    public Double TotalSeconds => TotalTicks / (Double) Calendar.TicksPerSecond;
+    public Double TotalSeconds => TotalUpdates / (Double) Calendar.UpdatesPerSecond;
 
     /// <summary>
     ///     The total number of minutes in this duration.
     /// </summary>
-    public Double TotalMinutes => TotalTicks / (Double) Calendar.TicksPerMinute;
+    public Double TotalMinutes => TotalUpdates / (Double) Calendar.UpdatesPerMinute;
 
     /// <summary>
     ///     The total number of hours in this duration.
     /// </summary>
-    public Double TotalHours => TotalTicks / (Double) Calendar.TicksPerHour;
+    public Double TotalHours => TotalUpdates / (Double) Calendar.UpdatesPerHour;
 
     /// <summary>
     ///     The total number of days in this duration.
     /// </summary>
-    public Double TotalDays => TotalTicks / (Double) Calendar.TicksPerDay;
+    public Double TotalDays => TotalUpdates / (Double) Calendar.UpdatesPerDay;
 
     /// <summary>
     ///     The total number of weeks in this duration.
     /// </summary>
-    public Double TotalWeeks => TotalTicks / (Double) (Calendar.TicksPerDay * Calendar.DaysPerWeek);
+    public Double TotalWeeks => TotalUpdates / (Double) (Calendar.UpdatesPerDay * Calendar.DaysPerWeek);
 
     /// <summary>
     ///     The total number of months in this duration.
     /// </summary>
-    public Double TotalMonths => TotalTicks / (Double) (Calendar.TicksPerDay * Calendar.DaysPerMonth);
+    public Double TotalMonths => TotalUpdates / (Double) (Calendar.UpdatesPerDay * Calendar.DaysPerMonth);
 
     /// <summary>
     ///     The total number of years in this duration.
     /// </summary>
-    public Double TotalYears => TotalTicks / (Double) (Calendar.TicksPerDay * Calendar.DaysPerYear);
+    public Double TotalYears => TotalUpdates / (Double) (Calendar.UpdatesPerDay * Calendar.DaysPerYear);
 
     /// <summary>
     ///     Get the negated duration.
     /// </summary>
     public Duration Negated()
     {
-        return new Duration(-TotalTicks);
+        return new Duration(-TotalUpdates);
     }
 
     /// <summary>
@@ -329,7 +329,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public Duration Absolute()
     {
-        return TotalTicks < 0 ? Negated() : this;
+        return TotalUpdates < 0 ? Negated() : this;
     }
 
     /// <summary>
@@ -337,7 +337,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator +(Duration a, Duration b)
     {
-        return new Duration(a.TotalTicks + b.TotalTicks);
+        return new Duration(a.TotalUpdates + b.TotalUpdates);
     }
 
     /// <summary>
@@ -345,7 +345,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator -(Duration a, Duration b)
     {
-        return new Duration(a.TotalTicks - b.TotalTicks);
+        return new Duration(a.TotalUpdates - b.TotalUpdates);
     }
 
     /// <summary>
@@ -407,7 +407,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator *(Duration duration, Int32 factor)
     {
-        return new Duration(duration.TotalTicks * factor);
+        return new Duration(duration.TotalUpdates * factor);
     }
 
     /// <summary>
@@ -415,19 +415,19 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator *(Int32 factor, Duration duration)
     {
-        return new Duration(duration.TotalTicks * factor);
+        return new Duration(duration.TotalUpdates * factor);
     }
 
     /// <inheritdoc cref="operator *(Duration, Int32)" />
     public static Duration Multiply(Duration duration, Int32 factor)
     {
-        return new Duration(duration.TotalTicks * factor);
+        return new Duration(duration.TotalUpdates * factor);
     }
 
     /// <inheritdoc cref="operator *(Int32, Duration)" />
     public static Duration Multiply(Int32 factor, Duration duration)
     {
-        return new Duration(duration.TotalTicks * factor);
+        return new Duration(duration.TotalUpdates * factor);
     }
 
     /// <summary>
@@ -435,13 +435,13 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator /(Duration duration, Int32 factor)
     {
-        return new Duration(duration.TotalTicks / factor);
+        return new Duration(duration.TotalUpdates / factor);
     }
 
     /// <inheritdoc cref="operator /(Duration, Int32)" />
     public static Duration Divide(Duration duration, Int32 factor)
     {
-        return new Duration(duration.TotalTicks / factor);
+        return new Duration(duration.TotalUpdates / factor);
     }
 
     /// <summary>
@@ -449,7 +449,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator *(Duration duration, Double factor)
     {
-        return new Duration(MathTools.RoundedToInt(duration.TotalTicks * factor));
+        return new Duration(MathTools.RoundedToInt(duration.TotalUpdates * factor));
     }
 
     /// <summary>
@@ -457,7 +457,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator *(Double factor, Duration duration)
     {
-        return new Duration(MathTools.RoundedToInt(duration.TotalTicks * factor));
+        return new Duration(MathTools.RoundedToInt(duration.TotalUpdates * factor));
     }
 
     /// <summary>
@@ -465,7 +465,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Duration operator /(Duration duration, Double factor)
     {
-        return new Duration(MathTools.RoundedToInt(duration.TotalTicks / factor));
+        return new Duration(MathTools.RoundedToInt(duration.TotalUpdates / factor));
     }
 
     /// <summary>
@@ -504,7 +504,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <summary>
     ///     Formats the duration according to the given type.
     ///     <list type="bullet">
-    ///         <item><c>F</c> - Full duration, excluding remainder ticks.</item>
+    ///         <item><c>F</c> - Full duration, excluding updates not fitting into seconds.</item>
     ///         <item><c>S</c> - Simple duration, simply the largest component.</item>
     ///     </list>
     /// </summary>
@@ -564,7 +564,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Boolean operator ==(Duration a, Duration b)
     {
-        return a.TotalTicks == b.TotalTicks;
+        return a.TotalUpdates == b.TotalUpdates;
     }
 
     /// <summary>
@@ -572,13 +572,13 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// </summary>
     public static Boolean operator !=(Duration a, Duration b)
     {
-        return a.TotalTicks != b.TotalTicks;
+        return a.TotalUpdates != b.TotalUpdates;
     }
 
     /// <inheritdoc />
     public Boolean Equals(Duration other)
     {
-        return TotalTicks == other.TotalTicks;
+        return TotalUpdates == other.TotalUpdates;
     }
 
     /// <inheritdoc />
@@ -590,7 +590,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <inheritdoc />
     public override Int32 GetHashCode()
     {
-        return TotalTicks.GetHashCode();
+        return TotalUpdates.GetHashCode();
     }
 
     #endregion EQUALITY
@@ -600,7 +600,7 @@ public readonly struct Duration : IEquatable<Duration>, IComparable<Duration>
     /// <inheritdoc />
     public Int32 CompareTo(Duration other)
     {
-        return TotalTicks.CompareTo(other.TotalTicks);
+        return TotalUpdates.CompareTo(other.TotalUpdates);
     }
 
     /// <summary>

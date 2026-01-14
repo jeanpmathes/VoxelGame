@@ -102,8 +102,8 @@ public class TimeTests
     }
 
     [Theory]
-    [InlineData(8, 0, 9, 0, Calendar.TicksPerHour)]
-    [InlineData(9, 0, 8, 0, -Calendar.TicksPerHour)]
+    [InlineData(8, 0, 9, 0, Calendar.UpdatesPerHour)]
+    [InlineData(9, 0, 8, 0, -Calendar.UpdatesPerHour)]
     public void Time_Until_ShouldReturnCorrectSignedDuration(
         Int32 h1, Int32 m1,
         Int32 h2, Int32 m2,
@@ -114,7 +114,7 @@ public class TimeTests
 
         Duration duration = start.Until(end);
 
-        Assert.Equal(expectedTicks, duration.TotalTicks);
+        Assert.Equal(expectedTicks, duration.TotalUpdates);
     }
 
     [Theory]

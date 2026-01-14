@@ -42,7 +42,7 @@ public class DateAndTimeTests
     [Fact]
     public void DateAndTime_FromTicks_ShouldCreateStartOfCalendar()
     {
-        DateAndTime dateAndTime = DateAndTime.FromTicks(0);
+        DateAndTime dateAndTime = DateAndTime.FromUpdates(0);
 
         Assert.Equal(Date.StartOfCalendar, dateAndTime.Date);
         Assert.Equal(Time.StartOfDay, dateAndTime.Time);
@@ -52,16 +52,16 @@ public class DateAndTimeTests
     [InlineData(0, 0, 0)]
     [InlineData(1, 0, 1)]
     [InlineData(5, 6, 30)]
-    public void DateAndTime_FromTicks_ShouldDecomposeCorrectly(
+    public void DateAndTime_FromUpdates_ShouldDecomposeCorrectly(
         Int32 dayOffset,
         Int32 hour,
         Int32 minute)
     {
-        Int64 ticks = dayOffset * Calendar.TicksPerDay +
-                      hour * Calendar.TicksPerHour +
-                      minute * Calendar.TicksPerMinute;
+        Int64 updates = dayOffset * Calendar.UpdatesPerDay +
+                        hour * Calendar.UpdatesPerHour +
+                        minute * Calendar.UpdatesPerMinute;
 
-        DateAndTime dateAndTime = DateAndTime.FromTicks(ticks);
+        DateAndTime dateAndTime = DateAndTime.FromUpdates(updates);
 
         Assert.Equal(dayOffset, dateAndTime.Date.TotalDaysSinceStart);
         Assert.Equal(hour, dateAndTime.Time.Hours);
@@ -130,8 +130,8 @@ public class DateAndTimeTests
         Duration duration = start.Until(end);
 
         Assert.Equal(
-            Calendar.TicksPerDay,
-            duration.TotalTicks);
+            Calendar.UpdatesPerDay,
+            duration.TotalUpdates);
     }
 
     [Fact]

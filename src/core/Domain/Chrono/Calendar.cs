@@ -23,23 +23,23 @@ namespace VoxelGame.Core.Domain.Chrono;
 
 /// <summary>
 ///     Defines the calendar system.
-///     The basic unit of time is a tick, which corresponds to a simulation update step.
+///     The basic unit of time is a simulation update step, referred to as an "update".
 ///     All units in this class, if not specified otherwise, are in-game units and not real-time units.
 /// </summary>
 public static class Calendar
 {
     /// <summary>
-    ///     Number of ticks in a real-time second.
+    ///     Number of updates in a real-time second.
     /// </summary>
-    public const Int64 TicksPerRealSecond = 60; // todo: in C++, pass this value to DxApp::Init
+    public const Int64 UpdatesPerRealSecond = 60; // todo: in C++, pass this value to DxApp::Init
 
     // todo: add somewhere in planning to have a year 9999 check and end game there, have special event, add game over screen later and way to continue even later
 
     /// <summary>
-    ///     Number of ticks in an in-game second.
-    ///     With a value of 1 and 60 ticks per real-time second, a game day will last 24 real-time minutes.
+    ///     Number of updates in an in-game second.
+    ///     With a value of 1 and 60 updates per real-time second, a game day will last 24 real-time minutes.
     /// </summary>
-    public const Int64 TicksPerSecond = 1;
+    public const Int64 UpdatesPerSecond = 1;
 
     /// <summary>
     ///     Number of in-game seconds in an in-game minute.
@@ -47,9 +47,9 @@ public static class Calendar
     public const Int64 SecondsPerMinute = 60;
 
     /// <summary>
-    ///     Number of ticks in an in-game minute.
+    ///     Number of updates in an in-game minute.
     /// </summary>
-    public const Int64 TicksPerMinute = TicksPerSecond * SecondsPerMinute;
+    public const Int64 UpdatesPerMinute = UpdatesPerSecond * SecondsPerMinute;
 
     /// <summary>
     ///     Number of in-game minutes in an in-game hour.
@@ -57,9 +57,9 @@ public static class Calendar
     public const Int64 MinutesPerHour = 60;
 
     /// <summary>
-    ///     Number of ticks in an in-game hour.
+    ///     Number of updates in an in-game hour.
     /// </summary>
-    public const Int64 TicksPerHour = TicksPerMinute * MinutesPerHour;
+    public const Int64 UpdatesPerHour = UpdatesPerMinute * MinutesPerHour;
 
     /// <summary>
     ///     Number of in-game hours in an in-game day.
@@ -67,9 +67,9 @@ public static class Calendar
     public const Int64 HoursPerDay = 24;
 
     /// <summary>
-    ///     Number of ticks in an in-game day.
+    ///     Number of updates in an in-game day.
     /// </summary>
-    public const Int64 TicksPerDay = TicksPerHour * HoursPerDay;
+    public const Int64 UpdatesPerDay = UpdatesPerHour * HoursPerDay;
 
     /// <summary>
     ///     Number of in-game days in an in-game week.

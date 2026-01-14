@@ -49,19 +49,19 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
     }
 
     /// <summary>
-    ///     Create a new date and time from the given total ticks since the start of the calendar.
+    ///     Create a new date and time from the given total updates since the start of the calendar.
     /// </summary>
-    /// <param name="ticks">The total ticks since the start of the calendar, must be non-negative.</param>
+    /// <param name="updates">The total updates since the start of the calendar, must be non-negative.</param>
     /// <returns>The created date and time.</returns>
-    public static DateAndTime FromTicks(Int64 ticks)
+    public static DateAndTime FromUpdates(Int64 updates)
     {
-        Debug.Assert(ticks >= 0);
+        Debug.Assert(updates >= 0);
 
-        Int64 days = ticks / Calendar.TicksPerDay;
-        ticks -= days * Calendar.TicksPerDay;
+        Int64 days = updates / Calendar.UpdatesPerDay;
+        updates -= days * Calendar.UpdatesPerDay;
 
         Date date = Date.FromTotalDaysSinceStart((Int32) days);
-        Time time = new(ticks);
+        Time time = new(updates);
 
         return new DateAndTime(date, time);
     }
@@ -92,7 +92,7 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
     /// </summary>
     public DateAndTime EndOfDay => AtEndOfDay(Date);
 
-    private Int64 TotalTicks => Date.TotalDaysSinceStart * Calendar.TicksPerDay + Time.TotalTicks;
+    private Int64 TotalUpdates => Date.TotalDaysSinceStart * Calendar.UpdatesPerDay + Time.TotalUpdates;
 
     /// <summary>
     ///     Get the duration until another <see cref="DateAndTime" />.
@@ -109,7 +109,7 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
     /// </summary>
     public static Duration operator -(DateAndTime left, DateAndTime right)
     {
-        return Duration.FromTicks(left.TotalTicks - right.TotalTicks);
+        return Duration.FromUpdates(left.TotalUpdates - right.TotalUpdates);
     }
 
     /// <inheritdoc cref="operator -(DateAndTime, DateAndTime)" />
@@ -123,7 +123,7 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
     /// </summary>
     public static DateAndTime operator +(DateAndTime dateAndTime, Duration duration)
     {
-        return FromTicks(dateAndTime.TotalTicks + duration.TotalTicks);
+        return FromUpdates(dateAndTime.TotalUpdates + duration.TotalUpdates);
     }
 
     /// <inheritdoc cref="operator +(DateAndTime, Duration)" />
@@ -137,7 +137,7 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
     /// </summary>
     public static DateAndTime operator -(DateAndTime dateAndTime, Duration duration)
     {
-        return FromTicks(dateAndTime.TotalTicks - duration.TotalTicks);
+        return FromUpdates(dateAndTime.TotalUpdates - duration.TotalUpdates);
     }
 
     /// <inheritdoc />
@@ -189,7 +189,7 @@ public readonly struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAn
     /// <inheritdoc />
     public Int32 CompareTo(DateAndTime other)
     {
-        return TotalTicks.CompareTo(other.TotalTicks);
+        return TotalUpdates.CompareTo(other.TotalUpdates);
     }
 
     /// <summary>

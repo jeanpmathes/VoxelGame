@@ -161,7 +161,7 @@ public class PeriodTests
         Period period = Period.FromWeeks(2) + Period.FromDays(3);
         var duration = period.ToDuration();
 
-        Assert.Equal(period.TotalDays * Calendar.TicksPerDay, duration.TotalTicks);
+        Assert.Equal(period.TotalDays * Calendar.UpdatesPerDay, duration.TotalUpdates);
     }
 
     [Theory]
