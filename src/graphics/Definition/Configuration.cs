@@ -235,6 +235,11 @@ internal static partial class Native
         internal IntPtr icon;
 
         /// <summary>
+        ///     The base number of logic updates per second, ignoring any time scaling.
+        /// </summary>
+        internal Int64 baseLogicUpdatesPerSecond;
+
+        /// <summary>
         ///     The scale at which the world is rendered, as a percentage of the window size.
         /// </summary>
         internal Single renderScale;
@@ -271,6 +276,7 @@ internal static partial class Native
                 icon = managed.icon,
                 applicationName = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationName),
                 applicationVersion = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationVersion),
+                baseLogicUpdatesPerSecond = managed.baseLogicUpdatesPerSecond,
                 renderScale = managed.renderScale,
                 options = managed.options
             };
@@ -303,6 +309,7 @@ internal static partial class Native
             internal IntPtr icon;
             internal IntPtr applicationName;
             internal IntPtr applicationVersion;
+            internal Int64 baseLogicUpdatesPerSecond;
             internal Single renderScale;
             internal ConfigurationOptions options;
         }

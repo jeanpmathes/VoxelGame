@@ -31,7 +31,7 @@ public static class Calendar
     /// <summary>
     ///     Number of updates in a real-time second.
     /// </summary>
-    public const Int64 UpdatesPerRealSecond = 60; // todo: in C++, pass this value to DxApp::Init
+    public const Int64 UpdatesPerRealSecond = 60;
 
     // todo: add somewhere in planning to have a year 9999 check and end game there, have special event, add game over screen later and way to continue even later
 

@@ -90,15 +90,9 @@ public:
 
     [[nodiscard]] bool IsTearingSupportEnabled() const { return m_tearingSupport; }
 
-    [[nodiscard]] bool SupportPIX() const
-    {
-        return static_cast<bool>(m_configuration.options & ConfigurationOptions::SUPPORT_PIX);
-    }
+    [[nodiscard]] bool SupportPIX() const { return static_cast<bool>(m_configuration.options & ConfigurationOptions::SUPPORT_PIX); }
 
-    [[nodiscard]] bool UseGBV() const
-    {
-        return static_cast<bool>(m_configuration.options & ConfigurationOptions::USE_GBV);
-    }
+    [[nodiscard]] bool UseGBV() const { return static_cast<bool>(m_configuration.options & ConfigurationOptions::USE_GBV); }
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
@@ -170,6 +164,8 @@ private:
 
     StepTimer m_logicTimer{};
     StepTimer m_renderTimer{};
+
+    double m_baseLogicUpdateTarget = 1.0;
 
     double m_totalLogicUpdateTime  = 0.0;
     double m_totalRenderUpdateTime = 0.0;

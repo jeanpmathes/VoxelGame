@@ -51,13 +51,15 @@ struct Configuration
 
     D3D12MessageFunc onDebug;
 
-    UINT   width;
-    UINT   height;
+    UINT32 width;
+    UINT32 height;
     LPWSTR title;
     HICON  icon;
 
     LPWSTR applicationName;
     LPWSTR applicationVersion;
+
+    INT64 baseLogicUpdatesPerSecond;
 
     FLOAT renderScale;
 

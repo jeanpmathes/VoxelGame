@@ -144,6 +144,7 @@ public partial class Client : Application
             icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty)?.Handle ?? IntPtr.Zero,
             applicationName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown Application",
             applicationVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version",
+            baseLogicUpdatesPerSecond = windowSettings.BaseUpdatesPerSecond,
             renderScale = windowSettings.RenderScale,
             options = Definition.Native.BuildOptions(
                 allowTearing: false,
