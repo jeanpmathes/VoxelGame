@@ -19,6 +19,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -30,6 +32,7 @@ namespace VoxelGame.Core.Domain.Chrono;
 ///     This struct does not contain a specific date, only the time of day in hours, minutes, and seconds.
 ///     It should be used as a starting point for most user-entered times, as well as for repeated events.
 /// </summary>
+[JsonConverter(typeof(TimeJsonConverter))]
 public struct Time : IEquatable<Time>, IComparable<Time>, IValue
 {
     /// <summary>
@@ -307,4 +310,22 @@ public struct Time : IEquatable<Time>, IComparable<Time>, IValue
     }
 
     #endregion COMPARISON
+}
+
+/// <summary>
+///     JSON converter for <see cref="Time" />.
+/// </summary>
+public class TimeJsonConverter : JsonConverter<Time>
+{
+    /// <inheritdoc />
+    public override Time Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return new Time(reader.GetInt64());
+    }
+
+    /// <inheritdoc />
+    public override void Write(Utf8JsonWriter writer, Time value, JsonSerializerOptions options)
+    {
+        writer.WriteNumberValue(value.TotalUpdates);
+    }
 }

@@ -48,7 +48,7 @@ public class PlayerDebugProperties : Group
         new Group("Target Block", CreateBlockTargetProperties(player.GetComponent<Targeting>()?.Block ?? Content.DefaultState)),
         new Group("Target Fluid", CreateFluidTargetProperties(player.GetComponent<Targeting>()?.Fluid ?? FluidInstance.Default)),
         new Measure("Temperature", player.World.Map.GetTemperature(player.Body.Transform.Position.Floor())),
-        new Message("Time of Day", $"{player.World.TimeOfDay:F4}"),
+        new Message("Date and Time", $"{player.World.DateAndTime}"),
         new Group("World",
         [
             new Message("Chunk State Updates", $"{player.World.ChunkStateUpdateCount}"),
@@ -77,8 +77,6 @@ public class PlayerDebugProperties : Group
 
     private static String FormatObject(Object? obj)
     {
-        return obj != null
-            ? $"{obj.GetType().Name} ({obj})"
-            : "null";
+        return obj != null ? $"{obj}" : "null";
     }
 }

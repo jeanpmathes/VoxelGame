@@ -19,6 +19,8 @@
 
 using System;
 using System.Diagnostics;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
@@ -30,6 +32,7 @@ namespace VoxelGame.Core.Domain.Chrono;
 ///     This struct does not contain a specific time of day, only the day, month, and year.
 ///     It should be used as a starting point for most user-entered dates, as well as for repeated events.
 /// </summary>
+[JsonConverter(typeof(DateJsonConverter))]
 public struct Date : IEquatable<Date>, IComparable<Date>, IValue
 {
     /// <summary>
@@ -339,4 +342,22 @@ public struct Date : IEquatable<Date>, IComparable<Date>, IValue
     }
 
     #endregion COMPARISON
+}
+
+/// <summary>
+///     JSON converter for <see cref="Date" />.
+/// </summary>
+public class DateJsonConverter : JsonConverter<Date>
+{
+    /// <inheritdoc />
+    public override Date Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    {
+        return Date.FromTotalDaysSinceStart(reader.GetInt32());
+    }
+
+    /// <inheritdoc />
+    public override void Write(Utf8JsonWriter writer, Date value, JsonSerializerOptions options)
+    {
+        writer.WriteNumberValue(value.TotalDaysSinceStart);
+    }
 }

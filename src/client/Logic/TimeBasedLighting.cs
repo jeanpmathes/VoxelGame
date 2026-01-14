@@ -38,7 +38,7 @@ public partial class TimeBasedLighting : WorldComponent
     {
         World = subject.Cast();
 
-        World.Space.Light.Direction = GetLightDirection(World.TimeOfDay);
+        World.Space.Light.Direction = GetLightDirection(World.DateAndTime.Time.TimeOfDay);
     }
 
     private World World { get; }
@@ -46,7 +46,7 @@ public partial class TimeBasedLighting : WorldComponent
     /// <inheritdoc />
     public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
     {
-        Double timeOfDay = Subject.TimeOfDay;
+        Double timeOfDay = Subject.DateAndTime.Time.TimeOfDay;
         Boolean isDay = timeOfDay < 0.5;
         Visuals.Graphics.Instance.SetTimeOfDay(timeOfDay);
 

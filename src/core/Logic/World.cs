@@ -28,6 +28,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.App;
+using VoxelGame.Core.Domain.Chrono;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
@@ -196,18 +197,12 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     public IMap Map => ChunkContext.Generator.Map;
 
     /// <summary>
-    ///     The length of one day, in seconds.
+    ///     Get or set the current date and time of the world.
     /// </summary>
-    public Double DayLength { get; set; } = 600.0;
-
-    /// <summary>
-    ///     Get or set the current time of day in the range [0, 1).
-    ///     Morning is 0, noon is 0.25, evening is 0.5, midnight is 0.75.
-    /// </summary>
-    public Double TimeOfDay
+    public DateAndTime DateAndTime
     {
-        get => Data.Information.TimeOfDay;
-        set => Data.Information.TimeOfDay = value;
+        get => Data.Information.DateAndTime;
+        set => Data.Information.DateAndTime = value;
     }
 
     /// <summary>
@@ -691,11 +686,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <param name="updateTimer">A timer for profiling.</param>
     public void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
     {
-        if (DayLength > 0)
-        {
-            TimeOfDay += deltaTime / DayLength;
-            TimeOfDay %= 1.0;
-        }
+        DateAndTime += Duration.Update;
 
         OnLogicUpdateInActiveStateComponent(deltaTime, updateTimer);
     }

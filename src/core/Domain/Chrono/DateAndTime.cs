@@ -19,8 +19,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using VoxelGame.Core.Serialization;
 
 namespace VoxelGame.Core.Domain.Chrono;
@@ -246,22 +244,4 @@ public struct DateAndTime : IEquatable<DateAndTime>, IComparable<DateAndTime>, I
     }
 
     #endregion COMPARISON
-}
-
-/// <summary>
-///     JSON converter for <see cref="DateAndTime" />.
-/// </summary>
-public class DateTimeJsonConverter : JsonConverter<DateAndTime>
-{
-    /// <inheritdoc />
-    public override DateAndTime Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        return DateAndTime.FromUpdates(reader.GetInt64());
-    }
-
-    /// <inheritdoc />
-    public override void Write(Utf8JsonWriter writer, DateAndTime value, JsonSerializerOptions options)
-    {
-        writer.WriteNumberValue(value.Date.TotalDaysSinceStart * Calendar.UpdatesPerDay + value.Time.TotalUpdates);
-    }
 }
