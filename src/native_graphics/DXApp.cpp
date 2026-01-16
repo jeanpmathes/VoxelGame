@@ -121,13 +121,13 @@ void DXApp::Init()
 
 void DXApp::Update(StepTimer const& timer)
 {
-    double const delta      = timer.GetElapsedSeconds();
-    m_totalRenderUpdateTime += delta;
+    double const delta       = timer.GetElapsedSeconds();
+    double const scaledDelta = delta * m_timeScale;
 
     m_cycle = Cycle::LOGIC_UPDATE;
 
-    m_configuration.onUpdate(delta);
-    OnLogicUpdate(delta);
+    m_configuration.onLogicUpdate(delta, scaledDelta);
+    OnLogicUpdate();
 
     m_cycle = std::nullopt;
 }
@@ -136,14 +136,17 @@ void DXApp::RenderUpdate(StepTimer const& timer)
 {
     if (m_logicTimer.GetFrameCount() == 0) return;
 
-    double const delta      = timer.GetElapsedSeconds();
-    m_totalRenderUpdateTime += delta;
+    double const delta       = timer.GetElapsedSeconds();
+    double const scaledDelta = delta * m_timeScale;
+
+    m_totalRealRenderUpdateTime   += delta;
+    m_totalScaledRenderUpdateTime += scaledDelta;
 
     m_cycle = Cycle::RENDER_UPDATE;
 
     OnPreRenderUpdate();
-    m_configuration.onRenderUpdate(delta);
-    OnRenderUpdate(delta);
+    m_configuration.onRenderUpdate(delta, scaledDelta);
+    OnRenderUpdate();
 
     m_cycle = std::nullopt;
 }
@@ -260,6 +263,20 @@ void DXApp::SetMouseLock(bool const lock)
 }
 
 float DXApp::GetAspectRatio() const { return m_aspectRatio; }
+
+void DXApp::SetTimeScale(double const scale)
+{
+    Require(scale > 0.0);
+
+    // Because the timer takes the targeted elapsed time per update, we need to divide by the timescale.
+    // For example, a timescale of 2.0 means we want to run logic updates twice as fast, thus the target elapsed time per update is halved.
+
+    m_timeScale = scale;
+    m_logicTimer.SetTargetElapsedSeconds(m_baseLogicUpdateTarget / m_timeScale);
+
+    // todo: pass real delta time and inversely scaled delta time to logic update
+    // todo: add a Delta struct in C# that contains both real delta time and (scaled) delta time
+}
 
 std::optional<DXApp::Cycle> DXApp::GetCycle() const
 {

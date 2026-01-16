@@ -17,9 +17,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.UI.UserInterfaces;
 
@@ -44,7 +44,7 @@ public partial class UserInterfaceHide : SceneComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         if (scene.CanHandleGameInput && button.Changed) ui.ToggleHidden();
     }

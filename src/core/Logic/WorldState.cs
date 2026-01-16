@@ -25,6 +25,7 @@ using VoxelGame.Core.App;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using Activity = VoxelGame.Core.Updates.Activity;
 
@@ -49,10 +50,10 @@ public abstract partial class WorldState
     ///     Update the curren state and return the next state if it has changed.
     /// </summary>
     /// <param name="world">The world to update.</param>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="updateTimer">An optional timer to measure the time it takes to update the world.</param>
     /// <returns>The next state if it has changed or <c>null</c> if it has not.</returns>
-    public abstract WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer);
+    public abstract WorldState? LogicUpdate(World world, Delta delta, Timer? updateTimer);
 
     /// <summary>
     ///     Apply the chunk update mode to the given list.
@@ -85,7 +86,7 @@ public abstract partial class WorldState
         private Int64 worldUpdateCount;
 
         /// <inheritdoc />
-        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Delta delta, Timer? updateTimer)
         {
             worldUpdateCount += 1;
             chunkUpdateCount += world.ChunkStateUpdateCount;
@@ -119,9 +120,9 @@ public abstract partial class WorldState
         public override Boolean IsActive => true;
 
         /// <inheritdoc />
-        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Delta delta, Timer? updateTimer)
         {
-            world.OnLogicUpdateInActiveState(deltaTime, updateTimer);
+            world.OnLogicUpdateInActiveState(delta, updateTimer);
 
             return next;
         }
@@ -172,7 +173,7 @@ public abstract partial class WorldState
         public override Boolean IsTerminating => true;
 
         /// <inheritdoc />
-        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Delta delta, Timer? updateTimer)
         {
             Debug.Assert(!completed);
 
@@ -219,7 +220,7 @@ public abstract partial class WorldState
         private Int32 total;
 
         /// <inheritdoc />
-        public override WorldState? LogicUpdate(World world, Double deltaTime, Timer? updateTimer)
+        public override WorldState? LogicUpdate(World world, Delta delta, Timer? updateTimer)
         {
             if (saving == null)
             {

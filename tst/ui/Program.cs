@@ -65,9 +65,9 @@ internal sealed class Program : Client
         unitTestHarnessControls = new UnitTestHarnessControls(gui.Root);
     }
 
-    protected override void OnLogicUpdate(Double delta, Timer? timer)
+    protected override void OnLogicUpdate(Delta delta, Timer? timer)
     {
-        updateFrameTimes.Write(delta);
+        updateFrameTimes.Write(delta.RealTime);
 
         if (unitTestHarnessControls != null)
             unitTestHarnessControls.UpdateFps = 1 / updateFrameTimes.Average;
@@ -75,9 +75,9 @@ internal sealed class Program : Client
         gui.Update();
     }
 
-    protected override void OnRenderUpdate(Double delta, Timer? timer)
+    protected override void OnRenderUpdate(Delta delta, Timer? timer)
     {
-        renderFrameTimes.Write(delta);
+        renderFrameTimes.Write(delta.RealTime);
 
         if (unitTestHarnessControls != null)
             unitTestHarnessControls.RenderFps = 1 / renderFrameTimes.Average;

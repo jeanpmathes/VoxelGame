@@ -1,4 +1,4 @@
-﻿// <copyright file="UpdateInGamePerformanceData.cs" company="VoxelGame">
+﻿// <copyright file="SetTimeScale.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -17,29 +17,33 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Annotations.Attributes;
-using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
-using VoxelGame.UI.UserInterfaces;
+using System;
+using JetBrains.Annotations;
 
-namespace VoxelGame.Client.Scenes.Components;
+namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
-///     Updates the in-game performance data on the <see cref="InGameUserInterface" />.
+///     Set the speed of time progression.
 /// </summary>
-public partial class UpdateInGamePerformanceData : SceneComponent
+[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
+public class SetTimeScale : Command
 {
-    private readonly InGameUserInterface ui;
-
-    [Constructible]
-    private UpdateInGamePerformanceData(Scene subject, InGameUserInterface ui) : base(subject)
-    {
-        this.ui = ui;
-    }
+    /// <inheritdoc />
+    public override String Name => "set-timescale";
 
     /// <inheritdoc />
-    public override void OnRenderUpdate(Delta delta, Timer? timer)
+    public override String HelpText => "Sets how fast time progresses in the game.";
+
+    /// <exclude />
+    public void Invoke(Double timeScale)
     {
-        ui.UpdatePerformanceData();
+        if (timeScale <= 0)
+        {
+            Context.Output.WriteError("Time scale must be greater than zero.");
+
+            return;
+        }
+
+        Core.App.Application.Instance.SetTimeScale(timeScale);
     }
 }

@@ -20,6 +20,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -55,6 +56,6 @@ internal abstract class MovementStrategy(Double flyingSpeed)
     /// </summary>
     /// <param name="pitch">The current look pitch.</param>
     /// <param name="yaw">The current look yaw.</param>
-    /// <param name="deltaTime">The time since the last update cycle.</param>
-    internal abstract void Move(Double pitch, Double yaw, Double deltaTime);
+    /// <param name="delta">The time since the last update cycle.</param>
+    internal abstract void Move(Double pitch, Double yaw, Delta delta);
 }

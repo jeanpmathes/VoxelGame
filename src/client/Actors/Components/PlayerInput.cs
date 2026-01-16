@@ -23,6 +23,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Input.Composite;
 using VoxelGame.Toolkit;
@@ -124,9 +125,9 @@ public sealed partial class PlayerInput : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
-        timer += deltaTime;
+        timer += delta.Time;
     }
 
     internal void RegisterInteraction()

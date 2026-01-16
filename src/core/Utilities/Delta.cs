@@ -1,4 +1,4 @@
-﻿// <copyright file="UpdateInGamePerformanceData.cs" company="VoxelGame">
+﻿// <copyright file="Delta.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -17,29 +17,24 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using VoxelGame.Annotations.Attributes;
-using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Utilities;
-using VoxelGame.UI.UserInterfaces;
+using System;
 
-namespace VoxelGame.Client.Scenes.Components;
+namespace VoxelGame.Core.Utilities;
 
 /// <summary>
-///     Updates the in-game performance data on the <see cref="InGameUserInterface" />.
+///     Utility struct holding the delta time of an update.
 /// </summary>
-public partial class UpdateInGamePerformanceData : SceneComponent
+public readonly struct Delta(Double realTime, Double time)
 {
-    private readonly InGameUserInterface ui;
+    /// <summary>
+    ///     The delta time, in real time seconds.
+    ///     This time should be used only in some specific cases, such as player input handling.
+    /// </summary>
+    public Double RealTime { get; } = realTime;
 
-    [Constructible]
-    private UpdateInGamePerformanceData(Scene subject, InGameUserInterface ui) : base(subject)
-    {
-        this.ui = ui;
-    }
-
-    /// <inheritdoc />
-    public override void OnRenderUpdate(Delta delta, Timer? timer)
-    {
-        ui.UpdatePerformanceData();
-    }
+    /// <summary>
+    ///     The delta time, in scaled seconds.
+    ///     This time should be used for most cases, especially physics and game logic.
+    /// </summary>
+    public Double Time { get; } = time;
 }

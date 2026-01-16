@@ -134,11 +134,11 @@ public partial class Body : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         if (IsEnabled)
         {
-            CalculatePhysics(deltaTime);
+            CalculatePhysics(delta);
         }
         else
         {
@@ -150,16 +150,16 @@ public partial class Body : ActorComponent
         }
     }
 
-    private void CalculatePhysics(Double deltaTime)
+    private void CalculatePhysics(Delta delta)
     {
         IsGrounded = false;
         IsSwimming = false;
 
-        Velocity += force / mass * deltaTime;
+        Velocity += force / mass * delta.Time;
 
         BoxCollider collider = Collider;
 
-        Vector3d movement = Velocity * deltaTime;
+        Vector3d movement = Velocity * delta.Time;
         movement *= 1f / PhysicsIterations;
 
         HashSet<(Vector3i position, Block block)> blockIntersections = [];

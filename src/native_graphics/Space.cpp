@@ -119,7 +119,7 @@ void Space::SpoolUp()
     m_effects.Spool(m_effectSpoolCount);
 }
 
-void Space::Update(double)
+void Space::Update()
 {
     m_globalConstantBufferMapping->lightDirection = m_light.GetDirection();
     m_globalConstantBufferMapping->lightIntensity = m_light.GetIntensity();
@@ -132,7 +132,7 @@ void Space::Update(double)
 
 void Space::Render(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth, RenderData const& data)
 {
-    m_globalConstantBufferMapping->time = static_cast<float>(m_client->GetTotalRenderUpdateTime());
+    m_globalConstantBufferMapping->time = static_cast<float>(m_client->GetTotalScaledRenderUpdateTime());
 
     {
         PIXScopedEvent(GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");

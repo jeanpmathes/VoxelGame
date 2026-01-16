@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
 
@@ -65,50 +66,50 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
     /// <summary>
     ///     Perform an update cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    public void LogicUpdate(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Delta delta, Timer? timer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("Scene LogicUpdate", timer);
 
-        OnLogicUpdate(deltaTime, subTimer);
-        OnLogicUpdateComponents(deltaTime, subTimer);
+        OnLogicUpdate(delta, subTimer);
+        OnLogicUpdateComponents(delta, subTimer);
     }
 
     /// <inheritdoc cref="Scene.OnLogicUpdate" />
     [ComponentEvent(nameof(SceneComponent.OnLogicUpdate))]
-    private partial void OnLogicUpdateComponents(Double deltaTime, Timer? timer);
+    private partial void OnLogicUpdateComponents(Delta delta, Timer? timer);
 
     /// <summary>
     ///     Called each logic update cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    protected virtual void OnLogicUpdate(Double deltaTime, Timer? timer) {}
+    protected virtual void OnLogicUpdate(Delta delta, Timer? timer) {}
 
     /// <summary>
     ///     Perform a render cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last render.</param>
+    /// <param name="delta">The time since the last render.</param>
     /// <param name="timer">A timer for profiling.</param>
-    public void RenderUpdate(Double deltaTime, Timer? timer)
+    public void RenderUpdate(Delta delta, Timer? timer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("Scene RenderUpdate", timer);
 
-        OnRenderUpdate(deltaTime, subTimer);
-        OnRenderUpdateComponents(deltaTime, subTimer);
+        OnRenderUpdate(delta, subTimer);
+        OnRenderUpdateComponents(delta, subTimer);
     }
 
     /// <inheritdoc cref="Scene.OnRenderUpdate" />
     [ComponentEvent(nameof(SceneComponent.OnRenderUpdate))]
-    private partial void OnRenderUpdateComponents(Double deltaTime, Timer? timer);
+    private partial void OnRenderUpdateComponents(Delta delta, Timer? timer);
 
     /// <summary>
     ///     Called each render update cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last render.</param>
+    /// <param name="delta">The time since the last render.</param>
     /// <param name="timer">A timer for profiling.</param>
-    protected virtual void OnRenderUpdate(Double deltaTime, Timer? timer) {}
+    protected virtual void OnRenderUpdate(Delta delta, Timer? timer) {}
 
     /// <summary>
     ///     Handle a game resize.

@@ -17,10 +17,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
 
 namespace VoxelGame.Client.Application.Components;
@@ -42,7 +42,7 @@ public partial class FullscreenToggle : ApplicationComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double delta, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         if (client.IsFocused && button.Changed) client.ToggleFullscreen();
     }

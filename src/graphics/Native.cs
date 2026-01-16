@@ -242,7 +242,7 @@ internal static class Native
     internal static RasterPipeline? CreateRasterPipeline(
         Client client,
         RasterPipelineDescription description,
-        Definition.Native.NativeErrorFunc callback)
+        Definition.Native.NativeErrorFunction callback)
     {
         Debug.Assert(description.BufferSize == 0);
 
@@ -269,7 +269,7 @@ internal static class Native
     internal static unsafe (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
         Client client,
         RasterPipelineDescription description,
-        Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>, IDefault<T>
+        Definition.Native.NativeErrorFunction callback) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         description.BufferSize = (UInt32) sizeof(T);
 

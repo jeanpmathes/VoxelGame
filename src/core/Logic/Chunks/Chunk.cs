@@ -291,11 +291,11 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Update all actors in this chunk.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    public void SendLogicUpdatesToActors(Double deltaTime)
+    /// <param name="delta">The time since the last update.</param>
+    public void SendLogicUpdatesToActors(Delta delta)
     {
         foreach (Actor actor in Requests.Requesters)
-            actor.LogicUpdate(deltaTime);
+            actor.LogicUpdate(delta);
     }
 
     /// <summary>

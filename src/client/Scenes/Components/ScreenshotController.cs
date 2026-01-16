@@ -17,9 +17,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
 
 namespace VoxelGame.Client.Scenes.Components;
@@ -41,7 +41,7 @@ public partial class ScreenshotController : SceneComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         if (scene.CanHandleGameInput && button.Pushed) scene.Client.TakeScreenshot(Program.ScreenshotDirectory);
     }

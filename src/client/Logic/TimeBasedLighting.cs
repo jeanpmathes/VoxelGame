@@ -22,6 +22,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Logic;
@@ -44,7 +45,7 @@ public partial class TimeBasedLighting : WorldComponent
     private World World { get; }
 
     /// <inheritdoc />
-    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    public override void OnLogicUpdateInActiveState(Delta delta, Timer? updateTimer)
     {
         Double timeOfDay = Subject.DateAndTime.Time.TimeOfDay;
         Boolean isDay = timeOfDay < 0.5;

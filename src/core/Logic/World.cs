@@ -36,6 +36,7 @@ using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
@@ -665,9 +666,9 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <summary>
     ///     Process an update step for this world.
     /// </summary>
-    /// <param name="deltaTime">Time since the last update.</param>
+    /// <param name="delta">Time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public void LogicUpdate(Double deltaTime, Timer? updateTimer)
+    public void LogicUpdate(Delta delta, Timer? updateTimer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("World LogicUpdate", updateTimer);
 
@@ -676,23 +677,23 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
             UpdateChunks();
         }
 
-        state.LogicUpdate(deltaTime, updateTimer);
+        state.LogicUpdate(delta, updateTimer);
     }
 
     /// <summary>
     ///     Called by the active state during <see cref="LogicUpdate" /> when the world is active.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    public void OnLogicUpdateInActiveState(Delta delta, Timer? updateTimer)
     {
         DateAndTime += Duration.Update;
 
-        OnLogicUpdateInActiveStateComponent(deltaTime, updateTimer);
+        OnLogicUpdateInActiveStateComponent(delta, updateTimer);
     }
 
     [ComponentEvent(nameof(WorldComponent.OnLogicUpdateInActiveState))]
-    private partial void OnLogicUpdateInActiveStateComponent(Double deltaTime, Timer? updateTimer);
+    private partial void OnLogicUpdateInActiveStateComponent(Delta delta, Timer? updateTimer);
 
     /// <summary>
     ///     Event arguments for the <see cref="SectionChanged" /> event.

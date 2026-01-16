@@ -55,7 +55,7 @@ public partial class DirectWorldLoad : SceneComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         if (!isLoadingPossible)
             return;

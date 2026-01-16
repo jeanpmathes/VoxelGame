@@ -36,9 +36,9 @@ public:
     void OnPreInitialization() override;
     void OnPostInitialization() override;
     void OnInitializationComplete() override;
-    void OnLogicUpdate(double delta) override;
+    void OnLogicUpdate() override;
     void OnPreRenderUpdate() override;
-    void OnRenderUpdate(double delta) override;
+    void OnRenderUpdate() override;
     void OnDestroy() override;
 
     void OnSizeChanged(UINT width, UINT height, bool minimized) override;
@@ -182,10 +182,8 @@ private:
     bool m_windowedMode  = true;
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    GpuCrashTracker::MarkerMap m_markerMap = {}; ShaderDatabase m_shaderDatabase = {}; GpuCrashTracker
-    m_gpuCrashTracker;public: void SetUpCommandListForAftermath(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList) const; void SetUpShaderForAftermath(
-        ComPtr<IDxcResult> const& result);private:
+    GpuCrashTracker::MarkerMap m_markerMap = {}; ShaderDatabase m_shaderDatabase = {}; GpuCrashTracker m_gpuCrashTracker;public: void SetUpCommandListForAftermath(
+        ComPtr<ID3D12GraphicsCommandList> const& commandList) const; void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);private:
 #endif
 
     void CheckRaytracingSupport() const;

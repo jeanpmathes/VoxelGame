@@ -8,7 +8,7 @@
 
 namespace
 {
-    NativeErrorFunc onError;
+    NativeErrorFunction onError;
 }
 
 NATIVE void NativeShowErrorBox(LPCWSTR const message, LPCWSTR const caption)
@@ -17,7 +17,7 @@ NATIVE void NativeShowErrorBox(LPCWSTR const message, LPCWSTR const caption)
     Win32Application::ShowErrorMessage(message, caption);
 }
 
-NATIVE NativeClient* NativeConfigure(Configuration const config, NativeErrorFunc const errorCallback)
+NATIVE NativeClient* NativeConfigure(Configuration const config, NativeErrorFunction const errorCallback)
 {
     onError = errorCallback;
 
@@ -64,7 +64,17 @@ NATIVE int NativeRun(NativeClient* client)
     } CATCH();
 }
 
-NATIVE void NativePassAllocatorStatistics(NativeClient const* client, NativeWStringFunc const receiver)
+NATIVE void NativeSetTimeScale(NativeClient* client, double const timeScale)
+{
+    TRY
+    {
+        Require(CALL_ON_MAIN_THREAD(client));
+
+        client->SetTimeScale(timeScale);
+    } CATCH();
+}
+
+NATIVE void NativePassAllocatorStatistics(NativeClient const* client, NativeWStringFunction const receiver)
 {
     TRY
     {
@@ -79,7 +89,7 @@ NATIVE void NativePassAllocatorStatistics(NativeClient const* client, NativeWStr
     } CATCH();
 }
 
-NATIVE void NativePassDRED(NativeClient const* client, NativeWStringFunc const receiver)
+NATIVE void NativePassDRED(NativeClient const* client, NativeWStringFunction const receiver)
 {
     TRY
     {
@@ -289,7 +299,7 @@ NATIVE void NativeSetDrawableEnabledState(Drawable* object, bool const enabled)
     } CATCH();
 }
 
-NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client, RasterPipelineDescription const description, NativeErrorFunc const callback)
+NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client, RasterPipelineDescription const description, NativeErrorFunction const callback)
 {
     TRY
     {

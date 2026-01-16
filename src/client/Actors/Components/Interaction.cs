@@ -17,7 +17,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
@@ -25,6 +24,7 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -55,7 +55,7 @@ public partial class Interaction : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         if (!player.Input.CanHandleGameInput)
             return;

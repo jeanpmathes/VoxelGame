@@ -39,7 +39,7 @@ internal static partial class NativeMethods
     internal static partial void ShowErrorBox([MarshalAs(UnmanagedType.LPWStr)] String text, [MarshalAs(UnmanagedType.LPWStr)] String caption);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeConfigure")]
-    internal static partial IntPtr Configure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunc onError);
+    internal static partial IntPtr Configure(Definition.Native.NativeConfiguration configuration, Definition.Native.NativeErrorFunction onError);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeFinalize")]
     internal static partial void Finalize(Client client);
@@ -50,11 +50,14 @@ internal static partial class NativeMethods
     [LibraryImport(DllFilePath, EntryPoint = "NativeRun")]
     internal static partial Int32 Run(Client client);
 
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetTimeScale")]
+    internal static partial void SetTimeScale(Client client, Double timeScale);
+
     [LibraryImport(DllFilePath, EntryPoint = "NativePassAllocatorStatistics")]
-    internal static partial void PassAllocatorStatistics(Client client, Definition.Native.NativeWStringFunc onWString);
+    internal static partial void PassAllocatorStatistics(Client client, Definition.Native.NativeWStringFunction onWString);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativePassDRED")]
-    internal static partial void PassDRED(Client client, Definition.Native.NativeWStringFunc onWString);
+    internal static partial void PassDRED(Client client, Definition.Native.NativeWStringFunction onWString);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeTakeScreenshot")]
     internal static partial void TakeScreenshot(Client client, Definition.Native.ScreenshotFunc callback);
@@ -117,7 +120,7 @@ internal static partial class NativeMethods
     internal static partial void SetDrawableEnabledState(Drawable drawable, Bool enabled);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateRasterPipeline")]
-    internal static partial IntPtr CreateRasterPipeline(Client client, RasterPipelineDescription description, Definition.Native.NativeErrorFunc callback);
+    internal static partial IntPtr CreateRasterPipeline(Client client, RasterPipelineDescription description, Definition.Native.NativeErrorFunction callback);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeGetRasterPipelineShaderBuffer")]
     internal static partial IntPtr GetRasterPipelineShaderBuffer(RasterPipeline rasterPipeline);

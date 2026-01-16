@@ -17,12 +17,12 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -44,14 +44,14 @@ public partial class ChunkSimulator : WorldComponent
     private ChunkSimulator(World subject) : base(subject) {}
 
     /// <inheritdoc />
-    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    public override void OnLogicUpdateInActiveState(Delta delta, Timer? updateTimer)
     {
         using Timer? simTimer = logger.BeginTimedSubScoped("Chunk Simulation", updateTimer);
 
-        SendLogicUpdatesForSimulation(deltaTime, simTimer);
+        SendLogicUpdatesForSimulation(delta, simTimer);
     }
 
-    private void SendLogicUpdatesForSimulation(Double deltaTime, Timer? updateTimer)
+    private void SendLogicUpdatesForSimulation(Delta delta, Timer? updateTimer)
     {
         chunksWithActors.Clear();
 
@@ -63,7 +63,7 @@ public partial class ChunkSimulator : WorldComponent
         using (logger.BeginTimedSubScoped("LogicUpdate Actors", updateTimer))
         {
             foreach (Chunk chunk in chunksWithActors)
-                chunk.SendLogicUpdatesToActors(deltaTime);
+                chunk.SendLogicUpdatesToActors(delta);
         }
     }
 

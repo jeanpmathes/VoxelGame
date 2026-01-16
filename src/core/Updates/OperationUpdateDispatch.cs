@@ -23,6 +23,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Updates;
@@ -122,7 +123,7 @@ public class OperationUpdateDispatch : ApplicationComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double delta, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         using (logger.BeginTimedSubScoped(Name, timer))
         {

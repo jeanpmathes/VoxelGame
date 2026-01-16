@@ -80,7 +80,7 @@ struct SpacePipelineDescription
     UINT meshSpoolCount;
     UINT effectSpoolCount;
 
-    NativeErrorFunc onShaderLoadingError;
+    NativeErrorFunction onShaderLoadingError;
 };
 
 enum class MaterialFlags : BYTE
@@ -189,7 +189,7 @@ public:
 
     void SpoolUp();
 
-    void Update(double delta);
+    void Update();
     void Render(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth, RenderData const& data);
     void CleanupRender();
 

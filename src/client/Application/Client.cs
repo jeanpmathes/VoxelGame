@@ -30,6 +30,7 @@ using VoxelGame.Client.Scenes;
 using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
@@ -136,7 +137,7 @@ public sealed partial class Client : Graphics.Core.Client
     }
 
     /// <inheritdoc />
-    protected override void OnLogicUpdate(Double delta, Timer? timer)
+    protected override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         if (sceneManager.IsActive)
             return;

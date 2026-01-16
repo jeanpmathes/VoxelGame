@@ -28,6 +28,7 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
 using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
@@ -57,7 +58,7 @@ public partial class SectionMeshing : WorldComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    public override void OnLogicUpdateInActiveState(Delta delta, Timer? updateTimer)
     {
         using (logger.BeginTimedSubScoped("Section Meshing", updateTimer))
         {

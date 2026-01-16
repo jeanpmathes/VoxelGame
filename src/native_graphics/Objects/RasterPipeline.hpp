@@ -81,7 +81,7 @@ public:
      * Shader compile errors are reported to the callback.
      * Should a shader compile error occur, the pipeline is not created and nullptr is returned.
      */
-    static std::unique_ptr<RasterPipeline> Create(NativeClient& client, RasterPipelineDescription const& description, NativeErrorFunc callback);
+    static std::unique_ptr<RasterPipeline> Create(NativeClient& client, RasterPipelineDescription const& description, NativeErrorFunction callback);
 
     struct Bindings
     {

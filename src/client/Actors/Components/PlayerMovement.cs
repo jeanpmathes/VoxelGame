@@ -22,6 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -72,7 +73,7 @@ public partial class PlayerMovement : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         if (player.Input.CanHandleGameInput)
         {
@@ -83,7 +84,7 @@ public partial class PlayerMovement : ActorComponent
 
             pitch = MathHelper.Clamp(pitch, min: -89.0, max: 89.0);
 
-            strategy.Move(pitch, yaw, deltaTime);
+            strategy.Move(pitch, yaw, delta);
         }
 
         // The targeter is acquired here to ensure it is ordered after this component.

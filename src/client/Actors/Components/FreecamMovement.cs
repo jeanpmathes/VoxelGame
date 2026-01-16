@@ -19,6 +19,7 @@
 
 using System;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -44,11 +45,11 @@ internal sealed class FreecamMovement : MovementStrategy
         this.player.Camera.Transform.SetParent(newParent: null);
     }
 
-    internal override void Move(Double pitch, Double yaw, Double deltaTime)
+    internal override void Move(Double pitch, Double yaw, Delta delta)
     {
         player.Camera.Transform.LocalRotation = Quaterniond.FromAxisAngle(Vector3d.UnitY, MathHelper.DegreesToRadians(-yaw))
                                                 * Quaterniond.FromAxisAngle(Vector3d.UnitX, MathHelper.DegreesToRadians(pitch));
 
-        player.Camera.Transform.Position += GetFlyingMovement(input, player.Head) * deltaTime;
+        player.Camera.Transform.Position += GetFlyingMovement(input, player.Head) * delta.RealTime;
     }
 }

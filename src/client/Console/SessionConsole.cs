@@ -23,6 +23,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Console.Commands;
 using VoxelGame.Client.Sessions;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -87,7 +88,7 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider
     public event EventHandler? Cleared;
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         output.Flush();
     }
