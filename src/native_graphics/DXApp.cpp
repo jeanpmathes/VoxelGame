@@ -273,9 +273,6 @@ void DXApp::SetTimeScale(double const scale)
 
     m_timeScale = scale;
     m_logicTimer.SetTargetElapsedSeconds(m_baseLogicUpdateTarget / m_timeScale);
-
-    // todo: pass real delta time and inversely scaled delta time to logic update
-    // todo: add a Delta struct in C# that contains both real delta time and (scaled) delta time
 }
 
 std::optional<DXApp::Cycle> DXApp::GetCycle() const

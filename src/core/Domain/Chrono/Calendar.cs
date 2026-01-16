@@ -33,8 +33,6 @@ public static class Calendar
     /// </summary>
     public const Int64 UpdatesPerRealSecond = 60;
 
-    // todo: add somewhere in planning to have a year 9999 check and end game there, have special event, add game over screen later and way to continue even later
-
     /// <summary>
     ///     Number of updates in an in-game second.
     ///     With a value of 1 and 60 updates per real-time second, a game day will last 24 real-time minutes.
