@@ -268,7 +268,7 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
     constexpr D3D12_FILTER               filter = D3D12_FILTER_ANISOTROPIC;
-    constexpr D3D12_TEXTURE_ADDRESS_MODE mode   = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    constexpr D3D12_TEXTURE_ADDRESS_MODE mode   = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 
     m_globalShaderResources = std::make_shared<ShaderResources>();
     m_globalShaderResources->Initialize(
@@ -529,6 +529,7 @@ void Space::CreateRaytracingOutputBuffer()
     m_depthOutputDescription.SampleDesc.Count = 1;
 
     m_depthOutput = util::AllocateResource<ID3D12Resource>(*m_client, m_depthOutputDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    NAME_D3D12_OBJECT(m_depthOutput);
 
     m_outputResourcesFresh = true;
     UpdateOutputResourceViews();

@@ -102,9 +102,11 @@ float3 GetTransmittance(float3 from, float3 to)
     return exp(-integral);
 }
 
-static float3 const TransmittanceZenith = GetTransmittance(OriginView, float3(0.0f, RadiusEarth + ZenithHeight, 0.0f));
+static float3 const TransmittanceZenith = exp(
+    -(Rayleigh * Hr * (exp(-OriginHeight / Hr) - exp(-ZenithHeight / Hr)) + Mie * Hm * (exp(-OriginHeight / Hm) - exp(-ZenithHeight / Hm)) + Ozone * Ho * (exp(-OriginHeight / Ho) -
+        exp(-ZenithHeight / Ho))));
 static float3 const IlluminanceGround   = 2.0f * PI * float3(1.0f, 1.0f, 1.0f);
-static float3 const LuminanceOuterspace = IlluminanceGround / SunSolidAngle / TransmittanceZenith;
+static float3 const LuminanceOuterSpace = IlluminanceGround / SunSolidAngle / TransmittanceZenith;
 
 float3 GetInScatteringTermWithSunOnly(float3 position, float3 viewDirection, float3 sunDirection)
 {
@@ -115,7 +117,7 @@ float3 GetInScatteringTermWithSunOnly(float3 position, float3 viewDirection, flo
     float3 const rayleighDiffusion  = SigmaSRayleigh(position) * RayleighPhase(viewDirection, sunDirection);
     float3 const mieDiffusion       = SigmaSMie(position) * MiePhase(viewDirection, sunDirection);
 
-    return LuminanceOuterspace * transmittanceToSun * SunSolidAngle * (rayleighDiffusion + mieDiffusion);
+    return LuminanceOuterSpace * transmittanceToSun * SunSolidAngle * (rayleighDiffusion + mieDiffusion);
 }
 
 float3 ComputeLuminance(float3 vectorOutOfAtmosphere, float3 sunDirection)
@@ -140,7 +142,7 @@ float3 GetDirectLightFromSun(float3 direction, float3 vectorOutOfAtmosphere, flo
     float const angle = acos(cosTheta);
     float const disk  = 1.0f - smoothstep(SunRadiusSize * 0.95f, SunRadiusSize * 1.05f, angle);
 
-    return disk * LuminanceOuterspace * GetTransmittance(OriginView, vectorOutOfAtmosphere);
+    return disk * LuminanceOuterSpace * GetTransmittance(OriginView, vectorOutOfAtmosphere);
 }
 
 float3 GetAtmosphereColor(float3 viewDirection, float3 sunDirection)
