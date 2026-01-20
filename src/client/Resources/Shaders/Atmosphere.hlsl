@@ -20,6 +20,9 @@
 // The below code is based on the following tutorial:
 // https://cpp-rendering.io/sky-and-atmosphere-rendering/ - "Sky and Atmosphere Rendering: A physical approach" by Antoine Morrier
 
+#ifndef VG_SHADER_ATMOSPHERE_HLSL
+#define VG_SHADER_ATMOSPHERE_HLSL 
+
 #include "Common.hlsl"
 
 static float const Hr = 8000.0f;
@@ -155,3 +158,5 @@ float3 GetAtmosphereColor(float3 viewDirection, float3 sunDirection)
 
     return ComputeLuminance(viewOutOfAtmosphere, sunDirection) + GetDirectLightFromSun(viewDirection, viewOutOfAtmosphere, sunDirection);
 }
+
+#endif

@@ -1422,6 +1422,9 @@
         <None Update="Resources\Textures\Fluids\Parts\waste_water.png">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
+        <None Update="Resources\Shaders\Sky.hlsl">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <ItemGroup>
