@@ -4,7 +4,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-namespace VoxelGame.Toolkit.Utilities.Constants;
+namespace VoxelGame.Toolkit.Utilities;
 
 /// <summary>
 ///     Gives a type an easily accessible default value.

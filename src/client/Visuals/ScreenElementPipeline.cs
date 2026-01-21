@@ -19,14 +19,13 @@
 
 using System;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
-using VoxelGame.Toolkit.Utilities.Constants;
 using Image = VoxelGame.Core.Visuals.Image;
 
 namespace VoxelGame.Client.Visuals;
@@ -34,7 +33,7 @@ namespace VoxelGame.Client.Visuals;
 /// <summary>
 ///     Renders a texture on the screen.
 /// </summary>
-public sealed class ScreenElementPipeline : IDisposable
+public sealed partial class ScreenElementPipeline : IDisposable
 {
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
@@ -155,12 +154,10 @@ public sealed class ScreenElementPipeline : IDisposable
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    private readonly struct Data : IEquatable<Data>, IDefault<Data>
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    [ValueSemantics]
+    private readonly partial struct Data
     {
-        /// <inheritdoc />
-        [UsedImplicitly] public static Data Default => new();
-
         /// <summary>
         ///     The model-view-projection matrix.
         /// </summary>
@@ -179,42 +176,6 @@ public sealed class ScreenElementPipeline : IDisposable
         {
             MVP = mvp;
             Color = color;
-        }
-
-        /// <summary>
-        ///     Check equality.
-        /// </summary>
-        public Boolean Equals(Data other)
-        {
-            return (MVP, Color) == (other.MVP, other.Color);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is Data other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return HashCode.Combine(MVP, Color);
-        }
-
-        /// <summary>
-        ///     The equality operator.
-        /// </summary>
-        public static Boolean operator ==(Data left, Data right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     The inequality operator.
-        /// </summary>
-        public static Boolean operator !=(Data left, Data right)
-        {
-            return !left.Equals(right);
         }
     }
 

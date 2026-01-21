@@ -30,7 +30,7 @@ using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
-using VoxelGame.Toolkit.Utilities.Constants;
+using VoxelGame.Toolkit.Utilities;
 using Mesh = VoxelGame.Graphics.Objects.Mesh;
 
 namespace VoxelGame.Graphics;

@@ -25,6 +25,7 @@ using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
 using JetBrains.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
@@ -32,14 +33,13 @@ using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Graphics.Graphics.Raytracing;
 
 /// <summary>
 ///     Helps with initialization of the raytracing pipeline.
 /// </summary>
-public class PipelineBuilder
+public partial class PipelineBuilder
 {
     /// <summary>
     ///     Groups in which objects with a material can be.
@@ -300,32 +300,12 @@ public class PipelineBuilder
         return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
     }
 
-    private struct Empty : IEquatable<Empty>, IDefault<Empty>
+    [ValueSemantics]
+    private partial struct Empty
     {
-        #pragma warning disable CS0169
+        #pragma warning disable CS0169, CS0649
         [UsedImplicitly] private Byte _;
-        #pragma warning restore CS0169
-
-        public static Empty Default => new();
-
-        #region EQUALITY
-
-        public Boolean Equals(Empty other)
-        {
-            return true;
-        }
-
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is Empty other && Equals(other);
-        }
-
-        public override Int32 GetHashCode()
-        {
-            return 0;
-        }
-
-        #endregion EQUALITY
+        #pragma warning restore CS0169, CS0649
     }
 
     private sealed record ShaderFile(FileInfo File, String[] Exports);

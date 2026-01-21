@@ -1,4 +1,4 @@
-﻿// <copyright file="GenerateRecordUsageAnalyzer.cs" company="VoxelGame">
+﻿// <copyright file="ValueSemanticsUsageAnalyzer.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -28,26 +28,26 @@ using VoxelGame.Annotations.Attributes;
 namespace VoxelGame.Analyzers.Analyzers;
 
 /// <summary>
-///     Analyzes the usage of the <see cref="GenerateRecordAttribute" />.
+///     Analyzes the usage of the <see cref="ValueSemanticsAttribute" />.
 /// </summary>
 [DiagnosticAnalyzer(LanguageNames.CSharp)]
-public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
+public sealed class ValueSemanticsUsageAnalyzer : DiagnosticAnalyzer
 {
     /// <summary>
     ///     The ID of diagnostics produced by this analyzer.
     /// </summary>
-    public const String DiagnosticID = "VG0005";
+    public const String DiagnosticID = "VG0008";
 
     private const String Category = "Usage";
 
     private static readonly DiagnosticDescriptor rule = new(
         DiagnosticID,
-        "GenerateRecord usage prevents generation",
-        "Type '{0}' is marked with GenerateRecord but is either a generic interface or the passed attribute is unsupported",
+        "ValueSemantics usage invalid",
+        "Type '{0}' is marked with [ValueSemantics] but contains property '{1}', which is not supported",
         Category,
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
-        "The GenerateRecord attribute can only be applied to non-generic interfaces. If a base type is passed, it must be a non-generic type or a generic type with one type parameter.");
+        "The ValueSemantics attribute can only be applied to structs with no properties.");
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [rule];
@@ -58,57 +58,27 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
         context.ConfigureGeneratedCodeAnalysis(GeneratedCodeAnalysisFlags.None);
         context.EnableConcurrentExecution();
 
-        context.RegisterSyntaxNodeAction(AnalyzeInterfaceDeclaration, SyntaxKind.InterfaceDeclaration);
+        context.RegisterSyntaxNodeAction(AnalyzeStructDeclaration, SyntaxKind.StructDeclaration);
     }
 
-    private static void AnalyzeInterfaceDeclaration(SyntaxNodeAnalysisContext context)
+    private static void AnalyzeStructDeclaration(SyntaxNodeAnalysisContext context)
     {
         if (context.Node is not TypeDeclarationSyntax typeDeclaration) return;
         if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration) is not {} typeSymbol) return;
 
         foreach (AttributeData attribute in typeSymbol.GetAttributes())
         {
-            if (attribute.AttributeClass is null) continue;
-
-            if (attribute.AttributeClass.Name != nameof(GenerateRecordAttribute) &&
-                attribute.AttributeClass.ToDisplayString() != typeof(GenerateRecordAttribute).FullName)
+            if (attribute.AttributeClass?.ToDisplayString() != typeof(ValueSemanticsAttribute).FullName)
                 continue;
 
-            Boolean ok = !typeSymbol.IsGenericType && AttributeArgumentsFit(attribute);
-
-            if (ok) continue;
-
-            Location location = typeDeclaration.Identifier.GetLocation();
-            var diagnostic = Diagnostic.Create(rule, location, typeSymbol.Name);
-            context.ReportDiagnostic(diagnostic);
-
-            break;
-        }
-    }
-
-    private static Boolean AttributeArgumentsFit(AttributeData attribute)
-    {
-        switch (attribute.ConstructorArguments.Length)
-        {
-            case 0:
-                return true;
-
-            case 1:
+            foreach (IPropertySymbol member in typeSymbol.GetMembers().OfType<IPropertySymbol>())
             {
-                TypedConstant argument = attribute.ConstructorArguments[index: 0];
-
-                if (argument.Kind != TypedConstantKind.Type || argument.Value is not INamedTypeSymbol baseTypeSymbol)
-                    return false;
-
-                if (baseTypeSymbol.IsUnboundGenericType)
-                    return baseTypeSymbol.Arity == 1;
-
-                return true;
+                context.ReportDiagnostic(Diagnostic.Create(
+                    rule,
+                    member.Locations[0],
+                    typeSymbol.Name,
+                    member.Name));
             }
-
-            default:
-                return false;
         }
-
     }
 }

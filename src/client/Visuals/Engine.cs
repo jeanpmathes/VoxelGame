@@ -23,18 +23,18 @@ using System.IO;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Interop;
-using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     The graphics engine, consisting of all renderers and pipelines.
 /// </summary>
-public sealed class Engine : IResource
+public sealed partial class Engine : IResource
 {
     /// <summary>
     ///     The shader directory.
@@ -275,15 +275,13 @@ public sealed class Engine : IResource
     ///     Data passed to the raytracing shaders.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
-    public struct RaytracingData : IEquatable<RaytracingData>, IDefault<RaytracingData>
+    [ValueSemantics]
+    public partial struct RaytracingData
     {
         /// <summary>
         ///     Creates a new instance of <see cref="RaytracingData" />.
         /// </summary>
         public RaytracingData() {}
-
-        /// <inheritdoc />
-        [UsedImplicitly] public static RaytracingData Default => new();
 
         /// <summary>
         ///     Whether to render in wireframe mode.
@@ -327,99 +325,24 @@ public sealed class Engine : IResource
         ///     The antialiasing settings for ray generation.
         /// </summary>
         public AntiAliasingSettings antiAliasing;
-
-        private (Boolean, Vector3, Single, Vector3, Vector3, Single, Single, AntiAliasingSettings) Pack =>
-            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, airFogColor, airFogDensity, timeOfDay, antiAliasing);
-
-        /// <inheritdoc />
-        public Boolean Equals(RaytracingData other)
-        {
-            return Pack.Equals(other.Pack);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is RaytracingData other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return Pack.GetHashCode();
-        }
-
-        /// <summary>
-        ///     Check if two <see cref="RaytracingData" />s are equal.
-        /// </summary>
-        public static Boolean operator ==(RaytracingData left, RaytracingData right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     Check if two <see cref="RaytracingData" />s are not equal.
-        /// </summary>
-        public static Boolean operator !=(RaytracingData left, RaytracingData right)
-        {
-            return !left.Equals(right);
-        }
     }
 
     /// <summary>
     ///     Data passed to the post-processing shader.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
-    public struct PostProcessingData : IEquatable<PostProcessingData>, IDefault<PostProcessingData>
+    [ValueSemantics]
+    public partial struct PostProcessingData
     {
         /// <summary>
         ///     Creates a new instance of <see cref="PostProcessingData" />.
         /// </summary>
         public PostProcessingData() {}
 
-        /// <inheritdoc />
-        [UsedImplicitly] public static PostProcessingData Default => new();
-
         /// <summary>
         ///     The FXAA settings used during post-processing.
         /// </summary>
         public FxaaSettings fxaa = new();
-
-        private FxaaSettings Pack => fxaa;
-
-        /// <inheritdoc />
-        public Boolean Equals(PostProcessingData other)
-        {
-            return Pack.Equals(other.Pack);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is PostProcessingData other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return Pack.GetHashCode();
-        }
-
-        /// <summary>
-        ///     Check if two <see cref="PostProcessingData" />s are equal.
-        /// </summary>
-        public static Boolean operator ==(PostProcessingData left, PostProcessingData right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     Check if two <see cref="PostProcessingData" />s are not equal.
-        /// </summary>
-        public static Boolean operator !=(PostProcessingData left, PostProcessingData right)
-        {
-            return !left.Equals(right);
-        }
     }
 
     #region DISPOSABLE

@@ -19,13 +19,12 @@
 
 using System;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
-using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -33,7 +32,7 @@ namespace VoxelGame.Client.Visuals;
 ///     A rendering pipeline for block targeting visualization based on the <see cref="BoxCollider" /> struct.
 ///     Create a <see cref="TargetingBoxEffect" /> to use this pipeline.
 /// </summary>
-public sealed class TargetingBoxPipeline : IDisposable
+public sealed partial class TargetingBoxPipeline : IDisposable
 {
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly RasterPipeline pipeline;
@@ -118,12 +117,10 @@ public sealed class TargetingBoxPipeline : IDisposable
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
-    [StructLayout(LayoutKind.Explicit)]
-    private readonly struct Data : IEquatable<Data>, IDefault<Data>
+    [StructLayout(LayoutKind.Explicit, Pack = ShaderBuffers.Pack)]
+    [ValueSemantics]
+    private readonly partial struct Data
     {
-        /// <inheritdoc />
-        [UsedImplicitly] public static Data Default => new();
-
         /// <summary>
         ///     Create the shader data.
         /// </summary>
@@ -144,41 +141,5 @@ public sealed class TargetingBoxPipeline : IDisposable
         /// </summary>
         [FieldOffset(1 * ShaderBuffers.FieldOffset)]
         public readonly Color4 BrightColor;
-
-        /// <summary>
-        ///     Check equality.
-        /// </summary>
-        public Boolean Equals(Data other)
-        {
-            return (DarkColor, BrightColor) == (other.DarkColor, other.BrightColor);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is Data other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return HashCode.Combine(DarkColor, BrightColor);
-        }
-
-        /// <summary>
-        ///     The equality operator.
-        /// </summary>
-        public static Boolean operator ==(Data left, Data right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     The inequality operator.
-        /// </summary>
-        public static Boolean operator !=(Data left, Data right)
-        {
-            return !left.Equals(right);
-        }
     }
 }

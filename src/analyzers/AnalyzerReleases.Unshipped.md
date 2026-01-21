@@ -9,3 +9,4 @@
  VG0005  | Usage    | Warning  | The GenerateRecord attribute must be applied to interfaces only.                         
  VG0006  | Usage    | Warning  | The Constructible attribute must be applied to supported constructors.                   
  VG0007  | Usage    | Warning  | The GenerateMeasure attribute must be applied to static Unit properties.                 
+ VG0008  | Usage    | Warning  | The ValueSemantics attribute cannot be applied to structs with properties.               
