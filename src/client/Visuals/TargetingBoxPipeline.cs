@@ -66,7 +66,7 @@ public sealed partial class TargetingBoxPipeline : IDisposable
     internal static TargetingBoxPipeline? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
-            = factory.LoadPipelineWithBuffer<Data>("Targeting", new ShaderPresets.SpatialEffect(Topology.Triangle));
+            = factory.LoadPipelineWithBuffer<Data>("Targeting", new ShaderPresets.SpatialEffect());
 
         return result is {pipeline: var rasterPipeline, buffer: var shaderBuffer}
             ? new TargetingBoxPipeline(client, rasterPipeline, shaderBuffer)
