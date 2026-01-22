@@ -86,6 +86,9 @@ internal static partial class NativeMethods
     [LibraryImport(DllFilePath, EntryPoint = "NativeGetLight")]
     internal static partial IntPtr GetLight(Client client);
 
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetSpaceIsRendered")]
+    internal static partial void SetSpaceIsRendered(Client client, Bool isRendered);
+
     [LibraryImport(DllFilePath, EntryPoint = "NativeSetLightConfiguration")]
     internal static partial void SetLightConfiguration(Light light, [MarshalUsing(typeof(Vector3Marshaller))] Vector3 direction, [MarshalUsing(typeof(Vector3Marshaller))] Vector3 color, Single intensity);
 

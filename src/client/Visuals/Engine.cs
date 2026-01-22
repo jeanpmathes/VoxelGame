@@ -41,7 +41,6 @@ public sealed partial class Engine : IResource
     /// </summary>
     public static readonly DirectoryInfo ShaderDirectory = FileSystem.GetResourceDirectory("Shaders");
 
-    private readonly Application.Client client;
     private readonly List<IDisposable> bindings = [];
 
     private readonly ShaderBuffer<RaytracingData>? raytracingDataBuffer;
@@ -55,7 +54,7 @@ public sealed partial class Engine : IResource
         ShaderBuffer<RaytracingData>? rtData,
         ShaderBuffer<PostProcessingData>? ppBuffer)
     {
-        this.client = client;
+        Client = client;
 
         CrosshairPipeline = crosshairPipeline;
         OverlayPipeline = overlayPipeline;
@@ -64,6 +63,11 @@ public sealed partial class Engine : IResource
         raytracingDataBuffer = rtData;
         postProcessingBuffer = ppBuffer;
     }
+
+    /// <summary>
+    ///     The client that this engine belongs to.
+    /// </summary>
+    public Application.Client Client { get; }
 
     /// <summary>
     ///     Get the targeting box pipeline, which is used to draw selection boxes around blocks.
@@ -101,16 +105,16 @@ public sealed partial class Engine : IResource
     /// </summary>
     internal void Initialize()
     {
-        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairPipeline.SetColor(args.NewValue)));
-        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairPipeline.SetScale(args.NewValue)));
+        bindings.Add(Client.Settings.CrosshairColor.Bind(args => CrosshairPipeline.SetColor(args.NewValue)));
+        bindings.Add(Client.Settings.CrosshairScale.Bind(args => CrosshairPipeline.SetScale(args.NewValue)));
 
-        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
-        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
+        bindings.Add(Client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
+        bindings.Add(Client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
 
-        bindings.Add(client.Graphics.PostProcessingAntiAliasingQuality.Bind(args =>
+        bindings.Add(Client.Graphics.PostProcessingAntiAliasingQuality.Bind(args =>
             Graphics.Instance.ApplyPostProcessingAntiAliasingQuality(args.NewValue)));
 
-        bindings.Add(client.Graphics.RenderingAntiAliasingQuality.Bind(args =>
+        bindings.Add(Client.Graphics.RenderingAntiAliasingQuality.Bind(args =>
             Graphics.Instance.ApplyRenderingAntiAliasingQuality(args.NewValue)));
     }
 

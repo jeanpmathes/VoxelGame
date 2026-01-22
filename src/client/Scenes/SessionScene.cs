@@ -113,6 +113,12 @@ public sealed class SessionScene : Scene, IInputControl
         return false;
     }
 
+    /// <inheritdoc />
+    internal override Boolean IsSpaceRendered()
+    {
+        return true;
+    }
+
     private static InGameUserInterface CreateUI(Application.Client client, UserInterfaceResources uiResources)
     {
         return new InGameUserInterface(

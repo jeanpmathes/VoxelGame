@@ -193,9 +193,9 @@ public:
     void Render(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth, RenderData const& data);
     void CleanupRender();
 
-    /**
-     * Get the native client.
-     */
+    void               SetIsRendered(bool isRendered);
+    [[nodiscard]] bool IsRendered() const;
+
     [[nodiscard]] NativeClient& GetNativeClient() const;
     [[nodiscard]] ShaderBuffer* GetCustomDataBuffer() const;
 
@@ -262,6 +262,7 @@ private:
     void UpdateGlobalShaderResources();
 
     NativeClient* m_client;
+    bool          m_isRendered = true;
     Resolution    m_resolution = {};
 
     InBufferAllocator m_resultBufferAllocator;

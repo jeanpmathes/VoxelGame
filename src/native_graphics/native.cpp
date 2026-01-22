@@ -184,6 +184,16 @@ NATIVE Light* NativeGetLight(NativeClient const* client)
     TRY { return client->GetSpace()->GetLight(); } CATCH();
 }
 
+NATIVE void NativeSetSpaceIsRendered(NativeClient const* client, bool const isRendered)
+{
+    TRY
+    {
+        Require(CALL_IN_LOGIC(client));
+
+        client->GetSpace()->SetIsRendered(isRendered);
+    } CATCH();
+}
+
 NATIVE void NativeSetLightConfiguration(Light* light, DirectX::XMFLOAT3 const direction, DirectX::XMFLOAT3 const color, float const intensity)
 {
     TRY

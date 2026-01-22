@@ -162,6 +162,16 @@ internal static class Native
     }
 
     /// <summary>
+    ///     Set whether the space is rendered.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="isRendered">Whether the space is rendered.</param>
+    internal static void SetSpaceIsRendered(Client client, Boolean isRendered)
+    {
+        NativeMethods.SetSpaceIsRendered(client, isRendered);
+    }
+
+    /// <summary>
     ///     Create a mesh.
     /// </summary>
     /// <param name="client">The client.</param>

@@ -153,4 +153,12 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
     ///     Whether the window can be closed in this scene.
     /// </summary>
     public abstract Boolean CanCloseWindow();
+
+    /// <summary>
+    ///     Whether the 3D space is rendered while in this scene.
+    /// </summary>
+    internal virtual Boolean IsSpaceRendered()
+    {
+        return true;
+    }
 }

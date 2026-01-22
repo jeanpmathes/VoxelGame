@@ -396,7 +396,7 @@ void NativeClient::OnRenderUpdate()
         commandLists.reserve(3);
 
         commandLists.push_back(m_uploadGroup.commandList.Get());
-        if (m_space) commandLists.push_back(m_space->GetCommandList().Get());
+        if (m_space && m_space->IsRendered()) commandLists.push_back(m_space->GetCommandList().Get());
         commandLists.push_back(m_2dGroup.commandList.Get());
 
         m_commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
@@ -443,7 +443,7 @@ void NativeClient::OnRenderUpdate()
 
     WaitForGPU();
 
-    if (m_space) m_space->CleanupRender();
+    if (m_space && m_space->IsRendered()) m_space->CleanupRender();
 
     HandleScreenshot();
 
@@ -676,7 +676,7 @@ void NativeClient::PopulateSpaceCommandList() const
 
 void NativeClient::PopulatePostProcessingCommandList() const
 {
-    if (m_space == nullptr) return; // Nothing to post-process.
+    if (m_space == nullptr || !m_space->IsRendered()) return; // Nothing to post-process.
 
     PIXScopedEvent(m_2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, m_postProcessingPipeline->GetName());
 
@@ -735,7 +735,7 @@ void NativeClient::PopulateCommandLists()
 
     m_2dGroup.commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
 
-    if (m_space) PopulateSpaceCommandList();
+    if (m_space && m_space->IsRendered()) PopulateSpaceCommandList();
 
     auto const rtvHandle = m_rtvHeap.GetDescriptorHandleCPU(m_frameIndex);
     auto const dsvHandle = m_dsvHeap.GetDescriptorHandleCPU(m_frameIndex);

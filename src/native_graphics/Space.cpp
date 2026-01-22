@@ -157,6 +157,10 @@ void Space::CleanupRender()
     m_indexBuffer.CleanupRender();
 }
 
+void Space::SetIsRendered(bool const isRendered) { m_isRendered = isRendered; }
+
+bool Space::IsRendered() const { return m_isRendered; }
+
 NativeClient& Space::GetNativeClient() const { return *m_client; }
 
 ShaderBuffer* Space::GetCustomDataBuffer() const { return m_customDataBuffer.get(); }

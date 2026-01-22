@@ -95,6 +95,8 @@ public partial class SceneManager : ApplicationComponent
 
         current = scene;
         current.Load();
+
+        Visuals.Graphics.Instance.SetIsSpaceRendered(current.IsSpaceRendered());
     }
 
     private void Unload()
@@ -111,6 +113,7 @@ public partial class SceneManager : ApplicationComponent
         current = null;
 
         Visuals.Graphics.Instance.Reset();
+        Visuals.Graphics.Instance.SetIsSpaceRendered(isRendered: false);
 
         Cleanup();
     }
