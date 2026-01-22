@@ -1,6 +1,19 @@
 ﻿// <copyright file="ScheduledUpdateManager.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -81,7 +94,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
         if (hasValue)
         {
-            holder ??= GetHolderFromPool(UInt64.MaxValue);
+            holder ??= GetHolderFromPool(Int64.MaxValue);
             serializer.SerializeValue(ref holder);
         }
         else
@@ -117,7 +130,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
         do
         {
-            UInt64 targetUpdate = updateCounter.Current + updateOffset;
+            Int64 targetUpdate = updateCounter.Current + updateOffset;
             update = FindOrCreateTargetHolder(targetUpdate);
 
             if (update.updateables.Count == TMaxScheduledUpdatesPerLogicUpdate.Value - 1)
@@ -132,7 +145,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
         update.updateables.Add(updateable);
     }
 
-    private UpdateHolder FindOrCreateTargetHolder(UInt64 targetUpdate)
+    private UpdateHolder FindOrCreateTargetHolder(Int64 targetUpdate)
     {
         UpdateHolder? last = null;
         UpdateHolder? current = nextUpdates;
@@ -155,7 +168,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
         return GetInsertedHolder(last, targetUpdate, next: null);
     }
 
-    private UpdateHolder GetInsertedHolder(UpdateHolder? previous, UInt64 targetUpdate, UpdateHolder? next)
+    private UpdateHolder GetInsertedHolder(UpdateHolder? previous, Int64 targetUpdate, UpdateHolder? next)
     {
         UpdateHolder newUpdate = GetHolderFromPool(targetUpdate);
 
@@ -221,10 +234,10 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
     private static UpdateHolder CreateUpdateHolder()
     {
-        return new UpdateHolder(UInt64.MaxValue);
+        return new UpdateHolder(Int64.MaxValue);
     }
 
-    private static UpdateHolder GetHolderFromPool(UInt64 targetUpdate)
+    private static UpdateHolder GetHolderFromPool(Int64 targetUpdate)
     {
         UpdateHolder holder = holderPool.Get();
 
@@ -240,12 +253,12 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
         holderPool.Return(holder);
     }
 
-    private sealed class UpdateHolder(UInt64 targetUpdate) : IValue
+    private sealed class UpdateHolder(Int64 targetUpdate) : IValue
     {
         public readonly List<T> updateables = [];
         public UpdateHolder? next;
 
-        public UInt64 targetUpdate = targetUpdate;
+        public Int64 targetUpdate = targetUpdate;
 
         public void Serialize(Serializer serializer)
         {

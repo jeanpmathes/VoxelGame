@@ -1,6 +1,19 @@
 ﻿// <copyright file="ISettingsProvider.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -19,17 +32,17 @@ public interface ISettingsProvider : ISettingsValidator
     /// <summary>
     ///     The name of the settings category.
     /// </summary>
-    public static abstract String Category { get; }
+    static abstract String Category { get; }
 
     /// <summary>
     ///     A description for the settings category.
     /// </summary>
-    public static abstract String Description { get; }
+    static abstract String Description { get; }
 
     /// <summary>
     ///     Get all settings for this category.
     /// </summary>
-    public IEnumerable<Setting> Settings { get; }
+    IEnumerable<Setting> Settings { get; }
 
     /// <inheritdoc />
     void ISettingsValidator.Validate()
@@ -40,7 +53,7 @@ public interface ISettingsProvider : ISettingsValidator
     /// <summary>
     ///     Validate the current settings.
     /// </summary>
-    public new void Validate()
+    new void Validate()
     {
         foreach (Setting setting in Settings) setting.Validate();
     }
@@ -54,7 +67,7 @@ public interface ISettingsValidator
     /// <summary>
     ///     Validate the current settings.
     /// </summary>
-    public void Validate();
+    void Validate();
 }
 
 /// <summary>

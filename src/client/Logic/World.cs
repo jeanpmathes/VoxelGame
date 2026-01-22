@@ -1,12 +1,24 @@
 ﻿// <copyright file="World.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.IO;
-using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Physics;
@@ -21,8 +33,6 @@ namespace VoxelGame.Client.Logic;
 /// </summary>
 public class World : Core.Logic.World
 {
-    private static readonly Vector3d sunLightDirection = Vector3d.Normalize(new Vector3d(x: -2, y: -3, z: -1));
-
     private LocalPlayerHook? localPlayer;
 
     /// <summary>
@@ -52,10 +62,10 @@ public class World : Core.Logic.World
 
     private void SetUp()
     {
-        Space.Light.Direction = sunLightDirection;
-
         AddComponent<SectionMeshing>();
         AddComponent<HideWorldOnTermination>();
+
+        AddComponent<TimeBasedLighting>();
     }
 
     /// <inheritdoc />
@@ -76,7 +86,7 @@ public class World : Core.Logic.World
         if (localPlayer == null)
             return;
 
-        Frustum frustum = localPlayer.Player.View.Frustum;
+        Frustum frustum = localPlayer.Player.Camera.View.Definition.Frustum;
 
         if (Core.App.Application.Instance.IsDebug)
             Chunks.ForEachActive(chunk => chunk.Cast().CullSections(frustum));

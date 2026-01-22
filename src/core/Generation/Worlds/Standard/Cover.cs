@@ -1,6 +1,19 @@
 ﻿// <copyright file="Cover.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -19,27 +32,6 @@ namespace VoxelGame.Core.Generation.Worlds.Standard;
 /// </summary>
 public abstract class Cover
 {
-    /// <summary>
-    ///     How the snow is generated.
-    /// </summary>
-    protected enum Snow
-    {
-        /// <summary>
-        ///     No snow is generated.
-        /// </summary>
-        None,
-
-        /// <summary>
-        ///     Normal snow is generated.
-        /// </summary>
-        Normal,
-
-        /// <summary>
-        ///     Pulverized snow is generated.
-        /// </summary>
-        Pulverized
-    }
-
     private readonly Snow snowMode;
 
     /// <summary>
@@ -61,7 +53,7 @@ public abstract class Cover
         if (climate.Temperature.IsFreezing && snowMode != Snow.None)
         {
             var maximumHeight = BlockHeight.Maximum.ToInt32();
-            Int32 height = MathTools.RoundedToInt(maximumHeight * heightFraction * 0.75);
+            Int32 height = MathTools.RoundToInt(maximumHeight * heightFraction * 0.75);
 
             height += NumberGenerator.GetPositionDependentNumber(position, mod: 5) switch
             {
@@ -69,7 +61,7 @@ public abstract class Cover
                 1 => -1,
                 _ => 0
             };
-            
+
 
             Block snow = snowMode == Snow.Pulverized
                 ? Blocks.Instance.Environment.PulverizedSnow
@@ -89,6 +81,27 @@ public abstract class Cover
     private static Content GetTallGrassContent(TallGrass.StageState stageState)
     {
         return new Content(TallGrass.GetState(Blocks.Instance.Environment.TallGrass.States.GenerationDefault, stageState), FluidInstance.Default);
+    }
+
+    /// <summary>
+    ///     How the snow is generated.
+    /// </summary>
+    protected enum Snow
+    {
+        /// <summary>
+        ///     No snow is generated.
+        /// </summary>
+        None,
+
+        /// <summary>
+        ///     Normal snow is generated.
+        /// </summary>
+        Normal,
+
+        /// <summary>
+        ///     Pulverized snow is generated.
+        /// </summary>
+        Pulverized
     }
 
     /// <summary>
@@ -124,7 +137,7 @@ public abstract class Cover
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 100);
-            Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
+            Int32 humidity = MathTools.RoundToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
                 return Content.Default;
@@ -157,7 +170,7 @@ public abstract class Cover
         protected override Content GetCover(Vector3i position, in Map.PositionClimate climate)
         {
             Int32 value = NumberGenerator.GetPositionDependentNumber(position, mod: 100);
-            Int32 humidity = MathTools.RoundedToInt(climate.SampledHumidity * 100);
+            Int32 humidity = MathTools.RoundToInt(climate.SampledHumidity * 100);
 
             if (value >= humidity)
                 return Content.Default;

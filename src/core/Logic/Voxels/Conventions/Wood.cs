@@ -1,6 +1,19 @@
 ﻿// <copyright file="Wood.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -143,22 +156,6 @@ public sealed class Wood(CID contentID, BlockBuilder builder) : Convention<Wood>
         }
 
         /// <summary>
-        ///     The terrain the tree grows on.
-        /// </summary>
-        public enum TerrainType
-        {
-            /// <summary>
-            ///     Earth-based terrain.
-            /// </summary>
-            Earth,
-
-            /// <summary>
-            ///     Sand-based terrain.
-            /// </summary>
-            Sand
-        }
-
-        /// <summary>
         ///     The height of the tree.
         /// </summary>
         public enum Growth
@@ -182,6 +179,22 @@ public sealed class Wood(CID contentID, BlockBuilder builder) : Convention<Wood>
             ///     A shrub, which is shorter than a short tree.
             /// </summary>
             Shrub
+        }
+
+        /// <summary>
+        ///     The terrain the tree grows on.
+        /// </summary>
+        public enum TerrainType
+        {
+            /// <summary>
+            ///     Earth-based terrain.
+            /// </summary>
+            Earth,
+
+            /// <summary>
+            ///     Sand-based terrain.
+            /// </summary>
+            Sand
         }
     }
 
@@ -248,7 +261,7 @@ public static class WoodConvention
 
                             return burnedState;
                         });
-                        
+
                         combustible.CompleteDestructionChance.Initializer.ContributeConstant(Chance.CoinToss);
                     })
                     .WithBehavior<TreePart>()
@@ -269,7 +282,7 @@ public static class WoodConvention
 
                             return burnedState;
                         });
-                        
+
                         combustible.CompleteDestructionChance.Initializer.ContributeConstant(Chance.CoinToss);
                     })
                     .WithBehavior<ConstructionMaterial>()
@@ -277,9 +290,8 @@ public static class WoodConvention
 
                 Fence = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Fence)}"), $"{Language.Fence} ({name.wood})")
-                    .WithBehavior<WideConnecting>(
-                        connecting => connecting.Models.Initializer.ContributeConstant(
-                            (RID.File<Model>("fence_post"), RID.File<Model>("fence_extension"), null)))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+                        (RID.File<Model>("fence_post"), RID.File<Model>("fence_extension"), null)))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_planks")))
                     .WithBehavior<Fence>()
                     .WithBehavior<Combustible>()
@@ -297,8 +309,7 @@ public static class WoodConvention
 
                 Door = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Door)}"), $"{Language.Door} ({name.wood})")
-                    .WithBehavior<Modelled>(
-                        modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("door_wood_closed"), RID.File<Model>("door_wood_open")]))
+                    .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("door_wood_closed"), RID.File<Model>("door_wood_open")]))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_door")))
                     .WithBehavior<Door>()
                     .Complete(),
@@ -306,9 +317,8 @@ public static class WoodConvention
                 Pipe = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Wood.Pipe)}"), $"{Language.Pipe} ({name.wood})")
                     .WithBehavior<Piped>(piped => piped.Tier.Initializer.ContributeConstant(Piped.PipeTier.Primitive))
-                    .WithBehavior<ConnectingPipe>(
-                        pipe => pipe.Models.Initializer.ContributeConstant(
-                            (RID.File<Model>("wood_pipe_center"), RID.File<Model>("wood_pipe_connector"), RID.File<Model>("wood_pipe_surface"))))
+                    .WithBehavior<ConnectingPipe>(pipe => pipe.Models.Initializer.ContributeConstant(
+                        (RID.File<Model>("wood_pipe_center"), RID.File<Model>("wood_pipe_connector"), RID.File<Model>("wood_pipe_surface"))))
                     .WithTextureOverride(TextureOverride.Single(index: 0, TID.Block(texture)))
                     .WithBehavior<Combustible>()
                     .Complete(),
@@ -319,10 +329,10 @@ public static class WoodConvention
                     .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("bed")]))
                     .WithTextureOverride(new Dictionary<Int32, TID>
                     {
-                        [0] = TID.Block($"{texture}_bed", x: 0, y: 1),
-                        [1] = TID.Block($"{texture}_bed", x: 0, y: 0),
-                        [2] = TID.Block($"{texture}_bed", x: 1, y: 0),
-                        [3] = TID.Block($"{texture}_bed", x: 1, y: 1)
+                        [key: 0] = TID.Block($"{texture}_bed", x: 0, y: 1),
+                        [key: 1] = TID.Block($"{texture}_bed", x: 0, y: 0),
+                        [key: 2] = TID.Block($"{texture}_bed", x: 1, y: 0),
+                        [key: 3] = TID.Block($"{texture}_bed", x: 1, y: 1)
                     })
                     .WithBehavior<Bed>()
                     .WithBehavior<DirectionalSidePlacement>()

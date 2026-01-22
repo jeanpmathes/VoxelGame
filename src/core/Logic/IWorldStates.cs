@@ -1,6 +1,19 @@
 ﻿// <copyright file="IWorldStates.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -17,38 +30,38 @@ public interface IWorldStates
     /// <summary>
     ///     Whether the world is active.
     /// </summary>
-    public Boolean IsActive { get; }
+    Boolean IsActive { get; }
 
     /// <summary>
     ///     Whether the world is terminating.
     /// </summary>
-    public Boolean IsTerminating { get; }
+    Boolean IsTerminating { get; }
 
     /// <summary>
     ///     Begin terminating the world.
     /// </summary>
     /// <returns>The started activity, or <c>null</c> if the world cannot be terminated.</returns>
-    public Activity? BeginTerminating();
+    Activity? BeginTerminating();
 
     /// <summary>
     ///     Begin saving the world.
     /// </summary>
     /// <returns>The started activity, or <c>null</c> if the world cannot be saved.</returns>
-    public Activity? BeginSaving();
+    Activity? BeginSaving();
 
     /// <summary>
     ///     Fired when the world enters an active state.
     ///     Note that this is also fired after saving is complete.
     /// </summary>
-    public event EventHandler<EventArgs>? Activating;
+    event EventHandler<EventArgs>? Activating;
 
     /// <summary>
     ///     Fired when the world leaves an active state.
     /// </summary>
-    public event EventHandler<EventArgs>? Deactivating;
+    event EventHandler<EventArgs>? Deactivating;
 
     /// <summary>
     ///     Fired when the world enters a terminating state.
     /// </summary>
-    public event EventHandler<EventArgs>? Terminating;
+    event EventHandler<EventArgs>? Terminating;
 }

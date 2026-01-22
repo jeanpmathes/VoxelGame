@@ -1,6 +1,19 @@
 ﻿// <copyright file="ColorS.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -144,6 +157,18 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     }
 
     /// <summary>
+    ///     Create a new color from a <see cref="Vector4" />.
+    /// </summary>
+    /// <param name="vector">The vector to use.</param>
+    /// <returns>The new color.</returns>
+    public static ColorS FromVector4(Vector4 vector)
+    {
+        Debug.Assert(!Single.IsNaN(vector.W));
+
+        return new ColorS(vector.X, vector.Y, vector.Z, vector.W);
+    }
+
+    /// <summary>
     ///     Create a vector containing the color channels in RGBA order.
     /// </summary>
     /// <returns>The vector.</returns>
@@ -165,15 +190,16 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     }
 
     /// <summary>
-    ///     Create a new color from a <see cref="Vector4" />.
+    ///     The luminance of this color, using the HSP color model.
     /// </summary>
-    /// <param name="vector">The vector to use.</param>
-    /// <returns>The new color.</returns>
-    public static ColorS FromVector4(Vector4 vector)
+    public Single Luminance
     {
-        Debug.Assert(!Single.IsNaN(vector.W));
+        get
+        {
+            Debug.Assert(!IsNeutral);
 
-        return new ColorS(vector.X, vector.Y, vector.Z, vector.W);
+            return MathF.Sqrt(0.299f * R * R + 0.587f * G * G + 0.114f * B * B);
+        }
     }
 
     /// <inheritdoc />
@@ -200,9 +226,9 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
 
         UInt32 bits = 0;
 
-        bits |= (UInt32) (rounded.R >> shift) << TintPrecision * 2;
-        bits |= (UInt32) (rounded.G >> shift) << TintPrecision * 1;
-        bits |= (UInt32) (rounded.B >> shift) << TintPrecision * 0;
+        bits |= (UInt32) (rounded.R >> shift) << (TintPrecision * 2);
+        bits |= (UInt32) (rounded.G >> shift) << (TintPrecision * 1);
+        bits |= (UInt32) (rounded.B >> shift) << (TintPrecision * 0);
 
         return bits;
     }
@@ -315,7 +341,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     /// <summary>
     ///     Create a color that will have no effect as a tint.
     /// </summary>
-    public static ColorS None => new(red: 1, green: 1, blue: 1, alpha: 1);
+    public static ColorS NoTint => new(red: 1, green: 1, blue: 1, alpha: 1);
 
     #endregion SPECIAL
 
@@ -547,7 +573,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
 
     private static readonly (String name, ColorS color)[] namedColorEntries =
     [
-        ("Default", None),
+        ("Default", NoTint),
         (nameof(Red), Red),
         (nameof(Green), Green),
         (nameof(Blue), Blue),
@@ -580,7 +606,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
         (nameof(Taupe), Taupe),
         (nameof(Viridian), Viridian)
     ];
-    
+
     /// <summary>
     ///     Gets the palette of named colors without their display names.
     /// </summary>
@@ -595,7 +621,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     {
         return namedColorEntries[index].color;
     }
-    
+
     /// <summary>
     ///     Gets the name of the named color at the specified index.
     /// </summary>

@@ -1,6 +1,19 @@
 ﻿// <copyright file="CoveredSoil.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -67,17 +80,17 @@ public partial class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBe
     {
         State? top = world.GetBlock(position.Above());
 
-        if (top == null) 
+        if (top == null)
             return null;
 
         State state = top.Value;
-        
+
         if (state.Block.Get<CoverPreserving>() is {} coverPreserving)
             return coverPreserving.IsPreserving(state);
 
         if (state.IsSideFull(Side.Bottom))
             return false;
-        
+
         return state.Block is not {IsOpaque: true, IsSolid: true};
     }
 

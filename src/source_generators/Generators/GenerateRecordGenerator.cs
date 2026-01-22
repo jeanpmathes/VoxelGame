@@ -1,6 +1,19 @@
 ﻿// <copyright file="GenerateRecordGenerator.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -33,13 +46,15 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
                 static (ctx, _) => GetSemanticTargetForGeneration(ctx))
             .Where(static m => m is not null);
 
-        context.RegisterSourceOutput(models, static (spc, model) =>
-        {
-            if (model is null) return;
-            Execute(model.Value, spc);
-        });
+        context.RegisterSourceOutput(models,
+            static (spc, model) =>
+            {
+                if (model is null) return;
+
+                Execute(model.Value, spc);
+            });
     }
-    
+
     private static Boolean IsSyntaxTargetForGeneration(SyntaxNode node)
     {
         return node is InterfaceDeclarationSyntax;
@@ -52,20 +67,20 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
 
     private static InterfaceModel? GetInterfaceModel(GeneratorAttributeSyntaxContext ctx)
     {
-        if (ctx.TargetNode is not InterfaceDeclarationSyntax ids) return null;
-        if (ctx.SemanticModel.GetDeclaredSymbol(ids) is not {} namedTypeSymbol) return null;
+        if (ctx.TargetNode is not InterfaceDeclarationSyntax interfaceDeclarationSyntax) return null;
+        if (ctx.SemanticModel.GetDeclaredSymbol(interfaceDeclarationSyntax) is not {} namedTypeSymbol) return null;
 
         if (namedTypeSymbol.IsGenericType) return null;
-        
-        String @namespace = SyntaxTools.GetNamespace(ids);
-        ContainingType? containingType = SyntaxTools.GetContainingType(ids, ctx.SemanticModel);
+
+        String @namespace = SyntaxTools.GetNamespace(interfaceDeclarationSyntax);
+        ContainingType? containingType = SyntaxTools.GetContainingType(interfaceDeclarationSyntax, ctx.SemanticModel);
 
         ImmutableArray<PropertyModel>.Builder propertyArrayBuilder = ImmutableArray.CreateBuilder<PropertyModel>();
 
         foreach (IPropertySymbol? member in namedTypeSymbol.GetMembers().OfType<IPropertySymbol>())
         {
             String typeDisplay = member.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
-            
+
             Boolean isReference = member.Type.IsReferenceType;
             Boolean isNullableAnnotated = member.NullableAnnotation == NullableAnnotation.Annotated;
 
@@ -76,20 +91,20 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
                 isNullableAnnotated
             ));
         }
-        
+
         String interfaceDisplay = namedTypeSymbol.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
         String interfaceName = namedTypeSymbol.Name;
-        
+
         String? baseType = null;
         var isBaseTypeGeneric = false;
-        
-        if (ctx.Attributes.Length != 1 || ctx.Attributes[0].AttributeClass == null)
+
+        if (ctx.Attributes.Length != 1 || ctx.Attributes[index: 0].AttributeClass == null)
             return null;
 
-        AttributeData attribute = ctx.Attributes[0];
-        
+        AttributeData attribute = ctx.Attributes[index: 0];
+
         // ReSharper disable once MergeIntoPattern
-        if (attribute.ConstructorArguments is {Length: 1} array && array[0] is {Kind: TypedConstantKind.Type, Value: INamedTypeSymbol baseTypeSymbol})
+        if (attribute.ConstructorArguments is {Length: 1} array && array[index: 0] is {Kind: TypedConstantKind.Type, Value: INamedTypeSymbol baseTypeSymbol})
         {
             if (!baseTypeSymbol.IsGenericType || !baseTypeSymbol.IsUnboundGenericType)
             {
@@ -101,25 +116,31 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
                 baseType = baseTypeSymbol.ConstructedFrom.ToDisplayString(SourceCodeTools.SymbolDisplayFormatWithoutGenericTypeArguments);
                 isBaseTypeGeneric = true;
             }
-            else return null;
+            else
+            {
+                return null;
+            }
         }
-        else if (attribute.ConstructorArguments.Length != 0) return null;
-        
+        else if (attribute.ConstructorArguments.Length != 0)
+        {
+            return null;
+        }
+
         return new InterfaceModel(
-            ContainingType: containingType,
-            Namespace: @namespace,
-            InterfaceDisplay: interfaceDisplay,
-            InterfaceName: interfaceName,
+            containingType,
+            @namespace,
+            interfaceDisplay,
+            interfaceName,
             propertyArrayBuilder.ToImmutable(),
-            BaseType: baseType,
-            IsBaseTypeGeneric: isBaseTypeGeneric
+            baseType,
+            isBaseTypeGeneric
         );
     }
 
     private static void Execute(InterfaceModel model, SourceProductionContext context)
     {
         String source = GenerateSource(model);
-        
+
         context.AddSource($"{NameTools.SanitizeForIO(model.InterfaceDisplay)}_Record.g.cs", SourceText.From(source, Encoding.UTF8));
     }
 
@@ -128,48 +149,50 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
         var sb = new StringBuilder();
 
         sb.AppendPreamble<GenerateRecordGenerator>()
-          .AppendNamespace(model.Namespace);
+            .AppendNamespace(model.Namespace);
 
-        sb.AppendNestedClass(model.ContainingType, (c, i) =>
-        {
-            String recordName = DeriveRecordName(model.InterfaceName);
-            
-            StringBuilder implements = new(" : ");
-            
-            if (model.BaseType != null)
+        sb.AppendNestedClass(model.ContainingType,
+            (c, i) =>
             {
-                String baseType = model.IsBaseTypeGeneric 
-                    ? $"{model.BaseType}<{recordName}>"
-                    : model.BaseType;
-                implements.Append(baseType).Append(", ");
-            }
-            
-            implements.Append(model.InterfaceDisplay);
-            
-            Boolean isNested = model.ContainingType != null;
+                String recordName = DeriveRecordName(model.InterfaceName);
 
-            c.AppendLine($$"""
-                          {{i}}/// <summary>
-                          {{i}}///     Implementation of <see cref="{{model.InterfaceDisplay}}" />.
-                          {{i}}/// </summary>
-                          {{i}}{{(isNested ? "private" : "public")}} sealed partial record {{recordName}}{{implements}}
-                          {{i}}{
-                          """);
+                StringBuilder implements = new(" : ");
 
-            foreach (PropertyModel propertyModel in model.Properties)
-            {
-                Boolean needsNullInitializer = propertyModel is {IsReferenceType: true, IsNullableAnnotated: false};
+                if (model.BaseType != null)
+                {
+                    String baseType = model.IsBaseTypeGeneric
+                        ? $"{model.BaseType}<{recordName}>"
+                        : model.BaseType;
 
-                c.Append($"{i}    public {propertyModel.TypeDisplay} {propertyModel.Name} {{ get; set; }}");
-                
-                if (needsNullInitializer)
-                    c.Append(" = null!;");
+                    implements.Append(baseType).Append(", ");
+                }
 
-                c.AppendLine();
-            }
+                implements.Append(model.InterfaceDisplay);
 
-            c.Append($"{i}}}");
-        });
+                Boolean isNested = model.ContainingType != null;
+
+                c.AppendLine($$"""
+                               {{i}}/// <summary>
+                               {{i}}///     Implementation of <see cref="{{model.InterfaceDisplay}}" />.
+                               {{i}}/// </summary>
+                               {{i}}{{(isNested ? "private" : "public")}} sealed partial record {{recordName}}{{implements}}
+                               {{i}}{
+                               """);
+
+                foreach (PropertyModel propertyModel in model.Properties)
+                {
+                    Boolean needsNullInitializer = propertyModel is {IsReferenceType: true, IsNullableAnnotated: false};
+
+                    c.Append($"{i}    public {propertyModel.TypeDisplay} {propertyModel.Name} {{ get; set; }}");
+
+                    if (needsNullInitializer)
+                        c.Append(" = null!;");
+
+                    c.AppendLine();
+                }
+
+                c.Append($"{i}}}");
+            });
 
         return sb.ToString();
     }
@@ -177,24 +200,24 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
     private static String DeriveRecordName(String interfaceName)
     {
         // ReSharper disable once MergeIntoPattern
-        if (interfaceName.Length >= 2 && interfaceName[0] == 'I' && Char.IsUpper(interfaceName[1]))
-            return interfaceName.Substring(1);
-        
+        if (interfaceName.Length >= 2 && interfaceName[index: 0] == 'I' && Char.IsUpper(interfaceName[index: 1]))
+            return interfaceName.Substring(startIndex: 1);
+
         return interfaceName + "Record";
     }
 
     private record struct InterfaceModel(
-        ContainingType? ContainingType, 
-        String Namespace, 
-        String InterfaceDisplay, 
-        String InterfaceName, 
-        ImmutableArray<PropertyModel> Properties, 
-        String? BaseType, 
+        ContainingType? ContainingType,
+        String Namespace,
+        String InterfaceDisplay,
+        String InterfaceName,
+        ImmutableArray<PropertyModel> Properties,
+        String? BaseType,
         Boolean IsBaseTypeGeneric);
 
     private record struct PropertyModel(
-        String Name, 
-        String TypeDisplay, 
-        Boolean IsReferenceType, 
+        String Name,
+        String TypeDisplay,
+        Boolean IsReferenceType,
         Boolean IsNullableAnnotated);
 }

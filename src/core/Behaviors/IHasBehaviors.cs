@@ -1,6 +1,19 @@
 ﻿// <copyright file="IHasBehaviors.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -30,21 +43,21 @@ public interface IHasBehaviors<TSubject, TBehavior> : IHasBehaviors
     /// <summary>
     ///     Gets all behaviors of this subject.
     /// </summary>
-    public IEnumerable<TBehavior> Behaviors { get; }
+    IEnumerable<TBehavior> Behaviors { get; }
 
     /// <summary>
     ///     Checks if this subject has a behavior of the specified concrete type.
     /// </summary>
     /// <typeparam name="TConcreteBehavior">The concrete behavior type to check for.</typeparam>
     /// <returns><c>true</c> if the subject has the specified behavior; otherwise, <c>false</c>.</returns>
-    public Boolean Is<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
+    Boolean Is<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
 
     /// <summary>
     ///     Get the behavior of the specified concrete type if it exists, otherwise returns <c>null</c>.
     /// </summary>
     /// <typeparam name="TConcreteBehavior">The concrete behavior type to retrieve.</typeparam>
     /// <returns>The behavior of the specified type if it exists; otherwise, <c>null</c>.</returns>
-    public TConcreteBehavior? Get<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
+    TConcreteBehavior? Get<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
 
     /// <summary>
     ///     Requires the behavior of the specified concrete type, creating it if it does not exist.
@@ -52,7 +65,7 @@ public interface IHasBehaviors<TSubject, TBehavior> : IHasBehaviors
     /// </summary>
     /// <typeparam name="TConcreteBehavior">The concrete behavior type to require.</typeparam>
     /// <returns>The behavior of the specified type, guaranteed to exist after this call.</returns>
-    public TConcreteBehavior Require<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
+    TConcreteBehavior Require<TConcreteBehavior>() where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSubject>;
 
     /// <summary>
     ///     Require a certain behavior under the condition that another behavior is present.
@@ -66,7 +79,7 @@ public interface IHasBehaviors<TSubject, TBehavior> : IHasBehaviors
     ///     The type of the behavior that must be present for the conditional behavior
     ///     to be added.
     /// </typeparam>
-    public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null)
+    void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null)
         where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSubject>
         where TConditionConcreteBehavior : class, TBehavior, IBehavior<TConditionConcreteBehavior, TBehavior, TSubject>;
 
@@ -75,10 +88,10 @@ public interface IHasBehaviors<TSubject, TBehavior> : IHasBehaviors
     ///     After baking, the subject's behaviors are immutable and cannot be modified.
     /// </summary>
     /// <param name="array">The array to bake the behaviors into.</param>
-    public void Bake(TBehavior?[] array);
+    void Bake(TBehavior?[] array);
 
     /// <summary>
     ///     Validates the behaviors of this subject.
     /// </summary>
-    public void Validate(IValidator validator);
+    void Validate(IValidator validator);
 }

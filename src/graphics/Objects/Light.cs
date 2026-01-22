@@ -1,12 +1,27 @@
 ﻿// <copyright file="Light.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 
 namespace VoxelGame.Graphics.Objects;
@@ -18,6 +33,8 @@ namespace VoxelGame.Graphics.Objects;
 public class Light : Spatial
 {
     private Vector3d direction = Vector3d.Zero;
+    private Vector4 color = Vector4.One;
+    private Single intensity = 1.0f;
     private Boolean dirty = true;
 
     /// <summary>
@@ -40,6 +57,36 @@ public class Light : Spatial
         }
     }
 
+    /// <summary>
+    ///     Get or set the light intensity.
+    /// </summary>
+    public Single Intensity
+    {
+        get => intensity;
+        set
+        {
+            if (MathTools.NearlyEqual(value, intensity)) return;
+
+            intensity = value;
+            dirty = true;
+        }
+    }
+
+    /// <summary>
+    ///     Get or set the color of the light.
+    /// </summary>
+    public ColorS Color
+    {
+        get => ColorS.FromVector4(color);
+        set
+        {
+            if (value.ToVector4() == color) return;
+
+            color = value.ToVector4();
+            dirty = true;
+        }
+    }
+
     /// <inheritdoc />
     internal override void Synchronize()
     {
@@ -49,7 +96,7 @@ public class Light : Spatial
 
         dirty = false;
 
-        NativeMethods.SetLightDirection(this, (Vector3) direction);
+        NativeMethods.SetLightConfiguration(this, (Vector3) direction, color.Xyz, intensity);
     }
 }
 

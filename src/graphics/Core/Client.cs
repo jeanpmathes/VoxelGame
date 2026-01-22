@@ -1,6 +1,19 @@
 ﻿// <copyright file="Client.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -22,6 +35,7 @@ using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Interop;
 using VoxelGame.Toolkit.Utilities;
 using Image = VoxelGame.Core.Visuals.Image;
 using Timer = VoxelGame.Core.Profiling.Timer;
@@ -43,7 +57,7 @@ public partial class Client : Application
     /// <summary>
     ///     Creates a new native client and initializes it.
     /// </summary>
-    protected Client(WindowSettings windowSettings, Version version) : base(version)
+    protected unsafe Client(WindowSettings windowSettings, Version version) : base(version)
     {
         Debug.Assert(windowSettings.Size.X > 0);
         Debug.Assert(windowSettings.Size.Y > 0);
@@ -62,17 +76,15 @@ public partial class Client : Application
 
                 DoInitialization(timer);
             },
-            onLogicUpdate = delta =>
+            onLogicUpdate = (realDelta, scaledDelta) =>
             {
                 using Timer? timer = logger.BeginTimedScoped("Client Logic Update");
 
                 cycle = Cycle.Update;
 
-                Time += delta;
-
                 Input.PreLogicUpdate();
 
-                DoLogicUpdate(delta, timer);
+                DoLogicUpdate(new Delta(realDelta, scaledDelta), timer);
 
                 Sync.LogicUpdate();
 
@@ -81,13 +93,13 @@ public partial class Client : Application
                 cycle = null;
 
             },
-            onRenderUpdate = delta =>
+            onRenderUpdate = (realDelta, scaledDelta) =>
             {
                 using Timer? timer = logger.BeginTimedScoped("Client Render Update");
 
                 cycle = Cycle.Render;
 
-                DoRenderUpdate(delta, timer);
+                DoRenderUpdate(new Delta(realDelta, scaledDelta), timer);
 
                 cycle = null;
 
@@ -129,6 +141,7 @@ public partial class Client : Application
             icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty)?.Handle ?? IntPtr.Zero,
             applicationName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown Application",
             applicationVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version",
+            baseLogicUpdatesPerSecond = windowSettings.BaseUpdatesPerSecond,
             renderScale = windowSettings.RenderScale,
             options = Definition.Native.BuildOptions(
                 allowTearing: false,
@@ -166,11 +179,6 @@ public partial class Client : Application
     internal Boolean IsOutOfCycle => cycle == null && IsOnMainThread;
 
     internal Synchronizer Sync { get; } = new();
-
-    /// <summary>
-    ///     Get the total elapsed time.
-    /// </summary>
-    private Double Time { get; set; }
 
     /// <summary>
     ///     Get the space rendered by the client.
@@ -221,7 +229,7 @@ public partial class Client : Application
     /// <summary>
     ///     Initialize the raytracing pipeline. This is only necessary if the client is used for raytracing.
     /// </summary>
-    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipelineDescription description) where T : unmanaged, IEquatable<T>
+    internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipelineDescription description) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         return VoxelGame.Graphics.Native.InitializeRaytracing<T>(this, description);
     }
@@ -231,8 +239,10 @@ public partial class Client : Application
         return $"{message} | {Marshal.GetExceptionForHR(hr)?.Message ?? "No Description"}";
     }
 
-    private static void OnError(Int32 hr, String message)
+    private static unsafe void OnError(Int32 hr, Byte* messagePointer)
     {
+        String message = Utf8StringMarshaller.ConvertToManaged(messagePointer) ?? "No message provided!";
+
         Debugger.Break();
 
         Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
@@ -265,7 +275,7 @@ public partial class Client : Application
     /// <summary>
     ///     Decide whether the window can be closed right now.
     /// </summary>
-    protected virtual Boolean CanClose()
+    protected virtual Bool CanClose()
     {
         return true;
     }
@@ -290,16 +300,21 @@ public partial class Client : Application
     /// <param name="errorCallback">A callback for error messages.</param>
     /// <typeparam name="T">The type of the shader buffer data.</typeparam>
     /// <returns>The created pipeline and shader buffer, or <c>null</c> if the pipeline could not be created.</returns>
-    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<String> errorCallback) where T : unmanaged, IEquatable<T>
+    public (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(RasterPipelineDescription description, Action<String> errorCallback) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
         return VoxelGame.Graphics.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
 
-    private static Definition.Native.NativeErrorFunc CreateErrorFunc(Action<String> errorCallback)
+    private static unsafe Definition.Native.NativeErrorFunction CreateErrorFunc(Action<String> errorCallback)
     {
-        return (hr, message) => errorCallback(FormatErrorMessage(hr, message));
+        return (hr, messagePointer) =>
+        {
+            String message = Utf8StringMarshaller.ConvertToManaged(messagePointer) ?? "No message provided!";
+
+            errorCallback(FormatErrorMessage(hr, message));
+        };
     }
 
     /// <summary>
@@ -407,9 +422,19 @@ public partial class Client : Application
         return exit;
     }
 
+    /// <inheritdoc />
+    public override void SetTimeScale(Double timeScale)
+    {
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        Debug.Assert(timeScale > 0.0);
+
+        NativeMethods.SetTimeScale(this, timeScale);
+    }
+
     private record struct Config(
         Definition.Native.NativeConfiguration Configuration,
-        Definition.Native.NativeErrorFunc ErrorFunc);
+        Definition.Native.NativeErrorFunction ErrorFunc);
 
     #region LOGGING
 

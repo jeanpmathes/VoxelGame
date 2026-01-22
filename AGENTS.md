@@ -23,7 +23,7 @@
   // </copyright>
   // <author>jeanpmathes</author>
   ```
-- **Namespaces**: Files use *file-scoped* namespaces (`namespace VoxelGame.Core;`).
+- **Namespaces**: Files use file-scoped namespaces (`namespace VoxelGame.Core;`).
 - **Type Names**: Use CLR type names (`String`, `Int32`, `Boolean`, etc.) instead of the C# keywords `string`, `int`, `bool`.
 - **Indentation and Braces**: Indent with four spaces and place opening braces on a new line (Allman style).
 - **Documentation**: Public and internal members should have XML documentation comments (`///`).
@@ -41,12 +41,13 @@
 - **Member Fields**: Private members use the `m_` prefix (`m_width`, `m_logicTimer`).
 - **Function Names**: Methods use PascalCase. Free functions inside anonymous namespaces are also PascalCase.
 - **Enums**: Strongly typed `enum class` is used with uppercase enumerator names, e.g., `ARROW`, `SIZE_NWSE`.
-- **Attributes and Macros**: `[[nodiscard]]` appears on important getters. Helper macros (`NATIVE`, `TRY`, `CATCH`, `DEFINE_ENUM_FLAG_OPERATORS`) are widely used.
+- **Attributes and Macros**: `[[nodiscard]]` appears on const getters. Helper macros (`NATIVE`, `TRY`, `CATCH`, `DEFINE_ENUM_FLAG_OPERATORS`) are used.
 - **Comments**: Multi‑line comments use Doxygen style (`/** ... */`).
 
 ## General Notes
 
-- The coding style favors explicitness and clear naming over brevity.
+- The coding style favors explicitness and clear naming over brevity. As such, abbreviations are avoided unless they are widely recognized.
+- Consistency within a file and across the codebase is prioritized.
 
 ## Commit Messages
 
@@ -60,4 +61,3 @@
 - Use `<param>`, `<returns>`, and `<exception>` as appropriate and `<inheritdoc />` for overrides.
 - Regular comments explain complex logic and avoid restating obvious code.
 - C++ headers employ Doxygen style (`/** ... */`) comments.
-

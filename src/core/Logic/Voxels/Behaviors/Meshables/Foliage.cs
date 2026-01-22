@@ -1,6 +1,19 @@
 ﻿// <copyright file="Foliage.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -94,7 +107,8 @@ public partial class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, 
     /// <summary>
     ///     Whether the block is lowered towards the ground, so it aligns with a partial ground that is lowered by one partial
     ///     height unit.
-    ///     See <see cref="Environment.Farmland" /> as an example of a block that allows plant growth and is lowered, not
+    ///     See <see cref="Contents.Environment.Farmland" /> as an example of a block that allows plant growth and is lowered,
+    ///     not
     ///     filling a full block position.
     /// </summary>
     public Aspect<Boolean, State> IsLowered { get; }
@@ -121,7 +135,7 @@ public partial class Foliage : BlockBehavior, IBehavior<Foliage, BlockBehavior, 
     {
         PartType part = Part.GetValue(PartType.Single, state);
         Boolean isLowered = IsLowered.GetValue(original: false, state);
-        ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
+        ColorS tint = meshed.Tint.GetValue(ColorS.NoTint, state);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
 
         Int32 textureIndex = textured.GetTextureIndex(state, textureIndexProvider, isBlock: true);

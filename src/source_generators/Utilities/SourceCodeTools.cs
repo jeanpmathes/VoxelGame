@@ -1,6 +1,19 @@
 ﻿// <copyright file="SourceCodeTools.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -19,12 +32,12 @@ public static class SourceCodeTools
     ///     The preferred symbol display format for generating source code, following the conventions of this project.
     /// </summary>
     public static SymbolDisplayFormat SymbolDisplayFormat { get; } = SymbolDisplayFormat.FullyQualifiedFormat.WithMiscellaneousOptions(
-        SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions & ~SymbolDisplayMiscellaneousOptions.UseSpecialTypes
+        (SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions & ~SymbolDisplayMiscellaneousOptions.UseSpecialTypes)
         | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier
         | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
-    
+
     /// <summary>
-    ///     The <see cref="SymbolDisplayFormat"/>, adapted to not include generic type arguments.
+    ///     The <see cref="SymbolDisplayFormat" />, adapted to not include generic type arguments.
     /// </summary>
     public static SymbolDisplayFormat SymbolDisplayFormatWithoutGenericTypeArguments { get; } = SymbolDisplayFormat.WithGenericsOptions(
         SymbolDisplayFormat.FullyQualifiedFormat.GenericsOptions & ~SymbolDisplayGenericsOptions.IncludeTypeParameters);
@@ -45,16 +58,16 @@ public static class SourceCodeTools
         while (containingType is not null)
         {
             sb.Append(containingType.Accessibility)
-                .Append(' ')
+                .Append(value: ' ')
                 .Append("partial")
-                .Append(' ')
+                .Append(value: ' ')
                 .Append(containingType.Keyword)
-                .Append(' ')
+                .Append(value: ' ')
                 .Append(containingType.Name)
                 .Append(containingType.TypeParameters);
 
             if (!String.IsNullOrWhiteSpace(containingType.Constraints))
-                sb.Append(' ').Append(containingType.Constraints);
+                sb.Append(value: ' ').Append(containingType.Constraints);
 
             sb.AppendLine().Append(indent).AppendLine("{");
 

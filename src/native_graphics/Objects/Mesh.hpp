@@ -1,6 +1,19 @@
 ﻿// <copyright file="Mesh.hpp" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -70,10 +83,7 @@ public:
      * \param uavs The UAVs to use for the BLAS.
      * \param isForAnimation Whether the BLAS is created for animation. If true and the mesh is modified and a BLAS will be created later anyway, this call will be ignored.
      */
-    void CreateBLAS(
-        ComPtr<ID3D12GraphicsCommandList4> const& commandList,
-        std::vector<ID3D12Resource*>*             uavs,
-        bool                                      isForAnimation = false);
+    void        CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<ID3D12Resource*>* uavs, bool isForAnimation = false);
     BLAS const& GetBLAS();
 
     void                                      SetAnimationHandle(AnimationController::Handle handle);
@@ -82,9 +92,7 @@ public:
     void Accept(Visitor& visitor) override;
 
 protected:
-    void DoDataUpload(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<D3D12_RESOURCE_BARRIER>*     barriers) override;
+    void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers) override;
     void DoReset() override;
 
 private:
@@ -93,9 +101,7 @@ private:
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> vertexBuffers,
         std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> indexBuffers);
 
-    void CreateBottomLevelASFromBounds(
-        ComPtr<ID3D12GraphicsCommandList4> const&                           commandList,
-        std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> const& boundsBuffers);
+    void CreateBottomLevelASFromBounds(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> const& boundsBuffers);
 
     void CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList);
 

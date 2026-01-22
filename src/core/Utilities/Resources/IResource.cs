@@ -1,6 +1,19 @@
 ﻿// <copyright file="IResource.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -16,21 +29,21 @@ public interface IResource : IDisposable
     /// <summary>
     ///     A justification string to suppress <c>CA2213</c> warnings.
     /// </summary>
-    public const String ResourcesOwnedByContext = "Resources are owned by the context and should not be disposed manually.";
+    const String ResourcesOwnedByContext = "Resources are owned by the context and should not be disposed manually.";
 
     /// <summary>
     ///     An identifier for the resource.
     /// </summary>
-    public RID Identifier { get; }
+    RID Identifier { get; }
 
     /// <summary>
     ///     The type of this resource.
     /// </summary>
-    public ResourceType Type { get; }
+    ResourceType Type { get; }
 
     /// <summary>
     ///     Get an error that occurred during loading, or <c>null</c> if no error occurred.
     ///     If this is set, the resource is considered invalid and will not be added to the context.
     /// </summary>
-    public ResourceIssue? Issue => null;
+    ResourceIssue? Issue => null;
 }

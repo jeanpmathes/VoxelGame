@@ -1,6 +1,19 @@
 ﻿// <copyright file="TermiteMoundDecoration.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -21,7 +34,7 @@ public class TermiteMoundDecoration : Decoration
     private readonly Shape3D shape;
 
     /// <summary>
-        ///     Creates a new instance of the <see cref="TermiteMoundDecoration" /> class.
+    ///     Creates a new instance of the <see cref="TermiteMoundDecoration" /> class.
     /// </summary>
     public TermiteMoundDecoration(String name, Decorator decorator) : base(name, decorator)
     {
@@ -43,9 +56,7 @@ public class TermiteMoundDecoration : Decoration
         for (var x = 0; x < Size; x++)
         for (var y = 0; y < Size; y++)
         for (var z = 0; z < Size; z++)
-        {
             CheckPosition(grid, center, (x, y, z), extents);
-        }
     }
 
     private void CheckPosition(IGrid grid, Vector3i center, Vector3i offset, Vector3i extents)

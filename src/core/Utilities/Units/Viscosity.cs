@@ -1,6 +1,19 @@
 ﻿// <copyright file="Viscosity.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,15 +23,15 @@ namespace VoxelGame.Core.Utilities.Units;
 
 public readonly partial struct Viscosity
 {
-    private const Double UpdateTicksPerMilliPascalSecond = 15.0;
+    private const Double UpdateDistancePerMilliPascalSecond = 15.0;
 
     /// <summary>
-    ///     Gets the viscosity expressed as update ticks.
+    ///     Gets the viscosity expressed as update distance.
     /// </summary>
-    public Double UpdateTicks
+    public Double UpdateDistance
     {
-        get => MilliPascalSeconds * UpdateTicksPerMilliPascalSecond;
-        init => MilliPascalSeconds = value / UpdateTicksPerMilliPascalSecond;
+        get => MilliPascalSeconds * UpdateDistancePerMilliPascalSecond;
+        init => MilliPascalSeconds = value / UpdateDistancePerMilliPascalSecond;
     }
 
     /// <summary>
@@ -35,6 +48,6 @@ public readonly partial struct Viscosity
     /// </summary>
     public UInt32 ToUpdateDelay()
     {
-        return (UInt32) Math.Max(val1: 1, Math.Round(UpdateTicks));
+        return (UInt32) Math.Max(val1: 1, Math.Round(UpdateDistance));
     }
 }

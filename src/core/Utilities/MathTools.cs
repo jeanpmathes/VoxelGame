@@ -1,6 +1,19 @@
 ﻿// <copyright file="MathTools.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -210,21 +223,21 @@ public static class MathTools
     /// <param name="vector">The vector to round.</param>
     /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
     /// <returns>The rounded vector.</returns>
-    public static Vector3i RoundedToInt(this Vector3d vector, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static Vector3i RoundToInt(this Vector3d vector, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return new Vector3i(
-            RoundedToInt(vector.X, midpointRounding),
-            RoundedToInt(vector.Y, midpointRounding),
-            RoundedToInt(vector.Z, midpointRounding));
+            RoundToInt(vector.X, midpointRounding),
+            RoundToInt(vector.Y, midpointRounding),
+            RoundToInt(vector.Z, midpointRounding));
     }
 
     /// <summary>
     ///     Rounds a double to an integer.
     /// </summary>
     /// <param name="value">The value to round.</param>
-    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <param name="midpointRounding">The midpoint rounding behavior.</param>
     /// <returns>The rounded value.</returns>
-    public static Int32 RoundedToInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static Int32 RoundToInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return (Int32) Math.Round(value, digits: 0, midpointRounding);
     }
@@ -233,9 +246,9 @@ public static class MathTools
     ///     Rounds a double to an unsigned integer.
     /// </summary>
     /// <param name="value">The value to round.</param>
-    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <param name="midpointRounding">The midpoint rounding behavior.</param>
     /// <returns>The rounded value.</returns>
-    public static UInt32 RoundedToUInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static UInt32 RoundToUInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return (UInt32) Math.Round(value, digits: 0, midpointRounding);
     }
@@ -668,6 +681,14 @@ public static class MathTools
     ///     Get the modulo of a value. The result will always be positive.
     /// </summary>
     public static Int32 Mod(Int32 value, Int32 m)
+    {
+        return (value % m + m) % m;
+    }
+
+    /// <summary>
+    ///     Get the modulo of a value. The result will always be positive.
+    /// </summary>
+    public static Int64 Mod(Int64 value, Int64 m)
     {
         return (value % m + m) % m;
     }

@@ -1,6 +1,19 @@
 ﻿// <copyright file="PlayerMovement.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,6 +22,7 @@ using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -23,6 +37,9 @@ public partial class PlayerMovement : ActorComponent
     private readonly Player player;
 
     private MovementStrategy strategy;
+
+    private Double pitch;
+    private Double yaw;
 
     private Targeter? targeter;
 
@@ -56,19 +73,23 @@ public partial class PlayerMovement : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
-        player.Body.Movement = Vector3d.Zero;
-        player.Camera.Position = strategy.GetCameraPosition();
+        if (player.Input.CanHandleGameInput)
+        {
+            (Double yawDelta, Double pitchDelta) = player.Input.Keybinds.LookBind.Value;
+
+            yaw += yawDelta;
+            pitch += pitchDelta;
+
+            pitch = MathHelper.Clamp(pitch, min: -89.0, max: 89.0);
+
+            strategy.Move(pitch, yaw, delta);
+        }
 
         // The targeter is acquired here to ensure it is ordered after this component.
         // Targeting is update twice in total, as both camera movement and world manipulation can change the target.
         targeter ??= player.GetComponent<Targeter>();
         targeter?.Update();
-
-        if (player.Input.CanHandleGameInput)
-        {
-            player.Body.Movement = strategy.ApplyMovement(deltaTime);
-        }
     }
 }

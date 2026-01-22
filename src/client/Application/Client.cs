@@ -1,6 +1,19 @@
 ﻿// <copyright file="Client.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -14,13 +27,14 @@ using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Resources;
 using VoxelGame.Client.Scenes;
-using VoxelGame.Client.Visuals;
 using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
+using VoxelGame.Toolkit.Interop;
 using VoxelGame.UI.Resources;
 
 namespace VoxelGame.Client.Application;
@@ -113,9 +127,6 @@ public sealed partial class Client : Graphics.Core.Client
 
         if (startScene != null)
         {
-            if (MainResources.Get<Engine>() is {} engine)
-                Visuals.Graphics.Instance.Initialize(engine);
-
             sceneManager.BeginLoad(startScene);
         }
 
@@ -126,7 +137,7 @@ public sealed partial class Client : Graphics.Core.Client
     }
 
     /// <inheritdoc />
-    protected override void OnLogicUpdate(Double delta, Timer? timer)
+    protected override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         if (sceneManager.IsActive)
             return;
@@ -144,7 +155,7 @@ public sealed partial class Client : Graphics.Core.Client
     }
 
     /// <inheritdoc />
-    protected override Boolean CanClose()
+    protected override Bool CanClose()
     {
         return sceneManager.CanCloseWindow();
     }
@@ -227,10 +238,7 @@ public sealed partial class Client : Graphics.Core.Client
     {
         if (disposed) return;
 
-        if (disposing)
-        {
-            SizeChanged -= OnSizeChanged;
-        }
+        if (disposing) SizeChanged -= OnSizeChanged;
 
         base.Dispose(disposing);
 

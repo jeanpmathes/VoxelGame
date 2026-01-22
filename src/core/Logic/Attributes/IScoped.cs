@@ -1,6 +1,19 @@
 ﻿// <copyright file="IScoped.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -19,13 +32,13 @@ public interface IScoped
     ///     The name of the attribute or scope.
     ///     Must be unique within the current scope.
     /// </summary>
-    public String Name { get; }
+    String Name { get; }
 
     /// <summary>
     ///     Whether this scoped item is empty, meaning there are no attributes within it.
     ///     Attributes themselves are never empty.
     /// </summary>
-    public Boolean IsEmpty { get; }
+    Boolean IsEmpty { get; }
 
     /// <summary>
     ///     Get the value or values of this scoped item for a given state.
@@ -33,7 +46,7 @@ public interface IScoped
     /// </summary>
     /// <param name="state">The state to get the value(s) for.</param>
     /// <returns>The value or values of the scoped item for the given state.</returns>
-    public JsonNode GetValues(State state);
+    JsonNode GetValues(State state);
 
     /// <summary>
     ///     Set the value or values of this scoped item for a given state.
@@ -42,12 +55,12 @@ public interface IScoped
     /// <param name="state">The state to set the value(s) for.</param>
     /// <param name="values">The value or values to set. Incorrect types will be ignored.</param>
     /// <returns>The state with the updated value(s).</returns>
-    public State SetValues(State state, JsonNode values);
+    State SetValues(State state, JsonNode values);
 
     /// <summary>
     ///     Get a property representation of this scoped item for a given state.
     /// </summary>
     /// <param name="state">The state to get the representation for.</param>
     /// <returns>The property representing the value(s) of the scoped item for the given state.</returns>
-    public Property GetRepresentation(State state);
+    Property GetRepresentation(State state);
 }

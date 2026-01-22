@@ -1,6 +1,19 @@
 ﻿// <copyright file="EngineLoader.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -48,11 +61,16 @@ public sealed class EngineLoader : IResourceLoader
 
         PipelineFactory factory = new(client, errors);
 
-        RasterPipeline? postProcessingPipeline = factory.LoadPipeline("PostProcessing", new ShaderPresets.PostProcessing());
+        (RasterPipeline pipeline, ShaderBuffer<Engine.PostProcessingData> buffer)? postProcessingResult
+            = factory.LoadPipelineWithBuffer<Engine.PostProcessingData>("PostProcessing", new ShaderPresets.PostProcessing());
+
+        if (postProcessingResult is not {pipeline: var postProcessingPipeline, buffer: var ppData})
+            return errors;
+
         var crosshairVFX = ScreenElementPipeline.Create(client, factory, (0.5f, 0.5f));
         var overlayVFX = OverlayPipeline.Create(client, factory, textureSlots);
 
-        if (postProcessingPipeline == null || crosshairVFX == null || overlayVFX == null)
+        if (crosshairVFX == null || overlayVFX == null)
             return errors;
 
         ShaderBuffer<Engine.RaytracingData>? rtData = LoadRaytracingPipeline(client, visuals, textureSlots, context);
@@ -67,11 +85,15 @@ public sealed class EngineLoader : IResourceLoader
 
         client.SetPostProcessingPipeline(postProcessingPipeline);
 
-        return [new Engine(client, crosshairVFX, overlayVFX, selectionBoxVFX, rtData)];
+        Engine engine = new(client, crosshairVFX, overlayVFX, selectionBoxVFX, rtData, ppData);
+
+        Graphics.Instance.Initialize(engine);
+
+        return [engine];
     }
 
     private ShaderBuffer<Engine.RaytracingData>? LoadRaytracingPipeline(
-        VoxelGame.Graphics.Core.Client client, VisualConfiguration visuals, (TextureArray, TextureArray) textureSlots, IResourceContext context)
+        Application.Client client, VisualConfiguration visuals, (TextureArray, TextureArray) textureSlots, IResourceContext context)
     {
         PipelineBuilder builder = new();
 
@@ -87,6 +109,8 @@ public sealed class EngineLoader : IResourceLoader
         builder.SetCustomDataBufferType<Engine.RaytracingData>();
 
         builder.SetSpoolCounts(mesh: 8192, effect: 4);
+
+        builder.SetAnisotropyQuality(client.Graphics.AnisotropicFilteringQuality);
 
         ResourceIssue? error = builder.Build(client, context, out ShaderBuffer<Engine.RaytracingData>? buffer);
 

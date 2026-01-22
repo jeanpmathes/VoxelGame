@@ -1,6 +1,19 @@
 ﻿// <copyright file="SessionScene.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -19,7 +32,6 @@ using VoxelGame.Client.Sessions;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Graphics.Core;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.UI;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -41,7 +53,7 @@ public sealed class SessionScene : Scene, IInputControl
     internal SessionScene(Application.Client client, World world, CommandInvoker commands, UserInterfaceResources uiResources, Engine engine) : base(client)
     {
         InGameUserInterface ui = CreateUI(client, uiResources);
-        session = CreateSession(client.Space.Camera, world, ui, engine);
+        session = CreateSession(new Camera(client.Space.Camera), world, ui, engine);
 
         SessionConsole console = session.AddComponent<SessionConsole, CommandInvoker>(commands);
 
@@ -76,7 +88,7 @@ public sealed class SessionScene : Scene, IInputControl
     ///     Whether it is OK to handle meta input currently.
     /// </summary>
     public Boolean CanHandleMetaInput => Client.IsFocused;
-    
+
     /// <inheritdoc />
     public KeybindManager Keybinds => Client.Keybinds;
 
@@ -99,6 +111,12 @@ public sealed class SessionScene : Scene, IInputControl
     public override Boolean CanCloseWindow()
     {
         return false;
+    }
+
+    /// <inheritdoc />
+    internal override Boolean IsSpaceRendered()
+    {
+        return true;
     }
 
     private static InGameUserInterface CreateUI(Application.Client client, UserInterfaceResources uiResources)
@@ -128,7 +146,7 @@ public sealed class SessionScene : Scene, IInputControl
     private void SetUpUI(InGameUserInterface ui, Core.Logic.World world, IConsoleProvider console)
     {
         Debug.Assert(session != null);
-        
+
         List<SettingsProvider> settingsProviders =
         [
             SettingsProvider.Wrap(Client.Settings),
@@ -161,7 +179,7 @@ public sealed class SessionScene : Scene, IInputControl
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
-        
+
         if (!disposing) return;
 
         session?.Dispose();

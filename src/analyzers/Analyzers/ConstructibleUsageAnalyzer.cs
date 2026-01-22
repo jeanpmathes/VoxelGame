@@ -1,6 +1,19 @@
 ﻿// <copyright file="ConstructibleUsageAnalyzer.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -27,6 +40,26 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
 
     private const String Category = "Usage";
 
+    /// <summary>
+    ///     The reason why the constructor is invalid - it has no parameters.
+    /// </summary>
+    public const String ReasonNoParameters = "it does not declare any parameters";
+
+    /// <summary>
+    ///     The reason why the constructor is invalid - it uses ref, in or out parameters.
+    /// </summary>
+    public const String ReasonRefInOutParameters = "it uses ref, in or out parameters";
+
+    /// <summary>
+    ///     The reason why the constructor is invalid - it specifies default parameter values.
+    /// </summary>
+    public const String ReasonDefaultParameterValues = "it specifies default parameter values";
+
+    /// <summary>
+    ///     The reason why the constructor is invalid - it uses a params parameter.
+    /// </summary>
+    public const String ReasonParamsParameter = "it uses a params parameter";
+
     private static readonly DiagnosticDescriptor rule = new(
         DiagnosticID,
         "Constructible constructors must be valid",
@@ -35,26 +68,6 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
         DiagnosticSeverity.Warning,
         isEnabledByDefault: true,
         "Constructible constructors must use supported kinds of parameters.");
-    
-    /// <summary>
-    /// The reason why the constructor is invalid - it has no parameters.
-    /// </summary>
-    public const String ReasonNoParameters = "it does not declare any parameters";
-    
-    /// <summary>
-    /// The reason why the constructor is invalid - it uses ref, in or out parameters.
-    /// </summary>
-    public const String ReasonRefInOutParameters = "it uses ref, in or out parameters";
-    
-    /// <summary>
-    /// The reason why the constructor is invalid - it specifies default parameter values.
-    /// </summary>
-    public const String ReasonDefaultParameterValues = "it specifies default parameter values";
-    
-    /// <summary>
-    /// The reason why the constructor is invalid - it uses a params parameter.
-    /// </summary>
-    public const String ReasonParamsParameter = "it uses a params parameter";
 
     /// <inheritdoc />
     public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics { get; } = [rule];
@@ -84,7 +97,7 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
 
         Location location = constructorDeclaration.Identifier.GetLocation();
 
-        if (!IsPartial(typeDeclaration)) 
+        if (!IsPartial(typeDeclaration))
             return;
 
         ImmutableArray<IParameterSymbol> parameters = constructorSymbol.Parameters;
@@ -132,7 +145,7 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
     {
         foreach (AttributeData attribute in constructorSymbol.GetAttributes())
         {
-            if (attribute.AttributeClass is not { } attributeClass)
+            if (attribute.AttributeClass is not {} attributeClass)
                 continue;
 
             if (attributeClass.Name == nameof(ConstructibleAttribute))

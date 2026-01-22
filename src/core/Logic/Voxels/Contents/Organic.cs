@@ -1,6 +1,19 @@
 ﻿// <copyright file="Organic.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -18,7 +31,7 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     Organic blocks are different plants and such which do not fit into other categories.
@@ -42,7 +55,7 @@ public class Organic(BlockBuilder builder) : Category(builder)
         .BuildComplexBlock(new CID(nameof(Spiderweb)), Language.SpiderWeb)
         .WithBehavior<CrossModel>()
         .WithBehavior<SingleTextured>(texture => texture.DefaultTexture.Initializer.ContributeConstant(TID.Block("spider_web")))
-        .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(0.01))
+        .WithBehavior<Slowing>(slowing => slowing.MaxVelocity.Initializer.ContributeConstant(value: 0.01))
         .WithBehavior<DestroyOnLiquid>()
         .WithBehavior<Combustible>()
         .WithProperties(properties => properties.IsOpaque.ContributeConstant(value: false))

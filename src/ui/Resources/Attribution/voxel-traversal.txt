@@ -1,2 +1,0 @@
-﻿Adapted from code by a5kin and ProjectPhysX: https://stackoverflow.com/a/38552664
-See: J. Amanatides and A. Woo, A Fast Voxel Traversal Algorithm for Ray Tracing, Eurographics, 1987.

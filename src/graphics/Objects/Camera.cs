@@ -1,6 +1,19 @@
 ﻿// <copyright file="Camera.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,7 +23,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Physics;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
-using VoxelGame.Graphics.Graphics;
 
 namespace VoxelGame.Graphics.Objects;
 
@@ -18,16 +30,14 @@ namespace VoxelGame.Graphics.Objects;
 ///     Represents the space camera.
 /// </summary>
 [NativeMarshalling(typeof(CameraMarshaller))]
-public class Camera : NativeObject, IView
+public class Camera : NativeObject
 {
     private Boolean advancedDataDirty;
+
     private Double fovX = MathHelper.DegreesToRadians(degrees: 90.0);
     private Double fovY;
 
-    private Double pitch;
-
     private Vector3 preparedPosition = Vector3.Zero;
-    private Double yaw;
 
     /// <summary>
     ///     Create a new camera.
@@ -40,38 +50,24 @@ public class Camera : NativeObject, IView
     }
 
     /// <summary>
+    ///     Gets or sets the camera position.
+    /// </summary>
+    public Vector3d Position { get; set; }
+
+    /// <summary>
+    ///     Get the front vector of the camera.
+    /// </summary>
+    public Vector3d Forward { get; private set; } = Vector3d.UnitX;
+
+    /// <summary>
+    ///     Get the right vector of the camera.
+    /// </summary>
+    public Vector3d Right { get; private set; } = Vector3d.UnitZ;
+
+    /// <summary>
     ///     Get the up vector of the camera.
     /// </summary>
     public Vector3d Up { get; private set; } = Vector3d.UnitY;
-
-    /// <summary>
-    ///     Get or set the camera pitch.
-    /// </summary>
-    public Double Pitch
-    {
-        get => MathHelper.RadiansToDegrees(pitch);
-        set
-        {
-            Double angle = MathHelper.Clamp(value, min: -89.0, max: 89.0);
-            pitch = MathHelper.DegreesToRadians(angle);
-            UpdateVectors();
-        }
-    }
-
-    /// <summary>
-    ///     Get or set the camera yaw.
-    /// </summary>
-    public Double Yaw
-    {
-        get => MathHelper.RadiansToDegrees(yaw);
-        set
-        {
-            yaw = MathHelper.DegreesToRadians(value);
-            yaw %= 360.0;
-
-            UpdateVectors();
-        }
-    }
 
     /// <summary>
     ///     Set the horizontal (X) field of view, in degrees.
@@ -97,22 +93,22 @@ public class Camera : NativeObject, IView
     private static Double NearClipping => 0.05;
 
     /// <summary>
-    ///     Gets or sets the camera position.
+    /// The definition of the camera view.
     /// </summary>
-    public Vector3d Position { get; set; }
+    public Parameters Definition => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, (Forward, Up, Right));
 
     /// <summary>
-    ///     Get the front vector of the camera.
+    /// Set the orientation of the camera, defined by the forward, right and up vectors.
     /// </summary>
-    public Vector3d Forward { get; private set; } = Vector3d.UnitX;
-
-    /// <summary>
-    ///     Get the right vector of the camera.
-    /// </summary>
-    public Vector3d Right { get; private set; } = Vector3d.UnitZ;
-
-    /// <inheritdoc />
-    public IView.Parameters Definition => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, (Forward, Up, Right));
+    /// <param name="forward">The forward vector.</param>
+    /// <param name="right">The right vector.</param>
+    /// <param name="up">The up vector.</param>
+    public void SetOrientation(Vector3d forward, Vector3d right, Vector3d up)
+    {
+        Forward = Vector3d.Normalize(forward);
+        Right = Vector3d.Normalize(right);
+        Up = Vector3d.Normalize(up);
+    }
 
     private void OnSizeChanged(Object? sender, SizeChangeEventArgs e)
     {
@@ -176,18 +172,15 @@ public class Camera : NativeObject, IView
             });
     }
 
-    private void UpdateVectors()
+    /// <summary>
+    ///     Get the parameters that define the view.
+    /// </summary>
+    public record Parameters(Double FieldOfView, Double AspectRatio, (Double near, Double far) Clipping, Vector3d Position, (Vector3d front, Vector3d up, Vector3d right) Orientation)
     {
-        Vector3d front;
-
-        front.X = Math.Cos(pitch) * Math.Cos(yaw);
-        front.Y = Math.Sin(pitch);
-        front.Z = Math.Cos(pitch) * Math.Sin(yaw);
-
-        Forward = Vector3d.Normalize(front);
-
-        Right = Vector3d.Normalize(Vector3d.Cross(Forward, Vector3d.UnitY));
-        Up = Vector3d.Normalize(Vector3d.Cross(Right, Forward));
+        /// <summary>
+        ///     Create a frustum from the view parameters.
+        /// </summary>
+        public Frustum Frustum => new(FieldOfView, AspectRatio, Clipping, Position, Orientation.front, Orientation.up, Orientation.right);
     }
 }
 

@@ -1,6 +1,19 @@
 ﻿// <copyright file="Native.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -8,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
+using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
@@ -16,6 +30,7 @@ using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Toolkit.Utilities;
 using Mesh = VoxelGame.Graphics.Objects.Mesh;
 
 namespace VoxelGame.Graphics;
@@ -35,11 +50,15 @@ internal static class Native
     /// <summary>
     ///     Get current allocator statistics as a string.
     /// </summary>
-    internal static String GetAllocatorStatistics(Client client)
+    internal static unsafe String GetAllocatorStatistics(Client client)
     {
         var result = "";
 
-        NativeMethods.PassAllocatorStatistics(client, s => result = s);
+        NativeMethods.PassAllocatorStatistics(client,
+            stringPointer =>
+            {
+                result = Utf16StringMarshaller.ConvertToManaged(stringPointer);
+            });
 
         return result;
     }
@@ -48,11 +67,15 @@ internal static class Native
     ///     Get the DRED (Device Removed Extended Data) string.
     ///     This is only available in debug builds and after a device removal.
     /// </summary>
-    internal static String GetDRED(Client client)
+    internal static unsafe String GetDRED(Client client)
     {
         var result = "";
 
-        NativeMethods.PassDRED(client, s => result = s);
+        NativeMethods.PassDRED(client,
+            stringPointer =>
+            {
+                result = Utf16StringMarshaller.ConvertToManaged(stringPointer);
+            });
 
         return result;
     }
@@ -85,7 +108,7 @@ internal static class Native
     /// <param name="client">The client.</param>
     /// <param name="description">A description of the raytracing pipeline.</param>
     /// <returns>The shader buffer, if any is created.</returns>
-    internal static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipelineDescription description) where T : unmanaged, IEquatable<T>
+    internal static ShaderBuffer<T>? InitializeRaytracing<T>(Client client, SpacePipelineDescription description) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         IntPtr buffer = NativeMethods.InitializeRaytracing(client, description);
 
@@ -136,6 +159,16 @@ internal static class Native
         }
 
         return lightObject;
+    }
+
+    /// <summary>
+    ///     Set whether the space is rendered.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="isRendered">Whether the space is rendered.</param>
+    internal static void SetSpaceIsRendered(Client client, Boolean isRendered)
+    {
+        NativeMethods.SetSpaceIsRendered(client, isRendered);
     }
 
     /// <summary>
@@ -219,7 +252,7 @@ internal static class Native
     internal static RasterPipeline? CreateRasterPipeline(
         Client client,
         RasterPipelineDescription description,
-        Definition.Native.NativeErrorFunc callback)
+        Definition.Native.NativeErrorFunction callback)
     {
         Debug.Assert(description.BufferSize == 0);
 
@@ -243,12 +276,12 @@ internal static class Native
     /// <param name="description">A description of the pipeline to create.</param>
     /// <param name="callback">A callback to receive error messages related to shader compilation.</param>
     /// <returns>The raster pipeline and associated shader buffer, or null if the pipeline could not be created.</returns>
-    internal static (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
+    internal static unsafe (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
         Client client,
         RasterPipelineDescription description,
-        Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>
+        Definition.Native.NativeErrorFunction callback) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
-        description.BufferSize = (UInt32) Marshal.SizeOf<T>();
+        description.BufferSize = (UInt32) sizeof(T);
 
         IntPtr pipelinePointer = NativeMethods.CreateRasterPipeline(client, description, callback);
 
@@ -272,7 +305,7 @@ internal static class Native
     /// <returns>An object that allows removing the pipeline.</returns>
     internal static IDisposable AddDraw2DPipeline(Client client, RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
     {
-        Draw2D.Callback draw2dCallback = @internal => callback(new Draw2D(@internal));
+        Draw2D.Callback draw2dCallback = unmanaged => callback(new Draw2D(Draw2D.InternalMarshaller.ConvertToManaged(unmanaged)));
         UInt32 id = NativeMethods.AddDraw2DPipeline(client, pipeline, priority, draw2dCallback);
 
         Debug.Assert(!draw2DCallbacks.ContainsKey(id));

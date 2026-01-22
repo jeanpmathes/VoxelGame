@@ -1,6 +1,19 @@
 ﻿// <copyright file="ICatalogEntry.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -21,7 +34,7 @@ public interface ICatalogEntry : IIssueSource
     /// <summary>
     ///     Get the name of the catalog entry.
     /// </summary>
-    public sealed String Name => Reflections.GetDecoratedName(Prefix, GetType(), Instance);
+    sealed String Name => Reflections.GetDecoratedName(Prefix, GetType(), Instance);
 
     /// <summary>
     ///     The prefix of the catalog entry. Will be used to create the full name of the entry.
@@ -42,5 +55,5 @@ public interface ICatalogEntry : IIssueSource
     /// <param name="context">The context in which the resources are loaded.</param>
     /// <param name="resources">The resources loaded by this entry.</param>
     /// <param name="entries">The catalog entries provided by this entry.</param>
-    public void Enter(IResourceContext context, out IEnumerable<IResource> resources, out IEnumerable<ICatalogEntry> entries);
+    void Enter(IResourceContext context, out IEnumerable<IResource> resources, out IEnumerable<ICatalogEntry> entries);
 }

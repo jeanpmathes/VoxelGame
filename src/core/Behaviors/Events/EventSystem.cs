@@ -1,6 +1,19 @@
 ﻿// <copyright file="EventSystem.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -17,7 +30,7 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
     private readonly Dictionary<Type, Event> events = new();
 
     /// <inheritdoc />
-    public void Subscribe<TEventMessage>(Action<TEventMessage> handler) 
+    public void Subscribe<TEventMessage>(Action<TEventMessage> handler)
     {
         if (events.TryGetValue(typeof(TEventMessage), out Event? @event) && @event is Event<TEventMessage> specific) specific.Subscribe(handler, validator);
 
@@ -26,7 +39,7 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
 
 
     /// <inheritdoc />
-    public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single) 
+    public IEvent<TEventMessage> RegisterEvent<TEventMessage>(Boolean single)
     {
         if (events.TryGetValue(typeof(TEventMessage), out Event? existingEvent))
         {
@@ -44,9 +57,9 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
         return @event;
     }
 
-    private class Event {}
+    private class Event;
 
-    private sealed class Event<TEventMessage>(Boolean single) : Event, IEvent<TEventMessage> 
+    private sealed class Event<TEventMessage>(Boolean single) : Event, IEvent<TEventMessage>
     {
         private readonly List<Action<TEventMessage>> handlers = [];
 

@@ -1,14 +1,28 @@
 ﻿// <copyright file="Actor.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
+using System.Diagnostics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Components;
-using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Core.Actors;
 
@@ -18,27 +32,31 @@ namespace VoxelGame.Core.Actors;
 [ComponentSubject(typeof(ActorComponent))]
 public abstract partial class Actor : Composed<Actor, ActorComponent>
 {
+    private World? world;
 
     /// <summary>
     ///     Gets the world in which this actor is located.
     ///     Using an actor without a world is not valid.
     /// </summary>
-    public World World { get; private set; } = null!;
+    public World World => world!;
 
     /// <summary>
     ///     The head of the actor, which allows to determine where the actor is looking at.
     ///     If an actor has no head or the concept of looking does not make sense, this will try to return the transform of the
-    ///     actor itself.
+    ///     actor itself, or <c>null</c> if no transform is present.
     /// </summary>
-    public virtual IOrientable? Head => GetComponent<Transform>();
+    public virtual Transform? Head => GetComponent<Transform>();
 
     /// <summary>
     ///     Called when this actor is added to a world.
+    ///     Before adding an actor to a world, it must be removed from any previous world.
     /// </summary>
-    /// <param name="world">The world to which this actor was added.</param>
-    public void OnAdd(World world)
+    /// <param name="newWorld">The world to which this actor was added.</param>
+    public void OnAdd(World newWorld)
     {
-        World = world;
+        Debug.Assert(world == null);
+
+        world = newWorld;
 
         OnAddComponents();
     }
@@ -52,9 +70,11 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     /// </summary>
     public void OnRemove()
     {
+        Debug.Assert(world != null);
+
         OnRemoveComponents();
 
-        World = null!;
+        world = null;
     }
 
     /// <inheritdoc cref="Actor.OnRemove" />
@@ -66,6 +86,8 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     /// </summary>
     public void Activate()
     {
+        Debug.Assert(world != null);
+
         OnActivateComponents();
     }
 
@@ -78,6 +100,8 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     /// </summary>
     public void Deactivate()
     {
+        Debug.Assert(world != null);
+
         OnDeactivateComponents();
     }
 
@@ -86,23 +110,24 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     private partial void OnDeactivateComponents();
 
     /// <summary>
-    ///     Update this actor.
+    ///     Update this actor. Not all actors are always updated, e.g. when in they are in an inactive chunk.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    public void LogicUpdate(Double deltaTime)
+    /// <param name="delta">The time since the last update.</param>
+    public void LogicUpdate(Delta delta)
     {
-        OnLogicUpdate(deltaTime);
+        Debug.Assert(world != null);
 
-        OnLogicUpdateComponents(deltaTime);
+        OnLogicUpdate(delta);
+        OnLogicUpdateComponents(delta);
     }
 
     /// <inheritdoc cref="Actor.LogicUpdate" />
     [ComponentEvent(nameof(ActorComponent.OnLogicUpdate))]
-    private partial void OnLogicUpdateComponents(Double deltaTime);
+    private partial void OnLogicUpdateComponents(Delta delta);
 
     /// <summary>
     ///     Called when the actor receives a logic update.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    protected virtual void OnLogicUpdate(Double deltaTime) {}
+    /// <param name="delta">The time since the last update.</param>
+    protected virtual void OnLogicUpdate(Delta delta) {}
 }

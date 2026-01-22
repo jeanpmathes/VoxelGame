@@ -1,6 +1,19 @@
 ﻿// <copyright file="Slowing.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -23,9 +36,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 public partial class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, Block>
 {
     [Constructible]
-    private Slowing(Block subject) : base(subject)
-    {
-    }
+    private Slowing(Block subject) : base(subject) {}
 
     /// <summary>
     ///     The maximum velocity that entities can have when in contact with this block.
@@ -47,14 +58,11 @@ public partial class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, 
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
         var factor = 1.0;
-        
-        if (Subject.Get<PartialHeight>() is {} height)
-        {
-            factor = height.GetHeight(message.State).Ratio;
-        }
+
+        if (Subject.Get<PartialHeight>() is {} height) factor = height.GetHeight(message.State).Ratio;
 
         Vector3d newVelocity = MathTools.Clamp(message.Body.Velocity, min: -1.0, MaxVelocity.Get());
-        
+
         message.Body.Velocity = Vector3d.Lerp(message.Body.Velocity, newVelocity, factor);
     }
 }

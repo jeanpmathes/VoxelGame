@@ -1,6 +1,19 @@
 ﻿// <copyright file="Construction.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -22,7 +35,7 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.Core.Logic.Voxels;
+namespace VoxelGame.Core.Logic.Voxels.Contents;
 
 /// <summary>
 ///     Construction blocks are used by characters to build structures and walls.
@@ -115,8 +128,7 @@ public class Construction(BlockBuilder builder) : Category(builder)
         .WithBehavior<StoredHeight8>(height => height.PlacementHeight.Initializer.ContributeConstant(BlockHeight.Maximum))
         .WithBehavior<Paintable>()
         .WithBehavior<Connectable>(connectable => connectable.Strength.Initializer.ContributeConstant(Connectable.Strengths.All))
-        .WithBehavior<PartialHeight, Connectable>(
-            (height, connectable) => connectable.IsConnectionAllowed.ContributeFunction((_, context) => height.IsFull(context.state)))
+        .WithBehavior<PartialHeight, Connectable>((height, connectable) => connectable.IsConnectionAllowed.ContributeFunction((_, context) => height.IsFull(context.state)))
         .Complete();
 
     /// <summary>
@@ -158,9 +170,8 @@ public class Construction(BlockBuilder builder) : Category(builder)
     public Block GlassPane { get; } = builder
         .BuildComplexBlock(new CID(nameof(GlassPane)), Language.GlassPane)
         .WithBehavior<Glass>()
-        .WithBehavior<ThinConnecting>(
-            connecting => connecting.Models.Initializer.ContributeConstant(
-                (RID.File<Model>("pane_glass_post"), RID.File<Model>("pane_glass_side"), RID.File<Model>("pane_glass_extension"))))
+        .WithBehavior<ThinConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+            (RID.File<Model>("pane_glass_post"), RID.File<Model>("pane_glass_side"), RID.File<Model>("pane_glass_extension"))))
         .WithBehavior<Fillable>()
         .Complete();
 
@@ -169,9 +180,8 @@ public class Construction(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block Bars { get; } = builder
         .BuildComplexBlock(new CID(nameof(Bars)), Language.Bars)
-        .WithBehavior<ThinConnecting>(
-            connecting => connecting.Models.Initializer.ContributeConstant(
-                (RID.File<Model>("bars_post"), RID.File<Model>("bars_side"), RID.File<Model>("bars_extension"))))
+        .WithBehavior<ThinConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+            (RID.File<Model>("bars_post"), RID.File<Model>("bars_side"), RID.File<Model>("bars_extension"))))
         .WithBehavior<Fillable>()
         .Complete();
 
@@ -181,9 +191,8 @@ public class Construction(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block ClayBrickWall { get; } = builder
         .BuildComplexBlock(new CID(nameof(ClayBrickWall)), Language.ClayBrickWall)
-        .WithBehavior<WideConnecting>(
-            connecting => connecting.Models.Initializer.ContributeConstant(
-                (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+        .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+            (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
         .WithTextureOverride(TextureOverride.All(TID.Block("clay_bricks")))
         .WithBehavior<Wall>()
         .Complete();
@@ -203,9 +212,8 @@ public class Construction(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block FluidBarrier { get; } = builder
         .BuildSimpleBlock(new CID(nameof(FluidBarrier)), Language.Barrier)
-        .WithBehavior<CubeTextured, Barrier>(
-            (texture, barrier) => texture.ActiveTexture.ContributeFunction((_, state) =>
-                TextureLayout.Uniform(TID.Block("fluid_barrier", (Byte) (barrier.IsBarrierOpen(state) ? 0 : 1)))))
+        .WithBehavior<CubeTextured, Barrier>((texture, barrier) => texture.ActiveTexture.ContributeFunction((_, state) =>
+            TextureLayout.Uniform(TID.Block("fluid_barrier", (Byte) (barrier.IsBarrierOpen(state) ? 0 : 1)))))
         .WithBehavior<Combustible>()
         .Complete();
 
@@ -216,9 +224,8 @@ public class Construction(BlockBuilder builder) : Category(builder)
     public Block SteelPipe { get; } = builder
         .BuildComplexBlock(new CID(nameof(SteelPipe)), Language.SteelPipe)
         .WithBehavior<Piped>(piped => piped.Tier.Initializer.ContributeConstant(Piped.PipeTier.Industrial))
-        .WithBehavior<ConnectingPipe>(
-            pipe => pipe.Models.Initializer.ContributeConstant(
-                (RID.File<Model>("steel_pipe_center"), RID.File<Model>("steel_pipe_connector"), RID.File<Model>("steel_pipe_surface"))))
+        .WithBehavior<ConnectingPipe>(pipe => pipe.Models.Initializer.ContributeConstant(
+            (RID.File<Model>("steel_pipe_center"), RID.File<Model>("steel_pipe_connector"), RID.File<Model>("steel_pipe_surface"))))
         .Complete();
 
     /// <summary>
@@ -237,12 +244,10 @@ public class Construction(BlockBuilder builder) : Category(builder)
     /// </summary>
     public Block PipeValve { get; } = builder
         .BuildComplexBlock(new CID(nameof(PipeValve)), Language.ValvePipe)
-        .WithBehavior<Modelled>(
-            modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("steel_pipe_valve_open"), RID.File<Model>("steel_pipe_valve_closed")]))
+        .WithBehavior<Modelled>(modelled => modelled.Layers.Initializer.ContributeConstant([RID.File<Model>("steel_pipe_valve_open"), RID.File<Model>("steel_pipe_valve_closed")]))
         .WithBehavior<Piped>(piped => piped.Tier.Initializer.ContributeConstant(Piped.PipeTier.Industrial))
         .WithBehavior<StraightPipe>()
-        .WithBehavior<Barrier, Modelled>(
-            (barrier, modelled) => modelled.Selector.ContributeFunction((original, state) => original.WithLayer(barrier.IsBarrierOpen(state) ? 0 : 1)))
+        .WithBehavior<Barrier, Modelled>((barrier, modelled) => modelled.Selector.ContributeFunction((original, state) => original.WithLayer(barrier.IsBarrierOpen(state) ? 0 : 1)))
         .Complete();
 
     /// <summary>

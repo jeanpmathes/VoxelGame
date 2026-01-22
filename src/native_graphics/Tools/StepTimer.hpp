@@ -86,7 +86,7 @@ public:
 
         auto timeDelta = static_cast<uint64_t>(currentTime.QuadPart - m_qpcLastTime.QuadPart);
 
-        m_qpcLastTime = currentTime;
+        m_qpcLastTime      = currentTime;
         m_qpcSecondCounter += timeDelta;
 
         if (timeDelta > m_qpcMaxDelta) timeDelta = m_qpcMaxDelta;
@@ -105,8 +105,8 @@ public:
 
             while (m_leftOverTicks >= m_targetElapsedTicks)
             {
-                m_elapsedTicks = m_targetElapsedTicks;
-                m_totalTicks += m_targetElapsedTicks;
+                m_elapsedTicks  = m_targetElapsedTicks;
+                m_totalTicks    += m_targetElapsedTicks;
                 m_leftOverTicks -= m_targetElapsedTicks;
                 m_frameCount++;
 
@@ -115,8 +115,8 @@ public:
         }
         else
         {
-            m_elapsedTicks = timeDelta;
-            m_totalTicks += timeDelta;
+            m_elapsedTicks  = timeDelta;
+            m_totalTicks    += timeDelta;
             m_leftOverTicks = 0;
             m_frameCount++;
 

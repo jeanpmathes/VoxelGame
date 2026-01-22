@@ -1,6 +1,19 @@
 ﻿// <copyright file="ResourceCatalogLoader.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -73,6 +86,11 @@ public sealed partial class ResourceCatalogLoader
     private readonly TypeKeyDictionary<RID> environment = new();
 
     /// <summary>
+    ///     Whether to fail immediately on any error during loading.
+    /// </summary>
+    public Boolean FailFast { get; set; }
+
+    /// <summary>
     ///     Add an object to the loading environment.
     ///     It will be available to all resources during the loading process.
     /// </summary>
@@ -102,7 +120,7 @@ public sealed partial class ResourceCatalogLoader
     /// <returns>The resource context containing all loaded resources and an optional error report.</returns>
     public (IResourceContext context, ResourceLoadingIssueReport? report) Load(ICatalogEntry catalog, Timer? timer)
     {
-        Context context = new(environment);
+        Context context = new(environment, FailFast);
 
         Group? report = LoadCatalogEntry(catalog, hierarchy: null, report: null, timer, context);
         Debug.Assert(report != null);
@@ -139,7 +157,7 @@ public sealed partial class ResourceCatalogLoader
 
     private static void LoadCatalogEntries(IEnumerable<ICatalogEntry> entries, String hierarchy, Group report, Timer? timer, Context context)
     {
-        foreach (ICatalogEntry entry in entries) 
+        foreach (ICatalogEntry entry in entries)
             LoadCatalogEntry(entry, hierarchy, report, timer, context);
     }
 
@@ -165,6 +183,7 @@ public sealed partial class ResourceCatalogLoader
     private sealed class Context : IResourceContext
     {
         private readonly TypeKeyDictionary<RID> content = new();
+        private readonly Boolean failFast;
 
         private String? currentHierarchy;
         private Group? currentReport;
@@ -172,9 +191,10 @@ public sealed partial class ResourceCatalogLoader
         private Int32 errorCount;
         private Int32 warningCount;
 
-        public Context(TypeKeyDictionary<RID> environment)
+        public Context(TypeKeyDictionary<RID> environment, Boolean failFast)
         {
             content.AddAll(environment);
+            this.failFast = failFast;
         }
 
         public IEnumerable<IResource> Require<T>(Func<T, IEnumerable<IResource>> func) where T : class
@@ -214,7 +234,7 @@ public sealed partial class ResourceCatalogLoader
             if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
             else LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
 
-            errorCount++;
+            OnError();
         }
 
         public void ReportDiscovery(ResourceType type, RID identifier, Exception? error = null, String? errorMessage = null)
@@ -279,7 +299,7 @@ public sealed partial class ResourceCatalogLoader
 
             LogFailedRequirement(logger, currentHierarchy!, typeof(T).Name);
 
-            errorCount++;
+            OnError();
 
             return [];
         }
@@ -295,7 +315,7 @@ public sealed partial class ResourceCatalogLoader
 
                 LogFailedToLoadMandatoryResource(logger, issue.Exception, currentHierarchy!, resource.Type, resource.Identifier, issue.Message);
 
-                errorCount++;
+                OnError();
             }
             else
             {
@@ -308,6 +328,14 @@ public sealed partial class ResourceCatalogLoader
 
                 warningCount++;
             }
+        }
+
+        private void OnError()
+        {
+            errorCount++;
+
+            if (failFast)
+                throw Exceptions.InvalidOperation("Resource loading failed and FailFast is enabled, aborting loading process.");
         }
 
         public void OnComplete()

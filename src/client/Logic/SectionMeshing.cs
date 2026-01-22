@@ -1,6 +1,19 @@
 ﻿// <copyright file="SectionMeshing.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -15,6 +28,7 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
 using Chunk = VoxelGame.Client.Logic.Chunks.Chunk;
@@ -31,9 +45,9 @@ public partial class SectionMeshing : WorldComponent
     private static readonly ILogger logger = LoggingHelper.CreateLogger<SectionMeshing>();
 
     #endregion LOGGING
-    
+
     private readonly HashSet<(Chunk chunk, (Int32 x, Int32 y, Int32 z))> sectionsToMesh = [];
-    
+
     [Constructible]
     private SectionMeshing(Core.Logic.World subject) : base(subject)
     {
@@ -44,7 +58,7 @@ public partial class SectionMeshing : WorldComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    public override void OnLogicUpdateInActiveState(Delta delta, Timer? updateTimer)
     {
         using (logger.BeginTimedSubScoped("Section Meshing", updateTimer))
         {
@@ -79,7 +93,7 @@ public partial class SectionMeshing : WorldComponent
 
         void CheckAxis(Int32 axis)
         {
-            Int32 axisSectionPosition = position[axis] & Section.Size - 1;
+            Int32 axisSectionPosition = position[axis] & (Section.Size - 1);
 
             Vector3i direction = new()
             {

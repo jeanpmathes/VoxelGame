@@ -1,6 +1,19 @@
 ﻿// <copyright file="World.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -12,8 +25,10 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.App;
+using VoxelGame.Core.Domain.Chrono;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Chunks;
@@ -21,13 +36,12 @@ using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Annotations.Attributes;
 using Generator = VoxelGame.Core.Generation.Worlds.Standard.Generator;
-using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Core.Logic;
 
@@ -184,16 +198,12 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     public IMap Map => ChunkContext.Generator.Map;
 
     /// <summary>
-    ///     Get the temperature at a block position.
+    ///     Get or set the current date and time of the world.
     /// </summary>
-    /// <param name="position">The position to sample.</param>
-    /// <returns>The temperature at the block.</returns>
-    public Temperature GetTemperature(Vector3i position)
+    public DateAndTime DateAndTime
     {
-        Vector3d centerPosition = position;
-        centerPosition += (0.5, 0.5, 0.5);
-
-        return Map.GetTemperature(centerPosition);
+        get => Data.Information.DateAndTime;
+        set => Data.Information.DateAndTime = value;
     }
 
     /// <summary>
@@ -224,7 +234,7 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
 
         SetContent(content, position, updateBlock: true, updateFluid: true);
     }
-    
+
     /// <summary>
     ///     Set the content of a world position.
     /// </summary>
@@ -232,7 +242,8 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <param name="position">The world position.</param>
     /// <param name="updateBlock">
     ///     Whether to update the block at the position.
-    ///     Should generally be true, exceptions include cases where block states are changed in reaction to a previous state change.
+    ///     Should generally be true, exceptions include cases where block states are changed in reaction to a previous state
+    ///     change.
     /// </param>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SetContent(Content content, Vector3i position, Boolean updateBlock)
@@ -243,19 +254,20 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     }
 
     /// <summary>
-    /// Called when the world becomes active.
+    ///     Called when the world becomes active.
     /// </summary>
     [ComponentEvent(nameof(WorldComponent.OnActivate))]
     private partial void OnActivate(Object? sender, EventArgs e);
 
     /// <summary>
-    /// Called when the world becomes inactive.
+    ///     Called when the world becomes inactive.
     /// </summary>
     [ComponentEvent(nameof(WorldComponent.OnDeactivate))]
     private partial void OnDeactivate(Object? sender, EventArgs e);
 
     /// <summary>
-    /// Called when the world is terminated, which means it begins unloading. Disposal will happen later, when unloading is complete.
+    ///     Called when the world is terminated, which means it begins unloading. Disposal will happen later, when unloading is
+    ///     complete.
     /// </summary>
     [ComponentEvent(nameof(WorldComponent.OnTerminate))]
     private partial void OnTerminate(Object? sender, EventArgs e);
@@ -654,9 +666,9 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
     /// <summary>
     ///     Process an update step for this world.
     /// </summary>
-    /// <param name="deltaTime">Time since the last update.</param>
+    /// <param name="delta">Time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
-    public void LogicUpdate(Double deltaTime, Timer? updateTimer)
+    public void LogicUpdate(Delta delta, Timer? updateTimer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("World LogicUpdate", updateTimer);
 
@@ -665,16 +677,23 @@ public abstract partial class World : Composed<World, WorldComponent>, IGrid
             UpdateChunks();
         }
 
-        state.LogicUpdate(deltaTime, updateTimer);
+        state.LogicUpdate(delta, updateTimer);
     }
 
     /// <summary>
     ///     Called by the active state during <see cref="LogicUpdate" /> when the world is active.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="updateTimer">A timer for profiling.</param>
+    public void OnLogicUpdateInActiveState(Delta delta, Timer? updateTimer)
+    {
+        DateAndTime += Duration.Update;
+
+        OnLogicUpdateInActiveStateComponent(delta, updateTimer);
+    }
+
     [ComponentEvent(nameof(WorldComponent.OnLogicUpdateInActiveState))]
-    public partial void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer);
+    private partial void OnLogicUpdateInActiveStateComponent(Delta delta, Timer? updateTimer);
 
     /// <summary>
     ///     Event arguments for the <see cref="SectionChanged" /> event.

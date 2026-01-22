@@ -1,15 +1,28 @@
 ﻿// <copyright file="ChunkSimulator.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Core.Logic;
@@ -31,14 +44,14 @@ public partial class ChunkSimulator : WorldComponent
     private ChunkSimulator(World subject) : base(subject) {}
 
     /// <inheritdoc />
-    public override void OnLogicUpdateInActiveState(Double deltaTime, Timer? updateTimer)
+    public override void OnLogicUpdateInActiveState(Delta delta, Timer? updateTimer)
     {
         using Timer? simTimer = logger.BeginTimedSubScoped("Chunk Simulation", updateTimer);
 
-        SendLogicUpdatesForSimulation(deltaTime, simTimer);
+        SendLogicUpdatesForSimulation(delta, simTimer);
     }
 
-    private void SendLogicUpdatesForSimulation(Double deltaTime, Timer? updateTimer)
+    private void SendLogicUpdatesForSimulation(Delta delta, Timer? updateTimer)
     {
         chunksWithActors.Clear();
 
@@ -50,7 +63,7 @@ public partial class ChunkSimulator : WorldComponent
         using (logger.BeginTimedSubScoped("LogicUpdate Actors", updateTimer))
         {
             foreach (Chunk chunk in chunksWithActors)
-                chunk.SendLogicUpdatesToActors(deltaTime);
+                chunk.SendLogicUpdatesToActors(delta);
         }
     }
 

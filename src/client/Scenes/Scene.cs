@@ -1,16 +1,30 @@
 ﻿// <copyright file="Scene.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Components;
-using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -39,7 +53,7 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
         OnLoad();
         OnLoadComponents();
     }
-    
+
     /// <inheritdoc cref="Scene.OnLoad" />
     [ComponentEvent(nameof(SceneComponent.OnLoad))]
     private partial void OnLoadComponents();
@@ -52,50 +66,50 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
     /// <summary>
     ///     Perform an update cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    public void LogicUpdate(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Delta delta, Timer? timer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("Scene LogicUpdate", timer);
 
-        OnLogicUpdate(deltaTime, subTimer);
-        OnLogicUpdateComponents(deltaTime, subTimer);
+        OnLogicUpdate(delta, subTimer);
+        OnLogicUpdateComponents(delta, subTimer);
     }
 
     /// <inheritdoc cref="Scene.OnLogicUpdate" />
     [ComponentEvent(nameof(SceneComponent.OnLogicUpdate))]
-    private partial void OnLogicUpdateComponents(Double deltaTime, Timer? timer);
+    private partial void OnLogicUpdateComponents(Delta delta, Timer? timer);
 
     /// <summary>
     ///     Called each logic update cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="timer">A timer for profiling.</param>
-    protected virtual void OnLogicUpdate(Double deltaTime, Timer? timer) {}
+    protected virtual void OnLogicUpdate(Delta delta, Timer? timer) {}
 
     /// <summary>
     ///     Perform a render cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last render.</param>
+    /// <param name="delta">The time since the last render.</param>
     /// <param name="timer">A timer for profiling.</param>
-    public void RenderUpdate(Double deltaTime, Timer? timer)
+    public void RenderUpdate(Delta delta, Timer? timer)
     {
         using Timer? subTimer = logger.BeginTimedSubScoped("Scene RenderUpdate", timer);
 
-        OnRenderUpdate(deltaTime, subTimer);
-        OnRenderUpdateComponents(deltaTime, subTimer);
+        OnRenderUpdate(delta, subTimer);
+        OnRenderUpdateComponents(delta, subTimer);
     }
 
     /// <inheritdoc cref="Scene.OnRenderUpdate" />
     [ComponentEvent(nameof(SceneComponent.OnRenderUpdate))]
-    private partial void OnRenderUpdateComponents(Double deltaTime, Timer? timer);
+    private partial void OnRenderUpdateComponents(Delta delta, Timer? timer);
 
     /// <summary>
     ///     Called each render update cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last render.</param>
+    /// <param name="delta">The time since the last render.</param>
     /// <param name="timer">A timer for profiling.</param>
-    protected virtual void OnRenderUpdate(Double deltaTime, Timer? timer) {}
+    protected virtual void OnRenderUpdate(Delta delta, Timer? timer) {}
 
     /// <summary>
     ///     Handle a game resize.
@@ -139,4 +153,12 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
     ///     Whether the window can be closed in this scene.
     /// </summary>
     public abstract Boolean CanCloseWindow();
+
+    /// <summary>
+    ///     Whether the 3D space is rendered while in this scene.
+    /// </summary>
+    internal virtual Boolean IsSpaceRendered()
+    {
+        return true;
+    }
 }

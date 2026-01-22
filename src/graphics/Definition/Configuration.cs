@@ -1,6 +1,19 @@
 ﻿// <copyright file="NativeConfiguration.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,6 +22,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
 using VoxelGame.Graphics.Interop;
+using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics.Definition;
 
@@ -39,58 +53,62 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives a bool value.
     /// </summary>
-    internal delegate void NativeBoolFunc([MarshalAs(UnmanagedType.Bool)] Boolean arg);
+    internal delegate void NativeBoolFunction(Bool arg);
 
     /// <summary>
     ///     A simple callback function.
     /// </summary>
-    internal delegate void NativeCallbackFunc();
+    internal delegate void NativeCallbackFunction();
 
     /// <summary>
     ///     A callback that receives a char value describing an input event.
     /// </summary>
-    internal delegate void NativeCharFunc([MarshalAs(UnmanagedType.U2)] Char arg);
+    internal delegate void NativeCharFunction(Char arg);
 
     /// <summary>
     ///     Checks if a condition is true.
     /// </summary>
-    [return: MarshalAs(UnmanagedType.Bool)]
-    internal delegate Boolean NativeCheckFunc();
+    internal delegate Bool NativeCheckFunction();
 
     /// <summary>
     ///     A callback that receives an HRESULT and an error message, indicating a fatal error.
     /// </summary>
-    internal delegate void NativeErrorFunc(Int32 hresult, [MarshalAs(UnmanagedType.LPStr)] String message);
+    internal unsafe delegate void NativeErrorFunction(Int32 hresult, Byte* message);
 
     /// <summary>
     ///     A callback that receives a byte value describing an input event.
     /// </summary>
-    internal delegate void NativeInputFunc([MarshalAs(UnmanagedType.U1)] Byte arg);
+    internal delegate void NativeInputFunction(Byte arg);
 
     /// <summary>
     ///     A callback that receives the new mouse position on a mouse move event.
     /// </summary>
-    internal delegate void NativeMouseMoveFunc([MarshalAs(UnmanagedType.I4)] Int32 x, [MarshalAs(UnmanagedType.I4)] Int32 y);
+    internal delegate void NativeMouseMoveFunction(Int32 x, Int32 y);
 
     /// <summary>
     ///     A callback that receives the mouse wheel delta on a mouse wheel event.
     /// </summary>
-    internal delegate void NativeMouseWheelFunc(Double delta);
+    internal delegate void NativeMouseWheelFunction(Double delta);
 
     /// <summary>
     ///     A callback that receives the new window size on a resize event.
     /// </summary>
-    internal delegate void NativeResizeFunc([MarshalAs(UnmanagedType.U4)] UInt32 width, [MarshalAs(UnmanagedType.U4)] UInt32 height);
+    internal delegate void NativeResizeFunction(UInt32 width, UInt32 height);
 
     /// <summary>
-    ///     A callback that receives a double delta time value.
+    ///     A callback that is called each frame, with the real and scaled delta time since the last call.
     /// </summary>
-    internal delegate void NativeStepFunc([MarshalAs(UnmanagedType.R8)] Double arg);
+    internal delegate void NativeRenderUpdateFunction(Double realDeltaTime, Double scaledDeltaTime);
+
+    /// <summary>
+    ///     A callback that is called each update, with the real and scaled delta time since the last call.
+    /// </summary>
+    internal delegate void NativeLogicUpdateFunction(Double realDeltaTime, Double scaledDeltaTime);
 
     /// <summary>
     ///     A callback that receives a wide string value.
     /// </summary>
-    internal delegate void NativeWStringFunc([MarshalAs(UnmanagedType.LPWStr)] String arg);
+    internal unsafe delegate void NativeWStringFunction(UInt16* arg);
 
     /// <summary>
     ///     Flags that can be used to configure the native side.
@@ -129,62 +147,62 @@ internal static partial class Native
         /// <summary>
         ///     Called for each rendering step.
         /// </summary>
-        internal NativeStepFunc onRenderUpdate;
+        internal NativeRenderUpdateFunction onRenderUpdate;
 
         /// <summary>
         ///     Called for each update event.
         /// </summary>
-        internal NativeStepFunc onLogicUpdate;
+        internal NativeLogicUpdateFunction onLogicUpdate;
 
         /// <summary>
         ///     Called on initialization of the native client.
         /// </summary>
-        internal NativeCallbackFunc onInitialization;
+        internal NativeCallbackFunction onInitialization;
 
         /// <summary>
         ///     Called on shutdown of the native client.
         /// </summary>
-        internal NativeCallbackFunc onDestroy;
+        internal NativeCallbackFunction onDestroy;
 
         /// <summary>
         ///     Decides whether the window can be closed right now.
         /// </summary>
-        internal NativeCheckFunc canClose;
+        internal NativeCheckFunction canClose;
 
         /// <summary>
         ///     Called on a key down event.
         /// </summary>
-        internal NativeInputFunc onKeyDown;
+        internal NativeInputFunction onKeyDown;
 
         /// <summary>
         ///     Called on a key up event.
         /// </summary>
-        internal NativeInputFunc onKeyUp;
+        internal NativeInputFunction onKeyUp;
 
         /// <summary>
         ///     Called on a char event.
         /// </summary>
-        internal NativeCharFunc onChar;
+        internal NativeCharFunction onChar;
 
         /// <summary>
         ///     Called on a mouse move event.
         /// </summary>
-        internal NativeMouseMoveFunc onMouseMove;
+        internal NativeMouseMoveFunction onMouseMove;
 
         /// <summary>
         ///     Called on a mouse wheel event.
         /// </summary>
-        internal NativeMouseWheelFunc onMouseWheel;
+        internal NativeMouseWheelFunction onMouseWheel;
 
         /// <summary>
         ///     Called on a size change event.
         /// </summary>
-        internal NativeResizeFunc onResize;
+        internal NativeResizeFunction onResize;
 
         /// <summary>
         ///     Called when the window active state changes.
         /// </summary>
-        internal NativeBoolFunc onActiveStateChange;
+        internal NativeBoolFunction onActiveStateChange;
 
         /// <summary>
         ///     Called when debug messages of D3D12 are received.
@@ -220,6 +238,11 @@ internal static partial class Native
         ///     A handle to the icon to use for the window.
         /// </summary>
         internal IntPtr icon;
+
+        /// <summary>
+        ///     The base number of logic updates per second, ignoring any time scaling.
+        /// </summary>
+        internal Int64 baseLogicUpdatesPerSecond;
 
         /// <summary>
         ///     The scale at which the world is rendered, as a percentage of the window size.
@@ -258,6 +281,7 @@ internal static partial class Native
                 icon = managed.icon,
                 applicationName = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationName),
                 applicationVersion = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationVersion),
+                baseLogicUpdatesPerSecond = managed.baseLogicUpdatesPerSecond,
                 renderScale = managed.renderScale,
                 options = managed.options
             };
@@ -290,6 +314,7 @@ internal static partial class Native
             internal IntPtr icon;
             internal IntPtr applicationName;
             internal IntPtr applicationVersion;
+            internal Int64 baseLogicUpdatesPerSecond;
             internal Single renderScale;
             internal ConfigurationOptions options;
         }

@@ -1,6 +1,19 @@
 ﻿// <copyright file="Overlay.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -15,7 +28,6 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Graphics;
 
 namespace VoxelGame.Client.Actors;
 
@@ -39,13 +51,13 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
     ///     Measure the size of the overlay to display with the given positions and their contents.
     /// </summary>
     /// <param name="positions">The positions to consider.</param>
-    /// <param name="view">The view to measure the overlays in.</param>
+    /// <param name="camera">The camera to measure from.</param>
     /// <param name="lowerBound">The total lower bound of the final overlay.</param>
     /// <param name="upperBound">The total upper bound of the final overlay.</param>
     /// <returns>All overlays that can be displayed.</returns>
-    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, IView view, ref Double lowerBound, ref Double upperBound)
+    public static IEnumerable<Overlay> MeasureOverlays(IEnumerable<(Content content, Vector3i position)> positions, Camera camera, ref Double lowerBound, ref Double upperBound)
     {
-        IView.Parameters definition = view.Definition;
+        Graphics.Objects.Camera.Parameters definition = camera.View.Definition;
 
         // The following multiplier is a somewhat dirty hack to improve alignment of the overlay with the actual surface.
         // A potential reason for the misalignment could be the float-based calculations on the native side.
@@ -74,7 +86,7 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
             {
                 newBounds = GetOverlayBounds(content.Block, position, frustum);
                 overlayTextureProvider = overlayBehavior.Provider;
-                
+
                 isBlock = true;
                 anyIsBlock = true;
             }

@@ -2,10 +2,10 @@
          xsi:noNamespaceSchemaLocation="../texture.xsd">
     <Layers mode="replace">
         <Layer source="burned_log:all">
-            <Modifier type="repeat" x="#animation_frames" />
+            <Modifier type="repeat" x="#animation_frames"/>
         </Layer>
         <Layer source="p:embers:all">
-            <Modifier type="repeat" x="2" />
+            <Modifier type="repeat" x="2"/>
         </Layer>
     </Layers>
     <Modifiers/>

@@ -1,6 +1,19 @@
 ﻿// <copyright file="ImageTests.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -129,11 +142,9 @@ public class ImageTests
 
         Color32 average = image.CalculateAverage();
 
-        // Color averaging is calculated as the root of the average squared sum of each channel.
-
-        Assert.Equal(expected: 180, average.R);
-        Assert.Equal(expected: 180, average.G);
-        Assert.Equal(expected: 180, average.B);
+        Assert.Equal(expected: 127, average.R);
+        Assert.Equal(expected: 127, average.G);
+        Assert.Equal(expected: 127, average.B);
         Assert.Equal(expected: 255, average.A);
     }
 
@@ -267,33 +278,13 @@ public class ImageTests
     }
 
     [Fact]
-    public void Image_GenerateMipmaps_WithoutTransparency_ShouldApplyToFullyTransparentAreas()
-    {
-        Image image = new(width: 2, height: 2);
-        image.SetPixel(x: 0, y: 0, ColorS.White with {A = 0.0f});
-        image.SetPixel(x: 1, y: 0, ColorS.Black with {A = 0.0f});
-        image.SetPixel(x: 0, y: 1, ColorS.White with {A = 0.0f});
-        image.SetPixel(x: 1, y: 1, ColorS.Black with {A = 0.0f});
-
-        Image[] mipmaps = image.GenerateMipmaps(levels: 2, Image.MipmapAlgorithm.AveragingWithoutTransparency).ToArray();
-
-        Assert.Single(mipmaps);
-        Assert.Equal(expected: 1, mipmaps[0].Width);
-        Assert.Equal(expected: 1, mipmaps[0].Height);
-        Assert.Equal(expected: 0, mipmaps[0].GetPixel(x: 0, y: 0).A);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).R);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).G);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).B);
-    }
-
-    [Fact]
     public void Image_GenerateMipmaps_WithTransparency_ShouldMixAllColors()
     {
         Image image = new(width: 2, height: 2);
         image.SetPixel(x: 0, y: 0, ColorS.White);
-        image.SetPixel(x: 1, y: 0, ColorS.Black with {A = 0.0f});
+        image.SetPixel(x: 1, y: 0, ColorS.Black with {A = 0.5f});
         image.SetPixel(x: 0, y: 1, ColorS.White);
-        image.SetPixel(x: 1, y: 1, ColorS.Black with {A = 0.0f});
+        image.SetPixel(x: 1, y: 1, ColorS.Black with {A = 0.5f});
 
         Image[] mipmaps = image.GenerateMipmaps(levels: 2, Image.MipmapAlgorithm.AveragingWithTransparency).ToArray();
 
@@ -301,9 +292,9 @@ public class ImageTests
 
         Assert.Equal(expected: 1, mipmaps[0].Width);
         Assert.Equal(expected: 1, mipmaps[0].Height);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).A);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).R);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).G);
-        Assert.Equal(expected: 180, mipmaps[0].GetPixel(x: 0, y: 0).B);
+        Assert.Equal(expected: 191, mipmaps[0].GetPixel(x: 0, y: 0).A);
+        Assert.Equal(expected: 170, mipmaps[0].GetPixel(x: 0, y: 0).R);
+        Assert.Equal(expected: 170, mipmaps[0].GetPixel(x: 0, y: 0).G);
+        Assert.Equal(expected: 170, mipmaps[0].GetPixel(x: 0, y: 0).B);
     }
 }

@@ -1,6 +1,19 @@
 ﻿// <copyright file="SimpleBlock.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -69,7 +82,7 @@ public class SimpleBlock : Block, IOverlayTextureProvider
             {
                 if (!Constraint.IsStateValid(state))
                 {
-                    meshData[side][index] = new Simple.MeshData(ITextureIndexProvider.MissingTextureIndex, IsTextureRotated: false, ColorS.None, IsAnimated: false);
+                    meshData[side][index] = new Simple.MeshData(ITextureIndexProvider.MissingTextureIndex, IsTextureRotated: false, ColorS.NoTint, IsAnimated: false);
 
                     continue;
                 }
@@ -124,6 +137,16 @@ public class SimpleBlock : Block, IOverlayTextureProvider
             isSingleSided: true);
     }
 
+    /// <inheritdoc />
+    public override ColorS GetDominantColor(State state, ColorS positionTint)
+    {
+        ref readonly Simple.MeshData mesh = ref meshData[Side.Front][state.Index];
+
+        ColorS color = DominantColorProvider.GetDominantColor(mesh.TextureIndex, isBlock: true);
+
+        return color * mesh.Tint.Select(positionTint);
+    }
+
     /// <summary>
     ///     Check whether the current face is hidden according to the meshing rules for simple blocks.
     /// </summary>
@@ -135,7 +158,7 @@ public class SimpleBlock : Block, IOverlayTextureProvider
     public static Boolean IsHiddenFace(Block current, State neighbor, Side side)
     {
         Boolean blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
-                                                 || current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques;
+                                                 || (current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques);
 
         return neighbor.IsSideFull(side.Opposite()) && blockToCheckIsConsideredOpaque;
     }

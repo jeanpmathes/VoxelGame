@@ -1,6 +1,19 @@
 ﻿// <copyright file="Section.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -150,7 +163,7 @@ public class Section : IDisposable
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        return GetContent(blockPosition.X & Size - 1, blockPosition.Y & Size - 1, blockPosition.Z & Size - 1);
+        return GetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1));
     }
 
     /// <summary>
@@ -178,7 +191,7 @@ public class Section : IDisposable
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        SetContent(blockPosition.X & Size - 1, blockPosition.Y & Size - 1, blockPosition.Z & Size - 1, value);
+        SetContent(blockPosition.X & (Size - 1), blockPosition.Y & (Size - 1), blockPosition.Z & (Size - 1), value);
     }
 
     /// <summary>
@@ -188,7 +201,7 @@ public class Section : IDisposable
     /// <returns>The local 3D-index.</returns>
     public static (Int32 x, Int32 y, Int32 z) ToLocalPosition(Vector3i worldPosition)
     {
-        return (worldPosition.X & Size - 1, worldPosition.Y & Size - 1, worldPosition.Z & Size - 1);
+        return (worldPosition.X & (Size - 1), worldPosition.Y & (Size - 1), worldPosition.Z & (Size - 1));
     }
 
     /// <summary>
@@ -255,10 +268,10 @@ public class Section : IDisposable
             Int32 index = NumberGenerator.Random.Next(minValue: 0, Size * Size * Size);
             UInt32 posVal = blocks[index];
 
-            randomPosition.Z = index & Size - 1;
-            index = index - randomPosition.Z >> SizeExp;
-            randomPosition.Y = index & Size - 1;
-            index = index - randomPosition.Y >> SizeExp;
+            randomPosition.Z = index & (Size - 1);
+            index = (index - randomPosition.Z) >> SizeExp;
+            randomPosition.Y = index & (Size - 1);
+            index = (index - randomPosition.Y) >> SizeExp;
             randomPosition.X = index;
 
             return posVal;
@@ -297,10 +310,10 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static UInt32 Encode(State state, Fluid fluid, FluidLevel level, Boolean isStatic)
     {
-        return (UInt32) ((isStatic ? 1 : 0) << StaticShift & StaticMask
-                         | (UInt32) level.ToInt32() << LevelShift & LevelMask
-                         | fluid.ID << FluidShift & FluidMask
-                         | state.ID & BlockStateMask);
+        return (UInt32) ((((isStatic ? 1 : 0) << StaticShift) & StaticMask)
+                         | (((UInt32) level.ToInt32() << LevelShift) & LevelMask)
+                         | ((fluid.ID << FluidShift) & FluidMask)
+                         | (state.ID & BlockStateMask));
     }
 
     /// <summary>

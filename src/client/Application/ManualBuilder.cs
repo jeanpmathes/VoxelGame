@@ -1,6 +1,19 @@
 ﻿// <copyright file="ManualBuilder.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -151,11 +164,9 @@ public static partial class ManualBuilder
                             .Cell(cell => cell.Text(block.States.Count.ToString(CultureInfo.InvariantCulture))));
 
                     foreach ((String name, Boolean value) in GetProperties(block))
-                    {
                         table.Row(row => row
                             .Cell(cell => cell.Text(name))
                             .Cell(cell => cell.Boolean(value)));
-                    }
                 })
             .NewLine()
             .Text("Behaviors:")
@@ -164,7 +175,6 @@ public static partial class ManualBuilder
                 table =>
                 {
                     foreach ((String name, IEnumerable<String> attributes) in GetBehaviors(block))
-                    {
                         table.Row(row =>
                         {
                             row.Cell(cell => cell.Text(name));
@@ -172,7 +182,6 @@ public static partial class ManualBuilder
                             List<String> list = attributes.ToList();
 
                             if (list.Count > 0)
-                            {
                                 row.Cell(cell =>
                                 {
                                     var first = true;
@@ -187,13 +196,8 @@ public static partial class ManualBuilder
                                         first = false;
                                     }
                                 });
-                            }
-                            else
-                            {
-                                row.Cell(cell => cell.Text("—"));
-                            }
+                            else row.Cell(cell => cell.Text("—"));
                         });
-                    }
                 });
     }
 
@@ -218,12 +222,8 @@ public static partial class ManualBuilder
                 continue;
 
             foreach (IScoped entry in scope.Entries)
-            {
                 if (entry is IAttributeData attribute)
-                {
                     attributes.GetOrAdd(scoped.Name, []).Add(attribute);
-                }
-            }
         }
 
         foreach (BlockBehavior behavior in block.Behaviors)

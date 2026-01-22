@@ -1,6 +1,19 @@
 ﻿// <copyright file="Image.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -224,7 +237,7 @@ public class Image
 
         for (var x = 0; x < fallback.Width; x++)
         for (var y = 0; y < fallback.Height; y++)
-            fallback.SetPixel(x, y, x % 2 == 0 ^ y % 2 == 0 ? magenta : black);
+            fallback.SetPixel(x, y, (x % 2 == 0) ^ (y % 2 == 0) ? magenta : black);
 
         return fallback;
     }
@@ -282,13 +295,13 @@ public class Image
 
             if (pixel.A == 0) continue;
 
-            sum += pixel.ToVector4i() * pixel.ToVector4i();
+            sum += pixel.ToVector4i();
             count += 1;
         }
 
         return count == 0
             ? Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0)
-            : Color32.FromVector4i((Vector4i) (sum.ToVector4() / count).Sqrt());
+            : Color32.FromVector4i(sum / count);
     }
 
     /// <summary>
@@ -412,10 +425,10 @@ public class Image
         {
             var result = 0;
 
-            result |= (original >> originalFormat.R & Color32.ChannelMask) << targetFormat.R;
-            result |= (original >> originalFormat.G & Color32.ChannelMask) << targetFormat.G;
-            result |= (original >> originalFormat.B & Color32.ChannelMask) << targetFormat.B;
-            result |= (original >> originalFormat.A & Color32.ChannelMask) << targetFormat.A;
+            result |= ((original >> originalFormat.R) & Color32.ChannelMask) << targetFormat.R;
+            result |= ((original >> originalFormat.G) & Color32.ChannelMask) << targetFormat.G;
+            result |= ((original >> originalFormat.B) & Color32.ChannelMask) << targetFormat.B;
+            result |= ((original >> originalFormat.A) & Color32.ChannelMask) << targetFormat.A;
 
             return result;
         }
@@ -475,39 +488,23 @@ public class Image
         /// <param name="next">The next level, has to be filled with the data.</param>
         protected abstract void CreateNextLevel(Image previous, Image next);
 
+        /// <summary>
+        ///     Averages colors, with an option to consider transparency.
+        /// </summary>
+        /// <param name="transparency">If <c>true</c>, transparent colors are included in the average; otherwise, they are ignored.</param>
         private sealed class AveragingAlgorithm(Boolean transparency) : MipmapAlgorithm
         {
-            private (Vector4i factors, Byte? alpha) DetermineFactorsAndAlpha(
-                Color32 c1, Color32 c2, Color32 c3, Color32 c4)
+            private Vector4i DetermineFactors(Color32 c1, Color32 c2, Color32 c3, Color32 c4)
             {
-                Vector4i factors;
-                Byte? alpha;
-
                 if (transparency)
-                {
-                    factors = (1, 1, 1, 1);
-                    alpha = null;
-                }
-                else
-                {
-                    alpha = Math.Max(Math.Max(c1.A, c2.A), Math.Max(c3.A, c4.A));
+                    return (1, 1, 1, 1);
 
-                    if (alpha == 0)
-                    {
-                        factors = (1, 1, 1, 1);
-                    }
-                    else
-                    {
-                        Int32 f1 = (c1.A != 0).ToInt();
-                        Int32 f2 = (c2.A != 0).ToInt();
-                        Int32 f3 = (c3.A != 0).ToInt();
-                        Int32 f4 = (c4.A != 0).ToInt();
+                Int32 f1 = (c1.A != 0).ToInt();
+                Int32 f2 = (c2.A != 0).ToInt();
+                Int32 f3 = (c3.A != 0).ToInt();
+                Int32 f4 = (c4.A != 0).ToInt();
 
-                        factors = (f1, f2, f3, f4);
-                    }
-                }
-
-                return (factors, alpha);
+                return (f1, f2, f3, f4);
             }
 
             protected override void CreateNextLevel(Image previous, Image next)
@@ -520,12 +517,8 @@ public class Image
                     Color32 c3 = previous.GetPixel(w * 2, h * 2 + 1);
                     Color32 c4 = previous.GetPixel(w * 2 + 1, h * 2 + 1);
 
-                    (Vector4i factors, Byte? alpha) = DetermineFactorsAndAlpha(c1, c2, c3, c4);
-
+                    Vector4i factors = DetermineFactors(c1, c2, c3, c4);
                     Color32 average = CalculateAverageColor(c1, c2, c3, c4, factors);
-
-                    if (alpha != null)
-                        average.A = alpha.Value;
 
                     next.SetPixel(w, h, average);
                 }
@@ -533,18 +526,43 @@ public class Image
 
             private static Color32 CalculateAverageColor(Color32 c1, Color32 c2, Color32 c3, Color32 c4, Vector4i factors)
             {
-                Vector4i sum = Vector4i.Zero;
+                Vector3i totalRGB = Vector3i.Zero;
+                var totalAlpha = 0;
 
-                sum += c1.ToVector4i() * c1.ToVector4i() * factors.X;
-                sum += c2.ToVector4i() * c2.ToVector4i() * factors.Y;
-                sum += c3.ToVector4i() * c3.ToVector4i() * factors.Z;
-                sum += c4.ToVector4i() * c4.ToVector4i() * factors.W;
+                Accumulate(c1, factors.X);
+                Accumulate(c2, factors.Y);
+                Accumulate(c3, factors.Z);
+                Accumulate(c4, factors.W);
 
-                Int32 count = factors.X + factors.Y + factors.Z + factors.W;
+                Int32 totalFactors = factors.X + factors.Y + factors.Z + factors.W;
 
-                return count == 0
-                    ? Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0)
-                    : Color32.FromVector4i((Vector4i) (sum.ToVector4() / count).Sqrt());
+                if (totalFactors == 0)
+                    return Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0);
+
+                Vector3i averageRGB = new(totalRGB.X / totalFactors, totalRGB.Y / totalFactors, totalRGB.Z / totalFactors);
+                Int32 averageAlpha = totalAlpha / totalFactors;
+
+                if (averageAlpha == 0)
+                    return Color32.FromRGBA(red: 0, green: 0, blue: 0, alpha: 0);
+
+                // To get correct rounding instead of flooring, we add half of the divisor before dividing.
+                Int32 roundingOffset = averageAlpha / 2;
+
+                Int32 red = (averageRGB.X + roundingOffset) / averageAlpha;
+                Int32 green = (averageRGB.Y + roundingOffset) / averageAlpha;
+                Int32 blue = (averageRGB.Z + roundingOffset) / averageAlpha;
+
+                return Color32.FromRGBA((Byte) red, (Byte) green, (Byte) blue, (Byte) averageAlpha);
+
+                void Accumulate(Color32 color, Int32 factor)
+                {
+                    if (factor == 0) return;
+
+                    Int32 alpha = color.A;
+
+                    totalRGB += new Vector3i(color.R * alpha, color.G * alpha, color.B * alpha);
+                    totalAlpha += alpha;
+                }
             }
         }
     }

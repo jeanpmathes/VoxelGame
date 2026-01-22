@@ -1,6 +1,19 @@
 ﻿// <copyright file="Door.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -97,11 +110,8 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         if (original.axis != Axis.Y) return original;
 
         Int32 turns = original.turns + 2; // Ugly fix because the model is not oriented correctly.
-        
-        if (state.Get(IsOpen) && state.Get(IsLeftSided))
-        {
-            turns += 2;
-        }
+
+        if (state.Get(IsOpen) && state.Get(IsLeftSided)) turns += 2;
 
         return (Axis.Y, turns);
     }
@@ -143,7 +153,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         Boolean wasOpen = message.State.Get(IsOpen);
 
         var body = message.Actor.GetComponent<Body>();
-        
+
         if (body != null && body.Collider.Intersects(composite.GetFullCollider(message.State.With(IsOpen, !wasOpen), message.Position)))
             return;
 
@@ -156,7 +166,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         void ToggleNeighbor(Vector3i neighborPosition)
         {
             State neighbor = message.Actor.World.GetBlock(neighborPosition) ?? Content.DefaultState;
-            
+
             if (neighbor.Block == Subject
                 && neighbor.Get(IsLeftSided) != leftSided
                 && neighbor.Get(IsOpen) == wasOpen

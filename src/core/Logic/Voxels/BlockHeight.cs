@@ -1,6 +1,19 @@
 ﻿// <copyright file="BlockHeight.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -60,14 +73,14 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     public Boolean IsFull => value == MaxValue;
 
     /// <summary>
-    /// Get the ratio of this height to the maximum height of a block.
-    /// As a block is exactly 1 meter tall, this is also the height in meters.
+    ///     Get the ratio of this height to the maximum height of a block.
+    ///     As a block is exactly 1 meter tall, this is also the height in meters.
     /// </summary>
     public Double Ratio => IsNone ? 0.0 : ComputeRatio(value);
-    
+
     /// <summary>
-    /// Get the ratio of a given height to the maximum height of a block.
-    /// Note that using this is not equivalent to using <see cref="FromInt32"/> first, as that method clamps the value.
+    ///     Get the ratio of a given height to the maximum height of a block.
+    ///     Note that using this is not equivalent to using <see cref="FromInt32" /> first, as that method clamps the value.
     /// </summary>
     /// <param name="height">The height to get the ratio for.</param>
     /// <returns>>The ratio of the given height.</returns>
@@ -106,7 +119,10 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     /// <summary>
     ///     Get the integer representation of this height value.
     /// </summary>
-    public Int32 ToInt32() => value;
+    public Int32 ToInt32()
+    {
+        return value;
+    }
 
     /// <summary>
     ///     Adds a delta to the given height.
@@ -123,13 +139,13 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     {
         return FromInt32(height.ToInt32() - delta);
     }
-    
+
     /// <inheritdoc cref="op_Addition" />
     public static BlockHeight Add(BlockHeight height, Int32 delta)
     {
         return height + delta;
     }
-    
+
     /// <inheritdoc cref="op_Subtraction" />
     public static BlockHeight Subtract(BlockHeight height, Int32 delta)
     {
@@ -151,7 +167,7 @@ public readonly struct BlockHeight : IEquatable<BlockHeight>, IComparable<BlockH
     }
 
     /// <inheritdoc />
-    public override Boolean Equals([NotNullWhen(true)] Object? obj)
+    public override Boolean Equals([NotNullWhen(returnValue: true)] Object? obj)
     {
         return obj is BlockHeight other && Equals(other);
     }

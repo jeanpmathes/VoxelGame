@@ -1,6 +1,19 @@
 ﻿// <copyright file="BehaviorContainer.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -38,7 +51,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Boolean Is<TConcreteBehavior>() 
+    public Boolean Is<TConcreteBehavior>()
         where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         return Get<TConcreteBehavior>() != null;
@@ -46,7 +59,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
 
     /// <inheritdoc />
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public TConcreteBehavior? Get<TConcreteBehavior>() 
+    public TConcreteBehavior? Get<TConcreteBehavior>()
         where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         if (baked == null) return behaviors.OfType<TConcreteBehavior>().FirstOrDefault();
@@ -60,7 +73,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     }
 
     /// <inheritdoc />
-    public TConcreteBehavior Require<TConcreteBehavior>() 
+    public TConcreteBehavior Require<TConcreteBehavior>()
         where TConcreteBehavior : class, TBehavior, IBehavior<TConcreteBehavior, TBehavior, TSelf>
     {
         BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
@@ -81,8 +94,8 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     }
 
     /// <inheritdoc />
-    public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null) 
-        where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSelf> 
+    public void RequireIfPresent<TConditionalConcreteBehavior, TConditionConcreteBehavior>(Action<TConditionalConcreteBehavior>? initializer = null)
+        where TConditionalConcreteBehavior : class, TBehavior, IBehavior<TConditionalConcreteBehavior, TBehavior, TSelf>
         where TConditionConcreteBehavior : class, TBehavior, IBehavior<TConditionConcreteBehavior, TBehavior, TSelf>
     {
         // To prevent endless loops, we only process the watchers introduced by this behavior after it is fully constructed and added.
@@ -127,10 +140,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
         if (!allWatchers.TryGetValue(typeof(TConcreteBehavior), out List<Action<TBehavior>>? actions))
             return;
 
-        foreach (Action<TBehavior> action in actions)
-        {
-            action(behavior);
-        }
+        foreach (Action<TBehavior> action in actions) action(behavior);
 
         allWatchers.Remove(typeof(TConcreteBehavior));
     }
@@ -145,16 +155,9 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
             Int32 index = behaviors.FindIndex(b => key.IsInstanceOfType(b));
 
             if (index != -1)
-            {
                 foreach (Action<TBehavior> action in actions)
-                {
                     action(behaviors[index]);
-                }
-            }
-            else
-            {
-                allWatchers.GetOrAdd(key, []).AddRange(actions);
-            }
+            else allWatchers.GetOrAdd(key, []).AddRange(actions);
         }
     }
 

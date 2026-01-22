@@ -1,12 +1,26 @@
 ﻿// <copyright file="OverlayRenderer.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
@@ -19,7 +33,7 @@ namespace VoxelGame.Client.Visuals;
 /// <summary>
 ///     Renders a texture on the screen.
 /// </summary>
-public sealed class ScreenElementPipeline : IDisposable
+public sealed partial class ScreenElementPipeline : IDisposable
 {
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly ShaderBuffer<Data> data;
@@ -140,8 +154,9 @@ public sealed class ScreenElementPipeline : IDisposable
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    private readonly struct Data : IEquatable<Data>
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    [ValueSemantics]
+    private readonly partial struct Data
     {
         /// <summary>
         ///     The model-view-projection matrix.
@@ -161,42 +176,6 @@ public sealed class ScreenElementPipeline : IDisposable
         {
             MVP = mvp;
             Color = color;
-        }
-
-        /// <summary>
-        ///     Check equality.
-        /// </summary>
-        public Boolean Equals(Data other)
-        {
-            return (MVP, Color) == (other.MVP, other.Color);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is Data other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return HashCode.Combine(MVP, Color);
-        }
-
-        /// <summary>
-        ///     The equality operator.
-        /// </summary>
-        public static Boolean operator ==(Data left, Data right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     The inequality operator.
-        /// </summary>
-        public static Boolean operator !=(Data left, Data right)
-        {
-            return !left.Equals(right);
         }
     }
 

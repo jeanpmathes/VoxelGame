@@ -1,6 +1,19 @@
 ﻿// <copyright file="Color32.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -81,7 +94,7 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public static Color32 FromRGBA(Byte red, Byte green, Byte blue, Byte alpha)
     {
-        return new Color32(red << Format.R | green << Format.G | blue << Format.B | alpha << Format.A);
+        return new Color32((red << Format.R) | (green << Format.G) | (blue << Format.B) | (alpha << Format.A));
     }
 
     /// <summary>
@@ -175,8 +188,8 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public Byte R
     {
-        get => (Byte) (bgra >> Format.R & ChannelMask);
-        set => bgra = bgra & ~(ChannelMask << Format.R) | value << Format.R;
+        get => (Byte) ((bgra >> Format.R) & ChannelMask);
+        set => bgra = (bgra & ~(ChannelMask << Format.R)) | (value << Format.R);
     }
 
     /// <summary>
@@ -184,8 +197,8 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public Byte G
     {
-        get => (Byte) (bgra >> Format.G & ChannelMask);
-        set => bgra = bgra & ~(ChannelMask << Format.G) | value << Format.G;
+        get => (Byte) ((bgra >> Format.G) & ChannelMask);
+        set => bgra = (bgra & ~(ChannelMask << Format.G)) | (value << Format.G);
     }
 
     /// <summary>
@@ -193,8 +206,8 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public Byte B
     {
-        get => (Byte) (bgra >> Format.B & ChannelMask);
-        set => bgra = bgra & ~(ChannelMask << Format.B) | value << Format.B;
+        get => (Byte) ((bgra >> Format.B) & ChannelMask);
+        set => bgra = (bgra & ~(ChannelMask << Format.B)) | (value << Format.B);
     }
 
     /// <summary>
@@ -202,8 +215,14 @@ public struct Color32 : IEquatable<Color32>
     /// </summary>
     public Byte A
     {
-        get => (Byte) (bgra >> Format.A & ChannelMask);
-        set => bgra = bgra & ~(ChannelMask << Format.A) | value << Format.A;
+        get => (Byte) ((bgra >> Format.A) & ChannelMask);
+        set => bgra = (bgra & ~(ChannelMask << Format.A)) | (value << Format.A);
+    }
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return $"Color32({R}, {G}, {B}, {A})";
     }
 
     #region OPERATIONS
@@ -221,7 +240,7 @@ public struct Color32 : IEquatable<Color32>
         if (bits == 0)
             return new Color32(bgra: 0);
 
-        var divisor = (Byte) (1 << 8 - bits);
+        var divisor = (Byte) (1 << (8 - bits));
 
         return FromRGBA(
             (Byte) (R / divisor * divisor),

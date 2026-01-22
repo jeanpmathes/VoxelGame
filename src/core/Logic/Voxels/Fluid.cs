@@ -1,6 +1,19 @@
 ﻿// <copyright file="Fluid.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -28,14 +41,14 @@ namespace VoxelGame.Core.Logic.Voxels;
 /// </summary>
 public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<String>, IResource
 {
+    private const UInt32 InvalidID = UInt32.MaxValue;
+
     /// <summary>
     ///     The density of air.
     /// </summary>
-    protected static readonly Density AirDensity = new() { KilogramsPerCubicMeter = 1.2f };
+    protected static readonly Density AirDensity = new() {KilogramsPerCubicMeter = 1.2f};
 
-    private static readonly Density gasFluidThreshold = new() { KilogramsPerCubicMeter = 10f };
-
-    private const UInt32 InvalidID = UInt32.MaxValue;
+    private static readonly Density gasFluidThreshold = new() {KilogramsPerCubicMeter = 10f};
 
     private static readonly BoundingVolume[] volumes = CreateVolumes();
 
@@ -156,7 +169,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
     /// <inheritdoc />
     public ResourceType Type => ResourceTypes.Fluid;
-    
+
     private static BoundingVolume[] CreateVolumes()
     {
         BoundingVolume CreateVolume(FluidLevel level)
@@ -254,7 +267,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
             Boolean meshAtSide = info.Level > neighborLevel && !blockToCheck.IsFullyOpaque;
 
             Boolean meshAtDrainEnd = !neighborLevel.IsFull && !blockToCheck.IsFullyOpaque;
-            Boolean meshAtSourceEnd = !info.Level.IsFull || fluidToCheck.Fluid != this && !blockToCheck.IsFullyOpaque;
+            Boolean meshAtSourceEnd = !info.Level.IsFull || (fluidToCheck.Fluid != this && !blockToCheck.IsFullyOpaque);
 
             Boolean meshAtEnd = flowsTowardsFace ? meshAtDrainEnd : meshAtSourceEnd;
 

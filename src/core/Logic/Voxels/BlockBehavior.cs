@@ -1,6 +1,19 @@
 ﻿// <copyright file="BlockBehavior.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -38,7 +51,7 @@ public class BlockBehavior : Behavior<BlockBehavior, Block>
     public virtual void DefineState(IStateBuilder builder) {}
 
     /// <summary>
-    /// Validates that a predicate holds for all states of the block, reporting a warning if not.
+    ///     Validates that a predicate holds for all states of the block, reporting a warning if not.
     /// </summary>
     /// <param name="validator">The validator to report warnings to.</param>
     /// <param name="predicate">The predicate to validate.</param>
@@ -46,13 +59,13 @@ public class BlockBehavior : Behavior<BlockBehavior, Block>
     protected void ValidateForAllStatesOrWarn(IValidator validator, Predicate<State> predicate, String message)
     {
         (Int32 count, State evidence) = ValidateForAllStates(predicate);
-        
+
         if (count > 0)
             validator.ReportWarning($"{message} (failed for {count} states, e.g. {evidence})");
     }
-    
+
     /// <summary>
-    /// Validates that a predicate holds for all states of the block, reporting an error if not.
+    ///     Validates that a predicate holds for all states of the block, reporting an error if not.
     /// </summary>
     /// <param name="validator">The validator to report errors to.</param>
     /// <param name="predicate">The predicate to validate.</param>
@@ -60,19 +73,19 @@ public class BlockBehavior : Behavior<BlockBehavior, Block>
     protected void ValidateForAllStatesOrError(IValidator validator, Predicate<State> predicate, String message)
     {
         (Int32 count, State evidence) = ValidateForAllStates(predicate);
-        
+
         if (count > 0)
             validator.ReportError($"{message} (failed for {count} states, e.g. {evidence})");
     }
-    
+
     private (Int32, State) ValidateForAllStates(Predicate<State> predicate)
     {
         var count = 0;
         State evidence = Subject.States.Default;
-        
+
         foreach (State state in Subject.States.AllStates)
         {
-            if (predicate(state)) 
+            if (predicate(state))
                 continue;
 
             count++;

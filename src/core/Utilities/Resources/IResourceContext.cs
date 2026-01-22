@@ -1,6 +1,19 @@
 ﻿// <copyright file="IResourceContext.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -21,7 +34,7 @@ public interface IResourceContext : IDisposable
     /// <param name="func">The func that requires the object.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>The resources loaded by <paramref name="func" /> or an empty enumerable if the requirement is not met.</returns>
-    public IEnumerable<IResource> Require<T>(Func<T, IEnumerable<IResource>> func) where T : class;
+    IEnumerable<IResource> Require<T>(Func<T, IEnumerable<IResource>> func) where T : class;
 
     /// <summary>
     ///     Require a resource to proceed.
@@ -30,7 +43,7 @@ public interface IResourceContext : IDisposable
     /// <param name="func">The func that requires the resource.</param>
     /// <typeparam name="T">The type of the resource.</typeparam>
     /// <returns>The resources loaded by <paramref name="func" /> or an empty enumerable if the requirement is not met.</returns>
-    public IEnumerable<IResource> Require<T>(RID identifier, Func<T, IEnumerable<IResource>> func) where T : class;
+    IEnumerable<IResource> Require<T>(RID identifier, Func<T, IEnumerable<IResource>> func) where T : class;
 
     /// <summary>
     ///     Get a resource or any other catalog entry if it is loaded.
@@ -38,14 +51,14 @@ public interface IResourceContext : IDisposable
     /// <param name="identifier">An optional identifier of the resource.</param>
     /// <typeparam name="T">The type of the resource or catalog entry.</typeparam>
     /// <returns>The resource or catalog if it is loaded, otherwise <c>null</c>.</returns>
-    public T? Get<T>(RID? identifier = null) where T : class;
+    T? Get<T>(RID? identifier = null) where T : class;
 
     /// <summary>
     ///     Get all objects of a certain type.
     /// </summary>
     /// <typeparam name="T">The type of the objects.</typeparam>
     /// <returns>The objects of the specified type.</returns>
-    public IEnumerable<T> GetAll<T>() where T : class;
+    IEnumerable<T> GetAll<T>() where T : class;
 
     /// <summary>
     ///     Report a warning for the loading of the current resource.
@@ -54,7 +67,7 @@ public interface IResourceContext : IDisposable
     /// <param name="message">The warning message.</param>
     /// <param name="exception">An optional exception that caused the warning.</param>
     /// <param name="path">An optional path associated with the warning.</param>
-    public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null);
+    void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null);
 
     /// <summary>
     ///     Report an error for the loading of the current resource.
@@ -64,7 +77,7 @@ public interface IResourceContext : IDisposable
     /// <param name="message">The error message.</param>
     /// <param name="exception">An optional exception that caused the error.</param>
     /// <param name="path">An optional path associated with the error.</param>
-    public void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null);
+    void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null);
 
     /// <summary>
     ///     Report the discovery (and potential load) of a sub-resource when loading the current resource.
@@ -80,10 +93,10 @@ public interface IResourceContext : IDisposable
     /// <param name="errorMessage">
     ///     An optional error message describing a failure to load the sub-resource.
     /// </param>
-    public void ReportDiscovery(ResourceType type, RID identifier, Exception? error = null, String? errorMessage = null);
+    void ReportDiscovery(ResourceType type, RID identifier, Exception? error = null, String? errorMessage = null);
 
     /// <summary>
     ///     Invoked when the loading process is completed.
     /// </summary>
-    public event EventHandler Completed;
+    event EventHandler Completed;
 }

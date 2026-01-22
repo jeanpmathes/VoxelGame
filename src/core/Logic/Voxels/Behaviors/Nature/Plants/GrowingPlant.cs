@@ -1,6 +1,19 @@
 ﻿// <copyright file="GrowingPlant.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -26,7 +39,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     private GrowingPlant(Block subject) : base(subject)
     {
         subject.Require<Plant>();
-        
+
         CanGrow = Aspect<Boolean, State>.New<LogicalAnd<State>>(nameof(CanGrow), this);
     }
 
@@ -41,7 +54,7 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
     ///     The index of the first stage considered a full growth stage.
     /// </summary>
     public ResolvedProperty<Int32> FirstFullStage { get; } = ResolvedProperty<Int32>.New<Exclusive<Int32, Void>>(nameof(FirstFullStage));
-    
+
     /// <summary>
     ///     Whether the plant can grow in the current state.
     /// </summary>
@@ -94,21 +107,21 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
         if (aliveStage == MatureStage)
         {
             if (!MatureUpdate.HasSubscribers) return;
-            
+
             MatureUpdateMessage matureUpdate = IEventMessage<MatureUpdateMessage>.Pool.Get();
 
             matureUpdate.World = message.World;
             matureUpdate.Position = message.Position;
             matureUpdate.State = message.State;
             matureUpdate.Ground = plantable;
-            
+
             MatureUpdate.Publish(matureUpdate);
-            
+
             IEventMessage<MatureUpdateMessage>.Pool.Return(matureUpdate);
-            
+
             return;
         }
-        
+
         State newState = message.State;
 
         FluidInstance? fluid = message.World.GetFluid(message.Position.Below());
@@ -154,21 +167,21 @@ public partial class GrowingPlant : BlockBehavior, IBehavior<GrowingPlant, Block
         /// <summary>
         ///     The world in which the plant is located.
         /// </summary>
-        public World World { get; }
+        World World { get; }
 
         /// <summary>
         ///     The position of the plant in the world.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The state of the plant block.
         /// </summary>
-        public State State { get; }
+        State State { get; }
 
         /// <summary>
         ///     The plantable ground this plant is growing on.
         /// </summary>
-        public Plantable Ground { get; }
+        Plantable Ground { get; }
     }
 }

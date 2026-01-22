@@ -1,16 +1,31 @@
 ﻿// <copyright file="RenderPipeline.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Runtime.InteropServices;
 using Gwen.Net;
 using Gwen.Net.Renderer;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
@@ -27,10 +42,10 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// <summary>
 ///     Does the actual issuing of draw calls and managing of GPU resources.
 /// </summary>
-public sealed class RenderPipeline : IDisposable
+public sealed partial class RenderPipeline : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<RenderPipeline>();
-    private readonly ShaderBuffer<Vector2> buffer;
+    private readonly ShaderBuffer<Buffer> buffer;
 
     private readonly IDisposable disposable;
 
@@ -48,7 +63,7 @@ public sealed class RenderPipeline : IDisposable
     /// <summary>
     ///     Creates a new render pipeline.
     /// </summary>
-    private RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Vector2>) raster)
+    private RenderPipeline(Client client, RendererBase renderer, Action preDraw, (RasterPipeline, ShaderBuffer<Buffer>) raster)
     {
         this.renderer = renderer;
         this.preDraw = preDraw;
@@ -80,7 +95,7 @@ public sealed class RenderPipeline : IDisposable
         FileInfo shader,
         Action<String> errorCallback)
     {
-        (RasterPipeline pipeline, ShaderBuffer<Vector2>)? result = client.CreateRasterPipeline<Vector2>(
+        (RasterPipeline pipeline, ShaderBuffer<Buffer>)? result = client.CreateRasterPipeline<Buffer>(
             RasterPipelineDescription.Create(shader, new ShaderPresets.Draw2D()),
             errorCallback);
 
@@ -252,7 +267,17 @@ public sealed class RenderPipeline : IDisposable
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        buffer.Data = size;
+        buffer.Data = new Buffer
+        {
+            screenSize = size
+        };
+    }
+
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    [ValueSemantics]
+    private partial struct Buffer
+    {
+        public Vector2 screenSize;
     }
 
     private sealed class DrawCall

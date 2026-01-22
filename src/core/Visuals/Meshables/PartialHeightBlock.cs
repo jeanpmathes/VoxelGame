@@ -1,6 +1,19 @@
 ﻿// <copyright file="PartialHeightBlock.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -67,7 +80,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
             {
                 if (!Constraint.IsStateValid(state))
                 {
-                    meshData[side][index] = new PartialHeight.MeshData(ITextureIndexProvider.MissingTextureIndex, ColorS.None, IsAnimated: false);
+                    meshData[side][index] = new PartialHeight.MeshData(ITextureIndexProvider.MissingTextureIndex, ColorS.NoTint, IsAnimated: false);
 
                     continue;
                 }
@@ -120,7 +133,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
             Tint = mesh.Tint,
             IsAnimated = mesh.IsAnimated
         };
-        
+
         SimpleBlock.AddSimpleMesh(position,
             side,
             in convertedMesh,
@@ -138,7 +151,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
         Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
-        
+
         Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
         Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
 
@@ -160,5 +173,15 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
             data,
             isSingleSided: true,
             height.IsFull);
+    }
+
+    /// <inheritdoc />
+    public override ColorS GetDominantColor(State state, ColorS positionTint)
+    {
+        ref readonly PartialHeight.MeshData mesh = ref meshData[Side.Front][state.Index];
+
+        ColorS color = DominantColorProvider.GetDominantColor(mesh.TextureIndex, isBlock: true);
+
+        return color * mesh.Tint.Select(positionTint);
     }
 }

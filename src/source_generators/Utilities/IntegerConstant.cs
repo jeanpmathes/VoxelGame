@@ -1,6 +1,19 @@
 ﻿// <copyright file="IntegerConstant.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -30,8 +43,8 @@ public readonly struct IntegerConstant : IEquatable<IntegerConstant>
     ///     Whether the value is a flag value, meaning it is a power of two or zero.
     /// </summary>
     public Boolean IsFlag => isUnsigned
-        ? (unsignedData & unsignedData - 1) == 0
-        : (signedData & signedData - 1) == 0;
+        ? (unsignedData & (unsignedData - 1)) == 0
+        : (signedData & (signedData - 1)) == 0;
 
     /// <summary>
     ///     Creates an <see cref="IntegerConstant" /> from the given underlying type and value.
@@ -77,8 +90,8 @@ public readonly struct IntegerConstant : IEquatable<IntegerConstant>
         unchecked
         {
             Int32 hashCode = isUnsigned.GetHashCode();
-            hashCode = hashCode * 397 ^ unsignedData.GetHashCode();
-            hashCode = hashCode * 397 ^ signedData.GetHashCode();
+            hashCode = (hashCode * 397) ^ unsignedData.GetHashCode();
+            hashCode = (hashCode * 397) ^ signedData.GetHashCode();
 
             return hashCode;
         }

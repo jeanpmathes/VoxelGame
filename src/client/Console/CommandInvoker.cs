@@ -1,6 +1,19 @@
 ﻿// <copyright file="CommandInvoker.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -201,13 +214,13 @@ public sealed partial class CommandInvoker : IResource
         catch (TargetInvocationException e)
         {
             LogErrorInvokingCommand(logger, e.InnerException, method.Name);
-            
+
             context.Output.WriteError($"Error while invoking command '{command.Name}', see log for details");
         }
         catch (Exception e)
         {
             LogErrorExecutingCommand(logger, e, command.Name);
-            
+
             context.Output.WriteError($"Error while executing command '{command.Name}', see log for details");
         }
     }
@@ -239,7 +252,7 @@ public sealed partial class CommandInvoker : IResource
 
     [LoggerMessage(EventId = LogID.CommandInvoker + 7, Level = LogLevel.Error, Message = "Error while invoking command '{Command}'")]
     private static partial void LogErrorInvokingCommand(ILogger logger, Exception? exception, String command);
-    
+
     [LoggerMessage(EventId = LogID.CommandInvoker + 8, Level = LogLevel.Error, Message = "Error while executing command '{Command}'")]
     private static partial void LogErrorExecutingCommand(ILogger logger, Exception? exception, String command);
 

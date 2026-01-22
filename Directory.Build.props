@@ -3,13 +3,13 @@
         <Version>1.3.0.0</Version>
         <AssemblyVersion>1.3.0.0</AssemblyVersion>
         <Authors>jeanpmathes</Authors>
-        <Company>jeanpmathes</Company>
+        <Company>VoxelGame</Company>
         <PackageIcon>$(SolutionDir)vg_icon.ico</PackageIcon>
         <ApplicationIcon>$(SolutionDir)vg_icon.ico</ApplicationIcon>
         <Win32Icon>$(SolutionDir)vg_icon.ico</Win32Icon>
-        <PackageLicenseExpression>MIT License</PackageLicenseExpression>
+        <PackageLicenseExpression>GPL-3.0-or-later</PackageLicenseExpression>
     </PropertyGroup>
-    
+
     <PropertyGroup>
         <LangVersion>13</LangVersion>
         <NeutralLanguage>en</NeutralLanguage>

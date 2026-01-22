@@ -1,6 +1,19 @@
 ﻿// <copyright file="SessionConsole.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,6 +23,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Console.Commands;
 using VoxelGame.Client.Sessions;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -30,7 +44,7 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider
     private readonly ConsoleOutput output;
 
     private readonly Session session;
-    
+
     private Boolean executedWorldReadyScript;
 
     [Constructible]
@@ -56,8 +70,9 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider
     public void OnWorldReady()
     {
         if (executedWorldReadyScript) return;
+
         executedWorldReadyScript = true;
-        
+
         LogTryingToExecuteWorldReadyScript(logger);
 
         Boolean executed = RunScript.Do(new Context(output, commandInvoker, session.Player), WorldReadyScript, ignoreErrors: true);
@@ -73,7 +88,7 @@ public partial class SessionConsole : SessionComponent, IConsoleProvider
     public event EventHandler? Cleared;
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         output.Flush();
     }

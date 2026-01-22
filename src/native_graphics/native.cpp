@@ -8,7 +8,7 @@
 
 namespace
 {
-    NativeErrorFunc onError;
+    NativeErrorFunction onError;
 }
 
 NATIVE void NativeShowErrorBox(LPCWSTR const message, LPCWSTR const caption)
@@ -17,7 +17,7 @@ NATIVE void NativeShowErrorBox(LPCWSTR const message, LPCWSTR const caption)
     Win32Application::ShowErrorMessage(message, caption);
 }
 
-NATIVE NativeClient* NativeConfigure(Configuration const config, NativeErrorFunc const errorCallback)
+NATIVE NativeClient* NativeConfigure(Configuration const config, NativeErrorFunction const errorCallback)
 {
     onError = errorCallback;
 
@@ -64,7 +64,17 @@ NATIVE int NativeRun(NativeClient* client)
     } CATCH();
 }
 
-NATIVE void NativePassAllocatorStatistics(NativeClient const* client, NativeWStringFunc const receiver)
+NATIVE void NativeSetTimeScale(NativeClient* client, double const timeScale)
+{
+    TRY
+    {
+        Require(CALL_ON_MAIN_THREAD(client));
+
+        client->SetTimeScale(timeScale);
+    } CATCH();
+}
+
+NATIVE void NativePassAllocatorStatistics(NativeClient const* client, NativeWStringFunction const receiver)
 {
     TRY
     {
@@ -79,7 +89,7 @@ NATIVE void NativePassAllocatorStatistics(NativeClient const* client, NativeWStr
     } CATCH();
 }
 
-NATIVE void NativePassDRED(NativeClient const* client, NativeWStringFunc const receiver)
+NATIVE void NativePassDRED(NativeClient const* client, NativeWStringFunction const receiver)
 {
     TRY
     {
@@ -174,13 +184,25 @@ NATIVE Light* NativeGetLight(NativeClient const* client)
     TRY { return client->GetSpace()->GetLight(); } CATCH();
 }
 
-NATIVE void NativeSetLightDirection(Light* light, DirectX::XMFLOAT3 const direction)
+NATIVE void NativeSetSpaceIsRendered(NativeClient const* client, bool const isRendered)
+{
+    TRY
+    {
+        Require(CALL_IN_LOGIC(client));
+
+        client->GetSpace()->SetIsRendered(isRendered);
+    } CATCH();
+}
+
+NATIVE void NativeSetLightConfiguration(Light* light, DirectX::XMFLOAT3 const direction, DirectX::XMFLOAT3 const color, float const intensity)
 {
     TRY
     {
         Require(CALL_IN_LOGIC(&light->GetClient()));
 
         light->SetDirection(direction);
+        light->SetColor(color);
+        light->SetIntensity(intensity);
     } CATCH();
 }
 
@@ -287,10 +309,7 @@ NATIVE void NativeSetDrawableEnabledState(Drawable* object, bool const enabled)
     } CATCH();
 }
 
-NATIVE RasterPipeline* NativeCreateRasterPipeline(
-    NativeClient*                   client,
-    RasterPipelineDescription const description,
-    NativeErrorFunc const           callback)
+NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client, RasterPipelineDescription const description, NativeErrorFunction const callback)
 {
     TRY
     {
@@ -330,11 +349,7 @@ NATIVE void NativeSetShaderBufferData(ShaderBuffer const* buffer, std::byte cons
     } CATCH();
 }
 
-NATIVE UINT NativeAddDraw2DPipeline(
-    NativeClient*          client,
-    RasterPipeline*        pipeline,
-    INT const              priority,
-    draw2d::Callback const callback)
+NATIVE UINT NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeline, INT const priority, draw2d::Callback const callback)
 {
     TRY
     {

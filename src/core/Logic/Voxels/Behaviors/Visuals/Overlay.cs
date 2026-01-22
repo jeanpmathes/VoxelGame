@@ -1,6 +1,19 @@
 ﻿// <copyright file="Overlay.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -32,7 +45,7 @@ public partial class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, 
     public Aspect<IOverlayTextureProvider?, Block> OverlayTextureProvider { get; }
 
     /// <summary>
-    /// The overlay texture provider for the block.
+    ///     The overlay texture provider for the block.
     /// </summary>
     public IOverlayTextureProvider Provider
     {
@@ -48,7 +61,7 @@ public partial class Overlay : BlockBehavior, IBehavior<Overlay, BlockBehavior, 
     {
         public OverlayTexture GetOverlayTexture(Content content)
         {
-            return new OverlayTexture(ITextureIndexProvider.MissingTextureIndex, ColorS.None, IsAnimated: false);
+            return new OverlayTexture(ITextureIndexProvider.MissingTextureIndex, ColorS.NoTint, IsAnimated: false);
         }
     }
 }

@@ -1,6 +1,19 @@
 ﻿// <copyright file="WorldInformation.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -11,6 +24,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Domain.Chrono;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
@@ -47,7 +61,7 @@ public partial class WorldInformation
     public UInt32 Size { get; set; } = World.BlockLimit - Chunk.BlockSize * 5;
 
     /// <summary>
-    ///     The creation date of the world.
+    ///     The creation date of the world, in real world time.
     /// </summary>
     public DateTime Creation { get; set; } = DateTime.MinValue;
 
@@ -60,6 +74,11 @@ public partial class WorldInformation
     ///     The spawn information of the world.
     /// </summary>
     public SpawnInformation SpawnInformation { get; set; } = new(Vector3d.Zero);
+
+    /// <summary>
+    ///     The current in-game date and time of the world.
+    /// </summary>
+    public DateAndTime DateAndTime { get; set; }
 
     /// <summary>
     ///     Save this world information to a file.

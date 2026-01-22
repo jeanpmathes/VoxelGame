@@ -1,6 +1,19 @@
 ﻿// <copyright file="Blocks.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -11,11 +24,13 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Sections;
+using VoxelGame.Core.Logic.Voxels.Contents;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
+using Environment = VoxelGame.Core.Logic.Voxels.Contents.Environment;
 
 namespace VoxelGame.Core.Logic.Voxels;
 
@@ -31,37 +46,37 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     /// </summary>
     public static Blocks Instance { get; } = new(BlockBuilder.Create(), new Registry<Category>(category => Reflections.GetLongName(category.GetType())));
 
-    /// <inheritdoc cref="Voxels.Core" />
-    public Core Core { get; } = categories.Register(new Core(builder.CreateScoped()));
+    /// <inheritdoc cref="Contents.Core" />
+    public Contents.Core Core { get; } = categories.Register(new Contents.Core(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Environment" />
+    /// <inheritdoc cref="Contents.Environment" />
     public Environment Environment { get; } = categories.Register(new Environment(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Woods" />
+    /// <inheritdoc cref="Contents.Woods" />
     public Woods Woods { get; } = categories.Register(new Woods(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Stones" />
+    /// <inheritdoc cref="Contents.Stones" />
     public Stones Stones { get; } = categories.Register(new Stones(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Metals" />
+    /// <inheritdoc cref="Contents.Metals" />
     public Metals Metals { get; } = categories.Register(new Metals(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Coals" />
+    /// <inheritdoc cref="Contents.Coals" />
     public Coals Coals { get; } = categories.Register(new Coals(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Organic" />
+    /// <inheritdoc cref="Contents.Organic" />
     public Organic Organic { get; } = categories.Register(new Organic(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Flowers" />
+    /// <inheritdoc cref="Contents.Flowers" />
     public Flowers Flowers { get; } = categories.Register(new Flowers(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Crops" />
+    /// <inheritdoc cref="Contents.Crops" />
     public Crops Crops { get; } = categories.Register(new Crops(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Construction" />
+    /// <inheritdoc cref="Contents.Construction" />
     public Construction Construction { get; } = categories.Register(new Construction(builder.CreateScoped()));
 
-    /// <inheritdoc cref="Voxels.Fabricated" />
+    /// <inheritdoc cref="Contents.Fabricated" />
     public Fabricated Fabricated { get; } = categories.Register(new Fabricated(builder.CreateScoped()));
 
     /// <summary>
@@ -78,22 +93,28 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
     ///     Initialize all blocks. This should be called exactly once during loading.
     /// </summary>
     /// <param name="textureIndexProvider">The texture index provider to use for resolving textures.</param>
+    /// <param name="dominantColorProvider">The dominant color provider to use for getting block colors.</param>
     /// <param name="modelProvider">The model provider to use for resolving block models.</param>
     /// <param name="visuals">The visual configuration to use.</param>
     /// <param name="context">The resource context in which loading is done.</param>
     /// <returns>All content defined in this class.</returns>
-    public IEnumerable<IContent> Initialize(ITextureIndexProvider textureIndexProvider, IModelProvider modelProvider, VisualConfiguration visuals, IResourceContext context)
+    public IEnumerable<IContent> Initialize(
+        ITextureIndexProvider textureIndexProvider,
+        IDominantColorProvider dominantColorProvider,
+        IModelProvider modelProvider,
+        VisualConfiguration visuals,
+        IResourceContext context)
     {
         states.Clear();
-        
+
         Validator validator = new(context);
-        
+
         foreach (Block block in builder.BlocksWithCollisionOnID)
         {
             validator.SetScope(block);
             validator.ReportError($"Block with natural name '{block.Name}' ({block.BlockID}) is part of a named ID collision");
         }
-        
+
         UInt32 offset = 0;
 
         foreach (Block block in builder.BlocksByID)
@@ -102,24 +123,24 @@ public partial class Blocks(BlockBuilder builder, Registry<Category> categories)
 
             states.AddRange(block.States.AllStates);
         }
-        
+
         BehaviorSystem<Block, BlockBehavior>.Bake(validator);
 
         foreach (Block block in builder.BlocksByID)
         {
             validator.SetScope(block);
-            block.Activate(textureIndexProvider, modelProvider, visuals, validator);
+            block.Activate(textureIndexProvider, dominantColorProvider, modelProvider, visuals, validator);
         }
 
         if (validator.HasError) return [];
-        
+
         const Int64 maxNumberOfState = Section.BlockStateMask + 1;
 
-        if (states.Count <= maxNumberOfState) 
+        if (states.Count <= maxNumberOfState)
             return builder.Registry.RetrieveContent();
 
         context.ReportError(this, $"The total number of block states ({states.Count}) exceeds the maximum allowed ({maxNumberOfState})");
-            
+
         return [];
     }
 

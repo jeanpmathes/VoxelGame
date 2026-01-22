@@ -1,6 +1,19 @@
 ﻿// <copyright file="Logging.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -17,11 +30,12 @@ namespace VoxelGame.Logging;
 /// </summary>
 public static partial class LoggingHelper
 {
+    private static Boolean isMockLoggingSetUp;
+
     /// <summary>
-    /// Get the logger factory.
+    ///     Get the logger factory.
     /// </summary>
-    [LateInitialization]
-    public static partial ILoggerFactory LoggerFactory { get; set; } 
+    [LateInitialization] public static partial ILoggerFactory LoggerFactory { get; set; }
 
     /// <summary>
     ///     Create a logger.
@@ -68,8 +82,6 @@ public static partial class LoggingHelper
 
         return LoggerFactory.CreateLogger(category);
     }
-    
-    private static Boolean isMockLoggingSetUp;
 
     /// <summary>
     ///     Set up a mock logger. All loggers created with this helper will be null loggers.
@@ -78,6 +90,7 @@ public static partial class LoggingHelper
     public static void SetUpMockLogging()
     {
         if (isMockLoggingSetUp) return;
+
         isMockLoggingSetUp = true;
 
         LoggerFactory = new NullLoggerFactory();

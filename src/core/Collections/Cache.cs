@@ -1,6 +1,19 @@
 ﻿// <copyright file="Cache.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -42,7 +55,7 @@ public class Cache<TK, TV>
     {
         this.cleanup = cleanup;
     }
-    
+
     /// <summary>
     ///     The capacity of the cache.
     ///     This is the maximum number of objects that can be stored.
@@ -100,8 +113,16 @@ public class Cache<TK, TV>
         if (map.TryGetValue(key, out LinkedListNode<Entry>? existing))
         {
             list.Remove(existing);
+
+            existing.Value = new Entry(key, value);
+            // The map is already pointing to the existing node, no need to update it.
+
+            list.AddLast(existing);
+
+            return;
         }
-        else if (list.Count >= Capacity)
+
+        if (list.Count >= Capacity)
         {
             LinkedListNode<Entry> node = list.First!;
 

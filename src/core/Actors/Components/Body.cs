@@ -1,6 +1,19 @@
 ﻿// <copyright file="Body.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -37,7 +50,7 @@ public partial class Body : ActorComponent
     private Vector3d force;
 
     private Boolean isEnabled = true;
-    
+
     private Body(Actor subject, Double mass, BoundingVolume boundingVolume) : base(subject)
     {
         this.mass = mass;
@@ -45,12 +58,9 @@ public partial class Body : ActorComponent
 
         Transform = subject.GetRequiredComponent<Transform>();
     }
-    
+
     [Constructible]
-    private Body(Actor actor, Characteristics characteristics) : this(actor, characteristics.Mass, characteristics.BoundingVolume)
-    {
-        
-    }
+    private Body(Actor actor, Characteristics characteristics) : this(actor, characteristics.Mass, characteristics.BoundingVolume) {}
 
     /// <summary>
     ///     Get the transform of the body, which contains the position and orientation in the world.
@@ -124,11 +134,11 @@ public partial class Body : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         if (IsEnabled)
         {
-            CalculatePhysics(deltaTime);
+            CalculatePhysics(delta);
         }
         else
         {
@@ -140,16 +150,16 @@ public partial class Body : ActorComponent
         }
     }
 
-    private void CalculatePhysics(Double deltaTime)
+    private void CalculatePhysics(Delta delta)
     {
         IsGrounded = false;
         IsSwimming = false;
 
-        Velocity += force / mass * deltaTime;
+        Velocity += force / mass * delta.Time;
 
         BoxCollider collider = Collider;
 
-        Vector3d movement = Velocity * deltaTime;
+        Vector3d movement = Velocity * delta.Time;
         movement *= 1f / PhysicsIterations;
 
         HashSet<(Vector3i position, Block block)> blockIntersections = [];

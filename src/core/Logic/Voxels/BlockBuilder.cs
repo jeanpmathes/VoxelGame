@@ -1,6 +1,19 @@
 ﻿// <copyright file="BlockBuilder.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -44,7 +57,7 @@ public class BlockBuilder
     ///     Get a dictionary mapping the content IDs to the blocks.
     /// </summary>
     public IReadOnlyDictionary<CID, Block> BlocksByContentID => factory.BlocksByContentID;
-    
+
     /// <summary>
     ///     Get a set of blocks that had a collision on their named ID during creation.
     /// </summary>
@@ -153,9 +166,9 @@ public class BlockBuilder
         ///     The content registry to register the block in.
         /// </summary>
         private readonly ContentRegistry registry = registry;
-        
+
         /// <summary>
-        /// Get the block being defined.
+        ///     Get the block being defined.
         /// </summary>
         protected Block Block => block;
 
@@ -223,7 +236,7 @@ public class BlockBuilder
 
             return this;
         }
-        
+
         /// <summary>
         ///     Set the wet tint color for the block. This will make the block able to be wet, changing its tint when that is the
         ///     case.
@@ -259,14 +272,11 @@ public class BlockBuilder
         /// <param name="definition">The conditional definition, will be called immediately if the condition is true.</param>
         public BlockDefinition WithConditionalDefinition(Boolean condition, Func<BlockDefinition, BlockDefinition> definition)
         {
-            if (condition)
-            {
-                definition(this);
-            }
+            if (condition) definition(this);
 
             return this;
         }
-        
+
         /// <summary>
         ///     Adds validation to the block.
         /// </summary>
@@ -277,10 +287,10 @@ public class BlockBuilder
             {
                 action(block, args.Validator);
             };
-            
+
             return this;
         }
-        
+
         /// <summary>
         ///     Completes the block definition and registers it in the content registry.
         /// </summary>

@@ -1,6 +1,19 @@
 ﻿// <copyright file="StaticStructureDefinition.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -43,14 +56,14 @@ public class StaticStructureDefinition
 #pragma warning restore CS1591
 
 /// <summary>
-/// Helper to build a <see cref="StaticStructureDefinition"/>.
+///     Helper to build a <see cref="StaticStructureDefinition" />.
 /// </summary>
 public sealed class StaticStructureBuilder
 {
     private readonly List<Placement> placements = [];
-    
+
     /// <summary>
-    /// Add a placement to the structure definition.
+    ///     Add a placement to the structure definition.
     /// </summary>
     public void AddPlacement(Vector3i position, Content content, Boolean isStatic)
     {
@@ -66,7 +79,7 @@ public sealed class StaticStructureBuilder
     }
 
     /// <summary>
-    /// Build the structure definition.
+    ///     Build the structure definition.
     /// </summary>
     public StaticStructureDefinition Build(Vector3i extents)
     {
@@ -79,7 +92,7 @@ public sealed class StaticStructureBuilder
 }
 
 /// <summary>
-/// Helper to read a <see cref="StaticStructureDefinition"/>.
+///     Helper to read a <see cref="StaticStructureDefinition" />.
 /// </summary>
 public sealed class StaticStructureDefinitionReader
 {
@@ -87,28 +100,35 @@ public sealed class StaticStructureDefinitionReader
     private readonly String name;
 
     private readonly HashSet<Vector3i> covered = [];
-    
+
     private Int32 placement = -1;
-    
+
     /// <summary>
-    /// The extents of the structure.
-    /// </summary>
-    public Vector3i Extents { get; }
-    
-    /// <summary>
-    /// Helper to read a <see cref="StaticStructureDefinition"/>.
+    ///     Helper to read a <see cref="StaticStructureDefinition" />.
     /// </summary>
     public StaticStructureDefinitionReader(StaticStructureDefinition definition, String name)
     {
         this.definition = definition;
         this.name = name;
-        
+
         Extents = GetVector(definition.Extents, name);
-        
+
         if (!IsInExtents(Extents, new Vector3i(StaticStructure.MaxSize)))
             throw new FileFormatException(name, $"Extents must be positive and not exceed {StaticStructure.MaxSize} in any dimension.");
     }
-    
+
+    /// <summary>
+    ///     The extents of the structure.
+    /// </summary>
+    public Vector3i Extents { get; }
+
+    private Placement CurrentPlacement => definition.Placements[placement];
+
+    /// <summary>
+    ///     The position of the current placement.
+    /// </summary>
+    public Vector3i Position => GetVector(CurrentPlacement.Position, name);
+
     private static Vector3i GetVector(Vector vector, String name)
     {
         if (vector.Values.Length != 3)
@@ -116,62 +136,55 @@ public sealed class StaticStructureDefinitionReader
 
         return new Vector3i(vector.Values[0], vector.Values[1], vector.Values[2]);
     }
-    
+
     private static Boolean IsInExtents(Vector3i vector, Vector3i extents)
     {
         if (vector.X < 0 || vector.X >= extents.X) return false;
         if (vector.Y < 0 || vector.Y >= extents.Y) return false;
         if (vector.Z < 0 || vector.Z >= extents.Z) return false;
-        
+
         return true;
     }
-    
+
     /// <summary>
-    /// Advance to the next placement.
+    ///     Advance to the next placement.
     /// </summary>
     public Boolean AdvanceToNextPlacement()
     {
         if (placement + 1 >= definition.Placements.Length) return false;
-        
+
         placement++;
-        
+
         if (!IsInExtents(Position, Extents))
             throw new FileFormatException(name, $"Position {Position} is out of bounds.");
-        
+
         if (!covered.Add(Position))
             throw new FileFormatException(name, $"Position {Position} is already occupied.");
-        
+
         return true;
     }
-    
-    private Placement CurrentPlacement => definition.Placements[placement];
-    
-    /// <summary>
-    /// The position of the current placement.
-    /// </summary>
-    public Vector3i Position => GetVector(CurrentPlacement.Position, name);
 
     /// <summary>
-    /// Get the block state of the current placement.
+    ///     Get the block state of the current placement.
     /// </summary>
     public State? GetBlock(out String namedID)
     {
         namedID = CurrentPlacement.Block;
-        
+
         return Blocks.Instance.TranslateContentID(new CID(namedID))?.States.SetJson(CurrentPlacement.State);
     }
 
     /// <summary>
-    /// Get the fluid instance of the current placement.
+    ///     Get the fluid instance of the current placement.
     /// </summary>
-    public FluidInstance? GetFluid(out String namedID) 
+    public FluidInstance? GetFluid(out String namedID)
     {
         namedID = CurrentPlacement.Fluid;
-        
+
         Fluid? fluid = Voxels.Fluids.Instance.TranslateNamedID(namedID);
-            
+
         if (fluid == null) return null;
-            
+
         return new FluidInstance(fluid, FluidLevel.FromInt32(CurrentPlacement.Level), CurrentPlacement.IsStatic);
     }
 }

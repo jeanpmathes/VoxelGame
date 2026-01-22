@@ -1,6 +1,19 @@
 ﻿// <copyright file="Climbable.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -21,9 +34,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Miscellaneous;
 public partial class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavior, Block>
 {
     [Constructible]
-    private Climbable(Block subject) : base(subject)
-    {
-    }
+    private Climbable(Block subject) : base(subject) {}
 
     /// <summary>
     ///     The velocity at which an actor climbs up or down this block.
@@ -47,10 +58,11 @@ public partial class Climbable : BlockBehavior, IBehavior<Climbable, BlockBehavi
         ClimbingVelocity.Initialize(this);
         SlidingVelocity.Initialize(this);
     }
-    
+
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
-        Vector3d forwardMovement = Vector3d.Dot(message.Body.Movement, message.Body.Transform.Forward) * message.Body.Transform.Forward;
+        Vector3d forwardDirection = message.Body.Transform.Forward;
+        Vector3d forwardMovement = Vector3d.Dot(message.Body.Movement, forwardDirection) * forwardDirection;
         Vector3d newVelocity;
 
         if (message.Body.Subject.Head != null &&

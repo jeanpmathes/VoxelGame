@@ -1,6 +1,19 @@
 ﻿// <copyright file="GuiLoader.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -55,32 +68,31 @@ public sealed class GameGuiLoader : IResourceLoader
 
             IGwenGui gui = GwenGuiFactory.CreateFromClient(
                 client,
-                GwenGuiSettings.Default.From(
-                    settings =>
-                    {
-                        settings.SkinFiles = skinFiles;
-                        settings.SkinLoadingErrorCallback = (file, exception) => skinLoadingErrors[file] = exception;
+                GwenGuiSettings.Default.From(settings =>
+                {
+                    settings.SkinFiles = skinFiles;
+                    settings.SkinLoadingErrorCallback = (file, exception) => skinLoadingErrors[file] = exception;
 
-                        settings.SkinLoadedCallback = (index, skin) =>
+                    settings.SkinLoadedCallback = (index, skin) =>
+                    {
+                        if (index == 0) resources.Add(new Skin(DefaultSkin, skin));
+                        else if (index == 1) resources.Add(new Skin(AlternativeSkin, skin));
+                    };
+
+                    settings.ShaderFile = shader;
+
+                    settings.ShaderLoadingErrorCallback =
+                        exception =>
                         {
-                            if (index == 0) resources.Add(new Skin(DefaultSkin, skin));
-                            else if (index == 1) resources.Add(new Skin(AlternativeSkin, skin));
+                            shaderLoadingError = exception;
+                            Debugger.Break();
                         };
 
-                        settings.ShaderFile = shader;
+                    foreach ((String _, TexturePreload texture) in textures)
+                        settings.TexturePreloads.Add(texture);
 
-                        settings.ShaderLoadingErrorCallback =
-                            exception =>
-                            {
-                                shaderLoadingError = exception;
-                                Debugger.Break();
-                            };
-
-                        foreach ((String _, TexturePreload texture) in textures)
-                            settings.TexturePreloads.Add(texture);
-
-                        settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture.Name] = exception;
-                    }));
+                    settings.TexturePreloadErrorCallback = (texture, exception) => textureLoadingErrors[texture.Name] = exception;
+                }));
 
             gui.Load();
 

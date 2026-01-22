@@ -1,6 +1,19 @@
 ﻿// <copyright file="TargetingDisplay.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -14,6 +27,8 @@ using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -27,6 +42,8 @@ public partial class TargetingDisplay : ActorComponent
 
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
+
+    private (State state, Vector3i position)? targeted;
 
     [Constructible]
     private TargetingDisplay(Player player, Engine engine) : base(player)
@@ -51,7 +68,7 @@ public partial class TargetingDisplay : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         SetTarget(player.World, targeting.Block, targeting.Position);
 
@@ -60,21 +77,29 @@ public partial class TargetingDisplay : ActorComponent
 
     private void SetTarget(World? world, State? state, Vector3i? position)
     {
+        (State state, Vector3i position)? newTarget = null;
         BoxCollider? collider = null;
+        ColorS color = ColorS.Black;
 
-        if (world != null && state is {Block: {} block} && position != null)
+        if (world != null && position != null && state is {Block: {} block})
         {
             Boolean visualized = !state.Value.IsReplaceable;
 
             if (Core.App.Application.Instance.IsDebug)
                 visualized |= !block.IsEmpty;
 
-            collider = visualized ? block.GetCollider(world, position.Value) : null;
+            if (visualized)
+            {
+                newTarget = (state.Value, position.Value);
+                collider = block.GetCollider(world, position.Value);
+                color = block.GetDominantColor(state.Value, world.Map.GetPositionTint(position.Value).block);
+            }
         }
 
-        if (collider != null)
-            effect.SetBox(collider.Value);
+        if (collider != null && targeted != newTarget)
+            effect.SetTarget(collider.Value, color);
 
+        targeted = newTarget;
         effect.IsEnabled = collider != null;
     }
 
@@ -85,10 +110,7 @@ public partial class TargetingDisplay : ActorComponent
     {
         base.Dispose(disposing);
 
-        if (disposing)
-        {
-            effect.Dispose();
-        }
+        if (disposing) effect.Dispose();
     }
 
     #endregion DISPOSABLE

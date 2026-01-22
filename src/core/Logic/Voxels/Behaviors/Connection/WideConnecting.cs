@@ -1,6 +1,19 @@
 ﻿// <copyright file="WideConnecting.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -53,8 +66,8 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
 
         Model post = context.ModelProvider.GetModel(Models.Get().post);
         Model extension = context.ModelProvider.GetModel(Models.Get().extension);
-        
-        (Model north, Model east, Model south, Model west) extensions = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(extension, Model.TransformationMode.Reshape);
+
+        (Model north, Model east, Model south, Model west) extensions = Core.Visuals.Models.CreateModelsForAllOrientations(extension, Model.TransformationMode.Reshape);
 
         List<Model> models = new(capacity: 5);
 
@@ -65,10 +78,7 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
         {
             Model straightModel = context.ModelProvider.GetModel(straight);
 
-            if (useStraightX)
-            {
-                straightModel = straightModel.CreateModelForSide(Side.Left, Model.TransformationMode.Reshape);
-            }
+            if (useStraightX) straightModel = straightModel.CreateModelForSide(Side.Left, Model.TransformationMode.Reshape);
 
             models.Add(straightModel);
         }
@@ -86,15 +96,15 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
     {
         return connections is {north: false, east: true, south: false, west: true};
     }
-    
+
     private static Boolean IsStraightOnZ((Boolean north, Boolean east, Boolean south, Boolean west) connections)
     {
         return connections is {north: true, east: false, south: true, west: false};
     }
-    
+
     private static void AddExtensionsBasedOnConnections(
-        List<Model> models, 
-        (Boolean north, Boolean east, Boolean south, Boolean west) connections, 
+        List<Model> models,
+        (Boolean north, Boolean east, Boolean south, Boolean west) connections,
         (Model north, Model east, Model south, Model west) extensions)
     {
         if (connections.north) models.Add(extensions.north);

@@ -8,17 +8,18 @@
 
 #define NATIVE extern "C" __declspec(dllexport)
 
-using NativeCallbackFunc    = void(*)();
-using NativeStepFunc        = void(*)(double);
-using NativeCheckFunc       = BOOL(*)();
-using NativeInputFunc       = void(*)(UINT8);
-using NativeCharFunc        = void(*)(UINT16);
-using NativeMouseMoveFunc   = void(*)(INT, INT);
-using NativeMouseScrollFunc = void(*)(double);
-using NativeResizeFunc      = void(*)(UINT, UINT);
-using NativeBoolFunc        = void(*)(BOOL);
-using NativeWStringFunc     = void(*)(LPCWSTR);
-using NativeErrorFunc       = void(*)(HRESULT, char const*);
+using NativeCallbackFunction     = void(*)();
+using NativeRenderUpdateFunction = void(*)(double, double);
+using NativeLogicUpdateFunction  = void(*)(double, double);
+using NativeCheckFunction        = BOOL(*)();
+using NativeInputFunction        = void(*)(UINT8);
+using NativeCharFunction         = void(*)(UINT16);
+using NativeMouseMoveFunction    = void(*)(INT, INT);
+using NativeMouseScrollFunction  = void(*)(double);
+using NativeResizeFunction       = void(*)(UINT, UINT);
+using NativeBoolFunction         = void(*)(BOOL);
+using NativeWStringFunction      = void(*)(LPCWSTR);
+using NativeErrorFunction        = void(*)(HRESULT, char const*);
 
 enum class ConfigurationOptions : UINT
 {
@@ -32,32 +33,34 @@ DEFINE_ENUM_FLAG_OPERATORS(ConfigurationOptions)
 
 struct Configuration
 {
-    NativeStepFunc onRenderUpdate;
-    NativeStepFunc onUpdate;
+    NativeRenderUpdateFunction onRenderUpdate;
+    NativeLogicUpdateFunction  onLogicUpdate;
 
-    NativeCallbackFunc onInit;
-    NativeCallbackFunc onDestroy;
+    NativeCallbackFunction onInit;
+    NativeCallbackFunction onDestroy;
 
-    NativeCheckFunc canClose;
+    NativeCheckFunction canClose;
 
-    NativeInputFunc       onKeyDown;
-    NativeInputFunc       onKeyUp;
-    NativeCharFunc        onChar;
-    NativeMouseMoveFunc   onMouseMove;
-    NativeMouseScrollFunc onMouseScroll;
+    NativeInputFunction       onKeyDown;
+    NativeInputFunction       onKeyUp;
+    NativeCharFunction        onChar;
+    NativeMouseMoveFunction   onMouseMove;
+    NativeMouseScrollFunction onMouseScroll;
 
-    NativeResizeFunc onResize;
-    NativeBoolFunc   onActiveStateChange;
+    NativeResizeFunction onResize;
+    NativeBoolFunction   onActiveStateChange;
 
     D3D12MessageFunc onDebug;
 
-    UINT   width;
-    UINT   height;
+    UINT32 width;
+    UINT32 height;
     LPWSTR title;
     HICON  icon;
 
     LPWSTR applicationName;
     LPWSTR applicationVersion;
+
+    INT64 baseLogicUpdatesPerSecond;
 
     FLOAT renderScale;
 

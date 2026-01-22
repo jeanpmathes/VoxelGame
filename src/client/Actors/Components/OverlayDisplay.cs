@@ -1,6 +1,19 @@
 ﻿// <copyright file="OverlayDisplay.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -52,10 +65,10 @@ public partial class OverlayDisplay : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
-        Vector3i center = player.Camera.Position.Floor();
-        Frustum frustum = player.Camera.GetPartialFrustum(near: 0.0, player.Camera.Definition.Clipping.near);
+        Vector3i center = player.Camera.Transform.Position.Floor();
+        Frustum frustum = player.Camera.View.GetPartialFrustum(near: 0.0, player.Camera.View.Definition.Clipping.near);
 
         BuildOverlay(Raycast.CastFrustum(player.World, center, range: 1, frustum));
 
@@ -68,7 +81,7 @@ public partial class OverlayDisplay : ActorComponent
         var lowerBound = 1.0;
         var upperBound = 0.0;
 
-        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.View, ref lowerBound, ref upperBound).ToList();
+        IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.Camera, ref lowerBound, ref upperBound).ToList();
 
         Overlay? selected = null;
 
@@ -97,6 +110,6 @@ public partial class OverlayDisplay : ActorComponent
                 size *= -1.0;
         }
 
-        Visuals.Graphics.Instance.SetFogOverlapConfiguration(size, fog ?? ColorS.Black);
+        Visuals.Graphics.Instance.SetFogVolumeOverlapConfiguration(size, fog ?? ColorS.Black);
     }
 }

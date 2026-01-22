@@ -1,6 +1,19 @@
 ﻿// <copyright file="Chunk.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -278,11 +291,11 @@ public partial class Chunk : IDisposable, IEntity
     /// <summary>
     ///     Update all actors in this chunk.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    public void SendLogicUpdatesToActors(Double deltaTime)
+    /// <param name="delta">The time since the last update.</param>
+    public void SendLogicUpdatesToActors(Delta delta)
     {
         foreach (Actor actor in Requests.Requesters)
-            actor.LogicUpdate(deltaTime);
+            actor.LogicUpdate(delta);
     }
 
     /// <summary>
@@ -693,10 +706,10 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public static (Int32 x, Int32 y, Int32 z) IndexToLocalSection(Int32 index)
     {
-        Int32 z = index & Size - 1;
-        index = index - z >> SizeExp;
-        Int32 y = index & Size - 1;
-        index = index - y >> SizeExp;
+        Int32 z = index & (Size - 1);
+        index = (index - z) >> SizeExp;
+        Int32 y = index & (Size - 1);
+        index = (index - y) >> SizeExp;
         Int32 x = index;
 
         return (x, y, z);

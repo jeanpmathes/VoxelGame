@@ -1,6 +1,19 @@
 ﻿// <copyright file="IDecorationContext.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -89,7 +102,7 @@ public interface IDecorationContext : IDisposable
     /// <summary>
     ///     The generator that created this context.
     /// </summary>
-    public IWorldGenerator Generator { get; }
+    IWorldGenerator Generator { get; }
 
     /// <summary>
     ///     Decorate a section of the world.
@@ -102,7 +115,7 @@ public interface IDecorationContext : IDisposable
     ///     Assumes that the chunk has been generated and the center already decorated.
     /// </summary>
     /// <param name="neighbors">The neighborhood of chunks around the chunk to decorate.</param>
-    public void Decorate(Neighborhood<Chunk?> neighbors)
+    void Decorate(Neighborhood<Chunk?> neighbors)
     {
         Debug.Assert(neighbors.Center != null);
         Debug.Assert(neighbors.Center.IsGenerated);
@@ -121,7 +134,7 @@ public interface IDecorationContext : IDisposable
     ///     Assumes that the chunk has been generated but not decorated yet.
     /// </summary>
     /// <param name="chunk">The chunk to decorate.</param>
-    public void DecorateCenter(Chunk chunk)
+    void DecorateCenter(Chunk chunk)
     {
         Debug.Assert(chunk.Decoration == DecorationLevels.None);
 
@@ -144,7 +157,7 @@ public interface IDecorationContext : IDisposable
     /// </summary>
     /// <param name="chunk">The chunk to decide for.</param>
     /// <returns>All chunks needed for decoration, or <c>null</c> if the chunk should not decorate now.</returns>
-    public static Neighborhood<Chunk?>? DecideWhetherToDecorate(Chunk chunk)
+    static Neighborhood<Chunk?>? DecideWhetherToDecorate(Chunk chunk)
     {
         // A chunk is only decorated if all needed neighbors are available at once.
         // As the request level is high enough (otherwise the chunk would not want to decorate),

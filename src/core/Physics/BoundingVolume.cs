@@ -1,6 +1,19 @@
 ﻿// <copyright file="BoundingVolume.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -97,6 +110,22 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     private Box3d Box { get; }
 
     /// <summary>
+    ///     Get the number of boxes in this bounding volume, including children.
+    /// </summary>
+    public Int32 NumberOfBoxes
+    {
+        get
+        {
+            var count = 1;
+
+            for (var index = 0; index < ChildCount; index++)
+                count += this[index].NumberOfBoxes;
+
+            return count;
+        }
+    }
+
+    /// <summary>
     ///     Get a child bounding box.
     /// </summary>
     /// <param name="i">The index of the child.</param>
@@ -127,7 +156,10 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     ///     Creates a flat block bounding volume with the given depth.
     /// </summary>
     /// <param name="side">The side the bounding volume is on.</param>
-    /// <param name="width">The width of the bounding volume, meaning the distance perpendicular to the orientation. Ignored for non-lateral sides.</param>
+    /// <param name="width">
+    ///     The width of the bounding volume, meaning the distance perpendicular to the orientation. Ignored
+    ///     for non-lateral sides.
+    /// </param>
     /// <param name="depth">The depth of the bounding volume, meaning the distance in the direction of the orientation.</param>
     /// <returns>A bounding volume with the given depth.</returns>
     public static BoundingVolume FlatBlock(Side side, Double width, Double depth)
@@ -139,8 +171,8 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         offset *= 0.5 - halfDepth;
         offset += new Vector3d(x: 0.5, y: 0.5, z: 0.5);
 
-        Vector3d widthDirection = side.IsLateral() 
-            ? side.Rotate(Axis.Y).Direction().Abs() 
+        Vector3d widthDirection = side.IsLateral()
+            ? side.Rotate(Axis.Y).Direction().Abs()
             : new Vector3d(x: 0.0, y: 0.0, z: 0.0);
 
         Vector3d extents = side.Direction().Abs();
@@ -173,7 +205,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     }
 
     /// <summary>
-    /// Translate this bounding volume by the given translation.
+    ///     Translate this bounding volume by the given translation.
     /// </summary>
     /// <param name="translation">The translation to apply.</param>
     /// <returns>>The translated bounding volume.</returns>

@@ -49,22 +49,21 @@ public class VoxelGamePlatform : IPlatform
     {
         var ret = String.Empty;
 
-        Thread staThread = new(
-            () =>
+        Thread staThread = new(() =>
+        {
+            try
             {
-                try
-                {
-                    String? text = ClipboardService.GetText();
+                String? text = ClipboardService.GetText();
 
-                    if (String.IsNullOrEmpty(text)) return;
+                if (String.IsNullOrEmpty(text)) return;
 
-                    ret = text;
-                }
-                catch (Exception)
-                {
-                    // Method should be safe to call.
-                }
-            });
+                ret = text;
+            }
+            catch (Exception)
+            {
+                // Method should be safe to call.
+            }
+        });
 
         staThread.SetApartmentState(ApartmentState.STA);
         staThread.Start();
@@ -83,19 +82,18 @@ public class VoxelGamePlatform : IPlatform
     {
         var ret = false;
 
-        Thread staThread = new(
-            () =>
+        Thread staThread = new(() =>
+        {
+            try
             {
-                try
-                {
-                    ClipboardService.SetText(text);
-                    ret = true;
-                }
-                catch (Exception)
-                {
-                    // Method should be safe to call.
-                }
-            });
+                ClipboardService.SetText(text);
+                ret = true;
+            }
+            catch (Exception)
+            {
+                // Method should be safe to call.
+            }
+        });
 
         staThread.SetApartmentState(ApartmentState.STA);
         staThread.Start();
@@ -282,8 +280,7 @@ public class VoxelGamePlatform : IPlatform
 
         try
         {
-            return di.GetDirectories().Select(
-                d => new FileSystemDirectoryInfo(d.FullName, d.LastWriteTime) as IFileSystemDirectoryInfo);
+            return di.GetDirectories().Select(d => new FileSystemDirectoryInfo(d.FullName, d.LastWriteTime) as IFileSystemDirectoryInfo);
         }
         catch (Exception e) when (e is DirectoryNotFoundException or SecurityException or UnauthorizedAccessException)
         {
@@ -300,8 +297,7 @@ public class VoxelGamePlatform : IPlatform
 
         try
         {
-            return di.GetFiles(filter).Select(
-                f => new FileSystemFileInfo(f.FullName, f.LastWriteTime, f.Length) as IFileSystemFileInfo);
+            return di.GetFiles(filter).Select(f => new FileSystemFileInfo(f.FullName, f.LastWriteTime, f.Length) as IFileSystemFileInfo);
 
         }
         catch (Exception e) when (e is DirectoryNotFoundException or SecurityException or UnauthorizedAccessException)

@@ -1,12 +1,26 @@
 ﻿// <copyright file="OverlayRenderer.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -22,7 +36,7 @@ namespace VoxelGame.Client.Visuals;
 ///     This is a direct pipeline, meaning no instance objects are created and only a single overlay can be rendered at a
 ///     time.
 /// </summary>
-public sealed class OverlayPipeline : IDisposable
+public sealed partial class OverlayPipeline : IDisposable
 {
     private const Int32 BlockMode = 0;
     private const Int32 FluidMode = 1;
@@ -42,7 +56,7 @@ public sealed class OverlayPipeline : IDisposable
     private Int32 mode = BlockMode;
     private (UInt32 start, UInt32 length) rangeOfVertexBuffer;
     private Int32 textureID;
-    private ColorS tint = ColorS.None;
+    private ColorS tint = ColorS.NoTint;
     private Single upperBound;
 
     private OverlayPipeline(VoxelGame.Graphics.Core.Client client, ShaderBuffer<Data> data, (TextureArray, TextureArray) textures)
@@ -177,8 +191,9 @@ public sealed class OverlayPipeline : IDisposable
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    private readonly struct Data : IEquatable<Data>
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    [ValueSemantics]
+    private partial struct Data
     {
         /// <summary>
         ///     The matrix used to transform the vertices.
@@ -226,43 +241,6 @@ public sealed class OverlayPipeline : IDisposable
         private static Vector4i EncodeAttributes((UInt32 a, UInt32 b, UInt32 c, UInt32 d) attributes)
         {
             return new Vector4i((Int32) attributes.a, (Int32) attributes.b, (Int32) attributes.c, (Int32) attributes.d);
-        }
-
-        /// <summary>
-        ///     Check equality.
-        /// </summary>
-        public Boolean Equals(Data other)
-        {
-            return (MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex)
-                   == (other.MVP, other.Attributes, other.Mode, other.LowerBound, other.UpperBound, other.FirstFluidTextureIndex);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is Data other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return HashCode.Combine(MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex);
-        }
-
-        /// <summary>
-        ///     The equality operator.
-        /// </summary>
-        public static Boolean operator ==(Data left, Data right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     The inequality operator.
-        /// </summary>
-        public static Boolean operator !=(Data left, Data right)
-        {
-            return !left.Equals(right);
         }
     }
 

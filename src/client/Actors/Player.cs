@@ -1,6 +1,19 @@
 ﻿// <copyright file="Player.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -10,11 +23,9 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Actors.Components;
 using VoxelGame.Client.Scenes;
 using VoxelGame.Client.Visuals;
-using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Physics;
-using VoxelGame.Graphics.Graphics;
-using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.UI.Providers;
 using VoxelGame.UI.UserInterfaces;
@@ -29,8 +40,6 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlacementSelection selector;
 
-    private readonly IInputControl input;
-
     /// <summary>
     ///     Create a client player.
     /// </summary>
@@ -40,19 +49,13 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="ui">The user interface used for the game.</param>
     /// <param name="engine">The graphics engine to use for rendering.</param>
     /// <param name="input">The input control to use for this player.</param>
-    public Player(Double mass, BoundingVolume boundingVolume, Camera camera,
-        InGameUserInterface ui, Engine engine, IInputControl input) : base(mass, boundingVolume)
+    public Player(Double mass, BoundingVolume boundingVolume, Camera camera, InGameUserInterface ui, Engine engine, IInputControl input) : base(mass, boundingVolume)
     {
         Camera = camera;
-
-        Head = new PlayerHead(camera, Body.Transform);
-        camera.Position = Head.Position;
-        
-        this.input = input;
+        Input = input;
 
         AddComponent<PlayerInput, Player>();
         AddComponent<PlayerMovement, Player>(); // Also updates the targeter.
-        AddComponent<PlayerRotator, Player>();
         selector = AddComponent<PlacementSelection, Player>();
         AddComponent<Interaction, Player>();
         AddComponent<OverlayDisplay, Engine, Player>(engine);
@@ -65,22 +68,17 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     }
 
     /// <inheritdoc />
-    public override IOrientable Head { get; }
-
-    /// <summary>
-    ///     Get the view of this player.
-    /// </summary>
-    public IView View => Camera;
+    public override Transform Head => Camera.Transform;
 
     /// <summary>
     ///     Get access to the camera of the player.
     /// </summary>
     internal Camera Camera { get; }
-    
+
     /// <summary>
-    /// Get the input control used by this player.
+    ///     Get the input control used by this player.
     /// </summary>
-    public IInputControl Input => input;
+    public IInputControl Input { get; }
 
     /// <inheritdoc />
     public Property DebugData => new PlayerDebugProperties(this);

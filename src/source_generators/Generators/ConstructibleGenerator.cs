@@ -1,6 +1,19 @@
 ﻿// <copyright file="ConstructibleGenerator.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -34,10 +47,10 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
                 static (ctx, _) => GetSemanticTargetForGeneration(ctx))
             .Where(static model => model is not null);
 
-        context.RegisterSourceOutput(models, 
+        context.RegisterSourceOutput(models,
             static (spc, source) => Execute(source, spc));
     }
-    
+
     private static Boolean IsSyntaxTargetForGeneration(SyntaxNode node)
     {
         return node is ConstructorDeclarationSyntax;
@@ -54,23 +67,23 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
         if (constructorSymbol.MethodKind != MethodKind.Constructor || constructorSymbol.IsStatic || constructorSymbol.Parameters.Length == 0)
             return null;
 
-        if (HasUnsupportedParameterKind(constructorSymbol)) 
+        if (HasUnsupportedParameterKind(constructorSymbol))
             return null;
 
         if (constructorDeclaration.Parent is not TypeDeclarationSyntax typeDeclaration)
             return null;
-        
+
         if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration) is not {} typeSymbol)
             return null;
 
         ContainingType? containingType = SyntaxTools.GetContainingType(typeDeclaration, context.SemanticModel);
         String @namespace = SyntaxTools.GetNamespace(typeDeclaration);
-        
+
         ImmutableArray<ParameterModel> parameters = CreateParameterModels(constructorSymbol);
 
         if (parameters.IsDefaultOrEmpty)
             return null;
-        
+
         return new ConstructorModel(
             containingType,
             @namespace,
@@ -82,14 +95,12 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
             typeDeclaration.ConstraintClauses.ToString(),
             parameters);
     }
-    
+
     private static Boolean HasUnsupportedParameterKind(IMethodSymbol methodSymbol)
     {
         foreach (IParameterSymbol parameter in methodSymbol.Parameters)
-        {
-            if (parameter.RefKind != RefKind.None || parameter.HasExplicitDefaultValue || parameter.IsParams) 
+            if (parameter.RefKind != RefKind.None || parameter.HasExplicitDefaultValue || parameter.IsParams)
                 return true;
-        }
 
         return false;
     }
@@ -97,23 +108,20 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
     private static ImmutableArray<ParameterModel> CreateParameterModels(IMethodSymbol methodSymbol)
     {
         ImmutableArray<ParameterModel>.Builder parameterBuilder = ImmutableArray.CreateBuilder<ParameterModel>();
-        
-        foreach (IParameterSymbol parameter in methodSymbol.Parameters)
-        {
-            parameterBuilder.Add(new ParameterModel(parameter.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat)));
-        }
-        
+
+        foreach (IParameterSymbol parameter in methodSymbol.Parameters) parameterBuilder.Add(new ParameterModel(parameter.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat)));
+
         return parameterBuilder.ToImmutable();
     }
 
     private static void Execute(ConstructorModel? model, SourceProductionContext context)
     {
-        if (model is not { } constructorModel) return;
-        
+        if (model is not {} constructorModel) return;
+
         var constructorMethod = ConstructorMethod.Create(constructorModel.Parameters);
-        
+
         String result = GenerateSource(constructorModel, constructorMethod);
-        
+
         context.AddSource($"{NameTools.SanitizeForIO(constructorModel.TypeFullName)}_{constructorMethod.SignatureHint}_Constructible.g.cs", SourceText.From(result, Encoding.UTF8));
     }
 
@@ -122,28 +130,29 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
         StringBuilder sb = new();
 
         sb.AppendPreamble<ConstructibleGenerator>()
-          .AppendNamespace(constructorModel.Namespace);
+            .AppendNamespace(constructorModel.Namespace);
 
-        sb.AppendNestedClass(constructorModel.ContainingType, (builder, i) =>
-        {
-            builder
-                .Append($"{i}{constructorModel.TypeAccessibility} partial {constructorModel.TypeKeyword} {constructorModel.TypeName}{constructorModel.TypeParameters}")
-                .Append($" : {constructorMethod.GetConstructibleInterface(constructorModel.TypeFullName)}");
+        sb.AppendNestedClass(constructorModel.ContainingType,
+            (builder, i) =>
+            {
+                builder
+                    .Append($"{i}{constructorModel.TypeAccessibility} partial {constructorModel.TypeKeyword} {constructorModel.TypeName}{constructorModel.TypeParameters}")
+                    .Append($" : {constructorMethod.GetConstructibleInterface(constructorModel.TypeFullName)}");
 
-            if (!String.IsNullOrWhiteSpace(constructorModel.TypeConstraints))
-                builder.Append($"{i}{constructorModel.TypeConstraints}");
+                if (!String.IsNullOrWhiteSpace(constructorModel.TypeConstraints))
+                    builder.Append($"{i}{constructorModel.TypeConstraints}");
 
-            builder.Append($$"""
-                             
-                             {{i}}{
-                             {{i}}    /// <inheritdoc />
-                             {{i}}    public static {{constructorModel.TypeFullName}} Construct({{constructorMethod.ParameterList}})
-                             {{i}}    {
-                             {{i}}        return new {{constructorModel.TypeFullName}}({{constructorMethod.ArgumentList}});
-                             {{i}}    }
-                             {{i}}}
-                             """);
-        });
+                builder.Append($$"""
+
+                                 {{i}}{
+                                 {{i}}    /// <inheritdoc />
+                                 {{i}}    public static {{constructorModel.TypeFullName}} Construct({{constructorMethod.ParameterList}})
+                                 {{i}}    {
+                                 {{i}}        return new {{constructorModel.TypeFullName}}({{constructorMethod.ArgumentList}});
+                                 {{i}}    }
+                                 {{i}}}
+                                 """);
+            });
 
         return sb.ToString();
     }
@@ -177,22 +186,22 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
             switch (parameterTypes.Length)
             {
                 case 1:
-                    parameterList = $"{parameterTypes[0]} input";
+                    parameterList = $"{parameterTypes[index: 0]} input";
                     argumentList = "input";
 
                     break;
 
                 case 2:
-                    parameterList = $"{parameterTypes[0]} input1, {parameterTypes[1]} input2";
+                    parameterList = $"{parameterTypes[index: 0]} input1, {parameterTypes[index: 1]} input2";
                     argumentList = "input1, input2";
 
                     break;
 
                 default:
                 {
-                    var tupleType = $"({String.Join(", ", parameterTypes.Skip(1))})";
+                    var tupleType = $"({String.Join(", ", parameterTypes.Skip(count: 1))})";
 
-                    parameterList = $"{parameterTypes[0]} input1, {tupleType} input2";
+                    parameterList = $"{parameterTypes[index: 0]} input1, {tupleType} input2";
 
                     ImmutableArray<String>.Builder builder = ImmutableArray.CreateBuilder<String>(parameterTypes.Length);
                     builder.Add("input1");
@@ -217,9 +226,9 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
 
             return ParameterTypes.Length switch
             {
-                1 => $"{interfacePrefix}<{ParameterTypes[0]}, {typeDisplay}>",
-                2 => $"{interfacePrefix}<{ParameterTypes[0]}, {ParameterTypes[1]}, {typeDisplay}>",
-                _ => $"{interfacePrefix}<{ParameterTypes[0]}, ({String.Join(", ", ParameterTypes.Skip(1))}), {typeDisplay}>"
+                1 => $"{interfacePrefix}<{ParameterTypes[index: 0]}, {typeDisplay}>",
+                2 => $"{interfacePrefix}<{ParameterTypes[index: 0]}, {ParameterTypes[index: 1]}, {typeDisplay}>",
+                _ => $"{interfacePrefix}<{ParameterTypes[index: 0]}, ({String.Join(", ", ParameterTypes.Skip(count: 1))}), {typeDisplay}>"
             };
         }
     }

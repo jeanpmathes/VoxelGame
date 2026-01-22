@@ -1,6 +1,19 @@
 ﻿// <copyright file="BlockFactory.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -20,10 +33,10 @@ public class BlockFactory
 {
     private readonly List<Block> blocksByBlockID = [];
     private readonly Dictionary<CID, Block> blocksByContentID = [];
-    
+
     private readonly HashSet<Block> blocksWithCollisionOnID = [];
     private Int32 idCollisionCounter;
- 
+
     /// <summary>
     ///     Get a container associating block IDs to blocks.
     /// </summary>
@@ -33,7 +46,7 @@ public class BlockFactory
     ///     Get a container associating block content IDs to blocks.
     /// </summary>
     public IReadOnlyDictionary<CID, Block> BlocksByContentID => blocksByContentID;
-    
+
     /// <summary>
     ///     Get a set of blocks that had a collision on their named ID during creation.
     /// </summary>
@@ -48,23 +61,23 @@ public class BlockFactory
     public Block Create(CID contentID, String name, Meshable meshable)
     {
         var idCollision = false;
-        
+
         if (blocksByContentID.TryGetValue(contentID, out Block? collidedBlock))
         {
             Debugger.Break();
             idCollision = true;
-            
+
             blocksWithCollisionOnID.Add(collidedBlock);
-            
+
             contentID = new CID($"{contentID}_collision_{idCollisionCounter++}");
         }
-        
+
         Block block = CreateBlock(contentID, name, meshable);
 
         blocksByBlockID.Add(block);
         blocksByContentID.Add(contentID, block);
-        
-        if (idCollision) 
+
+        if (idCollision)
             blocksWithCollisionOnID.Add(block);
 
         return block;

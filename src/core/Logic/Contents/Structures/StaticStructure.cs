@@ -1,6 +1,19 @@
 ﻿// <copyright file="StaticStructure.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -27,7 +40,7 @@ namespace VoxelGame.Core.Logic.Contents.Structures;
 public sealed partial class StaticStructure : Structure, IResource, ILocated, IIssueSource
 {
     /// <summary>
-    /// The maximum size of a structure in any dimension.
+    ///     The maximum size of a structure in any dimension.
     /// </summary>
     public const Int32 MaxSize = 1024;
 
@@ -44,7 +57,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
     private StaticStructure(StaticStructureDefinition definition, String name, RID identifier, IResourceContext? context)
     {
         StaticStructureDefinitionReader reader = new(definition, name);
-        
+
         Identifier = identifier;
         Extents = reader.Extents;
 
@@ -53,11 +66,11 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
         while (reader.AdvanceToNextPlacement())
         {
             Vector3i position = reader.Position;
-            
+
             var content = Content.Default;
 
             State? state = reader.GetBlock(out String namedBlockID);
-            
+
             if (state == null)
             {
                 if (context != null) context.ReportWarning(this, $"Unknown block '{namedBlockID}' in structure '{name}'");
@@ -67,9 +80,9 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
             }
 
             content.Block = state.Value;
-            
+
             FluidInstance? fluid = reader.GetFluid(out String namedFluidID);
-            
+
             if (fluid == null)
             {
                 if (context != null) context.ReportWarning(this, $"Unknown fluid '{namedFluidID}' in structure '{name}'");
@@ -77,9 +90,9 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
 
                 fluid = Voxels.Fluids.Instance.None.AsInstance();
             }
-            
+
             content.Fluid = fluid.Value;
-            
+
             contents[position.X, position.Y, position.Z] = content;
         }
     }
@@ -232,7 +245,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
         for (var z = 0; z < Extents.Z; z++)
         {
             if (contents[x, y, z] is not {} content) continue;
-            
+
             builder.AddPlacement(new Vector3i(x, y, z), content, content.Fluid.IsStatic);
         }
 

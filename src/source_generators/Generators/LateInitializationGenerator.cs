@@ -1,6 +1,19 @@
 ﻿// <copyright file="LateInitializationGenerator.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -49,7 +62,7 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
     {
         if (ModelExtensions.GetDeclaredSymbol(semanticModel, declarationSyntax) is not IPropertySymbol propertySymbol)
             return null;
-        
+
         if (!declarationSyntax.Modifiers.Any(SyntaxKind.PartialKeyword))
             return null;
 
@@ -59,9 +72,9 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         String type = propertySymbol.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
         String accessibility = SyntaxFacts.GetText(propertySymbol.DeclaredAccessibility);
         String name = propertySymbol.Name;
-        
+
         Boolean isStatic = propertySymbol.IsStatic;
-        
+
         String getAccessibility = propertySymbol.GetMethod != null ? SyntaxFacts.GetText(propertySymbol.GetMethod.DeclaredAccessibility) : accessibility;
         String setAccessibility = propertySymbol.SetMethod != null ? SyntaxFacts.GetText(propertySymbol.SetMethod.DeclaredAccessibility) : accessibility;
 
@@ -84,9 +97,9 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
         sb.AppendPreamble<LateInitializationGenerator>().AppendNamespace(model.Namespace);
 
         var backingFieldName = $"@__{NameTools.ConvertPascalCaseToCamelCase(model.Name)}";
-        
+
         String staticModifier = model.IsStatic ? "static " : "";
-        
+
         String getAccessibility = model.GetAccessibility != model.Accessibility ? $"{model.GetAccessibility} " : "";
         String setAccessibility = model.SetAccessibility != model.Accessibility ? $"{model.SetAccessibility} " : "";
 
@@ -100,7 +113,7 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
                            {{i}}{
                            {{i}}    {{getAccessibility}}get => {{backingFieldName}} 
                            {{i}}        ?? throw new global::System.InvalidOperationException($"Property '{nameof({{model.Name}})}' is used before being initialized.");
-                           
+
                            {{i}}    {{setAccessibility}}set
                            {{i}}    {
                            {{i}}        if ({{backingFieldName}} is not null)
@@ -116,13 +129,13 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
     }
 
     private record struct PropertyModel(
-        ContainingType? ContainingType, 
-        String DeclaringType, 
-        String Namespace, 
-        String Accessibility, 
-        String Type, 
-        String Name, 
-        Boolean IsStatic, 
-        String GetAccessibility, 
+        ContainingType? ContainingType,
+        String DeclaringType,
+        String Namespace,
+        String Accessibility,
+        String Type,
+        String Name,
+        Boolean IsStatic,
+        String GetAccessibility,
         String SetAccessibility);
 }

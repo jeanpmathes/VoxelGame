@@ -1,6 +1,19 @@
 ﻿// <copyright file="PlayerInput.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -9,6 +22,8 @@ using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Inputs;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Input.Composite;
 using VoxelGame.Toolkit;
@@ -87,19 +102,19 @@ public sealed partial class PlayerInput : ActorComponent
     internal Boolean IsInteractionBlocked => blockInteractButton.IsDown;
 
     /// <summary>
-    ///     Get the movement decided by the user input for an orientable object.
+    ///     Get the movement decided by the user input for a given transform.
     /// </summary>
-    /// <param name="orientable">An orientable object.</param>
+    /// <param name="transform">The transform to use for orientation.</param>
     /// <param name="normalSpeed">The factor to use for normal speed.</param>
     /// <param name="sprintSpeed">The factor to use for sprint speed.</param>
     /// <param name="allowFlying">Whether flying is allowed.</param>
     /// <returns>The movement vector.</returns>
-    internal Vector3d GetMovement(IOrientable orientable, Double normalSpeed, Double sprintSpeed, Boolean allowFlying)
+    internal Vector3d GetMovement(Transform transform, Double normalSpeed, Double sprintSpeed, Boolean allowFlying)
     {
         (Single x, Single z) = movementInput.Value;
         Single y = (ShouldJump.ToInt() - ShouldCrouch.ToInt()) * allowFlying.ToInt();
 
-        Vector3d movement = x * orientable.Forward + z * orientable.Right + y * Vector3d.UnitY;
+        Vector3d movement = x * transform.Forward + z * transform.Right + y * Vector3d.UnitY;
 
         if (movement != Vector3d.Zero)
             movement = sprintButton.IsDown
@@ -110,9 +125,9 @@ public sealed partial class PlayerInput : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
-        timer += deltaTime;
+        timer += delta.Time;
     }
 
     internal void RegisterInteraction()

@@ -1,6 +1,19 @@
 ﻿// <copyright file="TextureIndexProvider.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -33,23 +46,15 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
         if (blockTextures == null || fluidTextures == null)
             return fallbackColor;
 
-        if (Context == null)
-        {
-            LogLoadingDisabled(logger);
-
-            return fallbackColor;
-        }
-
         TextureBundle bundle = isBlock ? blockTextures : fluidTextures;
 
-        if (index < 0 || index >= bundle.Count)
-        {
-            Context.ReportWarning(this, $"Texture index '{index}' out of bounds, using fallback instead");
+        if (index >= 0 && index < bundle.Count)
+            return bundle.GetDominantColor(index);
 
-            return fallbackColor;
-        }
+        if (Context != null) Context.ReportWarning(this, $"Texture index '{index}' out of bounds, using fallback instead");
+        else LogTextureIndexOutOfBounds(logger, index);
 
-        return bundle.GetDominantColor(index);
+        return fallbackColor;
     }
 
     /// <inheritdoc />
@@ -94,6 +99,9 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
 
     [LoggerMessage(EventId = LogID.TextureIndexProvider + 0, Level = LogLevel.Warning, Message = "Loading of textures is currently disabled, fallback will be used instead")]
     private static partial void LogLoadingDisabled(ILogger logger);
+
+    [LoggerMessage(EventId = LogID.TextureIndexProvider + 1, Level = LogLevel.Warning, Message = "Texture index '{index}' out of bounds, using fallback instead")]
+    private static partial void LogTextureIndexOutOfBounds(ILogger logger, Int32 index);
 
     #endregion LOGGING
 }

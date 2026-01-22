@@ -1,6 +1,19 @@
 ﻿// <copyright file="Plantable.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -21,9 +34,7 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavior, Block>
 {
     [Constructible]
-    private Plantable(Block subject) : base(subject)
-    {
-    }
+    private Plantable(Block subject) : base(subject) {}
 
     /// <summary>
     ///     Whether this block supports full plant growth.
@@ -59,19 +70,19 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
             return fluid.TryTakeExact(world, position, level);
 
         GrowthAttemptMessage growthAttempt = IEventMessage<GrowthAttemptMessage>.Pool.Get();
-        
+
         growthAttempt.World = world;
         growthAttempt.Position = position;
         growthAttempt.Fluid = fluid;
         growthAttempt.Level = level;
         growthAttempt.CanGrow = false;
-        
+
         GrowthAttempt.Publish(growthAttempt);
-        
+
         Boolean canGrow = growthAttempt.CanGrow;
-        
+
         IEventMessage<GrowthAttemptMessage>.Pool.Return(growthAttempt);
-        
+
         return canGrow;
     }
 
@@ -84,35 +95,35 @@ public partial class Plantable : BlockBehavior, IBehavior<Plantable, BlockBehavi
         /// <summary>
         ///     The world in which the placement was completed.
         /// </summary>
-        public World World { get; } 
+        World World { get; }
 
         /// <summary>
         ///     The position at which the block was placed.
         /// </summary>
-        public Vector3i Position { get; }
+        Vector3i Position { get; }
 
         /// <summary>
         ///     The fluid that is required by the plant.
         /// </summary>
-        public Fluid Fluid { get; }
+        Fluid Fluid { get; }
 
         /// <summary>
         ///     The amount of fluid required by the plant.
         /// </summary>
-        public FluidLevel Level { get; }
+        FluidLevel Level { get; }
 
         /// <summary>
         ///     Whether the plant can grow on this block.
         /// </summary>
-        public Boolean CanGrow { get; }
-        
+        Boolean CanGrow { get; }
+
         /// <summary>
-        /// Mark that the growth attempt succeeded.
-        /// A caller calling this must remove the required fluid from the world.
+        ///     Mark that the growth attempt succeeded.
+        ///     A caller calling this must remove the required fluid from the world.
         /// </summary>
-        public void MarkAsSuccessful();
+        void MarkAsSuccessful();
     }
-    
+
     private sealed partial record GrowthAttemptMessage
     {
         public void MarkAsSuccessful()

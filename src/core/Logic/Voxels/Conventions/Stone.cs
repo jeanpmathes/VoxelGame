@@ -1,6 +1,19 @@
 ﻿// <copyright file="Stone.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -29,7 +42,7 @@ public class Stone(CID contentID, BlockBuilder builder) : Convention<Stone>(cont
     public required Block Base { get; init; }
 
     /// <summary>
-        ///     When breaking the base stone, it will break into rubble.
+    ///     When breaking the base stone, it will break into rubble.
     ///     The block is loose and as such allows water to flow through it.
     /// </summary>
     public required Block Rubble { get; init; }
@@ -136,18 +149,16 @@ public static class StoneConvention
                 Wall = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Stone.Wall)}"), $"{Language.Wall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(
-                        connecting => connecting.Models.Initializer.ContributeConstant(
-                            (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+                        (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block(texture, x: 1)))
                     .Complete(),
 
                 BrickWall = builder
                     .BuildComplexBlock(new CID($"{contentID}{nameof(Stone.BrickWall)}"), $"{Language.BrickWall} ({name})")
                     .WithBehavior<Wall>()
-                    .WithBehavior<WideConnecting>(
-                        connecting => connecting.Models.Initializer.ContributeConstant(
-                            (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
+                    .WithBehavior<WideConnecting>(connecting => connecting.Models.Initializer.ContributeConstant(
+                        (RID.File<Model>("wall_post"), RID.File<Model>("wall_extension"), RID.File<Model>("wall_extension_straight"))))
                     .WithTextureOverride(TextureOverride.All(TID.Block($"{texture}_bricks", x: 0)))
                     .Complete()
             };

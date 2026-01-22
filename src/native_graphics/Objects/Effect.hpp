@@ -1,6 +1,19 @@
 ﻿// <copyright file="Effect.hpp" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -12,6 +25,8 @@ class RasterPipeline;
 struct EffectDataBuffer
 {
     DirectX::XMFLOAT4X4 pvm;
+    float               zNear;
+    float               zFar;
 };
 #pragma pack(pop)
 
@@ -50,18 +65,16 @@ public:
     void Accept(Visitor& visitor) override;
 
 protected:
-    void DoDataUpload(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<D3D12_RESOURCE_BARRIER>*     barriers) override;
+    void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers) override;
     void DoReset() override;
 
 private:
     RasterPipeline* m_pipeline = nullptr;
 
-    Allocation<ID3D12Resource>                m_instanceDataBuffer            = {};
-    UINT64                                    m_instanceDataBufferAlignedSize = 0;
-    D3D12_CONSTANT_BUFFER_VIEW_DESC           m_instanceDataBufferView        = {};
-    Mapping<ID3D12Resource, EffectDataBuffer> m_instanceConstantBufferMapping = {};
+    Allocation<ID3D12Resource>                m_instanceConstantDataBuffer            = {};
+    UINT64                                    m_instanceConstantDataBufferAlignedSize = 0;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC           m_instanceConstantDataBufferView        = {};
+    Mapping<ID3D12Resource, EffectDataBuffer> m_instanceConstantBufferMapping         = {};
 
     Allocation<ID3D12Resource> m_geometryBuffer = {};
     D3D12_VERTEX_BUFFER_VIEW   m_geometryVBV    = {};

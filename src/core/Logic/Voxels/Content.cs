@@ -1,6 +1,19 @@
 ﻿// <copyright file="Content.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -40,30 +53,8 @@ public readonly record struct FluidInstance(Fluid Fluid, FluidLevel Level, Boole
 /// <param name="Fluid">The fluid instance.</param>
 public record struct Content(State Block, FluidInstance Fluid)
 {
-    /// <summary>
-    /// Create a new content value. Do not use this within world generator code.
-    /// </summary>
-    /// <param name="block">The block, or the default block if not provided.</param>
-    /// <param name="fluid">The fluid, or an empty fluid if not provided. Will have maximal level and be static.</param>
-    /// <returns>>The created content.</returns>
-    public static Content Create(Block? block = null, Fluid? fluid = null)
-    {
-        return new Content(block?.States.Default ?? DefaultState, fluid.AsInstance());
-    }
-    
-    /// <summary>
-    /// Create a new content value for world generation. Do not use this outside of world generator code.
-    /// </summary>
-    /// <param name="block">The block, or the generation default block if not provided.</param>
-    /// <param name="fluid">The fluid, or an empty fluid if not provided. Will have maximal level and be static.</param>
-    /// <returns>>The created content.</returns>
-    public static Content CreateGenerated(Block? block = null, Fluid? fluid = null)
-    {
-        return new Content(block?.States.GenerationDefault ?? DefaultState, fluid.AsInstance());
-    }
-    
     private static Block DefaultBlock => Blocks.Instance.Core.Air;
-    
+
     /// <summary>
     ///     Get the default state, which is always air.
     /// </summary>
@@ -78,7 +69,7 @@ public record struct Content(State Block, FluidInstance Fluid)
     ///     Get the generation default content.
     /// </summary>
     public static Content GenerationDefault => new(DefaultBlock.States.GenerationDefault, FluidInstance.Default);
-    
+
     /// <summary>
     ///     Whether the content is empty.
     /// </summary>
@@ -89,6 +80,28 @@ public record struct Content(State Block, FluidInstance Fluid)
     ///     allowing to set the block to a new value without any problems.
     /// </summary>
     public Boolean IsSettable => Block.IsReplaceable && Fluid.IsEmpty;
+
+    /// <summary>
+    ///     Create a new content value. Do not use this within world generator code.
+    /// </summary>
+    /// <param name="block">The block, or the default block if not provided.</param>
+    /// <param name="fluid">The fluid, or an empty fluid if not provided. Will have maximal level and be static.</param>
+    /// <returns>>The created content.</returns>
+    public static Content Create(Block? block = null, Fluid? fluid = null)
+    {
+        return new Content(block?.States.Default ?? DefaultState, fluid.AsInstance());
+    }
+
+    /// <summary>
+    ///     Create a new content value for world generation. Do not use this outside of world generator code.
+    /// </summary>
+    /// <param name="block">The block, or the generation default block if not provided.</param>
+    /// <param name="fluid">The fluid, or an empty fluid if not provided. Will have maximal level and be static.</param>
+    /// <returns>>The created content.</returns>
+    public static Content CreateGenerated(Block? block = null, Fluid? fluid = null)
+    {
+        return new Content(block?.States.GenerationDefault ?? DefaultState, fluid.AsInstance());
+    }
 
     /// <inheritdoc />
     public override String ToString()

@@ -1,6 +1,19 @@
 ﻿// <copyright file="Drawable.hpp" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -64,9 +77,7 @@ public:
      * Enqueues commands to upload the data to the GPU.
      * Should only be called when the data is modified.
      */
-    void EnqueueDataUpload(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<D3D12_RESOURCE_BARRIER>*     barriers);
+    void EnqueueDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers);
 
     /**
      * Finalizes the data upload.
@@ -115,9 +126,7 @@ protected:
     bool                                      HandleModification(UINT newElementCount);
     [[nodiscard]] Allocation<ID3D12Resource>& GetUploadDataBuffer();
 
-    virtual void DoDataUpload(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList,
-        std::vector<D3D12_RESOURCE_BARRIER>*     barriers) = 0;
+    virtual void DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers) = 0;
     virtual void DoReset() = 0;
 
 private:

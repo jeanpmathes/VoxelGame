@@ -1,6 +1,19 @@
 ﻿// <copyright file="StateSet.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -76,6 +89,33 @@ public class StateSet
     public State GenerationDefault => new(this, generationDefault);
 
     /// <summary>
+    ///     Get all states in this set.
+    ///     Note that this will generate the states on the fly, so do not use this after loading.
+    ///     The order of states is guaranteed to be the same as the order of state indices.
+    /// </summary>
+    public IEnumerable<State> AllStates
+    {
+        get
+        {
+            for (var index = 0; index < Count; index++) yield return GetStateByIndex(index);
+        }
+    }
+
+    /// <summary>
+    ///     Get all states in this set along with their indices.
+    ///     Note that this will generate the states on the fly, so do not use this after
+    ///     The order of states is guaranteed to be the same as the order of state indices.
+    /// </summary>
+    /// <returns>An enumerable of all states in this set along with their indices.</returns>
+    public IEnumerable<(State, Int32)> AllStatesWithIndex
+    {
+        get
+        {
+            for (var index = 0; index < Count; index++) yield return (GetStateByIndex(index), index);
+        }
+    }
+
+    /// <summary>
     ///     Get the state for a given state ID.
     /// </summary>
     /// <param name="id">The state ID, which is a number across all blocks.</param>
@@ -105,39 +145,6 @@ public class StateSet
     public static UInt32 GetStateID(State state)
     {
         return state.Owner.setOffset + (UInt32) state.Index;
-    }
-
-    /// <summary>
-    ///     Get all states in this set.
-    ///     Note that this will generate the states on the fly, so do not use this after loading.
-    ///     The order of states is guaranteed to be the same as the order of state indices.
-    /// </summary>
-    public IEnumerable<State> AllStates
-    {
-        get
-        {
-            for (var index = 0; index < Count; index++)
-            {
-                yield return GetStateByIndex(index);
-            }
-        }
-    }
-
-    /// <summary>
-    ///     Get all states in this set along with their indices.
-    ///     Note that this will generate the states on the fly, so do not use this after
-    ///     The order of states is guaranteed to be the same as the order of state indices.
-    /// </summary>
-    /// <returns>An enumerable of all states in this set along with their indices.</returns>
-    public IEnumerable<(State, Int32)> AllStatesWithIndex
-    {
-        get
-        {
-            for (var index = 0; index < Count; index++)
-            {
-                yield return (GetStateByIndex(index), index);
-            }
-        }
     }
 
     /// <summary>

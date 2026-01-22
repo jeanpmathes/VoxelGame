@@ -1,6 +1,19 @@
 ﻿// <copyright file="SceneManager.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -15,6 +28,7 @@ using VoxelGame.Client.Application.Components;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using Activity = VoxelGame.Core.Updates.Activity;
 
@@ -81,6 +95,8 @@ public partial class SceneManager : ApplicationComponent
 
         current = scene;
         current.Load();
+
+        Visuals.Graphics.Instance.SetIsSpaceRendered(current.IsSpaceRendered());
     }
 
     private void Unload()
@@ -97,6 +113,7 @@ public partial class SceneManager : ApplicationComponent
         current = null;
 
         Visuals.Graphics.Instance.Reset();
+        Visuals.Graphics.Instance.SetIsSpaceRendered(isRendered: false);
 
         Cleanup();
     }
@@ -144,7 +161,7 @@ public partial class SceneManager : ApplicationComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double delta, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         Transition();
 
@@ -152,7 +169,7 @@ public partial class SceneManager : ApplicationComponent
     }
 
     /// <inheritdoc />
-    public override void OnRenderUpdate(Double delta, Timer? timer)
+    public override void OnRenderUpdate(Delta delta, Timer? timer)
     {
         current?.RenderUpdate(delta, timer);
     }
@@ -175,17 +192,17 @@ public partial class SceneManager : ApplicationComponent
     }
 
     #region DISPOSABLE
-    
+
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
-        
+
         if (!disposing) return;
-        
+
         Unload();
     }
-    
+
     #endregion DISPOSABLE
 
     #region LOGGING

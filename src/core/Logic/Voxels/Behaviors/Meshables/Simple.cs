@@ -1,6 +1,19 @@
 ﻿// <copyright file="Simple.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -51,7 +64,7 @@ public partial class Simple : BlockBehavior, IBehavior<Simple, BlockBehavior, Bl
     public MeshData GetMeshData(State state, Side side, ITextureIndexProvider textureIndexProvider)
     {
         Boolean isTextureRotated = IsTextureRotated.GetValue(original: false, (state, side));
-        ColorS tint = meshed.Tint.GetValue(ColorS.None, state);
+        ColorS tint = meshed.Tint.GetValue(ColorS.NoTint, state);
         Boolean isAnimated = meshed.IsAnimated.GetValue(original: false, state);
 
         Int32 textureIndex = textured.GetTextureIndex(state, side, textureIndexProvider, isBlock: true);

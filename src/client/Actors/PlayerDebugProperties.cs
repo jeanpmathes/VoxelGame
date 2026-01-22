@@ -1,6 +1,19 @@
 ﻿// <copyright file="PlayerDebugProperties.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -34,7 +47,8 @@ public class PlayerDebugProperties : Group
         new Message("Position (Section)", FormatObject(SectionPosition.From(player.Body.Transform.Position.Floor()))),
         new Group("Target Block", CreateBlockTargetProperties(player.GetComponent<Targeting>()?.Block ?? Content.DefaultState)),
         new Group("Target Fluid", CreateFluidTargetProperties(player.GetComponent<Targeting>()?.Fluid ?? FluidInstance.Default)),
-        new Measure("Temperature", player.World.GetTemperature(player.Body.Transform.Position.Floor())),
+        new Measure("Temperature", player.World.Map.GetTemperature(player.Body.Transform.Position.Floor())),
+        new Message("Date and Time", $"{player.World.DateAndTime}"),
         new Group("World",
         [
             new Message("Chunk State Updates", $"{player.World.ChunkStateUpdateCount}"),
@@ -63,8 +77,6 @@ public class PlayerDebugProperties : Group
 
     private static String FormatObject(Object? obj)
     {
-        return obj != null
-            ? $"{obj.GetType().Name} ({obj})"
-            : "null";
+        return obj != null ? $"{obj}" : "null";
     }
 }

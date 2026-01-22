@@ -1,6 +1,19 @@
 ﻿// <copyright file="Spatial.hlsl" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -178,8 +191,8 @@ namespace vg
         {
             bool const inner = decode::GetNormalInvertedFlag(info.data);
 
-            float3 const dirToLight = native::spatial::global.lightDir * -1.0f; // Normalized.
-            float3 const normal     = info.normal * (inner ? -1.0f : 1.0f);
+            float3 const directionToLight = native::spatial::global.lightDirection * -1.0f; // Normalized.
+            float3 const normal           = info.normal * (inner ? -1.0f : 1.0f);
 
             float3 color = baseColor;
 
@@ -190,7 +203,7 @@ namespace vg
             {
                 RayDesc ray;
                 ray.Origin    = info.GetPosition() + normal * native::rt::RAY_EPSILON;
-                ray.Direction = dirToLight;
+                ray.Direction = directionToLight;
                 ray.TMin      = 0.0f;
                 ray.TMax      = native::rt::RAY_DISTANCE;
 
@@ -199,17 +212,19 @@ namespace vg
 
                 TraceRay(native::rt::spaceBVH, RAY_FLAG_NONE, native::rt::MASK_SHADOW, RT_HIT_ARG(1), ray, shadowPayload);
 
-                float const energy = dot(normal, dirToLight);
+                float const energy = dot(normal, directionToLight) * native::spatial::global.lightIntensity;
 
-                if (!shadowPayload.isHit) intensity = clamp(energy, native::spatial::global.minLight, 1.0f);
-                else
-                    intensity = lerp(native::spatial::global.minShadow, native::spatial::global.minLight, clamp(abs(energy), 0.0f, 1.0f));
+                float const minLight  = native::spatial::global.lightIntensity * 0.4f;
+                float const minShadow = native::spatial::global.lightIntensity * 0.2f;
+
+                if (!shadowPayload.isHit) intensity = clamp(energy, minLight, 1.0f);
+                else intensity                      = lerp(minShadow, minLight, saturate(abs(energy)));
             }
             else intensity = 1.0f;
 
-            color *= intensity;
+            color *= intensity * native::spatial::global.lightColor;
 
-            if (custom.wireframe)
+            if (custom.showWireframes)
             {
                 float const edge = info.GetDistanceToTriangleBorders();
                 color            = edge < 0.005f ? 1.0f : lerp(color, 0.0f, 0.2f);

@@ -2,9 +2,9 @@
          xsi:noNamespaceSchemaLocation="../texture.xsd">
     <Layers mode="replace">
         <Layer source="ash:all">
-            <Modifier type="repeat" x="#animation_frames" />
+            <Modifier type="repeat" x="#animation_frames"/>
         </Layer>
-        <Layer source="p:embers:all" />
+        <Layer source="p:embers:all"/>
     </Layers>
     <Modifiers/>
 </Texture>

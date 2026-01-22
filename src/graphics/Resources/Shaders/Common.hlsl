@@ -1,6 +1,19 @@
-﻿//  <copyright file="Common.hlsl" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+﻿// <copyright file="Common.hlsl" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -11,6 +24,8 @@
 #define POW3(x) (POW2(x) * (x))
 #define POW4(x) (POW2(x) * POW2(x))
 #define POW5(x) (POW3(x) * POW2(x))
+
+#define PI 3.14159265359f
 
 /**
  * \brief Contains common functions and constants for shaders.
@@ -35,7 +50,7 @@ namespace native
      * \param color The color.
      * \return The luminance.
      */
-    float GetLuminance(in float3 const color) { return dot(color, float3(0.299f, 0.587f, 0.114f)); }
+    float GetLuminance(in float3 const color) { return dot(color, float3(0.2126729f, 0.7151522f, 0.0721750f)); }
 
     /**
      * \brief Translates the UV coordinates between the OpenGL and DirectX coordinate system.
@@ -43,21 +58,6 @@ namespace native
      * \return The UV coordinates in the DirectX/OpenGL coordinate system.
      */
     float2 TranslateUV(in float2 const uv) { return float2(uv.x, 1.0f - uv.y); }
-
-    /**
-     * \brief The color red.
-     */
-    static float3 const RED = float3(1.0f, 0.0f, 0.0f);
-
-    /**
-     * \brief The color green.
-     */
-    static float3 const GREEN = float3(0.0f, 1.0f, 0.0f);
-
-    /**
-     * \brief The color blue.
-     */
-    static float3 const BLUE = float3(0.0f, 0.0f, 1.0f);
 }
 
 #endif

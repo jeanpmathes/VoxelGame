@@ -1,6 +1,19 @@
 ﻿// <copyright file="GenerateRecordUsageAnalyzerTests.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -27,12 +40,12 @@ public class GenerateRecordUsageAnalyzerTests
                        using System;
                        using VoxelGame.Annotations.Attributes;
 
-                       [GenerateRecord]
+                       [GenerateRecord(typeof(Object))]
                        public interface I<T> {}
                        """,
 
             ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = { TestTool.DefaultSolutionTransform },
+            SolutionTransforms = {TestTool.DefaultSolutionTransform},
 
             TestState =
             {
@@ -57,7 +70,7 @@ public class GenerateRecordUsageAnalyzerTests
         {
             TestCode = """
                        using VoxelGame.Annotations.Attributes;
-                       
+
                        public interface A<T1, T2>;
 
                        [GenerateRecord(typeof(A<,>))]
@@ -65,7 +78,7 @@ public class GenerateRecordUsageAnalyzerTests
                        """,
 
             ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = { TestTool.DefaultSolutionTransform },
+            SolutionTransforms = {TestTool.DefaultSolutionTransform},
 
             TestState =
             {
@@ -84,39 +97,13 @@ public class GenerateRecordUsageAnalyzerTests
     }
 
     [Fact]
-    public async Task GenerateRecordUsageAnalyzer_ShouldNotReportWhenCorrectWithoutAnyArguments()
-    {
-        await new CSharpAnalyzerTest<GenerateRecordUsageAnalyzer, DefaultVerifier>
-        {
-            TestCode = """
-                       using System;
-                       using VoxelGame.Annotations.Attributes;
-
-                       [GenerateRecord]
-                       public interface I {}
-                       """,
-
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = { TestTool.DefaultSolutionTransform },
-
-            TestState =
-            {
-                AdditionalReferences =
-                {
-                    MetadataReference.CreateFromFile(typeof(GenerateRecordAttribute).Assembly.Location)
-                }
-            }
-        }.RunAsync();
-    }
-
-    [Fact]
     public async Task GenerateRecordUsageAnalyzer_ShouldNotReportWhenCorrectWithNonGenericBase()
     {
         await new CSharpAnalyzerTest<GenerateRecordUsageAnalyzer, DefaultVerifier>
         {
             TestCode = """
                        using VoxelGame.Annotations.Attributes;
-                       
+
                        public class A;
 
                        [GenerateRecord(typeof(A))]
@@ -124,7 +111,7 @@ public class GenerateRecordUsageAnalyzerTests
                        """,
 
             ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = { TestTool.DefaultSolutionTransform },
+            SolutionTransforms = {TestTool.DefaultSolutionTransform},
 
             TestState =
             {
@@ -143,7 +130,7 @@ public class GenerateRecordUsageAnalyzerTests
         {
             TestCode = """
                        using VoxelGame.Annotations.Attributes;
-                       
+
                        public class A<T>;
 
                        [GenerateRecord(typeof(A<>))]
@@ -151,7 +138,7 @@ public class GenerateRecordUsageAnalyzerTests
                        """,
 
             ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = { TestTool.DefaultSolutionTransform },
+            SolutionTransforms = {TestTool.DefaultSolutionTransform},
 
             TestState =
             {
@@ -172,7 +159,7 @@ public class GenerateRecordUsageAnalyzerTests
                        using System;
                        using System.Collections.Generic;
                        using VoxelGame.Annotations.Attributes;
-                       
+
                        public class A<T1, T2>;
 
                        [GenerateRecord(typeof(A<Int32, Int32>))]
@@ -180,7 +167,7 @@ public class GenerateRecordUsageAnalyzerTests
                        """,
 
             ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = { TestTool.DefaultSolutionTransform },
+            SolutionTransforms = {TestTool.DefaultSolutionTransform},
 
             TestState =
             {

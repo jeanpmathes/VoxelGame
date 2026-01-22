@@ -1,6 +1,19 @@
 ﻿// <copyright file="ThinConnecting.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -55,16 +68,19 @@ public partial class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, B
 
         Model post = context.ModelProvider.GetModel(Models.Get().post);
 
-        (Model north, Model east, Model south, Model west) sides = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(
-            context.ModelProvider.GetModel(Models.Get().side), Model.TransformationMode.Reshape);
-        (Model north, Model east, Model south, Model west) extensions = VoxelGame.Core.Visuals.Models.CreateModelsForAllOrientations(
-            context.ModelProvider.GetModel(Models.Get().extension), Model.TransformationMode.Reshape);
+        (Model north, Model east, Model south, Model west) sides = Core.Visuals.Models.CreateModelsForAllOrientations(
+            context.ModelProvider.GetModel(Models.Get().side),
+            Model.TransformationMode.Reshape);
+
+        (Model north, Model east, Model south, Model west) extensions = Core.Visuals.Models.CreateModelsForAllOrientations(
+            context.ModelProvider.GetModel(Models.Get().extension),
+            Model.TransformationMode.Reshape);
 
         return Model.Combine(post,
-            north ? extensions.north : sides.north,
-            east ? extensions.east : sides.east,
-            south ? extensions.south : sides.south,
-            west ? extensions.west : sides.west)
+                north ? extensions.north : sides.north,
+                east ? extensions.east : sides.east,
+                south ? extensions.south : sides.south,
+                west ? extensions.west : sides.west)
             .CreateMesh(context.TextureIndexProvider);
     }
 

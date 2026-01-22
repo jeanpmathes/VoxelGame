@@ -1,6 +1,19 @@
 ﻿// <copyright file="DoubleCropPlant.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -21,13 +34,13 @@ namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant, BlockBehavior, Block>
 {
     private const Int32 StageCount = 5;
-    
+
     /// <summary>
-    /// The first full stage is actually the one before reaching double height.
-    /// This is necessary to prevent reaching double height on soil that cannot support it.
+    ///     The first full stage is actually the one before reaching double height.
+    ///     This is necessary to prevent reaching double height on soil that cannot support it.
     /// </summary>
     private const Int32 FirstFullStage = 1;
-    
+
     private readonly Composite composite;
     private readonly GrowingPlant plant;
 
@@ -69,7 +82,7 @@ public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant,
 
         return composite.GetPartPosition(state).Y == 0 ? Foliage.PartType.DoubleLower : Foliage.PartType.DoubleUpper;
     }
-    
+
     private Int32 GetHorizontalOffset(Int32 original, State state)
     {
         return plant.GetStage(state) + 1 ?? 0;
@@ -79,7 +92,7 @@ public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant,
     {
         return plant.GetStage(state) > FirstFullStage;
     }
-    
+
     private BoundingVolume GetBoundingVolume(BoundingVolume original, State state)
     {
         Int32? currentStage = plant.GetStage(state);

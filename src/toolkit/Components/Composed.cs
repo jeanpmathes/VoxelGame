@@ -1,6 +1,19 @@
 ﻿// <copyright file="Composed.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -12,28 +25,25 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Toolkit.Components;
 
 /// <summary>
-/// Abstract base class for non-generic methods of <see cref="Composed{TSelf,TComponent}"/>.
+///     Abstract base class for non-generic methods of <see cref="Composed{TSelf,TComponent}" />.
 /// </summary>
 public abstract class Composed : IDisposable
 {
     /// <summary>
-    /// Remove a specified component by providing the component instance.
-    /// This should generally not be used directly.
-    /// If the component is not attached to this container, nothing happens.
+    ///     Remove a specified component by providing the component instance.
+    ///     This should generally not be used directly.
+    ///     If the component is not attached to this container, nothing happens.
     /// </summary>
     /// <param name="component">The component to remove.</param>
     public abstract void RemoveComponent(Object component);
-    
+
     #region DISPOSABLE
 
     /// <summary>
     ///     Called by the finalizer or Dispose method.
     /// </summary>
     /// <param name="disposing"><c>true</c> if called from Dispose, <c>false</c> if called from the finalizer.</param>
-    protected virtual void Dispose(Boolean disposing)
-    {
-        
-    }
+    protected virtual void Dispose(Boolean disposing) {}
 
     /// <inheritdoc />
     public void Dispose()
@@ -256,14 +266,14 @@ public abstract class Composed<TSelf, TComponent> : Composed
     /// </summary>
     /// <param name="component">The component that was removed.</param>
     protected virtual void OnComponentRemoved(TComponent component) {}
-    
+
     #region DISPOSABLE
 
     /// <inheritdoc />
     protected override void Dispose(Boolean disposing)
     {
         base.Dispose(disposing);
-        
+
         if (!disposing)
             return;
 

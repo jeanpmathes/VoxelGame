@@ -1,6 +1,19 @@
 ﻿// <copyright file="FluidLevel.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -65,7 +78,7 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     ///     Represents a fluid volume of 1000L.
     /// </summary>
     public static FluidLevel Eight { get; } = new(value: 7);
-    
+
     /// <summary>
     ///     Represents a full block of fluid.
     /// </summary>
@@ -74,8 +87,8 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     /// <summary>
     ///     Represents the absence of fluid.
     /// </summary>
-    public static FluidLevel None { get; } = new(value: NoneValue);
-    
+    public static FluidLevel None { get; } = new(NoneValue);
+
     /// <summary>
     ///     Gets whether this level represents a full block of fluid.
     /// </summary>
@@ -100,26 +113,30 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
         if (value is < MinValue or > MaxValue)
         {
             level = None;
+
             return false;
         }
 
         level = new FluidLevel(value);
-        
+
         return true;
     }
 
     /// <summary>
-    /// Get the integer representation of this fluid level.
+    ///     Get the integer representation of this fluid level.
     /// </summary>
-    public Int32 ToInt32() => value;
-    
+    public Int32 ToInt32()
+    {
+        return value;
+    }
+
     /// <summary>
-    /// Get the fraction of a full block this fluid level represents.
+    ///     Get the fraction of a full block this fluid level represents.
     /// </summary>
     public Double Fraction => value != NoneValue ? (value + 1) / 8.0 : 0.0;
 
     /// <summary>
-    ///     Get the fluid level as block height, or <see cref="BlockHeight.None"/> if there is no fluid.
+    ///     Get the fluid level as block height, or <see cref="BlockHeight.None" /> if there is no fluid.
     /// </summary>
     public BlockHeight BlockHeight => value == NoneValue ? BlockHeight.None : BlockHeight.FromInt32(value * (BlockHeight.Maximum.ToInt32() / MaxValue) + 1);
 
@@ -166,7 +183,7 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     }
 
     /// <summary>
-    /// The equality operator.
+    ///     The equality operator.
     /// </summary>
     public static Boolean operator ==(FluidLevel left, FluidLevel right)
     {
@@ -174,15 +191,15 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     }
 
     /// <summary>
-    /// The inequality operator.
+    ///     The inequality operator.
     /// </summary>
     public static Boolean operator !=(FluidLevel left, FluidLevel right)
     {
         return !left.Equals(right);
     }
-    
+
     #endregion EQUALITY
-    
+
     /// <inheritdoc />
     public override String ToString()
     {
@@ -200,7 +217,7 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
             _ => $"Invalid({value})"
         };
     }
-    
+
     #region COMPARABLE
 
     /// <summary>
@@ -220,7 +237,7 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     }
 
     /// <summary>
-    /// The less-than-or-equal operator.
+    ///     The less-than-or-equal operator.
     /// </summary>
     public static Boolean operator <=(FluidLevel left, FluidLevel right)
     {
@@ -228,7 +245,7 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     }
 
     /// <summary>
-    /// The greater-than-or-equal operator.
+    ///     The greater-than-or-equal operator.
     /// </summary>
     public static Boolean operator >=(FluidLevel left, FluidLevel right)
     {
@@ -236,39 +253,48 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     }
 
     #endregion COMPARABLE
-    
+
     #region MATH
-    
-    /// <summary>
-    /// Get the maximum of two fluid levels.
-    /// </summary>
-    public static FluidLevel Max(FluidLevel left, FluidLevel right) => left >= right ? left : right;
 
     /// <summary>
-    /// The addition operator.
+    ///     Get the maximum of two fluid levels.
+    /// </summary>
+    public static FluidLevel Max(FluidLevel left, FluidLevel right)
+    {
+        return left >= right ? left : right;
+    }
+
+    /// <summary>
+    ///     The addition operator.
     /// </summary>
     public static FluidLevel operator +(FluidLevel left, FluidLevel right)
     {
         Int32 result = left.value + right.value + 1; // Because levels are 0-indexed.
-        
+
         return FromInt32(result);
     }
-    
+
     /// <inheritdoc cref="op_Addition" />
-    public static FluidLevel Add(FluidLevel left, FluidLevel right) => left + right;
-    
+    public static FluidLevel Add(FluidLevel left, FluidLevel right)
+    {
+        return left + right;
+    }
+
     /// <summary>
-    /// The subtraction operator.
+    ///     The subtraction operator.
     /// </summary>
     public static FluidLevel operator -(FluidLevel left, FluidLevel right)
     {
         Int32 result = left.value - right.value - 1; // Because levels are 0-indexed.
-        
+
         return result < MinValue ? None : FromInt32(result);
     }
-    
+
     /// <inheritdoc cref="op_Subtraction" />
-    public static FluidLevel Subtract(FluidLevel left, FluidLevel right) => left - right;
-    
+    public static FluidLevel Subtract(FluidLevel left, FluidLevel right)
+    {
+        return left - right;
+    }
+
     #endregion MATH
 }

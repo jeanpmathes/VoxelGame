@@ -1,11 +1,25 @@
 ﻿// <copyright file="D3D12Debug.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Diagnostics;
+using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
@@ -41,7 +55,7 @@ internal sealed class D3D12Debug
     ///     Enable the debugging features. This method should be called exactly once, and the result must be passed to the
     ///     native configuration.
     /// </summary>
-    internal static Definition.Native.D3D12MessageFunc Enable(Client client)
+    internal static unsafe Definition.Native.D3D12MessageFunc Enable(Client client)
     {
         Debug.Assert(instance is null);
 
@@ -51,15 +65,17 @@ internal sealed class D3D12Debug
         return debug.debugCallbackDelegate;
     }
 
-    private static void DebugCallback(
+    private static unsafe void DebugCallback(
         Definition.Native.D3D12_MESSAGE_CATEGORY category,
         Definition.Native.D3D12_MESSAGE_SEVERITY severity,
         Definition.Native.D3D12_MESSAGE_ID id,
-        String? message, IntPtr context)
+        Byte* messagePointer, IntPtr context)
     {
         LogLevel level = GetLevel(severity);
         String categoryName = ResolveCategory(category);
         (String idResolved, Int32 eventId) = ResolveEvent(id);
+
+        String? message = Utf8StringMarshaller.ConvertToManaged(messagePointer);
 
         if (logger.IsEnabled(level))
             // Logging intentionally not trough source generator to allow easily setting level and event id.

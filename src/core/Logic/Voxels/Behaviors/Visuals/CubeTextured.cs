@@ -1,6 +1,19 @@
 ﻿// <copyright file="CubeTextured.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -33,14 +46,14 @@ public partial class CubeTextured : BlockBehavior, IBehavior<CubeTextured, Block
     ///     The default texture layout to use for the block.
     ///     This should be set through the <see cref="BlockBuilder" /> when defining the block.
     /// </summary>
-    public ResolvedProperty<TextureLayout> DefaultTexture { get; } 
+    public ResolvedProperty<TextureLayout> DefaultTexture { get; }
         = ResolvedProperty<TextureLayout>.New<Exclusive<TextureLayout, Void>>(nameof(DefaultTexture), TextureLayout.Uniform(TID.MissingTexture));
 
     /// <summary>
     ///     The actually used, state dependent texture layout.
     /// </summary>
     public Aspect<TextureLayout, State> ActiveTexture { get; }
-    
+
     /// <summary>
     ///     The rotation of the texture on the block.
     /// </summary>
@@ -63,7 +76,7 @@ public partial class CubeTextured : BlockBehavior, IBehavior<CubeTextured, Block
     public Int32 GetTextureIndex(State state, Side side, ITextureIndexProvider textureIndexProvider, Boolean isBlock)
     {
         TextureLayout layout = ActiveTexture.GetValue(DefaultTexture.Get(), state);
-        
+
         return layout.GetTextureIndex(side, textureIndexProvider, isBlock, Rotation.GetValue((Axis.Y, 0), state));
     }
 }

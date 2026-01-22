@@ -90,15 +90,9 @@ public:
 
     [[nodiscard]] bool IsTearingSupportEnabled() const { return m_tearingSupport; }
 
-    [[nodiscard]] bool SupportPIX() const
-    {
-        return static_cast<bool>(m_configuration.options & ConfigurationOptions::SUPPORT_PIX);
-    }
+    [[nodiscard]] bool SupportPIX() const { return static_cast<bool>(m_configuration.options & ConfigurationOptions::SUPPORT_PIX); }
 
-    [[nodiscard]] bool UseGBV() const
-    {
-        return static_cast<bool>(m_configuration.options & ConfigurationOptions::USE_GBV);
-    }
+    [[nodiscard]] bool UseGBV() const { return static_cast<bool>(m_configuration.options & ConfigurationOptions::USE_GBV); }
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
@@ -114,8 +108,10 @@ public:
     [[nodiscard]] float GetAspectRatio() const;
     [[nodiscard]] POINT GetMousePosition() const { return {m_xMousePosition, m_yMousePosition}; }
 
-    [[nodiscard]] double GetTotalLogicUpdateTime() const { return m_totalLogicUpdateTime; }
-    [[nodiscard]] double GetTotalRenderUpdateTime() const { return m_totalRenderUpdateTime; }
+    [[nodiscard]] double GetTotalRealRenderUpdateTime() const { return m_totalRealRenderUpdateTime; }
+    [[nodiscard]] double GetTotalScaledRenderUpdateTime() const { return m_totalScaledRenderUpdateTime; }
+
+    void SetTimeScale(double scale);
 
     enum class Cycle
     {
@@ -144,9 +140,9 @@ protected:
     virtual void OnPreInitialization() = 0;
     virtual void OnPostInitialization() = 0;
     virtual void OnInitializationComplete() = 0;
-    virtual void OnLogicUpdate(double delta) = 0;
+    virtual void OnLogicUpdate() = 0;
     virtual void OnPreRenderUpdate() = 0;
-    virtual void OnRenderUpdate(double delta) = 0;
+    virtual void OnRenderUpdate() = 0;
     virtual void OnDestroy() = 0;
 
     virtual void OnSizeChanged(UINT width, UINT height, bool minimized) = 0;
@@ -171,8 +167,11 @@ private:
     StepTimer m_logicTimer{};
     StepTimer m_renderTimer{};
 
-    double m_totalLogicUpdateTime  = 0.0;
-    double m_totalRenderUpdateTime = 0.0;
+    double m_baseLogicUpdateTarget = 1.0;
+    double m_timeScale             = 1.0;
+
+    double m_totalRealRenderUpdateTime   = 0.0;
+    double m_totalScaledRenderUpdateTime = 0.0;
 
     UINT  m_width;
     UINT  m_height;

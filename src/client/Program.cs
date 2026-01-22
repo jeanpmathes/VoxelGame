@@ -1,6 +1,19 @@
 ﻿// <copyright file="Program.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -14,6 +27,7 @@ using Properties;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Application.Settings;
+using VoxelGame.Core.Domain.Chrono;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -32,8 +46,7 @@ internal static partial class Program
     /// <summary>
     ///     Get the version of the program.
     /// </summary>
-    [LateInitialization]
-    private static partial Version Version { get; set; } 
+    [LateInitialization] private static partial Version Version { get; set; }
 
     /// <summary>
     ///     Get whether the program is running with code that was compiled in debug mode.
@@ -43,30 +56,31 @@ internal static partial class Program
     /// <summary>
     ///     Get the app data directory.
     /// </summary>
-    [LateInitialization]
-    private static partial DirectoryInfo AppDataDirectory { get; set; }
+    [LateInitialization] private static partial DirectoryInfo AppDataDirectory { get; set; }
 
     /// <summary>
     ///     Get the screenshot directory.
     /// </summary>
-    [LateInitialization]
-    internal static partial DirectoryInfo ScreenshotDirectory { get; private set; }
+    [LateInitialization] internal static partial DirectoryInfo ScreenshotDirectory { get; private set; }
 
     /// <summary>
     ///     Get the directory structures are exported to.
     /// </summary>
-    [LateInitialization]
-    internal static partial DirectoryInfo StructureDirectory { get; private set; } 
+    [LateInitialization] internal static partial DirectoryInfo StructureDirectory { get; private set; }
 
     /// <summary>
     ///     Get the world directory.
     /// </summary>
-    [LateInitialization]
-    internal static partial DirectoryInfo WorldsDirectory { get; private set; } 
+    [LateInitialization] internal static partial DirectoryInfo WorldsDirectory { get; private set; }
 
     [STAThread]
     private static Int32 Main(String[] commandLineArguments)
     {
+        System.Console.WriteLine(@"VoxelGame Client Copyright (C) 2020-2026 Jean Patrick Mathes");
+        System.Console.WriteLine(@"This program comes with ABSOLUTELY NO WARRANTY. This is free software, and you are welcome to redistribute it under certain conditions.");
+        System.Console.WriteLine(@"See the LICENSE file in the project root for details.");
+        System.Console.WriteLine();
+
         SetDebugMode();
 
         // Creating the directories could technically cause an exception.
@@ -105,6 +119,7 @@ internal static partial class Program
                     {
                         Title = Language.VoxelGame + " " + Version,
                         Size = graphicsSettings.WindowSize,
+                        BaseUpdatesPerSecond = Calendar.UpdatesPerRealSecond,
                         RenderScale = graphicsSettings.RenderResolutionScale,
                         SupportPIX = args.SupportPIX,
                         UseGBV = args.UseGBV
@@ -135,7 +150,7 @@ internal static partial class Program
     private static Int32 Run(ILogger logger, Func<Int32> runnable)
     {
         using ILoggerFactory factory = LoggingHelper.LoggerFactory;
-        
+
         if (IsDebug) return runnable();
 
         try

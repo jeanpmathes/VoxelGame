@@ -6,7 +6,7 @@
 
         <Platforms>x64</Platforms>
         <PlatformTarget>x64</PlatformTarget>
-        
+
         <IsRoslynComponent>true</IsRoslynComponent>
 
         <RootNamespace>VoxelGame.SourceGenerators</RootNamespace>

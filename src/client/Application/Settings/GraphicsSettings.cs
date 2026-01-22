@@ -1,6 +1,19 @@
 ﻿// <copyright file="GraphicsSettings.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -47,6 +60,30 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 clientSettings.RenderResolutionScale = scale;
                 clientSettings.Save();
             });
+
+        PostProcessingAntiAliasingQuality = new Bindable<Quality>(
+            () => clientSettings.PostProcessingAntiAliasingQuality,
+            q =>
+            {
+                clientSettings.PostProcessingAntiAliasingQuality = q;
+                clientSettings.Save();
+            });
+
+        RenderingAntiAliasingQuality = new Bindable<Quality>(
+            () => clientSettings.RenderingAntiAliasingQuality,
+            q =>
+            {
+                clientSettings.RenderingAntiAliasingQuality = q;
+                clientSettings.Save();
+            });
+
+        AnisotropicFilteringQuality = new Bindable<Quality>(
+            () => clientSettings.AnisotropicFilteringQuality,
+            q =>
+            {
+                clientSettings.AnisotropicFilteringQuality = q;
+                clientSettings.Save();
+            });
     }
 
     /// <summary>
@@ -63,6 +100,21 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
     ///     The render resolution scale.
     /// </summary>
     public Bindable<Single> RenderResolutionScale { get; }
+
+    /// <summary>
+    ///     The antialiasing quality level used during post-processing.
+    /// </summary>
+    public Bindable<Quality> PostProcessingAntiAliasingQuality { get; }
+
+    /// <summary>
+    ///     The antialiasing quality level used during ray-based rendering.
+    /// </summary>
+    public Bindable<Quality> RenderingAntiAliasingQuality { get; }
+
+    /// <summary>
+    ///     The anisotropic filtering quality level used during ray-based rendering.
+    /// </summary>
+    public Bindable<Quality> AnisotropicFilteringQuality { get; }
 
     /// <summary>
     ///     Get the visual configuration from the settings.
@@ -102,10 +154,28 @@ public sealed class GraphicsSettings : SettingsBase, ISettingsProvider
                 this,
                 Language.GraphicsRenderResolutionScale,
                 RenderResolutionScale.Accessors,
-                min: 0.1f,
+                min: 0.5f,
                 max: 5f,
                 percentage: true,
-                step: 0.1f));
+                step: 0.5f));
+
+        AddSetting(nameof(PostProcessingAntiAliasingQuality),
+            Setting.CreateQualitySetting(
+                this,
+                Language.GraphicsPostProcessingAntiAliasingQuality,
+                PostProcessingAntiAliasingQuality.Accessors));
+
+        AddSetting(nameof(RenderingAntiAliasingQuality),
+            Setting.CreateQualitySetting(
+                this,
+                Language.GraphicsRenderingAntiAliasingQuality,
+                RenderingAntiAliasingQuality.Accessors));
+
+        AddSetting(nameof(AnisotropicFilteringQuality),
+            Setting.CreateQualitySetting(
+                this,
+                Language.GraphicsAnisotropicFilteringQuality,
+                AnisotropicFilteringQuality.Accessors));
     }
 
     #region LOGGING

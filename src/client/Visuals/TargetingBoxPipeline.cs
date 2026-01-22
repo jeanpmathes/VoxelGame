@@ -1,12 +1,26 @@
 ﻿// <copyright file="BoxRenderer.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
 using System;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
@@ -18,14 +32,15 @@ namespace VoxelGame.Client.Visuals;
 ///     A rendering pipeline for block targeting visualization based on the <see cref="BoxCollider" /> struct.
 ///     Create a <see cref="TargetingBoxEffect" /> to use this pipeline.
 /// </summary>
-public sealed class TargetingBoxPipeline : IDisposable
+public sealed partial class TargetingBoxPipeline : IDisposable
 {
-    private readonly ShaderBuffer<Data> buffer;
     private readonly VoxelGame.Graphics.Core.Client client;
     private readonly RasterPipeline pipeline;
-    private ColorS brightColor = ColorS.White;
-    private Boolean colorsDirty = true;
+    private readonly ShaderBuffer<Data> buffer;
 
+    private Boolean dataDirty = true;
+
+    private ColorS brightColor = ColorS.White;
     private ColorS darkColor = ColorS.Black;
 
     private TargetingBoxPipeline(VoxelGame.Graphics.Core.Client client, RasterPipeline pipeline, ShaderBuffer<Data> buffer)
@@ -51,7 +66,7 @@ public sealed class TargetingBoxPipeline : IDisposable
     internal static TargetingBoxPipeline? Create(VoxelGame.Graphics.Core.Client client, PipelineFactory factory)
     {
         (RasterPipeline pipeline, ShaderBuffer<Data> buffer)? result
-            = factory.LoadPipelineWithBuffer<Data>("Targeting", new ShaderPresets.SpatialEffect(Topology.Line));
+            = factory.LoadPipelineWithBuffer<Data>("Targeting", new ShaderPresets.SpatialEffect());
 
         return result is {pipeline: var rasterPipeline, buffer: var shaderBuffer}
             ? new TargetingBoxPipeline(client, rasterPipeline, shaderBuffer)
@@ -74,7 +89,7 @@ public sealed class TargetingBoxPipeline : IDisposable
     public void SetDarkColor(ColorS newColor)
     {
         darkColor = newColor;
-        colorsDirty = true;
+        dataDirty = true;
     }
 
     /// <summary>
@@ -84,7 +99,7 @@ public sealed class TargetingBoxPipeline : IDisposable
     public void SetBrightColor(ColorS newColor)
     {
         brightColor = newColor;
-        colorsDirty = true;
+        dataDirty = true;
     }
 
     /// <summary>
@@ -92,18 +107,19 @@ public sealed class TargetingBoxPipeline : IDisposable
     /// </summary>
     public void UpdateData()
     {
-        if (!colorsDirty) return;
+        if (!dataDirty) return;
 
         buffer.Data = new Data(darkColor.ToColor4(), brightColor.ToColor4());
 
-        colorsDirty = false;
+        dataDirty = false;
     }
 
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
-    [StructLayout(LayoutKind.Explicit)]
-    private readonly struct Data : IEquatable<Data>
+    [StructLayout(LayoutKind.Explicit, Pack = ShaderBuffers.Pack)]
+    [ValueSemantics]
+    private readonly partial struct Data
     {
         /// <summary>
         ///     Create the shader data.
@@ -125,41 +141,5 @@ public sealed class TargetingBoxPipeline : IDisposable
         /// </summary>
         [FieldOffset(1 * ShaderBuffers.FieldOffset)]
         public readonly Color4 BrightColor;
-
-        /// <summary>
-        ///     Check equality.
-        /// </summary>
-        public Boolean Equals(Data other)
-        {
-            return (DarkColor, BrightColor) == (other.DarkColor, other.BrightColor);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is Data other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return HashCode.Combine(DarkColor, BrightColor);
-        }
-
-        /// <summary>
-        ///     The equality operator.
-        /// </summary>
-        public static Boolean operator ==(Data left, Data right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     The inequality operator.
-        /// </summary>
-        public static Boolean operator !=(Data left, Data right)
-        {
-            return !left.Equals(right);
-        }
     }
 }

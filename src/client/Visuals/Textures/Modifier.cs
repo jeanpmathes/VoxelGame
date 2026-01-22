@@ -1,6 +1,19 @@
 ﻿// <copyright file="Modifier.cs" company="VoxelGame">
-//     MIT License
-//     For full license see the repository.
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
@@ -94,15 +107,15 @@ public abstract class Modifier : IIssueSource
                 context.ReportWarning($"Failed to provide parameter '{parameter.Name}'");
                 failed = true;
             }
-            else parsed[parameter] = parsedValue;
+            else
+            {
+                parsed[parameter] = parsedValue;
+            }
 
             unknown.Remove(parameter.Name);
         }
 
-        foreach (String name in unknown)
-        {
-            context.ReportWarning($"Unknown parameter '{name}'");
-        }
+        foreach (String name in unknown) context.ReportWarning($"Unknown parameter '{name}'");
 
         return failed ? null : new Parameters(parsed);
     }
@@ -159,18 +172,18 @@ public abstract class Modifier : IIssueSource
         /// <summary>
         ///     Get the position of the image in the sheet currently being processed.
         /// </summary>
-        public Vector2i Position { get; }
+        Vector2i Position { get; }
 
         /// <summary>
         ///     Get the size of the sheet currently being processed.
         /// </summary>
-        public Vector2i Size { get; }
+        Vector2i Size { get; }
 
         /// <summary>
         ///     Report a warning.
         /// </summary>
         /// <param name="message">The message of the warning.</param>
-        public void ReportWarning(String message);
+        void ReportWarning(String message);
     }
 
     /// <summary>
@@ -272,7 +285,7 @@ public abstract class Modifier : IIssueSource
         {
             if (text == "#animation_frames")
                 return Constants.BlockAnimationFrames;
-            
+
             return Int32.TryParse(text, CultureInfo.InvariantCulture, out Int32 result) ? result : null;
         }
     }
