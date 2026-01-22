@@ -64,7 +64,7 @@ namespace
                     {.reg = 0, .space = 1});
 
                 graphics.AddHeapDescriptorTable(
-                    [&](auto& table)
+                    [&bindings](auto& table)
                     {
                         bindings->PostProcessing().color = table.AddShaderResourceView({.reg = 0});
                         bindings->PostProcessing().depth = table.AddShaderResourceView({.reg = 1});
