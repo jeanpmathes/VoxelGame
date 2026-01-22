@@ -1,5 +1,5 @@
 <Project>
-    <Import Project="Sdk.props" Sdk="WixToolset.Sdk" Version="4.0.4"/>
+    <Import Project="Sdk.props" Sdk="WixToolset.Sdk" Version="6.0.2"/>
     <PropertyGroup>
         <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
         <Configurations>Debug;Release</Configurations>
@@ -99,5 +99,5 @@
         <Folder Include="Resources\Icons"/>
         <Folder Include="Resources\Manual\"/>
     </ItemGroup>
-    <Import Project="Sdk.targets" Sdk="WixToolset.Sdk" Version="4.0.4"/>
+    <Import Project="Sdk.targets" Sdk="WixToolset.Sdk" Version="6.0.2"/>
 </Project>
