@@ -16,7 +16,7 @@ git clone --recursive https://github.com/jeanpmathes/VoxelGame.git
 Then, build by opening the `VoxelGame.sln` solution file in VisualStudio and building the solution in RELEASE mode.
 
 ## License
-VoxelGame is distributed under the [MIT License](LICENSE).
+VoxelGame is distributed under the [GPL License](LICENSE).
 
 Additional attributions for third‑party resources can be found in the [Attribution directory](src/ui/Resources/Attribution)
 
