@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Toolkit.Interop;
 
@@ -13,7 +14,8 @@ namespace VoxelGame.Toolkit.Interop;
 ///     A 32-bit boolean value for native interop.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct Bool
+[ValueSemantics]
+public partial struct Bool
 {
     private UInt32 value;
 
