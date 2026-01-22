@@ -24,17 +24,12 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     Utility struct holding the delta time of an update.
 /// </summary>
-public readonly struct Delta(Double realTime, Double time)
-{
-    /// <summary>
-    ///     The delta time, in real time seconds.
-    ///     This time should be used only in some specific cases, such as player input handling.
-    /// </summary>
-    public Double RealTime { get; } = realTime;
-
-    /// <summary>
-    ///     The delta time, in scaled seconds.
-    ///     This time should be used for most cases, especially physics and game logic.
-    /// </summary>
-    public Double Time { get; } = time;
-}
+/// <param name="RealTime">
+///     The delta time, in real time seconds.
+///     This time should be used only in some specific cases, such as player input handling.
+/// </param>
+/// <param name="Time">
+///     The delta time, in scaled seconds.
+///     This time should be used for most cases, especially physics and game logic.
+/// </param>
+public readonly record struct Delta(Double RealTime, Double Time);
