@@ -164,6 +164,23 @@ public abstract class Setting
     }
 
     /// <summary>
+    ///     Create a setting for picking an enum value.
+    /// </summary>
+    /// <param name="validator">The setting validator.</param>
+    /// <param name="name">The name of the setting.</param>
+    /// <param name="accessors">Functions to get and set the value.</param>
+    /// <param name="values">The possible enum values and their labels.</param>
+    /// <returns>The created setting.</returns>
+    public static Setting CreateEnumSetting<T>(ISettingsValidator validator, String name,
+        (Func<T> get, Action<T> set) accessors, (T, String)[] values) where T : Enum
+    {
+        return new EnumerationSetting<T>(name, values, accessors.get, accessors.set)
+        {
+            Validator = validator
+        };
+    }
+
+    /// <summary>
     ///     Create a setting for a boolean value.
     /// </summary>
     /// <param name="validator">The setting validator.</param>

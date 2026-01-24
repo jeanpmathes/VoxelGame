@@ -18,8 +18,9 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Globalization;
+using System.Linq;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
@@ -32,10 +33,12 @@ namespace VoxelGame.Client.Application.Settings;
 ///     General game settings that are not part of any other settings category.
 ///     Changed settings in this class will be saved.
 /// </summary>
-public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScaleProvider
+public sealed partial class GeneralSettings : SettingsBase, ISettingsProvider, IScaleProvider
 {
     internal GeneralSettings(Properties.Settings clientSettings)
     {
+        ApplySelectedLanguage(clientSettings);
+
         ScaleOfUI = new Bindable<Single>(
             () => (Single) clientSettings.ScaleOfUI,
             f =>
@@ -47,7 +50,7 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
         AddSetting(nameof(ScaleOfUI),
             Setting.CreateFloatRangeSetting(
                 this,
-                Language.ScaleOfUI,
+                Core.Resources.Language.Language.ScaleOfUI,
                 ScaleOfUI.Accessors,
                 min: 0.25f,
                 max: 3f,
@@ -64,7 +67,7 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
         AddSetting(nameof(CrosshairColor),
             Setting.CreateColorSetting(
                 this,
-                Language.CrosshairColor,
+                Core.Resources.Language.Language.CrosshairColor,
                 CrosshairColor.Accessors));
 
         CrosshairScale = new Bindable<Single>(
@@ -78,7 +81,7 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
         AddSetting(nameof(CrosshairScale),
             Setting.CreateFloatRangeSetting(
                 this,
-                Language.CrosshairScale,
+                Core.Resources.Language.Language.CrosshairScale,
                 CrosshairScale.Accessors,
                 min: 0f,
                 max: 0.5f));
@@ -94,7 +97,7 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
         AddSetting(nameof(DarkSelectionColor),
             Setting.CreateColorSetting(
                 this,
-                Language.SelectionBoxDarkColor,
+                Core.Resources.Language.Language.SelectionBoxDarkColor,
                 DarkSelectionColor.Accessors));
 
         BrightSelectionColor = new Bindable<ColorS>(
@@ -108,7 +111,7 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
         AddSetting(nameof(BrightSelectionColor),
             Setting.CreateColorSetting(
                 this,
-                Language.SelectionBoxBrightColor,
+                Core.Resources.Language.Language.SelectionBoxBrightColor,
                 BrightSelectionColor.Accessors));
 
         MouseSensitivity = new Bindable<Single>(
@@ -122,10 +125,27 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
         AddSetting(nameof(MouseSensitivity),
             Setting.CreateFloatRangeSetting(
                 this,
-                Language.MouseSensitivity,
+                Core.Resources.Language.Language.MouseSensitivity,
                 MouseSensitivity.Accessors,
                 min: 0f,
                 max: 1f));
+
+        Language = new Bindable<SupportedLanguage>(
+            () => clientSettings.Language,
+            language =>
+            {
+                clientSettings.Language = language;
+                clientSettings.Save();
+
+                // The selected language is applied only after restarting.
+            });
+
+        AddSetting(nameof(Language),
+            Setting.CreateEnumSetting(
+                this,
+                Core.Resources.Language.Language.Lang,
+                Language.Accessors,
+                SupportedLanguages.All.Select(language => (language, language.ToReadableString())).ToArray()));
     }
 
     /// <summary>
@@ -158,6 +178,11 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
     /// </summary>
     public Bindable<Single> MouseSensitivity { get; }
 
+    /// <summary>
+    ///     The language of the game.
+    /// </summary>
+    public Bindable<SupportedLanguage> Language { get; }
+
     /// <inheritdoc />
     Single IScaleProvider.Scale => ScaleOfUI;
 
@@ -168,10 +193,20 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
     }
 
     /// <inheritdoc />
-    static String ISettingsProvider.Category => Language.General;
+    static String ISettingsProvider.Category => Core.Resources.Language.Language.General;
 
     /// <inheritdoc />
-    static String ISettingsProvider.Description => Language.GeneralSettingsDescription;
+    static String ISettingsProvider.Description => Core.Resources.Language.Language.GeneralSettingsDescription;
+
+    private static void ApplySelectedLanguage(Properties.Settings clientSettings)
+    {
+        var selectedCulture = clientSettings.Language.ToCultureInfo();
+
+        CultureInfo.CurrentUICulture = selectedCulture;
+        Core.Resources.Language.Language.Culture = selectedCulture;
+
+        LogSetLanguage(logger, clientSettings.Language);
+    }
 
     #region LOGGING
 
@@ -179,6 +214,9 @@ public sealed class GeneralSettings : SettingsBase, ISettingsProvider, IScalePro
 
     /// <inheritdoc />
     protected override ILogger Logger => logger;
+
+    [LoggerMessage(EventId = LogID.GeneralSettings + 0, Level = LogLevel.Information, Message = "Set language to: {Language}")]
+    private static partial void LogSetLanguage(ILogger logger, SupportedLanguage language);
 
     #endregion LOGGING
 }

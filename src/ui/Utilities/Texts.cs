@@ -37,9 +37,12 @@ public static class Texts
     /// <param name="dateTime">The date time to format.</param>
     public static String FormatDateTime(DateTime dateTime)
     {
+        CultureInfo culture = CultureInfo.CurrentUICulture;
+        DateTimeFormatInfo format = culture.DateTimeFormat;
+
         DateTime localTime = dateTime.ToLocalTime();
 
-        return $"{localTime.ToLongDateString()} - {localTime.ToLongTimeString()}";
+        return $"{localTime.ToString(format.LongDatePattern, culture)} - {localTime.ToString(format.LongTimePattern, culture)}";
     }
 
     /// <summary>

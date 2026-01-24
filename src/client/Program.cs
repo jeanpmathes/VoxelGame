@@ -111,6 +111,7 @@ internal static partial class Program
             (args, logger) => Run(logger,
                 () =>
                 {
+                    GeneralSettings generalSettings = new(Settings.Default);
                     GraphicsSettings graphicsSettings = new(Settings.Default);
 
                     Profile.CreateGlobalInstance(args.Profile);
@@ -129,7 +130,7 @@ internal static partial class Program
 
                     Int32 result;
 
-                    using (Application.Client client = new(windowSettings, graphicsSettings, args, Version))
+                    using (Application.Client client = new(windowSettings, graphicsSettings, generalSettings, args, Version))
                     {
                         result = client.Run();
                     }

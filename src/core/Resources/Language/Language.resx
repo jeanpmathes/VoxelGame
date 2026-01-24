@@ -471,6 +471,9 @@
     <data name="CrosshairScale" xml:space="preserve">
     <value>Crosshair Scale</value>
   </data>
+    <data name="Lang" xml:space="preserve">
+    <value>Language</value>
+  </data>
     <data name="Reset" xml:space="preserve">
     <value>Reset</value>
   </data>
