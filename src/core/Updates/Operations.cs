@@ -36,7 +36,7 @@ public static class Operations
 {
     private const String NoDispatchMessage = "No global dispatch available.";
 
-    private static void RegisterOperation(Operation operation, OperationUpdateDispatch dispatch)
+    private static void RegisterOperation(Operation operation, UpdateDispatch dispatch)
     {
         dispatch.Add(operation);
     }
@@ -48,9 +48,9 @@ public static class Operations
     /// </summary>
     /// <param name="action">The action to run.</param>
     /// <param name="dispatch">The dispatch to use for the operation. If <c>null</c>, the global dispatch will be used.</param>
-    public static Operation Launch(Func<CancellationToken, Task> action, OperationUpdateDispatch? dispatch = null)
+    public static Operation Launch(Func<CancellationToken, Task> action, UpdateDispatch? dispatch = null)
     {
-        dispatch ??= OperationUpdateDispatch.Instance ?? throw Exceptions.InvalidOperation(NoDispatchMessage);
+        dispatch ??= UpdateDispatch.Instance ?? throw Exceptions.InvalidOperation(NoDispatchMessage);
 
         FutureOperation operation = new(action, dispatch);
 
@@ -66,9 +66,9 @@ public static class Operations
     /// </summary>
     /// <param name="function">The function to run.</param>
     /// <param name="dispatch">The dispatch to use for the operation. If <c>null</c>, the global dispatch will be used.</param>
-    public static Operation<T> Launch<T>(Func<CancellationToken, Task<T>> function, OperationUpdateDispatch? dispatch = null)
+    public static Operation<T> Launch<T>(Func<CancellationToken, Task<T>> function, UpdateDispatch? dispatch = null)
     {
-        dispatch ??= OperationUpdateDispatch.Instance ?? throw Exceptions.InvalidOperation(NoDispatchMessage);
+        dispatch ??= UpdateDispatch.Instance ?? throw Exceptions.InvalidOperation(NoDispatchMessage);
 
         FutureOperation<T> operation = new(function, dispatch);
 
@@ -165,13 +165,13 @@ public static class Operations
     private sealed class FutureOperation : Operation
     {
         private readonly FutureOperationInternal current;
-        private readonly OperationUpdateDispatch dispatch;
+        private readonly UpdateDispatch dispatch;
         private readonly FutureOperationInternal? previous;
         private readonly Func<Task> work;
 
         private Future? future;
 
-        public FutureOperation(Func<CancellationToken, Task> action, OperationUpdateDispatch dispatch, FutureOperationInternal? previous = null)
+        public FutureOperation(Func<CancellationToken, Task> action, UpdateDispatch dispatch, FutureOperationInternal? previous = null)
         {
             this.dispatch = dispatch;
             this.previous = previous;
@@ -234,13 +234,13 @@ public static class Operations
     private sealed class FutureOperation<T> : Operation<T>
     {
         private readonly FutureOperationInternal current;
-        private readonly OperationUpdateDispatch dispatch;
+        private readonly UpdateDispatch dispatch;
         private readonly FutureOperationInternal? previous;
         private readonly Func<Task<T>> work;
 
         private Future<T>? future;
 
-        public FutureOperation(Func<CancellationToken, Task<T>> function, OperationUpdateDispatch dispatch, FutureOperationInternal? previous = null)
+        public FutureOperation(Func<CancellationToken, Task<T>> function, UpdateDispatch dispatch, FutureOperationInternal? previous = null)
         {
             this.dispatch = dispatch;
             this.previous = previous;

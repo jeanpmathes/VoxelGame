@@ -1,4 +1,4 @@
-﻿// <copyright file="DispatcherCollection.cs" company="VoxelGame">
+﻿// <copyright file="IUpdateableProcess.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,25 +18,29 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
-using VoxelGame.Core.Updates;
-using Xunit;
 
-namespace VoxelGame.Core.Tests;
+namespace VoxelGame.Core.Updates;
 
-[UsedImplicitly]
-public class DispatcherFixture : LoggerFixture
+/// <summary>
+///     A process that can be updated and will complete at some point.
+///     Should be used in combination with <see cref="UpdateDispatch" />.
+/// </summary>
+public interface IUpdateableProcess
 {
-    public DispatcherFixture()
-    {
-        UpdateDispatch.SetUpMockInstance();
-    }
-}
+    /// <summary>
+    ///     Whether the process is currently running.
+    ///     If not, it will no longer be updated by the <see cref="UpdateDispatch" />.
+    /// </summary>
+    Boolean IsRunning { get; }
 
-[CollectionDefinition(Name)]
-public class DispatcherCollection : ICollectionFixture<DispatcherFixture>
-{
-    // Nothing to do here.
+    /// <summary>
+    ///     Is called by <see cref="UpdateDispatch" /> to update the process.
+    /// </summary>
+    void Update();
 
-    public const String Name = "RequireDispatcher";
+    /// <summary>
+    ///     Attempt to cancel the process.
+    ///     Canceled process can either ignore the cancellation, or stop to enter a failed state.
+    /// </summary>
+    void Cancel();
 }

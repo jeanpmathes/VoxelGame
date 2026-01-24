@@ -299,7 +299,7 @@ public partial class WorldProvider : IWorldProvider
             {
                 await metadata.SaveAsync(metadataFile, token).InAnyContext();
             },
-            client.GetRequiredComponent<GlobalOperationDispatch>());
+            client.GetRequiredComponent<GlobalUpdateDispatch>());
     }
 
     /// <summary>

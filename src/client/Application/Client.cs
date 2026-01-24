@@ -68,8 +68,8 @@ public sealed partial class Client : Graphics.Core.Client
         sceneManager = AddComponent<SceneManager>();
         sceneFactory = new SceneFactory(this);
 
-        AddComponent<SceneOperationDispatch>();
-        AddComponent<GlobalOperationDispatch>();
+        AddComponent<SceneUpdateDispatch>();
+        AddComponent<GlobalUpdateDispatch>();
 
         Settings = generalSettings;
         Graphics = graphicsSettings;

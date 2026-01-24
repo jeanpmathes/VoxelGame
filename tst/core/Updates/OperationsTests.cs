@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Tests.Updates;
 [TestSubject(typeof(Operations))]
 public sealed class OperationsTests : IDisposable
 {
-    private readonly OperationUpdateDispatch dispatch = new(singleton: false, Application.Instance);
+    private readonly UpdateDispatch dispatch = new(singleton: false, Application.Instance);
 
     public void Dispose()
     {
