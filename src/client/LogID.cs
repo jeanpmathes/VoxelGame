@@ -66,4 +66,6 @@ internal static class LogID
     internal const UInt16 TextureIndexProvider = Events.Increment + Graphics;
 
     internal const UInt16 IntermediateBundle = Events.Increment + TextureIndexProvider;
+
+    internal const UInt16 GeneralSettings = Events.Increment + IntermediateBundle;
 }

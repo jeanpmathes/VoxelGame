@@ -58,9 +58,10 @@ public sealed partial class Client : Graphics.Core.Client
     /// </summary>
     /// <param name="windowSettings">The window settings.</param>
     /// <param name="graphicsSettings">The graphics settings.</param>
+    /// <param name="generalSettings">The general settings.</param>
     /// <param name="parameters">The parameters, passed from the command line.</param>
     /// <param name="version">The version of the client.</param>
-    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GameParameters parameters, Version version) : base(windowSettings, version)
+    internal Client(WindowSettings windowSettings, GraphicsSettings graphicsSettings, GeneralSettings generalSettings, GameParameters parameters, Version version) : base(windowSettings, version)
     {
         this.parameters = parameters;
 
@@ -70,7 +71,7 @@ public sealed partial class Client : Graphics.Core.Client
         AddComponent<SceneOperationDispatch>();
         AddComponent<GlobalOperationDispatch>();
 
-        Settings = new GeneralSettings(Properties.Settings.Default);
+        Settings = generalSettings;
         Graphics = graphicsSettings;
 
         Graphics.CreateSettings(this);

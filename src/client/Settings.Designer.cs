@@ -165,5 +165,17 @@ namespace Properties {
                 this["AnisotropicFilteringQuality"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("English")]
+        public global::VoxelGame.Client.Application.SupportedLanguage Language {
+            get {
+                return ((global::VoxelGame.Client.Application.SupportedLanguage)(this["Language"]));
+            }
+            set {
+                this["Language"] = value;
+            }
+        }
     }
 }

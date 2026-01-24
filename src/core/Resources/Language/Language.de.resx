@@ -468,6 +468,9 @@
     <data name="CrosshairScale" xml:space="preserve">
     <value>Fadenkreuz-Skalierung</value>
   </data>
+    <data name="Lang" xml:space="preserve">
+    <value>Sprache</value>
+  </data>
     <data name="MouseSensitivity" xml:space="preserve">
     <value>Mausempfindlichkeit</value>
   </data>

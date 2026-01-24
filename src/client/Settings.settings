@@ -39,5 +39,8 @@
         <Setting Name="AnisotropicFilteringQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
             <Value Profile="(Default)">High</Value>
         </Setting>
+        <Setting Name="Language" Type="VoxelGame.Client.Application.SupportedLanguage" Scope="User">
+            <Value Profile="(Default)">English</Value>
+        </Setting>
     </Settings>
 </SettingsFile>
