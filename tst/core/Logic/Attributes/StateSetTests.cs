@@ -28,6 +28,7 @@ using Xunit;
 namespace VoxelGame.Core.Tests.Logic.Attributes;
 
 [TestSubject(typeof(StateSet))]
+[Collection(LoggerCollection.Name)]
 public class StateSetTests
 {
     private static StateBuilder CreateStateBuilder()
