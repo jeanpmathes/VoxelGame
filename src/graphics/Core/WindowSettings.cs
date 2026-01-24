@@ -38,6 +38,11 @@ public record WindowSettings
     public Vector2i Size { get; init; } = Vector2i.One;
 
     /// <summary>
+    ///     The targeted number of updates per second, ignoring any time scaling.
+    /// </summary>
+    public Int64 BaseUpdatesPerSecond { get; init; } = 60;
+
+    /// <summary>
     ///     The scale at which the world space is rendered.
     /// </summary>
     public Single RenderScale { get; init; } = 1.0f;

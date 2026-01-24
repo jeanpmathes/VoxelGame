@@ -30,14 +30,14 @@ public class UpdateCounter
     /// <summary>
     ///     The number of the current update cycle. It is incremented every time a new cycle begins.
     /// </summary>
-    public UInt64 Current { get; private set; }
+    public Int64 Current { get; private set; }
 
     /// <summary>
     ///     Increment the update counter.
     /// </summary>
     public void Increment()
     {
-        Debug.Assert(Current < UInt64.MaxValue);
+        Debug.Assert(Current < Int64.MaxValue);
 
         Current++;
     }

@@ -23,9 +23,9 @@ using System.IO;
 using System.Runtime.InteropServices;
 using Gwen.Net;
 using Gwen.Net.Renderer;
-using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
@@ -35,7 +35,6 @@ using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Toolkit.Utilities.Constants;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.UI.Platform.Renderer;
@@ -43,7 +42,7 @@ namespace VoxelGame.UI.Platform.Renderer;
 /// <summary>
 ///     Does the actual issuing of draw calls and managing of GPU resources.
 /// </summary>
-public sealed class RenderPipeline : IDisposable
+public sealed partial class RenderPipeline : IDisposable
 {
     private static readonly ILogger logger = LoggingHelper.CreateLogger<RenderPipeline>();
     private readonly ShaderBuffer<Buffer> buffer;
@@ -275,40 +274,10 @@ public sealed class RenderPipeline : IDisposable
     }
 
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
-    private struct Buffer : IEquatable<Buffer>, IDefault<Buffer>
+    [ValueSemantics]
+    private partial struct Buffer
     {
         public Vector2 screenSize;
-
-        [UsedImplicitly] public static Buffer Default => new();
-
-        #region EQUALITY
-
-        public Boolean Equals(Buffer other)
-        {
-            return screenSize.Equals(other.screenSize);
-        }
-
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is Buffer other && Equals(other);
-        }
-
-        public override Int32 GetHashCode()
-        {
-            return screenSize.GetHashCode();
-        }
-
-        public static Boolean operator ==(Buffer left, Buffer right)
-        {
-            return left.Equals(right);
-        }
-
-        public static Boolean operator !=(Buffer left, Buffer right)
-        {
-            return !left.Equals(right);
-        }
-
-        #endregion
     }
 
     private sealed class DrawCall

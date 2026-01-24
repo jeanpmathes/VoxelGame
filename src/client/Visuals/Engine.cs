@@ -23,25 +23,24 @@ using System.IO;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Interop;
-using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Client.Visuals;
 
 /// <summary>
 ///     The graphics engine, consisting of all renderers and pipelines.
 /// </summary>
-public sealed class Engine : IResource
+public sealed partial class Engine : IResource
 {
     /// <summary>
     ///     The shader directory.
     /// </summary>
     public static readonly DirectoryInfo ShaderDirectory = FileSystem.GetResourceDirectory("Shaders");
 
-    private readonly Application.Client client;
     private readonly List<IDisposable> bindings = [];
 
     private readonly ShaderBuffer<RaytracingData>? raytracingDataBuffer;
@@ -55,7 +54,7 @@ public sealed class Engine : IResource
         ShaderBuffer<RaytracingData>? rtData,
         ShaderBuffer<PostProcessingData>? ppBuffer)
     {
-        this.client = client;
+        Client = client;
 
         CrosshairPipeline = crosshairPipeline;
         OverlayPipeline = overlayPipeline;
@@ -64,6 +63,11 @@ public sealed class Engine : IResource
         raytracingDataBuffer = rtData;
         postProcessingBuffer = ppBuffer;
     }
+
+    /// <summary>
+    ///     The client that this engine belongs to.
+    /// </summary>
+    public Application.Client Client { get; }
 
     /// <summary>
     ///     Get the targeting box pipeline, which is used to draw selection boxes around blocks.
@@ -101,16 +105,16 @@ public sealed class Engine : IResource
     /// </summary>
     internal void Initialize()
     {
-        bindings.Add(client.Settings.CrosshairColor.Bind(args => CrosshairPipeline.SetColor(args.NewValue)));
-        bindings.Add(client.Settings.CrosshairScale.Bind(args => CrosshairPipeline.SetScale(args.NewValue)));
+        bindings.Add(Client.Settings.CrosshairColor.Bind(args => CrosshairPipeline.SetColor(args.NewValue)));
+        bindings.Add(Client.Settings.CrosshairScale.Bind(args => CrosshairPipeline.SetScale(args.NewValue)));
 
-        bindings.Add(client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
-        bindings.Add(client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
+        bindings.Add(Client.Settings.DarkSelectionColor.Bind(args => TargetingBoxPipeline.SetDarkColor(args.NewValue)));
+        bindings.Add(Client.Settings.BrightSelectionColor.Bind(args => TargetingBoxPipeline.SetBrightColor(args.NewValue)));
 
-        bindings.Add(client.Graphics.PostProcessingAntiAliasingQuality.Bind(args =>
+        bindings.Add(Client.Graphics.PostProcessingAntiAliasingQuality.Bind(args =>
             Graphics.Instance.ApplyPostProcessingAntiAliasingQuality(args.NewValue)));
 
-        bindings.Add(client.Graphics.RenderingAntiAliasingQuality.Bind(args =>
+        bindings.Add(Client.Graphics.RenderingAntiAliasingQuality.Bind(args =>
             Graphics.Instance.ApplyRenderingAntiAliasingQuality(args.NewValue)));
     }
 
@@ -275,15 +279,13 @@ public sealed class Engine : IResource
     ///     Data passed to the raytracing shaders.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
-    public struct RaytracingData : IEquatable<RaytracingData>, IDefault<RaytracingData>
+    [ValueSemantics]
+    public partial struct RaytracingData
     {
         /// <summary>
         ///     Creates a new instance of <see cref="RaytracingData" />.
         /// </summary>
         public RaytracingData() {}
-
-        /// <inheritdoc />
-        [UsedImplicitly] public static RaytracingData Default => new();
 
         /// <summary>
         ///     Whether to render in wireframe mode.
@@ -327,99 +329,24 @@ public sealed class Engine : IResource
         ///     The antialiasing settings for ray generation.
         /// </summary>
         public AntiAliasingSettings antiAliasing;
-
-        private (Boolean, Vector3, Single, Vector3, Vector3, Single, Single, AntiAliasingSettings) Pack =>
-            (wireframe, windDirection, fogOverlapSize, fogOverlapColor, airFogColor, airFogDensity, timeOfDay, antiAliasing);
-
-        /// <inheritdoc />
-        public Boolean Equals(RaytracingData other)
-        {
-            return Pack.Equals(other.Pack);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is RaytracingData other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return Pack.GetHashCode();
-        }
-
-        /// <summary>
-        ///     Check if two <see cref="RaytracingData" />s are equal.
-        /// </summary>
-        public static Boolean operator ==(RaytracingData left, RaytracingData right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     Check if two <see cref="RaytracingData" />s are not equal.
-        /// </summary>
-        public static Boolean operator !=(RaytracingData left, RaytracingData right)
-        {
-            return !left.Equals(right);
-        }
     }
 
     /// <summary>
     ///     Data passed to the post-processing shader.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
-    public struct PostProcessingData : IEquatable<PostProcessingData>, IDefault<PostProcessingData>
+    [ValueSemantics]
+    public partial struct PostProcessingData
     {
         /// <summary>
         ///     Creates a new instance of <see cref="PostProcessingData" />.
         /// </summary>
         public PostProcessingData() {}
 
-        /// <inheritdoc />
-        [UsedImplicitly] public static PostProcessingData Default => new();
-
         /// <summary>
         ///     The FXAA settings used during post-processing.
         /// </summary>
         public FxaaSettings fxaa = new();
-
-        private FxaaSettings Pack => fxaa;
-
-        /// <inheritdoc />
-        public Boolean Equals(PostProcessingData other)
-        {
-            return Pack.Equals(other.Pack);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is PostProcessingData other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return Pack.GetHashCode();
-        }
-
-        /// <summary>
-        ///     Check if two <see cref="PostProcessingData" />s are equal.
-        /// </summary>
-        public static Boolean operator ==(PostProcessingData left, PostProcessingData right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     Check if two <see cref="PostProcessingData" />s are not equal.
-        /// </summary>
-        public static Boolean operator !=(PostProcessingData left, PostProcessingData right)
-        {
-            return !left.Equals(right);
-        }
     }
 
     #region DISPOSABLE

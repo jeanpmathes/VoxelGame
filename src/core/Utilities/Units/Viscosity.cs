@@ -23,15 +23,15 @@ namespace VoxelGame.Core.Utilities.Units;
 
 public readonly partial struct Viscosity
 {
-    private const Double UpdateTicksPerMilliPascalSecond = 15.0;
+    private const Double UpdateDistancePerMilliPascalSecond = 15.0;
 
     /// <summary>
-    ///     Gets the viscosity expressed as update ticks.
+    ///     Gets the viscosity expressed as update distance.
     /// </summary>
-    public Double UpdateTicks
+    public Double UpdateDistance
     {
-        get => MilliPascalSeconds * UpdateTicksPerMilliPascalSecond;
-        init => MilliPascalSeconds = value / UpdateTicksPerMilliPascalSecond;
+        get => MilliPascalSeconds * UpdateDistancePerMilliPascalSecond;
+        init => MilliPascalSeconds = value / UpdateDistancePerMilliPascalSecond;
     }
 
     /// <summary>
@@ -48,6 +48,6 @@ public readonly partial struct Viscosity
     /// </summary>
     public UInt32 ToUpdateDelay()
     {
-        return (UInt32) Math.Max(val1: 1, Math.Round(UpdateTicks));
+        return (UInt32) Math.Max(val1: 1, Math.Round(UpdateDistance));
     }
 }

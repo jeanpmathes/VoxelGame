@@ -35,12 +35,7 @@ constexpr T RoundUp(T const value, V const alignment) { return (value + alignmen
  * \return The compiled shader blob.
  */
 template <typename Registry>
-ComPtr<IDxcBlob> CompileShader(
-    LPCWSTR             fileName,
-    std::wstring const& entry,
-    std::wstring const& target,
-    Registry            registry,
-    NativeErrorFunc     errorCallback)
+ComPtr<IDxcBlob> CompileShader(LPCWSTR fileName, std::wstring const& entry, std::wstring const& target, Registry registry, NativeErrorFunction errorCallback)
 {
     static ComPtr<IDxcCompiler3>      compiler = nullptr;
     static ComPtr<IDxcUtils>          utils    = nullptr;
@@ -68,11 +63,7 @@ ComPtr<IDxcBlob> CompileShader(
     ComPtr<IDxcBlobEncoding> shaderSourceBlob;
     TryDo(utils->CreateBlobFromPinned(shader.c_str(), static_cast<UINT32>(shader.size()), CP_UTF8, &shaderSourceBlob));
 
-    DxcBuffer sourceBuffer = {
-        .Ptr = shaderSourceBlob->GetBufferPointer(),
-        .Size = shaderSourceBlob->GetBufferSize(),
-        .Encoding = DXC_CP_UTF8
-    };
+    DxcBuffer sourceBuffer = {.Ptr = shaderSourceBlob->GetBufferPointer(), .Size = shaderSourceBlob->GetBufferSize(), .Encoding = DXC_CP_UTF8};
 
     std::vector<LPCWSTR>   args;
     std::vector<DxcDefine> defines;
@@ -98,13 +89,7 @@ ComPtr<IDxcBlob> CompileShader(
             &compilerArgs));
 
     ComPtr<IDxcResult> result;
-    TryDo(
-        compiler->Compile(
-            &sourceBuffer,
-            compilerArgs->GetArguments(),
-            compilerArgs->GetCount(),
-            dxcIncludeHandler.Get(),
-            IID_PPV_ARGS(&result)));
+    TryDo(compiler->Compile(&sourceBuffer, compilerArgs->GetArguments(), compilerArgs->GetCount(), dxcIncludeHandler.Get(), IID_PPV_ARGS(&result)));
 
     HRESULT resultCode;
     TryDo(result->GetStatus(&resultCode));

@@ -17,11 +17,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Diagnostics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Components;
 
 namespace VoxelGame.Core.Actors;
@@ -112,22 +112,22 @@ public abstract partial class Actor : Composed<Actor, ActorComponent>
     /// <summary>
     ///     Update this actor. Not all actors are always updated, e.g. when in they are in an inactive chunk.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    public void LogicUpdate(Double deltaTime)
+    /// <param name="delta">The time since the last update.</param>
+    public void LogicUpdate(Delta delta)
     {
         Debug.Assert(world != null);
 
-        OnLogicUpdate(deltaTime);
-        OnLogicUpdateComponents(deltaTime);
+        OnLogicUpdate(delta);
+        OnLogicUpdateComponents(delta);
     }
 
     /// <inheritdoc cref="Actor.LogicUpdate" />
     [ComponentEvent(nameof(ActorComponent.OnLogicUpdate))]
-    private partial void OnLogicUpdateComponents(Double deltaTime);
+    private partial void OnLogicUpdateComponents(Delta delta);
 
     /// <summary>
     ///     Called when the actor receives a logic update.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
-    protected virtual void OnLogicUpdate(Double deltaTime) {}
+    /// <param name="delta">The time since the last update.</param>
+    protected virtual void OnLogicUpdate(Delta delta) {}
 }

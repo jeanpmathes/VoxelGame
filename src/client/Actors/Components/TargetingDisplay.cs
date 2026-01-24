@@ -27,6 +27,7 @@ using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 
 namespace VoxelGame.Client.Actors.Components;
@@ -67,7 +68,7 @@ public partial class TargetingDisplay : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         SetTarget(player.World, targeting.Block, targeting.Position);
 

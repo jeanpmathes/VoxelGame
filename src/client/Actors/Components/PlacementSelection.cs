@@ -80,7 +80,7 @@ public partial class PlacementSelection : ActorComponent
     internal Boolean IsBlockMode { get; private set; } = true;
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         if (!player.Input.CanHandleGameInput)
             return;

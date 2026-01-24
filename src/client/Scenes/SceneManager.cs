@@ -28,6 +28,7 @@ using VoxelGame.Client.Application.Components;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using Activity = VoxelGame.Core.Updates.Activity;
 
@@ -94,6 +95,8 @@ public partial class SceneManager : ApplicationComponent
 
         current = scene;
         current.Load();
+
+        Visuals.Graphics.Instance.SetIsSpaceRendered(current.IsSpaceRendered());
     }
 
     private void Unload()
@@ -110,6 +113,7 @@ public partial class SceneManager : ApplicationComponent
         current = null;
 
         Visuals.Graphics.Instance.Reset();
+        Visuals.Graphics.Instance.SetIsSpaceRendered(isRendered: false);
 
         Cleanup();
     }
@@ -157,7 +161,7 @@ public partial class SceneManager : ApplicationComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double delta, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         Transition();
 
@@ -165,7 +169,7 @@ public partial class SceneManager : ApplicationComponent
     }
 
     /// <inheritdoc />
-    public override void OnRenderUpdate(Double delta, Timer? timer)
+    public override void OnRenderUpdate(Delta delta, Timer? timer)
     {
         current?.RenderUpdate(delta, timer);
     }

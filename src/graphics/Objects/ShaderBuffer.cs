@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices.Marshalling;
 using VoxelGame.Graphics.Core;
-using VoxelGame.Toolkit.Utilities.Constants;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Objects;
 

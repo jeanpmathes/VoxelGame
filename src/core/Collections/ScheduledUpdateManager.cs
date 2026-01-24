@@ -94,7 +94,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
         if (hasValue)
         {
-            holder ??= GetHolderFromPool(UInt64.MaxValue);
+            holder ??= GetHolderFromPool(Int64.MaxValue);
             serializer.SerializeValue(ref holder);
         }
         else
@@ -130,7 +130,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
         do
         {
-            UInt64 targetUpdate = updateCounter.Current + updateOffset;
+            Int64 targetUpdate = updateCounter.Current + updateOffset;
             update = FindOrCreateTargetHolder(targetUpdate);
 
             if (update.updateables.Count == TMaxScheduledUpdatesPerLogicUpdate.Value - 1)
@@ -145,7 +145,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
         update.updateables.Add(updateable);
     }
 
-    private UpdateHolder FindOrCreateTargetHolder(UInt64 targetUpdate)
+    private UpdateHolder FindOrCreateTargetHolder(Int64 targetUpdate)
     {
         UpdateHolder? last = null;
         UpdateHolder? current = nextUpdates;
@@ -168,7 +168,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
         return GetInsertedHolder(last, targetUpdate, next: null);
     }
 
-    private UpdateHolder GetInsertedHolder(UpdateHolder? previous, UInt64 targetUpdate, UpdateHolder? next)
+    private UpdateHolder GetInsertedHolder(UpdateHolder? previous, Int64 targetUpdate, UpdateHolder? next)
     {
         UpdateHolder newUpdate = GetHolderFromPool(targetUpdate);
 
@@ -234,10 +234,10 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
 
     private static UpdateHolder CreateUpdateHolder()
     {
-        return new UpdateHolder(UInt64.MaxValue);
+        return new UpdateHolder(Int64.MaxValue);
     }
 
-    private static UpdateHolder GetHolderFromPool(UInt64 targetUpdate)
+    private static UpdateHolder GetHolderFromPool(Int64 targetUpdate)
     {
         UpdateHolder holder = holderPool.Get();
 
@@ -253,12 +253,12 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
         holderPool.Return(holder);
     }
 
-    private sealed class UpdateHolder(UInt64 targetUpdate) : IValue
+    private sealed class UpdateHolder(Int64 targetUpdate) : IValue
     {
         public readonly List<T> updateables = [];
         public UpdateHolder? next;
 
-        public UInt64 targetUpdate = targetUpdate;
+        public Int64 targetUpdate = targetUpdate;
 
         public void Serialize(Serializer serializer)
         {

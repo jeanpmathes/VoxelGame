@@ -67,13 +67,13 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
 
     private static InterfaceModel? GetInterfaceModel(GeneratorAttributeSyntaxContext ctx)
     {
-        if (ctx.TargetNode is not InterfaceDeclarationSyntax ids) return null;
-        if (ctx.SemanticModel.GetDeclaredSymbol(ids) is not {} namedTypeSymbol) return null;
+        if (ctx.TargetNode is not InterfaceDeclarationSyntax interfaceDeclarationSyntax) return null;
+        if (ctx.SemanticModel.GetDeclaredSymbol(interfaceDeclarationSyntax) is not {} namedTypeSymbol) return null;
 
         if (namedTypeSymbol.IsGenericType) return null;
 
-        String @namespace = SyntaxTools.GetNamespace(ids);
-        ContainingType? containingType = SyntaxTools.GetContainingType(ids, ctx.SemanticModel);
+        String @namespace = SyntaxTools.GetNamespace(interfaceDeclarationSyntax);
+        ContainingType? containingType = SyntaxTools.GetContainingType(interfaceDeclarationSyntax, ctx.SemanticModel);
 
         ImmutableArray<PropertyModel>.Builder propertyArrayBuilder = ImmutableArray.CreateBuilder<PropertyModel>();
 

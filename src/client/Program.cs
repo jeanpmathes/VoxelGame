@@ -27,6 +27,7 @@ using Properties;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Application;
 using VoxelGame.Client.Application.Settings;
+using VoxelGame.Core.Domain.Chrono;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Utilities;
@@ -118,6 +119,7 @@ internal static partial class Program
                     {
                         Title = Language.VoxelGame + " " + Version,
                         Size = graphicsSettings.WindowSize,
+                        BaseUpdatesPerSecond = Calendar.UpdatesPerRealSecond,
                         RenderScale = graphicsSettings.RenderResolutionScale,
                         SupportPIX = args.SupportPIX,
                         UseGBV = args.UseGBV

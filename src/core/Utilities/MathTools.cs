@@ -223,21 +223,21 @@ public static class MathTools
     /// <param name="vector">The vector to round.</param>
     /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
     /// <returns>The rounded vector.</returns>
-    public static Vector3i RoundedToInt(this Vector3d vector, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static Vector3i RoundToInt(this Vector3d vector, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return new Vector3i(
-            RoundedToInt(vector.X, midpointRounding),
-            RoundedToInt(vector.Y, midpointRounding),
-            RoundedToInt(vector.Z, midpointRounding));
+            RoundToInt(vector.X, midpointRounding),
+            RoundToInt(vector.Y, midpointRounding),
+            RoundToInt(vector.Z, midpointRounding));
     }
 
     /// <summary>
     ///     Rounds a double to an integer.
     /// </summary>
     /// <param name="value">The value to round.</param>
-    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <param name="midpointRounding">The midpoint rounding behavior.</param>
     /// <returns>The rounded value.</returns>
-    public static Int32 RoundedToInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static Int32 RoundToInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return (Int32) Math.Round(value, digits: 0, midpointRounding);
     }
@@ -246,9 +246,9 @@ public static class MathTools
     ///     Rounds a double to an unsigned integer.
     /// </summary>
     /// <param name="value">The value to round.</param>
-    /// <param name="midpointRounding">The midpoint rounding behaviour.</param>
+    /// <param name="midpointRounding">The midpoint rounding behavior.</param>
     /// <returns>The rounded value.</returns>
-    public static UInt32 RoundedToUInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
+    public static UInt32 RoundToUInt(Double value, MidpointRounding midpointRounding = MidpointRounding.ToEven)
     {
         return (UInt32) Math.Round(value, digits: 0, midpointRounding);
     }
@@ -681,6 +681,14 @@ public static class MathTools
     ///     Get the modulo of a value. The result will always be positive.
     /// </summary>
     public static Int32 Mod(Int32 value, Int32 m)
+    {
+        return (value % m + m) % m;
+    }
+
+    /// <summary>
+    ///     Get the modulo of a value. The result will always be positive.
+    /// </summary>
+    public static Int64 Mod(Int64 value, Int64 m)
     {
         return (value % m + m) % m;
     }

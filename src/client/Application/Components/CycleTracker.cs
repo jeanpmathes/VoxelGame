@@ -22,6 +22,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.Providers;
 
 namespace VoxelGame.Client.Application.Components;
@@ -50,14 +51,14 @@ public sealed partial class CycleTracker : ApplicationComponent, IPerformancePro
     public Double UPS => 1.0 / logicDeltaBuffer.Average;
 
     /// <inheritdoc />
-    public override void OnRenderUpdate(Double delta, Timer? timer)
+    public override void OnRenderUpdate(Delta delta, Timer? timer)
     {
-        renderDeltaBuffer.Write(delta);
+        renderDeltaBuffer.Write(delta.RealTime);
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double delta, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
-        logicDeltaBuffer.Write(delta);
+        logicDeltaBuffer.Write(delta.RealTime);
     }
 }

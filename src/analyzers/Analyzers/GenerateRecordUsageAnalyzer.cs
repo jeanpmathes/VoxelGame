@@ -63,8 +63,8 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
 
     private static void AnalyzeInterfaceDeclaration(SyntaxNodeAnalysisContext context)
     {
-        if (context.Node is not TypeDeclarationSyntax typeDecl) return;
-        if (context.SemanticModel.GetDeclaredSymbol(typeDecl) is not {} typeSymbol) return;
+        if (context.Node is not TypeDeclarationSyntax typeDeclaration) return;
+        if (context.SemanticModel.GetDeclaredSymbol(typeDeclaration) is not {} typeSymbol) return;
 
         foreach (AttributeData attribute in typeSymbol.GetAttributes())
         {
@@ -78,7 +78,7 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
 
             if (ok) continue;
 
-            Location location = typeDecl.Identifier.GetLocation();
+            Location location = typeDeclaration.Identifier.GetLocation();
             var diagnostic = Diagnostic.Create(rule, location, typeSymbol.Name);
             context.ReportDiagnostic(diagnostic);
 

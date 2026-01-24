@@ -17,10 +17,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -50,7 +50,7 @@ public partial class CrosshairDisplay : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         engine.CrosshairPipeline.LogicUpdate();
     }

@@ -39,8 +39,6 @@ public sealed class TargetingBoxEffect : IDisposable
     private readonly Effect effect;
     private readonly TargetingBoxPipeline pipeline;
 
-    private BoxCollider? currentBox;
-
     internal TargetingBoxEffect(Effect effect, TargetingBoxPipeline pipeline)
     {
         this.effect = effect;
@@ -63,7 +61,6 @@ public sealed class TargetingBoxEffect : IDisposable
     /// <param name="targetedColor">The color of the target, will decide the color of the targeting box.</param>
     public void SetTarget(BoxCollider boxCollider, ColorS targetedColor)
     {
-        currentBox = boxCollider;
         effect.Position = boxCollider.Position;
 
         using PooledList<EffectVertex> vertices = new(boxCollider.Volume.NumberOfBoxes * 6 * 4 * 6);
@@ -95,10 +92,10 @@ public sealed class TargetingBoxEffect : IDisposable
     {
         side.Corners(out Int32[] c0, out Int32[] c1, out Int32[] c2, out Int32[] c3);
 
-        Vector3 v0 = GetCorner(min, max, c0);
-        Vector3 v1 = GetCorner(min, max, c1);
-        Vector3 v2 = GetCorner(min, max, c2);
-        Vector3 v3 = GetCorner(min, max, c3);
+        Vector3 p0 = GetCorner(min, max, c0);
+        Vector3 p1 = GetCorner(min, max, c1);
+        Vector3 p2 = GetCorner(min, max, c2);
+        Vector3 p3 = GetCorner(min, max, c3);
 
         const Single width = Ratio / 2.0f * -1.0f;
 
@@ -107,10 +104,10 @@ public sealed class TargetingBoxEffect : IDisposable
         Vector3 o2 = (GetCorner(-Vector3.One, Vector3.One, c2) - side.Direction()) * width;
         Vector3 o3 = (GetCorner(-Vector3.One, Vector3.One, c3) - side.Direction()) * width;
 
-        AddQuad(vertices, v0, v1, v1 + o1, v0 + o0, isDarkBackground);
-        AddQuad(vertices, v1, v2, v2 + o2, v1 + o1, isDarkBackground);
-        AddQuad(vertices, v2, v3, v3 + o3, v2 + o2, isDarkBackground);
-        AddQuad(vertices, v3, v0, v0 + o0, v3 + o3, isDarkBackground);
+        AddQuad(vertices, p0, p1, p1 + o1, p0 + o0, isDarkBackground);
+        AddQuad(vertices, p1, p2, p2 + o2, p1 + o1, isDarkBackground);
+        AddQuad(vertices, p2, p3, p3 + o3, p2 + o2, isDarkBackground);
+        AddQuad(vertices, p3, p0, p0 + o0, p3 + o3, isDarkBackground);
     }
 
     private static Vector3 GetCorner(Vector3 min, Vector3 max, Int32[] corner)

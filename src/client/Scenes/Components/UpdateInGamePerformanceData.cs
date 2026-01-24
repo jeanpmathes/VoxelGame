@@ -17,9 +17,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes.Components;
@@ -38,7 +38,7 @@ public partial class UpdateInGamePerformanceData : SceneComponent
     }
 
     /// <inheritdoc />
-    public override void OnRenderUpdate(Double deltaTime, Timer? timer)
+    public override void OnRenderUpdate(Delta delta, Timer? timer)
     {
         ui.UpdatePerformanceData();
     }

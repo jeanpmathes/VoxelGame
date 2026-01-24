@@ -119,7 +119,7 @@ void Space::SpoolUp()
     m_effects.Spool(m_effectSpoolCount);
 }
 
-void Space::Update(double)
+void Space::Update()
 {
     m_globalConstantBufferMapping->lightDirection = m_light.GetDirection();
     m_globalConstantBufferMapping->lightIntensity = m_light.GetIntensity();
@@ -132,7 +132,7 @@ void Space::Update(double)
 
 void Space::Render(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth, RenderData const& data)
 {
-    m_globalConstantBufferMapping->time = static_cast<float>(m_client->GetTotalRenderUpdateTime());
+    m_globalConstantBufferMapping->time = static_cast<float>(m_client->GetTotalScaledRenderUpdateTime());
 
     {
         PIXScopedEvent(GetCommandList().Get(), PIX_COLOR_DEFAULT, L"Space");
@@ -156,6 +156,10 @@ void Space::CleanupRender()
 
     m_indexBuffer.CleanupRender();
 }
+
+void Space::SetIsRendered(bool const isRendered) { m_isRendered = isRendered; }
+
+bool Space::IsRendered() const { return m_isRendered; }
 
 NativeClient& Space::GetNativeClient() const { return *m_client; }
 
@@ -268,7 +272,7 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     pipeline.AddRootSignatureAssociation(m_missSignature.Get(), true, {L"Miss", L"ShadowMiss"});
 
     constexpr D3D12_FILTER               filter = D3D12_FILTER_ANISOTROPIC;
-    constexpr D3D12_TEXTURE_ADDRESS_MODE mode   = D3D12_TEXTURE_ADDRESS_MODE_WRAP;
+    constexpr D3D12_TEXTURE_ADDRESS_MODE mode   = D3D12_TEXTURE_ADDRESS_MODE_CLAMP;
 
     m_globalShaderResources = std::make_shared<ShaderResources>();
     m_globalShaderResources->Initialize(
@@ -529,6 +533,7 @@ void Space::CreateRaytracingOutputBuffer()
     m_depthOutputDescription.SampleDesc.Count = 1;
 
     m_depthOutput = util::AllocateResource<ID3D12Resource>(*m_client, m_depthOutputDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    NAME_D3D12_OBJECT(m_depthOutput);
 
     m_outputResourcesFresh = true;
     UpdateOutputResourceViews();

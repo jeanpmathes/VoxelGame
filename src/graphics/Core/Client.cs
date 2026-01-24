@@ -37,7 +37,6 @@ using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Interop;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Toolkit.Utilities.Constants;
 using Image = VoxelGame.Core.Visuals.Image;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
@@ -77,17 +76,15 @@ public partial class Client : Application
 
                 DoInitialization(timer);
             },
-            onLogicUpdate = delta =>
+            onLogicUpdate = (realDelta, scaledDelta) =>
             {
                 using Timer? timer = logger.BeginTimedScoped("Client Logic Update");
 
                 cycle = Cycle.Update;
 
-                Time += delta;
-
                 Input.PreLogicUpdate();
 
-                DoLogicUpdate(delta, timer);
+                DoLogicUpdate(new Delta(realDelta, scaledDelta), timer);
 
                 Sync.LogicUpdate();
 
@@ -96,13 +93,13 @@ public partial class Client : Application
                 cycle = null;
 
             },
-            onRenderUpdate = delta =>
+            onRenderUpdate = (realDelta, scaledDelta) =>
             {
                 using Timer? timer = logger.BeginTimedScoped("Client Render Update");
 
                 cycle = Cycle.Render;
 
-                DoRenderUpdate(delta, timer);
+                DoRenderUpdate(new Delta(realDelta, scaledDelta), timer);
 
                 cycle = null;
 
@@ -144,6 +141,7 @@ public partial class Client : Application
             icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty)?.Handle ?? IntPtr.Zero,
             applicationName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown Application",
             applicationVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version",
+            baseLogicUpdatesPerSecond = windowSettings.BaseUpdatesPerSecond,
             renderScale = windowSettings.RenderScale,
             options = Definition.Native.BuildOptions(
                 allowTearing: false,
@@ -181,11 +179,6 @@ public partial class Client : Application
     internal Boolean IsOutOfCycle => cycle == null && IsOnMainThread;
 
     internal Synchronizer Sync { get; } = new();
-
-    /// <summary>
-    ///     Get the total elapsed time.
-    /// </summary>
-    private Double Time { get; set; }
 
     /// <summary>
     ///     Get the space rendered by the client.
@@ -314,7 +307,7 @@ public partial class Client : Application
         return VoxelGame.Graphics.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
 
-    private static unsafe Definition.Native.NativeErrorFunc CreateErrorFunc(Action<String> errorCallback)
+    private static unsafe Definition.Native.NativeErrorFunction CreateErrorFunc(Action<String> errorCallback)
     {
         return (hr, messagePointer) =>
         {
@@ -429,9 +422,19 @@ public partial class Client : Application
         return exit;
     }
 
+    /// <inheritdoc />
+    public override void SetTimeScale(Double timeScale)
+    {
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        Debug.Assert(timeScale > 0.0);
+
+        NativeMethods.SetTimeScale(this, timeScale);
+    }
+
     private record struct Config(
         Definition.Native.NativeConfiguration Configuration,
-        Definition.Native.NativeErrorFunc ErrorFunc);
+        Definition.Native.NativeErrorFunction ErrorFunc);
 
     #region LOGGING
 

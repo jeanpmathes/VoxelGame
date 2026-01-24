@@ -30,7 +30,7 @@ using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
-using VoxelGame.Toolkit.Utilities.Constants;
+using VoxelGame.Toolkit.Utilities;
 using Mesh = VoxelGame.Graphics.Objects.Mesh;
 
 namespace VoxelGame.Graphics;
@@ -162,6 +162,16 @@ internal static class Native
     }
 
     /// <summary>
+    ///     Set whether the space is rendered.
+    /// </summary>
+    /// <param name="client">The client.</param>
+    /// <param name="isRendered">Whether the space is rendered.</param>
+    internal static void SetSpaceIsRendered(Client client, Boolean isRendered)
+    {
+        NativeMethods.SetSpaceIsRendered(client, isRendered);
+    }
+
+    /// <summary>
     ///     Create a mesh.
     /// </summary>
     /// <param name="client">The client.</param>
@@ -242,7 +252,7 @@ internal static class Native
     internal static RasterPipeline? CreateRasterPipeline(
         Client client,
         RasterPipelineDescription description,
-        Definition.Native.NativeErrorFunc callback)
+        Definition.Native.NativeErrorFunction callback)
     {
         Debug.Assert(description.BufferSize == 0);
 
@@ -269,7 +279,7 @@ internal static class Native
     internal static unsafe (RasterPipeline, ShaderBuffer<T>)? CreateRasterPipeline<T>(
         Client client,
         RasterPipelineDescription description,
-        Definition.Native.NativeErrorFunc callback) where T : unmanaged, IEquatable<T>, IDefault<T>
+        Definition.Native.NativeErrorFunction callback) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         description.BufferSize = (UInt32) sizeof(T);
 

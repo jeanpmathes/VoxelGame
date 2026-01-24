@@ -24,6 +24,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Domain.Chrono;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
@@ -60,7 +61,7 @@ public partial class WorldInformation
     public UInt32 Size { get; set; } = World.BlockLimit - Chunk.BlockSize * 5;
 
     /// <summary>
-    ///     The creation date of the world.
+    ///     The creation date of the world, in real world time.
     /// </summary>
     public DateTime Creation { get; set; } = DateTime.MinValue;
 
@@ -75,9 +76,9 @@ public partial class WorldInformation
     public SpawnInformation SpawnInformation { get; set; } = new(Vector3d.Zero);
 
     /// <summary>
-    ///     The time of day as a value in the range [0, 1).
+    ///     The current in-game date and time of the world.
     /// </summary>
-    public Double TimeOfDay { get; set; }
+    public DateAndTime DateAndTime { get; set; }
 
     /// <summary>
     ///     Save this world information to a file.

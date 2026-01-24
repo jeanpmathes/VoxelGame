@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using VoxelGame.Annotations.Attributes;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Utilities;
 using Timer = VoxelGame.Core.Profiling.Timer;
@@ -87,6 +88,12 @@ public abstract partial class Application : Composed<Application, ApplicationCom
     }
 
     /// <summary>
+    ///     Set the timescale of the client, which affects the speed of the logic updates.
+    /// </summary>
+    /// <param name="timeScale">The timescale, must be greater than zero.</param>
+    public abstract void SetTimeScale(Double timeScale);
+
+    /// <summary>
     ///     Ensure that the current thread is the main thread.
     /// </summary>
     /// <returns>True if the current thread is the main thread.</returns>
@@ -117,7 +124,7 @@ public abstract partial class Application : Composed<Application, ApplicationCom
     protected virtual void OnInitialization(Timer? timer) {}
 
     /// <inheritdoc cref="OnLogicUpdate" />
-    protected void DoLogicUpdate(Double delta, Timer? timer)
+    protected void DoLogicUpdate(Delta delta, Timer? timer)
     {
         OnLogicUpdate(delta, timer);
         OnLogicUpdateComponents(delta, timer);
@@ -125,17 +132,17 @@ public abstract partial class Application : Composed<Application, ApplicationCom
 
     /// <inheritdoc cref="OnLogicUpdate" />
     [ComponentEvent(nameof(ApplicationComponent.OnLogicUpdate))]
-    private partial void OnLogicUpdateComponents(Double delta, Timer? timer);
+    private partial void OnLogicUpdateComponents(Delta delta, Timer? timer);
 
     /// <summary>
     ///     Called for each fixed update step.
     /// </summary>
     /// <param name="delta">The time since the last update in seconds.</param>
     /// <param name="timer">A timer used for profiling.</param>
-    protected virtual void OnLogicUpdate(Double delta, Timer? timer) {}
+    protected virtual void OnLogicUpdate(Delta delta, Timer? timer) {}
 
     /// <inheritdoc cref="OnRenderUpdate" />
-    protected void DoRenderUpdate(Double delta, Timer? timer)
+    protected void DoRenderUpdate(Delta delta, Timer? timer)
     {
         OnRenderUpdate(delta, timer);
         OnRenderUpdateComponents(delta, timer);
@@ -143,7 +150,7 @@ public abstract partial class Application : Composed<Application, ApplicationCom
 
     /// <inheritdoc cref="OnRenderUpdate" />
     [ComponentEvent(nameof(ApplicationComponent.OnRenderUpdate))]
-    private partial void OnRenderUpdateComponents(Double delta, Timer? timer);
+    private partial void OnRenderUpdateComponents(Delta delta, Timer? timer);
 
     /// <summary>
     ///     Called for each render update step.
@@ -151,7 +158,7 @@ public abstract partial class Application : Composed<Application, ApplicationCom
     /// </summary>
     /// <param name="delta">The time since the last render in seconds.</param>
     /// <param name="timer">A timer used for profiling.</param>
-    protected virtual void OnRenderUpdate(Double delta, Timer? timer) {}
+    protected virtual void OnRenderUpdate(Delta delta, Timer? timer) {}
 
     /// <inheritdoc cref="OnDestroy" />
     protected void DoDestroy(Timer? timer)

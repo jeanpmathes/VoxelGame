@@ -17,7 +17,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
@@ -26,6 +25,7 @@ using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -45,7 +45,7 @@ public partial class Targeter : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         Update();
     }

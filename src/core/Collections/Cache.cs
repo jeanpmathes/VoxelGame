@@ -113,8 +113,16 @@ public class Cache<TK, TV>
         if (map.TryGetValue(key, out LinkedListNode<Entry>? existing))
         {
             list.Remove(existing);
+
+            existing.Value = new Entry(key, value);
+            // The map is already pointing to the existing node, no need to update it.
+
+            list.AddLast(existing);
+
+            return;
         }
-        else if (list.Count >= Capacity)
+
+        if (list.Count >= Capacity)
         {
             LinkedListNode<Entry> node = list.First!;
 

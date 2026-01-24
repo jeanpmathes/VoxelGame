@@ -19,8 +19,8 @@
 
 using System;
 using System.Runtime.InteropServices;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
@@ -28,7 +28,6 @@ using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Graphics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Toolkit.Utilities.Constants;
 
 namespace VoxelGame.Client.Visuals;
 
@@ -37,7 +36,7 @@ namespace VoxelGame.Client.Visuals;
 ///     This is a direct pipeline, meaning no instance objects are created and only a single overlay can be rendered at a
 ///     time.
 /// </summary>
-public sealed class OverlayPipeline : IDisposable
+public sealed partial class OverlayPipeline : IDisposable
 {
     private const Int32 BlockMode = 0;
     private const Int32 FluidMode = 1;
@@ -192,12 +191,10 @@ public sealed class OverlayPipeline : IDisposable
     /// <summary>
     ///     Data used by the shader.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential)]
-    private readonly struct Data : IEquatable<Data>, IDefault<Data>
+    [StructLayout(LayoutKind.Sequential, Pack = ShaderBuffers.Pack)]
+    [ValueSemantics]
+    private partial struct Data
     {
-        /// <inheritdoc />
-        [UsedImplicitly] public static Data Default => new();
-
         /// <summary>
         ///     The matrix used to transform the vertices.
         /// </summary>
@@ -245,47 +242,6 @@ public sealed class OverlayPipeline : IDisposable
         {
             return new Vector4i((Int32) attributes.a, (Int32) attributes.b, (Int32) attributes.c, (Int32) attributes.d);
         }
-
-        #region EQUALITY
-
-        /// <summary>
-        ///     Check equality.
-        /// </summary>
-        public Boolean Equals(Data other)
-        {
-            return (MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex)
-                   == (other.MVP, other.Attributes, other.Mode, other.LowerBound, other.UpperBound, other.FirstFluidTextureIndex);
-        }
-
-        /// <inheritdoc />
-        public override Boolean Equals(Object? obj)
-        {
-            return obj is Data other && Equals(other);
-        }
-
-        /// <inheritdoc />
-        public override Int32 GetHashCode()
-        {
-            return HashCode.Combine(MVP, Attributes, Mode, LowerBound, UpperBound, FirstFluidTextureIndex);
-        }
-
-        /// <summary>
-        ///     The equality operator.
-        /// </summary>
-        public static Boolean operator ==(Data left, Data right)
-        {
-            return left.Equals(right);
-        }
-
-        /// <summary>
-        ///     The inequality operator.
-        /// </summary>
-        public static Boolean operator !=(Data left, Data right)
-        {
-            return !left.Equals(right);
-        }
-
-        #endregion EQUALITY
     }
 
     #region DISPOSABLE

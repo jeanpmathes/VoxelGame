@@ -20,6 +20,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Actors.Components;
 
@@ -55,13 +56,13 @@ internal sealed class DefaultMovement : MovementStrategy
         player.Camera.Transform.LocalPosition = (0.0, 0.65, 0.0);
     }
 
-    internal override void Move(Double pitch, Double yaw, Double deltaTime)
+    internal override void Move(Double pitch, Double yaw, Delta delta)
     {
         player.Body.Transform.LocalRotation = Quaterniond.FromAxisAngle(Vector3d.UnitY, MathHelper.DegreesToRadians(-yaw));
         player.Head.LocalRotation = Quaterniond.FromAxisAngle(Vector3d.UnitX, MathHelper.DegreesToRadians(pitch));
 
         if (player.Body.IsEnabled) player.Body.Movement = GetPhysicsBasedMovement();
-        else player.Body.Transform.Position += GetFlyingMovement(input, player.Head) * deltaTime;
+        else player.Body.Transform.Position += GetFlyingMovement(input, player.Head) * delta.RealTime;
     }
 
     private Vector3d GetPhysicsBasedMovement()

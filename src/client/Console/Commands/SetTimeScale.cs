@@ -1,4 +1,4 @@
-﻿// <copyright file="SetTime.cs" company="VoxelGame">
+﻿// <copyright file="SetTimeScale.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -23,27 +23,27 @@ using JetBrains.Annotations;
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
-///     Set the time of day in the world.
+///     Set the speed of time progression.
 /// </summary>
 [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-public class SetTime : Command
+public class SetTimeScale : Command
 {
     /// <inheritdoc />
-    public override String Name => "set-time";
+    public override String Name => "set-timescale";
 
     /// <inheritdoc />
-    public override String HelpText => "Set the time of day in the world.";
+    public override String HelpText => "Sets how fast time progresses in the game.";
 
     /// <exclude />
-    public void Invoke(Double timeOfDay)
+    public void Invoke(Double timeScale)
     {
-        if (timeOfDay is < 0.0 or >= 1.0)
+        if (timeScale <= 0)
         {
-            Context.Output.WriteError("Time of day must be in the range [0.0, 1.0).");
+            Context.Output.WriteError("Time scale must be greater than zero.");
+
+            return;
         }
-        else
-        {
-            Context.Player.World.TimeOfDay = timeOfDay;
-        }
+
+        Core.App.Application.Instance.SetTimeScale(timeScale);
     }
 }

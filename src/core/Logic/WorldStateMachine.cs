@@ -20,6 +20,7 @@
 using System;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
+using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Core.Logic;
 
@@ -73,9 +74,9 @@ public class WorldStateMachine(World world, Timer? timer) : IWorldStates
     /// <summary>
     ///     Update the world state.
     /// </summary>
-    public void LogicUpdate(Double deltaTime, Timer? updateTimer)
+    public void LogicUpdate(Delta delta, Timer? updateTimer)
     {
-        WorldState? next = state.LogicUpdate(world, deltaTime, updateTimer);
+        WorldState? next = state.LogicUpdate(world, delta, updateTimer);
 
         if (next == null)
             return;

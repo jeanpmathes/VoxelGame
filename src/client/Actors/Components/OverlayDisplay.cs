@@ -65,7 +65,7 @@ public partial class OverlayDisplay : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         Vector3i center = player.Camera.Transform.Position.Floor();
         Frustum frustum = player.Camera.View.GetPartialFrustum(near: 0.0, player.Camera.View.Definition.Clipping.near);

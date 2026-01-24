@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Toolkit.Utilities;
 using VoxelGame.UI.UserInterfaces;
@@ -71,7 +72,7 @@ public partial class PlayerUI : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 

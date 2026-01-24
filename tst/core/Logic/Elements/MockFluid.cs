@@ -26,6 +26,6 @@ namespace VoxelGame.Core.Tests.Logic.Elements;
 public sealed class MockFluid() : BasicFluid("Mock Fluid",
     nameof(MockFluid),
     new Density {KilogramsPerCubicMeter = 1.0},
-    new Viscosity {UpdateTicks = 1},
+    new Viscosity {UpdateDistance = 1},
     hasNeutralTint: false,
     TID.MissingTexture);

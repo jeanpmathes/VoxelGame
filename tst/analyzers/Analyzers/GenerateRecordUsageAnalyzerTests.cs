@@ -40,7 +40,7 @@ public class GenerateRecordUsageAnalyzerTests
                        using System;
                        using VoxelGame.Annotations.Attributes;
 
-                       [GenerateRecord]
+                       [GenerateRecord(typeof(Object))]
                        public interface I<T> {}
                        """,
 
@@ -92,32 +92,6 @@ public class GenerateRecordUsageAnalyzerTests
             {
                 Verifier.Diagnostic(GenerateRecordUsageAnalyzer.DiagnosticID)
                     .WithLocation(line: 6, column: 18).WithArguments("I")
-            }
-        }.RunAsync();
-    }
-
-    [Fact]
-    public async Task GenerateRecordUsageAnalyzer_ShouldNotReportWhenCorrectWithoutAnyArguments()
-    {
-        await new CSharpAnalyzerTest<GenerateRecordUsageAnalyzer, DefaultVerifier>
-        {
-            TestCode = """
-                       using System;
-                       using VoxelGame.Annotations.Attributes;
-
-                       [GenerateRecord]
-                       public interface I {}
-                       """,
-
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
-
-            TestState =
-            {
-                AdditionalReferences =
-                {
-                    MetadataReference.CreateFromFile(typeof(GenerateRecordAttribute).Assembly.Location)
-                }
             }
         }.RunAsync();
     }

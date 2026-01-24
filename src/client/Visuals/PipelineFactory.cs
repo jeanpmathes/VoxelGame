@@ -25,7 +25,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
-using VoxelGame.Toolkit.Utilities.Constants;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;
 

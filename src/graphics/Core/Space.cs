@@ -37,6 +37,8 @@ public class Space
 
     private Light? light;
 
+    private Boolean isRendered = true;
+
     /// <summary>
     ///     Create a new native space.
     /// </summary>
@@ -70,6 +72,23 @@ public class Space
     public Light Light
     {
         get { return light ??= Native.GetLight(Client); }
+    }
+
+    /// <summary>
+    ///     Whether the space is rendered.
+    /// </summary>
+    public Boolean IsRendered
+    {
+        get => isRendered;
+
+        set
+        {
+            if (isRendered == value) return;
+
+            isRendered = value;
+
+            Native.SetSpaceIsRendered(Client, isRendered);
+        }
     }
 
     /// <summary>

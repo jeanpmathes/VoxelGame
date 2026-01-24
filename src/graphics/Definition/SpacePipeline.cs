@@ -51,7 +51,7 @@ internal struct SpacePipelineDescription
     internal UInt32 meshSpoolCount;
     internal UInt32 effectSpoolCount;
 
-    internal Native.NativeErrorFunc onShaderLoadingError;
+    internal Native.NativeErrorFunction onShaderLoadingError;
 }
 
 [CustomMarshaller(typeof(SpacePipelineDescription), MarshalMode.ManagedToUnmanagedIn, typeof(ManagedToUnmanagedIn))]

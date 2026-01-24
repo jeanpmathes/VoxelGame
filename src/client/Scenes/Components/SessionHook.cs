@@ -17,11 +17,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Sessions;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Scenes.Components;
@@ -46,20 +46,20 @@ public partial class SessionHook : SceneComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         using (logger.BeginTimedSubScoped("SessionHook LogicUpdate", timer))
         {
-            session.LogicUpdate(deltaTime, timer);
+            session.LogicUpdate(delta, timer);
         }
     }
 
     /// <inheritdoc />
-    public override void OnRenderUpdate(Double deltaTime, Timer? timer)
+    public override void OnRenderUpdate(Delta delta, Timer? timer)
     {
         using (logger.BeginTimedSubScoped("SessionHook RenderUpdate", timer))
         {
-            session.RenderUpdate(deltaTime, timer);
+            session.RenderUpdate(delta, timer);
         }
     }
 }

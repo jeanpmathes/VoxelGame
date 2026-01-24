@@ -70,7 +70,19 @@ public partial class Graphics
 
         SetFogVolumeOverlapConfiguration(size: 0.0, ColorS.Black);
 
+        SetIsSpaceRendered(isRendered: true);
+
         LogGraphicsReset(logger);
+    }
+
+    /// <summary>
+    ///     Set whether the 3D space is rendered.
+    /// </summary>
+    public void SetIsSpaceRendered(Boolean isRendered)
+    {
+        if (engine == null) return;
+
+        engine.Client.Space.IsRendered = isRendered;
     }
 
     /// <summary>

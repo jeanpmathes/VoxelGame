@@ -60,8 +60,7 @@ namespace
     {
         std::map<MouseCursor, HCURSOR> cursors;
 
-        for (int i = 0; i < static_cast<int>(MouseCursor::COUNT); i++) cursors[static_cast<MouseCursor>(i)] =
-            LoadCursorFromEnum(static_cast<MouseCursor>(i));
+        for (int i = 0; i < static_cast<int>(MouseCursor::COUNT); i++) cursors[static_cast<MouseCursor>(i)] = LoadCursorFromEnum(static_cast<MouseCursor>(i));
 
         return cursors;
     }
@@ -80,10 +79,7 @@ DXApp::DXApp(Configuration const& configuration)
 
 DXApp::~DXApp() = default;
 
-bool DXApp::HasFlag(CycleFlags value, CycleFlags flag)
-{
-    return static_cast<bool>(static_cast<int>(value) & static_cast<int>(flag));
-}
+bool DXApp::HasFlag(CycleFlags value, CycleFlags flag) { return static_cast<bool>(static_cast<int>(value) & static_cast<int>(flag)); }
 
 void DXApp::Update(CycleFlags const flags, bool const timer)
 {
@@ -113,8 +109,10 @@ void DXApp::Init()
 
     OnPostInitialization();
 
+    m_baseLogicUpdateTarget = 1.0 / static_cast<double>(std::max(m_configuration.baseLogicUpdatesPerSecond, 1LL));
+
     m_logicTimer.SetFixedTimeStep(true);
-    m_logicTimer.SetTargetElapsedSeconds(1.0 / 60.0);
+    m_logicTimer.SetTargetElapsedSeconds(m_baseLogicUpdateTarget);
 
     m_renderTimer.SetFixedTimeStep(false);
 
@@ -123,13 +121,13 @@ void DXApp::Init()
 
 void DXApp::Update(StepTimer const& timer)
 {
-    double const delta      = timer.GetElapsedSeconds();
-    m_totalRenderUpdateTime += delta;
+    double const delta       = timer.GetElapsedSeconds();
+    double const scaledDelta = delta * m_timeScale;
 
     m_cycle = Cycle::LOGIC_UPDATE;
 
-    m_configuration.onUpdate(delta);
-    OnLogicUpdate(delta);
+    m_configuration.onLogicUpdate(delta, scaledDelta);
+    OnLogicUpdate();
 
     m_cycle = std::nullopt;
 }
@@ -138,14 +136,17 @@ void DXApp::RenderUpdate(StepTimer const& timer)
 {
     if (m_logicTimer.GetFrameCount() == 0) return;
 
-    double const delta      = timer.GetElapsedSeconds();
-    m_totalRenderUpdateTime += delta;
+    double const delta       = timer.GetElapsedSeconds();
+    double const scaledDelta = delta * m_timeScale;
+
+    m_totalRealRenderUpdateTime   += delta;
+    m_totalScaledRenderUpdateTime += scaledDelta;
 
     m_cycle = Cycle::RENDER_UPDATE;
 
     OnPreRenderUpdate();
-    m_configuration.onRenderUpdate(delta);
-    OnRenderUpdate(delta);
+    m_configuration.onRenderUpdate(delta, scaledDelta);
+    OnRenderUpdate();
 
     m_cycle = std::nullopt;
 }
@@ -184,12 +185,7 @@ void DXApp::OnSizeMove(bool const enter)
 {
     if (enter)
     {
-        CheckReturn(
-            SetTimer(
-                Win32Application::GetWindowHandle(),
-                IDT_UPDATE,
-                m_logicTimer.GetTargetElapsedMilliseconds(),
-                nullptr));
+        CheckReturn(SetTimer(Win32Application::GetWindowHandle(), IDT_UPDATE, m_logicTimer.GetTargetElapsedMilliseconds(), nullptr));
         m_isUpdateTimerRunning = true;
     }
     else if (m_isUpdateTimerRunning)
@@ -268,6 +264,17 @@ void DXApp::SetMouseLock(bool const lock)
 
 float DXApp::GetAspectRatio() const { return m_aspectRatio; }
 
+void DXApp::SetTimeScale(double const scale)
+{
+    Require(scale > 0.0);
+
+    // Because the timer takes the targeted elapsed time per update, we need to divide by the timescale.
+    // For example, a timescale of 2.0 means we want to run logic updates twice as fast, thus the target elapsed time per update is halved.
+
+    m_timeScale = scale;
+    m_logicTimer.SetTargetElapsedSeconds(m_baseLogicUpdateTarget / m_timeScale);
+}
+
 std::optional<DXApp::Cycle> DXApp::GetCycle() const
 {
     if (m_mainThreadId == std::this_thread::get_id()) return m_cycle;
@@ -275,19 +282,15 @@ std::optional<DXApp::Cycle> DXApp::GetCycle() const
     return Cycle::WORKER;
 }
 
-ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
-    ComPtr<IDXGIFactory4> const&       dxgiFactory,
-    ComPtr<ID3D12DeviceFactory> const& deviceFactory,
-    bool const                         requestHighPerformanceAdapter)
+ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(ComPtr<IDXGIFactory4> const& dxgiFactory, ComPtr<ID3D12DeviceFactory> const& deviceFactory, bool const requestHighPerformanceAdapter)
 {
     ComPtr<IDXGIAdapter1> adapter;
 
     ComPtr<IDXGIFactory6> factory6;
     if (SUCCEEDED(dxgiFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
         for (UINT adapterIndex = 0; SUCCEEDED(
-                 factory6->EnumAdapterByGpuPreference( adapterIndex, requestHighPerformanceAdapter == true ?
-                     DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&adapter)));
-             ++adapterIndex)
+                 factory6->EnumAdapterByGpuPreference( adapterIndex, requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
+                     IID_PPV_ARGS(&adapter))); ++adapterIndex)
         {
             DXGI_ADAPTER_DESC1 desc;
             TryDo(adapter->GetDesc1(&desc));
@@ -295,9 +298,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 
             ComPtr<ID3D12Device> uselessDevice;
-            if (SUCCEEDED(
-                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr)))
-                break ;
+            if (SUCCEEDED(deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr))) break ;
         }
 
     if (adapter.Get() == nullptr)
@@ -309,9 +310,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(
             if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
 
             ComPtr<ID3D12Device> uselessDevice;
-            if (SUCCEEDED(
-                deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr)))
-                break ;
+            if (SUCCEEDED(deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr))) break ;
         }
 
     return adapter;
@@ -329,10 +328,7 @@ void DXApp::CheckTearingSupport()
     HRESULT               hr = CreateDXGIFactory1(IID_PPV_ARGS(&factory));
 
     bool allowTearing = false;
-    if (SUCCEEDED(hr)) hr = factory->CheckFeatureSupport(
-        DXGI_FEATURE_PRESENT_ALLOW_TEARING,
-        &allowTearing,
-        sizeof(allowTearing));
+    if (SUCCEEDED(hr)) hr = factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
 
     auto const isTearingConfigured = static_cast<bool>(m_configuration.options & ConfigurationOptions::ALLOW_TEARING);
     m_tearingSupport               = SUCCEEDED(hr) && allowTearing && isTearingConfigured;

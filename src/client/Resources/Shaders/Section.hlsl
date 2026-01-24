@@ -122,18 +122,6 @@ namespace vg
         }
 
         /**
-         * \brief Sample the base color for a given texture index.
-         * \param index The texture index to sample.
-         * \param isBlock Whether the texture is part of a block or a fluid.
-         * \return The sampled base color.
-         */
-        float4 SampleBaseColor(uint4 const index, bool const isBlock)
-        {
-            if (isBlock) return native::rt::textureSlotOne[index.w].Load(index.xyz);
-            else return native::rt::textureSlotTwo[index.w].Load(index.xyz);
-        }
-
-        /**
          * \brief Sample the base color for a hit against a quad.
          * \param path The length of rays up to the previous hit.
          * \param info Information about the quad.
@@ -150,18 +138,19 @@ namespace vg
             float2 ddx, ddy;
             ComputeAnisotropicEllipseAxes(info.GetPosition(), info.normal, WorldRayDirection(), GetConeWidth(path), info.a, info.b, info.c, uvs, uv, ddx, ddy);
 
+            // The filtering could cause bleed issues with wrapping samplers, so we manually wrap the UVs here.
+
+            uv = frac(uv);
+
             // Because anisotropic filter implies linear filtering in DirectX, we need to center UVs manually.
 
             uv *= native::spatial::global.textureSize.xy;
             uv = floor(uv) + 0.5f;
             uv /= native::spatial::global.textureSize.xy;
 
-            float4 color;
+            Texture2D texture = isBlock ? native::rt::textureSlotOne[textureIndex] : native::rt::textureSlotTwo[textureIndex];
 
-            if (isBlock) color = native::rt::textureSlotOne[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
-            else color         = native::rt::textureSlotTwo[textureIndex].SampleGrad(native::spatial::sampler, uv, ddx, ddy);
-
-            return color;
+            return texture.SampleGrad(native::spatial::sampler, uv, ddx, ddy);
         }
 
         /**

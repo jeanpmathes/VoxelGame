@@ -22,6 +22,7 @@ using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.UI.UserInterfaces;
 
@@ -62,7 +63,7 @@ public partial class UserInterfaceHook : SceneComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime, Timer? timer)
+    public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         using (logger.BeginTimedSubScoped("UI-Hook LogicUpdate", timer))
         {
@@ -71,7 +72,7 @@ public partial class UserInterfaceHook : SceneComponent
     }
 
     /// <inheritdoc />
-    public override void OnRenderUpdate(Double deltaTime, Timer? timer)
+    public override void OnRenderUpdate(Delta delta, Timer? timer)
     {
         using (logger.BeginTimedSubScoped("UI-Hook RenderUpdate", timer))
         {

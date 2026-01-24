@@ -22,6 +22,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Actors;
 using VoxelGame.Client.Logic;
 using VoxelGame.Core.Profiling;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Components;
 using VoxelGame.Toolkit.Utilities;
 
@@ -57,38 +58,38 @@ public sealed partial class Session : Composed<Session, SessionComponent>
     /// <summary>
     ///     Perform one logic update cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="timer">A timer to use for profiling.</param>
-    public void LogicUpdate(Double deltaTime, Timer? timer)
+    public void LogicUpdate(Delta delta, Timer? timer)
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        OnLogicUpdate(deltaTime, timer);
+        OnLogicUpdate(delta, timer);
 
-        World.LogicUpdate(deltaTime, timer);
+        World.LogicUpdate(delta, timer);
     }
 
     /// <inheritdoc cref="Session.LogicUpdate" />
     [ComponentEvent(nameof(SessionComponent.OnLogicUpdate))]
-    private partial void OnLogicUpdate(Double deltaTime, Timer? timer);
+    private partial void OnLogicUpdate(Delta delta, Timer? timer);
 
     /// <summary>
     ///     Perform one render update cycle.
     /// </summary>
-    /// <param name="deltaTime">The time since the last update.</param>
+    /// <param name="delta">The time since the last update.</param>
     /// <param name="timer">A timer to use for profiling.</param>
-    public void RenderUpdate(Double deltaTime, Timer? timer)
+    public void RenderUpdate(Delta delta, Timer? timer)
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        OnRenderUpdate(deltaTime, timer);
+        OnRenderUpdate(delta, timer);
 
         World.RenderUpdate();
     }
 
     /// <inheritdoc cref="Session.RenderUpdate" />
     [ComponentEvent(nameof(SessionComponent.OnRenderUpdate))]
-    private partial void OnRenderUpdate(Double deltaTime, Timer? timer);
+    private partial void OnRenderUpdate(Delta delta, Timer? timer);
 
     #region DISPOSABLE
 

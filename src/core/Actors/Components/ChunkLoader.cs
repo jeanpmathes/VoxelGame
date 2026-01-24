@@ -68,7 +68,7 @@ public partial class ChunkLoader : ActorComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Double deltaTime)
+    public override void OnLogicUpdate(Delta delta)
     {
         ChunkPosition newChunk = ChunkPosition.From(transform.Position.Floor());
 
