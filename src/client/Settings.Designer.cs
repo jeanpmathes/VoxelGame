@@ -60,7 +60,7 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("480, 270")]
+        [global::System.Configuration.DefaultSettingValueAttribute("1800, 900")]
         public global::System.Drawing.Size WindowSize {
             get {
                 return ((global::System.Drawing.Size)(this["WindowSize"]));
@@ -72,7 +72,7 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Medium")]
+        [global::System.Configuration.DefaultSettingValueAttribute("High")]
         public global::VoxelGame.Core.Visuals.Quality FoliageQuality {
             get {
                 return ((global::VoxelGame.Core.Visuals.Quality)(this["FoliageQuality"]));
@@ -144,7 +144,7 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Low")]
+        [global::System.Configuration.DefaultSettingValueAttribute("High")]
         public global::VoxelGame.Core.Visuals.Quality RenderingAntiAliasingQuality {
             get {
                 return ((global::VoxelGame.Core.Visuals.Quality)(this["RenderingAntiAliasingQuality"]));
@@ -156,7 +156,7 @@ namespace Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("Low")]
+        [global::System.Configuration.DefaultSettingValueAttribute("High")]
         public global::VoxelGame.Core.Visuals.Quality AnisotropicFilteringQuality {
             get {
                 return ((global::VoxelGame.Core.Visuals.Quality)(this["AnisotropicFilteringQuality"]));

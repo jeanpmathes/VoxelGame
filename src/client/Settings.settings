@@ -13,10 +13,10 @@
             <Value Profile="(Default)">White</Value>
         </Setting>
         <Setting Name="WindowSize" Type="System.Drawing.Size" Scope="User">
-            <Value Profile="(Default)">480, 270</Value>
+            <Value Profile="(Default)">1800, 900</Value>
         </Setting>
         <Setting Name="FoliageQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
-            <Value Profile="(Default)">Medium</Value>
+            <Value Profile="(Default)">High</Value>
         </Setting>
         <Setting Name="RenderResolutionScale" Type="System.Double" Scope="User">
             <Value Profile="(Default)">1</Value>
@@ -34,10 +34,10 @@
             <Value Profile="(Default)">Low</Value>
         </Setting>
         <Setting Name="RenderingAntiAliasingQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
-            <Value Profile="(Default)">Low</Value>
+            <Value Profile="(Default)">High</Value>
         </Setting>
         <Setting Name="AnisotropicFilteringQuality" Type="VoxelGame.Core.Visuals.Quality" Scope="User">
-            <Value Profile="(Default)">Low</Value>
+            <Value Profile="(Default)">High</Value>
         </Setting>
     </Settings>
 </SettingsFile>
