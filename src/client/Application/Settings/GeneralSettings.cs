@@ -136,6 +136,8 @@ public sealed partial class GeneralSettings : SettingsBase, ISettingsProvider, I
             {
                 clientSettings.Language = language;
                 clientSettings.Save();
+
+                // The selected language is applied only after restarting.
             });
 
         AddSetting(nameof(Language),

@@ -19,7 +19,6 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Globalization;
 using Gwen.Net.Control;
 using VoxelGame.UI.UserInterfaces;
 
@@ -63,7 +62,21 @@ internal class EnumerationSetting<T> : Setting where T : Enum
             items[index] = combo.AddItem(label, "", value);
         }
 
-        combo.SelectedItem = items[Convert.ToInt32(get(), CultureInfo.InvariantCulture)];
+        T currentValue = get();
+        var selectedIndex = 0;
+
+        for (var index = 0; index < values.Length; index++)
+        {
+            (T value, _) = values[index];
+
+            if (!Equals(currentValue, value)) continue;
+
+            selectedIndex = index;
+
+            break;
+        }
+
+        combo.SelectedItem = items[selectedIndex];
 
         combo.ItemSelected += (_, args) => set((T) ((MenuItem) args.SelectedItem).UserData!);
     }
