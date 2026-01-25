@@ -24,11 +24,13 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Updates;
 
 /// <summary>
-///     A type of <see cref="Operation" /> that runs entirely on the main thread but can yield to wait.
+///     A type of <see cref="IUpdateableProcess" /> that runs entirely on the main thread and can yield to wait.
 ///     By default, yielding <c>null</c> will wait for the next update cycle.
 /// </summary>
 public class Coroutine : IUpdateableProcess
 {
+    private const String NoDispatchMessage = "No global dispatch available.";
+
     private readonly IEnumerator coroutine;
 
     private Coroutine(IEnumerable coroutine)
@@ -70,23 +72,20 @@ public class Coroutine : IUpdateableProcess
     ///     Starts a new coroutine.
     /// </summary>
     /// <param name="coroutine">The coroutine to start.</param>
-    public static void Start(Func<IEnumerable> coroutine)
+    /// <param name="dispatch">The dispatch to add the coroutine to. If <c>null</c>, the global dispatch will be used.</param>
+    public static void Start(Func<IEnumerable> coroutine, UpdateDispatch? dispatch = null)
     {
-        if (UpdateDispatch.Instance == null)
-            throw Exceptions.InvalidOperation($"Cannot start coroutine when no global {nameof(UpdateDispatch)} is available.");
-
-        UpdateDispatch.Instance.Add(new Coroutine(coroutine()));
+        Start(coroutine(), dispatch);
     }
 
     /// <summary>
     ///     Starts a new coroutine.
     /// </summary>
     /// <param name="coroutine">The coroutine to start.</param>
-    public static void Start(IEnumerable coroutine)
+    /// <param name="dispatch">The dispatch to add the coroutine to. If <c>null</c>, the global dispatch will be used.</param>
+    public static void Start(IEnumerable coroutine, UpdateDispatch? dispatch = null)
     {
-        if (UpdateDispatch.Instance == null)
-            throw Exceptions.InvalidOperation($"Cannot start coroutine when no global {nameof(UpdateDispatch)} is available.");
-
-        UpdateDispatch.Instance.Add(new Coroutine(coroutine));
+        dispatch ??= UpdateDispatch.Instance ?? throw Exceptions.InvalidOperation(NoDispatchMessage);
+        dispatch.Add(new Coroutine(coroutine));
     }
 }

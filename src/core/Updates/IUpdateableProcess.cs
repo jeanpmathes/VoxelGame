@@ -40,7 +40,7 @@ public interface IUpdateableProcess
 
     /// <summary>
     ///     Attempt to cancel the process.
-    ///     Canceled process can either ignore the cancellation, or stop to enter a failed state.
+    ///     A canceled process can either ignore the cancellation, or stop and enter a failed state.
     /// </summary>
     void Cancel();
 }

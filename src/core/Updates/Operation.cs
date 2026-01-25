@@ -32,6 +32,7 @@ namespace VoxelGame.Core.Updates;
 ///     An operation is similar to a task, but runs at least partially on the main thread.
 ///     This means that it is only considered completed after both the actual work has completed and the main thread has
 ///     detected this.
+///     The work itself might run on a background thread.
 /// </summary>
 public abstract class Operation : IUpdateableProcess
 {
