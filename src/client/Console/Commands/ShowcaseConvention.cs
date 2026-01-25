@@ -18,12 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Conventions;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -38,51 +40,33 @@ public class ShowcaseConvention : Command
     public override String Name => "showcase-convention";
 
     /// <inheritdoc />
-    public override String HelpText => "Place all content of a convention in the world around the player.";
+    public override String HelpText => "Place all content of a convention in the world at the player.";
 
     /// <exclude />
     public void Invoke(String convention)
     {
-        switch (convention)
+        IEnumerable? coroutine = convention switch
         {
-            case nameof(Coal):
-                ShowcaseCoal();
+            nameof(Coal) => ShowcaseCoal(),
+            nameof(Crop) => ShowcaseCrops(),
+            nameof(Flower) => ShowcaseFlowers(),
+            nameof(Metal) => ShowcaseMetals(),
+            nameof(Stone) => ShowcaseStones(),
+            nameof(Wood) => ShowcaseWoods(),
+            _ => null
+        };
 
-                break;
-
-            case nameof(Crop):
-                ShowcaseCrops();
-
-                break;
-
-            case nameof(Flower):
-                ShowcaseFlowers();
-
-                break;
-
-            case nameof(Metal):
-                ShowcaseMetals();
-
-                break;
-
-            case nameof(Stone):
-                ShowcaseStones();
-
-                break;
-
-            case nameof(Wood):
-                ShowcaseWoods();
-
-                break;
-
-            default:
-                Context.Output.WriteError($"No known convention '{convention}'.");
-
-                return;
+        if (coroutine != null)
+        {
+            Coroutine.Start(coroutine);
+        }
+        else
+        {
+            Context.Output.WriteError($"No known convention '{convention}'.");
         }
     }
 
-    private void ShowcaseCoal()
+    private IEnumerable ShowcaseCoal()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
 
@@ -90,13 +74,15 @@ public class ShowcaseConvention : Command
         {
             if (content is not Coal coal) continue;
 
+            yield return null;
+
             position += Vector3i.UnitX;
 
             coal.Block.Place(Context.Player.World, position);
         }
     }
 
-    private void ShowcaseCrops()
+    private IEnumerable ShowcaseCrops()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
         World world = Context.Player.World;
@@ -104,6 +90,8 @@ public class ShowcaseConvention : Command
         foreach (IContent content in Blocks.Instance.Crops.Contents)
         {
             if (content is not Crop crop) continue;
+
+            yield return null;
 
             position += Vector3i.UnitX * 3;
 
@@ -131,7 +119,7 @@ public class ShowcaseConvention : Command
         }
     }
 
-    private void ShowcaseFlowers()
+    private IEnumerable ShowcaseFlowers()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
         World world = Context.Player.World;
@@ -139,6 +127,8 @@ public class ShowcaseConvention : Command
         foreach (IContent content in Blocks.Instance.Flowers.Contents)
         {
             if (content is not Flower flower) continue;
+
+            yield return null;
 
             position += Vector3i.UnitX;
 
@@ -150,7 +140,7 @@ public class ShowcaseConvention : Command
         }
     }
 
-    private void ShowcaseMetals()
+    private IEnumerable ShowcaseMetals()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
         World world = Context.Player.World;
@@ -158,6 +148,8 @@ public class ShowcaseConvention : Command
         foreach (IContent content in Blocks.Instance.Metals.Contents)
         {
             if (content is not Metal metal) continue;
+
+            yield return null;
 
             position += Vector3i.UnitX;
 
@@ -178,7 +170,7 @@ public class ShowcaseConvention : Command
         }
     }
 
-    private void ShowcaseStones()
+    private IEnumerable ShowcaseStones()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
         World world = Context.Player.World;
@@ -186,6 +178,8 @@ public class ShowcaseConvention : Command
         foreach (IContent content in Blocks.Instance.Stones.Contents)
         {
             if (content is not Stone stone) continue;
+
+            yield return null;
 
             position += Vector3i.UnitX;
 
@@ -201,7 +195,7 @@ public class ShowcaseConvention : Command
         }
     }
 
-    private void ShowcaseWoods()
+    private IEnumerable ShowcaseWoods()
     {
         Vector3i position = Context.Player.Body.Transform.Position.Floor();
         World world = Context.Player.World;
@@ -209,6 +203,8 @@ public class ShowcaseConvention : Command
         foreach (IContent content in Blocks.Instance.Woods.Contents)
         {
             if (content is not Wood wood) continue;
+
+            yield return null;
 
             position += Vector3i.UnitX;
 

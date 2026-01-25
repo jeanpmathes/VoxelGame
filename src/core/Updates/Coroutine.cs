@@ -77,4 +77,16 @@ public class Coroutine : IUpdateableProcess
 
         UpdateDispatch.Instance.Add(new Coroutine(coroutine()));
     }
+
+    /// <summary>
+    ///     Starts a new coroutine.
+    /// </summary>
+    /// <param name="coroutine">The coroutine to start.</param>
+    public static void Start(IEnumerable coroutine)
+    {
+        if (UpdateDispatch.Instance == null)
+            throw Exceptions.InvalidOperation($"Cannot start coroutine when no global {nameof(UpdateDispatch)} is available.");
+
+        UpdateDispatch.Instance.Add(new Coroutine(coroutine));
+    }
 }
