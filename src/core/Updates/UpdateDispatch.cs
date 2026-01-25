@@ -1,4 +1,4 @@
-﻿// <copyright file="OperationUpdateDispatch.cs" company="VoxelGame">
+﻿// <copyright file="UpdateDispatch.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -29,24 +29,24 @@ using VoxelGame.Logging;
 namespace VoxelGame.Core.Updates;
 
 /// <summary>
-///     Stores and updates all operations.
+///     Stores and updates all updateable entities.
 /// </summary>
-public class OperationUpdateDispatch : ApplicationComponent
+public class UpdateDispatch : ApplicationComponent
 {
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<OperationUpdateDispatch>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<UpdateDispatch>();
 
     #endregion LOGGING
 
-    private readonly Bag<Operation> operations = new(null!);
+    private readonly Bag<IUpdateableProcess> entries = new(null!);
 
     /// <summary>
-    ///     Create a new operation update dispatch instance.
+    ///     Create a new update dispatch instance.
     /// </summary>
     /// <param name="singleton">Whether to make this the singleton instance.</param>
     /// <param name="application">The application instance.</param>
-    public OperationUpdateDispatch(Boolean singleton, Application application) : base(application)
+    public UpdateDispatch(Boolean singleton, Application application) : base(application)
     {
         if (!singleton) return;
 
@@ -63,15 +63,15 @@ public class OperationUpdateDispatch : ApplicationComponent
     /// <summary>
     ///     The singleton instance of the operation update dispatch.
     /// </summary>
-    public static OperationUpdateDispatch? Instance { get; private set; }
+    public static UpdateDispatch? Instance { get; private set; }
 
     private void Update()
     {
-        operations.Apply(operation =>
+        entries.Apply(process =>
         {
-            operation.Update();
+            process.Update();
 
-            return operation.IsRunning;
+            return process.IsRunning;
         });
     }
 
@@ -81,7 +81,7 @@ public class OperationUpdateDispatch : ApplicationComponent
     /// </summary>
     public static void SetUpMockInstance()
     {
-        Instance = new OperationUpdateDispatch(singleton: true, Application.Instance);
+        Instance = new UpdateDispatch(singleton: true, Application.Instance);
     }
 
     /// <summary>
@@ -90,11 +90,11 @@ public class OperationUpdateDispatch : ApplicationComponent
     /// </summary>
     public void CancelAll()
     {
-        operations.Apply(operation =>
+        entries.Apply(process =>
         {
-            operation.Cancel();
+            process.Cancel();
 
-            return operation.IsRunning;
+            return process.IsRunning;
         });
     }
 
@@ -107,7 +107,7 @@ public class OperationUpdateDispatch : ApplicationComponent
     {
         Application.ThrowIfNotOnMainThread(this);
 
-        while (operations.Count > 0)
+        while (entries.Count > 0)
             Update();
     }
 
@@ -119,7 +119,16 @@ public class OperationUpdateDispatch : ApplicationComponent
     {
         operation.Start();
 
-        operations.Add(operation);
+        entries.Add(operation);
+    }
+
+    /// <summary>
+    ///     Add a coroutine.
+    /// </summary>
+    /// <param name="coroutine">The coroutine to add.</param>
+    public void Add(Coroutine coroutine)
+    {
+        entries.Add(coroutine);
     }
 
     /// <inheritdoc />

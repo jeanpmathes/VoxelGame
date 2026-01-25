@@ -1,4 +1,4 @@
-﻿// <copyright file="SceneOperationDispatch.cs" company="VoxelGame">
+﻿// <copyright file="GlobalUpdateDispatch.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -24,14 +24,16 @@ using VoxelGame.Core.Updates;
 namespace VoxelGame.Client.Application.Components;
 
 /// <summary>
-///     Specific variant of <see cref="OperationUpdateDispatch" /> for scene operations.
-///     Scene operations are completed or canceled when the scene is changed.
+///     Specific variant of <see cref="UpdateDispatch" /> for global operations.
+///     This dispatch is used for operations that are not tied to a specific scene.
+///     Using this dispatch is necessary when operations should continue even when the scene changes.
+///     Otherwise, using the default dispatch is recommended.
 /// </summary>
-public partial class SceneOperationDispatch : OperationUpdateDispatch
+public partial class GlobalUpdateDispatch : UpdateDispatch
 {
     [Constructible]
-    private SceneOperationDispatch(Core.App.Application application) : base(singleton: true, application) {}
+    private GlobalUpdateDispatch(Core.App.Application application) : base(singleton: false, application) {}
 
     /// <inheritdoc />
-    public override String Name => "Scene Operations";
+    public override String Name => "Global Operations";
 }

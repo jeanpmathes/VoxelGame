@@ -1,4 +1,4 @@
-﻿// <copyright file="DispatcherCollection.cs" company="VoxelGame">
+﻿// <copyright file="SceneUpdateDispatch.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,25 +18,20 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Updates;
-using Xunit;
 
-namespace VoxelGame.Core.Tests;
+namespace VoxelGame.Client.Application.Components;
 
-[UsedImplicitly]
-public class DispatcherFixture : LoggerFixture
+/// <summary>
+///     Specific variant of <see cref="UpdateDispatch" /> for scene operations.
+///     Scene operations are completed or canceled when the scene is changed.
+/// </summary>
+public partial class SceneUpdateDispatch : UpdateDispatch
 {
-    public DispatcherFixture()
-    {
-        UpdateDispatch.SetUpMockInstance();
-    }
-}
+    [Constructible]
+    private SceneUpdateDispatch(Core.App.Application application) : base(singleton: true, application) {}
 
-[CollectionDefinition(Name)]
-public class DispatcherCollection : ICollectionFixture<DispatcherFixture>
-{
-    // Nothing to do here.
-
-    public const String Name = "RequireDispatcher";
+    /// <inheritdoc />
+    public override String Name => "Scene Operations";
 }

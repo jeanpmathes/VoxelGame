@@ -1,4 +1,4 @@
-﻿// <copyright file="GlobalOperationDispatch.cs" company="VoxelGame">
+﻿// <copyright file="IUpdateableProcess.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,22 +18,29 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Annotations.Attributes;
-using VoxelGame.Core.Updates;
 
-namespace VoxelGame.Client.Application.Components;
+namespace VoxelGame.Core.Updates;
 
 /// <summary>
-///     Specific variant of <see cref="OperationUpdateDispatch" /> for global operations.
-///     This dispatch is used for operations that are not tied to a specific scene.
-///     Using this dispatch is necessary when operations should continue even when the scene changes.
-///     Otherwise, using the default dispatch is recommended.
+///     A process that can be updated and will complete at some point.
+///     Should be used in combination with <see cref="UpdateDispatch" />.
 /// </summary>
-public partial class GlobalOperationDispatch : OperationUpdateDispatch
+public interface IUpdateableProcess
 {
-    [Constructible]
-    private GlobalOperationDispatch(Core.App.Application application) : base(singleton: false, application) {}
+    /// <summary>
+    ///     Whether the process is currently running.
+    ///     If not, it will no longer be updated by the <see cref="UpdateDispatch" />.
+    /// </summary>
+    Boolean IsRunning { get; }
 
-    /// <inheritdoc />
-    public override String Name => "Global Operations";
+    /// <summary>
+    ///     Is called by <see cref="UpdateDispatch" /> to update the process.
+    /// </summary>
+    void Update();
+
+    /// <summary>
+    ///     Attempt to cancel the process.
+    ///     A canceled process can either ignore the cancellation, or stop and enter a failed state.
+    /// </summary>
+    void Cancel();
 }

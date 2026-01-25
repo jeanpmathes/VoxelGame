@@ -29,7 +29,7 @@ namespace VoxelGame.UI.Settings;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-internal class EnumerationSetting<T> : Setting where T : Enum
+internal sealed class EnumerationSetting<T> : Setting where T : Enum
 {
     private readonly Func<T> get;
     private readonly Action<T> set;

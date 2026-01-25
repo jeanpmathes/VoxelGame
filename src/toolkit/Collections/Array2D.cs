@@ -114,6 +114,27 @@ public sealed class Array2D<T> : IEnumerable<T>, IArray<T>
     }
 
     /// <summary>
+    ///     Get whether a position is in bounds.
+    /// </summary>
+    /// <param name="x">The x component of the position.</param>
+    /// <param name="y">The y component of the position.</param>
+    /// <returns>Whether the position is in bounds.</returns>
+    public Boolean IsInBounds(Int32 x, Int32 y)
+    {
+        return x >= 0 && x < Length && y >= 0 && y < Length;
+    }
+
+    /// <summary>
+    ///     Get whether a position is in bounds.
+    /// </summary>
+    /// <param name="position">The position to check.</param>
+    /// <returns>Whether the position is in bounds.</returns>
+    public Boolean IsInBounds(Vector2i position)
+    {
+        return IsInBounds(position.X, position.Y);
+    }
+
+    /// <summary>
     ///     Get the array as a span.
     /// </summary>
     /// <returns>The array as a span.</returns>

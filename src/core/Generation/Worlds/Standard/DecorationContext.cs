@@ -46,7 +46,7 @@ public sealed class DecorationContext(Generator generator, ChunkPosition hint, I
 
         ColumnSampleStore? store = null;
 
-        if (xOffset >= 0 && xOffset < columns.array.Length && zOffset >= 0 && zOffset < columns.array.Length)
+        if (columns.array.IsInBounds(xOffset, zOffset))
             store = columns.array[xOffset, zOffset];
 
         generator.DecorateSection(sections, store);

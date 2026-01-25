@@ -32,8 +32,9 @@ namespace VoxelGame.Core.Updates;
 ///     An operation is similar to a task, but runs at least partially on the main thread.
 ///     This means that it is only considered completed after both the actual work has completed and the main thread has
 ///     detected this.
+///     The work itself might run on a background thread.
 /// </summary>
-public abstract class Operation
+public abstract class Operation : IUpdateableProcess
 {
     /// <summary>
     ///     Get the current status of the operation.
@@ -44,11 +45,6 @@ public abstract class Operation
     ///     Whether the operation is ended and no longer running.
     /// </summary>
     private Boolean IsCompleted => Status != Status.Running;
-
-    /// <summary>
-    ///     Whether the operation is currently running.
-    /// </summary>
-    public Boolean IsRunning => Status == Status.Running;
 
     /// <summary>
     ///     Whether the operation was successful.
@@ -64,6 +60,31 @@ public abstract class Operation
     ///     Get the result of the operation, or <c>null</c> if the operation is still running.
     /// </summary>
     public Result? Result { get; private set; }
+
+    /// <inheritdoc />
+    public Boolean IsRunning => Status == Status.Running;
+
+    /// <inheritdoc />
+    public void Update()
+    {
+        if (IsCompleted)
+            return;
+
+        Result = CheckCompletion();
+
+        if (Result == null)
+            return;
+
+        Complete(Result);
+    }
+
+    /// <summary>
+    ///     Attempt to cancel the operation.
+    ///     Can lead to the operation being cancelled, but does not guarantee it.
+    ///     A cancelled operation will be marked as failed.
+    ///     Note that this propagates along continuation operations.
+    /// </summary>
+    public abstract void Cancel();
 
     /// <summary>
     ///     Invoked when the operation has completed.
@@ -86,22 +107,6 @@ public abstract class Operation
     /// </summary>
     protected abstract void Run();
 
-    /// <summary>
-    ///     Is called by <see cref="OperationUpdateDispatch" /> to update the operation.
-    /// </summary>
-    internal void Update()
-    {
-        if (IsCompleted)
-            return;
-
-        Result = CheckCompletion();
-
-        if (Result == null)
-            return;
-
-        Complete(Result);
-    }
-
     private void Complete(Result result)
     {
         Status = result.Switch(() => Status.Ok, _ => Status.ErrorOrCancel);
@@ -122,14 +127,6 @@ public abstract class Operation
     ///     Called before the <see cref="Completion" /> event is invoked.
     /// </summary>
     protected virtual void OnCompletion() {}
-
-    /// <summary>
-    ///     Attempt to cancel the operation.
-    ///     Can lead to the operation being cancelled, but does not guarantee it.
-    ///     A cancelled operation will be marked as failed.
-    ///     Note that this propagates along continuation operations.
-    /// </summary>
-    public abstract void Cancel();
 
     /// <summary>
     ///     Wait for the operation to complete.
