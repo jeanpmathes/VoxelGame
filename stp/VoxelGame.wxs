@@ -1,4 +1,4 @@
-﻿<Wix
+<Wix
     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui"
     xmlns="http://wixtoolset.org/schemas/v4/wxs">
     <Package Name="$(ProductName)"
