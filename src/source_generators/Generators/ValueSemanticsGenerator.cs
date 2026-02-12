@@ -82,6 +82,9 @@ public sealed class ValueSemanticsGenerator : IIncrementalGenerator
 
         foreach (IFieldSymbol? member in namedTypeSymbol.GetMembers().OfType<IFieldSymbol>())
         {
+            if (member.IsStatic || member.IsConst || member.IsImplicitlyDeclared)
+                continue;
+
             String typeDisplay = member.Type.ToDisplayString(SourceCodeTools.SymbolDisplayFormat);
 
             fieldModelArrayBuilder.Add(new FieldModel(member.Name, typeDisplay));
