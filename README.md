@@ -1,4 +1,4 @@
-[![build](https://github.com/pershingthesecond/VoxelGame/actions/workflows/build.yml/badge.svg?branch=master)](https://github.com/pershingthesecond/VoxelGame/actions/workflows/build.yml)
+[![build](https://github.com/jeanpmathes/VoxelGame/actions/workflows/build.yml/badge.svg?branch=main)](https://github.com/jeanpmathes/VoxelGame/actions/workflows/build.yml)
 
 # VoxelGame
 VoxelGame is a (very) work-in-progress voxel engine and game.
