@@ -89,8 +89,10 @@ public sealed class NativeAllocator : IDisposable
     {
         if (disposed) return;
 
-        if (disposing) NativeMethods.DeleteAllocator(self);
-        else ExceptionTools.ThrowForMissedDispose(this);
+        NativeMethods.DeleteAllocator(self);
+
+        if (!disposing)
+            ExceptionTools.ThrowForMissedDispose(this);
 
         disposed = true;
     }
