@@ -140,6 +140,18 @@ public static class Months
     }
 
     /// <summary>
+    /// Whether a month value is valid.
+    /// </summary>
+    public static Boolean IsValid(this Month month)
+    {
+        return month switch
+        {
+            Month.Spring or Month.Summer or Month.Autumn or Month.Winter => true,
+            _ => false
+        };
+    }
+
+    /// <summary>
     ///     Inverse of <see cref="Months.ToNumber" />.
     /// </summary>
     public static Month FromNumber(Int32 number)

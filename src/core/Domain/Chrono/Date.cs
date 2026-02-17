@@ -80,7 +80,7 @@ public struct Date : IEquatable<Date>, IComparable<Date>, IValue
     /// </summary>
     public static Boolean TryCreate(Int32 day, Month month, Int32 year, out Date date)
     {
-        if (day is < 1 or > Calendar.DaysPerMonth || year < 1 || month.ToNumber() is < 1 or > Calendar.MonthsPerYear)
+        if (day is < 1 or > Calendar.DaysPerMonth || year < 1 || !month.IsValid())
         {
             date = default;
 
