@@ -171,18 +171,33 @@ public sealed partial class CommandInvoker : IResource
         String remaining = input.Length > nextIndex ? input[nextIndex..] : "";
 
         foreach (Char c in remaining)
+        {
+            if (isEscaped)
+            {
+                if (isNextArg)
+                {
+                    args.Add(new StringBuilder());
+                    isNextArg = false;
+                }
+
+                args[^1].Append(c);
+                isEscaped = false;
+
+                continue;
+            }
+
             switch (c)
             {
                 case ' ' when !isQuoted:
                     isNextArg = true;
 
                     break;
-                case '"' when !isEscaped:
+                case '"':
                     isQuoted = !isQuoted;
 
                     break;
                 case '\\':
-                    isEscaped = !isEscaped;
+                    isEscaped = true;
 
                     break;
                 default:
@@ -196,6 +211,17 @@ public sealed partial class CommandInvoker : IResource
 
                     break;
             }
+        }
+
+        if (isEscaped)
+        {
+            if (isNextArg)
+            {
+                args.Add(new StringBuilder());
+            }
+
+            args[^1].Append('\\');
+        }
 
         return (commandName.ToString(), args.Select(a => a.ToString()).ToArray());
     }
