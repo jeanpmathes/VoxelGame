@@ -212,7 +212,7 @@ public abstract partial class WorldState
     /// <summary>
     ///     The state in which the world is saving.
     /// </summary>
-    /// <param name="onComplete">Called when the world has successfully saving.</param>
+    /// <param name="onComplete">Called when the world has been saved successfully.</param>
     public class Saving(Action onComplete) : WorldState
     {
         private Int32 progress;

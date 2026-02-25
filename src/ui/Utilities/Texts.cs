@@ -46,7 +46,7 @@ public static class Texts
     }
 
     /// <summary>
-    ///     Format the time sine an event occurred.
+    ///     Format the time since an event occurred.
     /// </summary>
     /// <param name="dateTime">The date and time of the event.</param>
     /// <param name="hasOccurred">Whether the event has actually occurred.</param>
