@@ -1,4 +1,4 @@
-﻿// <copyright file="StringTools.cs" company="VoxelGame">
+// <copyright file="StringTools.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -74,5 +74,35 @@ public static class StringTools
         }
 
         return builder.ToString();
+    }
+    /// <summary>
+    ///     Get the Levenshtein edit distance between two strings.
+    /// </summary>
+    /// <param name="source">The source string.</param>
+    /// <param name="target">The target string.</param>
+    /// <returns>The amount of edits required to transform one string into the other.</returns>
+    public static Int32 LevenshteinDistance(String source, String target)
+    {
+        if (source.Length == 0) return target.Length;
+        if (target.Length == 0) return source.Length;
+
+        var distances = new Int32[source.Length + 1, target.Length + 1];
+
+        for (var i = 0; i <= source.Length; i++) distances[i, 0] = i;
+        for (var j = 0; j <= target.Length; j++) distances[0, j] = j;
+
+        for (var i = 1; i <= source.Length; i++)
+        for (var j = 1; j <= target.Length; j++)
+        {
+            Int32 cost = source[i - 1] == target[j - 1] ? 0 : 1;
+
+            distances[i, j] = Math.Min(
+                Math.Min(
+                    distances[i - 1, j] + 1,
+                    distances[i, j - 1] + 1),
+                distances[i - 1, j - 1] + cost);
+        }
+
+        return distances[source.Length, target.Length];
     }
 }

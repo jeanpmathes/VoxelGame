@@ -1,4 +1,4 @@
-﻿// <copyright file="CommandLibrary.cs" company="VoxelGame">
+// <copyright file="CommandLibrary.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Console;
@@ -63,6 +64,26 @@ public class CommandLibrary
             throw Exceptions.ArgumentNotInCollection(nameof(name), nameof(Names), name);
 
         return GetCommandSignatures(name, commandGroup);
+    }
+
+    /// <summary>
+    ///     Get similar command names to a given input.
+    /// </summary>
+    /// <param name="input">The input to compare against.</param>
+    /// <param name="maxSuggestions">The maximum number of suggestions to return.</param>
+    /// <returns>The suggested command names.</returns>
+    public IEnumerable<String> GetCommandSuggestions(String input, Int32 maxSuggestions = 3)
+    {
+        String normalizedInput = input.ToLowerInvariant();
+        Int32 maxDistance = Math.Max(val1: 2, normalizedInput.Length / 3);
+
+        return groups.Keys
+            .Select(name => (name, distance: StringTools.LevenshteinDistance(normalizedInput, name.ToLowerInvariant())))
+            .Where(result => result.distance <= maxDistance)
+            .OrderBy(result => result.distance)
+            .ThenBy(result => result.name)
+            .Take(maxSuggestions)
+            .Select(result => result.name);
     }
 
     private static IEnumerable<String> GetCommandSignatures(String commandName, CommandGroup commandGroup)

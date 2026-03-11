@@ -1,4 +1,4 @@
-﻿// <copyright file="CommandInvoker.cs" company="VoxelGame">
+// <copyright file="CommandInvoker.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -26,6 +27,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
+using VoxelGame.UI.UserInterfaces;
 
 namespace VoxelGame.Client.Console;
 
@@ -129,23 +131,35 @@ public sealed partial class CommandInvoker : IResource
     {
         (String commandName, String[] args) = ParseInput(input);
 
+        if (String.IsNullOrWhiteSpace(commandName))
+        {
+            context.Output.WriteError("No command provided, use 'help' for available commands.");
+
+            return;
+        }
+
         if (library.GetCommand(commandName) is {command: var command, overloads: var overloads})
         {
-            MethodInfo? method = resolver.ResolveOverload(overloads, args);
+            ArgumentResolver.OverloadResolutionResult resolution = resolver.ResolveOverload(overloads, args);
 
-            if (method != null)
+            if (resolution.IsSuccess)
             {
-                Invoke(command, method, args, context);
+                Invoke(command, resolution.Method!, args, context);
             }
             else
             {
-                context.Output.WriteError($"No overload found, use 'help {commandName}' for more info.");
+                WriteOverloadError(context, commandName, resolution.Diagnostics);
                 LogNoOverloadFound(logger, commandName);
             }
         }
         else
         {
-            context.Output.WriteError($"No command '{commandName}' found, use 'help' for more info.");
+            String suggestions = String.Join(", ", library.GetCommandSuggestions(commandName));
+            String message = suggestions.Length > 0
+                ? $"No command '{commandName}' found, use 'help' for more info. Did you mean: {suggestions}?"
+                : $"No command '{commandName}' found, use 'help' for more info.";
+
+            context.Output.WriteError(message);
             LogCommandNotFound(logger, commandName);
         }
     }
@@ -224,6 +238,30 @@ public sealed partial class CommandInvoker : IResource
         }
 
         return (commandName.ToString(), args.Select(a => a.ToString()).ToArray());
+    }
+
+    private static void WriteOverloadError(Context context, String commandName, IReadOnlyList<String> diagnostics)
+    {
+        StringBuilder message = new();
+        
+        message.Append(CultureInfo.InvariantCulture, $"No overload found for '{commandName}'. Use 'help {commandName}' for more info.");
+
+        if (diagnostics.Count > 0)
+        {
+            message.AppendLine();
+
+            foreach (String diagnostic in diagnostics.Take(4))
+                message.AppendLine(diagnostic);
+            
+            Int32 remaining = diagnostics.Count - 4;
+
+            if (remaining > 0)
+                message.Append(CultureInfo.InvariantCulture, $"... and {remaining} more mismatch(es).");
+        }
+
+        context.Output.WriteError(
+            message.ToString(),
+            [new FollowUp("Show command help", () => { context.Invoker.InvokeCommand($"help {commandName}", context); })]);
     }
 
     private void Invoke(ICommand command, MethodBase method, IReadOnlyList<String> args, Context context)

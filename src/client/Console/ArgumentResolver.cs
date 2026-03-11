@@ -1,4 +1,4 @@
-﻿// <copyright file="ArgumentResolver.cs" company="VoxelGame">
+// <copyright file="ArgumentResolver.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -31,6 +31,19 @@ public class ArgumentResolver
     private readonly Dictionary<Type, Parser> parsers = new();
 
     /// <summary>
+    ///     The result of trying to resolve a command overload.
+    /// </summary>
+    /// <param name="Method">The resolved method, if successful.</param>
+    /// <param name="Diagnostics">Details about why no overload could be selected.</param>
+    public sealed record OverloadResolutionResult(MethodInfo? Method, IReadOnlyList<String> Diagnostics)
+    {
+        /// <summary>
+        ///     Whether the resolution was successful.
+        /// </summary>
+        public Boolean IsSuccess => Method != null;
+    }
+
+    /// <summary>
     ///     Add an argument parser to the resolver.
     ///     Will replace any existing parser for the same type.
     /// </summary>
@@ -45,14 +58,25 @@ public class ArgumentResolver
     /// </summary>
     /// <param name="overloads">The possible overloads to choose from.</param>
     /// <param name="args">The arguments to resolve the overload for.</param>
-    /// <returns>The resolved overload or <c>null</c> if none could be resolved.</returns>
-    public MethodInfo? ResolveOverload(IEnumerable<MethodInfo> overloads, IReadOnlyList<String> args)
+    /// <returns>The resolution result.</returns>
+    public OverloadResolutionResult ResolveOverload(IEnumerable<MethodInfo> overloads, IReadOnlyList<String> args)
     {
+        List<String> diagnostics = [];
+
+        var overloadCount = 0;
+        
         foreach (MethodInfo method in overloads)
         {
+            overloadCount += 1;
+            
             ParameterInfo[] parameters = method.GetParameters();
 
-            if (parameters.Length != args.Count) continue;
+            if (parameters.Length != args.Count)
+            {
+                diagnostics.Add($"- Overload #{overloadCount} expects {parameters.Length} argument(s), got {args.Count}.");
+
+                continue;
+            }
 
             var isValid = true;
 
@@ -61,6 +85,8 @@ public class ArgumentResolver
                 if (!parsers.TryGetValue(parameters[i].ParameterType, out Parser? parser))
                 {
                     isValid = false;
+                    diagnostics.Add(
+                        $"- Parameter #{i + 1} '{parameters[i].Name}' of type {parameters[i].ParameterType.Name} has no registered parser.");
 
                     break;
                 }
@@ -68,15 +94,17 @@ public class ArgumentResolver
                 if (!parser.CanParse(args[i]))
                 {
                     isValid = false;
+                    diagnostics.Add(
+                        $"- Parameter #{i + 1} '{parameters[i].Name}' expects {parameters[i].ParameterType.Name}, got '{args[i]}'.");
 
                     break;
                 }
             }
 
-            if (isValid) return method;
+            if (isValid) return new OverloadResolutionResult(method, []);
         }
 
-        return null;
+        return new OverloadResolutionResult(Method: null, diagnostics);
     }
 
     /// <summary>
