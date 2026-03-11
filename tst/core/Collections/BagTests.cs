@@ -35,7 +35,7 @@ public class BagTests
     [Fact]
     public void Bag_Add_ShouldInsertItemAndReturnIndex()
     {
-        Bag<Int32> bag = new Bag<Int32>(Gap);
+        Bag<Int32> bag = new(Gap);
 
         Int32 index = bag.Add(item: 10);
 
@@ -46,7 +46,7 @@ public class BagTests
     [Fact]
     public void Bag_Add_ShouldUseGapsWhenAvailable()
     {
-        Bag<Int32> bag = new Bag<Int32>(Gap)
+        Bag<Int32> bag = new(Gap)
         {
             10,
             20
@@ -64,7 +64,7 @@ public class BagTests
     [Fact]
     public void Bag_Remove_ShouldCreateGapAndReduceCount()
     {
-        Bag<Int32> bag = new Bag<Int32>(Gap);
+        Bag<Int32> bag = new(Gap);
         Int32 index = bag.Add(item: 10);
 
         bag.RemoveAt(index);
@@ -76,7 +76,7 @@ public class BagTests
     [Fact]
     public void Bag_Clear_ShouldRemoveAllItemsAndGaps()
     {
-        Bag<Int32> bag = new Bag<Int32>(Gap)
+        Bag<Int32> bag = new(Gap)
         {
             10,
             20
@@ -93,7 +93,7 @@ public class BagTests
     [Fact]
     public void Bag_Apply_ShouldRemoveItemsBasedOnCondition()
     {
-        Bag<Int32> bag = new Bag<Int32>(Gap)
+        Bag<Int32> bag = new(Gap)
         {
             10,
             20,
@@ -111,7 +111,7 @@ public class BagTests
     [Fact]
     public void Bag_Enumerator_ShouldIterateWithoutGaps()
     {
-        Bag<Int32> bag = new Bag<Int32>(Gap)
+        Bag<Int32> bag = new(Gap)
         {
             10,
             20,

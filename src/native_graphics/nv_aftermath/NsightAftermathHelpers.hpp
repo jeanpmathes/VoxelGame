@@ -56,9 +56,7 @@ namespace std
     inline std::string to_string(GFSDK_Aftermath_ShaderBinaryHash const& hash) { return to_hex_string(hash.hash); }
 }
 
-inline bool operator<(
-    GFSDK_Aftermath_ShaderDebugInfoIdentifier const& lhs,
-    GFSDK_Aftermath_ShaderDebugInfoIdentifier const& rhs)
+inline bool operator<(GFSDK_Aftermath_ShaderDebugInfoIdentifier const& lhs, GFSDK_Aftermath_ShaderDebugInfoIdentifier const& rhs)
 {
     if (lhs.id[0] == rhs.id[0]) return lhs.id[1] < rhs.id[1];
     return lhs.id[0] < rhs.id[0];

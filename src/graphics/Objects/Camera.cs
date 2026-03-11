@@ -93,12 +93,12 @@ public class Camera : NativeObject
     private static Double NearClipping => 0.05;
 
     /// <summary>
-    /// The definition of the camera view.
+    ///     The definition of the camera view.
     /// </summary>
     public Parameters Definition => new(fovY, Client.AspectRatio, (NearClipping, FarClipping), Position, (Forward, Up, Right));
 
     /// <summary>
-    /// Set the orientation of the camera, defined by the forward, right and up vectors.
+    ///     Set the orientation of the camera, defined by the forward, right and up vectors.
     /// </summary>
     /// <param name="forward">The forward vector.</param>
     /// <param name="right">The right vector.</param>

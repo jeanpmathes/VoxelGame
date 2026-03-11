@@ -26,22 +26,11 @@ NATIVE FLOAT NativeGetNoise3D(Noise const* noise, FLOAT const x, FLOAT const y, 
     return noise->GetNoise(x, y, z);
 }
 
-NATIVE void NativeGetNoiseGrid2D(
-    Noise const* noise,
-    INT const    x,
-    INT const    y,
-    INT const    width,
-    INT const    height,
-    PFLOAT const out) { noise->GetGrid(x, y, width, height, out); }
+NATIVE void NativeGetNoiseGrid2D(Noise const* noise, INT const x, INT const y, INT const width, INT const height, PFLOAT const out) { noise->GetGrid(x, y, width, height, out); }
 
-NATIVE void NativeGetNoiseGrid3D(
-    Noise const* noise,
-    INT const    x,
-    INT const    y,
-    INT const    z,
-    INT const    width,
-    INT const    height,
-    INT const    depth,
-    PFLOAT const out) { noise->GetGrid(x, y, z, width, height, depth, out); }
+NATIVE void NativeGetNoiseGrid3D(Noise const* noise, INT const x, INT const y, INT const z, INT const width, INT const height, INT const depth, PFLOAT const out)
+{
+    noise->GetGrid(x, y, z, width, height, depth, out);
+}
 
 NATIVE void NativeDeleteNoise(Noise const* noise) { delete noise; }

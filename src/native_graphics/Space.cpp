@@ -419,8 +419,7 @@ std::unique_ptr<Material> Space::SetUpMaterial(MaterialDescription const& descri
 #if defined(NATIVE_DEBUG)
     std::wstring const debugName = description.name;
     // DirectX seems to return the same pointer for both signatures, so naming them is not very useful.
-    TryDo(material->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
-    TryDo(material->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
+    TryDo(material->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str())); TryDo(material->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
 #endif
 
     return material;

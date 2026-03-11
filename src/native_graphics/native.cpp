@@ -31,8 +31,7 @@ NATIVE void NativeFinalize(NativeClient const* client)
         delete client;
 
 #if defined(NATIVE_DEBUG)
-        IDXGIDebug1* debug = nullptr;
-        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
+        IDXGIDebug1* debug = nullptr; if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
         {
             HRESULT const result = debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
             debug->Release();

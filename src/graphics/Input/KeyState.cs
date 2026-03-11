@@ -61,7 +61,7 @@ public class KeyState
     /// <inheritdoc />
     public override String ToString()
     {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new();
         builder.Append(value: '{');
         Boolean first = true;
 

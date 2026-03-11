@@ -60,12 +60,7 @@ constexpr void Require(bool const condition, std::source_location const& locatio
 
     if (!condition)
     {
-        std::string const message = std::format(
-            "failed requirement in function {} at {}:{}:{}",
-            location.function_name(),
-            location.file_name(),
-            location.line(),
-            location.column());
+        std::string const message = std::format("failed requirement in function {} at {}:{}:{}", location.function_name(), location.file_name(), location.line(), location.column());
 
         if (IsDebuggerPresent()) DebugBreak();
         throw NativeException(message);
@@ -74,23 +69,14 @@ constexpr void Require(bool const condition, std::source_location const& locatio
 
 inline std::string GetTryDoMessage(std::source_location const& location)
 {
-    if constexpr (IS_DEBUG_BUILD)
-        return std::format(
-            "throwing from function {} at {}:{}:{}",
-            location.function_name(),
-            location.file_name(),
-            location.line(),
-            location.column());
+    if constexpr (IS_DEBUG_BUILD) return std::format("throwing from function {} at {}:{}:{}", location.function_name(), location.file_name(), location.line(), location.column());
     else return std::format("throwing from function {}", location.function_name());
 }
 
 /**
  * \brief Try to do something, e.g. a Win32 API call, and throw an exception if it fails.
  */
-inline void TryDo(
-    BOOL const                  b,
-    bool const                  breakpoint = true,
-    std::source_location const& location   = std::source_location::current())
+inline void TryDo(BOOL const b, bool const breakpoint = true, std::source_location const& location = std::source_location::current())
 {
     if (b) return;
 
@@ -104,10 +90,7 @@ inline void TryDo(
 /**
  * \brief Try to do something, e.g. a DirectX API call, and throw an exception if it fails.
  */
-inline void TryDo(
-    HRESULT const               hr,
-    bool const                  breakpoint = true,
-    std::source_location const& location   = std::source_location::current())
+inline void TryDo(HRESULT const hr, bool const breakpoint = true, std::source_location const& location = std::source_location::current())
 {
     if (SUCCEEDED(hr)) return;
 
@@ -122,10 +105,7 @@ inline void TryDo(
  * \brief Check that the return value of a function is not NULL, and throw an exception based on GetLastError if it is.
  */
 template <typename T>
-constexpr T const& CheckReturn(
-    T const&                    value,
-    bool const                  breakpoint = true,
-    std::source_location const& location   = std::source_location::current())
+constexpr T const& CheckReturn(T const& value, bool const breakpoint = true, std::source_location const& location = std::source_location::current())
 {
     if (value != NULL) return value;
 
@@ -177,8 +157,7 @@ inline void SetName(ComPtr<ID3D12Object> const& object, LPCWSTR const name) { Tr
 inline UINT CalculateConstantBufferByteSize(UINT byteSize)
 {
     // Constant buffer size is required to be aligned.
-    return (byteSize + (D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1)) & ~(
-        D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1);
+    return (byteSize + (D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1)) & ~(D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT - 1);
 }
 
 // Resets all elements in a ComPtr array.
@@ -193,7 +172,5 @@ void ResetUniquePtrArray(T* uniquePtrArray) { for (auto& i : *uniquePtrArray) i.
 template <typename T>
 std::vector<T> ReadBlob(ComPtr<ID3DBlob> const& blob)
 {
-    return std::vector<T>(
-        static_cast<T*>(blob->GetBufferPointer()),
-        static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
+    return std::vector<T>(static_cast<T*>(blob->GetBufferPointer()), static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
 }

@@ -48,9 +48,7 @@ public:
      * \param debugData The source shader debug info.
      * \return True if the source shader debug info was found, false otherwise.
      */
-    bool FindSourceShaderDebugData(
-        GFSDK_Aftermath_ShaderDebugName const& shaderDebugName,
-        std::vector<uint8_t>&                  debugData) const;
+    bool FindSourceShaderDebugData(GFSDK_Aftermath_ShaderDebugName const& shaderDebugName, std::vector<uint8_t>& debugData) const;
 
     /**
      * \brief Add a shader binary to the database.

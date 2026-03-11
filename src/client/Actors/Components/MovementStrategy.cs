@@ -51,8 +51,8 @@ internal abstract class MovementStrategy(Double flyingSpeed)
     }
 
     /// <summary>
-    /// Perform the movement calculations and actions associated with the strategy.
-    /// Should be called once (or less) per update cycle.
+    ///     Perform the movement calculations and actions associated with the strategy.
+    ///     Should be called once (or less) per update cycle.
     /// </summary>
     /// <param name="pitch">The current look pitch.</param>
     /// <param name="yaw">The current look yaw.</param>

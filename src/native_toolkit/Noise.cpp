@@ -41,11 +41,7 @@ void Noise::GetGrid(int const x, int const y, int const width, int const height,
     m_generator->GenUniformGrid2D(out, x, y, width, height, 1.0f, m_seed);
 }
 
-void Noise::GetGrid(
-    int const x,
-    int const y,
-    int const z,
-    int const width,
-    int const height,
-    int const depth,
-    float*    out) const { m_generator->GenUniformGrid3D(out, x, y, z, width, height, depth, 1.0f, m_seed); }
+void Noise::GetGrid(int const x, int const y, int const z, int const width, int const height, int const depth, float* out) const
+{
+    m_generator->GenUniformGrid3D(out, x, y, z, width, height, depth, 1.0f, m_seed);
+}

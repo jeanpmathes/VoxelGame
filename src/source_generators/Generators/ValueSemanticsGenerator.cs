@@ -116,7 +116,7 @@ public sealed class ValueSemanticsGenerator : IIncrementalGenerator
 
     private static String GenerateSource(StructModel model)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendPreamble<ValueSemanticsGenerator>()
             .AppendNamespace(model.Namespace);

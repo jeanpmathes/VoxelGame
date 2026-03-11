@@ -69,13 +69,7 @@ void Mesh::SetNewVertices(SpatialVertex const* vertices, UINT const vertexCount)
     m_requiresFreshBLAS = true;
 
     auto const vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
-    util::ReAllocateBuffer(
-        &GetUploadDataBuffer(),
-        GetClient(),
-        vertexBufferSize,
-        D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        D3D12_HEAP_TYPE_UPLOAD);
+    util::ReAllocateBuffer(&GetUploadDataBuffer(), GetClient(), vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
     TryDo(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
@@ -93,13 +87,7 @@ void Mesh::SetNewBounds(SpatialBounds const* bounds, UINT const boundsCount)
     m_requiresFreshBLAS = true;
 
     auto const vertexBufferSize = sizeof(SpatialBounds) * boundsCount;
-    util::ReAllocateBuffer(
-        &GetUploadDataBuffer(),
-        GetClient(),
-        vertexBufferSize,
-        D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        D3D12_HEAP_TYPE_UPLOAD);
+    util::ReAllocateBuffer(&GetUploadDataBuffer(), GetClient(), vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
 
     TryDo(util::MapAndWrite(GetUploadDataBuffer(), bounds, boundsCount));
@@ -128,9 +116,7 @@ Allocation<ID3D12Resource> Mesh::GetGeometryBuffer() { return GeometryBuffer(); 
 
 ShaderResources::ConstantBufferViewDescriptor Mesh::GetInstanceDataViewDescriptor() const
 {
-    return ShaderResources::ConstantBufferViewDescriptor(
-        m_instanceDataBuffer.GetGPUVirtualAddress(),
-        static_cast<UINT>(m_instanceDataBufferAlignedSize));
+    return ShaderResources::ConstantBufferViewDescriptor(m_instanceDataBuffer.GetGPUVirtualAddress(), static_cast<UINT>(m_instanceDataBufferAlignedSize));
 }
 
 ShaderResources::ShaderResourceViewDescriptor Mesh::GetGeometryBufferViewDescriptor()
@@ -148,10 +134,7 @@ ShaderResources::UnorderedAccessViewDescriptor Mesh::GetAnimationDestinationBuff
     return {.resource = m_destinationGeometryBuffer, .description = &m_geometryUAV};
 }
 
-void Mesh::CreateBLAS(
-    ComPtr<ID3D12GraphicsCommandList4> const& commandList,
-    std::vector<ID3D12Resource*>*             uavs,
-    bool const                                isForAnimation)
+void Mesh::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<ID3D12Resource*>* uavs, bool const isForAnimation)
 {
     Require(uavs != nullptr);
 
@@ -163,14 +146,12 @@ void Mesh::CreateBLAS(
         return;
     }
 
-    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
-        CreateBottomLevelASFromVertices(
-            commandList,
-            {{GeometryBuffer(), GetDataElementCount()}},
-            {{m_usedIndexBuffer, m_usedIndexCount}});
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES) CreateBottomLevelASFromVertices(
+        commandList,
+        {{GeometryBuffer(), GetDataElementCount()}},
+        {{m_usedIndexBuffer, m_usedIndexCount}});
 
-    if (GetMaterial().geometryType ==
-        D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS) CreateBottomLevelASFromBounds(
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS) CreateBottomLevelASFromBounds(
         commandList,
         {{GeometryBuffer(), GetDataElementCount()}});
 
@@ -187,9 +168,7 @@ AnimationController::Handle Mesh::GetAnimationHandle() const { return m_animatio
 
 void Mesh::Accept(Visitor& visitor) { visitor.Visit(*this); }
 
-void Mesh::DoDataUpload(
-    ComPtr<ID3D12GraphicsCommandList> const& commandList,
-    std::vector<D3D12_RESOURCE_BARRIER>*     barriers)
+void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, std::vector<D3D12_RESOURCE_BARRIER>* barriers)
 {
     if (GetDataElementCount() == 0)
     {
@@ -200,13 +179,7 @@ void Mesh::DoDataUpload(
 
     auto const geometryBufferSize = GetUploadDataBuffer().resource->GetDesc().Width;
 
-    util::ReAllocateBuffer(
-        &m_sourceGeometryBuffer,
-        GetClient(),
-        geometryBufferSize,
-        D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_COPY_DEST,
-        D3D12_HEAP_TYPE_DEFAULT);
+    util::ReAllocateBuffer(&m_sourceGeometryBuffer, GetClient(), geometryBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_HEAP_TYPE_DEFAULT);
     NAME_D3D12_OBJECT_WITH_ID(m_sourceGeometryBuffer);
 
     if (GetMaterial().IsAnimated())
@@ -230,16 +203,9 @@ void Mesh::DoDataUpload(
 
         if (requiresCopy)
         {
-            commandList->CopyBufferRegion(
-                m_destinationGeometryBuffer.Get(),
-                0,
-                GetUploadDataBuffer().Get(),
-                0,
-                geometryBufferSize);
+            commandList->CopyBufferRegion(m_destinationGeometryBuffer.Get(), 0, GetUploadDataBuffer().Get(), 0, geometryBufferSize);
 
-            D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {
-                CD3DX12_RESOURCE_BARRIER::Transition(m_destinationGeometryBuffer.Get(), destState, srvState)
-            };
+            D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {CD3DX12_RESOURCE_BARRIER::Transition(m_destinationGeometryBuffer.Get(), destState, srvState)};
             barriers->push_back(transitionCopyDestToShaderResource);
         }
     }
@@ -248,17 +214,13 @@ void Mesh::DoDataUpload(
     commandList->CopyBufferRegion(m_sourceGeometryBuffer.Get(), 0, GetUploadDataBuffer().Get(), 0, geometryBufferSize);
 
     D3D12_RESOURCE_BARRIER const transitionCopyDestToShaderResource = {
-        CD3DX12_RESOURCE_BARRIER::Transition(
-            m_sourceGeometryBuffer.Get(),
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
+        CD3DX12_RESOURCE_BARRIER::Transition(m_sourceGeometryBuffer.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE)
     };
     barriers->push_back(transitionCopyDestToShaderResource);
 
-    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
-        std::tie(m_usedIndexBuffer, m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(
-            GetDataElementCount(),
-            barriers);
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES) std::tie(m_usedIndexBuffer, m_usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(
+        GetDataElementCount(),
+        barriers);
 }
 
 void Mesh::DoReset()
@@ -296,36 +258,20 @@ void Mesh::CreateBottomLevelASFromVertices(
 
             bool const isOpaque = GetMaterial().isOpaque;
 
-            m_bottomLevelASGenerator.AddVertexBuffer(
-                vertexBuffer,
-                0,
-                vertexCount,
-                sizeof(SpatialVertex),
-                indexBuffer,
-                0,
-                indexCount,
-                {},
-                0,
-                isOpaque);
+            m_bottomLevelASGenerator.AddVertexBuffer(vertexBuffer, 0, vertexCount, sizeof(SpatialVertex), indexBuffer, 0, indexCount, {}, 0, isOpaque);
         }
     }
 
     CreateBottomLevelAS(commandList);
 }
 
-void Mesh::CreateBottomLevelASFromBounds(
-    ComPtr<ID3D12GraphicsCommandList4> const&                           commandList,
-    std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> const& boundsBuffers)
+void Mesh::CreateBottomLevelASFromBounds(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<std::pair<Allocation<ID3D12Resource>, uint32_t>> const& boundsBuffers)
 {
     if (m_requiresFreshBLAS)
     {
         m_bottomLevelASGenerator = {};
 
-        for (auto const& [boundsBuffer, boundsCount] : boundsBuffers) m_bottomLevelASGenerator.AddBoundsBuffer(
-            boundsBuffer,
-            0,
-            boundsCount,
-            sizeof(SpatialBounds));
+        for (auto const& [boundsBuffer, boundsCount] : boundsBuffers) m_bottomLevelASGenerator.AddBoundsBuffer(boundsBuffer, 0, boundsCount, sizeof(SpatialBounds));
     }
 
     return CreateBottomLevelAS(commandList);
@@ -344,11 +290,7 @@ void Mesh::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& command
         UINT64     resultSizeInBytes  = 0;
         bool const allowUpdate        = GetMaterial().IsAnimated();
 
-        m_bottomLevelASGenerator.ComputeASBufferSizes(
-            GetClient().GetDevice().Get(),
-            allowUpdate,
-            &scratchSizeInBytes,
-            &resultSizeInBytes);
+        m_bottomLevelASGenerator.ComputeASBufferSizes(GetClient().GetDevice().Get(), allowUpdate, &scratchSizeInBytes, &resultSizeInBytes);
 
         m_blas = GetClient().GetSpace()->AllocateBLAS(resultSizeInBytes, scratchSizeInBytes);
 
@@ -366,12 +308,7 @@ void Mesh::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& command
         previousResult = m_blas.result.GetAddress();
     }
 
-    m_bottomLevelASGenerator.Generate(
-        commandList.Get(),
-        m_blas.scratch.GetAddress(),
-        m_blas.result.GetAddress(),
-        updateOnly,
-        previousResult);
+    m_bottomLevelASGenerator.Generate(commandList.Get(), m_blas.scratch.GetAddress(), m_blas.result.GetAddress(), updateOnly, previousResult);
 }
 
 Allocation<ID3D12Resource>& Mesh::GeometryBuffer()

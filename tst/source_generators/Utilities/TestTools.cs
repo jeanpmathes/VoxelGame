@@ -25,7 +25,7 @@ public static class TestTools
 
         foreach (Type dependency in dependencies) assemblies.Add(dependency.Assembly);
 
-        T generator = new T();
+        T generator = new();
         CSharpGeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
 
         CSharpCompilation compilation = CSharpCompilation.Create("compilation",

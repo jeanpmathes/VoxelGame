@@ -282,14 +282,14 @@ public partial class Map
 
                 if (current.continent == neighbor.continent) return;
 
-                TectonicCell a = new TectonicCell
+                TectonicCell a = new()
                 {
                     continent = current.continent,
                     position = (x, y),
                     drift = driftDirections[current.continent]
                 };
 
-                TectonicCell b = new TectonicCell
+                TectonicCell b = new()
                 {
                     continent = neighbor.continent,
                     position = neighborPosition,

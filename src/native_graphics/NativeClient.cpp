@@ -16,11 +16,11 @@ NativeClient::NativeClient(Configuration const& configuration)
     : DXApp(configuration)
   , m_resolution(Resolution{configuration.width, configuration.height} * configuration.renderScale)
 #if defined(NATIVE_DEBUG)
-  , m_debugCallback(configuration.onDebug)
+, m_debugCallback(configuration.onDebug)
 #endif
   , m_space(std::make_unique<Space>(*this))
 #if defined(USE_NSIGHT_AFTERMATH)
-, m_gpuCrashTracker(m_markerMap, m_shaderDatabase, GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
+  , m_gpuCrashTracker(m_markerMap, m_shaderDatabase, GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
 #endif
 {
     if (SupportPIX() && !PIXIsAttachedForGpuCapture()) PIXLoadLatestWinPixGpuCapturerLibrary();
@@ -75,17 +75,14 @@ void NativeClient::LoadDevice()
     TryDo(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
 
 #if defined(NATIVE_DEBUG)
-    ComPtr<ID3D12Debug5> debug;
-    if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12Debug, IID_PPV_ARGS(&debug))))
+    ComPtr<ID3D12Debug5> debug; if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12Debug, IID_PPV_ARGS(&debug))))
     {
         debug->EnableDebugLayer();
         debug->SetEnableAutoName(TRUE);
 
         if (!SupportPIX() && UseGBV()) debug->SetEnableGPUBasedValidation(TRUE);
-    }
-
-    ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
-    if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12DeviceRemovedExtendedData, IID_PPV_ARGS(&dredSettings))))
+    } ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings; if (SUCCEEDED(
+        deviceFactory->GetConfigurationInterface(CLSID_D3D12DeviceRemovedExtendedData, IID_PPV_ARGS(&dredSettings))))
     {
         dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
         dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
@@ -113,22 +110,14 @@ void NativeClient::LoadDevice()
 #endif
 
 #if defined(NATIVE_DEBUG)
-    auto callback = [](
-        D3D12_MESSAGE_CATEGORY const category,
-        D3D12_MESSAGE_SEVERITY const severity,
-        D3D12_MESSAGE_ID const       id,
-        LPCSTR const                 description,
-        void*                        context) -> void
+    auto callback = [](D3D12_MESSAGE_CATEGORY const category, D3D12_MESSAGE_SEVERITY const severity, D3D12_MESSAGE_ID const id, LPCSTR const description, void* context) -> void
     {
         auto const self = static_cast<NativeClient*>(context);
 
         Win32Application::EnterErrorMode();
         self->m_debugCallback(category, severity, id, description, nullptr);
         Win32Application::ExitErrorMode();
-    };
-
-    HRESULT const infoQueueResult = m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue));
-    if (SUCCEEDED(infoQueueResult))
+    }; HRESULT const infoQueueResult = m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue)); if (SUCCEEDED(infoQueueResult))
     {
         TryDo(m_device->QueryInterface(IID_PPV_ARGS(&m_infoQueue)));
         TryDo(m_infoQueue->RegisterMessageCallback(callback, D3D12_MESSAGE_CALLBACK_FLAG_NONE, this, &m_callbackCookie));
@@ -637,7 +626,9 @@ void NativeClient::SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList
 
     GFSDK_Aftermath_ContextHandle contextHandle;
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
-}void NativeClient::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
+}
+
+void NativeClient::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
 {
     if (SupportPIX()) return;
 

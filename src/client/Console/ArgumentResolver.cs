@@ -31,19 +31,6 @@ public class ArgumentResolver
     private readonly Dictionary<Type, Parser> parsers = new();
 
     /// <summary>
-    ///     The result of trying to resolve a command overload.
-    /// </summary>
-    /// <param name="Method">The resolved method, if successful.</param>
-    /// <param name="Diagnostics">Details about why no overload could be selected.</param>
-    public sealed record OverloadResolutionResult(MethodInfo? Method, IReadOnlyList<String> Diagnostics)
-    {
-        /// <summary>
-        ///     Whether the resolution was successful.
-        /// </summary>
-        public Boolean IsSuccess => Method != null;
-    }
-
-    /// <summary>
     ///     Add an argument parser to the resolver.
     ///     Will replace any existing parser for the same type.
     /// </summary>
@@ -64,11 +51,11 @@ public class ArgumentResolver
         List<String> diagnostics = [];
 
         Int32 overloadCount = 0;
-        
+
         foreach (MethodInfo method in overloads)
         {
             overloadCount += 1;
-            
+
             ParameterInfo[] parameters = method.GetParameters();
 
             if (parameters.Length != args.Count)
@@ -85,6 +72,7 @@ public class ArgumentResolver
                 if (!parsers.TryGetValue(parameters[i].ParameterType, out Parser? parser))
                 {
                     isValid = false;
+
                     diagnostics.Add(
                         $"- Parameter #{i + 1} '{parameters[i].Name}' of type {parameters[i].ParameterType.Name} has no registered parser.");
 
@@ -94,6 +82,7 @@ public class ArgumentResolver
                 if (!parser.CanParse(args[i]))
                 {
                     isValid = false;
+
                     diagnostics.Add(
                         $"- Parameter #{i + 1} '{parameters[i].Name}' expects {parameters[i].ParameterType.Name}, got '{args[i]}'.");
 
@@ -123,5 +112,18 @@ public class ArgumentResolver
             parsedArgs[i] = parsers[parameters[i].ParameterType].Parse(args[i]);
 
         return parsedArgs;
+    }
+
+    /// <summary>
+    ///     The result of trying to resolve a command overload.
+    /// </summary>
+    /// <param name="Method">The resolved method, if successful.</param>
+    /// <param name="Diagnostics">Details about why no overload could be selected.</param>
+    public sealed record OverloadResolutionResult(MethodInfo? Method, IReadOnlyList<String> Diagnostics)
+    {
+        /// <summary>
+        ///     Whether the resolution was successful.
+        /// </summary>
+        public Boolean IsSuccess => Method != null;
     }
 }

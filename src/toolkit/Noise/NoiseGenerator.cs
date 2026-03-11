@@ -101,8 +101,8 @@ public sealed class NoiseGenerator : IDisposable
         if (disposed) return;
 
         Native.DeleteNoise(self);
-        
-        if (!disposing) 
+
+        if (!disposing)
             ExceptionTools.ThrowForMissedDispose(this);
 
         disposed = true;

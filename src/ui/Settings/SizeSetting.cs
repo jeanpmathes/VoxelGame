@@ -110,7 +110,7 @@ internal sealed class SizeSetting : Setting
 
         void OnValueChanged(Object? sender, EventArgs args)
         {
-            Vector2i value = new Vector2i((Int32) Math.Round(x.Value), (Int32) Math.Round(y.Value));
+            Vector2i value = new((Int32) Math.Round(x.Value), (Int32) Math.Round(y.Value));
             set(value);
             Validator.Validate();
         }

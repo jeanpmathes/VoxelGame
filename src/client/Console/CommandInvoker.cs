@@ -155,6 +155,7 @@ public sealed partial class CommandInvoker : IResource
         else
         {
             String suggestions = String.Join(", ", library.GetCommandSuggestions(commandName));
+
             String message = suggestions.Length > 0
                 ? $"No command '{commandName}' found, use 'help' for more info. Did you mean: {suggestions}?"
                 : $"No command '{commandName}' found, use 'help' for more info.";
@@ -243,7 +244,7 @@ public sealed partial class CommandInvoker : IResource
     private static void WriteOverloadError(Context context, String commandName, IReadOnlyList<String> diagnostics)
     {
         StringBuilder message = new();
-        
+
         message.Append(CultureInfo.InvariantCulture, $"No overload found for '{commandName}'. Use 'help {commandName}' for more info.");
 
         if (diagnostics.Count > 0)
@@ -252,7 +253,7 @@ public sealed partial class CommandInvoker : IResource
 
             foreach (String diagnostic in diagnostics.Take(4))
                 message.AppendLine(diagnostic);
-            
+
             Int32 remaining = diagnostics.Count - 4;
 
             if (remaining > 0)

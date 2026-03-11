@@ -706,10 +706,10 @@ public partial class Chunk : IDisposable, IEntity
     /// </summary>
     public static (Int32 x, Int32 y, Int32 z) IndexToLocalSection(Int32 index)
     {
-        Int32 z = index & (Size - 1);
-        index = (index - z) >> SizeExp;
-        Int32 y = index & (Size - 1);
-        index = (index - y) >> SizeExp;
+        Int32 z = index & Size - 1;
+        index = index - z >> SizeExp;
+        Int32 y = index & Size - 1;
+        index = index - y >> SizeExp;
         Int32 x = index;
 
         return (x, y, z);
@@ -757,7 +757,7 @@ public partial class Chunk : IDisposable, IEntity
         Guard? access = Acquire(Access.Write);
         Debug.Assert(access != null);
 
-        PooledList<Guard> guards = new PooledList<Guard>(Neighborhood.Count);
+        PooledList<Guard> guards = new(Neighborhood.Count);
 
         foreach (Chunk? chunk in needed)
         {

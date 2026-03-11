@@ -50,7 +50,7 @@ public partial class Transform : ActorComponent
     private Transform(Actor subject) : base(subject) {}
 
     /// <summary>
-    /// Get or set the local position of this transform relative to its parent.
+    ///     Get or set the local position of this transform relative to its parent.
     /// </summary>
     public Vector3d LocalPosition
     {
@@ -65,7 +65,7 @@ public partial class Transform : ActorComponent
     }
 
     /// <summary>
-    /// Get or set the local rotation of this transform relative to its parent.
+    ///     Get or set the local rotation of this transform relative to its parent.
     /// </summary>
     public Quaterniond LocalRotation
     {
@@ -80,7 +80,7 @@ public partial class Transform : ActorComponent
     }
 
     /// <summary>
-    /// Get or set the world position of this transform.
+    ///     Get or set the world position of this transform.
     /// </summary>
     public Vector3d Position
     {

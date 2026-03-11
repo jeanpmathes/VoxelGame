@@ -93,7 +93,7 @@ public partial class SectionMeshing : WorldComponent
 
         void CheckAxis(Int32 axis)
         {
-            Int32 axisSectionPosition = position[axis] & (Section.Size - 1);
+            Int32 axisSectionPosition = position[axis] & Section.Size - 1;
 
             Vector3i direction = new()
             {

@@ -140,7 +140,7 @@ public static class Months
     }
 
     /// <summary>
-    /// Whether a month value is valid.
+    ///     Whether a month value is valid.
     /// </summary>
     public static Boolean IsValid(this Month month)
     {

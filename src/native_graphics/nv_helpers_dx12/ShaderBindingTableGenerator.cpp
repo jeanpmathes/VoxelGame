@@ -45,13 +45,9 @@ dispatch rays description.
 
 namespace nv_helpers_dx12
 {
-    void ShaderBindingTableGenerator::AddRayGenerationProgram(
-        std::wstring const&       entryPoint,
-        std::vector<void*> const& inputData) { m_rayGen.emplace_back(entryPoint, inputData); }
+    void ShaderBindingTableGenerator::AddRayGenerationProgram(std::wstring const& entryPoint, std::vector<void*> const& inputData) { m_rayGen.emplace_back(entryPoint, inputData); }
 
-    void ShaderBindingTableGenerator::AddMissProgram(
-        std::wstring const&       entryPoint,
-        std::vector<void*> const& inputData) { m_miss.emplace_back(entryPoint, inputData); }
+    void ShaderBindingTableGenerator::AddMissProgram(std::wstring const& entryPoint, std::vector<void*> const& inputData) { m_miss.emplace_back(entryPoint, inputData); }
 
     void ShaderBindingTableGenerator::AddHitGroup(std::wstring const& entryPoint, std::vector<void*> const& inputData)
     {
@@ -69,9 +65,7 @@ namespace nv_helpers_dx12
         uint32_t const missSize     = static_cast<uint32_t>(m_miss.size()) * m_missEntrySize;
         uint32_t const hitGroupSize = static_cast<uint32_t>(m_hitGroup.size()) * m_hitGroupEntrySize;
 
-        uint32_t const totalSize = RoundUp(rayGenSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(
-            missSize,
-            D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(
+        uint32_t const totalSize = RoundUp(rayGenSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(missSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(
             hitGroupSize,
             D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
@@ -80,9 +74,7 @@ namespace nv_helpers_dx12
         return sbtSize;
     }
 
-    void ShaderBindingTableGenerator::Generate(
-        ID3D12Resource*              sbtBuffer,
-        ID3D12StateObjectProperties* raytracingPipeline)
+    void ShaderBindingTableGenerator::Generate(ID3D12Resource* sbtBuffer, ID3D12StateObjectProperties* raytracingPipeline)
     {
         uint8_t* pData;
 
@@ -165,10 +157,7 @@ namespace nv_helpers_dx12
             if (!id)
             {
                 std::string transformedIdentifier;
-                std::ranges::transform(
-                    shader.entryPoint,
-                    std::back_inserter(transformedIdentifier),
-                    [](wchar_t const c) { return static_cast<char>(c); });
+                std::ranges::transform(shader.entryPoint, std::back_inserter(transformedIdentifier), [](wchar_t const c) { return static_cast<char>(c); });
 
                 throw std::logic_error("Unknown shader identifier used in the SBT: " + transformedIdentifier);
             }

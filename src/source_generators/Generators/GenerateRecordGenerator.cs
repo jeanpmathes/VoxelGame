@@ -146,7 +146,7 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
 
     private static String GenerateSource(InterfaceModel model)
     {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new();
 
         sb.AppendPreamble<GenerateRecordGenerator>()
             .AppendNamespace(model.Namespace);

@@ -32,7 +32,7 @@ namespace VoxelGame.Client.Console.Commands;
 public class Help : Command
 {
     private const Int32 PageSize = 5;
-    
+
     private readonly Dictionary<String, List<Entry>> commandDescriptions = new();
     private readonly CommandInvoker commandInvoker;
     private readonly List<List<Entry>> commandPages = [];

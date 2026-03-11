@@ -83,8 +83,8 @@ public class FluidContactManager
     {
         Debug.Assert(fluidA != fluidB);
 
-        ContactInformation a = new ContactInformation(fluidA, posA);
-        ContactInformation b = new ContactInformation(fluidB, posB);
+        ContactInformation a = new(fluidA, posA);
+        ContactInformation b = new(fluidB, posB);
 
         ContactAction action = map.Resolve(a.fluid, b.fluid);
 

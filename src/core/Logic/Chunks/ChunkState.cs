@@ -494,7 +494,7 @@ public abstract class ChunkState
             return true;
         }
 
-        Debug.Assert((guard == null && Access == Access.None) || (guard != null && Chunk.IsHeldBy(guard, Access)));
+        Debug.Assert(guard == null && Access == Access.None || guard != null && Chunk.IsHeldBy(guard, Access));
 
         return false;
     }
@@ -630,7 +630,7 @@ public abstract class ChunkState
 
     private Chunk.Deactivating CreateFinalState()
     {
-        Chunk.Deactivating state = new Chunk.Deactivating
+        Chunk.Deactivating state = new()
         {
             Chunk = Chunk,
             Context = Context

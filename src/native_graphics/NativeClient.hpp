@@ -126,8 +126,7 @@ private:
     Resolution m_resolution;
 
 #if defined(NATIVE_DEBUG)
-    D3D12MessageFunc m_debugCallback;
-    DWORD            m_callbackCookie{};
+    D3D12MessageFunc m_debugCallback; DWORD m_callbackCookie{};
 #endif
 
     std::unique_ptr<Uploader>    m_uploader = nullptr;
@@ -182,8 +181,15 @@ private:
     bool m_windowedMode  = true;
 
 #if defined(USE_NSIGHT_AFTERMATH)
-    GpuCrashTracker::MarkerMap m_markerMap = {}; ShaderDatabase m_shaderDatabase = {}; GpuCrashTracker m_gpuCrashTracker;public: void SetUpCommandListForAftermath(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList) const; void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);private:
+    GpuCrashTracker::MarkerMap m_markerMap      = {};
+    ShaderDatabase             m_shaderDatabase = {};
+    GpuCrashTracker            m_gpuCrashTracker;
+
+public:
+    void SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
+    void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);
+
+private:
 #endif
 
     void CheckRaytracingSupport() const;

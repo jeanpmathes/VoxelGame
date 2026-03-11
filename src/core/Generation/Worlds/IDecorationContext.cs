@@ -140,7 +140,7 @@ public interface IDecorationContext : IDisposable
 
         chunk.AddDecorationLevel(DecorationLevels.Center);
 
-        Neighborhood<Section> neighbors = new Neighborhood<Section>();
+        Neighborhood<Section> neighbors = new();
 
         foreach ((Int32 x, Int32 y, Int32 z) in centerSectionOffsets)
         {
@@ -185,7 +185,7 @@ public interface IDecorationContext : IDisposable
 
     private static Neighborhood<Chunk>? FindAllNeighborsIfAllAvailable(Chunk chunk)
     {
-        Neighborhood<Chunk> available = new Neighborhood<Chunk>();
+        Neighborhood<Chunk> available = new();
 
         foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
             if ((x, y, z) == Neighborhood.Center)

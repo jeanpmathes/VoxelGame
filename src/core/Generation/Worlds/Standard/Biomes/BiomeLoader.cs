@@ -51,7 +51,10 @@ public sealed class BiomeLoader : IResourceLoader
             #pragma warning disable S103 // Long lines required for representing the distribution.
 
             BiomeDistributionDefinition distribution = new(new Array2D<BiomeDefinition?>([
-                [biomes.ContinentalIceSheet, biomes.PolarDesert, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
+                [
+                    biomes.ContinentalIceSheet, biomes.PolarDesert, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert,
+                    biomes.Desert
+                ],
                 [null, biomes.PolarDesert, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Grassland, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
                 [null, null, biomes.Tundra, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],
                 [null, null, null, biomes.Tundra, biomes.Taiga, biomes.Taiga, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Shrubland, biomes.Savanna, biomes.Savanna, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert, biomes.Desert],

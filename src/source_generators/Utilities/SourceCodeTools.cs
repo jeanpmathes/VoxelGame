@@ -32,7 +32,7 @@ public static class SourceCodeTools
     ///     The preferred symbol display format for generating source code, following the conventions of this project.
     /// </summary>
     public static SymbolDisplayFormat SymbolDisplayFormat { get; } = SymbolDisplayFormat.FullyQualifiedFormat.WithMiscellaneousOptions(
-        (SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions & ~SymbolDisplayMiscellaneousOptions.UseSpecialTypes)
+        SymbolDisplayFormat.FullyQualifiedFormat.MiscellaneousOptions & ~SymbolDisplayMiscellaneousOptions.UseSpecialTypes
         | SymbolDisplayMiscellaneousOptions.IncludeNullableReferenceTypeModifier
         | SymbolDisplayMiscellaneousOptions.EscapeKeywordIdentifiers);
 

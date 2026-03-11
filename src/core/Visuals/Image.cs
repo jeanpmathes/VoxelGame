@@ -237,7 +237,7 @@ public class Image
 
         for (Int32 x = 0; x < fallback.Width; x++)
         for (Int32 y = 0; y < fallback.Height; y++)
-            fallback.SetPixel(x, y, (x % 2 == 0) ^ (y % 2 == 0) ? magenta : black);
+            fallback.SetPixel(x, y, x % 2 == 0 ^ y % 2 == 0 ? magenta : black);
 
         return fallback;
     }
@@ -425,10 +425,10 @@ public class Image
         {
             Int32 result = 0;
 
-            result |= ((original >> originalFormat.R) & Color32.ChannelMask) << targetFormat.R;
-            result |= ((original >> originalFormat.G) & Color32.ChannelMask) << targetFormat.G;
-            result |= ((original >> originalFormat.B) & Color32.ChannelMask) << targetFormat.B;
-            result |= ((original >> originalFormat.A) & Color32.ChannelMask) << targetFormat.A;
+            result |= (original >> originalFormat.R & Color32.ChannelMask) << targetFormat.R;
+            result |= (original >> originalFormat.G & Color32.ChannelMask) << targetFormat.G;
+            result |= (original >> originalFormat.B & Color32.ChannelMask) << targetFormat.B;
+            result |= (original >> originalFormat.A & Color32.ChannelMask) << targetFormat.A;
 
             return result;
         }

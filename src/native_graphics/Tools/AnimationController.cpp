@@ -131,9 +131,7 @@ void AnimationController::Run(ShaderResources const& resources, ComPtr<ID3D12Gra
     commandList->ResourceBarrier(static_cast<UINT>(m_exitBarriers.size()), m_exitBarriers.data());
 }
 
-void AnimationController::CreateBLAS(
-    ComPtr<ID3D12GraphicsCommandList4> const& commandList,
-    std::vector<ID3D12Resource*>*             uavs)
+void AnimationController::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std::vector<ID3D12Resource*>* uavs)
 {
     PIXScopedEvent(commandList.Get(), PIX_COLOR_DEFAULT, L"Animation BLAS Update");
 
@@ -157,15 +155,9 @@ void AnimationController::CreateBarriers()
         [this](Mesh* const& mesh)
         {
             m_entryBarriers.emplace_back(
-                CD3DX12_RESOURCE_BARRIER::Transition(
-                    mesh->GetGeometryBuffer().Get(),
-                    D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
-                    D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+                CD3DX12_RESOURCE_BARRIER::Transition(mesh->GetGeometryBuffer().Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
             m_exitBarriers.emplace_back(
-                CD3DX12_RESOURCE_BARRIER::Transition(
-                    mesh->GetGeometryBuffer().Get(),
-                    D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
-                    D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
+                CD3DX12_RESOURCE_BARRIER::Transition(mesh->GetGeometryBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
         });
 }

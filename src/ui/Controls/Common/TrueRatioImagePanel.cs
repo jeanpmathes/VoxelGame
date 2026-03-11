@@ -86,7 +86,7 @@ internal sealed class TrueRatioImagePanel : ControlBase
             fittedHeight = imageSize.Width / availableRatio;
         }
 
-        Size fittedSize = new Size((Int32) Math.Ceiling(fittedWidth), (Int32) Math.Ceiling(fittedHeight));
+        Size fittedSize = new((Int32) Math.Ceiling(fittedWidth), (Int32) Math.Ceiling(fittedHeight));
 
         Int32 offsetX = imageSize.Width - fittedSize.Width;
         Int32 offsetY = imageSize.Height - fittedSize.Height;

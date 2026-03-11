@@ -115,7 +115,7 @@ public static class CropConvention
         {
             String texture = contentID.Identifier.PascalCaseToSnakeCase();
 
-            CID fruitID = new CID($"{contentID}{nameof(Crop.Fruit)}");
+            CID fruitID = new($"{contentID}{nameof(Crop.Fruit)}");
 
             return new Crop(contentID, builder)
             {

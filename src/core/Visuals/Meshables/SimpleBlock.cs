@@ -158,7 +158,7 @@ public class SimpleBlock : Block, IOverlayTextureProvider
     public static Boolean IsHiddenFace(Block current, State neighbor, Side side)
     {
         Boolean blockToCheckIsConsideredOpaque = neighbor.Block.IsOpaque
-                                                 || (current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques);
+                                                 || current is {IsOpaque: false, MeshFaceAtNonOpaques: false} && !neighbor.Block.MeshFaceAtNonOpaques;
 
         return neighbor.IsSideFull(side.Opposite()) && blockToCheckIsConsideredOpaque;
     }

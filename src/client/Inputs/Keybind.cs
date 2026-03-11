@@ -157,7 +157,7 @@ public readonly struct Keybind : IEquatable<Keybind>
 
     private static Keybind Register(String id, String name, Binding type, VirtualKeys defaultKey)
     {
-        Keybind bind = new Keybind(id, name, type, defaultKey);
+        Keybind bind = new(id, name, type, defaultKey);
 
         Debug.Assert(!bindings.Contains(bind), $"The binding '{bind.id}' is already defined.");
         bindings.Add(bind);

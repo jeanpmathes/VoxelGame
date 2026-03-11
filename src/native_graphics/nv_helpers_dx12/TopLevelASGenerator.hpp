@@ -72,12 +72,7 @@ namespace nv_helpers_dx12
          * \param resultSizeInBytes Required GPU memory to store the acceleration structure.
          * \param descriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
          */
-        void ComputeASBufferSizes(
-            ComPtr<ID3D12Device5> const& device,
-            bool                         allowUpdate,
-            UINT64*                      scratchSizeInBytes,
-            UINT64*                      resultSizeInBytes,
-            UINT64*                      descriptorsSizeInBytes);
+        void ComputeASBufferSizes(ComPtr<ID3D12Device5> const& device, bool allowUpdate, UINT64* scratchSizeInBytes, UINT64* resultSizeInBytes, UINT64* descriptorsSizeInBytes);
 
         /**
          * \brief Enqueue the construction of the acceleration structure on a command list, using application-provided buffers and possibly a pointer to the previous acceleration structure in case of iterative updates. Note that the update can be done in place: the result and previousResult pointers can be the same.
@@ -99,13 +94,7 @@ namespace nv_helpers_dx12
     private:
         struct Instance
         {
-            Instance(
-                D3D12_GPU_VIRTUAL_ADDRESS       blAS,
-                DirectX::XMFLOAT4X4 const&      tr,
-                UINT                            iID,
-                UINT                            hgId,
-                BYTE                            mask,
-                D3D12_RAYTRACING_INSTANCE_FLAGS f);
+            Instance(D3D12_GPU_VIRTUAL_ADDRESS blAS, DirectX::XMFLOAT4X4 const& tr, UINT iID, UINT hgId, BYTE mask, D3D12_RAYTRACING_INSTANCE_FLAGS f);
 
             D3D12_GPU_VIRTUAL_ADDRESS       bottomLevelAS;
             DirectX::XMFLOAT4X4 const*      transform;
@@ -115,8 +104,7 @@ namespace nv_helpers_dx12
             BYTE                            inclusionMask;
         };
 
-        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags =
-            D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
         std::vector<Instance> m_instances{};
 

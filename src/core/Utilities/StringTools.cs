@@ -55,7 +55,7 @@ public static class StringTools
     {
         StringBuilder builder = new(text.Length);
 
-        for (var index = 0; index < text.Length; index++)
+        for (Int32 index = 0; index < text.Length; index++)
         {
             Char c = text[index];
 
@@ -75,6 +75,7 @@ public static class StringTools
 
         return builder.ToString();
     }
+
     /// <summary>
     ///     Get the Levenshtein edit distance between two strings.
     /// </summary>
@@ -86,13 +87,13 @@ public static class StringTools
         if (source.Length == 0) return target.Length;
         if (target.Length == 0) return source.Length;
 
-        var distances = new Int32[source.Length + 1, target.Length + 1];
+        Int32[,] distances = new Int32[source.Length + 1, target.Length + 1];
 
-        for (var i = 0; i <= source.Length; i++) distances[i, 0] = i;
-        for (var j = 0; j <= target.Length; j++) distances[0, j] = j;
+        for (Int32 i = 0; i <= source.Length; i++) distances[i, 0] = i;
+        for (Int32 j = 0; j <= target.Length; j++) distances[0, j] = j;
 
-        for (var i = 1; i <= source.Length; i++)
-        for (var j = 1; j <= target.Length; j++)
+        for (Int32 i = 1; i <= source.Length; i++)
+        for (Int32 j = 1; j <= target.Length; j++)
         {
             Int32 cost = source[i - 1] == target[j - 1] ? 0 : 1;
 

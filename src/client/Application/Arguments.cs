@@ -38,7 +38,7 @@ public static partial class Arguments
     {
         RootCommand command = new("Run VoxelGame.");
 
-        Option<Boolean>? logDebugOption = new Option<Boolean>(
+        Option<Boolean>? logDebugOption = new(
             "--log-debug",
             description: "Whether to log debug messages. Is enabled by default in DEBUG builds.",
             getDefaultValue: () => isDebug
@@ -47,7 +47,7 @@ public static partial class Arguments
         logDebugOption.AddAlias("-dbg");
         command.AddOption(logDebugOption);
 
-        Option<Int32> loadWorldDirectlyOption = new Option<Int32>(
+        Option<Int32> loadWorldDirectlyOption = new(
             "--load-world-directly",
             description: "Select the index of a world to load directly, skipping the main menu. Use -1 to disable.",
             getDefaultValue: () => -1
@@ -62,7 +62,7 @@ public static partial class Arguments
 
         command.AddOption(loadWorldDirectlyOption);
 
-        Option<Boolean> supportGraphicalDebuggerOption = new Option<Boolean>(
+        Option<Boolean> supportGraphicalDebuggerOption = new(
             "--pix",
             description: "Whether to configure some features in a way that improve the PIX debugging experience at the cost of performance and validation.",
             getDefaultValue: () => false
@@ -70,7 +70,7 @@ public static partial class Arguments
 
         command.AddOption(supportGraphicalDebuggerOption);
 
-        Option<Boolean> useGraphicsProcessingUnitBasedValidationOption = new Option<Boolean>(
+        Option<Boolean> useGraphicsProcessingUnitBasedValidationOption = new(
             "--gbv",
             description: "Whether to use GPU-based validation. Has no effect if PIX support is enabled.",
             getDefaultValue: () => false
@@ -78,7 +78,7 @@ public static partial class Arguments
 
         command.AddOption(useGraphicsProcessingUnitBasedValidationOption);
 
-        Option<ProfilerConfiguration> enableProfilingOption = new Option<ProfilerConfiguration>(
+        Option<ProfilerConfiguration> enableProfilingOption = new(
             "--profile",
             description: "The profiler configuration to use. In DEBUG builds, basic profiling is used by default. Otherwise, no profiling is done.",
             getDefaultValue: () => isDebug ? ProfilerConfiguration.Basic : ProfilerConfiguration.Disabled

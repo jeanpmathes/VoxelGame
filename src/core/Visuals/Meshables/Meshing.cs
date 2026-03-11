@@ -187,8 +187,8 @@ public static class Meshing
         const Int32 lengthShift = 4;
 
         UInt32 repetition = !isRotated
-            ? (height << heightShift) | (length << lengthShift)
-            : (length << heightShift) | (height << lengthShift);
+            ? height << heightShift | length << lengthShift
+            : length << heightShift | height << lengthShift;
 
         data.c |= repetition;
     }

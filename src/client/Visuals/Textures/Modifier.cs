@@ -94,8 +94,8 @@ public abstract class Modifier : IIssueSource
     private Parameters? ParseParameters(IReadOnlyDictionary<String, String> parameters, IContext context)
     {
         Boolean failed = false;
-        Dictionary<Parameter, Object> parsed = new Dictionary<Parameter, Object>();
-        HashSet<String> unknown = new HashSet<String>(parameters.Keys);
+        Dictionary<Parameter, Object> parsed = new();
+        HashSet<String> unknown = new(parameters.Keys);
 
         foreach (Parameter parameter in @params)
         {

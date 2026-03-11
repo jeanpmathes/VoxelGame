@@ -60,7 +60,7 @@ public partial class Targeter : ActorComponent
 
         if (start != null)
         {
-            Ray ray = new Ray(start.Position, start.Forward, length: 6f);
+            Ray ray = new(start.Position, start.Forward, length: 6f);
             (Vector3i, Side)? hit = Raycast.CastBlockRay(world, ray);
 
             if (hit is var (hitPosition, hitSide) && world.GetContent(hitPosition) is var (block, fluid))
