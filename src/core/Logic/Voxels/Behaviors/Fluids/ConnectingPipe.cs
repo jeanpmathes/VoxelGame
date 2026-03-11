@@ -122,7 +122,7 @@ public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, B
         {
             if (!sides.HasFlag(side.ToFlag())) continue;
 
-            Vector3d direction = (Vector3d) side.Direction();
+            Vector3d direction = side.Direction();
 
             connectors.Add(
                 new BoundingVolume(
