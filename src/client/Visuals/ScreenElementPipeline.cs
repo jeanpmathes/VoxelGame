@@ -134,7 +134,7 @@ public sealed partial class ScreenElementPipeline : IDisposable
     /// </summary>
     public void LogicUpdate()
     {
-        var screenSize = client.Size.ToVector2();
+        Vector2 screenSize = client.Size.ToVector2();
 
         Vector3d scale = new Vector3d(scaling, scaling, z: 1.0) * screenSize.Length * 0.5;
 
@@ -143,7 +143,7 @@ public sealed partial class ScreenElementPipeline : IDisposable
 
         Matrix4d model = MathTools.CreateScaleMatrix(scale) * Matrix4d.CreateTranslation(translation);
         Matrix4d view = Matrix4d.Identity;
-        var projection = Matrix4d.CreateOrthographic(client.Size.X, client.Size.Y, depthNear: 0.0, depthFar: 1.0);
+        Matrix4d projection = Matrix4d.CreateOrthographic(client.Size.X, client.Size.Y, depthNear: 0.0, depthFar: 1.0);
 
         Matrix4d mvp = model * view * projection;
         Matrix4 mvpF = new((Vector4) mvp.Row0, (Vector4) mvp.Row1, (Vector4) mvp.Row2, (Vector4) mvp.Row3);

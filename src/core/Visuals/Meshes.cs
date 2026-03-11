@@ -85,7 +85,7 @@ public static class Meshes
 
         quads = CreateDoubleSidedQuads(quads);
 
-        for (var quad = 0; quad < quads.Length; quad++)
+        for (Int32 quad = 0; quad < quads.Length; quad++)
         {
             Meshing.SetTextureIndex(ref quads[quad].data, textureIndex);
             Meshing.SetFullUVs(ref quads[quad].data, quad % 2 != 0);
@@ -105,7 +105,7 @@ public static class Meshes
     {
         side.Corners(out Int32[] a, out Int32[] b, out Int32[] c, out Int32[] d);
 
-        var normal = side.Direction().ToVector3();
+        Vector3 normal = side.Direction().ToVector3();
         Vector3 vOffset = normal * offset * -1;
 
         Vector3 v1 = (a[0], a[1], a[2]) + vOffset;
@@ -126,7 +126,7 @@ public static class Meshes
 
         quads = CreateDoubleSidedQuads(quads);
 
-        for (var quad = 0; quad < quads.Length; quad++)
+        for (Int32 quad = 0; quad < quads.Length; quad++)
         {
             Meshing.SetTextureIndex(ref quads[quad].data, textureIndex);
             Meshing.SetFullUVs(ref quads[quad].data, quad % 2 != 0);
@@ -208,7 +208,7 @@ public static class Meshes
 
         quads = CreateDoubleSidedQuads(quads);
 
-        for (var quad = 0; quad < quads.Length; quad++)
+        for (Int32 quad = 0; quad < quads.Length; quad++)
         {
             Meshing.SetTextureIndex(ref quads[quad].data, textureIndex);
             Meshing.SetFullUVs(ref quads[quad].data, quad % 2 != 0);

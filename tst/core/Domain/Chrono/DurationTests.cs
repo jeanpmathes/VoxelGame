@@ -248,7 +248,7 @@ public class DurationTests
         Duration baseDuration = Duration.FromUpdates(3);
         Duration scaled = baseDuration * factor;
 
-        var expected = (Int64) Math.Round(baseDuration.TotalUpdates * factor, MidpointRounding.ToEven);
+        Int64 expected = (Int64) Math.Round(baseDuration.TotalUpdates * factor, MidpointRounding.ToEven);
         Assert.Equal(expected, scaled.TotalUpdates);
     }
 
@@ -257,13 +257,13 @@ public class DurationTests
     {
         Duration duration = Duration.From(hours: 2, minutes: 3, seconds: 4);
 
-        var full = duration.ToString("F");
+        String full = duration.ToString("F");
         Assert.Contains(":", full, StringComparison.Ordinal);
 
-        var simple = duration.ToString("S");
+        String simple = duration.ToString("S");
         Assert.NotEmpty(simple);
 
-        var zeroSimple = Duration.Zero.ToString("S");
+        String zeroSimple = Duration.Zero.ToString("S");
         Assert.Equal("0s", zeroSimple);
     }
 
@@ -272,7 +272,7 @@ public class DurationTests
     {
         Duration duration = Duration.FromMinutes(1).Negated();
 
-        var full = duration.ToString("F");
+        String full = duration.ToString("F");
 
         Assert.StartsWith("-", full, StringComparison.Ordinal);
         Assert.DoesNotContain("--", full, StringComparison.Ordinal);

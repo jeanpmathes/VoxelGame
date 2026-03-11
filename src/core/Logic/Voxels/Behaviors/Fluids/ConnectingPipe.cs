@@ -122,7 +122,7 @@ public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, B
         {
             if (!sides.HasFlag(side.ToFlag())) continue;
 
-            var direction = (Vector3d) side.Direction();
+            Vector3d direction = (Vector3d) side.Direction();
 
             connectors.Add(
                 new BoundingVolume(
@@ -158,7 +158,7 @@ public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, B
 
     private static Sides DetermineOpenSides(World world, Vector3i position)
     {
-        var sides = Sides.None;
+        Sides sides = Sides.None;
 
         foreach (Side side in Side.All.Sides())
         {

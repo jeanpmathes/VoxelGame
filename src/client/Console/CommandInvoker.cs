@@ -94,7 +94,7 @@ public sealed partial class CommandInvoker : IResource
     {
         LogSearchingCommands(logger);
 
-        var count = 0;
+        Int32 count = 0;
 
         foreach (Command command in Reflections.GetSubclassInstances<Command>())
         {
@@ -177,9 +177,9 @@ public sealed partial class CommandInvoker : IResource
 
         List<StringBuilder> args = [];
 
-        var isNextArg = true;
-        var isQuoted = false;
-        var isEscaped = false;
+        Boolean isNextArg = true;
+        Boolean isQuoted = false;
+        Boolean isEscaped = false;
 
         Int32 nextIndex = commandName.Length + 1;
         String remaining = input.Length > nextIndex ? input[nextIndex..] : "";

@@ -96,7 +96,7 @@ public interface IBehavior<out TSelf, TBase, TSubject> : IBehavior<TSubject>, IC
     /// </summary>
     internal static TSelf Create(TSubject subject)
     {
-        var behavior = TSelf.Construct(subject);
+        TSelf behavior = TSelf.Construct(subject);
 
         BehaviorSystem<TSubject, TBase>.Register(behavior);
 

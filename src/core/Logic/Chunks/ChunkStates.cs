@@ -337,7 +337,7 @@ public partial class Chunk
         /// <inheritdoc />
         protected override void OnUpdate()
         {
-            var activated = false;
+            Boolean activated = false;
 
             if (Chunk.IsRequestedToActivate) activated = TryActivation();
 

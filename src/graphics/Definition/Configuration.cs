@@ -39,7 +39,7 @@ internal static partial class Native
     /// </summary>
     internal static ConfigurationOptions BuildOptions(Boolean allowTearing, Boolean supportPIX, Boolean useGBV)
     {
-        var options = ConfigurationOptions.None;
+        ConfigurationOptions options = ConfigurationOptions.None;
 
         if (allowTearing) options |= ConfigurationOptions.AllowTearing;
 

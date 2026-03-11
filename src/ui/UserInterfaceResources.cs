@@ -38,14 +38,14 @@ public record UserInterfaceResources(IGwenGui GUI, FontBundle Fonts, Skin Defaul
     /// <returns>The resources or <c>null</c> if they could not be retrieved.</returns>
     public static UserInterfaceResources? Retrieve(IResourceContext context)
     {
-        var gui = context.Get<IGwenGui>();
-        var fonts = context.Get<FontBundle>();
+        IGwenGui? gui = context.Get<IGwenGui>();
+        FontBundle? fonts = context.Get<FontBundle>();
 
         if (gui == null || fonts == null)
             return null;
 
-        var defaultSkin = context.Get<Skin>(GameGuiLoader.DefaultSkin);
-        var alternativeSkin = context.Get<Skin>(GameGuiLoader.AlternativeSkin);
+        Skin? defaultSkin = context.Get<Skin>(GameGuiLoader.DefaultSkin);
+        Skin? alternativeSkin = context.Get<Skin>(GameGuiLoader.AlternativeSkin);
 
         if (defaultSkin == null || alternativeSkin == null)
             return null;

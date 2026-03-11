@@ -47,7 +47,7 @@ public static class MathTools
     /// <returns>The sequence of random integers.</returns>
     public static IEnumerable<Int32> Random(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
     {
-        for (var i = 0; i < count; i++)
+        for (Int32 i = 0; i < count; i++)
             yield return generator.Next(min, max);
     }
 
@@ -61,7 +61,7 @@ public static class MathTools
     /// <returns>The sequence of random vectors.</returns>
     public static IEnumerable<Vector2i> Random2(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
     {
-        for (var i = 0; i < count; i++)
+        for (Int32 i = 0; i < count; i++)
             yield return new Vector2i(generator.Next(min, max), generator.Next(min, max));
     }
 
@@ -75,7 +75,7 @@ public static class MathTools
     /// <returns>The sequence of random vectors.</returns>
     public static IEnumerable<Vector3i> Random3(Random generator, Int32 count, Int32 min = Int32.MinValue, Int32 max = Int32.MaxValue)
     {
-        for (var i = 0; i < count; i++)
+        for (Int32 i = 0; i < count; i++)
             yield return new Vector3i(generator.Next(min, max), generator.Next(min, max), generator.Next(min, max));
     }
 
@@ -86,7 +86,7 @@ public static class MathTools
     /// <returns>The range from 0 to x.</returns>
     public static IEnumerable<Int32> Range(Int32 x)
     {
-        for (var i = 0; i < x; i++) yield return i;
+        for (Int32 i = 0; i < x; i++) yield return i;
     }
 
     /// <summary>
@@ -97,8 +97,8 @@ public static class MathTools
     /// <returns>The range from (0, 0) to (x, y).</returns>
     public static IEnumerable<(Int32, Int32)> Range2(Int32 x, Int32 y)
     {
-        for (var i = 0; i < x; i++)
-        for (var j = 0; j < y; j++)
+        for (Int32 i = 0; i < x; i++)
+        for (Int32 j = 0; j < y; j++)
             yield return (i, j);
     }
 
@@ -111,9 +111,9 @@ public static class MathTools
     /// <returns>The range from (0, 0, 0) to (x, y, z).</returns>
     public static IEnumerable<(Int32, Int32, Int32)> Range3(Int32 x, Int32 y, Int32 z)
     {
-        for (var i = 0; i < x; i++)
-        for (var j = 0; j < y; j++)
-        for (var k = 0; k < z; k++)
+        for (Int32 i = 0; i < x; i++)
+        for (Int32 j = 0; j < y; j++)
+        for (Int32 k = 0; k < z; k++)
             yield return (i, j, k);
     }
 
@@ -510,9 +510,9 @@ public static class MathTools
             GetWeight(e11, e00, e10, e01, e11)
         ];
 
-        var indexOfMax = 0;
+        Int32 indexOfMax = 0;
 
-        for (var index = 0; index < totalWeights.Length; index++)
+        for (Int32 index = 0; index < totalWeights.Length; index++)
             if (totalWeights[index] > totalWeights[indexOfMax])
                 indexOfMax = index;
 

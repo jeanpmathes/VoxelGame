@@ -325,7 +325,7 @@ public sealed partial class Map : IMap, IDisposable
 
     private void Load(IWorldGeneratorContext context, String blob)
     {
-        var loaded = context.ReadBlob<Data>(blob);
+        Data? loaded = context.ReadBlob<Data>(blob);
 
         if (loaded == null)
         {
@@ -453,8 +453,8 @@ public sealed partial class Map : IMap, IDisposable
         ref readonly Cell c01 = ref data.GetCell(c1.X + WidthHalf, c2.Y + WidthHalf);
         ref readonly Cell c11 = ref data.GetCell(c2.X + WidthHalf, c2.Y + WidthHalf);
 
-        var temperature = (Single) MathTools.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, biomeBlend);
-        var humidity = (Single) MathTools.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, biomeBlend);
+        Single temperature = (Single) MathTools.BiLerp(c00.temperature, c10.temperature, c01.temperature, c11.temperature, biomeBlend);
+        Single humidity = (Single) MathTools.BiLerp(c00.humidity, c10.humidity, c01.humidity, c11.humidity, biomeBlend);
 
         Single height = GetHeight(c00, c10, c01, c11, biomeBlend);
 
@@ -552,17 +552,17 @@ public sealed partial class Map : IMap, IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static Single GetHeight(in Cell c00, in Cell c10, in Cell c01, in Cell c11, Vector2d blend)
     {
-        var defaultHeight = (Single) MathTools.BiLerp(c00.height, c10.height, c01.height, c11.height, blend);
+        Single defaultHeight = (Single) MathTools.BiLerp(c00.height, c10.height, c01.height, c11.height, blend);
 
         CellConditions total = c00.conditions | c10.conditions | c01.conditions | c11.conditions;
 
         if (!HasCliff(total))
             return defaultHeight;
 
-        var s00 = 0.0f;
-        var s10 = 0.0f;
-        var s01 = 0.0f;
-        var s11 = 0.0f;
+        Single s00 = 0.0f;
+        Single s10 = 0.0f;
+        Single s01 = 0.0f;
+        Single s11 = 0.0f;
 
         Single unavailable = Single.NaN;
 
@@ -578,7 +578,7 @@ public sealed partial class Map : IMap, IDisposable
         if (ApplyCliffs(c11, ref s10, ref unavailable, ref unavailable, ref s01))
             s11 = 1.0f;
 
-        var cliffStrength = (Single) MathTools.BiLerp(s00, s10, s01, s11, blend);
+        Single cliffStrength = (Single) MathTools.BiLerp(s00, s10, s01, s11, blend);
 
         if (cliffStrength < 0.5f)
             return defaultHeight;
@@ -586,7 +586,7 @@ public sealed partial class Map : IMap, IDisposable
         cliffStrength -= 0.5f;
         cliffStrength *= 2.0f;
 
-        var cliffHeight = (Single) MathTools.BiLerp(
+        Single cliffHeight = (Single) MathTools.BiLerp(
             GetCliffHeight(c00, Single.NegativeInfinity, c01.height, c10.height, Single.NegativeInfinity),
             GetCliffHeight(c10, Single.NegativeInfinity, c11.height, Single.NegativeInfinity, c00.height),
             GetCliffHeight(c01, c00.height, Single.NegativeInfinity, c11.height, Single.NegativeInfinity),
@@ -602,7 +602,7 @@ public sealed partial class Map : IMap, IDisposable
         if (!HasCliff(cell.conditions))
             return false;
 
-        var isRaisedCliff = false;
+        Boolean isRaisedCliff = false;
 
         if (!Single.IsNaN(north) && cell.conditions.HasFlag(CellConditions.CliffNorth))
         {

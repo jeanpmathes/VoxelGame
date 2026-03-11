@@ -43,7 +43,7 @@ public class EventSystem(IValidator validator) : IEventRegistry, IEventBus
     {
         if (events.TryGetValue(typeof(TEventMessage), out Event? existingEvent))
         {
-            var typedEvent = (Event<TEventMessage>) existingEvent;
+            Event<TEventMessage> typedEvent = (Event<TEventMessage>) existingEvent;
 
             if (typedEvent.IsSingle != single)
                 validator.ReportWarning($"Event {typeof(TEventMessage)} is already registered with single={typedEvent.IsSingle}, but tried to register with single={single}");

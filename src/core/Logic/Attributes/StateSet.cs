@@ -97,7 +97,7 @@ public class StateSet
     {
         get
         {
-            for (var index = 0; index < Count; index++) yield return GetStateByIndex(index);
+            for (Int32 index = 0; index < Count; index++) yield return GetStateByIndex(index);
         }
     }
 
@@ -111,7 +111,7 @@ public class StateSet
     {
         get
         {
-            for (var index = 0; index < Count; index++) yield return (GetStateByIndex(index), index);
+            for (Int32 index = 0; index < Count; index++) yield return (GetStateByIndex(index), index);
         }
     }
 

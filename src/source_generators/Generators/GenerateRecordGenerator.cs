@@ -96,7 +96,7 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
         String interfaceName = namedTypeSymbol.Name;
 
         String? baseType = null;
-        var isBaseTypeGeneric = false;
+        Boolean isBaseTypeGeneric = false;
 
         if (ctx.Attributes.Length != 1 || ctx.Attributes[index: 0].AttributeClass == null)
             return null;
@@ -146,7 +146,7 @@ public sealed class GenerateRecordGenerator : IIncrementalGenerator
 
     private static String GenerateSource(InterfaceModel model)
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendPreamble<GenerateRecordGenerator>()
             .AppendNamespace(model.Namespace);

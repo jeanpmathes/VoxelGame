@@ -36,7 +36,7 @@ public static class NameTools
     {
         StringBuilder sb = new();
 
-        var skip = 0;
+        Int32 skip = 0;
 
         const String globalPrefix = "global::";
 

@@ -165,7 +165,7 @@ public partial class Body : ActorComponent
         HashSet<(Vector3i position, Block block)> blockIntersections = [];
         HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections = [];
 
-        for (var i = 0; i < PhysicsIterations; i++)
+        for (Int32 i = 0; i < PhysicsIterations; i++)
             DoPhysicsStep(ref collider, ref movement, blockIntersections, fluidIntersections);
 
         foreach ((Vector3i position, Block block) in blockIntersections)
@@ -176,8 +176,8 @@ public partial class Body : ActorComponent
 
         if (fluidIntersections.Count != 0)
         {
-            var useFluidDrag = false;
-            var noGas = false;
+            Boolean useFluidDrag = false;
+            Boolean noGas = false;
             FluidLevel maxLevel = FluidLevel.None;
 
             foreach ((Vector3i position, Fluid fluid, FluidLevel level) in fluidIntersections)

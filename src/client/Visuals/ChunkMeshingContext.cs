@@ -60,7 +60,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         List<Int32>[] sides = Enumerable.Range(start: 0, count: 6).Select(_ => new List<Int32>()).ToArray();
         List<Int32> all = [];
 
-        for (var index = 0; index < Chunk.SectionCount; index++)
+        for (Int32 index = 0; index < Chunk.SectionCount; index++)
         {
             all.Add(index);
 
@@ -272,7 +272,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
         Core.App.Application.ThrowIfNotOnMainThread(chunk);
 
         SideArray<(Chunk, Guard?)?> neighbors = new();
-        var availableSides = Sides.None;
+        Sides availableSides = Sides.None;
 
         foreach (Side side in Side.All.Sides())
         {
@@ -356,7 +356,7 @@ public sealed class ChunkMeshingContext : IDisposable, IChunkMeshingContext
     /// <inheritdoc />
     public override String ToString()
     {
-        var text = $"[{AvailableSides.ToCompactString()}]";
+        String text = $"[{AvailableSides.ToCompactString()}]";
 
         if (exclusiveSide is {} side)
             text += $"+({side.ToCompactString()})";

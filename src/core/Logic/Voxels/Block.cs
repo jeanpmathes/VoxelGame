@@ -744,7 +744,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     private void BuildBoundingVolumes()
     {
         stateBoundingVolumes = new BoundingVolume[States.Count];
-        var uniformBoundingVolumes = true;
+        Boolean uniformBoundingVolumes = true;
 
         placementBoundingVolume = BoundingVolume.GetValue(Physics.BoundingVolume.Block, States.PlacementDefault);
 

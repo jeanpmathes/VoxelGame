@@ -67,7 +67,7 @@ public class ExportStructure : Command
 
     private async Task ExportAsync(StaticStructure? structure, String name, CancellationToken token = default)
     {
-        var success = false;
+        Boolean success = false;
 
         if (structure != null)
         {

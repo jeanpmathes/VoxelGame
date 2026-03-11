@@ -34,10 +34,10 @@ public class Alpha() : Modifier("alpha", [valueParameter])
     /// <inheritdoc />
     protected override Sheet Modify(Image image, Parameters parameters, IContext context)
     {
-        var alpha = (Byte) (parameters.Get(valueParameter) * Byte.MaxValue);
+        Byte alpha = (Byte) (parameters.Get(valueParameter) * Byte.MaxValue);
 
-        for (var x = 0; x < image.Width; x++)
-        for (var y = 0; y < image.Height; y++)
+        for (Int32 x = 0; x < image.Width; x++)
+        for (Int32 y = 0; y < image.Height; y++)
             image.SetPixel(x, y, image.GetPixel(x, y) with {A = alpha});
 
         return Wrap(image);

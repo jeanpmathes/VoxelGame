@@ -51,8 +51,8 @@ public partial class VerticalTextureSelector : BlockBehavior, IBehavior<Vertical
 
     private TID GetActiveTexture(TID original, State state)
     {
-        var x = (Byte) HorizontalOffset.GetValue(original: 0, state);
-        var y = (Byte) composite.GetPartPosition(state).Y;
+        Byte x = (Byte) HorizontalOffset.GetValue(original: 0, state);
+        Byte y = (Byte) composite.GetPartPosition(state).Y;
 
         return original.Offset(x, y);
     }

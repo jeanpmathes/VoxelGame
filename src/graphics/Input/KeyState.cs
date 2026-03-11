@@ -61,9 +61,9 @@ public class KeyState
     /// <inheritdoc />
     public override String ToString()
     {
-        var builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         builder.Append(value: '{');
-        var first = true;
+        Boolean first = true;
 
         for (VirtualKeys key = 0; key <= VirtualKeys.LastKey; key++)
             if (IsKeyDown(key))

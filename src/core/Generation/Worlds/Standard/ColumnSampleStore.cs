@@ -55,13 +55,13 @@ internal sealed class ColumnSampleStore(Int32 chunkX, Int32 chunkZ, Map.Sample[]
     /// <returns>The stored samples.</returns>
     internal static ColumnSampleStore Sample(Int32 chunkX, Int32 chunkZ, Generator generator)
     {
-        var samples = new Map.Sample[Chunk.BlockSize * Chunk.BlockSize];
+        Map.Sample[] samples = new Map.Sample[Chunk.BlockSize * Chunk.BlockSize];
 
         ColumnSampleStore store = new(chunkX, chunkZ, samples);
         SamplingNoiseStore noise = new(store.anchor, generator.Map);
 
-        for (var x = 0; x < Chunk.BlockSize; x++)
-        for (var z = 0; z < Chunk.BlockSize; z++)
+        for (Int32 x = 0; x < Chunk.BlockSize; x++)
+        for (Int32 z = 0; z < Chunk.BlockSize; z++)
         {
             Vector2i position = store.anchor + new Vector2i(x, z);
             Map.Sample sample = generator.Map.GetSample(position, noise);

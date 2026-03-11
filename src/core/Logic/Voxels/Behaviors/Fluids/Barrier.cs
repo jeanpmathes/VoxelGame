@@ -34,7 +34,7 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
     [Constructible]
     private Barrier(Block subject) : base(subject)
     {
-        var fillable = subject.Require<Fillable>();
+        Fillable fillable = subject.Require<Fillable>();
         fillable.IsInflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);
         fillable.IsOutflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);
     }

@@ -117,10 +117,10 @@ public struct Color32 : IEquatable<Color32>
     /// <returns>The created <see cref="Color32" />.</returns>
     public static Color32 FromColorS(ColorS color)
     {
-        var r = (Byte) (MathTools.Clamp01(color.R) * Byte.MaxValue);
-        var g = (Byte) (MathTools.Clamp01(color.G) * Byte.MaxValue);
-        var b = (Byte) (MathTools.Clamp01(color.B) * Byte.MaxValue);
-        var a = (Byte) (MathTools.Clamp01(color.A) * Byte.MaxValue);
+        Byte r = (Byte) (MathTools.Clamp01(color.R) * Byte.MaxValue);
+        Byte g = (Byte) (MathTools.Clamp01(color.G) * Byte.MaxValue);
+        Byte b = (Byte) (MathTools.Clamp01(color.B) * Byte.MaxValue);
+        Byte a = (Byte) (MathTools.Clamp01(color.A) * Byte.MaxValue);
 
         return FromRGBA(r, g, b, a);
     }
@@ -175,10 +175,10 @@ public struct Color32 : IEquatable<Color32>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "OpenTK naming conventions.")]
     public static Color32 FromVector4i(Vector4i rgba)
     {
-        var r = (Byte) Math.Clamp(rgba.X, Byte.MinValue, Byte.MaxValue);
-        var g = (Byte) Math.Clamp(rgba.Y, Byte.MinValue, Byte.MaxValue);
-        var b = (Byte) Math.Clamp(rgba.Z, Byte.MinValue, Byte.MaxValue);
-        var a = (Byte) Math.Clamp(rgba.W, Byte.MinValue, Byte.MaxValue);
+        Byte r = (Byte) Math.Clamp(rgba.X, Byte.MinValue, Byte.MaxValue);
+        Byte g = (Byte) Math.Clamp(rgba.Y, Byte.MinValue, Byte.MaxValue);
+        Byte b = (Byte) Math.Clamp(rgba.Z, Byte.MinValue, Byte.MaxValue);
+        Byte a = (Byte) Math.Clamp(rgba.W, Byte.MinValue, Byte.MaxValue);
 
         return FromRGBA(r, g, b, a);
     }
@@ -240,7 +240,7 @@ public struct Color32 : IEquatable<Color32>
         if (bits == 0)
             return new Color32(bgra: 0);
 
-        var divisor = (Byte) (1 << (8 - bits));
+        Byte divisor = (Byte) (1 << (8 - bits));
 
         return FromRGBA(
             (Byte) (R / divisor * divisor),

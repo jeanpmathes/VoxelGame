@@ -309,7 +309,7 @@ public sealed partial class Generator : IWorldGenerator
 
         Array3D<Single> noise = decorationNoise.GetNoiseGrid(sections.Center.Position.FirstBlock, Section.Size);
 
-        var index = 0;
+        Int32 index = 0;
 
         foreach ((Decoration decoration, Single rarity) in decorationToRarity.OrderByDescending(d => d.Key.Size).ThenBy(d => d.Key.Name))
         {
@@ -349,8 +349,8 @@ public sealed partial class Generator : IWorldGenerator
         Double offset = GetOffset(column, sample);
         Double height = sample.Height * Map.MaxHeight;
 
-        var rawHeight = (Int32) height;
-        var modifiedHeight = (Int32) (height + offset);
+        Int32 rawHeight = (Int32) height;
+        Int32 modifiedHeight = (Int32) (height + offset);
 
         heightFraction = MathTools.Fraction(height + offset);
         effectiveOffset = modifiedHeight - rawHeight;
@@ -463,7 +463,7 @@ public sealed partial class Generator : IWorldGenerator
         else if (depths.c <= depths.a && depths.c <= depths.b && depths.c <= depths.d) depths.c *= 2;
         else depths.d *= 2;
 
-        var targetDepth = (Int32) MathTools.BiLerp(depths.a, depths.b, depths.c, depths.d, blendFactors);
+        Int32 targetDepth = (Int32) MathTools.BiLerp(depths.a, depths.b, depths.c, depths.d, blendFactors);
         SubBiome.Dampening dampening = actual?.CalculateDampening(offset) ?? new SubBiome.Dampening(offset, offset, Width: 0);
 
         Int32 fill = targetDepth - actual?.GetDepthToSolid(dampening) ?? 0;
@@ -530,7 +530,7 @@ public sealed partial class Generator : IWorldGenerator
                             && localHeightDifferenceToAverageHeight <= 0
                             && localHeightDifferenceToAverageHeight <= depth;
 
-        var content = Content.Default;
+        Content content = Content.Default;
 
         Map.PositionClimate climate = context.Sample.GetClimate(position.Y);
 

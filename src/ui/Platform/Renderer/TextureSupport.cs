@@ -180,7 +180,7 @@ public sealed class TextureSupport
     {
         if (texture.RendererData == null) return TextureList.Handle.Invalid;
 
-        var handle = (TextureList.Handle) texture.RendererData;
+        TextureList.Handle handle = (TextureList.Handle) texture.RendererData;
         Debug.Assert(handle.IsValid);
 
         return handle;

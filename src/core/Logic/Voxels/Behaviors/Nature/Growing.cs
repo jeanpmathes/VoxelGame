@@ -121,9 +121,9 @@ public partial class Growing : BlockBehavior, IBehavior<Growing, BlockBehavior, 
             if (message.World.GetBlock(message.Position.Above())?.IsReplaceable != true)
                 return;
 
-            var height = 0;
+            Int32 height = 0;
 
-            for (var offset = 0; offset < MaxHeight; offset++)
+            for (Int32 offset = 0; offset < MaxHeight; offset++)
                 if (message.World.GetBlock(message.Position.Below(offset))?.Block == Subject) height += 1;
                 else break;
 

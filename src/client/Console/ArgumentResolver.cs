@@ -63,7 +63,7 @@ public class ArgumentResolver
     {
         List<String> diagnostics = [];
 
-        var overloadCount = 0;
+        Int32 overloadCount = 0;
         
         foreach (MethodInfo method in overloads)
         {
@@ -78,9 +78,9 @@ public class ArgumentResolver
                 continue;
             }
 
-            var isValid = true;
+            Boolean isValid = true;
 
-            for (var i = 0; i < parameters.Length; i++)
+            for (Int32 i = 0; i < parameters.Length; i++)
             {
                 if (!parsers.TryGetValue(parameters[i].ParameterType, out Parser? parser))
                 {
@@ -117,9 +117,9 @@ public class ArgumentResolver
     {
         ParameterInfo[] parameters = method.GetParameters();
 
-        var parsedArgs = new Object[args.Count];
+        Object[] parsedArgs = new Object[args.Count];
 
-        for (var i = 0; i < args.Count; i++)
+        for (Int32 i = 0; i < args.Count; i++)
             parsedArgs[i] = parsers[parameters[i].ParameterType].Parse(args[i]);
 
         return parsedArgs;

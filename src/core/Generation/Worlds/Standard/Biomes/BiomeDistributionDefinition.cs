@@ -121,10 +121,10 @@ public sealed class BiomeDistributionDefinition : IResource
     /// <returns>The biome distribution.</returns>
     public Array2D<Biome?> GetDistribution(IReadOnlyDictionary<BiomeDefinition, Biome> biomeMap)
     {
-        var result = new Array2D<Biome?>(Resolution);
+        Array2D<Biome?> result = new Array2D<Biome?>(Resolution);
 
-        for (var x = 0; x < Resolution; x++)
-        for (var y = 0; y < Resolution; y++)
+        for (Int32 x = 0; x < Resolution; x++)
+        for (Int32 y = 0; y < Resolution; y++)
         {
             BiomeDefinition? biomeDefinition = distribution[x, y];
 

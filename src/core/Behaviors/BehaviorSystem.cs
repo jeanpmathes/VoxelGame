@@ -89,7 +89,7 @@ public static class BehaviorSystem<TSubject, TBehavior>
         }
 
         Int32 knownCount = knownTypes.Count;
-        var array = new TBehavior?[knownCount];
+        TBehavior?[] array = new TBehavior?[knownCount];
 
         foreach ((TSubject subject, List<(TBehavior, Int32)> behaviors) in subjects)
         {

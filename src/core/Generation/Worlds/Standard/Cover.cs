@@ -52,7 +52,7 @@ public abstract class Cover
 
         if (climate.Temperature.IsFreezing && snowMode != Snow.None)
         {
-            var maximumHeight = BlockHeight.Maximum.ToInt32();
+            Int32 maximumHeight = BlockHeight.Maximum.ToInt32();
             Int32 height = MathTools.RoundToInt(maximumHeight * heightFraction * 0.75);
 
             height += NumberGenerator.GetPositionDependentNumber(position, mod: 5) switch

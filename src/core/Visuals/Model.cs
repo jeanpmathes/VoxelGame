@@ -173,7 +173,7 @@ public sealed partial class Model : IResource, ILocated
         if (size.X <= 0 || size.Y <= 0 || size.Z <= 0)
             return new Model[0, 0, 0];
 
-        var buckets = new List<Quad>[size.X, size.Y, size.Z];
+        List<Quad>[,,] buckets = new List<Quad>[size.X, size.Y, size.Z];
 
         InitializeBuckets(size, buckets);
 
@@ -184,11 +184,11 @@ public sealed partial class Model : IResource, ILocated
             buckets[target.X, target.Y, target.Z].Add(quad);
         }
 
-        var models = new Model[size.X, size.Y, size.Z];
+        Model[,,] models = new Model[size.X, size.Y, size.Z];
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
             models[x, y, z] = CreateModelFromBucket(buckets[x, y, z], x, y, z);
 
         return models;
@@ -199,18 +199,18 @@ public sealed partial class Model : IResource, ILocated
         if (bucket.Count == 0)
             return new Model(TextureNames, []);
 
-        var translation = Matrix4.CreateTranslation(-x, -y, -z);
+        Matrix4 translation = Matrix4.CreateTranslation(-x, -y, -z);
 
-        for (var index = 0; index < bucket.Count; index++) bucket[index] = bucket[index].ApplyMatrix(translation);
+        for (Int32 index = 0; index < bucket.Count; index++) bucket[index] = bucket[index].ApplyMatrix(translation);
 
         return new Model(TextureNames, [..bucket]);
     }
 
     private static void InitializeBuckets(Vector3i size, List<Quad>[,,] partQuads)
     {
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
             partQuads[x, y, z] = [];
     }
 
@@ -229,7 +229,7 @@ public sealed partial class Model : IResource, ILocated
         Vector3d min = vertices[index: 0].Position;
         Vector3d max = min;
 
-        for (var index = 1; index < vertices.Length; index++)
+        for (Int32 index = 1; index < vertices.Length; index++)
         {
             Vector3d position = vertices[index].Position;
 
@@ -358,7 +358,7 @@ public sealed partial class Model : IResource, ILocated
     {
         ImmutableArray<Quad>.Builder builder = Quads.ToBuilder();
 
-        for (var i = 0; i < builder.Count; i++) builder[i] = builder[i].ApplyMatrix(xyz);
+        for (Int32 i = 0; i < builder.Count; i++) builder[i] = builder[i].ApplyMatrix(xyz);
 
         Quads = builder.ToImmutable();
     }
@@ -367,7 +367,7 @@ public sealed partial class Model : IResource, ILocated
     {
         ImmutableArray<Quad>.Builder builder = Quads.ToBuilder();
 
-        for (var i = 0; i < builder.Count; i++) builder[i] = builder[i].RotateTextureCoordinates(axis, rotations);
+        for (Int32 i = 0; i < builder.Count; i++) builder[i] = builder[i].RotateTextureCoordinates(axis, rotations);
 
         Quads = builder.ToImmutable();
     }
@@ -383,9 +383,9 @@ public sealed partial class Model : IResource, ILocated
     /// </param>
     private void ToData(out Mesh.Quad[] quads, ITextureIndexProvider textureIndexProvider, IReadOnlyDictionary<Int32, TID>? textureOverrides = null)
     {
-        var textureIndexLookup = new Int32[TextureNames.Length];
+        Int32[] textureIndexLookup = new Int32[TextureNames.Length];
 
-        for (var texture = 0; texture < TextureNames.Length; texture++)
+        for (Int32 texture = 0; texture < TextureNames.Length; texture++)
         {
             TID id = TID.FromString(TextureNames[texture], isBlock: true);
 
@@ -397,7 +397,7 @@ public sealed partial class Model : IResource, ILocated
 
         quads = new Mesh.Quad[Quads.Length];
 
-        for (var index = 0; index < Quads.Length; index++)
+        for (Int32 index = 0; index < Quads.Length; index++)
         {
             Quad quad = Quads[index];
 
@@ -625,7 +625,7 @@ public struct Quad : IEquatable<Quad>
     {
         if (Normal.Absolute().Rounded(digits: 2) != axis) return this;
 
-        for (var r = 0; r < rotations; r++)
+        for (Int32 r = 0; r < rotations; r++)
         {
             Vert0 = Vert0.RotateUV();
             Vert1 = Vert1.RotateUV();

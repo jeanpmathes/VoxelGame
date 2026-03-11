@@ -96,7 +96,7 @@ public sealed class SectionMeshData : IDisposable
 
     private Int32 GetTotalSize()
     {
-        var size = 0;
+        Int32 size = 0;
 
         size += BasicMeshing.opaque.Count;
         size += BasicMeshing.transparent.Count;

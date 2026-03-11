@@ -85,7 +85,7 @@ public partial class PlacementSelection : ActorComponent
         if (!player.Input.CanHandleGameInput)
             return;
 
-        var changed = false;
+        Boolean changed = false;
 
         changed |= SelectMode();
         changed |= SelectFromList();

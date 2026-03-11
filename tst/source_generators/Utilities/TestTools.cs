@@ -25,10 +25,10 @@ public static class TestTools
 
         foreach (Type dependency in dependencies) assemblies.Add(dependency.Assembly);
 
-        var generator = new T();
-        var driver = CSharpGeneratorDriver.Create(generator);
+        T generator = new T();
+        CSharpGeneratorDriver driver = CSharpGeneratorDriver.Create(generator);
 
-        var compilation = CSharpCompilation.Create("compilation",
+        CSharpCompilation compilation = CSharpCompilation.Create("compilation",
             [CSharpSyntaxTree.ParseText(source, new CSharpParseOptions(LanguageVersion.CSharp13))],
             [
                 .. ((String) AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")!).Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries).Select(path => MetadataReference.CreateFromFile(path)),

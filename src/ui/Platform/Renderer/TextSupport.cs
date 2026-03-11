@@ -88,7 +88,7 @@ public sealed class TextSupport : IDisposable
 
         if (font.RendererData is System.Drawing.Font sysFont) sysFont.Dispose();
 
-        var fontStyle = FontStyle.Regular;
+        FontStyle fontStyle = FontStyle.Regular;
 
         if (font.Bold) fontStyle |= FontStyle.Bold;
 

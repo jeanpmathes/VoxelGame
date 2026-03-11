@@ -63,8 +63,8 @@ public interface IGenerationContext : IDisposable
             chunkPosition.Y * Chunk.BlockSize,
             (chunkPosition.Y + 1) * Chunk.BlockSize);
 
-        for (var x = 0; x < Chunk.BlockSize; x++)
-        for (var z = 0; z < Chunk.BlockSize; z++)
+        for (Int32 x = 0; x < Chunk.BlockSize; x++)
+        for (Int32 z = 0; z < Chunk.BlockSize; z++)
         {
             Int32 y = range.begin;
 
@@ -89,7 +89,7 @@ public interface IGenerationContext : IDisposable
             }
         }
 
-        for (var index = 0; index < Chunk.SectionCount; index++)
+        for (Int32 index = 0; index < Chunk.SectionCount; index++)
         {
             (Int32 x, Int32 y, Int32 z) = Chunk.IndexToLocalSection(index);
 

@@ -181,9 +181,9 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
                 new Vector3d(x: 0.5f, halfHeight, z: 0.5f));
         }
 
-        var fluidVolumes = new BoundingVolume[8];
+        BoundingVolume[] fluidVolumes = new BoundingVolume[8];
 
-        for (var i = 0; i < 8; i++) fluidVolumes[i] = CreateVolume(FluidLevel.FromInt32(i));
+        for (Int32 i = 0; i < 8; i++) fluidVolumes[i] = CreateVolume(FluidLevel.FromInt32(i));
 
         return fluidVolumes;
     }
@@ -230,7 +230,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
     {
         if (RenderType == RenderType.NotRendered) return;
 
-        var fillable = info.Block.Block.Get<Fillable>();
+        Fillable? fillable = info.Block.Block.Get<Fillable>();
 
         if (fillable?.IsFluidMeshed.Get() != true || info.Block.IsFullySolid) return;
 
@@ -514,7 +514,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         Vector3i center = (extendedRange, 0, extendedRange);
 
 #pragma warning disable CA1814
-        var mark = new Boolean[extents, extents];
+        Boolean[,] mark = new Boolean[extents, extents];
 #pragma warning restore CA1814
 
         Queue<(Vector3i position, Fillable fillable)> queue = new();
@@ -528,7 +528,7 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         queue.Enqueue((position, startFillable));
         Mark(position);
 
-        for (var depth = 0; queue.Count > 0 && depth <= range; depth++)
+        for (Int32 depth = 0; queue.Count > 0 && depth <= range; depth++)
         {
             foreach ((Vector3i position, Fillable fillable) e in queue)
             foreach (Orientation orientation in Orientations.All)
@@ -593,11 +593,11 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
         if (start.Block.Get<Fillable>() is not {} startFillable ||
             !startFillable.CanOutflow(world, position, Side.Top, toElevate.Fluid)) return;
 
-        for (var offset = 1; offset <= distance && currentLevel > FluidLevel.None; offset++)
+        for (Int32 offset = 1; offset <= distance && currentLevel > FluidLevel.None; offset++)
         {
             Vector3i elevatedPosition = position + (0, offset, 0);
 
-            var currentBlock = world.GetBlock(elevatedPosition)?.Block.Get<Fillable>();
+            Fillable? currentBlock = world.GetBlock(elevatedPosition)?.Block.Get<Fillable>();
 
             if (currentBlock == null) break;
 

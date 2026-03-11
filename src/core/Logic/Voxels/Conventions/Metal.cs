@@ -64,7 +64,7 @@ public static class MetalConvention
 
             foreach ((CID blockContentIDs, String blockName) in oreBlocks)
             {
-                var blockTexture = $"{texture}_{blockContentIDs.Identifier.PascalCaseToSnakeCase()}";
+                String blockTexture = $"{texture}_{blockContentIDs.Identifier.PascalCaseToSnakeCase()}";
 
                 ores.Add(
                     builder.BuildSimpleBlock(blockContentIDs, blockName)
@@ -77,7 +77,7 @@ public static class MetalConvention
 
             foreach ((CID blockContentIDs, String blockName) in nativeMetalBlocks)
             {
-                var blockTexture = $"{texture}_{blockContentIDs.Identifier.PascalCaseToSnakeCase()}";
+                String blockTexture = $"{texture}_{blockContentIDs.Identifier.PascalCaseToSnakeCase()}";
 
                 nativeMetals.Add(
                     builder.BuildSimpleBlock(blockContentIDs, blockName)

@@ -56,7 +56,7 @@ public partial class DoubleCropPlant : BlockBehavior, IBehavior<DoubleCropPlant,
         composite.MaximumSize.Initializer.ContributeConstant((1, 2, 1));
         composite.Size.ContributeFunction(GetSize);
 
-        var foliage = subject.Require<Foliage>();
+        Foliage foliage = subject.Require<Foliage>();
         foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Crop, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
 

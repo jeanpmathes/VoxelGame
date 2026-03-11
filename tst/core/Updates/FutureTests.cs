@@ -32,7 +32,7 @@ public class FutureTests
     [Fact]
     public void Future_Create_ShouldRunAction()
     {
-        var ran = false;
+        Boolean ran = false;
 
         Future.Create(() => { ran = true; }).Wait();
 
@@ -42,7 +42,7 @@ public class FutureTests
     [Fact]
     public void Future_Create_ShouldRunAsyncAction()
     {
-        var ran = false;
+        Boolean ran = false;
 
         Future.Create(async () =>
             {
@@ -80,11 +80,11 @@ public class FutureTests
     [Fact]
     public void Future_CreateContinuation_ShouldRunAsyncActionContinuation()
     {
-        var initial = Future.Create(() => {});
+        Future initial = Future.Create(() => {});
 
         initial.Wait();
 
-        var ran = false;
+        Boolean ran = false;
 
         Future.CreateContinuation(initial,
             async () =>
@@ -100,7 +100,7 @@ public class FutureTests
     [Fact]
     public void Future_IsCompleted_ShouldBeTrueAfterCompletion()
     {
-        var future = Future.Create(() => {});
+        Future future = Future.Create(() => {});
 
         future.Wait();
 
@@ -113,7 +113,7 @@ public class FutureTests
         using CancellationTokenSource source = new();
         CancellationToken token = source.Token;
 
-        var future = Future.Create(async () =>
+        Future future = Future.Create(async () =>
             {
                 await Task.Delay(millisecondsDelay: -1, token).InAnyContext();
             },
@@ -127,7 +127,7 @@ public class FutureTests
     [Fact]
     public void Future_IsFailedOrCancelled_ShouldBeFalseAfterCompletion()
     {
-        var future = Future.Create(() => {});
+        Future future = Future.Create(() => {});
 
         future.Wait();
 
@@ -140,7 +140,7 @@ public class FutureTests
         using CancellationTokenSource source = new();
         CancellationToken token = source.Token;
 
-        var future = Future.Create(async () =>
+        Future future = Future.Create(async () =>
             {
                 await Task.Delay(millisecondsDelay: -1, token).InAnyContext();
             },
@@ -155,7 +155,7 @@ public class FutureTests
     [Fact]
     public void Future_IsFailedOrCancelled_ShouldBeTrueAfterFailure()
     {
-        var future = Future.Create(async () =>
+        Future future = Future.Create(async () =>
             {
                 await Task.CompletedTask.InAnyContext();
 
@@ -174,7 +174,7 @@ public class FutureTests
         using CancellationTokenSource source = new();
         CancellationToken token = source.Token;
 
-        var future = Future.Create(async () =>
+        Future future = Future.Create(async () =>
             {
                 await Task.Delay(millisecondsDelay: -1, token).InAnyContext();
             },
@@ -193,7 +193,7 @@ public class FutureTests
     {
         InvalidOperationException exception = new();
 
-        var future = Future.Create(async () =>
+        Future future = Future.Create(async () =>
             {
                 await Task.CompletedTask.InAnyContext();
 

@@ -288,7 +288,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
     private Boolean FlowHorizontal(World world, Vector3i position, FluidLevel level, Fillable currentFillable)
     {
         Vector3i horizontalPosition = position;
-        var isHorStatic = false;
+        Boolean isHorStatic = false;
         FluidLevel levelHorizontal = FluidLevel.Eight;
 
         if (Orientations.ShuffledStart(position)
@@ -410,7 +410,7 @@ public class BasicFluid : Fluid, IOverlayTextureProvider
 
         if (potentialTarget == null) return false;
 
-        var target = ((Vector3i position, FluidInstance fluid, Fillable fillable)) potentialTarget;
+        (Vector3i position, FluidInstance fluid, Fillable fillable) target = ((Vector3i position, FluidInstance fluid, Fillable fillable)) potentialTarget;
 
         world.SetFluid(this.AsInstance(target.fluid.Level + FluidLevel.One, isStatic: false), target.position);
         if (target.fluid.IsStatic) ScheduleUpdate(world, target.position);

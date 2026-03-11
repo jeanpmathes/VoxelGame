@@ -41,7 +41,7 @@ public class CombinationMap<TE, TV> where TE : IIdentifiable<UInt32>
         flags = new Boolean[range][];
         table = new TV[range][];
 
-        for (var i = 0; i < range; i++)
+        for (Int32 i = 0; i < range; i++)
         {
             flags[i] = new Boolean[i];
             table[i] = new TV[i];
@@ -54,8 +54,8 @@ public class CombinationMap<TE, TV> where TE : IIdentifiable<UInt32>
         {
             Debug.Assert(a.ID != b.ID);
 
-            var i = (Int32) Math.Max(a.ID, b.ID);
-            var j = (Int32) Math.Min(a.ID, b.ID);
+            Int32 i = (Int32) Math.Max(a.ID, b.ID);
+            Int32 j = (Int32) Math.Min(a.ID, b.ID);
 
             return table[i][j];
         }
@@ -64,8 +64,8 @@ public class CombinationMap<TE, TV> where TE : IIdentifiable<UInt32>
         {
             Debug.Assert(a.ID != b.ID);
 
-            var i = (Int32) Math.Max(a.ID, b.ID);
-            var j = (Int32) Math.Min(a.ID, b.ID);
+            Int32 i = (Int32) Math.Max(a.ID, b.ID);
+            Int32 j = (Int32) Math.Min(a.ID, b.ID);
 
             Debug.Assert(!flags[i][j], "This combination is already set.");
 

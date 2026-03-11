@@ -123,7 +123,7 @@ public class Section : Core.Logic.Sections.Section
 
     private static Sides GetRequiredSides(SectionPosition position)
     {
-        var required = Sides.None;
+        Sides required = Sides.None;
         (Int32 x, Int32 y, Int32 z) = position.Local;
 
         if (x == 0) required |= Sides.Left;
@@ -153,9 +153,9 @@ public class Section : Core.Logic.Sections.Section
 
         using (logger.BeginTimedSubScoped("Section Meshing Loop", timer))
         {
-            for (var x = 0; x < Size; x++)
-            for (var y = 0; y < Size; y++)
-            for (var z = 0; z < Size; z++)
+            for (Int32 x = 0; x < Size; x++)
+            for (Int32 y = 0; y < Size; y++)
+            for (Int32 z = 0; z < Size; z++)
             {
                 UInt32 content = GetContent(x, y, z);
 

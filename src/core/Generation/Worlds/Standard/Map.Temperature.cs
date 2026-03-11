@@ -46,8 +46,8 @@ public partial class Map
     {
         Vector2 center = new(Width / 2.0f, Width / 2.0f);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Single distance = (center - (x, y)).Length;
             Single angle = MathF.Atan2(center.Y - y, center.X - x) + MathF.PI;
@@ -83,8 +83,8 @@ public partial class Map
     {
         Image view = new(Width, Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
             view.SetPixel(x, y, GetTemperatureColor(current));

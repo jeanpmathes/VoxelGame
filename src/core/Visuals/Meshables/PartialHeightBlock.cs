@@ -126,7 +126,7 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
     private static void MeshLikeSimple(
         Vector3i position, Side side, ref readonly PartialHeight.MeshData mesh, Boolean isOpaque, Boolean isUnshaded, MeshingContext context)
     {
-        var convertedMesh = new Simple.MeshData
+        Simple.MeshData convertedMesh = new Simple.MeshData
         {
             TextureIndex = mesh.TextureIndex,
             IsTextureRotated = PartialHeight.MeshData.IsTextureRotated,

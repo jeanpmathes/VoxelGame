@@ -237,7 +237,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
     private void OnScheduledUpdate(Block.IScheduledUpdateMessage message)
     {
-        var canBurn = false;
+        Boolean canBurn = false;
 
         Sides sides = GetSidesBurning(message.State);
 
@@ -274,7 +274,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
         if (!combustible.DoBurn(world, burnPosition, Subject))
             return true;
 
-        var leavesAsh = true;
+        Boolean leavesAsh = true;
 
         if (world.GetBlock(burnPosition.Below())?.Block.Get<AshCoverable>() is {} coverable)
         {
@@ -336,7 +336,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
     private static Sides GetPlacementSides(World world, Vector3i position)
     {
-        var sides = Sides.None;
+        Sides sides = Sides.None;
 
         if (CheckSide(Side.Bottom)) return Sides.None;
 
@@ -377,7 +377,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
 
     private Sides GetSidesBurning(State state)
     {
-        var sides = Sides.None;
+        Sides sides = Sides.None;
 
         if (state.Get(Front)) sides |= Sides.Front;
         if (state.Get(Back)) sides |= Sides.Back;

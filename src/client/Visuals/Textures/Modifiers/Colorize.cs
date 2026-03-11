@@ -17,6 +17,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using VoxelGame.Core.Visuals;
 
@@ -35,8 +36,8 @@ public class Colorize() : Modifier("colorize", [colorParameter])
     {
         ColorS color = parameters.Get(colorParameter);
 
-        for (var x = 0; x < image.Width; x++)
-        for (var y = 0; y < image.Height; y++)
+        for (Int32 x = 0; x < image.Width; x++)
+        for (Int32 y = 0; y < image.Height; y++)
         {
             Color32 pixel = image.GetPixel(x, y);
 

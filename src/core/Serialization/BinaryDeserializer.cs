@@ -148,7 +148,7 @@ public sealed class BinaryDeserializer : Serializer, IDisposable
     /// <inheritdoc />
     protected override void Serialize(Span<Byte> value)
     {
-        var read = 0;
+        Int32 read = 0;
 
         while (read < value.Length)
         {

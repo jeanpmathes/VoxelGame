@@ -52,7 +52,7 @@ public class Mesh
     {
         Mesh mesh = new(new Quad[quads.Length]);
 
-        for (var quad = 0; quad < quads.Length; quad++)
+        for (Int32 quad = 0; quad < quads.Length; quad++)
             mesh.quads[quad] = new Quad
             {
                 A = quads[quad].A + offset,
@@ -87,7 +87,7 @@ public class Mesh
     {
         Mesh mesh = new(new Quad[original.Length * 2]);
 
-        for (var index = 0; index < original.Length; index++)
+        for (Int32 index = 0; index < original.Length; index++)
         {
             Quad quad = original[index];
 

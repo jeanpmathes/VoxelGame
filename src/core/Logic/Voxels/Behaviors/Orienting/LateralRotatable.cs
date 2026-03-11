@@ -37,7 +37,7 @@ public partial class LateralRotatable : BlockBehavior, IBehavior<LateralRotatabl
     {
         subject.Require<Rotatable>().Turns.ContributeFunction(GetTurns);
 
-        var siding = subject.Require<SingleSided>();
+        SingleSided siding = subject.Require<SingleSided>();
         siding.Side.ContributeFunction(GetSide);
         siding.SidedState.ContributeFunction(GetSidedState);
     }

@@ -248,7 +248,7 @@ public partial class Client : Application
         Exception exception = Marshal.GetExceptionForHR(hr) ?? new InvalidOperationException(message);
         Dialog.ShowError($"Fatal error ({hr:X}): {message}");
 
-        var hex = hr.ToString("X", CultureInfo.InvariantCulture);
+        String hex = hr.ToString("X", CultureInfo.InvariantCulture);
         LogFatalError(logger, exception, hex, message);
 
         throw exception;
@@ -390,7 +390,7 @@ public partial class Client : Application
         VoxelGame.Graphics.Native.EnqueueScreenshot(this,
             (data, width, height) =>
             {
-                var copy = new Int32[width * height];
+                Int32[] copy = new Int32[width * height];
                 Marshal.Copy(data, copy, startIndex: 0, copy.Length);
 
                 FileInfo path = directory.GetFile($"{DateTime.Now:yyyy-MM-dd__HH-mm-ss-fff}-screenshot.png");

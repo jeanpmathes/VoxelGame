@@ -94,7 +94,7 @@ public abstract partial class WorldState
             if (!world.Chunks.IsEveryChunkToSimulateActive())
                 return null;
 
-            var readyTime = (timer?.Elapsed ?? default).ToString(CultureInfo.InvariantCulture);
+            String readyTime = (timer?.Elapsed ?? default).ToString(CultureInfo.InvariantCulture);
             LogWorldReady(logger, readyTime, worldUpdateCount, chunkUpdateCount);
 
             timer?.Dispose();
@@ -139,7 +139,7 @@ public abstract partial class WorldState
             if (next != null)
                 return null;
 
-            var activity = Activity.Create(out Action onComplete);
+            Activity activity = Activity.Create(out Action onComplete);
 
             next = new Terminating(onComplete);
 
@@ -152,7 +152,7 @@ public abstract partial class WorldState
             if (next != null)
                 return null;
 
-            var activity = Activity.Create(out Action onComplete);
+            Activity activity = Activity.Create(out Action onComplete);
 
             next = new Saving(onComplete);
 
@@ -259,7 +259,7 @@ public abstract partial class WorldState
 
         private void OnStateTransition(Object? sender, StateTransitionEventArgs e)
         {
-            var chunk = (Chunk) sender!;
+            Chunk chunk = (Chunk) sender!;
 
             if (e.OldState is not Chunk.Saving)
                 return;

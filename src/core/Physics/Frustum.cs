@@ -271,8 +271,8 @@ public readonly struct Frustum : IEquatable<Frustum>
         corners[index: 6] = GetPositionOnFarPlane(x: 1.0, y: -1.0);
         corners[index: 7] = GetPositionOnFarPlane(x: 1.0, y: 1.0);
 
-        var min = Double.MaxValue;
-        var max = Double.MinValue;
+        Double min = Double.MaxValue;
+        Double max = Double.MinValue;
 
         foreach (Vector3d corner in corners)
         {
@@ -323,7 +323,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <returns><c>true</c> if the <see cref="Box3" /> is visible; <c>false</c> if not.</returns>
     public Boolean IsBoxVisible(Box3d box, Double tolerance = 0.0)
     {
-        for (var i = 0; i < 6; i++)
+        for (Int32 i = 0; i < 6; i++)
         {
             Plane plane = GetPlane(i);
 
@@ -349,7 +349,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// <inheritdoc />
     public Boolean Equals(Frustum other)
     {
-        for (var i = 0; i < 6; i++)
+        for (Int32 i = 0; i < 6; i++)
             if (!GetPlane(i).Equals(other.GetPlane(i)))
                 return false;
 

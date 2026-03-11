@@ -198,7 +198,7 @@ public class DeckLoader : IIssueSource
         context.Modifier = modifier.Modifier;
         context.Size = (source.Width, source.Height);
 
-        var results = new Sheet[source.Width, source.Height];
+        Sheet[,] results = new Sheet[source.Width, source.Height];
         dimensions = null;
 
         for (Byte x = 0; x < source.Width; x++)

@@ -48,7 +48,7 @@ public class InputAxis
     {
         get
         {
-            var value = 0f;
+            Single value = 0f;
 
             if (positive.IsDown) value++;
             if (negative.IsDown) value--;

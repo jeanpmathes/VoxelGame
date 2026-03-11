@@ -72,7 +72,7 @@ public partial class TallGrass : BlockBehavior, IBehavior<TallGrass, BlockBehavi
         composite.MaximumSize.Initializer.ContributeConstant((1, 2, 1));
         composite.Size.ContributeFunction(GetSize);
 
-        var foliage = subject.Require<Foliage>();
+        Foliage foliage = subject.Require<Foliage>();
         foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
 

@@ -36,7 +36,7 @@ public sealed class FileFormatException : IOException
 
     private static String FormatMessage(String file, String? info)
     {
-        var message = $"File '{file}' is not in the expected format";
+        String message = $"File '{file}' is not in the expected format";
 
         if (info != null) message += $": {info}";
         else message += '.';

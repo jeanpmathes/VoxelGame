@@ -159,7 +159,7 @@ public class PeriodTests
     public void Period_ToDuration_ShouldMatchDayConversion()
     {
         Period period = Period.FromWeeks(2) + Period.FromDays(3);
-        var duration = period.ToDuration();
+        Duration duration = period.ToDuration();
 
         Assert.Equal(period.TotalDays * Calendar.UpdatesPerDay, duration.TotalUpdates);
     }
@@ -172,7 +172,7 @@ public class PeriodTests
     {
         Period period = Period.FromTotalWeeks(weeks);
 
-        var expected = (Int32) Math.Round(weeks * Calendar.DaysPerWeek, MidpointRounding.ToEven);
+        Int32 expected = (Int32) Math.Round(weeks * Calendar.DaysPerWeek, MidpointRounding.ToEven);
         Assert.Equal(expected, period.TotalDays);
 
         Assert.Equal(expectedDays, period.TotalDays);
@@ -183,13 +183,13 @@ public class PeriodTests
     {
         Period period = Period.FromYears(1) + Period.FromMonths(2) + Period.FromWeeks(3) + Period.FromDays(4);
 
-        var full = period.ToString("F");
+        String full = period.ToString("F");
         Assert.Contains(".", full, StringComparison.Ordinal);
 
-        var simple = period.ToString("S");
+        String simple = period.ToString("S");
         Assert.NotEmpty(simple);
 
-        var zeroSimple = Period.FromDays(0).ToString("S");
+        String zeroSimple = Period.FromDays(0).ToString("S");
         Assert.Equal("0d", zeroSimple);
     }
 
@@ -198,7 +198,7 @@ public class PeriodTests
     {
         Period period = Period.FromDays(1).Negated();
 
-        var full = period.ToString("F");
+        String full = period.ToString("F");
 
         Assert.StartsWith("-", full, StringComparison.Ordinal);
     }

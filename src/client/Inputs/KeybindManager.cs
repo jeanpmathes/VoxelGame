@@ -154,7 +154,7 @@ public sealed partial class KeybindManager : ISettingsProvider, IDisposable
         foreach ((Keybind keybind, Button button) in keybinds)
         {
             String key = PropertyName(keybind);
-            var state = (OptionalKey) Properties.Settings.Default[key];
+            OptionalKey? state = (OptionalKey) Properties.Settings.Default[key];
 
             if (!state.Default) button.SetBinding(state.Key);
         }
@@ -231,7 +231,7 @@ public sealed partial class KeybindManager : ISettingsProvider, IDisposable
     {
         foreach (Keybind bind in Binds)
         {
-            var setting = Setting.CreateKeyOrButtonSetting(
+            Setting setting = Setting.CreateKeyOrButtonSetting(
                 this,
                 bind.Name,
                 () => GetCurrentBind(bind),

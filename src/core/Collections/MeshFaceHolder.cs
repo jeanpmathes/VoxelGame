@@ -65,11 +65,11 @@ public class MeshFaceHolder
         lastFaces = ArrayPool<MeshFace[]>.Shared.Rent(Section.Size);
 
         // Initialize rows.
-        for (var i = 0; i < Section.Size; i++)
+        for (Int32 i = 0; i < Section.Size; i++)
         {
             lastFaces[i] = ArrayPool<MeshFace>.Shared.Rent(Section.Size);
 
-            for (var j = 0; j < Section.Size; j++) lastFaces[i][j] = null;
+            for (Int32 j = 0; j < Section.Size; j++) lastFaces[i][j] = null;
         }
 
         inset = side.Direction().ToVector3() * insetScale * -1.0f;
@@ -318,8 +318,8 @@ public class MeshFaceHolder
 
         meshing.Grow(IMeshing.Primitive.Quad, count);
 
-        for (var l = 0; l < Section.Size; l++)
-        for (var r = 0; r < Section.Size; r++)
+        for (Int32 l = 0; l < Section.Size; l++)
+        for (Int32 r = 0; r < Section.Size; r++)
         {
             MeshFace? currentFace = lastFaces[l][r];
 
@@ -442,7 +442,7 @@ public class MeshFaceHolder
     /// </summary>
     public void ReturnToPool()
     {
-        for (var i = 0; i < Section.Size; i++) ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);
+        for (Int32 i = 0; i < Section.Size; i++) ArrayPool<MeshFace>.Shared.Return(lastFaces[i]!);
 
         ArrayPool<MeshFace[]>.Shared.Return(lastFaces!);
     }

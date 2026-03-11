@@ -67,8 +67,8 @@ public sealed class EngineLoader : IResourceLoader
         if (postProcessingResult is not {pipeline: var postProcessingPipeline, buffer: var ppData})
             return errors;
 
-        var crosshairVFX = ScreenElementPipeline.Create(client, factory, (0.5f, 0.5f));
-        var overlayVFX = OverlayPipeline.Create(client, factory, textureSlots);
+        ScreenElementPipeline? crosshairVFX = ScreenElementPipeline.Create(client, factory, (0.5f, 0.5f));
+        OverlayPipeline? overlayVFX = OverlayPipeline.Create(client, factory, textureSlots);
 
         if (crosshairVFX == null || overlayVFX == null)
             return errors;
@@ -78,7 +78,7 @@ public sealed class EngineLoader : IResourceLoader
         if (rtData == null)
             return errors;
 
-        var selectionBoxVFX = TargetingBoxPipeline.Create(client, factory);
+        TargetingBoxPipeline? selectionBoxVFX = TargetingBoxPipeline.Create(client, factory);
 
         if (selectionBoxVFX == null)
             return errors;

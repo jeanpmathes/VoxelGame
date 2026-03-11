@@ -17,6 +17,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using VoxelGame.Core.Visuals;
 
@@ -31,8 +32,8 @@ public class Blend() : BasicCombinator("blend")
     /// <inheritdoc />
     protected override void Apply(Image back, Image front)
     {
-        for (var x = 0; x < back.Width; x++)
-        for (var y = 0; y < back.Height; y++)
+        for (Int32 x = 0; x < back.Width; x++)
+        for (Int32 y = 0; y < back.Height; y++)
             back.SetPixel(x,
                 y,
                 ColorS.Blend(back.GetPixel(x, y).ToColorS(), front.GetPixel(x, y).ToColorS()).ToColor32());

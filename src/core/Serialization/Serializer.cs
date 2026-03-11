@@ -48,7 +48,7 @@ public abstract class Serializer
     /// </summary>
     public void SerializeSmall(ref UInt32 value)
     {
-        var signed = (Int32) value;
+        Int32 signed = (Int32) value;
 
         SerializeSmall(ref signed);
 
@@ -67,7 +67,7 @@ public abstract class Serializer
     /// </summary>
     public void SerializeSmall(ref UInt64 value)
     {
-        var signed = (Int64) value;
+        Int64 signed = (Int64) value;
 
         SerializeSmall(ref signed);
 
@@ -208,7 +208,7 @@ public abstract class Serializer
         Int32 count = values.Count;
         SerializeSmall(ref count);
 
-        for (var index = 0; index < count; index++)
+        for (Int32 index = 0; index < count; index++)
         {
             if (index >= values.Count) values.Add(new T());
 
@@ -229,7 +229,7 @@ public abstract class Serializer
     public void SerializeValues<T>(IArray<T> values)
         where T : IValue
     {
-        for (var index = 0; index < values.Count; index++)
+        for (Int32 index = 0; index < values.Count; index++)
         {
             T value = values[index];
             SerializeValue(ref value);
@@ -266,7 +266,7 @@ public abstract class Serializer
         if (entities.Count != count)
             Fail($"Expected {count} entities, but got {entities.Count}.");
 
-        for (var index = 0; index < count; index++)
+        for (Int32 index = 0; index < count; index++)
         {
             T entity = entities[index];
             SerializeEntity(entity);
@@ -279,7 +279,7 @@ public abstract class Serializer
     /// </summary>
     public void Signature(String content)
     {
-        for (var index = 0; index < content.Length; index++)
+        for (Int32 index = 0; index < content.Length; index++)
         {
             Char expected = content[index];
             Char actual = expected;

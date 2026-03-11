@@ -148,8 +148,8 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     /// <returns>The texture coordinates.</returns>
     public (Vector2 min, Vector2 max) GetUVs(FluidLevel neighbor, VerticalFlow flow)
     {
-        var size = (Single) BlockHeight.Ratio;
-        var skipped = (Single) neighbor.BlockHeight.Ratio;
+        Single size = (Single) BlockHeight.Ratio;
+        Single skipped = (Single) neighbor.BlockHeight.Ratio;
 
         return flow != VerticalFlow.Upwards
             ? (new Vector2(x: 0, skipped), new Vector2(x: 1, size))

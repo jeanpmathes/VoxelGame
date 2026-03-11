@@ -39,14 +39,14 @@ public partial class Map
         Array2D<HumidityData> current = CreateInitialHumidityData();
         Array2D<HumidityData> next = CreateInitialHumidityData();
 
-        for (var step = 0; step < ClimateSimulationSteps; step++)
+        for (Int32 step = 0; step < ClimateSimulationSteps; step++)
         {
             SimulateClimate(data, current, next);
             (current, next) = (next, current);
         }
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             ref Cell cell = ref data.GetCell(x, y);
             cell.humidity = current[x, y].humidity;
@@ -59,8 +59,8 @@ public partial class Map
 
         Array2D<HumidityData> initial = new(Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
             initial[x, y].humidity = initialHumidity;
 
         return initial;
@@ -167,8 +167,8 @@ public partial class Map
     {
         Image view = new(Width, Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
             view.SetPixel(x, y, GetHumidityColor(current));

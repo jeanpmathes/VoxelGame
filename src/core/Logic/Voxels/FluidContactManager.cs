@@ -83,8 +83,8 @@ public class FluidContactManager
     {
         Debug.Assert(fluidA != fluidB);
 
-        var a = new ContactInformation(fluidA, posA);
-        var b = new ContactInformation(fluidB, posB);
+        ContactInformation a = new ContactInformation(fluidA, posA);
+        ContactInformation b = new ContactInformation(fluidB, posB);
 
         ContactAction action = map.Resolve(a.fluid, b.fluid);
 
@@ -258,7 +258,7 @@ public class FluidContactManager
 
         if (fromContent is not {Fluid.Fluid: {} fluid}) return false;
 
-        var side = (to - from).ToSide();
+        Side side = (to - from).ToSide();
 
         return source.CanOutflow(world, from, side, fluid) && target.CanInflow(world, to, side.Opposite(), fluid);
     }

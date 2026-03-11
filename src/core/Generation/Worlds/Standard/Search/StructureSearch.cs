@@ -47,7 +47,7 @@ public class StructureSearch(Dictionary<String, StructureGenerator> structures, 
     protected override IEnumerable<Vector3i> SearchElement(StructureGenerator element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
     {
         foreach (Vector3i cell in subBiomeSearch.SearchSubBiomes(structureToSubBiomes[element], start, maxBlockDistance))
-            for (var distance = 0; distance < InSubBiomeGridCellSearchDistanceInSections; distance++)
+            for (Int32 distance = 0; distance < InSubBiomeGridCellSearchDistanceInSections; distance++)
                 foreach (Vector3i position in SearchAtDistance(element, cell, distance))
                     yield return position;
     }

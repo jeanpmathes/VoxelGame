@@ -508,8 +508,8 @@ public abstract class ChunkState
 
     private Boolean EnsureRequiredAccess()
     {
-        var isSufficient = true;
-        var canAcquire = true;
+        Boolean isSufficient = true;
+        Boolean canAcquire = true;
 
         if (Access != Access.None && guard == null)
         {
@@ -630,7 +630,7 @@ public abstract class ChunkState
 
     private Chunk.Deactivating CreateFinalState()
     {
-        var state = new Chunk.Deactivating
+        Chunk.Deactivating state = new Chunk.Deactivating
         {
             Chunk = Chunk,
             Context = Context
@@ -746,7 +746,7 @@ public abstract class ChunkState
 
             Int32 target = -1;
 
-            for (var index = 0; index < requests.Count; index++)
+            for (Int32 index = 0; index < requests.Count; index++)
             {
                 ChunkState state = requests[index];
 
@@ -774,7 +774,7 @@ public abstract class ChunkState
         {
             Debug.Assert(!current.IsEntered);
 
-            var index = 0;
+            Int32 index = 0;
 
             while (index < requests.Count)
                 if (IsSameStateType(current, requests[index]))

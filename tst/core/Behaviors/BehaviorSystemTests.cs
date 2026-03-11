@@ -14,11 +14,11 @@ public class BehaviorSystemTests
     public void BehaviorSystem_Bake_ShouldBakeSubjectAndBehaviors()
     {
         TestSubject subject1 = new();
-        var b1A = subject1.Require<BehaviorA>();
-        var b1B = subject1.Require<BehaviorB>();
+        BehaviorA b1A = subject1.Require<BehaviorA>();
+        BehaviorB b1B = subject1.Require<BehaviorB>();
         TestSubject subject2 = new();
-        var b2A = subject2.Require<BehaviorA>();
-        var b2C = subject2.Require<BehaviorC>();
+        BehaviorA b2A = subject2.Require<BehaviorA>();
+        BehaviorC b2C = subject2.Require<BehaviorC>();
 
         Int32 count = BehaviorSystem<TestSubject, TestBehaviorBase>.Bake(new Validator(new MockResourceContext()));
 

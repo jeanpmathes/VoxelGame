@@ -152,7 +152,7 @@ public partial class Door : BlockBehavior, IBehavior<Door, BlockBehavior, Block>
         Boolean leftSided = message.State.Get(IsLeftSided);
         Boolean wasOpen = message.State.Get(IsOpen);
 
-        var body = message.Actor.GetComponent<Body>();
+        Body? body = message.Actor.GetComponent<Body>();
 
         if (body != null && body.Collider.Intersects(composite.GetFullCollider(message.State.With(IsOpen, !wasOpen), message.Position)))
             return;

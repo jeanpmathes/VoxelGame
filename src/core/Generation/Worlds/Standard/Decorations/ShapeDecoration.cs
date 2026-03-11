@@ -61,14 +61,14 @@ public abstract class ShapeDecoration : Decoration
         Vector3i extents = Extents;
         Vector3i center = position - extents;
 
-        for (var x = 0; x < Size; x++)
-        for (var y = 0; y < Size; y++)
-        for (var z = 0; z < Size; z++)
+        for (Int32 x = 0; x < Size; x++)
+        for (Int32 y = 0; y < Size; y++)
+        for (Int32 z = 0; z < Size; z++)
         {
             Vector3i offset = new(x, y, z);
             Vector3i current = center + offset;
 
-            var relative = (Vector3d) (offset - extents);
+            Vector3d relative = (Vector3d) (offset - extents);
 
             if (shape.Contains(relative)) OnPlace(current, grid, placementContext);
         }

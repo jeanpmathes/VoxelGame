@@ -36,7 +36,7 @@ public static class SyntaxTools
     /// <returns>The namespace the type is contained in, or an empty string if it is in the global namespace.</returns>
     public static String GetNamespace(SyntaxNode node)
     {
-        var @namespace = "";
+        String @namespace = "";
 
         SyntaxNode? potentialNamespaceParent = node.Parent;
 
@@ -86,7 +86,7 @@ public static class SyntaxTools
 
     private static ContainingType? GetContainingType(TypeDeclarationSyntax node, TypeDeclarationSyntax? first, SemanticModel semanticModel)
     {
-        var parentSyntax = node.Parent as TypeDeclarationSyntax;
+        TypeDeclarationSyntax? parentSyntax = node.Parent as TypeDeclarationSyntax;
         ContainingType? containingInfo = first != null ? CreateContainingType(first, child: null, semanticModel) : null;
 
         while (parentSyntax?.Kind() is SyntaxKind.ClassDeclaration or SyntaxKind.StructDeclaration or SyntaxKind.RecordDeclaration)

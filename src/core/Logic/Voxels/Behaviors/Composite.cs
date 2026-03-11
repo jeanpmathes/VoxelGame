@@ -159,9 +159,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
         Vector3i size = GetSize(Subject.GetPlacementState(world, position, actor));
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             State? block = world.GetBlock(position + (x, y, z));
 
@@ -189,9 +189,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         State state = message.PlacementState;
         Vector3i size = GetSize(state);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i position = message.Position + (x, y, z);
 
@@ -225,9 +225,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
         Vector3i size = GetSize(message.State);
         Vector3i root = message.Position - GetPartPosition(message.State);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i position = root + (x, y, z);
             message.World.SetDefaultBlock(position);
@@ -301,9 +301,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     {
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i current = position + (x, y, z);
 
@@ -330,9 +330,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
     {
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i current = position + (x, y, z);
 
@@ -352,9 +352,9 @@ public partial class Composite : BlockBehavior, IBehavior<Composite, BlockBehavi
 
     private void SetStateOnAllParts(World world, Vector3i size, Vector3i root, Vector3i exclude, State state)
     {
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             if ((x, y, z) == exclude) continue;
 

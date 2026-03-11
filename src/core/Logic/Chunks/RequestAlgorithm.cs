@@ -130,7 +130,7 @@ public class RequestAlgorithm
 
     private Int32 GetDistanceToNearestRequested(ChunkPosition source)
     {
-        var distance = Int32.MaxValue;
+        Int32 distance = Int32.MaxValue;
 
         if (requested.Contains(source))
             return 0;
@@ -178,14 +178,14 @@ public class RequestAlgorithm
             Int32 xyRange = range + 1 - Math.Abs(z);
             Int32 yRange = 2 * xyRange - 1;
 
-            for (var ry = 0; ry < yRange; ry++)
+            for (Int32 ry = 0; ry < yRange; ry++)
             {
                 Int32 xRange = xyRange - ry % 2;
 
                 Int32 xStart = -xyRange + (ry + 1) / 2 + 1;
                 Int32 yStart = -(ry / 2);
 
-                for (var rx = 0; rx < xRange; rx++)
+                for (Int32 rx = 0; rx < xRange; rx++)
                 {
                     Int32 x = xStart + rx;
                     Int32 y = yStart + rx;

@@ -70,8 +70,8 @@ public partial class Map
 
         Array2D<Single> noiseGrid = noise.Pieces.GetNoiseGrid((0, 0), Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Double value = noiseGrid[x, y];
             ref Cell current = ref data.GetCell(x, y);
@@ -94,8 +94,8 @@ public partial class Map
 
     private static void AddPieceHeights(Data data, Dictionary<Int16, Double> pieceToValue)
     {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             ref Cell cell = ref data.GetCell(x, y);
 
@@ -116,8 +116,8 @@ public partial class Map
         DoLandGapFilling(adjacency, isLand, merge);
         DoLandBorderFlooding(data, isLand);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
             Int16 piece = current.continent;
@@ -202,7 +202,7 @@ public partial class Map
     /// </summary>
     private static Boolean[] DoLandCreation(List<List<Int16>> adjacency, IDictionary<Int16, Double> pieceToValue)
     {
-        var isLand = new Boolean[adjacency.Count];
+        Boolean[] isLand = new Boolean[adjacency.Count];
 
         Boolean HasBudget(Int16 piece)
         {
@@ -253,7 +253,7 @@ public partial class Map
             isLand[cell.continent] = false;
         }
 
-        for (var i = 0; i < Width; i++)
+        for (Int32 i = 0; i < Width; i++)
         {
             FloodCell(i, y: 0);
             FloodCell(i, Width - 1);
@@ -271,8 +271,8 @@ public partial class Map
 
         Array2D<Single> offsets = new(Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
 
@@ -282,14 +282,14 @@ public partial class Map
 
                 if (current.continent == neighbor.continent) return;
 
-                var a = new TectonicCell
+                TectonicCell a = new TectonicCell
                 {
                     continent = current.continent,
                     position = (x, y),
                     drift = driftDirections[current.continent]
                 };
 
-                var b = new TectonicCell
+                TectonicCell b = new TectonicCell
                 {
                     continent = neighbor.continent,
                     position = neighborPosition,
@@ -335,8 +335,8 @@ public partial class Map
     {
         Array2D<Single> noiseGrid = noise.Stone.GetNoiseGrid((0, 0), Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Single value = noiseGrid[x, y];
             value = Math.Abs(value);
@@ -470,7 +470,7 @@ public partial class Map
         ref Cell cellA = ref data.GetCell(a.position);
         ref Cell cellB = ref data.GetCell(b.position);
 
-        var conditions = CellConditions.None;
+        CellConditions conditions = CellConditions.None;
 
         if (cellA.IsLand && cellB.IsLand) conditions = CellConditions.Rift;
 
@@ -493,8 +493,8 @@ public partial class Map
     {
         Array2D<Single> offsets = new(Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
 
@@ -519,7 +519,7 @@ public partial class Map
 
     private static Int32 GetNumberOfOceanNeighbors(Data data, Int32 x, Int32 y)
     {
-        var count = 0;
+        Int32 count = 0;
 
         for (Int32 dx = -1; dx <= 1; dx++)
         for (Int32 dy = -1; dy <= 1; dy++)
@@ -573,8 +573,8 @@ public partial class Map
 
     private static void AddOffsetsToData(Data data, Array2D<Single> offsets)
     {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
             current.height += offsets[x, y];
@@ -603,8 +603,8 @@ public partial class Map
     {
         Image view = new(Width, Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
             view.SetPixel(x, y, GetTerrainColor(current));
@@ -646,8 +646,8 @@ public partial class Map
     {
         Image view = new(Width, Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
             view.SetPixel(x, y, GetStoneTypeColor(current));
@@ -668,8 +668,8 @@ public partial class Map
     {
         Image view = new(Width, Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
             view.SetPixel(x, y, GetContinentColor(current.continent, current.IsLand));

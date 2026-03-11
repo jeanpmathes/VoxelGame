@@ -61,11 +61,11 @@ public sealed class Array2D<T> : IEnumerable<T>, IArray<T>
     {
         Debug.Assert(values.Length == Length);
 
-        for (var x = 0; x < Length; x++)
+        for (Int32 x = 0; x < Length; x++)
         {
             Debug.Assert(values[x].Length == Length);
 
-            for (var y = 0; y < Length; y++) this[x, y] = values[x][y];
+            for (Int32 y = 0; y < Length; y++) this[x, y] = values[x][y];
         }
     }
 

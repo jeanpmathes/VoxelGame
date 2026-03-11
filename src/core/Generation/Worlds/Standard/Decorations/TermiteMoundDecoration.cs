@@ -53,9 +53,9 @@ public class TermiteMoundDecoration : Decoration
         Vector3i extents = new(Size / 2);
         Vector3i center = position - extents;
 
-        for (var x = 0; x < Size; x++)
-        for (var y = 0; y < Size; y++)
-        for (var z = 0; z < Size; z++)
+        for (Int32 x = 0; x < Size; x++)
+        for (Int32 y = 0; y < Size; y++)
+        for (Int32 z = 0; z < Size; z++)
             CheckPosition(grid, center, (x, y, z), extents);
     }
 

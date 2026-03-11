@@ -64,7 +64,7 @@ internal sealed class IntegerSetting : Setting
 
         integer.ValueChanged += (_, _) =>
         {
-            var value = (Int32) Math.Round(integer.Value);
+            Int32 value = (Int32) Math.Round(integer.Value);
             set(value);
             Validator.Validate();
         };

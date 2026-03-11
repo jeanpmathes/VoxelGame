@@ -107,10 +107,10 @@ public class MeshingContext
 
     private static (ColorS block, ColorS fluid)[,] GetTintColors(SectionPosition position, IChunkMeshingContext context)
     {
-        var colors = new (ColorS block, ColorS fluid)[Section.Size, Section.Size];
+        (ColorS block, ColorS fluid)[,] colors = new (ColorS block, ColorS fluid)[Section.Size, Section.Size];
 
-        for (var x = 0; x < Section.Size; x++)
-        for (var z = 0; z < Section.Size; z++)
+        for (Int32 x = 0; x < Section.Size; x++)
+        for (Int32 z = 0; z < Section.Size; z++)
             colors[x, z] = context.GetPositionTint(position.FirstBlock + new Vector3i(x, y: 0, z));
 
         return colors;

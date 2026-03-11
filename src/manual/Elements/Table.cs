@@ -90,7 +90,7 @@ public class Table(String columnsSpec) : Chainable, IElement
 
         internal void Generate(StreamWriter writer)
         {
-            for (var i = 0; i < cells.Count; i++)
+            for (Int32 i = 0; i < cells.Count; i++)
             {
                 if (i > 0) writer.Write(" & ");
                 cells[i].Generate(writer);

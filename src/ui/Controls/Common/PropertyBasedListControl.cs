@@ -65,8 +65,8 @@ public class PropertyBasedListControl : ControlBase
             (String prefix, Int32 number, VerticalLayout parent, ListBox? list) current = stack.Pop();
 
             Int32 number = current.number + 1;
-            var prefix = $"{current.prefix}{number}";
-            var header = $"{prefix} {group.Name}";
+            String prefix = $"{current.prefix}{number}";
+            String header = $"{prefix} {group.Name}";
 
             VerticalLayout layout = new(current.parent);
 
@@ -123,12 +123,12 @@ public class PropertyBasedListControl : ControlBase
 
         public override void Visit(Color color)
         {
-            var value = color.Value.ToString();
+            String value = color.Value.ToString();
 
             ListBoxRow row = AddRow(color.Name, value);
             row.SetCellText(ValueColumn, value, Alignment.Center);
 
-            var c = color.Value.ToColor();
+            System.Drawing.Color c = color.Value.ToColor();
             row.SetTextColor(new Gwen.Net.Color(c.A, c.R, c.G, c.B));
         }
 

@@ -68,7 +68,7 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_Launch_ShouldExecuteAction()
     {
-        var executed = false;
+        Boolean executed = false;
 
         Operation operation = Operations.Launch(async _ =>
             {
@@ -117,7 +117,7 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_Then_ShouldPropagateFailure()
     {
-        var thenExecuted = false;
+        Boolean thenExecuted = false;
 
         Operation operation = Operations.Launch(async _ =>
                 {
@@ -142,7 +142,7 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_Then_ShouldPropagateCancellation()
     {
-        var thenExecuted = false;
+        Boolean thenExecuted = false;
 
         Operation operation = Operations.Launch(async token =>
                 {
@@ -166,7 +166,7 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_Then_ShouldNotRunOnFailure()
     {
-        var thenExecuted = false;
+        Boolean thenExecuted = false;
 
         Operation operation = Operations.Launch(async _ =>
             {
@@ -193,7 +193,7 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_Then_ShouldNotRunOnCancellation()
     {
-        var thenExecuted = false;
+        Boolean thenExecuted = false;
 
         Operation operation = Operations.Launch(async _ =>
             {
@@ -222,7 +222,7 @@ public sealed class OperationsTests : IDisposable
         const Int32 initialResult = 42;
         const String nextResult = "success";
 
-        var thenExecuted = false;
+        Boolean thenExecuted = false;
 
         Operation<String> operation = Operations.Launch(async _ =>
                 {
@@ -250,9 +250,9 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_OnCompletionSync_ShouldExecuteOnSuccess()
     {
-        var initialExecuted = false;
-        var successExecuted = false;
-        var failExecuted = false;
+        Boolean initialExecuted = false;
+        Boolean successExecuted = false;
+        Boolean failExecuted = false;
 
         Operation operation = Operations.Launch(async _ =>
             {
@@ -279,9 +279,9 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_OnCompletionSync_ShouldExecuteOnFailure()
     {
-        var initialExecuted = false;
-        var successExecuted = false;
-        var failExecuted = false;
+        Boolean initialExecuted = false;
+        Boolean successExecuted = false;
+        Boolean failExecuted = false;
 
         Operation operation = Operations.Launch(async _ =>
             {
@@ -310,7 +310,7 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_OnSuccessfulSync_ShouldExecuteOnSuccess()
     {
-        var executed = false;
+        Boolean executed = false;
 
         Operation operation = Operations.Launch(async _ =>
             {
@@ -329,7 +329,7 @@ public sealed class OperationsTests : IDisposable
     public void Operations_OnFailedOrCancelledSync_ShouldExecuteOnFailure()
     {
         Exception exception = new InvalidOperationException();
-        var executed = false;
+        Boolean executed = false;
 
         Operation operation = Operations.Launch(async _ =>
             {
@@ -355,11 +355,11 @@ public sealed class OperationsTests : IDisposable
     {
         const Int32 result = 42;
 
-        var initialExecuted = false;
-        var successExecuted = false;
-        var failExecuted = false;
+        Boolean initialExecuted = false;
+        Boolean successExecuted = false;
+        Boolean failExecuted = false;
 
-        var capturedResult = 0;
+        Int32 capturedResult = 0;
 
         Operation<Int32> operation = Operations.Launch(async _ =>
             {
@@ -395,8 +395,8 @@ public sealed class OperationsTests : IDisposable
     {
         const Int32 result = 42;
 
-        var executed = false;
-        var capturedResult = 0;
+        Boolean executed = false;
+        Int32 capturedResult = 0;
 
         Operation<Int32> operation = Operations.Launch(async _ =>
             {

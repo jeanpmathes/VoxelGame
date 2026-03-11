@@ -44,8 +44,8 @@ public partial class Map
 
     private static void DetectMountains(Data data)
     {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
 
@@ -96,8 +96,8 @@ public partial class Map
 
     private static void DetectCliffs(Data data)
     {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
 
@@ -153,8 +153,8 @@ public partial class Map
 
     private static void DetectCoastlines(Data data)
     {
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             ref Cell current = ref data.GetCell(x, y);
 
@@ -182,8 +182,8 @@ public partial class Map
     {
         Image view = new(Width, Width);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Width; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Width; y++)
         {
             Cell current = data.GetCell(x, y);
             view.SetPixel(x, y, GetBiomeColor(current, biomes));

@@ -78,8 +78,8 @@ public partial class OverlayDisplay : ActorComponent
     private void BuildOverlay(IEnumerable<(Content content, Vector3i position)> positions)
     {
         engine.OverlayPipeline.IsEnabled = false;
-        var lowerBound = 1.0;
-        var upperBound = 0.0;
+        Double lowerBound = 1.0;
+        Double upperBound = 0.0;
 
         IEnumerable<Overlay> overlays = Overlay.MeasureOverlays(positions, player.Camera, ref lowerBound, ref upperBound).ToList();
 
@@ -99,7 +99,7 @@ public partial class OverlayDisplay : ActorComponent
             engine.OverlayPipeline.SetBounds(lowerBound, upperBound);
         }
 
-        var size = 0.0;
+        Double size = 0.0;
         ColorS? fog = selected?.GetFogColor(player.World);
 
         if (fog != null)

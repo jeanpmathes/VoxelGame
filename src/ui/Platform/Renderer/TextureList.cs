@@ -62,7 +62,7 @@ public sealed class TextureList : IDisposable
         this.client = client;
 
         // The Draw2D pipeline requires at least one texture.
-        var image = Image.CreateFallback(size: 1);
+        Image image = Image.CreateFallback(size: 1);
         Texture sentinel = client.LoadTexture(image);
 
         textures = new Bag<Texture>(sentinel);

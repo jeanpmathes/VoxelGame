@@ -45,7 +45,7 @@ public class SubBiomeSearch(Dictionary<String, SubBiome> subBiomes, Searcher sea
     protected override IEnumerable<Vector3i> SearchElement(SubBiome element, String? modifier, Vector3i start, UInt32 maxBlockDistance)
     {
         foreach (Vector3i cell in biomeSearch.SearchBiomes(subBiomesToBiomes[element], BiomeSearch.Mode.Inner, start, maxBlockDistance))
-            for (var distance = 0; distance < InCellSearchDistanceInGridCells; distance++)
+            for (Int32 distance = 0; distance < InCellSearchDistanceInGridCells; distance++)
                 foreach (Vector3i position in SearchAtDistance(Set.Of(element), cell, distance))
                     yield return position;
     }
@@ -69,7 +69,7 @@ public class SubBiomeSearch(Dictionary<String, SubBiome> subBiomes, Searcher sea
                 .ToHashSet();
 
         foreach (Vector3i cell in biomeSearch.SearchBiomes(containing, BiomeSearch.Mode.Inner, start, maxBlockDistance))
-            for (var distance = 0; distance < InCellSearchDistanceInGridCells; distance++)
+            for (Int32 distance = 0; distance < InCellSearchDistanceInGridCells; distance++)
                 foreach (Vector3i position in SearchAtDistance(subBiomes, cell, distance))
                     yield return position;
     }

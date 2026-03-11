@@ -217,7 +217,7 @@ public partial class Attached : BlockBehavior, IBehavior<Attached, BlockBehavior
 
     private static Sides GetAttachableSides(World world, Vector3i position, Sides allowed)
     {
-        var sides = Sides.None;
+        Sides sides = Sides.None;
 
         foreach (Side side in Side.All.Sides())
             if (allowed.HasFlag(side.ToFlag()) &&

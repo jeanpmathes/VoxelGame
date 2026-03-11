@@ -49,7 +49,7 @@ public static class Marshalling
         Span<TUnmanaged> destination = ArrayMarshaller<TManaged, TUnmanaged>
             .GetUnmanagedValuesDestination(unmanaged, num);
 
-        for (var index = 0; index < num; index++) destination[index] = TMarshaller.ConvertToUnmanaged(source[index]);
+        for (Int32 index = 0; index < num; index++) destination[index] = TMarshaller.ConvertToUnmanaged(source[index]);
 
         length = (UInt32) num;
 

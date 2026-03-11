@@ -117,7 +117,7 @@ public class Input
 
     internal void OnKeyDown(Byte key)
     {
-        var virtualKey = (VirtualKeys) key;
+        VirtualKeys virtualKey = (VirtualKeys) key;
 
         if (ignoredKeys.Contains(virtualKey)) return;
 
@@ -127,7 +127,7 @@ public class Input
 
     internal void OnKeyUp(Byte key)
     {
-        var virtualKey = (VirtualKeys) key;
+        VirtualKeys virtualKey = (VirtualKeys) key;
 
         if (ignoredKeys.Remove(virtualKey))
             return;

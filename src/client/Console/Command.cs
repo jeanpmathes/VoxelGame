@@ -82,7 +82,7 @@ public abstract class Command : ICommand
     /// <param name="position">The position to set as previous.</param>
     public void SetPreviousPlayerPosition(Vector3d position)
     {
-        var previousPosition = Context.Player.AddComponent<PreviousPosition>();
+        PreviousPosition previousPosition = Context.Player.AddComponent<PreviousPosition>();
         previousPosition.Value = position;
     }
 }

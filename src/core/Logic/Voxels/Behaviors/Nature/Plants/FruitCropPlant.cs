@@ -52,7 +52,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
         plant = subject.Require<GrowingPlant>();
         plant.StageCount.Initializer.ContributeConstant(MaxAge - 1);
 
-        var foliage = subject.Require<Foliage>();
+        Foliage foliage = subject.Require<Foliage>();
         foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
         foliage.Part.ContributeConstant(Foliage.PartType.Single);
 
@@ -109,7 +109,7 @@ public partial class FruitCropPlant : BlockBehavior, IBehavior<FruitCropPlant, B
 
         if (currentAge == MaxAge)
         {
-            var placed = false;
+            Boolean placed = false;
 
             if (message.Ground.SupportsFullGrowth.Get() && message.Ground.TryGrow(
                     message.World,

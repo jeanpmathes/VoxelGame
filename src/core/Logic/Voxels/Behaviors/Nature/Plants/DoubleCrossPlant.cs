@@ -46,7 +46,7 @@ public partial class DoubleCrossPlant : BlockBehavior, IBehavior<DoubleCrossPlan
         composite = subject.Require<Composite>();
         composite.MaximumSize.Initializer.ContributeConstant((1, 2, 1));
 
-        var foliage = subject.Require<Foliage>();
+        Foliage foliage = subject.Require<Foliage>();
         foliage.Layout.Initializer.ContributeConstant(Foliage.LayoutType.Cross, exclusive: true);
         foliage.Part.ContributeFunction(GetPart);
 

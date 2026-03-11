@@ -38,10 +38,10 @@ public class Mix<TContext> : IContributionStrategy<ColorS, TContext>
         if (contributors.Length == 0)
             return original;
 
-        var r = 0.0;
-        var g = 0.0;
-        var b = 0.0;
-        var a = 0.0;
+        Double r = 0.0;
+        Double g = 0.0;
+        Double b = 0.0;
+        Double a = 0.0;
 
         foreach (IContributor<ColorS, TContext> contributor in contributors)
         {

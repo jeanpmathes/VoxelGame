@@ -160,7 +160,7 @@ public class PropertyBasedTreeControl : TreeControl
         {
             TreeNode node = FindOrCreateNode(color.Name, color.Name);
 
-            var c = color.Value.ToColor();
+            System.Drawing.Color c = color.Value.ToColor();
             node.SetColor(new Gwen.Net.Color(c.A, c.R, c.G, c.B));
         }
     }

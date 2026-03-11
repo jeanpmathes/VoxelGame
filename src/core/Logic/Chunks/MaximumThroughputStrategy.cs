@@ -40,7 +40,7 @@ public class MaximumThroughputStrategy(ChunkStateUpdateList list) : ChunkStateUp
         local.Clear();
         chunks.CopyDirectlyTo(local);
 
-        var updated = 0;
+        Int32 updated = 0;
 
         foreach (Chunk? chunk in local)
         {

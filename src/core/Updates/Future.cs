@@ -174,7 +174,7 @@ public class Future
     /// <returns>The future.</returns>
     public static Future CreateCanceled()
     {
-        var source = new TaskCompletionSource<Object>();
+        TaskCompletionSource<Object> source = new TaskCompletionSource<Object>();
 
         source.SetCanceled();
 
@@ -188,7 +188,7 @@ public class Future
     /// <returns>The future.</returns>
     public static Future<T> CreateCanceled<T>()
     {
-        var source = new TaskCompletionSource<T>();
+        TaskCompletionSource<T> source = new TaskCompletionSource<T>();
 
         source.SetCanceled();
 

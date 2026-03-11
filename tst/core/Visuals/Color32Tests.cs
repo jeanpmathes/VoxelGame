@@ -79,8 +79,8 @@ public class Color32Tests
     {
         const Int32 value = 0x12345678;
 
-        var v1 = Color32.FromInt32(value, Image.Format.RGBA).ToInt32(Image.Format.RGBA);
-        var v2 = Color32.FromInt32(value, Image.Format.BGRA).ToInt32(Image.Format.BGRA);
+        Int32 v1 = Color32.FromInt32(value, Image.Format.RGBA).ToInt32(Image.Format.RGBA);
+        Int32 v2 = Color32.FromInt32(value, Image.Format.BGRA).ToInt32(Image.Format.BGRA);
 
         Assert.Equal(value, v1);
         Assert.Equal(value, v2);
@@ -183,7 +183,7 @@ public class Color32Tests
             A = 0x00
         };
 
-        var colorS = color.ToColorS();
+        ColorS colorS = color.ToColorS();
 
         Assert.Equal(expected: 0, colorS.R);
         Assert.Equal(expected: 0, colorS.G);
@@ -202,7 +202,7 @@ public class Color32Tests
             A = 0xFF
         };
 
-        var colorS = color.ToColorS();
+        ColorS colorS = color.ToColorS();
 
         Assert.Equal(expected: 1, colorS.R);
         Assert.Equal(expected: 1, colorS.G);
@@ -221,7 +221,7 @@ public class Color32Tests
             A = 0x78
         };
 
-        var vector = color.ToVector4i();
+        Vector4i vector = color.ToVector4i();
 
         Assert.Equal(expected: 0x12, vector.X);
         Assert.Equal(expected: 0x34, vector.Y);

@@ -57,7 +57,7 @@ public partial class Slowing : BlockBehavior, IBehavior<Slowing, BlockBehavior, 
 
     private void OnActorCollision(Block.IActorCollisionMessage message)
     {
-        var factor = 1.0;
+        Double factor = 1.0;
 
         if (Subject.Get<PartialHeight>() is {} height) factor = height.GetHeight(message.State).Ratio;
 

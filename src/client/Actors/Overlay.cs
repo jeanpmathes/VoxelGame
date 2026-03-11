@@ -66,13 +66,13 @@ public sealed record Overlay(Double Size, OverlayTexture Texture, Boolean IsBloc
 
         List<Overlay> overlays = [];
 
-        var anyIsBlock = false;
+        Boolean anyIsBlock = false;
 
         foreach ((Content content, Vector3i position) in positions)
         {
             (Double, Double)? newBounds = null;
             IOverlayTextureProvider? overlayTextureProvider = null;
-            var isBlock = false;
+            Boolean isBlock = false;
 
             if (content.Block.Block is IOverlayTextureProvider overlayBlockTextureProvider)
             {

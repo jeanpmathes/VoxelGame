@@ -178,7 +178,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
         MinWidth = 0;
         MinDepthToSolid = 0;
 
-        var hasReachedSolid = false;
+        Boolean hasReachedSolid = false;
 
         List<(Layer layer, Int32 depth)> newUpperHorizon = [];
         List<(Layer layer, Int32 depth)> newLowerHorizon = [];
@@ -208,7 +208,7 @@ public sealed class SubBiomeDefinition(String name, Palette palette) : IResource
 
             MinWidth += layer.Width;
 
-            for (var depth = 0; depth < layer.Width; depth++) currentHorizon.Add((layer, depth));
+            for (Int32 depth = 0; depth < layer.Width; depth++) currentHorizon.Add((layer, depth));
         }
 
         Debug.Assert((!IsOceanic).Implies(Dampen != null));

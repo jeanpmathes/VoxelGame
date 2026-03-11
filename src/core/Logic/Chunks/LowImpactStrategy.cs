@@ -59,8 +59,8 @@ public class LowImpactStrategy(ChunkStateUpdateList list) : ChunkStateUpdateStra
         local.Clear();
         chunks.CopyDirectlyTo(local);
 
-        var updatedChunkCount = 0;
-        var highPriorityChunkCount = 0;
+        Int32 updatedChunkCount = 0;
+        Int32 highPriorityChunkCount = 0;
 
         foreach (Chunk? chunk in local)
         {

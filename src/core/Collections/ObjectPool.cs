@@ -69,7 +69,7 @@ public class ObjectPool<T> where T : class
     /// <returns>An array of all objects in the pool.</returns>
     public T[] Clear()
     {
-        var arr = new T[objects.Count];
+        T[] arr = new T[objects.Count];
 
         objects.CopyTo(arr, index: 0);
         objects.Clear();

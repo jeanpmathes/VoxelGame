@@ -67,7 +67,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
         {
             Vector3i position = reader.Position;
 
-            var content = Content.Default;
+            Content content = Content.Default;
 
             State? state = reader.GetBlock(out String namedBlockID);
 
@@ -133,11 +133,11 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
     {
         if (!IsExtentsAcceptable(extents)) return null;
 
-        var data = new Content?[extents.X, extents.Y, extents.Z];
+        Content?[,,] data = new Content?[extents.X, extents.Y, extents.Z];
 
-        for (var x = 0; x < extents.X; x++)
-        for (var y = 0; y < extents.Y; y++)
-        for (var z = 0; z < extents.Z; z++)
+        for (Int32 x = 0; x < extents.X; x++)
+        for (Int32 y = 0; y < extents.Y; y++)
+        for (Int32 z = 0; z < extents.Z; z++)
         {
             Content? content = grid.GetContent(position + new Vector3i(x, y, z));
 
@@ -205,7 +205,7 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
     /// <returns>The fallback structure.</returns>
     public static StaticStructure CreateFallback()
     {
-        var fallback = new Content?[1, 1, 1];
+        Content?[,,] fallback = new Content?[1, 1, 1];
         fallback[0, 0, 0] = Content.Create(Blocks.Instance.Core.Error);
 
         return new StaticStructure(fallback, Vector3i.One);
@@ -240,9 +240,9 @@ public sealed partial class StaticStructure : Structure, IResource, ILocated, II
     {
         StaticStructureBuilder builder = new();
 
-        for (var x = 0; x < Extents.X; x++)
-        for (var y = 0; y < Extents.Y; y++)
-        for (var z = 0; z < Extents.Z; z++)
+        for (Int32 x = 0; x < Extents.X; x++)
+        for (Int32 y = 0; y < Extents.Y; y++)
+        for (Int32 z = 0; z < Extents.Z; z++)
         {
             if (contents[x, y, z] is not {} content) continue;
 

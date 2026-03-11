@@ -147,7 +147,7 @@ public sealed partial class OverlayPipeline : IDisposable
     {
         Matrix4d model = Matrix4d.Identity;
         Matrix4d view = Matrix4d.Identity;
-        var projection = Matrix4d.CreateOrthographic(width: 2.0, 2.0 / client.AspectRatio, depthNear: 0.0, depthFar: 1.0);
+        Matrix4d projection = Matrix4d.CreateOrthographic(width: 2.0, 2.0 / client.AspectRatio, depthNear: 0.0, depthFar: 1.0);
 
         (UInt32, UInt32, UInt32, UInt32) attributes = (0, 0, 0, 0);
 

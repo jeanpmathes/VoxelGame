@@ -68,7 +68,7 @@ public partial class SceneManager : ApplicationComponent
 
         LogSwitchingScene(logger, current, scene);
 
-        var activity = Activity.Create(out Action completion);
+        Activity activity = Activity.Create(out Action completion);
 
         next = (scene, completion);
 
@@ -127,7 +127,7 @@ public partial class SceneManager : ApplicationComponent
     {
         LogStartingOfUnloadingScene(logger, current);
 
-        var activity = Activity.Create(out Action completion);
+        Activity activity = Activity.Create(out Action completion);
 
         next = (null, completion);
 

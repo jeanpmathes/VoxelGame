@@ -47,7 +47,7 @@ public class VoxelGamePlatform : IPlatform
     /// <returns>Clipboard text.</returns>
     public String GetClipboardText()
     {
-        var ret = String.Empty;
+        String? ret = String.Empty;
 
         Thread staThread = new(() =>
         {
@@ -80,7 +80,7 @@ public class VoxelGamePlatform : IPlatform
     /// <returns>True if succeeded.</returns>
     public Boolean SetClipboardText(String text)
     {
-        var ret = false;
+        Boolean ret = false;
 
         Thread staThread = new(() =>
         {

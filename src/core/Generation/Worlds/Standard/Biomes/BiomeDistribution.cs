@@ -98,8 +98,8 @@ public class BiomeDistribution
 
         humidity = Math.Clamp(humidity, min: 0, temperature);
 
-        var x = (Int32) Math.Floor(humidity * BiomeDistributionDefinition.Resolution);
-        var y = (Int32) Math.Floor(temperature * BiomeDistributionDefinition.Resolution);
+        Int32 x = (Int32) Math.Floor(humidity * BiomeDistributionDefinition.Resolution);
+        Int32 y = (Int32) Math.Floor(temperature * BiomeDistributionDefinition.Resolution);
 
         x = Math.Clamp(x, min: 0, BiomeDistributionDefinition.Resolution - 1);
         y = Math.Clamp(y, min: 0, BiomeDistributionDefinition.Resolution - 1);

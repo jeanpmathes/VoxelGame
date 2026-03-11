@@ -148,7 +148,7 @@ public sealed class ComponentGenerator : IIncrementalGenerator
         if (attribute.ConstructorArguments.Length != 1)
             return null;
 
-        var componentMethodName = attribute.ConstructorArguments[index: 0].Value as String;
+        String? componentMethodName = attribute.ConstructorArguments[index: 0].Value as String;
 
         if (String.IsNullOrWhiteSpace(componentMethodName))
             return null;
@@ -192,8 +192,8 @@ public sealed class ComponentGenerator : IIncrementalGenerator
         ContainingType? containingType = SyntaxTools.GetContainingType(componentTypeDeclarationSyntax, semanticModel);
 
         String name = componentTypeDeclarationSyntax.Identifier.Text;
-        var typeParameters = componentTypeDeclarationSyntax.TypeParameterList?.ToString();
-        var constraints = componentTypeDeclarationSyntax.ConstraintClauses.ToString();
+        String? typeParameters = componentTypeDeclarationSyntax.TypeParameterList?.ToString();
+        String constraints = componentTypeDeclarationSyntax.ConstraintClauses.ToString();
 
         String accessibility = SyntaxFacts.GetText(componentSymbol.DeclaredAccessibility);
 

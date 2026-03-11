@@ -171,7 +171,7 @@ public partial class Chunk : IDisposable, IEntity
 
         this.blocks = blocks;
 
-        for (var index = 0; index < SectionCount; index++)
+        for (Int32 index = 0; index < SectionCount; index++)
         {
             NativeSegment<UInt32> segment = blocks.Slice(index * Section.Count, Section.Count);
             sections[index] = createSection(segment);
@@ -326,7 +326,7 @@ public partial class Chunk : IDisposable, IEntity
 
         ChunkState.Initialize(out state, this, Context);
 
-        for (var index = 0; index < SectionCount; index++)
+        for (Int32 index = 0; index < SectionCount; index++)
             sections[index].Initialize(SectionPosition.From(Position, IndexToLocalSection(index)));
 
         decoration = DecorationLevels.None;
@@ -377,7 +377,7 @@ public partial class Chunk : IDisposable, IEntity
 
         Debug.Assert(access != Access.None);
 
-        var source = $"{caller} (line {line})";
+        String source = $"{caller} (line {line})";
 
         Guard? guard = ChunkState.TryStealAccess(ref state);
 
@@ -757,7 +757,7 @@ public partial class Chunk : IDisposable, IEntity
         Guard? access = Acquire(Access.Write);
         Debug.Assert(access != null);
 
-        var guards = new PooledList<Guard>(Neighborhood.Count);
+        PooledList<Guard> guards = new PooledList<Guard>(Neighborhood.Count);
 
         foreach (Chunk? chunk in needed)
         {

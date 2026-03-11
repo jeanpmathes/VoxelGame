@@ -34,8 +34,8 @@ public class NoTint() : Modifier("no-tint")
     /// <inheritdoc />
     protected override Sheet Modify(Image image, Parameters parameters, IContext context)
     {
-        for (var x = 0; x < image.Width; x++)
-        for (var y = 0; y < image.Height; y++)
+        for (Int32 x = 0; x < image.Width; x++)
+        for (Int32 y = 0; y < image.Height; y++)
         {
             Color32 color = image.GetPixel(x, y);
 

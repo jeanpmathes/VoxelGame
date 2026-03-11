@@ -78,7 +78,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
     {
         BehaviorSystem<TSelf, TBehavior>.EnsureNotBaked();
 
-        var behavior = Get<TConcreteBehavior>();
+        TConcreteBehavior? behavior = Get<TConcreteBehavior>();
 
         if (behavior != null)
             return behavior;
@@ -104,7 +104,7 @@ public abstract class BehaviorContainer<TSelf, TBehavior> : IHasBehaviors<TSelf,
         {
             if (behavior is not TConditionConcreteBehavior) return;
 
-            var conditionalBehavior = Require<TConditionalConcreteBehavior>();
+            TConditionalConcreteBehavior conditionalBehavior = Require<TConditionalConcreteBehavior>();
             initializer?.Invoke(conditionalBehavior);
         });
     }

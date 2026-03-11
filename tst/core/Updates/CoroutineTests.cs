@@ -39,8 +39,8 @@ public sealed class CoroutineTests : IDisposable
     [Fact]
     public void Coroutine_RunSimpleCoroutine_CoroutineRunsToCompletion()
     {
-        var steps = 0;
-        var disposed = false;
+        Int32 steps = 0;
+        Boolean disposed = false;
 
         Coroutine.Start(CoroutineBody, dispatch);
 

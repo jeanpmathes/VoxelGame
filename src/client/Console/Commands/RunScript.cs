@@ -70,7 +70,7 @@ public class RunScript : Command
 
         using StringReader lines = new(script);
 
-        var loc = 0;
+        Int32 loc = 0;
 
         while (lines.ReadLine() is {} line)
         {

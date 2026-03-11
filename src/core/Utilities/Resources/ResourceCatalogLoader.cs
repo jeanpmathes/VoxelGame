@@ -63,8 +63,8 @@ public record ResourceLoadingIssueReport(Property Report, Int32 ErrorCount, Int3
 
         Group report = new(name);
 
-        var errorCount = 0;
-        var warningCount = 0;
+        Int32 errorCount = 0;
+        Int32 warningCount = 0;
 
         foreach (ResourceLoadingIssueReport validReport in validReports)
         {
@@ -287,7 +287,7 @@ public sealed partial class ResourceCatalogLoader
         private IEnumerable<IResource> Require<T>(Func<T, IEnumerable<IResource>> func, RID? identifier)
             where T : class
         {
-            var obj = Get<T>(identifier);
+            T? obj = Get<T>(identifier);
 
             if (obj != null)
                 return func(obj);

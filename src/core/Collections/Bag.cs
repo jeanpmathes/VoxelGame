@@ -106,7 +106,7 @@ public class Bag<T> : IEnumerable<T>
     {
         Int32 count = items.Count;
 
-        for (var index = 0; index < count; index++)
+        for (Int32 index = 0; index < count; index++)
         {
             if (Equals(items[index], gapValue)) continue;
 

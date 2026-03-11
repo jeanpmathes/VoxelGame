@@ -80,7 +80,7 @@ public class LateInitializationUsageAnalyzer : DiagnosticAnalyzer
                 || propertyDeclarationSyntax.Type is NullableTypeSyntax
                 || propertySymbol.Type.NullableAnnotation == NullableAnnotation.Annotated)
             {
-                var diagnostic = Diagnostic.Create(rule, propertyDeclarationSyntax.Identifier.GetLocation(), propertySymbol.Name);
+                Diagnostic diagnostic = Diagnostic.Create(rule, propertyDeclarationSyntax.Identifier.GetLocation(), propertySymbol.Name);
                 context.ReportDiagnostic(diagnostic);
             }
 

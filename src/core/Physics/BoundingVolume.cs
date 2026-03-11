@@ -47,7 +47,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         {
             childBounds = children[0].GetChildBoundsOrBounds();
 
-            for (var i = 1; i < children.Length; i++)
+            for (Int32 i = 1; i < children.Length; i++)
             {
                 Box3d currentChild = children[i].GetChildBoundsOrBounds();
                 childBounds = childBounds.Inflated(currentChild.Min).Inflated(currentChild.Max);
@@ -116,9 +116,9 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     {
         get
         {
-            var count = 1;
+            Int32 count = 1;
 
-            for (var index = 0; index < ChildCount; index++)
+            for (Int32 index = 0; index < ChildCount; index++)
                 count += this[index].NumberOfBoxes;
 
             return count;
@@ -211,9 +211,9 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
     /// <returns>>The translated bounding volume.</returns>
     public BoundingVolume Translated(Vector3d translation)
     {
-        var translated = new BoundingVolume[ChildCount];
+        BoundingVolume[] translated = new BoundingVolume[ChildCount];
 
-        for (var i = 0; i < ChildCount; i++)
+        for (Int32 i = 0; i < ChildCount; i++)
             translated[i] = this[i].Translated(translation);
 
         return new BoundingVolume(Box.Translated(translation), translated);
@@ -279,7 +279,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (ChildCount == 0) return false;
         if (!ChildBounds.Contains(point, boundaryInclusive: true)) return false;
 
-        for (var i = 0; i < ChildCount; i++)
+        for (Int32 i = 0; i < ChildCount; i++)
             if (children[i].Contains(point))
                 return true;
 
@@ -296,7 +296,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (ChildCount == 0) return false;
         if (!frustum.IsBoxInFrustum(ChildBounds)) return false;
 
-        for (var i = 0; i < ChildCount; i++)
+        for (Int32 i = 0; i < ChildCount; i++)
             if (children[i].Intersects(frustum))
                 return true;
 
@@ -316,7 +316,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (ChildCount == 0) return false;
         if (!Collision.IsIntersecting(ChildBounds, other)) return false;
 
-        for (var i = 0; i < ChildCount; i++)
+        for (Int32 i = 0; i < ChildCount; i++)
             if (children[i].Intersects(other))
                 return true;
 
@@ -339,7 +339,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (ChildCount == 0) return false;
         if (!Collision.IsIntersecting(ChildBounds, other, ref dx, ref dy, ref dz)) return false;
 
-        for (var i = 0; i < ChildCount; i++)
+        for (Int32 i = 0; i < ChildCount; i++)
             if (children[i].Intersects(other, ref x, ref y, ref z))
                 return true;
 
@@ -357,7 +357,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (ChildCount == 0) return false;
         if (!Collision.IsIntersecting(ChildBounds, ray)) return false;
 
-        for (var i = 0; i < ChildCount; i++)
+        for (Int32 i = 0; i < ChildCount; i++)
             if (children[i].Intersects(ray))
                 return true;
 
@@ -372,7 +372,7 @@ public sealed class BoundingVolume : IEquatable<BoundingVolume>
         if (!Box.Equals(other?.Box)) return false;
         if (ChildCount != other.ChildCount) return false;
 
-        for (var i = 0; i < ChildCount; i++)
+        for (Int32 i = 0; i < ChildCount; i++)
             if (!children[i].Equals(other.children[i]))
                 return false;
 

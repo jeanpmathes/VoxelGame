@@ -52,7 +52,7 @@ public sealed class WorldElement : VerticalLayout
     /// </param>
     internal WorldElement(Table table, IWorldProvider.IWorldInfo world, IWorldProvider worldProvider, Context context, WorldSelection menu) : base(table.AddRow())
     {
-        var row = (Parent as TableRow)!;
+        TableRow row = (Parent as TableRow)!;
 
         row.SetCellContents(column: 0, this);
 

@@ -58,7 +58,7 @@ public partial class Bed : BlockBehavior, IBehavior<Bed, BlockBehavior, Block>
         Boolean isBase = composite.GetPartPosition(state).Z == 0;
         Orientation orientation = rotatable.GetOrientation(state);
 
-        var legs = new BoundingVolume[2];
+        BoundingVolume[] legs = new BoundingVolume[2];
 
         switch (isBase ? orientation : orientation.Opposite())
         {

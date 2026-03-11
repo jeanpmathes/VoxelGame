@@ -60,7 +60,7 @@ public class BlockFactory
     /// <param name="meshable">The type of meshing this block uses.</param>
     public Block Create(CID contentID, String name, Meshable meshable)
     {
-        var idCollision = false;
+        Boolean idCollision = false;
 
         if (blocksByContentID.TryGetValue(contentID, out Block? collidedBlock))
         {
@@ -85,7 +85,7 @@ public class BlockFactory
 
     private Block CreateBlock(CID contentID, String name, Meshable meshable)
     {
-        var id = (UInt32) blocksByBlockID.Count;
+        UInt32 id = (UInt32) blocksByBlockID.Count;
 
         return meshable switch
         {

@@ -56,16 +56,16 @@ internal sealed class EnumerationSetting<T> : Setting where T : Enum
     {
         ComboBox combo = new(control);
 
-        for (var index = 0; index < values.Length; index++)
+        for (Int32 index = 0; index < values.Length; index++)
         {
             (T value, String label) = values[index];
             items[index] = combo.AddItem(label, "", value);
         }
 
         T currentValue = get();
-        var selectedIndex = 0;
+        Int32 selectedIndex = 0;
 
-        for (var index = 0; index < values.Length; index++)
+        for (Int32 index = 0; index < values.Length; index++)
         {
             (T value, _) = values[index];
 

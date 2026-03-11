@@ -59,8 +59,8 @@ public sealed class DecorationContext(Generator generator, ChunkPosition hint, I
 
         Array2D<ColumnSampleStore?> columns = new(chunkSize);
 
-        for (var x = 0; x < chunkSize; x++)
-        for (var z = 0; z < chunkSize; z++)
+        for (Int32 x = 0; x < chunkSize; x++)
+        for (Int32 z = 0; z < chunkSize; z++)
             columns[x, z] = generator.GetColumns(anchor.Offset(x, yOffset: 0, z));
 
         return (columns, anchor);

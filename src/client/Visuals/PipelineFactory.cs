@@ -59,7 +59,7 @@ internal sealed class PipelineFactory
     internal (RasterPipeline, ShaderBuffer<T>)? LoadPipelineWithBuffer<T>(String name, ShaderPresets.IPreset preset) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
         FileInfo path = Engine.ShaderDirectory.GetFile($"{name}.hlsl");
-        var ok = true;
+        Boolean ok = true;
 
         (RasterPipeline, ShaderBuffer<T>)? result = client.CreateRasterPipeline<T>(
             RasterPipelineDescription.Create(path, preset),
@@ -85,7 +85,7 @@ internal sealed class PipelineFactory
     internal RasterPipeline? LoadPipeline(String name, ShaderPresets.IPreset preset)
     {
         FileInfo path = Engine.ShaderDirectory.GetFile($"{name}.hlsl");
-        var ok = true;
+        Boolean ok = true;
 
         RasterPipeline? pipeline = client.CreateRasterPipeline(
             RasterPipelineDescription.Create(path, preset),

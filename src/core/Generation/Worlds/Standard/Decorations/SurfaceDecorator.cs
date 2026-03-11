@@ -61,7 +61,7 @@ public class SurfaceDecorator : Decorator
         if (Math.Abs(context.Depth) > 3)
             return false;
 
-        for (var y = 0; y < height; y++)
+        for (Int32 y = 0; y < height; y++)
         for (Int32 x = -width / 2; x <= width / 2; x++)
         for (Int32 z = -width / 2; z <= width / 2; z++)
         {

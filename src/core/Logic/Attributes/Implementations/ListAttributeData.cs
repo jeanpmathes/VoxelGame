@@ -39,7 +39,7 @@ internal class ListAttributeData<TElement>(IEnumerable<TElement> elements, Func<
     [PerformanceSensitive]
     public override Int32 Provide(TElement value)
     {
-        for (var index = 0; index < elements.Length; index++)
+        for (Int32 index = 0; index < elements.Length; index++)
             if (EqualityComparer<TElement>.Default.Equals(elements[index], value))
                 return index;
 

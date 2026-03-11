@@ -36,8 +36,8 @@ public class Blur() : Modifier("blur")
     {
         Image blurred = new(image.Width, image.Height);
 
-        for (var x = 0; x < image.Width; x++)
-        for (var y = 0; y < image.Height; y++)
+        for (Int32 x = 0; x < image.Width; x++)
+        for (Int32 y = 0; y < image.Height; y++)
         {
             Color32 pixel = GetBlurredPixel(image, x, y);
 
@@ -54,7 +54,7 @@ public class Blur() : Modifier("blur")
         Byte alpha = image.GetPixel(x, y).A;
 
         Vector4i sum = Vector4i.Zero;
-        var count = 0;
+        Int32 count = 0;
 
         for (Int32 i = -size; i <= size; i++)
         for (Int32 j = -size; j <= size; j++)

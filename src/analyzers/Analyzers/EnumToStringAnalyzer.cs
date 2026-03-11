@@ -94,7 +94,7 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
         if (receiverType is ITypeParameterSymbol)
             return;
 
-        var diagnostic = Diagnostic.Create(toStringRule, invocationSyntax.GetLocation());
+        Diagnostic diagnostic = Diagnostic.Create(toStringRule, invocationSyntax.GetLocation());
         context.ReportDiagnostic(diagnostic);
     }
 
@@ -109,7 +109,7 @@ public class EnumToStringAnalyzer : DiagnosticAnalyzer
         if (typeSymbol is null || typeSymbol.TypeKind != TypeKind.Enum)
             return;
 
-        var diagnostic = Diagnostic.Create(interpolationRule, interpolationSyntax.GetLocation());
+        Diagnostic diagnostic = Diagnostic.Create(interpolationRule, interpolationSyntax.GetLocation());
         context.ReportDiagnostic(diagnostic);
     }
 

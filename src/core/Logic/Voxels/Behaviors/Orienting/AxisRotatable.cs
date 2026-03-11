@@ -36,7 +36,7 @@ public partial class AxisRotatable : BlockBehavior, IBehavior<AxisRotatable, Blo
     [Constructible]
     private AxisRotatable(Block subject) : base(subject)
     {
-        var rotatable = subject.Require<Rotatable>();
+        Rotatable rotatable = subject.Require<Rotatable>();
         rotatable.Axis.ContributeFunction(GetAxis);
         rotatable.Turns.ContributeFunction(GetTurns);
 

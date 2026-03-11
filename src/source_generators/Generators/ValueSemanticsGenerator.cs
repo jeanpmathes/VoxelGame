@@ -116,7 +116,7 @@ public sealed class ValueSemanticsGenerator : IIncrementalGenerator
 
     private static String GenerateSource(StructModel model)
     {
-        var sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder();
 
         sb.AppendPreamble<ValueSemanticsGenerator>()
             .AppendNamespace(model.Namespace);
@@ -179,7 +179,7 @@ public sealed class ValueSemanticsGenerator : IIncrementalGenerator
         StringBuilder packTupleType = new("(");
         StringBuilder packTupleValues = new("(");
 
-        var first = true;
+        Boolean first = true;
 
         foreach (FieldModel field in model.Fields)
         {

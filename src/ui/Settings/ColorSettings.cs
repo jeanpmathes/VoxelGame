@@ -91,7 +91,7 @@ internal sealed class ColorSettings : Setting
 
     private static Color ConvertColor(ColorS color)
     {
-        var color32 = color.ToColor32();
+        Color32 color32 = color.ToColor32();
 
         return new Color(color32.A, color32.R, color32.G, color32.B);
     }

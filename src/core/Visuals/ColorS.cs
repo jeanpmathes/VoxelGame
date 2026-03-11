@@ -313,7 +313,7 @@ public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f)
     /// <param name="f">The mixing factor for linear interpolation.</param>
     public static ColorS Mix(ColorS a, ColorS b, Double f = 0.5)
     {
-        var factor = (Single) f;
+        Single factor = (Single) f;
 
         return FromVector4(a.ToVector4() * (1 - factor) + b.ToVector4() * factor);
     }

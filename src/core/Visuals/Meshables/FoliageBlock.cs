@@ -77,7 +77,7 @@ public class FoliageBlock : Block
     {
         Mesh.Quad[] quads = mesh.Quads;
 
-        for (var index = 0; index < mesh.QuadCount; index++)
+        for (Int32 index = 0; index < mesh.QuadCount; index++)
         {
             ref Mesh.Quad quad = ref quads[index];
 
@@ -98,7 +98,7 @@ public class FoliageBlock : Block
         ref readonly Foliage.MeshData mesh = ref meshData[state.Index];
         Mesh.Quad[] quads = mesh.Quads;
 
-        for (var index = 0; index < mesh.QuadCount; index++)
+        for (Int32 index = 0; index < mesh.QuadCount; index++)
         {
             ref readonly Mesh.Quad quad = ref quads[index];
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = quad.data;

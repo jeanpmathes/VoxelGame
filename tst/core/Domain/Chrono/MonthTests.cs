@@ -53,10 +53,10 @@ public class MonthTests
     {
         foreach (Month month in Enum.GetValues<Month>())
         {
-            var current = (Int32) month;
+            Int32 current = (Int32) month;
             Int32 expectedValue = (current + 1) % Calendar.MonthsPerYear;
 
-            var expected = (Month) expectedValue;
+            Month expected = (Month) expectedValue;
             Assert.Equal(expected, month.Next());
         }
     }
@@ -66,10 +66,10 @@ public class MonthTests
     {
         foreach (Month month in Enum.GetValues<Month>())
         {
-            var current = (Int32) month;
+            Int32 current = (Int32) month;
             Int32 expectedValue = (current + Calendar.MonthsPerYear - 1) % Calendar.MonthsPerYear;
 
-            var expected = (Month) expectedValue;
+            Month expected = (Month) expectedValue;
             Assert.Equal(expected, month.Previous());
         }
     }
@@ -91,7 +91,7 @@ public class MonthTests
         {
             Month month = start;
 
-            for (var index = 0; index < Calendar.MonthsPerYear; index++)
+            for (Int32 index = 0; index < Calendar.MonthsPerYear; index++)
             {
                 month = month.Next();
             }

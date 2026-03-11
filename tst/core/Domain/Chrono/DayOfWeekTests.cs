@@ -43,10 +43,10 @@ public class DayOfWeekTests
     {
         foreach (DayOfWeek dayOfWeek in Enum.GetValues<DayOfWeek>())
         {
-            var current = (Int32) dayOfWeek;
+            Int32 current = (Int32) dayOfWeek;
             Int32 expectedValue = (current + 1) % Calendar.DaysPerWeek;
 
-            var expected = (DayOfWeek) expectedValue;
+            DayOfWeek expected = (DayOfWeek) expectedValue;
             Assert.Equal(expected, dayOfWeek.Next());
         }
     }
@@ -56,10 +56,10 @@ public class DayOfWeekTests
     {
         foreach (DayOfWeek dayOfWeek in Enum.GetValues<DayOfWeek>())
         {
-            var current = (Int32) dayOfWeek;
+            Int32 current = (Int32) dayOfWeek;
             Int32 expectedValue = (current + Calendar.DaysPerWeek - 1) % Calendar.DaysPerWeek;
 
-            var expected = (DayOfWeek) expectedValue;
+            DayOfWeek expected = (DayOfWeek) expectedValue;
             Assert.Equal(expected, dayOfWeek.Previous());
         }
     }
@@ -81,7 +81,7 @@ public class DayOfWeekTests
         {
             DayOfWeek dayOfWeek = start;
 
-            for (var index = 0; index < Calendar.DaysPerWeek; index++)
+            for (Int32 index = 0; index < Calendar.DaysPerWeek; index++)
             {
                 dayOfWeek = dayOfWeek.Next();
             }

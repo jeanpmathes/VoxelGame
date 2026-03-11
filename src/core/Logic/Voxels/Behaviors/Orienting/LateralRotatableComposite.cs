@@ -84,9 +84,9 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         Orientation orientation = rotatable.GetOrientation(state);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
             Vector3i current = position + Rotate(part, orientation);
@@ -110,9 +110,9 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
         Orientation orientation = rotatable.GetOrientation(state);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
             Vector3i position = message.Position + Rotate(part, orientation);
@@ -134,9 +134,9 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
         Orientation orientation = rotatable.GetOrientation(message.State);
         Vector3i root = message.Position - Rotate(currentPart, orientation);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
             Vector3i position = root + Rotate(part, orientation);
@@ -198,9 +198,9 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     {
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
 
@@ -227,9 +227,9 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
     {
         Vector3i size = Vector3i.ComponentMax(oldSize, newSize);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
 
@@ -251,9 +251,9 @@ public partial class LateralRotatableComposite : BlockBehavior, IBehavior<Latera
 
     private void SetStateOnAllParts(World world, Vector3i size, Vector3i root, Vector3i exclude, Orientation orientation, State state)
     {
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i part = (x, y, z);
 

@@ -87,13 +87,13 @@ public sealed class TextureArray : IEnumerable<Texture>
         Debug.Assert(images.Length % mips == 0);
         Debug.Assert(images.Length == mips * count);
 
-        var data = new Texture[count];
-        var colors = new ColorS[count];
+        Texture[] data = new Texture[count];
+        ColorS[] colors = new ColorS[count];
 
         // ReSharper disable once RedundantAssignment
         Vector2i size = images[index: 0].Size;
 
-        for (var index = 0; index < count; index++)
+        for (Int32 index = 0; index < count; index++)
         {
             Int32 begin = index * mips;
             Int32 end = begin + mips;

@@ -87,7 +87,7 @@ public static partial class ManualBuilder
 
                     foreach (PropertyInfo contentInfo in Reflections.GetPropertiesOfType<IContent>(category.Category))
                     {
-                        var content = (IContent) contentInfo.GetValue(category.Category)!;
+                        IContent content = (IContent) contentInfo.GetValue(category.Category)!;
                         String contentDescription = documentation.GetPropertySummary(contentInfo);
 
                         switch (content)
@@ -107,7 +107,7 @@ public static partial class ManualBuilder
 
                                         foreach (PropertyInfo blockInfo in Reflections.GetPropertiesOfType<Block>(convention))
                                         {
-                                            var block = blockInfo.GetValue(content) as Block;
+                                            Block? block = blockInfo.GetValue(content) as Block;
                                             String blockDescription = documentation.GetPropertySummary(blockInfo);
 
                                             if (block == null)
@@ -184,7 +184,7 @@ public static partial class ManualBuilder
                             if (list.Count > 0)
                                 row.Cell(cell =>
                                 {
-                                    var first = true;
+                                    Boolean first = true;
 
                                     foreach (String attribute in list)
                                     {

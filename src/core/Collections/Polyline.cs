@@ -67,7 +67,7 @@ public class Polyline
 
         if (x < Points[index: 0].X) return Left(x);
 
-        for (var i = 0; i < Points.Count - 1; i++)
+        for (Int32 i = 0; i < Points.Count - 1; i++)
         {
             Vector2d a = Points[i];
             Vector2d b = Points[i + 1];

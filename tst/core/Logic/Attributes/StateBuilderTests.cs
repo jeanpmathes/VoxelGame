@@ -117,8 +117,8 @@ public class StateBuilderTests
     public void StateBuilder_ListAttribute_ShouldCreateStatesEqualToListLength(UInt32 length)
     {
         StateBuilder builder = CreateStateBuilder();
-        var elements = new TestStruct[length];
-        for (var i = 0; i < length; i++) elements[i] = new TestStruct($"v{i}");
+        TestStruct[] elements = new TestStruct[length];
+        for (Int32 i = 0; i < length; i++) elements[i] = new TestStruct($"v{i}");
 
         _ = builder.Define("list").List(elements).Attribute();
 

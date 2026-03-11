@@ -73,8 +73,8 @@ public static class Set
 
         public Boolean IsProperSubsetOf(IEnumerable<T> other)
         {
-            var found = false;
-            var count = 0;
+            Boolean found = false;
+            Int32 count = 0;
 
             foreach (T entry in other)
             {
@@ -111,7 +111,7 @@ public static class Set
 
         public Boolean SetEquals(IEnumerable<T> other)
         {
-            var count = 0;
+            Int32 count = 0;
 
             foreach (T entry in other)
             {

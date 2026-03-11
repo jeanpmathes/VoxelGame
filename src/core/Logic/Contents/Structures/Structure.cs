@@ -70,9 +70,9 @@ public abstract class Structure
 
         Vector3i orientedExtents = GetOrientedExtents(orientation);
 
-        for (var x = 0; x < orientedExtents.X; x++)
-        for (var y = 0; y < orientedExtents.Y; y++)
-        for (var z = 0; z < orientedExtents.Z; z++)
+        for (Int32 x = 0; x < orientedExtents.X; x++)
+        for (Int32 y = 0; y < orientedExtents.Y; y++)
+        for (Int32 z = 0; z < orientedExtents.Z; z++)
             PlaceContent(randomness, grid, position, orientation, (x, y, z));
     }
 
@@ -150,7 +150,7 @@ public abstract class Structure
     /// </summary>
     protected Boolean IsInExtents(Vector3i offset)
     {
-        var isInExtents = true;
+        Boolean isInExtents = true;
 
         isInExtents &= offset.X >= 0 && offset.X < Extents.X;
         isInExtents &= offset.Y >= 0 && offset.Y < Extents.Y;

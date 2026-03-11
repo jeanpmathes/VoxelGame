@@ -39,7 +39,7 @@ namespace VoxelGame.UI.Controls;
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
 internal sealed class SettingsMenu : StandardMenu
 {
-    private readonly List<ControlBase> categories = new();
+    private readonly List<ControlBase> categories = [];
     private readonly List<SettingsProvider> settingsProviders;
     private Int32 currentCategoryIndex = -1;
 
@@ -54,7 +54,7 @@ internal sealed class SettingsMenu : StandardMenu
 
     protected override void CreateMenu(ControlBase menu)
     {
-        for (var i = 0; i < settingsProviders.Count; i++)
+        for (Int32 i = 0; i < settingsProviders.Count; i++)
         {
             Button category = new(menu)
             {

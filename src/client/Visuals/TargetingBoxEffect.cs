@@ -75,14 +75,14 @@ public sealed class TargetingBoxEffect : IDisposable
 
         if (boundingVolume.ChildCount == 0) return;
 
-        for (var i = 0; i < boundingVolume.ChildCount; i++)
+        for (Int32 i = 0; i < boundingVolume.ChildCount; i++)
             BuildMeshData(boundingVolume[i], vertices, isDarkBackground);
     }
 
     private static void BuildMeshDataForTopLevelBox(BoundingVolume boundingVolume, PooledList<EffectVertex> vertices, Boolean isDarkBackground)
     {
-        var min = (Vector3) boundingVolume.Min;
-        var max = (Vector3) boundingVolume.Max;
+        Vector3 min = (Vector3) boundingVolume.Min;
+        Vector3 max = (Vector3) boundingVolume.Max;
 
         foreach (Side side in Side.All.Sides())
             AddSide(vertices, side, min, max, isDarkBackground);

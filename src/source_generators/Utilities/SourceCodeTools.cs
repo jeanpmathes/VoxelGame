@@ -52,8 +52,8 @@ public static class SourceCodeTools
     /// <returns>The modified string builder.</returns>
     public static StringBuilder AppendNestedClass(this StringBuilder sb, ContainingType? containingType, Action<StringBuilder, String> builder)
     {
-        var nestedLevel = 0;
-        var indent = "";
+        Int32 nestedLevel = 0;
+        String indent = "";
 
         while (containingType is not null)
         {

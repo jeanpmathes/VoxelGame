@@ -292,7 +292,7 @@ public static class SideExtensions
     {
         if (side is Voxels.Sides.None or Voxels.Sides.All) return side;
 
-        var result = Voxels.Sides.None;
+        Sides result = Voxels.Sides.None;
 
         if (side.HasFlag(Voxels.Sides.Front)) result |= Voxels.Sides.Back;
         if (side.HasFlag(Voxels.Sides.Back)) result |= Voxels.Sides.Front;
@@ -359,7 +359,7 @@ public static class SideExtensions
     /// <returns>The side, or <c>Side.All</c> if the direction is not a valid side direction.</returns>
     public static Side ToSide(this Vector3i direction)
     {
-        for (var i = 0; i < directions.Length; i++)
+        for (Int32 i = 0; i < directions.Length; i++)
             if (directions[i] == direction)
                 return (Side) (i - 1);
 

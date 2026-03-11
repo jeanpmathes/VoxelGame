@@ -164,7 +164,7 @@ public record Prefix(String Symbol, Double Factor)
 
         if (MathTools.NearlyZero(value)) return Unprefixed;
 
-        var mask = (UInt32) allowed;
+        UInt32 mask = (UInt32) allowed;
 
         while (mask != 0)
         {

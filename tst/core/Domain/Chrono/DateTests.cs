@@ -95,7 +95,7 @@ public class DateTests
     [Fact]
     public void Date_FromTotalDaysSinceStart_ShouldDecomposeCorrectly()
     {
-        for (var day = 0; day < Calendar.DaysPerYear * 2; day++)
+        for (Int32 day = 0; day < Calendar.DaysPerYear * 2; day++)
         {
             Date date = Date.FromTotalDaysSinceStart(day);
 
@@ -119,10 +119,10 @@ public class DateTests
         Assert.Equal("0012/04", date.ToString("YM"));
         Assert.Equal("0012/04/03", date.ToString("YMD"));
 
-        var s = date.ToString("S");
+        String s = date.ToString("S");
         Assert.Contains(" ", s, StringComparison.Ordinal);
 
-        var l = date.ToString("L");
+        String l = date.ToString("L");
         Assert.Contains(",", l, StringComparison.Ordinal);
     }
 

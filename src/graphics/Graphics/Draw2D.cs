@@ -144,10 +144,10 @@ public readonly unsafe struct Draw2D
     /// <param name="textures">The textures to initialize.</param>
     public void InitializeTextures(Span<Texture> textures)
     {
-        var textureCount = (UInt32) textures.Length;
+        UInt32 textureCount = (UInt32) textures.Length;
 
-        var pointers = new IntPtr[textureCount];
-        for (var i = 0; i < textureCount; i++) pointers[i] = textures[i].Self;
+        IntPtr[] pointers = new IntPtr[textureCount];
+        for (Int32 i = 0; i < textureCount; i++) pointers[i] = textures[i].Self;
 
         fixed (IntPtr* texturesPointer = pointers)
         {
@@ -162,7 +162,7 @@ public readonly unsafe struct Draw2D
     /// <param name="vertices">The vertices to upload.</param>
     public void UploadBuffer(Span<Vertex> vertices)
     {
-        var vertexCount = (UInt32) vertices.Length;
+        UInt32 vertexCount = (UInt32) vertices.Length;
 
         fixed (Vertex* verticesPointer = vertices)
         {

@@ -67,9 +67,9 @@ public struct Date : IEquatable<Date>, IComparable<Date>, IValue
         Debug.Assert(day is >= 1 and <= Calendar.DaysPerMonth);
         Debug.Assert(year > 0);
 
-        var storedDay = (UInt32) (day - 1);
-        var storedMonth = (UInt32) (month.ToNumber() - 1);
-        var storedYear = (UInt32) (year - 1);
+        UInt32 storedDay = (UInt32) (day - 1);
+        UInt32 storedMonth = (UInt32) (month.ToNumber() - 1);
+        UInt32 storedYear = (UInt32) (year - 1);
 
         data = storedDay << ShiftForDay | storedMonth << ShiftForMonth | storedYear << ShiftForYear;
     }

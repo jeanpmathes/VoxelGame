@@ -225,7 +225,7 @@ public class Section : IDisposable
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static Boolean IsInBounds(Int32 x, Int32 y, Int32 z)
     {
-        var inBounds = true;
+        Boolean inBounds = true;
 
         inBounds &= x is >= 0 and < Size;
         inBounds &= y is >= 0 and < Size;

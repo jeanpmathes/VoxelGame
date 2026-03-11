@@ -238,7 +238,7 @@ public static class Meshing
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void SetFlag(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, QuadFlag flag, Boolean value)
     {
-        var shift = (Int32) flag;
+        Int32 shift = (Int32) flag;
 
         if (value) data.b |= 1u << shift;
         else data.b &= ~(1u << shift);

@@ -34,7 +34,7 @@ public class Masking<TValue, TContext> : IContributionStrategy<TValue, TContext>
     /// <inheritdoc />
     public TValue CombineContributions(TValue original, TContext context, Span<IContributor<TValue, TContext>> contributors)
     {
-        var result = Convert.ToInt64(original, CultureInfo.InvariantCulture);
+        Int64 result = Convert.ToInt64(original, CultureInfo.InvariantCulture);
 
         foreach (IContributor<TValue, TContext> contributor in contributors)
         {

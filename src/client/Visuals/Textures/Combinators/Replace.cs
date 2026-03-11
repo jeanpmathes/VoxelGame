@@ -17,6 +17,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using JetBrains.Annotations;
 using VoxelGame.Core.Visuals;
 
@@ -32,8 +33,8 @@ public class Replace() : BasicCombinator("replace")
     /// <inheritdoc />
     protected override void Apply(Image back, Image front)
     {
-        for (var x = 0; x < back.Width; x++)
-        for (var y = 0; y < back.Height; y++)
+        for (Int32 x = 0; x < back.Width; x++)
+        for (Int32 y = 0; y < back.Height; y++)
         {
             Color32 frontColor = front.GetPixel(x, y);
 

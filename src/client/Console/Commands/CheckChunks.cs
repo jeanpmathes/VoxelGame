@@ -41,7 +41,7 @@ public class CheckChunks : Command
     /// <exclude />
     public void Invoke()
     {
-        var found = false;
+        Boolean found = false;
 
         foreach (ChunkPosition position in RequestAlgorithm.GetPositionsInManhattanRange(Context.Player.GetComponentOrThrow<ChunkLoader>().Chunk, RequestLevel.Range))
         {

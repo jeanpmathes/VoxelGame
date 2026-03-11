@@ -137,7 +137,7 @@ public sealed class ConstructibleUsageAnalyzer : DiagnosticAnalyzer
 
     private static void Report(SyntaxNodeAnalysisContext context, Location location, ISymbol constructorSymbol, String message)
     {
-        var diagnostic = Diagnostic.Create(rule, location, constructorSymbol.ToDisplayString(), message);
+        Diagnostic diagnostic = Diagnostic.Create(rule, location, constructorSymbol.ToDisplayString(), message);
         context.ReportDiagnostic(diagnostic);
     }
 

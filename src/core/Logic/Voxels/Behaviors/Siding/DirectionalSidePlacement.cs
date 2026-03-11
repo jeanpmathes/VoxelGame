@@ -45,7 +45,7 @@ public partial class DirectionalSidePlacement : BlockBehavior, IBehavior<Directi
     {
         (World _, Vector3i _, Actor? actor) = context;
 
-        var orientation = actor?.Head?.Forward.ToOrientation();
+        Orientation? orientation = actor?.Head?.Forward.ToOrientation();
 
         if (orientation == null) return original;
 

@@ -182,7 +182,7 @@ public class Image
         {
             copy = new Int32[size.X * size.Y];
 
-            for (var y = 0; y < size.Y; y++)
+            for (Int32 y = 0; y < size.Y; y++)
             {
                 Span<Int32> src = data.AsSpan().Slice(area.Value.Min.X + (area.Value.Min.Y + y) * Width, size.X);
                 Span<Int32> dst = copy.AsSpan().Slice(y * size.X);
@@ -235,8 +235,8 @@ public class Image
         Color32 magenta = Color32.FromRGBA(alpha: 64, red: 255, green: 0, blue: 255);
         Color32 black = Color32.FromRGBA(alpha: 64, red: 0, green: 0, blue: 0);
 
-        for (var x = 0; x < fallback.Width; x++)
-        for (var y = 0; y < fallback.Height; y++)
+        for (Int32 x = 0; x < fallback.Width; x++)
+        for (Int32 y = 0; y < fallback.Height; y++)
             fallback.SetPixel(x, y, (x % 2 == 0) ^ (y % 2 == 0) ? magenta : black);
 
         return fallback;
@@ -286,10 +286,10 @@ public class Image
         Debug.Assert(Width <= 32 && Height <= 32);
 
         Vector4i sum = Vector4i.Zero;
-        var count = 0;
+        Int32 count = 0;
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Height; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Height; y++)
         {
             Color32 pixel = GetPixel(x, y);
 
@@ -312,8 +312,8 @@ public class Image
     {
         Color32 average = CalculateAverage() with {A = 0};
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Height; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Height; y++)
         {
             if (GetPixel(x, y).A != 0) continue;
 
@@ -337,8 +337,8 @@ public class Image
 
         Image translated = new(Width, Height, StorageFormat);
 
-        for (var x = 0; x < Width; x++)
-        for (var y = 0; y < Height; y++)
+        for (Int32 x = 0; x < Width; x++)
+        for (Int32 y = 0; y < Height; y++)
         {
             Int32 tx = MathTools.Mod(x + dx, Width);
             Int32 ty = MathTools.Mod(y + dy, Height);
@@ -374,7 +374,7 @@ public class Image
     {
         Image current = this;
 
-        for (var level = 1; level < levels; level++)
+        for (Int32 level = 1; level < levels; level++)
         {
             current = algorithm.CreateNextLevel(current);
 
@@ -423,7 +423,7 @@ public class Image
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Int32 Reformat(Int32 original, Format originalFormat, Format targetFormat)
         {
-            var result = 0;
+            Int32 result = 0;
 
             result |= ((original >> originalFormat.R) & Color32.ChannelMask) << targetFormat.R;
             result |= ((original >> originalFormat.G) & Color32.ChannelMask) << targetFormat.G;
@@ -445,7 +445,7 @@ public class Image
         public static void Reformat(Span<Int32> dst, Format dstFormat, Span<Int32> src, Format srcFormat, Int32 length)
         {
             if (dstFormat != srcFormat)
-                for (var i = 0; i < length; i++)
+                for (Int32 i = 0; i < length; i++)
                     dst[i] = Reformat(src[i], srcFormat, dstFormat);
             else if (dst != src)
                 src.CopyTo(dst);
@@ -509,8 +509,8 @@ public class Image
 
             protected override void CreateNextLevel(Image previous, Image next)
             {
-                for (var w = 0; w < next.Width; w++)
-                for (var h = 0; h < next.Height; h++)
+                for (Int32 w = 0; w < next.Width; w++)
+                for (Int32 h = 0; h < next.Height; h++)
                 {
                     Color32 c1 = previous.GetPixel(w * 2, h * 2);
                     Color32 c2 = previous.GetPixel(w * 2 + 1, h * 2);
@@ -527,7 +527,7 @@ public class Image
             private static Color32 CalculateAverageColor(Color32 c1, Color32 c2, Color32 c3, Color32 c4, Vector4i factors)
             {
                 Vector3i totalRGB = Vector3i.Zero;
-                var totalAlpha = 0;
+                Int32 totalAlpha = 0;
 
                 Accumulate(c1, factors.X);
                 Accumulate(c2, factors.Y);

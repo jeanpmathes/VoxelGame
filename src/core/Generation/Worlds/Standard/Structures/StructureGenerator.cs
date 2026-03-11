@@ -147,11 +147,11 @@ public sealed class StructureGenerator : IDisposable
 
         random = data[Neighborhood.Center];
 
-        var maxima = true;
+        Boolean maxima = true;
 
-        for (var x = 0; x < 3; x++)
-        for (var y = 0; y < 3; y++)
-        for (var z = 0; z < 3; z++)
+        for (Int32 x = 0; x < 3; x++)
+        for (Int32 y = 0; y < 3; y++)
+        for (Int32 z = 0; z < 3; z++)
         {
             if ((x, y, z) == Neighborhood.Center) continue;
 

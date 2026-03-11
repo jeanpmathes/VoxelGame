@@ -167,7 +167,7 @@ public class DateAndTimeTests
 
         DateAndTime dateAndTime = new(date, time);
 
-        var text = dateAndTime.ToString();
+        String text = dateAndTime.ToString();
 
         Assert.Contains(date.ToString(), text, StringComparison.Ordinal);
         Assert.Contains(time.ToString(), text, StringComparison.Ordinal);

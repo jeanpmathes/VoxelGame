@@ -62,9 +62,9 @@ public class CompositeColliderBuilder
     {
         Vector3i rootPosition = position - composite.GetPartPosition(state);
 
-        for (var x = 0; x < size.X; x++)
-        for (var y = 0; y < size.Y; y++)
-        for (var z = 0; z < size.Z; z++)
+        for (Int32 x = 0; x < size.X; x++)
+        for (Int32 y = 0; y < size.Y; y++)
+        for (Int32 z = 0; z < size.Z; z++)
         {
             Vector3i currentPart = (x, y, z);
 

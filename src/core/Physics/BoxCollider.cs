@@ -101,7 +101,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
 
             if (volume.ChildCount == 0) return false;
 
-            for (var i = 0; i < volume.ChildCount; i++)
+            for (Int32 i = 0; i < volume.ChildCount; i++)
                 if (Check(volume[i]))
                     return true;
 
@@ -127,7 +127,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
 
             if (volume.ChildCount == 0) return false;
 
-            for (var i = 0; i < volume.ChildCount; i++)
+            for (Int32 i = 0; i < volume.ChildCount; i++)
                 if (Check(volume[i], ref lx, ref ly, ref lz))
                     return true;
 
@@ -142,7 +142,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
         HashSet<(Vector3i position, Block block)> blockIntersections,
         HashSet<(Vector3i position, Fluid fluid, FluidLevel level)> fluidIntersections)
     {
-        var intersects = false;
+        Boolean intersects = false;
 
         xCollision = false;
         yCollision = false;
@@ -176,9 +176,9 @@ public struct BoxCollider : IEquatable<BoxCollider>
                 world,
                 position);
 
-            var newX = false;
-            var newY = false;
-            var newZ = false;
+            Boolean newX = false;
+            Boolean newY = false;
+            Boolean newZ = false;
 
             if ((currentBlock.Block.IsSolid || currentBlock.Block.IsTrigger) && Intersects(
                     blockCollider,
@@ -227,7 +227,7 @@ public struct BoxCollider : IEquatable<BoxCollider>
 
         if (Volume.ChildCount == 0) return isIntersecting;
 
-        for (var i = 0; i < Volume.ChildCount; i++)
+        for (Int32 i = 0; i < Volume.ChildCount; i++)
         {
             BoxCollider childCollider = Volume[i].GetColliderAt(Position);
 

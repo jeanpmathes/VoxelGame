@@ -125,7 +125,7 @@ public class ImageTests
     [Fact]
     public void Image_CreateFallback_ShouldHaveSpecifiedSize()
     {
-        var fallback = Image.CreateFallback(size: 13);
+        Image fallback = Image.CreateFallback(size: 13);
 
         Assert.Equal(expected: 13, fallback.Width);
         Assert.Equal(expected: 13, fallback.Height);
@@ -252,10 +252,10 @@ public class ImageTests
     {
         Image image = new(width: 4, height: 4);
 
-        var counter = 0;
+        Int32 counter = 0;
 
-        for (var y = 0; y < 4; y++)
-        for (var x = 0; x < 4; x++)
+        for (Int32 y = 0; y < 4; y++)
+        for (Int32 x = 0; x < 4; x++)
         {
             image.SetPixel(x, y, counter % 2 == 0 ? ColorS.White : ColorS.Black with {A = 0.0f});
             counter += 1;

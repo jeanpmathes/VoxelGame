@@ -80,7 +80,7 @@ public class BlockBehavior : Behavior<BlockBehavior, Block>
 
     private (Int32, State) ValidateForAllStates(Predicate<State> predicate)
     {
-        var count = 0;
+        Int32 count = 0;
         State evidence = Subject.States.Default;
 
         foreach (State state in Subject.States.AllStates)

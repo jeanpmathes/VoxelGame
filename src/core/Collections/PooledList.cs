@@ -154,7 +154,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
 
         Debug.Assert(items != null);
 
-        for (var i = 0; i < Count; i++) yield return items[i];
+        for (Int32 i = 0; i < Count; i++) yield return items[i];
     }
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -243,7 +243,7 @@ public sealed class PooledList<T> : IList<T>, IDisposable
 
         Debug.Assert(items != null);
 
-        for (var index = 0; index < Count; index++)
+        for (Int32 index = 0; index < Count; index++)
             if (Equals(items[index], item))
                 return true;
 

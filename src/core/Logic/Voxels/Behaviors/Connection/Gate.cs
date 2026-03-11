@@ -269,7 +269,7 @@ public partial class Gate : BlockBehavior, IBehavior<Gate, BlockBehavior, Block>
         Orientation orientation = rotatable.GetOrientation(message.State);
         Boolean isClosed = !message.State.Get(IsOpen);
 
-        var body = message.Actor.GetComponent<Body>();
+        Body? body = message.Actor.GetComponent<Body>();
 
         // Check if orientation has to be inverted.
         if (body != null && isClosed &&

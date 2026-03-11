@@ -200,7 +200,7 @@ public sealed partial class GeneralSettings : SettingsBase, ISettingsProvider, I
 
     private static void ApplySelectedLanguage(Properties.Settings clientSettings)
     {
-        var selectedCulture = clientSettings.Language.ToCultureInfo();
+        CultureInfo selectedCulture = clientSettings.Language.ToCultureInfo();
 
         CultureInfo.CurrentUICulture = selectedCulture;
         Core.Resources.Language.Language.Culture = selectedCulture;

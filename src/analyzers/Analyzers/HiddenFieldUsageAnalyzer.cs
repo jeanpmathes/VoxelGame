@@ -75,7 +75,7 @@ public class HiddenFieldUsageAnalyzer : DiagnosticAnalyzer
             declarator.Identifier.ValueText == fieldSymbol.Name)
             return;
 
-        var diagnostic = Diagnostic.Create(rule, identifierName.Identifier.GetLocation(), fieldSymbol.Name);
+        Diagnostic diagnostic = Diagnostic.Create(rule, identifierName.Identifier.GetLocation(), fieldSymbol.Name);
         context.ReportDiagnostic(diagnostic);
     }
 }

@@ -38,7 +38,7 @@ public class Minimum<TValue, TContext> : IContributionStrategy<TValue, TContext>
 
         TValue min = contributors[index: 0].Contribute(original, context);
 
-        for (var index = 1; index < contributors.Length; index++)
+        for (Int32 index = 1; index < contributors.Length; index++)
         {
             TValue contribution = contributors[index].Contribute(original, context);
             if (contribution < min) min = contribution;

@@ -118,7 +118,7 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
     {
         if (model is not {} constructorModel) return;
 
-        var constructorMethod = ConstructorMethod.Create(constructorModel.Parameters);
+        ConstructorMethod constructorMethod = ConstructorMethod.Create(constructorModel.Parameters);
 
         String result = GenerateSource(constructorModel, constructorMethod);
 
@@ -199,14 +199,14 @@ public sealed class ConstructibleGenerator : IIncrementalGenerator
 
                 default:
                 {
-                    var tupleType = $"({String.Join(", ", parameterTypes.Skip(count: 1))})";
+                    String tupleType = $"({String.Join(", ", parameterTypes.Skip(count: 1))})";
 
                     parameterList = $"{parameterTypes[index: 0]} input1, {tupleType} input2";
 
                     ImmutableArray<String>.Builder builder = ImmutableArray.CreateBuilder<String>(parameterTypes.Length);
                     builder.Add("input1");
 
-                    for (var i = 1; i < parameterTypes.Length; i++)
+                    for (Int32 i = 1; i < parameterTypes.Length; i++)
                         builder.Add($"input2.Item{i}");
 
                     argumentList = String.Join(", ", builder.ToImmutable());

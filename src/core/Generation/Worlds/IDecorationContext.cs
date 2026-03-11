@@ -140,7 +140,7 @@ public interface IDecorationContext : IDisposable
 
         chunk.AddDecorationLevel(DecorationLevels.Center);
 
-        var neighbors = new Neighborhood<Section>();
+        Neighborhood<Section> neighbors = new Neighborhood<Section>();
 
         foreach ((Int32 x, Int32 y, Int32 z) in centerSectionOffsets)
         {
@@ -185,7 +185,7 @@ public interface IDecorationContext : IDisposable
 
     private static Neighborhood<Chunk>? FindAllNeighborsIfAllAvailable(Chunk chunk)
     {
-        var available = new Neighborhood<Chunk>();
+        Neighborhood<Chunk> available = new Neighborhood<Chunk>();
 
         foreach ((Int32 x, Int32 y, Int32 z) in Neighborhood.Indices)
             if ((x, y, z) == Neighborhood.Center)
@@ -294,7 +294,7 @@ public interface IDecorationContext : IDisposable
 
     private static Boolean? IsCornerDecoratedNullable(Vector3i corner, Array3D<Chunk?> chunks)
     {
-        var decorated = true;
+        Boolean decorated = true;
 
         foreach ((Vector3i position, DecorationLevels flag) in GetCornerPositions(corner))
         {

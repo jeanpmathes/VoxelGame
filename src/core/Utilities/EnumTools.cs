@@ -105,21 +105,21 @@ public static class EnumTools
     {
         if (Unsafe.SizeOf<TEnum>() == sizeof(UInt32))
         {
-            var v32 = (UInt32) v64;
+            UInt32 v32 = (UInt32) v64;
 
             return Unsafe.As<UInt32, TEnum>(ref v32);
         }
 
         if (Unsafe.SizeOf<TEnum>() == sizeof(Byte))
         {
-            var v8 = (Byte) v64;
+            Byte v8 = (Byte) v64;
 
             return Unsafe.As<Byte, TEnum>(ref v8);
         }
 
         if (Unsafe.SizeOf<TEnum>() == sizeof(UInt16))
         {
-            var v16 = (UInt16) v64;
+            UInt16 v16 = (UInt16) v64;
 
             return Unsafe.As<UInt16, TEnum>(ref v16);
         }

@@ -37,7 +37,7 @@ public static class Collision
     {
         if (box.Contains(ray.Origin, boundaryInclusive: true) || box.Contains(ray.EndPoint, boundaryInclusive: true)) return true;
 
-        var dirfrac = new Vector3d
+        Vector3d dirfrac = new Vector3d
         {
             X = 1.0 / ray.Direction.X,
             Y = 1.0 / ray.Direction.Y,

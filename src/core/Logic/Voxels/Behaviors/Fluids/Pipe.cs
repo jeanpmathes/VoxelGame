@@ -37,7 +37,7 @@ public partial class Pipe : BlockBehavior, IBehavior<Pipe, BlockBehavior, Block>
     {
         subject.Require<Piped>();
 
-        var fillable = subject.Require<Fillable>();
+        Fillable fillable = subject.Require<Fillable>();
         fillable.IsFluidMeshed.Initializer.ContributeConstant(value: false);
         fillable.IsInflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);
         fillable.IsOutflowAllowed.ContributeFunction(GetIsInflowOrOutflowAllowed);

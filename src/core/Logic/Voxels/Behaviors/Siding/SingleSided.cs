@@ -33,7 +33,7 @@ public partial class SingleSided : BlockBehavior, IBehavior<SingleSided, BlockBe
     [Constructible]
     private SingleSided(Block subject) : base(subject)
     {
-        var sided = subject.Require<Sided>();
+        Sided sided = subject.Require<Sided>();
         sided.Sides.ContributeFunction(GetSides);
         sided.SidedState.ContributeFunction(GetSidedState);
 

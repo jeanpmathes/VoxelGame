@@ -166,7 +166,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         using ChunkMeshingContext context = ChunkMeshingContext.UsingActive(this, SpatialMeshingFactory.Shared);
 
-        for (var index = 0; index < SectionCount; index++) GetSection(index).RecreateIncompleteMesh(World, context);
+        for (Int32 index = 0; index < SectionCount; index++) GetSection(index).RecreateIncompleteMesh(World, context);
     }
 
     /// <summary>
@@ -187,7 +187,7 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     {
         LogStartedCreatingMeshData(logger, Position, context);
 
-        var sectionMeshes = new SectionMeshData?[SectionCount];
+        SectionMeshData?[] sectionMeshes = new SectionMeshData?[SectionCount];
 
         foreach (Int32 index in context.SectionIndices)
             sectionMeshes[index] = GetSection(index).CreateMeshData(context);
@@ -234,9 +234,9 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
             return;
         }
 
-        for (var x = 0; x < Size; x++)
-        for (var y = 0; y < Size; y++)
-        for (var z = 0; z < Size; z++)
+        for (Int32 x = 0; x < Size; x++)
+        for (Int32 y = 0; y < Size; y++)
+        for (Int32 z = 0; z < Size; z++)
         {
             SectionPosition sectionPosition = SectionPosition.From(Position, (x, y, z));
             Vector3d position = sectionPosition.FirstBlock;
@@ -254,13 +254,13 @@ public partial class Chunk : Core.Logic.Chunks.Chunk
     /// </summary>
     public void HideAllSections()
     {
-        for (var index = 0; index < SectionCount; index++)
+        for (Int32 index = 0; index < SectionCount; index++)
             GetSection(index).SetVfxEnabledState(enabled: false);
     }
 
     private void DisableAllVfx()
     {
-        for (var index = 0; index < SectionCount; index++)
+        for (Int32 index = 0; index < SectionCount; index++)
             GetSection(index).SetVfxEnabledState(enabled: false);
     }
 

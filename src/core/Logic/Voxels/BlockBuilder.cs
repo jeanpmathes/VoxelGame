@@ -183,7 +183,7 @@ public class BlockBuilder
         public BlockDefinition WithBehavior<TBehavior>(Action<TBehavior>? initializer = null)
             where TBehavior : BlockBehavior, IBehavior<TBehavior, BlockBehavior, Block>
         {
-            var behavior = block.Require<TBehavior>();
+            TBehavior behavior = block.Require<TBehavior>();
 
             initializer?.Invoke(behavior);
 
@@ -200,8 +200,8 @@ public class BlockBuilder
             where TBehaviorA : BlockBehavior, IBehavior<TBehaviorA, BlockBehavior, Block>
             where TBehaviorB : BlockBehavior, IBehavior<TBehaviorB, BlockBehavior, Block>
         {
-            var behaviorA = block.Require<TBehaviorA>();
-            var behaviorB = block.Require<TBehaviorB>();
+            TBehaviorA behaviorA = block.Require<TBehaviorA>();
+            TBehaviorB behaviorB = block.Require<TBehaviorB>();
 
             initializer(behaviorA, behaviorB);
 

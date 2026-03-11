@@ -111,7 +111,7 @@ public abstract class Composed<TSelf, TComponent> : Composed
     {
         if (GetComponent<TConcrete>() is {} existing) return existing;
 
-        var component = TConcrete.Construct(Self);
+        TConcrete component = TConcrete.Construct(Self);
 
         components.Add(typeof(TConcrete), component);
 
@@ -128,7 +128,7 @@ public abstract class Composed<TSelf, TComponent> : Composed
     {
         if (GetComponent<TConcrete>() is {} existing) return existing;
 
-        var component = TConcrete.Construct((TConcreteSelf) Self);
+        TConcrete component = TConcrete.Construct((TConcreteSelf) Self);
 
         components.Add(typeof(TConcrete), component);
 
@@ -145,7 +145,7 @@ public abstract class Composed<TSelf, TComponent> : Composed
     {
         if (GetComponent<TConcrete>() is {} existing) return existing;
 
-        var component = TConcrete.Construct(Self, argument);
+        TConcrete component = TConcrete.Construct(Self, argument);
 
         components.Add(typeof(TConcrete), component);
 
@@ -162,7 +162,7 @@ public abstract class Composed<TSelf, TComponent> : Composed
     {
         if (GetComponent<TConcrete>() is {} existing) return existing;
 
-        var component = TConcrete.Construct((TConcreteSelf) Self, argument);
+        TConcrete component = TConcrete.Construct((TConcreteSelf) Self, argument);
 
         components.Add(typeof(TConcrete), component);
 

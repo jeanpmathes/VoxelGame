@@ -77,8 +77,8 @@ public abstract class Decoration : IResource
     {
         Noise noise = new(context);
 
-        for (var x = 0; x < Section.Size; x++)
-        for (var z = 0; z < Section.Size; z++)
+        for (Int32 x = 0; x < Section.Size; x++)
+        for (Int32 z = 0; z < Section.Size; z++)
             DecorateColumn((x, z), noise, context);
     }
 
@@ -94,7 +94,7 @@ public abstract class Decoration : IResource
 
         PlacementContext placementContext = new(Random: 0.0f, Depth: 0, context.Generator.Map.GetStoneType((column.x, 0, column.z), sample), context.Palette);
 
-        for (var y = 0; y < Section.Size; y++)
+        for (Int32 y = 0; y < Section.Size; y++)
         {
             position = context.Position.FirstBlock + (column.x, y, column.z);
 

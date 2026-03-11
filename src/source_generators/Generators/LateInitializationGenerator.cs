@@ -96,7 +96,7 @@ public sealed class LateInitializationGenerator : IIncrementalGenerator
 
         sb.AppendPreamble<LateInitializationGenerator>().AppendNamespace(model.Namespace);
 
-        var backingFieldName = $"@__{NameTools.ConvertPascalCaseToCamelCase(model.Name)}";
+        String backingFieldName = $"@__{NameTools.ConvertPascalCaseToCamelCase(model.Name)}";
 
         String staticModifier = model.IsStatic ? "static " : "";
 

@@ -57,7 +57,7 @@ public sealed class NativeAllocator : IDisposable
         Debug.Assert(count > 0);
 
         UInt64 size = (UInt64) count * (UInt64) sizeof(T);
-        var pointer = (T*) NativeMethods.Allocate(self, size).ToPointer();
+        T* pointer = (T*) NativeMethods.Allocate(self, size).ToPointer();
 
         if (pointer == null)
             throw Exceptions.InvalidOperation("Failed to allocate memory.");

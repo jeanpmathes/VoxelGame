@@ -82,7 +82,7 @@ public class EnumUtilityGenerator : IIncrementalGenerator
             if (member is IFieldSymbol {ConstantValue: {} value})
                 memberModel.Add(new EnumMember(member.Name, IntegerConstant.From(enumSymbol.EnumUnderlyingType, value)));
 
-        var isFlag = false;
+        Boolean isFlag = false;
 
         foreach (AttributeData attribute in enumSymbol.GetAttributes())
         {
@@ -98,7 +98,7 @@ public class EnumUtilityGenerator : IIncrementalGenerator
 
     private static Int32 GetNumberOfGenericNestingLevels(ContainingType? containingType)
     {
-        var levels = 0;
+        Int32 levels = 0;
 
         while (containingType != null)
         {

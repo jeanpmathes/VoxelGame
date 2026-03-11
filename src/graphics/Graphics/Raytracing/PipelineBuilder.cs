@@ -228,7 +228,7 @@ public partial class PipelineBuilder
         Debug.Assert((customDataBufferSize > 0).Implies(sizeof(T) == customDataBufferSize));
 
         StringBuilder errors = new();
-        var anyError = false;
+        Boolean anyError = false;
 
         buffer = client.InitializeRaytracing<T>(new SpacePipelineDescription
         {

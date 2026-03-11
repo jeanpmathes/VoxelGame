@@ -52,7 +52,7 @@ internal static class Native
     /// </summary>
     internal static unsafe String GetAllocatorStatistics(Client client)
     {
-        var result = "";
+        String? result = "";
 
         NativeMethods.PassAllocatorStatistics(client,
             stringPointer =>
@@ -69,7 +69,7 @@ internal static class Native
     /// </summary>
     internal static unsafe String GetDRED(Client client)
     {
-        var result = "";
+        String? result = "";
 
         NativeMethods.PassDRED(client,
             stringPointer =>
@@ -339,9 +339,9 @@ internal static class Native
         };
 
         Int32** data = stackalloc Int32*[texture.Length];
-        var handles = new GCHandle[texture.Length];
+        GCHandle[] handles = new GCHandle[texture.Length];
 
-        for (var index = 0; index < texture.Length; index++)
+        for (Int32 index = 0; index < texture.Length; index++)
         {
             handles[index] = GCHandle.Alloc(texture[index].GetData(texture[index].StorageFormat), GCHandleType.Pinned);
             data[index] = (Int32*) Marshal.UnsafeAddrOfPinnedArrayElement(texture[index].GetData(texture[index].StorageFormat), index: 0);
@@ -349,7 +349,7 @@ internal static class Native
 
         IntPtr result = NativeMethods.LoadTexture(client, data, description);
 
-        for (var index = 0; index < texture.Length; index++) handles[index].Free();
+        for (Int32 index = 0; index < texture.Length; index++) handles[index].Free();
 
         return new Texture(result, client, new Vector2i((Int32) description.Width, (Int32) description.Height));
     }

@@ -71,7 +71,7 @@ public class CircularTimeBuffer
     /// <param name="time">The value to write.</param>
     public void Write(Double time)
     {
-        var old = 0.0;
+        Double old = 0.0;
 
         if (filledSlots == capacity)
             old = buffer[writeIndex];

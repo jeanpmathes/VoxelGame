@@ -69,7 +69,7 @@ internal sealed class GameGui : IGwenGui
 
         foreach ((FileInfo skinFile, Int32 index) in Settings.SkinFiles.Select((f, i) => (f, i)))
         {
-            var failed = false;
+            Boolean failed = false;
 
             SkinBase skin = new TexturedBase(renderer,
                 skinFile,

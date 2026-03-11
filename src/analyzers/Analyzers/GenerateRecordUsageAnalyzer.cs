@@ -79,7 +79,7 @@ public sealed class GenerateRecordUsageAnalyzer : DiagnosticAnalyzer
             if (ok) continue;
 
             Location location = typeDeclaration.Identifier.GetLocation();
-            var diagnostic = Diagnostic.Create(rule, location, typeSymbol.Name);
+            Diagnostic diagnostic = Diagnostic.Create(rule, location, typeSymbol.Name);
             context.ReportDiagnostic(diagnostic);
 
             break;
