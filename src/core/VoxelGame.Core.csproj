@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>net9.0-windows</TargetFramework>
+        <TargetFramework>net10.0-windows</TargetFramework>
         <OutputType>Library</OutputType>
         <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <Platforms>x64</Platforms>
@@ -67,12 +67,10 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.CSharp" Version="4.7.0"/>
         <PackageReference Include="OpenTK.Mathematics" Version="4.9.3"/>
         <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.0"/>
         <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0"/>
         <PackageReference Include="System.Drawing.Common" Version="9.0.0"/>
-        <PackageReference Include="System.Text.Json" Version="9.0.0"/>
     </ItemGroup>
     <ItemGroup>
         <Compile Update="Settings.Designer.cs">

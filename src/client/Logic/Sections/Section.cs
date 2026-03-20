@@ -214,8 +214,7 @@ public class Section : Core.Logic.Sections.Section
         ExceptionTools.ThrowIfDisposed(disposed);
 
         vfxEnabled = enabled;
-
-        if (vfx != null) vfx.IsEnabled = enabled;
+        vfx?.IsEnabled = enabled;
     }
 
     private void SetMeshDataInternal(World world, SectionMeshData meshData)

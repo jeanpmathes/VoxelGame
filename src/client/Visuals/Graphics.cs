@@ -80,9 +80,7 @@ public partial class Graphics
     /// </summary>
     public void SetIsSpaceRendered(Boolean isRendered)
     {
-        if (engine == null) return;
-
-        engine.Client.Space.IsRendered = isRendered;
+        engine?.Client.Space.IsRendered = isRendered;
     }
 
     /// <summary>
@@ -91,7 +89,7 @@ public partial class Graphics
     /// <param name="enable">Whether to enable wireframe rendering.</param>
     public void SetWireframe(Boolean enable)
     {
-        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) => data.wireframe = enable);
+        engine?.RaytracingDataBuffer.Modify((ref data) => data.wireframe = enable);
     }
 
     /// <summary>
@@ -106,7 +104,7 @@ public partial class Graphics
     /// <param name="color">The color of the fog.</param>
     public void SetFogVolumeOverlapConfiguration(Double size, ColorS color)
     {
-        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
+        engine?.RaytracingDataBuffer.Modify((ref data) =>
         {
             data.fogOverlapSize = (Single) size;
             data.fogOverlapColor = color.ToVector4().Xyz;
@@ -120,7 +118,7 @@ public partial class Graphics
     /// <param name="density">The density of the air fog.</param>
     public void SetAirFog(ColorS color, Single density)
     {
-        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
+        engine?.RaytracingDataBuffer.Modify((ref data) =>
         {
             data.airFogColor = color.ToVector4().Xyz;
             data.airFogDensity = density;
@@ -133,7 +131,7 @@ public partial class Graphics
     /// <param name="timeOfDay">The time of day in the range [0.0, 1.0).</param>
     public void SetTimeOfDay(Double timeOfDay)
     {
-        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
+        engine?.RaytracingDataBuffer.Modify((ref data) =>
         {
             data.timeOfDay = (Single) timeOfDay;
         });
@@ -145,12 +143,12 @@ public partial class Graphics
     /// <param name="enable">Whether to enable the sampling rate display.</param>
     public void SetSamplingDisplay(Boolean enable)
     {
-        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) => data.antiAliasing.showSamplingRate = enable);
+        engine?.RaytracingDataBuffer.Modify((ref data) => data.antiAliasing.showSamplingRate = enable);
     }
 
     private void SetRaytracingAntiAliasingConfiguration(Boolean enabled, Int32 min, Int32 max, Single variance, Single depth)
     {
-        engine?.RaytracingDataBuffer.Modify((ref Engine.RaytracingData data) =>
+        engine?.RaytracingDataBuffer.Modify((ref data) =>
         {
             data.antiAliasing.isEnabled = enabled;
             data.antiAliasing.minGridSize = min;
@@ -178,7 +176,7 @@ public partial class Graphics
         Single subpixelBlending,
         Int32 edgeStepCount, Int32 edgeStep, Single edgeGuess)
     {
-        engine?.PostProcessingBuffer.Modify((ref Engine.PostProcessingData data) =>
+        engine?.PostProcessingBuffer.Modify((ref data) =>
         {
             data.fxaa.isEnabled = enabled;
             data.fxaa.contrastThreshold = contrastThreshold;

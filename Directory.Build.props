@@ -11,7 +11,7 @@
     </PropertyGroup>
 
     <PropertyGroup>
-        <LangVersion>13</LangVersion>
+        <LangVersion>14</LangVersion>
         <NeutralLanguage>en</NeutralLanguage>
     </PropertyGroup>
 
