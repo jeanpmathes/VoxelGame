@@ -18,7 +18,7 @@
 // <author>jeanpmathes</author>
 
 using VoxelGame.Annotations.Attributes;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes.Components;
 

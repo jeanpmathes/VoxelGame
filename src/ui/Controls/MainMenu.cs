@@ -22,11 +22,11 @@ using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.UI.Controls.Common;
-using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Controls.Common;
+using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.Controls;
+namespace VoxelGame.Presentation.Controls;
 
 /// <summary>
 ///     The main menu of the game, allowing to access the different sub-menus.

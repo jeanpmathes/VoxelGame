@@ -27,13 +27,13 @@ using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.UI.Controls.Common;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utilities;
-using Colors = VoxelGame.UI.Utilities.Colors;
+using VoxelGame.Presentation.Controls.Common;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Utilities;
+using Colors = VoxelGame.Presentation.Utilities.Colors;
 
-namespace VoxelGame.UI.Controls.Worlds;
+namespace VoxelGame.Presentation.Controls.Worlds;
 
 /// <summary>
 ///     The menu displaying worlds, allowing to select and create worlds.

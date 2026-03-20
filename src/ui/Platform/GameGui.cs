@@ -17,11 +17,11 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Input.Events;
+using VoxelGame.Presentation.Platform.Input;
+using VoxelGame.Presentation.Platform.Renderer;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.UI.Platform.Input;
-using VoxelGame.UI.Platform.Renderer;
 
-namespace VoxelGame.UI.Platform;
+namespace VoxelGame.Presentation.Platform;
 
 internal sealed class GameGui : IGwenGui
 {

@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using JetBrains.Annotations;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
 

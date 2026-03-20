@@ -24,7 +24,7 @@ using System.IO;
 using Gwen.Net;
 using VoxelGame.Core.Visuals;
 
-namespace VoxelGame.UI.Platform.Renderer;
+namespace VoxelGame.Presentation.Platform.Renderer;
 
 /// <summary>
 ///     Supports the required operations for texture rendering.

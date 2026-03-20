@@ -6,7 +6,7 @@
 
 using VoxelGame.Graphics.Core;
 
-namespace VoxelGame.UI.Platform;
+namespace VoxelGame.Presentation.Platform;
 
 /// <summary>
 ///     The factory for <see cref="IGwenGui" /> instances.

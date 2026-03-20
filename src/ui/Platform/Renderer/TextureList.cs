@@ -29,7 +29,7 @@ using VoxelGame.Graphics.Graphics;
 using VoxelGame.Toolkit.Utilities;
 using Texture = VoxelGame.Graphics.Objects.Texture;
 
-namespace VoxelGame.UI.Platform.Renderer;
+namespace VoxelGame.Presentation.Platform.Renderer;
 
 /// <summary>
 ///     Stores all loaded textures and provides methods to access them for the Draw2D pipeline.

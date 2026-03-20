@@ -32,9 +32,9 @@ using VoxelGame.Client.Sessions;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Graphics.Core;
-using VoxelGame.UI;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes;
 

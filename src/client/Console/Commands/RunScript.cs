@@ -20,7 +20,7 @@
 using System;
 using System.IO;
 using JetBrains.Annotations;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
 

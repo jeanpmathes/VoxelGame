@@ -20,7 +20,7 @@
 using Gwen.Net.Skin;
 using VoxelGame.Core.Utilities.Resources;
 
-namespace VoxelGame.UI.Resources;
+namespace VoxelGame.Presentation.Resources;
 
 /// <summary>
 ///     Wraps a skin as a resource.

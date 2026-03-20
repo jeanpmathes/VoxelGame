@@ -24,7 +24,7 @@ using Gwen.Net;
 using Gwen.Net.Skin;
 using VoxelGame.Core.Utilities.Resources;
 
-namespace VoxelGame.UI.Utilities;
+namespace VoxelGame.Presentation.Utilities;
 
 /// <summary>
 ///     A bundle of all fonts used by the GUI.

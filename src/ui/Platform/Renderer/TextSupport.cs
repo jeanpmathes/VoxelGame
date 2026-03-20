@@ -26,7 +26,7 @@ using Font = Gwen.Net.Font;
 using FontStyle = System.Drawing.FontStyle;
 using Point = System.Drawing.Point;
 
-namespace VoxelGame.UI.Platform.Renderer;
+namespace VoxelGame.Presentation.Platform.Renderer;
 
 /// <summary>
 ///     Supports implementation of text rendering.

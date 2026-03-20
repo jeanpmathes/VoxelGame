@@ -27,7 +27,7 @@ using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Console;
 

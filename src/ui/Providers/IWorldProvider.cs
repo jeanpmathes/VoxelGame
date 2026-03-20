@@ -23,7 +23,7 @@ using System.IO;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Updates;
 
-namespace VoxelGame.UI.Providers;
+namespace VoxelGame.Presentation.Providers;
 
 /// <summary>
 ///     Provides worlds that are loaded from disk or newly created.

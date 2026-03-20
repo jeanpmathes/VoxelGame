@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.UI;
+namespace VoxelGame.Presentation;
 
 /// <summary>
 ///     Defines all icons used in the GUI.

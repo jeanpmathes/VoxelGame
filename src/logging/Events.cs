@@ -58,9 +58,9 @@ public static class Events
     public const UInt16 ToolkitID = 0x4000;
 
     /// <summary>
-    ///     The VoxelGame.UI project.
+    ///     The VoxelGame.Presentation project.
     /// </summary>
-    public const UInt16 UserInterfaceID = 0x5000;
+    public const UInt16 PresentationID = 0x5000;
 
     /// <summary>
     ///     The VoxelGame.Manual project.

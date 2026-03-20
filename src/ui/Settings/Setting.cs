@@ -23,11 +23,11 @@ using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.Settings;
+namespace VoxelGame.Presentation.Settings;
 
 /// <summary>
 ///     Encapsulates a setting, a value that has meaning and can be changed.

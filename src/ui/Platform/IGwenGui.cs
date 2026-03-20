@@ -8,7 +8,7 @@ using Gwen.Net.Control;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Resources;
 
-namespace VoxelGame.UI.Platform;
+namespace VoxelGame.Presentation.Platform;
 
 /// <summary>
 ///     Base interface for Gwen GUIs.

@@ -18,9 +18,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
-namespace VoxelGame.UI.Providers;
+namespace VoxelGame.Presentation.Providers;
 
 /// <summary>
 ///     An interface for a console backend that can process inputs from a console frontend.

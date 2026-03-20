@@ -19,7 +19,7 @@
 
 using Gwen.Net.Control;
 
-namespace VoxelGame.UI.Utilities;
+namespace VoxelGame.Presentation.Utilities;
 
 /// <summary>
 ///     Utility methods for controls.

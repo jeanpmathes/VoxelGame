@@ -26,11 +26,11 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.Controls;
+namespace VoxelGame.Presentation.Controls;
 
 /// <summary>
 ///     The top control managing the in-game UI.

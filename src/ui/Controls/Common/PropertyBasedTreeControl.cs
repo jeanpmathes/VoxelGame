@@ -20,10 +20,10 @@
 using System;
 using Gwen.Net.Control;
 using VoxelGame.Core.Collections.Properties;
-using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.Controls.Common;
+namespace VoxelGame.Presentation.Controls.Common;
 
 /// <summary>
 ///     A <see cref="TreeControl" /> that is built from a <see cref="Property" />.

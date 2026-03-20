@@ -21,7 +21,7 @@ using VoxelGame.Client.Console;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Resources;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.UI.Resources;
+using VoxelGame.Presentation.Resources;
 
 namespace VoxelGame.Client.Resources;
 

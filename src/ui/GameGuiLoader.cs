@@ -24,11 +24,11 @@ using System.IO;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
-using VoxelGame.UI.Platform;
-using VoxelGame.UI.Resources;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Platform;
+using VoxelGame.Presentation.Resources;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI;
+namespace VoxelGame.Presentation;
 
 /// <summary>
 ///     Loads the VoxelGame <see cref="GameGui" /> object.

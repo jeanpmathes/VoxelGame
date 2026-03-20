@@ -24,10 +24,10 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.Settings;
+namespace VoxelGame.Presentation.Settings;
 
 /// <summary>
 ///     Settings that allow to pick a size, represented by two integers that are at least 1.

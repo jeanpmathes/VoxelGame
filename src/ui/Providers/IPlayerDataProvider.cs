@@ -20,7 +20,7 @@
 using System;
 using VoxelGame.Core.Collections.Properties;
 
-namespace VoxelGame.UI.Providers;
+namespace VoxelGame.Presentation.Providers;
 
 /// <summary>
 ///     Provides data about a player.

@@ -16,7 +16,7 @@ using Font = System.Drawing.Font;
 using Image = VoxelGame.Core.Visuals.Image;
 using Point = Gwen.Net.Point;
 
-namespace VoxelGame.UI.Platform.Renderer;
+namespace VoxelGame.Presentation.Platform.Renderer;
 
 /// <summary>
 ///     Renders text to a texture.

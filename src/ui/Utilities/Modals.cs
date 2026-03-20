@@ -22,10 +22,10 @@ using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.UI.Controls.Common;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.Controls.Common;
+using VoxelGame.Presentation.UserInterfaces;
 
-namespace VoxelGame.UI.Utilities;
+namespace VoxelGame.Presentation.Utilities;
 
 /// <summary>
 ///     Utility class for modal windows.

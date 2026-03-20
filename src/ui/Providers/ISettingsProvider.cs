@@ -20,9 +20,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using VoxelGame.UI.Settings;
+using VoxelGame.Presentation.Settings;
 
-namespace VoxelGame.UI.Providers;
+namespace VoxelGame.Presentation.Providers;
 
 /// <summary>
 ///     Provide the user interface with settings for a given category.

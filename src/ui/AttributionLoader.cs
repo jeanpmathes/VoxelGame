@@ -24,7 +24,7 @@ using System.Security;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 
-namespace VoxelGame.UI;
+namespace VoxelGame.Presentation;
 
 /// <summary>
 ///     Loads all attributions.

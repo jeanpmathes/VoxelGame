@@ -24,12 +24,12 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.UI.Controls.Common;
-using VoxelGame.UI.Controls.Worlds;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.Controls.Common;
+using VoxelGame.Presentation.Controls.Worlds;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.UserInterfaces;
 
-namespace VoxelGame.UI.Controls;
+namespace VoxelGame.Presentation.Controls;
 
 /// <summary>
 ///     Controls the ui of the start scene.

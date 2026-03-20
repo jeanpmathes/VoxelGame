@@ -24,7 +24,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.UI.Providers;
+using VoxelGame.Presentation.Providers;
 
 namespace VoxelGame.Client.Scenes.Components;
 

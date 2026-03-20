@@ -37,7 +37,7 @@ using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
-namespace VoxelGame.UI.Platform.Renderer;
+namespace VoxelGame.Presentation.Platform.Renderer;
 
 /// <summary>
 ///     Does the actual issuing of draw calls and managing of GPU resources.

@@ -20,9 +20,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net.Control;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
-namespace VoxelGame.UI.Settings;
+namespace VoxelGame.Presentation.Settings;
 
 /// <summary>
 ///     Setting that allows to pick from an enum.

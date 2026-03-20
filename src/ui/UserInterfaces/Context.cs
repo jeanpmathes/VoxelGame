@@ -22,11 +22,11 @@ using System.Diagnostics.CodeAnalysis;
 using Gwen.Net;
 using Gwen.Net.Control;
 using VoxelGame.Graphics.Input;
-using VoxelGame.UI.Controls.Common;
-using VoxelGame.UI.Resources;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Controls.Common;
+using VoxelGame.Presentation.Resources;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.UserInterfaces;
+namespace VoxelGame.Presentation.UserInterfaces;
 
 /// <summary>
 ///     The context in which the user interface is running.

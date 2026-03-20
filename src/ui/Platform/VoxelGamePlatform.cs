@@ -17,7 +17,7 @@ using TextCopy;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.UI.Platform;
+namespace VoxelGame.Presentation.Platform;
 
 /// <summary>
 ///     Implementation of <see cref="IPlatform" /> for VoxelGame.

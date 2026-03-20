@@ -19,7 +19,7 @@
 
 using System;
 
-namespace VoxelGame.UI.UserInterfaces;
+namespace VoxelGame.Presentation.UserInterfaces;
 
 /// <summary>
 ///     A follow-up action that can be attached to a command.

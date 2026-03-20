@@ -24,9 +24,9 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Visuals;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
-namespace VoxelGame.UI.Settings;
+namespace VoxelGame.Presentation.Settings;
 
 /// <summary>
 ///     Settings that allow selecting a color.

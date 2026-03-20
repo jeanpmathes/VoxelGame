@@ -21,7 +21,7 @@ using System;
 using Gwen.Net;
 using Gwen.Net.Control;
 
-namespace VoxelGame.UI.Controls.Common;
+namespace VoxelGame.Presentation.Controls.Common;
 
 /// <summary>
 ///     Variant of the button control that uses an icon instead of text.

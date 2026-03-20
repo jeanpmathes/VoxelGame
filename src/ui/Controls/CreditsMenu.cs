@@ -24,10 +24,10 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.RichText;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.Controls;
+namespace VoxelGame.Presentation.Controls;
 
 /// <summary>
 ///     The menu that shows the credits.

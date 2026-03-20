@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using System.IO;
 using Gwen.Net.Skin;
 
-namespace VoxelGame.UI.Platform;
+namespace VoxelGame.Presentation.Platform;
 
 /// <summary>
 ///     Describes a texture to preload.

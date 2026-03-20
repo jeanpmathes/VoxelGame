@@ -24,7 +24,7 @@ using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
 using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.UI.Utilities;
+namespace VoxelGame.Presentation.Utilities;
 
 /// <summary>
 ///     Utilities to format data for display.

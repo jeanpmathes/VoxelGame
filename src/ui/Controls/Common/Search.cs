@@ -22,9 +22,9 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
-namespace VoxelGame.UI.Controls.Common;
+namespace VoxelGame.Presentation.Controls.Common;
 
 /// <summary>
 ///     A text input control for searching.

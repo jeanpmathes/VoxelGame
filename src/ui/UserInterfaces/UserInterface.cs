@@ -22,10 +22,10 @@ using Gwen.Net.Control;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input;
+using VoxelGame.Presentation.Providers;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.UI.Providers;
 
-namespace VoxelGame.UI.UserInterfaces;
+namespace VoxelGame.Presentation.UserInterfaces;
 
 /// <summary>
 ///     A user interface that can be rendered to the screen.

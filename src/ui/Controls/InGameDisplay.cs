@@ -24,11 +24,11 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Collections.Properties;
-using VoxelGame.UI.Controls.Common;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Controls.Common;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.Controls;
+namespace VoxelGame.Presentation.Controls;
 
 /// <summary>
 ///     A display that is shown while playing the game, as a form of HUD.

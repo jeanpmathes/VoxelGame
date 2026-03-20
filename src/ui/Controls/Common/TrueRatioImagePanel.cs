@@ -21,7 +21,7 @@ using System;
 using Gwen.Net;
 using Gwen.Net.Control;
 
-namespace VoxelGame.UI.Controls.Common;
+namespace VoxelGame.Presentation.Controls.Common;
 
 /// <summary>
 ///     An image panel that keeps the ratio of the image, by scaling and cutting off parts of the image.

@@ -19,7 +19,7 @@
 
 using VoxelGame.Core.Utilities.Resources;
 
-namespace VoxelGame.UI.Resources;
+namespace VoxelGame.Presentation.Resources;
 
 /// <summary>
 ///     Resources that are displayed in the user interface as content.

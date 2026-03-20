@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Gwen.Net.Control;
 
-namespace VoxelGame.UI.Controls.Common;
+namespace VoxelGame.Presentation.Controls.Common;
 
 /// <summary>
 ///     A text box that memorizes inputs, allowing the user to navigate through them using the up and down arrow keys.

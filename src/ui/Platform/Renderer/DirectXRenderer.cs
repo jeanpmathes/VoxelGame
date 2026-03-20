@@ -20,7 +20,7 @@ using Point = Gwen.Net.Point;
 using Rectangle = Gwen.Net.Rectangle;
 using Size = Gwen.Net.Size;
 
-namespace VoxelGame.UI.Platform.Renderer;
+namespace VoxelGame.Presentation.Platform.Renderer;
 
 /// <summary>
 ///     Class for the DirectX-based GUI renderer.

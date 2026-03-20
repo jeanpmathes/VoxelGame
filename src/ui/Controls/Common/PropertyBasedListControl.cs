@@ -24,11 +24,11 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Collections.Properties;
-using VoxelGame.UI.UserInterfaces;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Utilities;
 using Color = VoxelGame.Core.Collections.Properties.Color;
 
-namespace VoxelGame.UI.Controls.Common;
+namespace VoxelGame.Presentation.Controls.Common;
 
 /// <summary>
 ///     A list-like control that is built from a <see cref="Property" />.

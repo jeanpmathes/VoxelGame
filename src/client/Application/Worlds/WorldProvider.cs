@@ -35,7 +35,7 @@ using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.UI.Providers;
+using VoxelGame.Presentation.Providers;
 using World = VoxelGame.Client.Logic.World;
 
 namespace VoxelGame.Client.Application.Worlds;

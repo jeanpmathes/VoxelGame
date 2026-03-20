@@ -19,7 +19,7 @@
 
 using Gwen.Net;
 
-namespace VoxelGame.UI.Utilities;
+namespace VoxelGame.Presentation.Utilities;
 
 /// <summary>
 ///     Defines commonly used colors and gives them meaning.

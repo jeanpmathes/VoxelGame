@@ -21,9 +21,9 @@ using System;
 using Gwen.Net.RichText;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
-namespace VoxelGame.UI;
+namespace VoxelGame.Presentation;
 
 /// <summary>
 ///     An attribution text.

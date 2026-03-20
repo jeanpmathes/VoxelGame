@@ -12,10 +12,10 @@ using VoxelGame.Core.Collections;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
-using VoxelGame.UI.Platform;
+using VoxelGame.Presentation.Platform;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
-namespace VoxelGame.UI.Tests;
+namespace VoxelGame.Presentation.Demonstration;
 
 internal sealed class Program : Client
 {

@@ -20,10 +20,10 @@
 using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.UI.Platform;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Platform;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI;
+namespace VoxelGame.Presentation;
 
 /// <summary>
 ///     Loads the font bundle for the GUI.

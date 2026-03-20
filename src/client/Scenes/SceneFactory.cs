@@ -24,7 +24,7 @@ using VoxelGame.Client.Logic;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
-using VoxelGame.UI;
+using VoxelGame.Presentation;
 
 namespace VoxelGame.Client.Scenes;
 

@@ -27,8 +27,8 @@ using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Physics;
 using VoxelGame.Logging;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Actors;
 

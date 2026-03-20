@@ -24,9 +24,9 @@ using Gwen.Net.Control.Layout;
 using Gwen.Net.RichText;
 using VoxelGame.Core.Resources.Language;
 using VoxelGame.Core.Updates;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI.Controls.Common;
+namespace VoxelGame.Presentation.Controls.Common;
 
 /// <summary>
 ///     A box that first asks for confirmation before deletion is started.

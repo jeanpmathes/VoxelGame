@@ -20,11 +20,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.UI.Platform;
-using VoxelGame.UI.Resources;
-using VoxelGame.UI.Utilities;
+using VoxelGame.Presentation.Platform;
+using VoxelGame.Presentation.Resources;
+using VoxelGame.Presentation.Utilities;
 
-namespace VoxelGame.UI;
+namespace VoxelGame.Presentation;
 
 /// <summary>
 ///     Combines all resources the user interface declares.

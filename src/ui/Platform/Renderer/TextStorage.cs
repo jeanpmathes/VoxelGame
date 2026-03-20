@@ -27,7 +27,7 @@ using Font = Gwen.Net.Font;
 using Point = Gwen.Net.Point;
 using Size = Gwen.Net.Size;
 
-namespace VoxelGame.UI.Platform.Renderer;
+namespace VoxelGame.Presentation.Platform.Renderer;
 
 /// <summary>
 ///     Stores text renderers and their associated text for reuse.

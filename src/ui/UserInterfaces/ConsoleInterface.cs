@@ -25,12 +25,12 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
+using VoxelGame.Presentation.Controls.Common;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.Utilities;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.UI.Controls.Common;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.Utilities;
 
-namespace VoxelGame.UI.UserInterfaces;
+namespace VoxelGame.Presentation.UserInterfaces;
 
 /// <summary>
 ///     Allows accessing the ui game console.

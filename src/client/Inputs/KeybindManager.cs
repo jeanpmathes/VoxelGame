@@ -29,8 +29,8 @@ using VoxelGame.Graphics.Input;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Graphics.Input.Collections;
 using VoxelGame.Logging;
-using VoxelGame.UI.Providers;
-using VoxelGame.UI.Settings;
+using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.Settings;
 
 namespace VoxelGame.Client.Inputs;
 

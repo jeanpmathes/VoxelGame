@@ -25,7 +25,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
 

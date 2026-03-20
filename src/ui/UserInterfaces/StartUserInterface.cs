@@ -22,10 +22,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Graphics.Input;
-using VoxelGame.UI.Controls;
-using VoxelGame.UI.Providers;
+using VoxelGame.Presentation.Controls;
+using VoxelGame.Presentation.Providers;
 
-namespace VoxelGame.UI.UserInterfaces;
+namespace VoxelGame.Presentation.UserInterfaces;
 
 /// <summary>
 ///     The user interface used for the start menu.

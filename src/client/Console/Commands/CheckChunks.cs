@@ -22,7 +22,7 @@ using System.Diagnostics;
 using JetBrains.Annotations;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Chunks;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
 

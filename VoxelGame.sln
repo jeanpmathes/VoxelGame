@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Client", "src\cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Core", "src\core\VoxelGame.Core.csproj", "{7F71C4F5-2880-4A50-985F-B4B3F4889F21}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.UI", "src\ui\VoxelGame.UI.csproj", "{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Presentation", "src\ui\VoxelGame.Presentation.csproj", "{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Logging", "src\logging\VoxelGame.Logging.csproj", "{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}"
 EndProject
@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Manual", "src\man
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Core.Tests", "tst\core\VoxelGame.Core.Tests.csproj", "{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.UI.Tests", "tst\ui\VoxelGame.UI.Tests.csproj", "{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Presentation.Demonstration", "tst\ui\VoxelGame.Presentation.Demonstration.csproj", "{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeGraphics", "src\native_graphics\NativeGraphics.vcxproj", "{5018F6A3-6533-4744-B1FD-727D199FD2E9}"
 EndProject

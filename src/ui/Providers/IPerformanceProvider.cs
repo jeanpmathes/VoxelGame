@@ -19,7 +19,7 @@
 
 using System;
 
-namespace VoxelGame.UI.Providers;
+namespace VoxelGame.Presentation.Providers;
 
 /// <summary>
 ///     Provides game performance information.

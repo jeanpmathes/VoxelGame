@@ -24,7 +24,7 @@ using VoxelGame.Core.Actors;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Actors.Components;
 

@@ -21,9 +21,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Gwen.Net.Control;
 using VoxelGame.Core.Visuals;
-using VoxelGame.UI.UserInterfaces;
+using VoxelGame.Presentation.UserInterfaces;
 
-namespace VoxelGame.UI.Settings;
+namespace VoxelGame.Presentation.Settings;
 
 /// <summary>
 ///     Settings that allow to pick a quality level.

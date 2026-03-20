@@ -12,7 +12,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input.Events;
 
-namespace VoxelGame.UI.Platform.Input;
+namespace VoxelGame.Presentation.Platform.Input;
 
 /// <summary>
 ///     Translates input from the platform to Gwen.Net.
