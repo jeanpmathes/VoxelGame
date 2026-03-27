@@ -1,0 +1,64 @@
+name: Suggestion
+description: Suggest an idea or improvement for the game
+title: "[Suggestion]: "
+labels:
+  - enhancement
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for sharing an idea. Please fill out the details below so we can understand the suggestion and evaluate it properly.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Suggestion summary
+      description: A short description of your idea
+      placeholder: "Describe the idea clearly and briefly"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+      description: Explain what feels missing, frustrating, or limited right now
+      placeholder: "Explain the problem or limitation this suggestion would address"
+    validations:
+      required: false
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed solution
+      description: Describe how you think this could work in the game
+      placeholder: "Explain your idea in more detail"
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: List any other ideas or approaches you have considered
+      placeholder: "Optional, but helpful if you considered other solutions"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional_context
+    attributes:
+      label: Additional context
+      description: Add mockups, references, screenshots, or extra notes if relevant
+      placeholder: "Drag and drop files here or paste links"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched for existing suggestions first
+          required: true
