@@ -1,0 +1,158 @@
+name: Bug Report
+description: Report a bug or other unintended behavior
+title: "[Bug]: "
+labels:
+  - bug
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill out the details below so we can reproduce and fix it faster.
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Severity
+      description: How bad is the issue?
+      options:
+        - Low - minor visual or audio issue
+        - Medium - affects gameplay but has a workaround
+        - High - major feature is broken
+        - Critical - crash, save corruption, or game-breaking issue
+    validations:
+      required: true
+
+  - type: input
+    id: game_version
+    attributes:
+      label: Game version
+      description: What version are you using?
+      placeholder: "v1.0.0"
+    validations:
+      required: true
+
+  - type: input
+    id: system_os
+    attributes:
+      label: System OS
+      description: What operating system is running on your system?
+      placeholder: "Windows 11"
+    validations:
+      required: false
+
+  - type: input
+    id: system_cpu
+    attributes:
+      label: System CPU
+      description: What processor does your system use?
+      placeholder: "Intel i5-4440"
+    validations:
+      required: false
+
+  - type: input
+    id: system_gpu
+    attributes:
+      label: System GPU
+      description: What graphics card does your system use?
+      placeholder: "GTX 1050 Ti"
+    validations:
+      required: false
+
+  - type: input
+    id: system_ram
+    attributes:
+      label: System RAM
+      description: How much memory does your system have?
+      placeholder: "8 GB"
+    validations:
+      required: false
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: What happened?
+      description: A short description of the bug
+      placeholder: "Describe the issue clearly and briefly"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Tell us exactly how to trigger the bug
+      placeholder: |
+        1. Launch the game
+        2. Press button A
+        3. Go to location B
+        4. Do action C
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+      placeholder: "What did you expect to happen?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      placeholder: "What actually happened?"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: reproducible
+    attributes:
+      label: Reproducibility
+      options:
+        - Always
+        - Often
+        - Sometimes
+        - Rarely
+        - Unable to reproduce again
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ### Logs and world files
+
+        You can find logs and world files in `%AppData%\voxel`.
+
+        - Logs are in `%AppData%\voxel\Logs`
+        - World files are in `%AppData%\voxel\Worlds`
+
+        If you share a world, please put the relevant files into an archive first before uploading them here.
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs, screenshots, or video
+      description: Paste links or attach files if available
+      placeholder: "Drag and drop files here or paste links"
+    validations:
+      required: false
+
+  - type: textarea
+    id: world_file
+    attributes:
+      label: World file or additional data
+      description: Attach a world file or describe any relevant world state if possible
+      placeholder: "Optional, but very helpful for reproduction"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched for existing issues first
+          required: true
