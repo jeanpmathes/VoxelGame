@@ -126,8 +126,8 @@ body:
 
         You can find logs and world files in `%AppData%\voxel`.
 
-        - Logs are in `%AppData%\voxel\Logs`
-        - World files are in `%AppData%\voxel\Worlds`
+        Logs are in `%AppData%\voxel\Logs`
+        World files are in `%AppData%\voxel\Worlds`
 
         If you share a world, please put the relevant files into an archive first before uploading them here.
 
