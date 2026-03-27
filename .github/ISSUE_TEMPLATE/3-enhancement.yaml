@@ -1,6 +1,6 @@
-name: Suggestion
+name: Enhancement
 description: Suggest an idea or improvement for the game
-title: "[Suggestion]: "
+title: "[Enhancement]: "
 labels:
   - enhancement
 
