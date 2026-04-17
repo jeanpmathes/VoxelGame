@@ -328,7 +328,7 @@ public partial class Client : Application
     }
 
     /// <summary>
-    ///     Add a pipeline to the Draw2D rendering step.
+    ///     Add a pipeline to the 2D drawing rendering step.
     /// </summary>
     /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" /> preset.</param>
     /// <param name="priority">

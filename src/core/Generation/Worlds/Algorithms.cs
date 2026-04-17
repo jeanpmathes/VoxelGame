@@ -95,7 +95,6 @@ public static class Algorithms
     /// <returns>The new list.</returns>
     public static List<(TA, TB)> AppendData<TA, TB>(IEnumerable<TA> list, IDictionary<TA, TB> dictionary) where TA : notnull
     {
-
         return list.Select(element => (element, dictionary[element])).ToList();
     }
 

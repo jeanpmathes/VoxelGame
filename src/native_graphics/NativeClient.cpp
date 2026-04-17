@@ -419,9 +419,9 @@ void NativeClient::OnRenderUpdate()
 
         if (status != GFSDK_Aftermath_CrashDump_Status_Finished)
         {
-            std::stringstream errMsg;
-            errMsg << "Unexpected crash dump status: " << status;
-            MessageBoxA(nullptr, errMsg.str().c_str(), "Aftermath Error", MB_OK);
+            std::stringstream errorMessage;
+            errorMessage << "Unexpected crash dump status: " << status;
+            MessageBoxA(nullptr, errorMessage.str().c_str(), "Aftermath Error", MB_OK);
         }
 
         throw std::runtime_error("Present failed");

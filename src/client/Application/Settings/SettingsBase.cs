@@ -20,8 +20,8 @@
 using System;
 using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
-using VoxelGame.Presentation.Providers;
-using VoxelGame.Presentation.Settings;
+using VoxelGame.Presentation.Legacy.Providers;
+using VoxelGame.Presentation.Legacy.Settings;
 
 namespace VoxelGame.Client.Application.Settings;
 

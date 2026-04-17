@@ -1,0 +1,282 @@
+﻿// <copyright file="ConsoleInterface.cs" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using Gwen.Net;
+using Gwen.Net.Control;
+using Gwen.Net.Control.Layout;
+using VoxelGame.Core.Resources.Language;
+using VoxelGame.Presentation.Legacy.Controls.Common;
+using VoxelGame.Presentation.Legacy.Providers;
+using VoxelGame.Presentation.Legacy.Utilities;
+using VoxelGame.Toolkit.Utilities;
+
+namespace VoxelGame.Presentation.Legacy.UserInterfaces;
+
+/// <summary>
+///     Allows accessing the ui game console.
+/// </summary>
+[SuppressMessage("ReSharper", "CA1001", Justification = "Controls are disposed by their parent.")]
+[SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
+#pragma warning disable S2931 // Controls are disposed by their parent.
+public class ConsoleInterface
+{
+    private const Int32 MaxConsoleLogLength = 200;
+    private const String DefaultMarker = "[ ]";
+    private const String FollowUpMarker = "[a]";
+
+    private static readonly Color echoColor = Colors.Secondary;
+    private static readonly Color responseColor = Colors.Primary;
+    private static readonly Color errorColor = Colors.Error;
+
+    private readonly IConsoleProvider console;
+    private readonly LinkedList<Entry> consoleLog = [];
+    private readonly LinkedList<String> consoleMemory = [];
+    private readonly Context context;
+    private readonly ControlBase root;
+
+    private MemorizingTextBox? consoleInput;
+    private ListBox? consoleOutput;
+    private Window? consoleWindow;
+    private ControlBase? content;
+
+    internal ConsoleInterface(ControlBase root, IConsoleProvider console, Context context)
+    {
+        this.root = root;
+        this.console = console;
+        this.context = context;
+
+        console.MessageAdded += (_, args) =>
+        {
+            Write(
+                args.Message,
+                args.IsError ? EntryType.Error : EntryType.Response,
+                args.FollowUp);
+        };
+
+        console.Cleared += (_, _) => Clear();
+
+        consoleLog.AddLast(new Entry(
+            $"Welcome! Enter your commands below, and note that entries with {FollowUpMarker} offer follow-up actions in their right-click menu.",
+            EntryType.Echo,
+            []));
+    }
+
+    internal Boolean IsOpen => consoleWindow != null;
+
+    internal void OpenWindow()
+    {
+        consoleWindow = new Window(root)
+        {
+            StartPosition = StartPosition.Manual,
+            DeleteOnClose = true,
+            Position = new Point(x: 0, y: 0),
+            Size = new Size(width: 900, height: 400),
+            HorizontalAlignment = HorizontalAlignment.Left,
+            VerticalAlignment = VerticalAlignment.Bottom,
+            Resizing = Resizing.None,
+            IsDraggingEnabled = false
+        };
+
+        consoleWindow.Closed += (_, _) => CleanupAfterClose();
+        context.MakeModal(consoleWindow);
+
+        content = new Empty(consoleWindow);
+
+        GridLayout layout = new(content)
+        {
+            Dock = Dock.Fill,
+            Margin = Margin.Ten
+        };
+
+        layout.SetColumnWidths(1f);
+        layout.SetRowHeights(0.9f, 0.1f);
+
+        consoleOutput = new ListBox(layout)
+        {
+            AlternateColor = false,
+            CanScrollH = true,
+            CanScrollV = true,
+            Dock = Dock.Fill,
+            Margin = Margin.One,
+            ColumnCount = 2
+        };
+
+        DockLayout bottomBar = new(layout)
+        {
+            Margin = Margin.One
+        };
+
+        consoleInput = new MemorizingTextBox(bottomBar)
+        {
+            LooseFocusOnSubmit = false,
+            Dock = Dock.Fill,
+            Font = context.Fonts.Console
+        };
+
+        consoleInput.SetMemory(consoleMemory);
+
+        Button consoleSubmit = new(bottomBar)
+        {
+            Dock = Dock.Right,
+            Text = Language.Submit,
+            Font = context.Fonts.Console
+        };
+
+        consoleInput.SubmitPressed += (_, _) => Submit();
+        consoleSubmit.Released += (_, _) => Submit();
+
+        consoleInput.Focus();
+
+        foreach (Entry entry in consoleLog) AddEntry(entry);
+
+        consoleOutput.ScrollToBottom();
+
+        void Submit()
+        {
+            String input = consoleInput.Text;
+            consoleInput.Memorize();
+
+            if (input.Length == 0) return;
+
+            Write(input, EntryType.Echo, []);
+            console.ProcessInput(input);
+        }
+    }
+
+    /// <summary>
+    ///     Write a colored message to the console.
+    /// </summary>
+    /// <param name="message">The message text.</param>
+    /// <param name="type">The type of message.</param>
+    /// <param name="followUp">A group of follow-up actions that can be executed.</param>
+    private void Write(String message, EntryType type, FollowUp[] followUp)
+    {
+        Entry entry = new(message, type, followUp);
+
+        if (IsOpen)
+        {
+            Debug.Assert(consoleOutput != null);
+
+            AddEntry(entry);
+            consoleOutput.ScrollToBottom();
+        }
+
+        consoleLog.AddLast(entry);
+        while (consoleLog.Count > MaxConsoleLogLength) consoleLog.RemoveFirst();
+    }
+
+    private void AddEntry(Entry entry)
+    {
+        Debug.Assert(consoleOutput != null);
+        Debug.Assert(content != null);
+
+        ListBoxRow row = new(consoleOutput);
+
+        (Font font, Color color) = entry.GetStyle(context);
+
+        void SetText(Int32 column, String text)
+        {
+            row.SetCellText(column, text);
+            row.SetCellFont(column, font);
+            row.NormalTextOverrideColor = color;
+        }
+
+        SetText(column: 0, DefaultMarker);
+        SetText(column: 1, entry.Text);
+
+        consoleOutput.AddRow(row);
+
+        if (entry.FollowUp.Length <= 0) return;
+
+        SetText(column: 0, FollowUpMarker);
+
+        Menu menu = new(content);
+
+        foreach (FollowUp followUp in entry.FollowUp)
+        {
+            MenuItem item = new(menu)
+            {
+                Text = followUp.Description,
+                Font = context.Fonts.Console,
+                Alignment = Alignment.Left
+            };
+
+            item.Released += (_, _) => followUp.Action();
+        }
+
+        row.RightClicked += (_, arguments) =>
+        {
+            menu.Position = content.CanvasPosToLocal(new Point(arguments.X, arguments.Y));
+            menu.Show();
+        };
+    }
+
+    internal void CloseWindow()
+    {
+        Debug.Assert(consoleWindow != null);
+        consoleWindow.Close();
+    }
+
+    internal event EventHandler? WindowClosed;
+
+    private void CleanupAfterClose()
+    {
+        Debug.Assert(consoleInput != null);
+        consoleInput.Blur();
+
+        root.RemoveChild(consoleWindow!, dispose: true);
+
+        consoleWindow = null;
+        consoleInput = null;
+        consoleOutput = null;
+
+        WindowClosed?.Invoke(this, EventArgs.Empty);
+    }
+
+    private void Clear()
+    {
+        consoleOutput?.Clear();
+        consoleLog.Clear();
+    }
+
+    private enum EntryType
+    {
+        Response,
+        Error,
+        Echo
+    }
+
+    private sealed record Entry(String Text, EntryType Type, FollowUp[] FollowUp)
+    {
+        public (Font font, Color color) GetStyle(Context context)
+        {
+            return Type switch
+            {
+                EntryType.Response => (context.Fonts.Console, responseColor),
+                EntryType.Error => (context.Fonts.ConsoleError, errorColor),
+                EntryType.Echo => (context.Fonts.Console, echoColor),
+                _ => throw Exceptions.UnsupportedEnumValue(Type)
+            };
+        }
+    }
+}

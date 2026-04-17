@@ -21,7 +21,7 @@ using System;
 using System.Threading;
 using System.Threading.Channels;
 using System.Threading.Tasks;
-using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Console;
 

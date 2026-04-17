@@ -34,8 +34,8 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Logging;
+using VoxelGame.Presentation.Legacy.Resources;
 using VoxelGame.Toolkit.Interop;
-using VoxelGame.Presentation.Resources;
 
 namespace VoxelGame.Client.Application;
 

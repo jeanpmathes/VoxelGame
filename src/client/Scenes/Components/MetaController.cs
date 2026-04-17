@@ -22,7 +22,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
-using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes.Components;
 

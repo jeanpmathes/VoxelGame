@@ -82,6 +82,21 @@ public static class ResourceTypes
     public static ResourceType GUI { get; } = new(ResourceType.Category.Object, "gui");
 
     /// <summary>
+    ///     The GUI style resource type.
+    /// </summary>
+    public static ResourceType Style { get; } = new(ResourceType.Category.Object, "gui_style");
+
+    /// <summary>
+    ///     The GUI content template resource type.
+    /// </summary>
+    public static ResourceType ContentTemplate { get; } = new(ResourceType.Category.Object, "gui_content_template");
+
+    /// <summary>
+    ///     The GUI skin resource type.
+    /// </summary>
+    public static ResourceType Skin { get; } = new(ResourceType.Category.Object, "gui_skin"); // todo: remove
+
+    /// <summary>
     ///     The world decoration resource type.
     /// </summary>
     public static ResourceType WorldDecoration { get; } = new(ResourceType.Category.Object, "worldgen_decoration");
@@ -110,11 +125,6 @@ public static class ResourceTypes
     ///     The world generator block palette resource type.
     /// </summary>
     public static ResourceType GeneratorPalette { get; } = new(ResourceType.Category.Object, "worldgen_palette");
-
-    /// <summary>
-    ///     The GUI skin resource type.
-    /// </summary>
-    public static ResourceType Skin { get; } = new(ResourceType.Category.Object, "gui_skin");
 
     /// <summary>
     ///     The object type corresponding to engine objects.

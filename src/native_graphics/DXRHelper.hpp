@@ -51,8 +51,8 @@ ComPtr<IDxcBlob> CompileShader(LPCWSTR fileName, std::wstring const& entry, std:
     std::ifstream shaderFile(fileName);
     if (!shaderFile.good())
     {
-        std::string errorMsg = "Failed to open shader file";
-        errorCallback(E_FAIL, errorMsg.c_str());
+        std::string errorMessage = "Failed to open shader file";
+        errorCallback(E_FAIL, errorMessage.c_str());
         return nullptr;
     }
 
@@ -101,10 +101,10 @@ ComPtr<IDxcBlob> CompileShader(LPCWSTR fileName, std::wstring const& entry, std:
         std::vector<char> infoLog(error->GetBufferSize());
         memcpy(infoLog.data(), error->GetBufferPointer(), error->GetBufferSize());
 
-        std::string errorMsg = "Shader Compilation Error:\n";
-        errorMsg.append(infoLog.data());
+        std::string errorMessage = "Shader Compilation Error:\n";
+        errorMessage.append(infoLog.data());
 
-        errorCallback(resultCode, errorMsg.c_str());
+        errorCallback(resultCode, errorMessage.c_str());
         return nullptr;
     }
 

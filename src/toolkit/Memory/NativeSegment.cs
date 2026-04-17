@@ -92,7 +92,7 @@ public readonly unsafe struct NativeSegment<T> : IArray<T>, IEnumerable<T>, IEqu
         return new NativeSegment<T>(pointer + start, length);
     }
 
-    #region Enumerable Support
+    #region ENUMERABLE
 
     /// <summary>
     ///     The enumerator for this segment.
@@ -195,7 +195,7 @@ public readonly unsafe struct NativeSegment<T> : IArray<T>, IEnumerable<T>, IEqu
         return GetEnumerator();
     }
 
-    #endregion
+    #endregion ENUMERABLE
 
     #region EQUALITY
 

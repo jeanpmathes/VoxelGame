@@ -50,18 +50,18 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
 
     app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
 
-    MSG msg = {};
-    while (msg.message != WM_QUIT)
-        if (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
+    MSG message = {};
+    while (message.message != WM_QUIT)
+        if (PeekMessage(&message, nullptr, 0, 0, PM_REMOVE))
         {
-            TranslateMessage(&msg);
-            DispatchMessage(&msg);
+            TranslateMessage(&message);
+            DispatchMessage(&message);
         }
         else app->Update(DXApp::CycleFlags::ALLOW_BOTH);
 
     app->Destroy();
 
-    return static_cast<char>(msg.wParam);
+    return static_cast<char>(message.wParam);
 }
 
 void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)

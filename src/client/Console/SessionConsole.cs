@@ -25,8 +25,8 @@ using VoxelGame.Client.Sessions;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Logging;
-using VoxelGame.Presentation.Providers;
-using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Legacy.Providers;
+using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Console;
 

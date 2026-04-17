@@ -50,7 +50,7 @@
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
         <ProjectReference Include="..\graphics\VoxelGame.Graphics.csproj"/>
         <ProjectReference Include="..\manual\VoxelGame.Manual.csproj"/>
-        <ProjectReference Include="..\ui\VoxelGame.Presentation.csproj"/>
+        <ProjectReference Include="..\presentation\VoxelGame.Presentation.csproj"/>
         <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj"/>
         <ProjectReference Include="..\annotations\VoxelGame.Annotations.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>
         <ProjectReference Include="..\source_generators\VoxelGame.SourceGenerators.csproj" ReferenceOutputAssembly="false" OutputItemType="Analyzer"/>

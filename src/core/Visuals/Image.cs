@@ -75,7 +75,7 @@ public class Image
     /// <summary>
     ///     Creates an image from a bitmap.
     /// </summary>
-    /// <param name="bitmap">The bitmap, will be copied and not disposed.</param>
+    /// <param name="bitmap">The bitmap which will be copied and not disposed of.</param>
     /// <param name="format">The format of the image, or null to use the format of the bitmap.</param>
     public Image(Bitmap bitmap, Format? format = null) : this(bitmap.Width, bitmap.Height, format)
     {

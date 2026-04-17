@@ -23,8 +23,8 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Presentation.Legacy.UserInterfaces;
 using VoxelGame.Toolkit.Utilities;
-using VoxelGame.Presentation.UserInterfaces;
 
 namespace VoxelGame.Client.Actors.Components;
 

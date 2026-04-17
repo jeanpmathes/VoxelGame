@@ -10,3 +10,6 @@
  VG0006  | Usage    | Warning  | The Constructible attribute must be applied to supported constructors.                   
  VG0007  | Usage    | Warning  | The GenerateMeasure attribute must be applied to static Unit properties.                 
  VG0008  | Usage    | Warning  | The ValueSemantics attribute cannot be applied to structs with properties.               
+ VG0009  | Usage    | Error    | All value sources in bindings must be correctly referenced.                              
+ VG0010  | Usage    | Error    | Value sources must not be exposed through non-readonly members.                          
+      

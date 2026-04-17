@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Client", "src\cli
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Core", "src\core\VoxelGame.Core.csproj", "{7F71C4F5-2880-4A50-985F-B4B3F4889F21}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Presentation", "src\ui\VoxelGame.Presentation.csproj", "{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Presentation", "src\presentation\VoxelGame.Presentation.csproj", "{9E30F44C-0376-4B55-988B-5C9FC6A9D26B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Logging", "src\logging\VoxelGame.Logging.csproj", "{0ED92A17-10ED-4BBD-AEFC-BBFB33478195}"
 EndProject
@@ -15,7 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Manual", "src\man
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Core.Tests", "tst\core\VoxelGame.Core.Tests.csproj", "{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Presentation.Demonstration", "tst\ui\VoxelGame.Presentation.Demonstration.csproj", "{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VoxelGame.Presentation.Demo.Legacy", "dmo\presentation_legacy\VoxelGame.Presentation.Demo.Legacy.csproj", "{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "NativeGraphics", "src\native_graphics\NativeGraphics.vcxproj", "{5018F6A3-6533-4744-B1FD-727D199FD2E9}"
 EndProject
@@ -38,6 +38,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.SourceGenerators.Tests", "tst\source_generators\VoxelGame.SourceGenerators.Tests.csproj", "{74D3D19D-0EDA-4F8F-AE1A-3295F11E0A28}"
 EndProject
 Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "SetUp", "stp\SetUp.wixproj", "{FFB1A634-4804-4B4E-8551-82328403AE8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.GUI.Tests", "tst\gui\VoxelGame.GUI.Tests.csproj", "{15A64177-6E18-46A3-B999-582B232B2281}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.GUI", "src\gui\VoxelGame.GUI.csproj", "{5E791649-6E6B-4438-883B-455E0DE3DCAC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VoxelGame.Presentation.Demo", "dmo\presentation\VoxelGame.Presentation.Demo.csproj", "{95DE4B03-CEFE-4D70-8101-611D4934B126}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -89,6 +95,7 @@ Global
 		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Release|x64.Build.0 = Release|x64
 		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Test|x64.ActiveCfg = Release|x64
 		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Test|x64.Build.0 = Release|x64
+		{9B0AB5BE-5DE8-4A07-AA37-BDCEAEFC92D0}.Manual|x64.Build.0 = Debug|x64
 		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Debug|x64.ActiveCfg = Debug|x64
 		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Debug|x64.Build.0 = Debug|x64
 		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Manual|x64.ActiveCfg = Debug|x64
@@ -96,6 +103,7 @@ Global
 		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Release|x64.Build.0 = Release|x64
 		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Test|x64.ActiveCfg = Release|x64
 		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Test|x64.Build.0 = Release|x64
+		{B58CDF3C-8378-47BA-9EFC-05D530FD4C5E}.Manual|x64.Build.0 = Debug|x64
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Debug|x64.ActiveCfg = Release|x64
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Debug|x64.Build.0 = Release|x64
 		{5018F6A3-6533-4744-B1FD-727D199FD2E9}.Manual|x64.ActiveCfg = Release|x64
@@ -131,6 +139,7 @@ Global
 		{51BFE3E1-4AE6-46DE-A170-B37A27B9F830}.Release|x64.Build.0 = Release|x64
 		{51BFE3E1-4AE6-46DE-A170-B37A27B9F830}.Test|x64.ActiveCfg = Release|x64
 		{51BFE3E1-4AE6-46DE-A170-B37A27B9F830}.Test|x64.Build.0 = Release|x64
+		{51BFE3E1-4AE6-46DE-A170-B37A27B9F830}.Manual|x64.Build.0 = Debug|x64
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Debug|x64.ActiveCfg = Debug|x64
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Debug|x64.Build.0 = Debug|x64
 		{FAD15943-5636-495E-BB39-5E91E2354B12}.Manual|x64.ActiveCfg = Debug|x64
@@ -172,6 +181,29 @@ Global
 		{FFB1A634-4804-4B4E-8551-82328403AE8D}.Manual|x64.ActiveCfg = Debug|x64
 		{FFB1A634-4804-4B4E-8551-82328403AE8D}.Release|x64.ActiveCfg = Release|x64
 		{FFB1A634-4804-4B4E-8551-82328403AE8D}.Test|x64.ActiveCfg = Release|x64
+		{15A64177-6E18-46A3-B999-582B232B2281}.Debug|x64.ActiveCfg = Debug|x64
+		{15A64177-6E18-46A3-B999-582B232B2281}.Debug|x64.Build.0 = Debug|x64
+		{15A64177-6E18-46A3-B999-582B232B2281}.Manual|x64.ActiveCfg = Debug|x64
+		{15A64177-6E18-46A3-B999-582B232B2281}.Manual|x64.Build.0 = Debug|x64
+		{15A64177-6E18-46A3-B999-582B232B2281}.Release|x64.ActiveCfg = Release|x64
+		{15A64177-6E18-46A3-B999-582B232B2281}.Release|x64.Build.0 = Release|x64
+		{15A64177-6E18-46A3-B999-582B232B2281}.Test|x64.ActiveCfg = Release|x64
+		{15A64177-6E18-46A3-B999-582B232B2281}.Test|x64.Build.0 = Release|x64
+		{5E791649-6E6B-4438-883B-455E0DE3DCAC}.Debug|x64.ActiveCfg = Debug|x64
+		{5E791649-6E6B-4438-883B-455E0DE3DCAC}.Debug|x64.Build.0 = Debug|x64
+		{5E791649-6E6B-4438-883B-455E0DE3DCAC}.Manual|x64.ActiveCfg = Debug|x64
+		{5E791649-6E6B-4438-883B-455E0DE3DCAC}.Manual|x64.Build.0 = Debug|x64
+		{5E791649-6E6B-4438-883B-455E0DE3DCAC}.Release|x64.ActiveCfg = Release|x64
+		{5E791649-6E6B-4438-883B-455E0DE3DCAC}.Release|x64.Build.0 = Release|x64
+		{5E791649-6E6B-4438-883B-455E0DE3DCAC}.Test|x64.ActiveCfg = Release|x64
+		{95DE4B03-CEFE-4D70-8101-611D4934B126}.Debug|x64.ActiveCfg = Debug|x64
+		{95DE4B03-CEFE-4D70-8101-611D4934B126}.Debug|x64.Build.0 = Debug|x64
+		{95DE4B03-CEFE-4D70-8101-611D4934B126}.Manual|x64.ActiveCfg = Debug|x64
+		{95DE4B03-CEFE-4D70-8101-611D4934B126}.Manual|x64.Build.0 = Debug|x64
+		{95DE4B03-CEFE-4D70-8101-611D4934B126}.Release|x64.ActiveCfg = Release|x64
+		{95DE4B03-CEFE-4D70-8101-611D4934B126}.Release|x64.Build.0 = Release|x64
+		{95DE4B03-CEFE-4D70-8101-611D4934B126}.Test|x64.ActiveCfg = Release|x64
+		{95DE4B03-CEFE-4D70-8101-611D4934B126}.Test|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

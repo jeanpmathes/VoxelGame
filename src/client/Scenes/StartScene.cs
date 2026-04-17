@@ -22,9 +22,9 @@ using System.Collections.Generic;
 using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Client.Scenes.Components;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Presentation;
-using VoxelGame.Presentation.Providers;
-using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Legacy;
+using VoxelGame.Presentation.Legacy.Providers;
+using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes;
 

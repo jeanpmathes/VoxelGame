@@ -26,7 +26,7 @@ using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Contents.Structures;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Presentation.UserInterfaces;
+using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
 

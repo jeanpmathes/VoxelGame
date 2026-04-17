@@ -23,7 +23,7 @@ using VoxelGame.Core.App;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Presentation.Providers;
+using VoxelGame.Presentation.Legacy.Providers;
 
 namespace VoxelGame.Client.Application.Components;
 

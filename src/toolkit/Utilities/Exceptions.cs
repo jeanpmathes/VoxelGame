@@ -80,6 +80,17 @@ public static class Exceptions
     }
 
     /// <summary>
+    ///     Create an exception for an argument that is out of range.
+    /// </summary>
+    /// <param name="paramName">The name of the parameter.</param>
+    /// <param name="actual">The actual value of the argument.</param>
+    /// <returns>The created exception.</returns>
+    public static Exception ArgumentOutOfRange(String paramName, Object actual)
+    {
+        return new ArgumentOutOfRangeException(paramName, actual, "Value is out of range.");
+    }
+
+    /// <summary>
     ///     Create an exception for an argument that violates uniqueness.
     /// </summary>
     /// <param name="paramName">The name of the parameter.</param>
@@ -118,10 +129,19 @@ public static class Exceptions
     /// </summary>
     /// <param name="message">A message describing the invalid operation.</param>
     /// <returns>The exception.</returns>
-    public static Exception InvalidOperation(String message)
+    public static InvalidOperationException InvalidOperation(String message)
     {
         Debug.Assert(IsMessageWellFormed(message));
 
         return new InvalidOperationException(message);
+    }
+
+    /// <summary>
+    ///     Create an exception for an operation that is not supported.
+    /// </summary>
+    /// <returns>The created exception.</returns>
+    public static NotSupportedException NotSupported()
+    {
+        return new NotSupportedException();
     }
 }
