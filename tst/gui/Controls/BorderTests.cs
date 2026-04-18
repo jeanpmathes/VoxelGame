@@ -17,8 +17,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 
 namespace VoxelGame.GUI.Tests.Controls;
 
+[TestSubject(typeof(Border))]
 public class BorderTests() : ControlTestBase<Border>(() => new Border());

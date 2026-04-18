@@ -18,12 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Tests.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Bindings;
 
+[TestSubject(typeof(Binding))]
 public class BindingTests
 {
     private readonly EventObserver observer = new();

@@ -17,10 +17,13 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using JetBrains.Annotations;
+using VoxelGame.GUI.Controls.Internals;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Controls;
 
+[TestSubject(typeof(SingleChildControl<>))]
 public class SingleChildControlTests
 {
     [Fact]

@@ -19,12 +19,14 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Tests.Visuals;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Input;
 
+[TestSubject(typeof(Route))]
 public class RouteTests
 {
     private readonly MockVisual visual = new();

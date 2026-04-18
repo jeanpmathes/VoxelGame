@@ -19,13 +19,16 @@
 
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls;
+using VoxelGame.GUI.Controls.Internals;
 using VoxelGame.GUI.Tests.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Controls;
 
+[TestSubject(typeof(MultiChildControl<>))]
 public class MultiChildControlTests
 {
     [Fact]

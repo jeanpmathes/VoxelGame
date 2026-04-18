@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.SourceGenerators.Generators;
 using VoxelGame.SourceGenerators.Tests.Utilities;
@@ -25,6 +26,7 @@ using Xunit;
 
 namespace VoxelGame.SourceGenerators.Tests.Generators;
 
+[TestSubject(typeof(MeasureGenerator))]
 public class MeasureGeneratorTests
 {
     private static String RunGenerator(String source)

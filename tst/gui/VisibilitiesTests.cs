@@ -17,10 +17,12 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using JetBrains.Annotations;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests;
 
+[TestSubject(typeof(Visibilities))]
 public sealed class VisibilitiesTests
 {
     [Fact]

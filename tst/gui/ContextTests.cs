@@ -20,6 +20,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Styles;
@@ -28,6 +29,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests;
 
+[TestSubject(typeof(Context))]
 public class ContextTests
 {
     [Fact]

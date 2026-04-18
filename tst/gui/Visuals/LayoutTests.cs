@@ -17,10 +17,12 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using JetBrains.Annotations;
 using VoxelGame.GUI.Visuals;
 
 namespace VoxelGame.GUI.Tests.Visuals;
 
+[TestSubject(typeof(Layout))]
 public class LayoutTests() : VisualTestBase<Layout>(() => new MockLayout())
 {
     private class MockLayout : Layout;

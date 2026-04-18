@@ -19,6 +19,7 @@
 
 using System;
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Tests.Commands;
@@ -30,6 +31,7 @@ using Canvas = VoxelGame.GUI.Controls.Canvas;
 
 namespace VoxelGame.GUI.Tests.Controls;
 
+[TestSubject(typeof(Button<>))]
 public sealed class ButtonTests : ControlTestBase<Button<String>>, IDisposable
 {
     private readonly Canvas canvas;

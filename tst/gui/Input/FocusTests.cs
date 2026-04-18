@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Input;
@@ -30,6 +31,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests.Input;
 
+[TestSubject(typeof(Focus))]
 public sealed class FocusTests : IDisposable
 {
     private readonly Focus focus = new((_, _) => {});

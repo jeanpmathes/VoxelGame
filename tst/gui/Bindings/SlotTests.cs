@@ -18,12 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Tests.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Bindings;
 
+[TestSubject(typeof(Slot<>))]
 public class SlotTests
 {
     private readonly Slot<Int32> slot;

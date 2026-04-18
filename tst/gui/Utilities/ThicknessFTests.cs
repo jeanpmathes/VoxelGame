@@ -18,11 +18,13 @@
 // <author>jeanpmathes</author>
 
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Utilities;
 
+[TestSubject(typeof(ThicknessF))]
 public class ThicknessFTests
 {
     [Fact]

@@ -18,11 +18,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Texts;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Texts;
 
+[TestSubject(typeof(Weight))]
 public class WeightTests
 {
     [Theory]

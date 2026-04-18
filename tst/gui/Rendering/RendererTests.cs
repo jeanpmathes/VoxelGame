@@ -19,11 +19,14 @@
 
 using System;
 using System.Drawing;
+using JetBrains.Annotations;
+using VoxelGame.GUI.Rendering;
 using VoxelGame.GUI.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Rendering;
 
+[TestSubject(typeof(Renderer))]
 public class RendererTests
 {
     private readonly MockRenderer renderer = new();

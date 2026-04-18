@@ -19,6 +19,7 @@
 
 using System;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.Testing;
 using VoxelGame.Analyzers.Analyzers;
 using Xunit;
@@ -26,6 +27,7 @@ using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<Vo
 
 namespace VoxelGame.Analyzers.Tests.Analyzers;
 
+[TestSubject(typeof(EnumToStringAnalyzer))]
 public class EnumToStringAnalyzerTests
 {
     [Fact]

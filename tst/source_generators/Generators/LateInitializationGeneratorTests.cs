@@ -18,12 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.SourceGenerators.Generators;
 using VoxelGame.SourceGenerators.Tests.Utilities;
 using Xunit;
 
 namespace VoxelGame.SourceGenerators.Tests.Generators;
 
+[TestSubject(typeof(LateInitializationGenerator))]
 public class LateInitializationGeneratorTests
 {
     private static String RunGenerator(String source)

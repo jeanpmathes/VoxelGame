@@ -18,11 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Utilities;
+using VoxelGame.GUI.Visuals;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Visuals;
 
+[TestSubject(typeof(Visual))]
 public class VisualTests
 {
     private readonly MockVisual visual = new();

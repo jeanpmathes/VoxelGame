@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Generation.Worlds;
 using VoxelGame.Core.Generation.Worlds.Standard;
@@ -32,6 +33,7 @@ using Xunit.Abstractions;
 namespace VoxelGame.Core.Tests.Generation.Worlds;
 
 [Collection(ResourceCollection.Name)]
+[TestSubject(typeof(Generator))]
 public sealed class GeneratorTests(ITestOutputHelper output) : IDisposable
 {
     private readonly NativeAllocator allocator = new();

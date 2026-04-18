@@ -18,12 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Commands;
 using VoxelGame.GUI.Tests.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Commands;
 
+[TestSubject(typeof(Command))]
 public class CommandTests
 {
     private static readonly Object placeholder = new();

@@ -19,6 +19,7 @@
 
 using System;
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Tests.Utilities;
 using VoxelGame.GUI.Tests.Visuals;
@@ -27,6 +28,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests.Bindings;
 
+[TestSubject(typeof(VisualProperty))]
 public class VisualPropertyTests
 {
     private readonly MockVisual visual = new();

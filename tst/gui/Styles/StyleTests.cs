@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Styles;
 using VoxelGame.GUI.Tests.Controls;
@@ -25,6 +26,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests.Styles;
 
+[TestSubject(typeof(Style))]
 public class StyleTests
 {
     private readonly MockControl element = new();

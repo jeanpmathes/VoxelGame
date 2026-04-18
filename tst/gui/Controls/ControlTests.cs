@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Styles;
@@ -30,6 +31,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests.Controls;
 
+[TestSubject(typeof(Control))]
 public class ControlTests
 {
     [Fact]

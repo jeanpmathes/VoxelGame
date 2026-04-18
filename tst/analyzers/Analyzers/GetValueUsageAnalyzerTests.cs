@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using Microsoft.CodeAnalysis.CSharp.Testing;
 using Microsoft.CodeAnalysis.Testing;
 using VoxelGame.Analyzers.Analyzers;
@@ -27,6 +28,7 @@ using Verifier = Microsoft.CodeAnalysis.CSharp.Testing.CSharpAnalyzerVerifier<Vo
 
 namespace VoxelGame.Analyzers.Tests.Analyzers;
 
+[TestSubject(typeof(GetValueUsageAnalyzer))]
 public class GetValueUsageAnalyzerTests
 {
     [Fact]

@@ -19,6 +19,7 @@
 
 using System;
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Tests.Rendering;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Themes;
@@ -30,6 +31,7 @@ using Font = VoxelGame.GUI.Texts.Font;
 
 namespace VoxelGame.GUI.Tests.Visuals;
 
+[TestSubject(typeof(Text))]
 public class TextTests : VisualTestBase<Text>
 {
     private readonly TrackingRenderer renderer = new();

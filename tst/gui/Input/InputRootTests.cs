@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Tests.Controls;
@@ -31,6 +32,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests.Input;
 
+[TestSubject(typeof(InputRoot))]
 public sealed class InputRootTests : IDisposable
 {
     private readonly Canvas canvas;

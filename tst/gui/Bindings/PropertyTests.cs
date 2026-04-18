@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Tests.Controls;
 using VoxelGame.GUI.Tests.Utilities;
@@ -25,6 +26,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests.Bindings;
 
+[TestSubject(typeof(Property))]
 public class PropertyTests
 {
     private readonly MockControl owner = new();

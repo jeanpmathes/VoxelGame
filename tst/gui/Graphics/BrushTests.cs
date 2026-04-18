@@ -18,11 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Graphics;
 using Xunit;
+using Brush = VoxelGame.GUI.Graphics.Brush;
 
 namespace VoxelGame.GUI.Tests.Graphics;
 
+[TestSubject(typeof(Brush))]
 public class BrushTests
 {
     [Fact]

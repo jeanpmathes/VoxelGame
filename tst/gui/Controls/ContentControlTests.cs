@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Tests.Rendering;
@@ -26,6 +27,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests.Controls;
 
+[TestSubject(typeof(ContentControl<>))]
 public sealed class ContentControlTests() : ControlTestBase<ContentControl<Object>>(() => new ContentControl<Object>()), IDisposable
 {
     private readonly Canvas canvas = Canvas.Create(new MockRenderer(), new Theme());

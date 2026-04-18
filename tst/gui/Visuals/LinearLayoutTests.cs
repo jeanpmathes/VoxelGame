@@ -18,12 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System.Drawing;
+using JetBrains.Annotations;
 using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Visuals;
 
+[TestSubject(typeof(LinearLayout))]
 public class LinearLayoutTests() : VisualTestBase<LinearLayout>(() => new LinearLayout())
 {
     private readonly MockLinearLayout layout = new() {Visibility = {Value = Visibility.Visible}};

@@ -17,6 +17,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using JetBrains.Annotations;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Tests.Controls;
 using VoxelGame.GUI.Visuals;
@@ -24,6 +25,7 @@ using Xunit;
 
 namespace VoxelGame.GUI.Tests.Visuals;
 
+[TestSubject(typeof(ChildrenPresenter))]
 public class ChildrenPresenterTests : VisualTestBase<ChildrenPresenter>
 {
     private readonly MockMultiChildControl parent;

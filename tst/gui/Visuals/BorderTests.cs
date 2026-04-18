@@ -17,8 +17,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using JetBrains.Annotations;
 using VoxelGame.GUI.Visuals;
 
 namespace VoxelGame.GUI.Tests.Visuals;
 
+[TestSubject(typeof(Border))]
 public class BorderTests() : VisualTestBase<Border>(() => new Border());
