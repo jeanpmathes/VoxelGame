@@ -107,7 +107,8 @@ public sealed class InputRootTests : IDisposable
         visual.OnInputPreviewHandler = _ => order.Add("tunnel");
         visual.OnInputHandler = _ => order.Add("bubble");
 
-        canvas.Press(new PointF(x: 100f, y: 100f));
+        canvas.Context.KeyboardFocus.Set(visual);
+        canvas.EnterText("Hello World.");
 
         Assert.Equal(["tunnel", "bubble"], order);
     }

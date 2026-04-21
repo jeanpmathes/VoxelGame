@@ -54,4 +54,13 @@ public class BrushTests
 
         Assert.True(first.Equals(second));
     }
+
+    [Fact]
+    public void Brush_SolidColorBrush_ShouldHaveSameHashCodeIfEqual()
+    {
+        SolidColorBrush first = new(Color.Red);
+        SolidColorBrush second = new(Color.Red);
+
+        Assert.True(first.GetHashCode() == second.GetHashCode());
+    }
 }
