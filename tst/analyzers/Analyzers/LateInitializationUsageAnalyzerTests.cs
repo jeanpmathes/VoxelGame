@@ -49,8 +49,8 @@ public class LateInitializationUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -89,8 +89,8 @@ public class LateInitializationUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -132,8 +132,8 @@ public class LateInitializationUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {

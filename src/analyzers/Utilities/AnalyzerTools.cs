@@ -1,4 +1,4 @@
-﻿// <copyright file="DemoHarness.cs" company="VoxelGame">
+﻿// <copyright file="AnalyzerTools.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -18,31 +18,25 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.GUI.Bindings;
+using System.Linq;
+using Microsoft.CodeAnalysis;
 
-namespace VoxelGame.Presentation.Demo;
+namespace VoxelGame.Analyzers.Utilities;
 
 /// <summary>
-///     Hosts all the different demonstrations.
+///     Tools for writing analyzers.
 /// </summary>
-public class DemoHarness
+public static class AnalyzerTools
 {
     /// <summary>
-    ///     The currently calculated rendering cycle frequency.
+    ///     Check whether a type symbol is of a certain interface type or a type that implements that interface type.
     /// </summary>
-    public Slot<Double> RenderFrequency => field ??= new Slot<Double>(value: 0.0, this);
-
-    /// <summary>
-    ///     The currently calculated update cycle frequency.
-    /// </summary>
-    public Slot<Double> UpdateFrequency => field ??= new Slot<Double>(value: 0.0, this);
-
-    /// <summary>
-    ///     Write and display a message.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    public void Write(String message)
+    /// <param name="typeSymbol">The type symbol to check.</param>
+    /// <param name="interfaceDisplayName">The name of the interface to check against.</param>
+    /// <returns><c>true</c> if it matches, <c>false</c> if not</returns>
+    public static Boolean IsOrImplementsInterface(ITypeSymbol typeSymbol, String interfaceDisplayName)
     {
-        Console.WriteLine(message);
+        return typeSymbol.OriginalDefinition.ToDisplayString() == interfaceDisplayName
+               || typeSymbol.AllInterfaces.Any(i => i.OriginalDefinition.ToDisplayString() == interfaceDisplayName);
     }
 }

@@ -1,4 +1,4 @@
-﻿// <copyright file="TestTool.cs" company="VoxelGame">
+﻿// <copyright file="TestTools.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -28,7 +28,7 @@ namespace VoxelGame.Analyzers.Tests.Utilities;
 /// <summary>
 ///     Helps with setup related things for analyzer tests.
 /// </summary>
-public static class TestTool
+public static class TestTools
 {
     private const String Version = "9.0";
 

@@ -46,8 +46,8 @@ public class GenerateRecordUsageAnalyzerTests
                        public interface I<T> {}
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -79,8 +79,8 @@ public class GenerateRecordUsageAnalyzerTests
                        public interface I {}
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -112,8 +112,8 @@ public class GenerateRecordUsageAnalyzerTests
                        public interface I {}
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -139,8 +139,8 @@ public class GenerateRecordUsageAnalyzerTests
                        public interface I {}
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -168,8 +168,8 @@ public class GenerateRecordUsageAnalyzerTests
                        public interface I {}
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {

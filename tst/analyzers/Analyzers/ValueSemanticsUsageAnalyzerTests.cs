@@ -49,8 +49,8 @@ public class ValueSemanticsUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -81,8 +81,8 @@ public class ValueSemanticsUsageAnalyzerTests
                        public struct S;
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {

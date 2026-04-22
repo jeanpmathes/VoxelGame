@@ -1,4 +1,4 @@
-﻿// <copyright file="DemoHarness.cs" company="VoxelGame">
+﻿// <copyright file="Constants.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -18,31 +18,21 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.GUI.Bindings;
 
-namespace VoxelGame.Presentation.Demo;
+namespace VoxelGame.Analyzers;
 
 /// <summary>
-///     Hosts all the different demonstrations.
+///     Some relevant constants.
 /// </summary>
-public class DemoHarness
+public static class Constants
 {
     /// <summary>
-    ///     The currently calculated rendering cycle frequency.
+    ///     The display name of the value source interface, defined in the GUI project.
     /// </summary>
-    public Slot<Double> RenderFrequency => field ??= new Slot<Double>(value: 0.0, this);
+    public const String ValueSource = "VoxelGame.GUI.Bindings.IValueSource<T>";
 
     /// <summary>
-    ///     The currently calculated update cycle frequency.
+    ///     The display name of the parametrized value source interface, defined in the GUI project.
     /// </summary>
-    public Slot<Double> UpdateFrequency => field ??= new Slot<Double>(value: 0.0, this);
-
-    /// <summary>
-    ///     Write and display a message.
-    /// </summary>
-    /// <param name="message">The message to display.</param>
-    public void Write(String message)
-    {
-        Console.WriteLine(message);
-    }
+    public const String ValueSource2 = "VoxelGame.GUI.Bindings.IValueSource<TIn, TOut>";
 }

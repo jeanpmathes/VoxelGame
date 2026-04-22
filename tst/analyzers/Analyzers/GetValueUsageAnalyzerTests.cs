@@ -65,8 +65,8 @@ public class GetValueUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             ExpectedDiagnostics =
             {
@@ -110,8 +110,8 @@ public class GetValueUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             ExpectedDiagnostics =
             {

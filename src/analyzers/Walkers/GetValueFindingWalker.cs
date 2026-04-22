@@ -18,10 +18,10 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using VoxelGame.Analyzers.Utilities;
 
 namespace VoxelGame.Analyzers.Walkers;
 
@@ -52,41 +52,11 @@ internal class GetValueFindingWalker : CSharpSyntaxWalker
         if (found != null)
             return;
 
-        if (IsGetValueInvocation(invocationExpressionSyntax, semanticModel) || IsGetValue2Invocation(invocationExpressionSyntax, semanticModel))
+        if (IsGetValueInvocation(invocationExpressionSyntax, semanticModel, parametersLength: 0, Constants.ValueSource) || IsGetValueInvocation(invocationExpressionSyntax, semanticModel, parametersLength: 1, Constants.ValueSource2))
             found = invocationExpressionSyntax.GetLocation();
     }
 
-    private static Boolean IsGetValueInvocation(InvocationExpressionSyntax invocationExpressionSyntax, SemanticModel semanticModel)
-    {
-        if (IsGetValueInvocationBase(invocationExpressionSyntax, semanticModel) is not {} methodSymbol)
-            return false;
-
-        if (methodSymbol is not {Name: "GetValue", Parameters.Length: 0})
-            return false;
-
-        return methodSymbol.ContainingType is {} containingType
-               && IsOrImplementsInterface(containingType, "VoxelGame.GUI.Bindings.IValueSource<T>");
-    }
-
-    private static Boolean IsGetValue2Invocation(InvocationExpressionSyntax invocationExpressionSyntax, SemanticModel semanticModel)
-    {
-        if (IsGetValueInvocationBase(invocationExpressionSyntax, semanticModel) is not {} methodSymbol)
-            return false;
-
-        if (methodSymbol is not {Name: "GetValue", Parameters.Length: 1})
-            return false;
-
-        return methodSymbol.ContainingType is {} containingType
-               && IsOrImplementsInterface(containingType, "VoxelGame.GUI.Bindings.IValueSource<TIn, TOut>");
-    }
-
-    private static Boolean IsOrImplementsInterface(ITypeSymbol typeSymbol, String interfaceDisplayName)
-    {
-        return typeSymbol.OriginalDefinition.ToDisplayString() == interfaceDisplayName
-               || typeSymbol.AllInterfaces.Any(i => i.OriginalDefinition.ToDisplayString() == interfaceDisplayName);
-    }
-
-    private static IMethodSymbol? IsGetValueInvocationBase(InvocationExpressionSyntax invocationExpressionSyntax, SemanticModel semanticModel)
+    private static Boolean IsGetValueInvocation(InvocationExpressionSyntax invocationExpressionSyntax, SemanticModel semanticModel, Int32 parametersLength, String interfaceDisplayName)
     {
         String? methodName = invocationExpressionSyntax.Expression switch
         {
@@ -96,8 +66,18 @@ internal class GetValueFindingWalker : CSharpSyntaxWalker
         };
 
         if (methodName != "GetValue")
-            return null;
+            return false;
 
-        return semanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol as IMethodSymbol;
+        if (semanticModel.GetSymbolInfo(invocationExpressionSyntax).Symbol is not IMethodSymbol methodSymbol)
+            return false;
+
+        if (methodSymbol is not {Name: "GetValue"})
+            return false;
+
+        if (methodSymbol.Parameters.Length != parametersLength)
+            return false;
+
+        return methodSymbol.ContainingType is {} containingType
+               && AnalyzerTools.IsOrImplementsInterface(containingType, interfaceDisplayName);
     }
 }

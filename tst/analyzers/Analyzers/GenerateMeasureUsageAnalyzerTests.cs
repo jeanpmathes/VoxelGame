@@ -55,8 +55,8 @@ public class GenerateMeasureUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -92,8 +92,8 @@ public class GenerateMeasureUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
@@ -134,8 +134,8 @@ public class GenerateMeasureUsageAnalyzerTests
                        }
                        """,
 
-            ReferenceAssemblies = TestTool.DefaultAssembly,
-            SolutionTransforms = {TestTool.DefaultSolutionTransform},
+            ReferenceAssemblies = TestTools.DefaultAssembly,
+            SolutionTransforms = {TestTools.DefaultSolutionTransform},
 
             TestState =
             {
