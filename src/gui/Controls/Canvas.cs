@@ -47,6 +47,8 @@ public sealed class Canvas : SingleChildControl<Canvas>, IDisposable
         Input = Binding.To(Visualization).Cast<Visuals.Canvas>().Select(canvas => canvas?.Input, defaultValue: null);
 
         Context = new Context(theme, this);
+
+        Background.OverrideDefault(Defaults.BackgroundBrush);
     }
 
     /// <summary>

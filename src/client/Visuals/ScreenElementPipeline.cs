@@ -77,7 +77,7 @@ public sealed partial class ScreenElementPipeline : IDisposable
 
         ScreenElementPipeline created = new(client, relativeScreenPosition, buffer);
 
-        created.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, created.Draw);
+        created.disposable = client.AddDraw2DPipeline(pipeline, Draw2D.Background, created.Draw);
 
         return created;
     }

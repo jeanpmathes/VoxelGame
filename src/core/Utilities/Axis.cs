@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Toolkit.Utilities;
@@ -50,60 +51,64 @@ public enum Axis
 /// </summary>
 public static class AxisExtensions
 {
-    /// <summary>
-    ///     Rotate an axis around the y-axis.
-    /// </summary>
-    public static Axis Rotate(this Axis axis)
+    extension(Axis axis)
     {
-        return axis switch
+        /// <summary>
+        ///     Rotate an axis around the y-axis.
+        /// </summary>
+        public Axis Rotate()
         {
-            Axis.X => Axis.Z,
-            Axis.Y => Axis.Y,
-            Axis.Z => Axis.X,
-            _ => throw Exceptions.UnsupportedEnumValue(axis)
-        };
-    }
+            return axis switch
+            {
+                Axis.X => Axis.Z,
+                Axis.Y => Axis.Y,
+                Axis.Z => Axis.X,
+                _ => throw Exceptions.UnsupportedEnumValue(axis)
+            };
+        }
 
-    /// <summary>
-    ///     Get the sides associated with the given axis.
-    ///     These are the sides the axis passes through.
-    /// </summary>
-    public static Sides Sides(this Axis axis)
-    {
-        return axis switch
+        /// <summary>
+        ///     Get the sides associated with the given axis.
+        ///     These are the sides the axis passes through.
+        /// </summary>
+        public Sides Sides()
         {
-            Axis.X => Logic.Voxels.Sides.Left | Logic.Voxels.Sides.Right,
-            Axis.Y => Logic.Voxels.Sides.Top | Logic.Voxels.Sides.Bottom,
-            Axis.Z => Logic.Voxels.Sides.Front | Logic.Voxels.Sides.Back,
-            _ => throw Exceptions.UnsupportedEnumValue(axis)
-        };
-    }
+            return axis switch
+            {
+                Axis.X => Logic.Voxels.Sides.Left | Logic.Voxels.Sides.Right,
+                Axis.Y => Logic.Voxels.Sides.Top | Logic.Voxels.Sides.Bottom,
+                Axis.Z => Logic.Voxels.Sides.Front | Logic.Voxels.Sides.Back,
+                _ => throw Exceptions.UnsupportedEnumValue(axis)
+            };
+        }
 
-    /// <summary>
-    ///     Get the axis as a <see cref="Vector3" />.
-    /// </summary>
-    public static Vector3d Vector3(this Axis axis, Double onAxis, Double other)
-    {
-        return axis switch
+        /// <summary>
+        ///     Get the axis as a <see cref="Vector3" />.
+        /// </summary>
+        public Vector3d Vector3(Double onAxis, Double other)
         {
-            Axis.X => new Vector3d(onAxis, other, other),
-            Axis.Y => new Vector3d(other, onAxis, other),
-            Axis.Z => new Vector3d(other, other, onAxis),
-            _ => throw Exceptions.UnsupportedEnumValue(axis)
-        };
-    }
+            return axis switch
+            {
+                Axis.X => new Vector3d(onAxis, other, other),
+                Axis.Y => new Vector3d(other, onAxis, other),
+                Axis.Z => new Vector3d(other, other, onAxis),
+                _ => throw Exceptions.UnsupportedEnumValue(axis)
+            };
+        }
 
-    /// <summary>
-    ///     Get the unit vector of the axis as a <see cref="Vector3d" />.
-    /// </summary>
-    public static Vector3d ToVector3d(this Axis axis)
-    {
-        return axis switch
+        /// <summary>
+        ///     Get the unit vector of the axis as a <see cref="Vector3d" />.
+        /// </summary>
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Matches the naming of the type.")]
+        public Vector3d ToVector3d()
         {
-            Axis.X => Vector3d.UnitX,
-            Axis.Y => Vector3d.UnitY,
-            Axis.Z => Vector3d.UnitZ,
-            _ => throw Exceptions.UnsupportedEnumValue(axis)
-        };
+            return axis switch
+            {
+                Axis.X => Vector3d.UnitX,
+                Axis.Y => Vector3d.UnitY,
+                Axis.Z => Vector3d.UnitZ,
+                _ => throw Exceptions.UnsupportedEnumValue(axis)
+            };
+        }
     }
 }

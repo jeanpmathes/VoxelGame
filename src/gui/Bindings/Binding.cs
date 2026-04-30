@@ -198,6 +198,36 @@ public static class Binding
             return binding.Compute(t => computer(t.Item1, t.Item2, t.Item3));
         }
     }
+
+    extension<T1, T2, T3, T4>(Binding<(T1, T2, T3, T4)> binding)
+    {
+        /// <summary>
+        ///     Deconstructing overload of <see cref="Binding{T}.Select{TSelected}(Func{T,IValueSource{TSelected}})" /> for
+        ///     four-source tuple bindings.
+        /// </summary>
+        public Binding<TResult> Select<TResult>(Func<T1, T2, T3, T4, IValueSource<TResult>> selector)
+        {
+            return binding.Select(t => selector(t.Item1, t.Item2, t.Item3, t.Item4));
+        }
+
+        /// <summary>
+        ///     Deconstructing overload of <see cref="Binding{T}.Select{TSelected}(Func{T,IValueSource{TSelected}?},TSelected)" />
+        ///     for four-source tuple bindings.
+        /// </summary>
+        public Binding<TResult> Select<TResult>(Func<T1, T2, T3, T4, IValueSource<TResult>?> selector,
+            TResult defaultValue)
+        {
+            return binding.Select(t => selector(t.Item1, t.Item2, t.Item3, t.Item4), defaultValue);
+        }
+
+        /// <summary>
+        ///     Deconstructing overload of <see cref="Binding{T}.Compute{TSelected}" /> for four-source tuple bindings.
+        /// </summary>
+        public Binding<TResult> Compute<TResult>(Func<T1, T2, T3, T4, TResult> computer)
+        {
+            return binding.Compute(t => computer(t.Item1, t.Item2, t.Item3, t.Item4));
+        }
+    }
 }
 
 /// <summary>
@@ -388,6 +418,21 @@ public sealed class Binding<T> : IValueSource<T>
     public Binding<(T, TOther1, TOther2)> Combine<TOther1, TOther2>(IValueSource<TOther1> other1, IValueSource<TOther2> other2)
     {
         return new Binding<(T, TOther1, TOther2)>(() => (GetValue(), other1.GetValue(), other2.GetValue()), setter: null, [this, other1, other2]);
+    }
+
+    /// <summary>
+    ///     Combine this binding with three other value sources, creating a tuple of their values.
+    /// </summary>
+    /// <param name="other1">The first other value source to combine with this binding.</param>
+    /// <param name="other2">The second other value source to combine with this binding.</param>
+    /// <param name="other3">The third other value source to combine with this binding.</param>
+    /// <typeparam name="TOther1">The type of the value in the first other source.</typeparam>
+    /// <typeparam name="TOther2">The type of the value in the second other source.</typeparam>
+    /// <typeparam name="TOther3">The type of the value in the third other source.</typeparam>
+    /// <returns>The created binding.</returns>
+    public Binding<(T, TOther1, TOther2, TOther3)> Combine<TOther1, TOther2, TOther3>(IValueSource<TOther1> other1, IValueSource<TOther2> other2, IValueSource<TOther3> other3)
+    {
+        return new Binding<(T, TOther1, TOther2, TOther3)>(() => (GetValue(), other1.GetValue(), other2.GetValue(), other3.GetValue()), setter: null, [this, other1, other2, other3]);
     }
 
     /// <summary>

@@ -17,7 +17,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Collections.Generic;
+using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Styles;
 
@@ -26,12 +28,24 @@ namespace VoxelGame.GUI.Themes;
 /// <summary>
 ///     A theme combines styles and content templates.
 /// </summary>
-public class Theme(List<Style> styles, List<ContentTemplate> contentTemplates)
+public sealed class Theme(RID id, List<Style> styles, List<ContentTemplate> contentTemplates) : IResource
 {
     /// <summary>
     ///     Create a new empty <see cref="Theme" />.
     /// </summary>
     public Theme() : this([], []) {}
+
+    /// <summary>
+    ///     Create a new virtual <see cref="Theme" />.
+    ///     This should be used only outside the resource loading phase.
+    /// </summary>
+    public Theme(List<Style> styles, List<ContentTemplate> contentTemplates) : this(RID.Virtual, styles, contentTemplates) {}
+
+    /// <summary>
+    ///     Create a new named <see cref="Theme" />.
+    ///     Use this during the resource loading phase.
+    /// </summary>
+    public Theme(String name, List<Style> styles, List<ContentTemplate> contentTemplates) : this(RID.Named<Theme>(name), styles, contentTemplates) {}
 
     /// <summary>
     ///     Get all styles that are part of this theme.
@@ -42,4 +56,16 @@ public class Theme(List<Style> styles, List<ContentTemplate> contentTemplates)
     ///     Get all content templates that are part of this theme.
     /// </summary>
     public IReadOnlyList<ContentTemplate> ContentTemplates => contentTemplates;
+
+    /// <inheritdoc />
+    public RID Identifier { get; } = id;
+
+    /// <inheritdoc />
+    public ResourceType Type => ResourceTypes.Theme;
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of, as styles and content templates are owned by the resource context.
+    }
 }

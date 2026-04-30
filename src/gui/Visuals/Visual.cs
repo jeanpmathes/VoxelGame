@@ -24,6 +24,7 @@ using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Rendering;
+using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
 using Brush = VoxelGame.GUI.Graphics.Brush;
 using Brushes = VoxelGame.GUI.Graphics.Brushes;
@@ -156,7 +157,7 @@ public abstract class Visual
     /// <returns>The created binding.</returns>
     protected Binding<Brush> BindToOwnerForeground()
     {
-        return Binding.To(TemplateOwner).Select(o => o?.Foreground, Brushes.Black);
+        return Binding.To(TemplateOwner).Select(o => o?.Foreground, Defaults.ForegroundBrush);
     }
 
     /// <summary>

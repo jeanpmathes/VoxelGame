@@ -28,7 +28,7 @@ namespace VoxelGame.Presentation.New.Resources;
 public class RequiredResources : ResourceCatalog
 {
     /// <summary>
-    ///     Creates a new instance of the UI required resource catalog.
+    ///     Creates a new instance of the UI-required resource catalog.
     /// </summary>
     public RequiredResources() : base([
         new GraphicalUserInterfaceLoader()

@@ -330,15 +330,15 @@ public partial class Client : Application
     /// <summary>
     ///     Add a pipeline to the 2D drawing rendering step.
     /// </summary>
-    /// <param name="pipeline">The pipeline to add, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" /> preset.</param>
+    /// <param name="pipeline">The pipeline to add. It must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" /> preset.</param>
     /// <param name="priority">
     ///     The priority of the pipeline, higher priority pipelines are rendered later.
     ///     Use the constants <see cref="Draw2D.Foreground" /> and <see cref="Draw2D.Background" /> to add the current
     ///     front and back.
     /// </param>
-    /// <param name="callback">A callback which will be called each frame and allows to submit draw calls.</param>
-    /// <returns>A disposable object which can be used to remove the pipeline.</returns>
-    public IDisposable AddDraw2dPipeline(RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
+    /// <param name="callback">A callback that will be called each frame and allows to submit draw calls.</param>
+    /// <returns>A disposable object that can be used to remove the pipeline.</returns>
+    public IDisposable AddDraw2DPipeline(RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 

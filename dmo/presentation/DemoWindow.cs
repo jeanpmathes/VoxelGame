@@ -35,29 +35,15 @@ internal class DemoWindow : Client
     private const Int32 MaxFrameSampleSize = 10000;
 
     private readonly GraphicalUserInterface gui;
-    private readonly Object? themeContainer;
 
     private readonly CircularTimeBuffer renderTimes;
     private readonly CircularTimeBuffer updateTimes;
 
     private DemoHarness? harness;
 
-    private DemoWindow(Theme theme, WindowSettings windowSettings, Version version) : base(windowSettings, version)
+    private DemoWindow(WindowSettings windowSettings, Version version) : base(windowSettings, version)
     {
-        ThemeBuilder builder = new();
-
-        switch (theme)
-        {
-            case Theme.Light:
-                themeContainer = new ClassicLight(builder);
-                break;
-
-            case Theme.Dark:
-                themeContainer = new ClassicDark(builder);
-                break;
-        }
-
-        gui = GraphicalUserInterface.Create(this, builder.BuildTheme());
+        gui = GraphicalUserInterface.Create(this, new Theme());
 
         updateTimes = new CircularTimeBuffer(MaxFrameSampleSize);
         renderTimes = new CircularTimeBuffer(MaxFrameSampleSize);
@@ -113,13 +99,6 @@ internal class DemoWindow : Client
     {
         LoggingHelper.SetUpMockLogging();
 
-        Theme theme = Theme.Default;
-
-        if (args.Contains("--light"))
-            theme = Theme.Light;
-        else if (args.Contains("--dark"))
-            theme = Theme.Dark;
-
         WindowSettings windowSettings = new()
         {
             Title = $"VoxelGame GUI Demo [{String.Join(" ", args)}]",
@@ -128,15 +107,8 @@ internal class DemoWindow : Client
             SupportPIX = args.Contains("--pix")
         };
 
-        using DemoWindow window = new(theme, windowSettings, new Version("0.0.0.1"));
+        using DemoWindow window = new(windowSettings, new Version("0.0.0.1"));
 
         window.Run();
-    }
-
-    private enum Theme
-    {
-        Default,
-        Light,
-        Dark
     }
 }

@@ -70,7 +70,7 @@ public sealed partial class RenderPipeline : IDisposable
 
         (pipeline, buffer) = raster;
 
-        disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Foreground, Draw);
+        disposable = client.AddDraw2DPipeline(pipeline, Draw2D.Foreground, Draw);
 
         Textures = new TextureList(client);
     }

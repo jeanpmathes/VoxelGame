@@ -41,7 +41,7 @@ public sealed class GraphicalUserInterfaceLoader : IResourceLoader
     {
         return context.Require<Client>(client =>
         {
-            Theme theme = new(context.GetAll<Style>().ToList(), context.GetAll<ContentTemplate>().ToList());
+            Theme theme = new("Base", context.GetAll<Style>().ToList(), context.GetAll<ContentTemplate>().ToList());
 
             GraphicalUserInterface gui = GraphicalUserInterface.Create(client, theme);
 

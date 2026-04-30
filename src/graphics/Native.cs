@@ -299,17 +299,17 @@ internal static class Native
     ///     Add a draw 2D pipeline.
     /// </summary>
     /// <param name="client">The client.</param>
-    /// <param name="pipeline">The pipeline, must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" />.</param>
+    /// <param name="pipeline">The pipeline. It must use the <see cref="ShaderPresets.ShaderPreset.Draw2D" />.</param>
     /// <param name="priority">The priority, a higher priority means it is executed later and thus on top of other pipelines.</param>
     /// <param name="callback">Callback to be called when the pipeline is executed.</param>
     /// <returns>An object that allows removing the pipeline.</returns>
     internal static IDisposable AddDraw2DPipeline(Client client, RasterPipeline pipeline, Int32 priority, Action<Draw2D> callback)
     {
-        Draw2D.Callback draw2dCallback = unmanaged => callback(new Draw2D(Draw2D.InternalMarshaller.ConvertToManaged(unmanaged)));
-        UInt32 id = NativeMethods.AddDraw2DPipeline(client, pipeline, priority, draw2dCallback);
+        Draw2D.Callback draw2DCallback = unmanaged => callback(new Draw2D(Draw2D.InternalMarshaller.ConvertToManaged(unmanaged)));
+        UInt32 id = NativeMethods.AddDraw2DPipeline(client, pipeline, priority, draw2DCallback);
 
         Debug.Assert(!draw2DCallbacks.ContainsKey(id));
-        draw2DCallbacks[id] = draw2dCallback;
+        draw2DCallbacks[id] = draw2DCallback;
 
         return new Disposer(() =>
         {

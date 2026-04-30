@@ -18,11 +18,11 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls.Bases;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 using Brush = VoxelGame.GUI.Graphics.Brush;
@@ -50,16 +50,6 @@ public interface IButton : IContentControl
     public ReadOnlySlot<Boolean> IsPressed { get; }
 }
 
-internal static class ButtonDefaults
-{
-    public static readonly Brush DisabledForeground = new SolidColorBrush(Color.Gray);
-
-    public static readonly Brush FocusedBorderBrush = new SolidColorBrush(Color.Blue);
-
-    public static readonly Brush HoveredBackground = new SolidColorBrush(Color.LightGray);
-    public static readonly Brush PressedBackground = new SolidColorBrush(Color.Gray);
-}
-
 /// <summary>
 ///     A content control that can be clicked to perform an action.
 /// </summary>
@@ -70,28 +60,37 @@ public class Button<TContent> : ButtonBase<TContent, Button<TContent>>, IButton 
     /// </summary>
     public Button()
     {
-        BorderBrush = Property.Create(this, Binding.To(Foreground).Combine(IsKeyboardFocused).Compute((foreground, isFocused) => isFocused ? ButtonDefaults.FocusedBorderBrush : foreground));
+        BorderBrush = Property.Create(this, Binding.To(Background).Combine(IsKeyboardFocused).Compute((background, isFocused) => isFocused ? Defaults.Button.FocusedBorderBrush : background));
         BorderWidth = Property.Create(this, new WidthF(1.0f));
         BorderRadius = Property.Create(this, RadiusF.Zero);
-        BorderStrokeStyle = Property.Create(this, StrokeStyle.Solid);
+        BorderStrokeStyle = Property.Create(this, Binding.To(IsKeyboardFocused).Compute(isFocused => isFocused ? StrokeStyle.Squared : StrokeStyle.Solid));
 
         Foreground.OverrideDefault(old => old
-            .Combine(Enablement)
-            .Compute((foreground, enablement) => enablement.IsEnabled ? foreground : ButtonDefaults.DisabledForeground));
+            .Combine(Enablement, IsPressed, IsHovered)
+            .Compute(ComputeForegroundBrush));
 
         Background.OverrideDefault(old => old
             .Combine(IsPressed, IsHovered)
-            .Compute((background, isPressed, isHovered) => isPressed
-                ? ButtonDefaults.PressedBackground
-                : isHovered
-                    ? ButtonDefaults.HoveredBackground
-                    : background));
-
-        Opacity.OverrideDefault(old => old
-            .Combine(Enablement)
-            .Compute((opacity, enablement) => enablement.IsEnabled ? opacity : 0.8f));
+            .Compute(ComputeBackgroundBrush));
 
         IsNavigable.OverrideDefault(defaultValue: true);
+    }
+
+    private static Brush ComputeForegroundBrush(Brush foreground, Enablement enablement, Boolean isPressed, Boolean isHovered)
+    {
+        if (enablement.IsDisabled) return Defaults.DisabledForegroundBrush;
+        if (isPressed) return Defaults.Button.PressedForegroundBrush;
+        if (isHovered) return Defaults.Button.HoveredForegroundBrush;
+
+        return foreground;
+    }
+
+    private static Brush ComputeBackgroundBrush(Brush background, Boolean isPressed, Boolean isHovered)
+    {
+        if (isPressed) return Defaults.Button.PressedBackgroundBrush;
+        if (isHovered) return Defaults.Button.HoveredBackgroundBrush;
+
+        return Defaults.BackgroundBrush;
     }
 
     /// <inheritdoc />

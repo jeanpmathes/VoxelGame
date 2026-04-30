@@ -26,6 +26,7 @@ using VoxelGame.GUI.Graphics;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Rendering;
 using VoxelGame.GUI.Styles;
+using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 
@@ -112,7 +113,7 @@ public abstract class Control : IControl
     {
         parent = new Slot<Control?>(value: null, this);
 
-        Foreground = Property.Create(this, BindToParent(p => p.Foreground, Brushes.Black));
+        Foreground = Property.Create(this, BindToParent(p => p.Foreground, Defaults.ForegroundBrush));
         Background = Property.Create(this, Brushes.Transparent);
 
         Opacity = Property.Create(this, defaultValue: 1f);

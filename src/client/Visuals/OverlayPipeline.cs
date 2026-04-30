@@ -87,7 +87,7 @@ public sealed partial class OverlayPipeline : IDisposable
 
         OverlayPipeline created = new(client, buffer, textures);
 
-        created.disposable = client.AddDraw2dPipeline(pipeline, Draw2D.Background, created.Draw);
+        created.disposable = client.AddDraw2DPipeline(pipeline, Draw2D.Background, created.Draw);
 
         return created;
     }

@@ -92,6 +92,11 @@ public static class ResourceTypes
     public static ResourceType ContentTemplate { get; } = new(ResourceType.Category.Object, "gui_content_template");
 
     /// <summary>
+    ///     The GUI theme resource type.
+    /// </summary>
+    public static ResourceType Theme { get; } = new(ResourceType.Category.Object, "gui_theme");
+
+    /// <summary>
     ///     The GUI skin resource type.
     /// </summary>
     public static ResourceType Skin { get; } = new(ResourceType.Category.Object, "gui_skin"); // todo: remove
