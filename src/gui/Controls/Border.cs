@@ -21,6 +21,7 @@ using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls.Bases;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 
@@ -38,7 +39,7 @@ public class Border : BorderBase<Border>
     public Border()
     {
         BorderWidth = Property.Create(this, WidthF.One);
-        BorderRadius = Property.Create(this, RadiusF.Zero);
+        BorderRadius = Property.Create(this, Defaults.Radius);
         BorderStrokeStyle = Property.Create(this, StrokeStyle.Solid);
     }
 

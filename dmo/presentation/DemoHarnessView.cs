@@ -24,13 +24,10 @@ internal static class DemoHarnessView
                 {
                     new Border
                     {
-                        BorderWidth = {Value = new WidthF(3)},
                         MinimumWidth = {Value = 500f},
                         MinimumHeight = {Value = 250f},
                         HorizontalAlignment = {Value = HorizontalAlignment.Center},
                         VerticalAlignment = {Value = VerticalAlignment.Center},
-
-                        BorderRadius = {Value = new RadiusF(10)}
                     },
                     new Text
                     {

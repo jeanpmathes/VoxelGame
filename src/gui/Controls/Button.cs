@@ -62,35 +62,36 @@ public class Button<TContent> : ButtonBase<TContent, Button<TContent>>, IButton 
     {
         BorderBrush = Property.Create(this, Binding.To(Background).Combine(IsKeyboardFocused).Compute((background, isFocused) => isFocused ? Defaults.Button.FocusedBorderBrush : background));
         BorderWidth = Property.Create(this, new WidthF(1.0f));
-        BorderRadius = Property.Create(this, RadiusF.Zero);
+        BorderRadius = Property.Create(this, Defaults.Radius);
         BorderStrokeStyle = Property.Create(this, Binding.To(IsKeyboardFocused).Compute(isFocused => isFocused ? StrokeStyle.Squared : StrokeStyle.Solid));
 
         Foreground.OverrideDefault(old => old
-            .Combine(Enablement, IsPressed, IsHovered)
+            .Combine(Enablement)
             .Compute(ComputeForegroundBrush));
 
         Background.OverrideDefault(old => old
-            .Combine(IsPressed, IsHovered)
+            .Combine(Enablement, IsPressed, IsHovered)
             .Compute(ComputeBackgroundBrush));
 
         IsNavigable.OverrideDefault(defaultValue: true);
+
+        Padding.OverrideDefault(new ThicknessF(3.0f));
     }
 
-    private static Brush ComputeForegroundBrush(Brush foreground, Enablement enablement, Boolean isPressed, Boolean isHovered)
+    private static Brush ComputeForegroundBrush(Brush foreground, Enablement enablement)
     {
         if (enablement.IsDisabled) return Defaults.DisabledForegroundBrush;
-        if (isPressed) return Defaults.Button.PressedForegroundBrush;
-        if (isHovered) return Defaults.Button.HoveredForegroundBrush;
 
-        return foreground;
+        return Defaults.InteractiveForegroundBrush;
     }
 
-    private static Brush ComputeBackgroundBrush(Brush background, Boolean isPressed, Boolean isHovered)
+    private static Brush ComputeBackgroundBrush(Brush background, Enablement enablement, Boolean isPressed, Boolean isHovered)
     {
+        if (enablement.IsDisabled) return Defaults.DisabledBackgroundBrush;
         if (isPressed) return Defaults.Button.PressedBackgroundBrush;
         if (isHovered) return Defaults.Button.HoveredBackgroundBrush;
 
-        return Defaults.BackgroundBrush;
+        return Defaults.InteractiveBackgroundBrush;
     }
 
     /// <inheritdoc />
