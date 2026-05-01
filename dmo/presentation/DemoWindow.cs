@@ -41,9 +41,9 @@ internal class DemoWindow : Client
 
     private DemoHarness? harness;
 
-    private DemoWindow(WindowSettings windowSettings, Version version) : base(windowSettings, version)
+    private DemoWindow(WindowSettings windowSettings, Version version, Boolean isTransparent) : base(windowSettings, version)
     {
-        gui = GraphicalUserInterface.Create(this, new Theme());
+        gui = GraphicalUserInterface.Create(this, new Theme([Defaults.CreateCanvasStyle(isTransparent)], []));
 
         updateTimes = new CircularTimeBuffer(MaxFrameSampleSize);
         renderTimes = new CircularTimeBuffer(MaxFrameSampleSize);
@@ -99,6 +99,8 @@ internal class DemoWindow : Client
     {
         LoggingHelper.SetUpMockLogging();
 
+        Boolean isTransparent = args.Contains("--transparent");
+
         WindowSettings windowSettings = new()
         {
             Title = $"VoxelGame GUI Demo [{String.Join(" ", args)}]",
@@ -107,7 +109,7 @@ internal class DemoWindow : Client
             SupportPIX = args.Contains("--pix")
         };
 
-        using DemoWindow window = new(windowSettings, new Version("0.0.0.1"));
+        using DemoWindow window = new(windowSettings, new Version("0.0.0.1"), isTransparent);
 
         window.Run();
     }

@@ -17,9 +17,11 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Drawing;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Styles;
 using VoxelGame.GUI.Utilities;
 using Brush = VoxelGame.GUI.Graphics.Brush;
 
@@ -36,9 +38,14 @@ public static class Defaults
     public static readonly Brush BackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 28, green: 28, blue: 28));
 
     /// <summary>
-    ///     The default darker background brush.
+    ///     The default background brush.
     /// </summary>
-    public static readonly Brush BackgroundDarkerBrush = new SolidColorBrush(Color.FromArgb(red: 23, green: 23, blue: 23)); // todo: rename, use for highlights or so
+    public static readonly Brush TransparentBackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 28, green: 28, blue: 28, alpha: 204));
+
+    /// <summary>
+    ///     The default darker / alternative background brush.
+    /// </summary>
+    public static readonly Brush BackgroundAlternativeBrush = new SolidColorBrush(Color.FromArgb(red: 23, green: 23, blue: 23));
 
     /// <summary>
     ///     The default foreground brush.
@@ -53,7 +60,7 @@ public static class Defaults
     /// <summary>
     ///     The default interactive foreground brush.
     /// </summary>
-    public static readonly Brush InteractiveForegroundBrush = BackgroundDarkerBrush;
+    public static readonly Brush InteractiveForegroundBrush = BackgroundAlternativeBrush;
 
     /// <summary>
     ///     The default disabled background brush.
@@ -69,6 +76,16 @@ public static class Defaults
     ///     The default radius of borders and similar.
     /// </summary>
     public static readonly RadiusF Radius = new(10.0f);
+
+    /// <summary>
+    ///     Create a default style for a <see cref="Canvas" />.
+    /// </summary>
+    /// <param name="isTransparent">Whether the canvas should use the transparent background color.</param>
+    /// <returns>The created canvas style.</returns>
+    public static Style<Canvas> CreateCanvasStyle(Boolean isTransparent)
+    {
+        return Styling.Create<Canvas>($"{nameof(Defaults)}.{nameof(Canvas)}", s => s.Set(c => c.Background, isTransparent ? TransparentBackgroundBrush : BackgroundBrush));
+    }
 
     /// <summary>
     ///     Default values specific to <see cref="IButton" />s.
