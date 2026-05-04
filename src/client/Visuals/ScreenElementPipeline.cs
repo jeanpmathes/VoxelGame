@@ -39,6 +39,7 @@ public sealed partial class ScreenElementPipeline : IDisposable
     private readonly ShaderBuffer<Data> data;
     private readonly Texture placeholder;
     private readonly Vector2d relativeScreenPosition;
+
     private ColorS color = ColorS.White;
     private IDisposable? disposable;
     private Boolean isTextureInitialized;

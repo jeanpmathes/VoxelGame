@@ -24,6 +24,7 @@
 
 #include "DescriptorHeap.hpp"
 #include "IntegerSet.hpp"
+#include "ShaderLocation.hpp"
 
 /**
  * Manages the resources for shaders, including on heap and as direct root parameters.
@@ -87,21 +88,6 @@ private:
     using RootParameter = std::variant<RootConstant, RootConstantBufferView, RootShaderResourceView, RootUnorderedAccessView, RootHeapDescriptorTable, RootHeapDescriptorList>;
 
 public:
-    /**
-     * Defines a resource binding location in a shader.
-     */
-    struct ShaderLocation
-    {
-        /**
-         * The register index.
-         */
-        UINT reg = 0;
-        /**
-         * The register space.
-         */
-        UINT space = 0;
-    };
-
     struct ConstantBufferViewDescriptor
     {
         D3D12_GPU_VIRTUAL_ADDRESS gpuAddress{};

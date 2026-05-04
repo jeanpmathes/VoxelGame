@@ -158,6 +158,7 @@
         <ClInclude Include="Tools\DescriptorHeap.hpp"/>
         <ClInclude Include="Tools\Bag.hpp"/>
         <ClInclude Include="Tools\IntegerSet.hpp"/>
+        <ClInclude Include="Tools\ShaderLocation.hpp"/>
         <ClInclude Include="Tools\ShaderResources.hpp"/>
         <ClInclude Include="Tools\SharedIndexBuffer.hpp"/>
         <ClInclude Include="Tools\StepTimer.hpp"/>

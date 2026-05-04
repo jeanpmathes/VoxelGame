@@ -21,6 +21,7 @@
 
 #include "Bag.hpp"
 #include "IntegerSet.hpp"
+#include "ShaderLocation.hpp"
 #include "ShaderResources.hpp"
 
 class NativeClient;
@@ -72,9 +73,9 @@ public:
 private:
     void CreateBarriers();
 
-    ShaderResources::ShaderLocation m_threadGroupDataLocation;
-    ShaderResources::ShaderLocation m_inputGeometryListLocation;
-    ShaderResources::ShaderLocation m_outputGeometryListLocation;
+    ShaderLocation m_threadGroupDataLocation;
+    ShaderLocation m_inputGeometryListLocation;
+    ShaderLocation m_outputGeometryListLocation;
 
     ComPtr<ID3DBlob> m_shader = {};
 

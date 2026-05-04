@@ -16,7 +16,7 @@
 #undef min
 #undef max
 
-#if defined(NATIVE_DEBUG)
+#ifdef NATIVE_DEBUG
 #define USE_PIX
 #endif
 
@@ -60,7 +60,7 @@
 
 // nv_aftermath
 
-#if defined(USE_NSIGHT_AFTERMATH)
+#ifdef USE_NSIGHT_AFTERMATH
 #include "nv_aftermath/NsightAftermathGpuCrashTracker.hpp"
 #include "nv_aftermath/NsightAftermathHelpers.hpp"
 #include "nv_aftermath/NsightAftermathShaderDatabase.hpp"
@@ -95,6 +95,7 @@
 #include "Tools/InBufferAllocator.hpp"
 #include "Tools/IntegerSet.hpp"
 #include "Tools/ShaderResources.hpp"
+#include "Tools/ShaderResources.hpp"
 #include "Tools/SharedIndexBuffer.hpp"
 #include "Tools/StepTimer.hpp"
 #include "Tools/Uploader.hpp"
@@ -125,7 +126,7 @@
 
 #include "Interfaces/Draw2D.hpp"
 
-#if defined(NATIVE_DEBUG)
+#ifdef NATIVE_DEBUG
 #include <dxgidebug.h>
 #include <Initguid.h>
 #endif

@@ -1,5 +1,4 @@
 ﻿#include "stdafx.h"
-#include "Spatial.hpp"
 
 Spatial::Spatial(NativeClient& client)
     : Object(client)

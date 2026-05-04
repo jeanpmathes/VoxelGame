@@ -1,4 +1,4 @@
-﻿// <copyright file="GappedList.hpp" company="VoxelGame">
+﻿// <copyright file="Bag.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -25,7 +25,7 @@
 #include "Concepts.hpp"
 
 /**
- * A collection to store elements in. The collection allows pushing, popping and iterating over the elements. All elements in the collections are addressed by a unique index.
+ * A collection to store elements in. The collection allows pushing, popping, and iterating over the elements. All elements in the collections are addressed by a unique index.
  */
 template <Nullable E, UnsignedNativeSizedInteger I = size_t>
 class Bag
