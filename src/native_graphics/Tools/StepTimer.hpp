@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <cmath>
 #include <cstdint>
 
 /**
@@ -17,37 +16,37 @@ class StepTimer
 public:
     StepTimer() noexcept(false)
     {
-        if (QueryPerformanceFrequency(&m_qpcFrequency) == FALSE) throw NativeException("Failed to query performance frequency.");
+        if (QueryPerformanceFrequency(&qpcFrequency) == FALSE) throw NativeException("Failed to query performance frequency.");
 
-        if (QueryPerformanceCounter(&m_qpcLastTime) == FALSE) throw NativeException("Failed to query performance counter.");
+        if (QueryPerformanceCounter(&qpcLastTime) == FALSE) throw NativeException("Failed to query performance counter.");
 
-        m_qpcMaxDelta = static_cast<uint64_t>(m_qpcFrequency.QuadPart / 10);
+        qpcMaxDelta = static_cast<uint64_t>(qpcFrequency.QuadPart / 10);
     }
 
-    [[nodiscard]] uint64_t GetElapsedTicks() const noexcept { return m_elapsedTicks; }
-    [[nodiscard]] double   GetElapsedSeconds() const noexcept { return TicksToSeconds(m_elapsedTicks); }
+    [[nodiscard]] uint64_t GetElapsedTicks() const noexcept { return elapsedTicks; }
+    [[nodiscard]] double   GetElapsedSeconds() const noexcept { return TicksToSeconds(elapsedTicks); }
 
-    [[nodiscard]] uint64_t GetTotalTicks() const noexcept { return m_totalTicks; }
-    [[nodiscard]] double   GetTotalSeconds() const noexcept { return TicksToSeconds(m_totalTicks); }
+    [[nodiscard]] uint64_t GetTotalTicks() const noexcept { return totalTicks; }
+    [[nodiscard]] double   GetTotalSeconds() const noexcept { return TicksToSeconds(totalTicks); }
 
-    [[nodiscard]] uint32_t GetFrameCount() const noexcept { return m_frameCount; }
-    [[nodiscard]] uint32_t GetFramesPerSecond() const noexcept { return m_framesPerSecond; }
+    [[nodiscard]] uint32_t GetFrameCount() const noexcept { return frameCount; }
+    [[nodiscard]] uint32_t GetFramesPerSecond() const noexcept { return framesPerSecond; }
 
-    [[nodiscard]] uint64_t GetTargetElapsedTicks() const noexcept { return m_targetElapsedTicks; }
-    [[nodiscard]] double   GetTargetElapsedSeconds() const noexcept { return TicksToSeconds(m_targetElapsedTicks); }
+    [[nodiscard]] uint64_t GetTargetElapsedTicks() const noexcept { return targetElapsedTicks; }
+    [[nodiscard]] double   GetTargetElapsedSeconds() const noexcept { return TicksToSeconds(targetElapsedTicks); }
 
     [[nodiscard]] UINT GetTargetElapsedMilliseconds() const noexcept
     {
         return static_cast<UINT>(GetTargetElapsedSeconds() * 1000.0);
     }
 
-    void SetFixedTimeStep(bool const isFixedTimestep) noexcept { m_isFixedTimeStep = isFixedTimestep; }
+    void SetFixedTimeStep(bool const isFixedTimestep) noexcept { isFixedTimeStep = isFixedTimestep; }
 
-    void SetTargetElapsedTicks(uint64_t const targetElapsed) noexcept { m_targetElapsedTicks = targetElapsed; }
+    void SetTargetElapsedTicks(uint64_t const targetElapsed) noexcept { targetElapsedTicks = targetElapsed; }
 
     void SetTargetElapsedSeconds(double const targetElapsed) noexcept
     {
-        m_targetElapsedTicks = SecondsToTicks(targetElapsed);
+        targetElapsedTicks = SecondsToTicks(targetElapsed);
     }
 
     static constexpr uint64_t TICKS_PER_SECOND = 10000000;
@@ -64,12 +63,12 @@ public:
 
     void ResetElapsedTime()
     {
-        if (QueryPerformanceCounter(&m_qpcLastTime) == FALSE) throw NativeException("Failed to query performance counter.");
+        if (QueryPerformanceCounter(&qpcLastTime) == FALSE) throw NativeException("Failed to query performance counter.");
 
-        m_leftOverTicks    = 0;
-        m_framesPerSecond  = 0;
-        m_framesThisSecond = 0;
-        m_qpcSecondCounter = 0;
+        leftOverTicks    = 0;
+        framesPerSecond  = 0;
+        framesThisSecond = 0;
+        qpcSecondCounter = 0;
     }
 
     template <typename TUpdate>
@@ -79,68 +78,68 @@ public:
 
         if (QueryPerformanceCounter(&currentTime) == FALSE) throw NativeException("Failed to query performance counter.");
 
-        auto timeDelta = static_cast<uint64_t>(currentTime.QuadPart - m_qpcLastTime.QuadPart);
+        auto timeDelta = static_cast<uint64_t>(currentTime.QuadPart - qpcLastTime.QuadPart);
 
-        m_qpcLastTime      = currentTime;
-        m_qpcSecondCounter += timeDelta;
+        qpcLastTime      = currentTime;
+        qpcSecondCounter += timeDelta;
 
-        if (timeDelta > m_qpcMaxDelta) timeDelta = m_qpcMaxDelta;
+        if (timeDelta > qpcMaxDelta) timeDelta = qpcMaxDelta;
 
         timeDelta *= TICKS_PER_SECOND;
-        timeDelta /= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
+        timeDelta /= static_cast<uint64_t>(qpcFrequency.QuadPart);
 
-        uint32_t const lastFrameCount = m_frameCount;
+        uint32_t const lastFrameCount = frameCount;
 
-        if (m_isFixedTimeStep)
+        if (isFixedTimeStep)
         {
-            if (static_cast<uint64_t>(std::abs(static_cast<int64_t>(timeDelta - m_targetElapsedTicks))) < TICKS_PER_SECOND / 4000) timeDelta = m_targetElapsedTicks;
+            if (static_cast<uint64_t>(std::abs(static_cast<int64_t>(timeDelta - targetElapsedTicks))) < TICKS_PER_SECOND / 4000) timeDelta = targetElapsedTicks;
 
-            m_leftOverTicks += timeDelta;
+            leftOverTicks += timeDelta;
 
-            while (m_leftOverTicks >= m_targetElapsedTicks)
+            while (leftOverTicks >= targetElapsedTicks)
             {
-                m_elapsedTicks  = m_targetElapsedTicks;
-                m_totalTicks    += m_targetElapsedTicks;
-                m_leftOverTicks -= m_targetElapsedTicks;
-                m_frameCount++;
+                elapsedTicks  = targetElapsedTicks;
+                totalTicks    += targetElapsedTicks;
+                leftOverTicks -= targetElapsedTicks;
+                frameCount++;
 
                 update();
             }
         }
         else
         {
-            m_elapsedTicks  = timeDelta;
-            m_totalTicks    += timeDelta;
-            m_leftOverTicks = 0;
-            m_frameCount++;
+            elapsedTicks  = timeDelta;
+            totalTicks    += timeDelta;
+            leftOverTicks = 0;
+            frameCount++;
 
             update();
         }
 
-        if (m_frameCount != lastFrameCount) m_framesThisSecond++;
+        if (frameCount != lastFrameCount) framesThisSecond++;
 
-        if (m_qpcSecondCounter >= static_cast<uint64_t>(m_qpcFrequency.QuadPart))
+        if (qpcSecondCounter >= static_cast<uint64_t>(qpcFrequency.QuadPart))
         {
-            m_framesPerSecond  = m_framesThisSecond;
-            m_framesThisSecond = 0;
-            m_qpcSecondCounter %= static_cast<uint64_t>(m_qpcFrequency.QuadPart);
+            framesPerSecond  = framesThisSecond;
+            framesThisSecond = 0;
+            qpcSecondCounter %= static_cast<uint64_t>(qpcFrequency.QuadPart);
         }
     }
 
 private:
-    LARGE_INTEGER m_qpcFrequency{};
-    LARGE_INTEGER m_qpcLastTime{};
-    uint64_t      m_qpcMaxDelta;
+    LARGE_INTEGER qpcFrequency{};
+    LARGE_INTEGER qpcLastTime{};
+    uint64_t      qpcMaxDelta;
 
-    uint64_t m_elapsedTicks  = 0;
-    uint64_t m_totalTicks    = 0;
-    uint64_t m_leftOverTicks = 0;
+    uint64_t elapsedTicks  = 0;
+    uint64_t totalTicks    = 0;
+    uint64_t leftOverTicks = 0;
 
-    uint32_t m_frameCount       = 0;
-    uint32_t m_framesPerSecond  = 0;
-    uint32_t m_framesThisSecond = 0;
-    uint64_t m_qpcSecondCounter = 0;
+    uint32_t frameCount       = 0;
+    uint32_t framesPerSecond  = 0;
+    uint32_t framesThisSecond = 0;
+    uint64_t qpcSecondCounter = 0;
 
-    bool     m_isFixedTimeStep    = false;
-    uint64_t m_targetElapsedTicks = TICKS_PER_SECOND / 60;
+    bool     isFixedTimeStep    = false;
+    uint64_t targetElapsedTicks = TICKS_PER_SECOND / 60;
 };

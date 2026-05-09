@@ -137,7 +137,7 @@ public:
     explicit Space(NativeClient& nativeClient);
 
     void PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& commandQueue);
-    void PerformResolutionDependentSetup(Resolution const& resolution);
+    void PerformResolutionDependentSetup(Resolution const& newResolution);
     bool PerformInitialSetupStepTwo(SpacePipelineDescription const& pipeline);
 
     /**
@@ -193,7 +193,7 @@ public:
     void Render(Allocation<ID3D12Resource> const& color, Allocation<ID3D12Resource> const& depth, RenderData const& data);
     void CleanupRender();
 
-    void               SetIsRendered(bool isRendered);
+    void               SetIsRendered(bool newState);
     [[nodiscard]] bool IsRendered() const;
 
     [[nodiscard]] NativeClient& GetNativeClient() const;
@@ -261,45 +261,45 @@ private:
     void UpdateTopLevelAccelerationStructureView() const;
     void UpdateGlobalShaderResources();
 
-    NativeClient* m_client;
-    bool          m_isRendered = true;
-    Resolution    m_resolution = {};
+    NativeClient* client;
+    bool          isRendered = true;
+    Resolution    resolution = {};
 
-    InBufferAllocator m_resultBufferAllocator;
-    InBufferAllocator m_scratchBufferAllocator;
+    InBufferAllocator resultBufferAllocator;
+    InBufferAllocator scratchBufferAllocator;
 
-    Camera m_camera;
-    Light  m_light;
+    Camera camera;
+    Light  light;
 
-    UINT m_meshSpoolCount   = 0;
-    UINT m_effectSpoolCount = 0;
+    UINT meshSpoolCount   = 0;
+    UINT effectSpoolCount = 0;
 
-    Allocation<ID3D12Resource>            m_globalConstantBuffer        = {};
-    UINT64                                m_globalConstantBufferSize    = 0;
-    Mapping<ID3D12Resource, GlobalBuffer> m_globalConstantBufferMapping = {};
+    Allocation<ID3D12Resource>            globalConstantBuffer        = {};
+    UINT64                                globalConstantBufferSize    = 0;
+    Mapping<ID3D12Resource, GlobalBuffer> globalConstantBufferMapping = {};
 
-    std::unique_ptr<ShaderBuffer> m_customDataBuffer = nullptr;
+    std::unique_ptr<ShaderBuffer> customDataBuffer = nullptr;
 
-    std::vector<ComPtr<IDxcBlob>>          m_shaderBlobs = {};
-    std::vector<std::unique_ptr<Material>> m_materials   = {};
+    std::vector<ComPtr<IDxcBlob>>          shaderBlobs = {};
+    std::vector<std::unique_ptr<Material>> materials   = {};
 
-    CommandAllocatorGroup m_commandGroup;
+    CommandAllocatorGroup commandGroup;
 
-    ComPtr<ID3D12RootSignature> m_globalRootSignature;
-    ComPtr<ID3D12RootSignature> m_rayGenSignature;
-    ComPtr<ID3D12RootSignature> m_missSignature;
+    ComPtr<ID3D12RootSignature> globalRootSignature;
+    ComPtr<ID3D12RootSignature> rayGenSignature;
+    ComPtr<ID3D12RootSignature> missSignature;
 
-    nv_helpers_dx12::ShaderBindingTableGenerator m_sbtHelper{};
-    Allocation<ID3D12Resource>                   m_sbtStorage;
+    nv_helpers_dx12::ShaderBindingTableGenerator sbtHelper{};
+    Allocation<ID3D12Resource>                   sbtStorage;
 
-    ComPtr<ID3D12StateObject>           m_rtStateObject;
-    ComPtr<ID3D12StateObjectProperties> m_rtStateObjectProperties;
+    ComPtr<ID3D12StateObject>           rtStateObject;
+    ComPtr<ID3D12StateObjectProperties> rtStateObjectProperties;
 
-    Allocation<ID3D12Resource> m_colorOutput;
-    D3D12_RESOURCE_DESC        m_colorOutputDescription = {};
-    Allocation<ID3D12Resource> m_depthOutput;
-    D3D12_RESOURCE_DESC        m_depthOutputDescription = {};
-    bool                       m_outputResourcesFresh   = false;
+    Allocation<ID3D12Resource> colorOutput;
+    D3D12_RESOURCE_DESC        colorOutputDescription = {};
+    Allocation<ID3D12Resource> depthOutput;
+    D3D12_RESOURCE_DESC        depthOutputDescription = {};
+    bool                       outputResourcesFresh   = false;
 
     struct TextureSlot
     {
@@ -307,35 +307,35 @@ private:
         ShaderResources::Table::Entry entry = ShaderResources::Table::Entry::invalid;
     };
 
-    Texture*                        m_sentinelTexture    = nullptr;
-    D3D12_SHADER_RESOURCE_VIEW_DESC m_sentinelTextureSRV = {};
-    TextureSlot                     m_textureSlot1       = {};
-    TextureSlot                     m_textureSlot2       = {};
+    Texture*                        sentinelTexture    = nullptr;
+    D3D12_SHADER_RESOURCE_VIEW_DESC sentinelTextureSRV = {};
+    TextureSlot                     textureSlot1       = {};
+    TextureSlot                     textureSlot2       = {};
 
-    std::shared_ptr<ShaderResources>          m_globalShaderResources;
-    ShaderResources::Table::Entry             m_rtColorDataForRasterEntry = ShaderResources::Table::Entry::invalid;
-    ShaderResources::Table::Entry             m_rtDepthDataForRasterEntry = ShaderResources::Table::Entry::invalid;
-    std::shared_ptr<RasterPipeline::Bindings> m_effectBindings;
+    std::shared_ptr<ShaderResources>          globalShaderResources;
+    ShaderResources::Table::Entry             rtColorDataForRasterEntry = ShaderResources::Table::Entry::invalid;
+    ShaderResources::Table::Entry             rtDepthDataForRasterEntry = ShaderResources::Table::Entry::invalid;
+    std::shared_ptr<RasterPipeline::Bindings> effectBindings;
 
-    ShaderResources::TableHandle  m_unchangedCommonResourceHandle = ShaderResources::TableHandle::INVALID;
-    ShaderResources::TableHandle  m_changedCommonResourceHandle   = ShaderResources::TableHandle::INVALID;
-    ShaderResources::Table::Entry m_colorOutputEntry              = ShaderResources::Table::Entry::invalid;
-    ShaderResources::Table::Entry m_depthOutputEntry              = ShaderResources::Table::Entry::invalid;
-    ShaderResources::Table::Entry m_bvhEntry                      = ShaderResources::Table::Entry::invalid;
-    ShaderResources::ListHandle   m_meshInstanceDataList          = ShaderResources::ListHandle::INVALID;
-    ShaderResources::ListHandle   m_meshGeometryBufferList        = ShaderResources::ListHandle::INVALID;
+    ShaderResources::TableHandle  unchangedCommonResourceHandle = ShaderResources::TableHandle::INVALID;
+    ShaderResources::TableHandle  changedCommonResourceHandle   = ShaderResources::TableHandle::INVALID;
+    ShaderResources::Table::Entry colorOutputEntry              = ShaderResources::Table::Entry::invalid;
+    ShaderResources::Table::Entry depthOutputEntry              = ShaderResources::Table::Entry::invalid;
+    ShaderResources::Table::Entry bvhEntry                      = ShaderResources::Table::Entry::invalid;
+    ShaderResources::ListHandle   meshInstanceDataList          = ShaderResources::ListHandle::INVALID;
+    ShaderResources::ListHandle   meshGeometryBufferList        = ShaderResources::ListHandle::INVALID;
 
-    Drawable::BaseContainer m_drawables;
-    DrawablesGroup<Mesh>    m_meshes{*m_client, m_drawables};
-    DrawablesGroup<Effect>  m_effects{*m_client, m_drawables};
-    std::vector<Drawables*> m_drawableGroups = {&m_meshes, &m_effects};
+    Drawable::BaseContainer drawables;
+    DrawablesGroup<Mesh>    meshes{*client, drawables};
+    DrawablesGroup<Effect>  effects{*client, drawables};
+    std::vector<Drawables*> drawableGroups = {&meshes, &effects};
 
-    nv_helpers_dx12::TopLevelASGenerator m_tlasGenerator;
-    TLAS                                 m_topLevelASBuffers;
+    nv_helpers_dx12::TopLevelASGenerator tlasGenerator;
+    TLAS                                 topLevelASBuffers;
 
-    std::vector<AnimationController> m_animations = {};
+    std::vector<AnimationController> animations = {};
 
-    SharedIndexBuffer m_indexBuffer;
+    SharedIndexBuffer indexBuffer;
 
-    std::vector<ID3D12Resource*> m_uavs;
+    std::vector<ID3D12Resource*> uavs;
 };

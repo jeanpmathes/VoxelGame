@@ -53,11 +53,11 @@ private:
     AddressableBuffer                        AllocateInternal(UINT64 size);
     [[nodiscard]] Allocation<ID3D12Resource> AllocateMemory(UINT64 size) const;
 
-    NativeClient*         m_client;
-    D3D12_RESOURCE_STATES m_state;
-    bool                  m_pix;
+    NativeClient*         client;
+    D3D12_RESOURCE_STATES state;
+    bool                  pix;
 
-    D3D12MA::VIRTUAL_BLOCK_DESC m_blockDescription = {.Size = BLOCK_SIZE,};
+    D3D12MA::VIRTUAL_BLOCK_DESC blockDescription = {.Size = BLOCK_SIZE,};
 
     friend struct AddressableBuffer;
 
@@ -80,25 +80,25 @@ private:
         Block(D3D12MA::VirtualBlock* block, Allocation<ID3D12Resource> memory, InBufferAllocator* allocator, size_t index);
 
     private:
-        D3D12MA::VirtualBlock*     m_block  = nullptr;
-        Allocation<ID3D12Resource> m_memory = {};
+        D3D12MA::VirtualBlock*     block  = nullptr;
+        Allocation<ID3D12Resource> memory = {};
 
-        InBufferAllocator* m_allocator = nullptr;
-        size_t             m_index     = 0;
-        UINT64             m_limit     = BLOCK_SIZE;
+        InBufferAllocator* allocator = nullptr;
+        size_t             index     = 0;
+        UINT64             limit     = BLOCK_SIZE;
     };
 
-    std::vector<std::unique_ptr<Block>> m_blocks         = {};
-    size_t                              m_firstFreeBlock = 0;
+    std::vector<std::unique_ptr<Block>> blocks         = {};
+    size_t                              firstFreeBlock = 0;
 
-    std::vector<D3D12_RESOURCE_BARRIER> m_barriers = {};
+    std::vector<D3D12_RESOURCE_BARRIER> barriers = {};
 };
 
 struct AddressableBuffer
 {
     AddressableBuffer() = default;
 
-    explicit AddressableBuffer(Allocation<ID3D12Resource> resource);
+    explicit AddressableBuffer(Allocation<ID3D12Resource> wrappedResource);
     explicit AddressableBuffer(D3D12_GPU_VIRTUAL_ADDRESS address, D3D12MA::VirtualAllocation allocation, InBufferAllocator::Block* block);
 
     AddressableBuffer(AddressableBuffer const&)            = delete;
@@ -115,11 +115,11 @@ struct AddressableBuffer
     friend void SetName(AddressableBuffer const&, LPCWSTR);
 
 private:
-    std::optional<Allocation<ID3D12Resource>> m_resource = std::nullopt;
+    std::optional<Allocation<ID3D12Resource>> resource = std::nullopt;
 
-    D3D12_GPU_VIRTUAL_ADDRESS  m_address    = 0;
-    D3D12MA::VirtualAllocation m_allocation = {};
-    InBufferAllocator::Block*  m_block      = nullptr;
+    D3D12_GPU_VIRTUAL_ADDRESS  address    = 0;
+    D3D12MA::VirtualAllocation allocation = {};
+    InBufferAllocator::Block*  block      = nullptr;
 };
 
 struct BLAS
@@ -128,4 +128,4 @@ struct BLAS
     AddressableBuffer scratch;
 };
 
-inline void SetName(AddressableBuffer const& object, LPCWSTR const name) { if (object.m_resource.has_value()) SetName(object.m_resource.value(), name); }
+inline void SetName(AddressableBuffer const& object, LPCWSTR const name) { if (object.resource.has_value()) SetName(object.resource.value(), name); }

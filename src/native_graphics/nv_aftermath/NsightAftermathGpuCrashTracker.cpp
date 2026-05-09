@@ -49,14 +49,14 @@ GpuCrashTracker::Description GpuCrashTracker::Description::Create(LPWSTR const a
 }
 
 GpuCrashTracker::GpuCrashTracker(MarkerMap const& markerMap, ShaderDatabase const& shaderDatabase, Description description)
-    : m_initialized(false)
-  , m_markerMap(markerMap)
-  , m_shaderDatabase(shaderDatabase)
-  , m_description(std::move(description))
+    : initialized(false)
+  , markerMap(markerMap)
+  , shaderDatabase(shaderDatabase)
+  , description(std::move(description))
 {
 }
 
-GpuCrashTracker::~GpuCrashTracker() { if (m_initialized) GFSDK_Aftermath_DisableGpuCrashDumps(); }
+GpuCrashTracker::~GpuCrashTracker() { if (initialized) GFSDK_Aftermath_DisableGpuCrashDumps(); }
 
 void GpuCrashTracker::Initialize()
 {
@@ -79,7 +79,7 @@ void GpuCrashTracker::Initialize()
             ResolveMarkerCallback,        // Register callback for resolving application-managed markers.
             this));                       // Set the GpuCrashTracker object as user data for the above callbacks.
 
-    m_initialized = true;
+    initialized = true;
 }
 
 void GpuCrashTracker::WriteToAftermathFile(std::string const& name, std::byte const* data, size_t const size)
@@ -110,33 +110,33 @@ void GpuCrashTracker::WriteToAftermathFile(std::string const& name, std::byte co
 
 void GpuCrashTracker::OnCrashDump(void const* pGpuCrashDump, uint32_t const gpuCrashDumpSize)
 {
-    std::lock_guard lock(m_mutex);
+    std::lock_guard lock(mutex);
 
     WriteGpuCrashDumpToFile(pGpuCrashDump, gpuCrashDumpSize);
 }
 
 void GpuCrashTracker::OnShaderDebugInfo(void const* pShaderDebugInfo, uint32_t const shaderDebugInfoSize)
 {
-    std::lock_guard lock(m_mutex);
+    std::lock_guard lock(mutex);
 
     GFSDK_Aftermath_ShaderDebugInfoIdentifier identifier = {};
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_GetShaderDebugInfoIdentifier( GFSDK_Aftermath_Version_API, pShaderDebugInfo, shaderDebugInfoSize , &identifier));
 
     std::vector data(static_cast<uint8_t const*>(pShaderDebugInfo), static_cast<uint8_t const*>(pShaderDebugInfo) + shaderDebugInfoSize);
-    m_shaderDebugInfo[identifier].swap(data);
+    shaderDebugInfo[identifier].swap(data);
 
     WriteShaderDebugInformationToFile(identifier, pShaderDebugInfo, shaderDebugInfoSize);
 }
 
 void GpuCrashTracker::OnDescription(PFN_GFSDK_Aftermath_AddGpuCrashDumpDescription addDescription) const
 {
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationName, m_description.applicationName.c_str());
-    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationVersion, m_description.applicationVersion.c_str());
+    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationName, description.applicationName.c_str());
+    addDescription(GFSDK_Aftermath_GpuCrashDumpDescriptionKey_ApplicationVersion, description.applicationVersion.c_str());
 }
 
 void GpuCrashTracker::OnResolveMarker(void const* pMarkerData, uint32_t const, void** ppResolvedMarkerData, uint32_t* pResolvedMarkerDataSize) const
 {
-    for (auto& map : m_markerMap)
+    for (auto& map : markerMap)
     {
         auto const& foundMarker = map.find(reinterpret_cast<uint64_t>(pMarkerData));
         if (foundMarker != map.end())
@@ -194,8 +194,8 @@ void GpuCrashTracker::WriteShaderDebugInformationToFile(GFSDK_Aftermath_ShaderDe
 
 void GpuCrashTracker::OnShaderDebugInfoLookup(GFSDK_Aftermath_ShaderDebugInfoIdentifier const& identifier, PFN_GFSDK_Aftermath_SetData setShaderDebugInfo) const
 {
-    auto const iterator = m_shaderDebugInfo.find(identifier);
-    if (iterator == m_shaderDebugInfo.end()) return;
+    auto const iterator = shaderDebugInfo.find(identifier);
+    if (iterator == shaderDebugInfo.end()) return;
 
     setShaderDebugInfo(iterator->second.data(), static_cast<uint32_t>(iterator->second.size()));
 }
@@ -203,7 +203,7 @@ void GpuCrashTracker::OnShaderDebugInfoLookup(GFSDK_Aftermath_ShaderDebugInfoIde
 void GpuCrashTracker::OnShaderLookup(GFSDK_Aftermath_ShaderBinaryHash const& shaderHash, PFN_GFSDK_Aftermath_SetData setShaderBinary) const
 {
     std::vector<uint8_t> shaderBinary;
-    if (!m_shaderDatabase.FindShaderBinary(shaderHash, shaderBinary)) return;
+    if (!shaderDatabase.FindShaderBinary(shaderHash, shaderBinary)) return;
 
     setShaderBinary(shaderBinary.data(), static_cast<uint32_t>(shaderBinary.size()));
 }
@@ -211,7 +211,7 @@ void GpuCrashTracker::OnShaderLookup(GFSDK_Aftermath_ShaderBinaryHash const& sha
 void GpuCrashTracker::OnShaderSourceDebugInfoLookup(GFSDK_Aftermath_ShaderDebugName const& shaderDebugName, PFN_GFSDK_Aftermath_SetData setShaderBinary) const
 {
     std::vector<uint8_t> sourceDebugInfo;
-    if (!m_shaderDatabase.FindSourceShaderDebugData(shaderDebugName, sourceDebugInfo)) return;
+    if (!shaderDatabase.FindSourceShaderDebugData(shaderDebugName, sourceDebugInfo)) return;
 
     setShaderBinary(sourceDebugInfo.data(), static_cast<uint32_t>(sourceDebugInfo.size()));
 }

@@ -57,12 +57,12 @@ public:
     [[nodiscard]] bool IsUploadingBeforeAnyUse() const;
 
 private:
-    NativeClient* m_client;
+    NativeClient* client;
 
-    ComPtr<ID3D12CommandAllocator>    m_commandAllocator = {};
-    ComPtr<ID3D12GraphicsCommandList> m_commandList      = {};
+    ComPtr<ID3D12CommandAllocator>    commandAllocator = {};
+    ComPtr<ID3D12GraphicsCommandList> commandList      = {};
 
-    std::vector<Allocation<ID3D12Resource>> m_uploadBuffers = {};
+    std::vector<Allocation<ID3D12Resource>> uploadBuffers = {};
 
-    bool m_ownsCommandList;
+    bool ownsCommandList;
 };

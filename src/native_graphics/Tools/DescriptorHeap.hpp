@@ -29,13 +29,13 @@ public:
 
     /**
      * \brief Create a descriptor heap. If this class already contains a heap, it will be destroyed.
-     * \param device The device to create the heap on.
-     * \param numDescriptors The number of descriptors in the heap.
+     * \param targetDevice The device to create the heap on.
+     * \param descriptorCount The number of descriptors in the heap.
      * \param type The type of the heap.
      * \param shaderVisible Whether the heap should be shader visible.
      * \param copyExisting Whether the existing heap, if any, should be copied to the new heap.
      */
-    void Create(ComPtr<ID3D12Device5> const& device, UINT numDescriptors, D3D12_DESCRIPTOR_HEAP_TYPE type, bool shaderVisible, bool copyExisting = false);
+    void Create(ComPtr<ID3D12Device5> const& targetDevice, UINT descriptorCount, D3D12_DESCRIPTOR_HEAP_TYPE type, bool shaderVisible, bool copyExisting = false);
 
     DescriptorHeap()                                 = default;
     DescriptorHeap(DescriptorHeap const&)            = delete;
@@ -65,14 +65,14 @@ public:
     friend void SetName(DescriptorHeap const&, LPCWSTR);
 
 private:
-    ComPtr<ID3D12DescriptorHeap> m_heap;
-    ComPtr<ID3D12Device5>        m_device;
+    ComPtr<ID3D12DescriptorHeap> heap;
+    ComPtr<ID3D12Device5>        device;
 
-    D3D12_CPU_DESCRIPTOR_HANDLE m_startCPU{};
-    D3D12_GPU_DESCRIPTOR_HANDLE m_startGPU{};
-    UINT                        m_increment{};
-    UINT                        m_numDescriptors{};
-    D3D12_DESCRIPTOR_HEAP_TYPE  m_type{};
+    D3D12_CPU_DESCRIPTOR_HANDLE startCPU{};
+    D3D12_GPU_DESCRIPTOR_HANDLE startGPU{};
+    UINT                        increment{};
+    UINT                        numDescriptors{};
+    D3D12_DESCRIPTOR_HEAP_TYPE  type{};
 };
 
-inline void SetName(DescriptorHeap const& heap, LPCWSTR const name) { SetName(heap.m_heap, name); }
+inline void SetName(DescriptorHeap const& heap, LPCWSTR const name) { SetName(heap.heap, name); }

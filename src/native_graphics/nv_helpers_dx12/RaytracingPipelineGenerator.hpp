@@ -181,15 +181,15 @@ namespace nv_helpers_dx12
          */
         void BuildShaderExportList(std::vector<std::wstring>& exportedSymbols) const;
 
-        std::vector<Library>                  m_libraries                 = {};
-        std::vector<HitGroup>                 m_hitGroups                 = {};
-        std::vector<RootSignatureAssociation> m_rootSignatureAssociations = {};
+        std::vector<Library>                  libraries                 = {};
+        std::vector<HitGroup>                 hitGroups                 = {};
+        std::vector<RootSignatureAssociation> rootSignatureAssociations = {};
 
-        UINT m_maxPayLoadSizeInBytes   = 0;
-        UINT m_maxAttributeSizeInBytes = 2 * sizeof(float);
-        UINT m_maxRecursionDepth       = 1;
+        UINT maxPayLoadSizeInBytes   = 0;
+        UINT maxAttributeSizeInBytes = 2 * sizeof(float);
+        UINT maxRecursionDepth       = 1;
 
-        Microsoft::WRL::ComPtr<ID3D12Device5>       m_device;
-        Microsoft::WRL::ComPtr<ID3D12RootSignature> m_dummyLocalRootSignature;
+        Microsoft::WRL::ComPtr<ID3D12Device5>       device;
+        Microsoft::WRL::ComPtr<ID3D12RootSignature> dummyLocalRootSignature;
     };
 }

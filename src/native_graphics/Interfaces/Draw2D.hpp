@@ -55,7 +55,7 @@ namespace draw2d
     class Pipeline final
     {
     public:
-        Pipeline(NativeClient& client, RasterPipeline* raster, UINT id, Callback callback);
+        Pipeline(NativeClient& hostClient, RasterPipeline* raster, UINT id, Callback callback);
 
         /**
          * \brief Populate the command list with all necessary commands to draw the 2D elements.
@@ -73,26 +73,26 @@ namespace draw2d
 
         void BindVertexBuffer();
 
-        RasterPipeline* m_raster;
-        Callback        m_callback;
-        NativeClient*   m_client;
+        RasterPipeline* raster;
+        Callback        callback;
+        NativeClient*   client;
 
-        std::wstring m_name;
+        std::wstring name;
 
-        std::vector<Allocation<ID3D12Resource>>                    m_cbuffers            = {};
-        std::vector<ShaderResources::ConstantBufferViewDescriptor> m_constantBufferViews = {};
-        std::vector<ShaderResources::ShaderResourceViewDescriptor> m_textures            = {};
+        std::vector<Allocation<ID3D12Resource>>                    cbuffers            = {};
+        std::vector<ShaderResources::ConstantBufferViewDescriptor> constantBufferViews = {};
+        std::vector<ShaderResources::ShaderResourceViewDescriptor> textures            = {};
 
-        Allocation<ID3D12Resource> m_vertexBuffer = {};
-        Allocation<ID3D12Resource> m_uploadBuffer = {};
-        UINT                       m_vertexCount  = 0;
+        Allocation<ID3D12Resource> vertexBuffer = {};
+        Allocation<ID3D12Resource> uploadBuffer = {};
+        UINT                       vertexCount  = 0;
 
-        D3D12_VERTEX_BUFFER_VIEW m_vertexBufferView  = {};
-        bool                     m_vertexBufferBound = false;
+        D3D12_VERTEX_BUFFER_VIEW vertexBufferView  = {};
+        bool                     vertexBufferBound = false;
 
-        UINT                               m_currentTextureIndex = 0;
-        BOOL                               m_currentUseTexture   = FALSE;
-        bool                               m_initialized         = false;
-        ComPtr<ID3D12GraphicsCommandList4> m_currentCommandList  = nullptr;
+        UINT                               currentTextureIndex = 0;
+        BOOL                               currentUseTexture   = FALSE;
+        bool                               initialized         = false;
+        ComPtr<ID3D12GraphicsCommandList4> currentCommandList  = nullptr;
     };
 }

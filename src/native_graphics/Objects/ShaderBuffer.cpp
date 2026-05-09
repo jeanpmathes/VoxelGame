@@ -1,25 +1,25 @@
 ﻿#include "stdafx.h"
 
-ShaderBuffer::ShaderBuffer(NativeClient& client, UINT const size)
+ShaderBuffer::ShaderBuffer(NativeClient& client, UINT const bufferSize)
     : Object(client)
-  , m_size(size)
+  , size(bufferSize)
 {
-    UINT64 alignedSize = size;
-    m_constantBuffer   = util::AllocateConstantBuffer(GetClient(), &alignedSize);
-    NAME_D3D12_OBJECT_WITH_ID(m_constantBuffer);
+    UINT64 alignedSize = bufferSize;
+    constantBuffer     = util::AllocateConstantBuffer(GetClient(), &alignedSize);
+    NAME_D3D12_OBJECT_WITH_ID(constantBuffer);
 
     Require(alignedSize <= UINT_MAX);
-    m_size = static_cast<UINT>(alignedSize);
+    size = static_cast<UINT>(alignedSize);
 
-    m_cbvDesc.BufferLocation = m_constantBuffer.GetGPUVirtualAddress();
-    m_cbvDesc.SizeInBytes    = m_size;
+    cbvDesc.BufferLocation = constantBuffer.GetGPUVirtualAddress();
+    cbvDesc.SizeInBytes    = bufferSize;
 }
 
-void ShaderBuffer::SetData(std::byte const* data) const { TryDo(util::MapAndWrite(m_constantBuffer, data, m_size)); }
+void ShaderBuffer::SetData(std::byte const* data) const { TryDo(util::MapAndWrite(constantBuffer, data, size)); }
 
-D3D12_GPU_VIRTUAL_ADDRESS ShaderBuffer::GetGPUVirtualAddress() const { return m_constantBuffer.GetGPUVirtualAddress(); }
+D3D12_GPU_VIRTUAL_ADDRESS ShaderBuffer::GetGPUVirtualAddress() const { return constantBuffer.GetGPUVirtualAddress(); }
 
 ShaderResources::ConstantBufferViewDescriptor ShaderBuffer::GetDescriptor() const
 {
-    return {GetGPUVirtualAddress(), m_size};
+    return {GetGPUVirtualAddress(), size};
 }

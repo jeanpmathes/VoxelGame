@@ -102,18 +102,18 @@ namespace nv_helpers_dx12
 
         [[nodiscard]] uint32_t GetEntrySize(std::vector<SBTEntry> const& entries) const;
 
-        std::vector<SBTEntry> m_rayGen;
-        std::vector<SBTEntry> m_miss;
-        std::vector<SBTEntry> m_hitGroup;
+        std::vector<SBTEntry> rayGen;
+        std::vector<SBTEntry> miss;
+        std::vector<SBTEntry> hitGroup;
 
-        uint32_t m_rayGenEntrySize   = 0;
-        uint32_t m_missEntrySize     = 0;
-        uint32_t m_hitGroupEntrySize = 0;
+        uint32_t rayGenEntrySize   = 0;
+        uint32_t missEntrySize     = 0;
+        uint32_t hitGroupEntrySize = 0;
 
-        uint32_t m_rayGenStart   = 0;
-        uint32_t m_missStart     = 0;
-        uint32_t m_hitGroupStart = 0;
+        uint32_t rayGenStart   = 0;
+        uint32_t missStart     = 0;
+        uint32_t hitGroupStart = 0;
 
-        UINT m_programIdSize = 0;
+        UINT programIdSize = 0;
     };
 }

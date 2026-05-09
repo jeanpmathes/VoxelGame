@@ -55,7 +55,7 @@ compiling in debug mode.
 namespace nv_helpers_dx12
 {
     RayTracingPipelineGenerator::RayTracingPipelineGenerator(Microsoft::WRL::ComPtr<ID3D12Device5> device)
-        : m_device(std::move(device))
+        : device(std::move(device))
     {
         // The pipeline creation requires having at least one empty global and local root signatures, so
         // we systematically create both, as this does not incur any overhead
@@ -64,7 +64,7 @@ namespace nv_helpers_dx12
 
     void RayTracingPipelineGenerator::AddLibrary(IDxcBlob* dxilLibrary, std::vector<std::wstring> const& symbolExports)
     {
-        m_libraries.emplace_back(dxilLibrary, symbolExports);
+        libraries.emplace_back(dxilLibrary, symbolExports);
     }
 
     void RayTracingPipelineGenerator::AddHitGroup(
@@ -73,38 +73,38 @@ namespace nv_helpers_dx12
         std::wstring const& anyHitSymbol,
         std::wstring const& intersectionSymbol)
     {
-        m_hitGroups.emplace_back(hitGroupName, closestHitSymbol, anyHitSymbol, intersectionSymbol);
+        hitGroups.emplace_back(hitGroupName, closestHitSymbol, anyHitSymbol, intersectionSymbol);
     }
 
     void RayTracingPipelineGenerator::AddRootSignatureAssociation(ID3D12RootSignature* rootSignature, bool const local, std::vector<std::wstring> const& symbols)
     {
-        m_rootSignatureAssociations.emplace_back(rootSignature, local, symbols);
+        rootSignatureAssociations.emplace_back(rootSignature, local, symbols);
     }
 
     void RayTracingPipelineGenerator::SetMaxPayloadSize(UINT const sizeInBytes)
     {
-        m_maxPayLoadSizeInBytes = sizeInBytes;
+        maxPayLoadSizeInBytes = sizeInBytes;
     }
 
     void RayTracingPipelineGenerator::SetMaxAttributeSize(UINT const sizeInBytes)
     {
-        m_maxAttributeSizeInBytes = sizeInBytes;
+        maxAttributeSizeInBytes = sizeInBytes;
     }
 
-    void RayTracingPipelineGenerator::SetMaxRecursionDepth(UINT const maxDepth) { m_maxRecursionDepth = maxDepth; }
+    void RayTracingPipelineGenerator::SetMaxRecursionDepth(UINT const maxDepth) { maxRecursionDepth = maxDepth; }
 
     Microsoft::WRL::ComPtr<ID3D12StateObject> RayTracingPipelineGenerator::Generate(Microsoft::WRL::ComPtr<ID3D12RootSignature> const& globalRootSignature)
     {
-        UINT64 const subObjectCount = m_libraries.size() + m_hitGroups.size() + 1 + // Shader configuration.
-        1 +                                                                         // Shader payload.
-        2 * m_rootSignatureAssociations.size() + 2 +                                // Empty global and local root signatures.
-        1;                                                                          // Final pipeline subobject.
+        UINT64 const subObjectCount = libraries.size() + hitGroups.size() + 1 + // Shader configuration.
+        1 +                                                                     // Shader payload.
+        2 * rootSignatureAssociations.size() + 2 +                              // Empty global and local root signatures.
+        1;                                                                      // Final pipeline subobject.
 
         std::vector<D3D12_STATE_SUBOBJECT> subobjects(subObjectCount);
 
         UINT currentIndex = 0;
 
-        for (Library const& lib : m_libraries)
+        for (Library const& lib : libraries)
         {
             D3D12_STATE_SUBOBJECT libSubobject;
             libSubobject.Type  = D3D12_STATE_SUBOBJECT_TYPE_DXIL_LIBRARY;
@@ -114,7 +114,7 @@ namespace nv_helpers_dx12
             currentIndex++;
         }
 
-        for (HitGroup const& group : m_hitGroups)
+        for (HitGroup const& group : hitGroups)
         {
             D3D12_STATE_SUBOBJECT hitGroup;
             hitGroup.Type  = D3D12_STATE_SUBOBJECT_TYPE_HIT_GROUP;
@@ -125,8 +125,8 @@ namespace nv_helpers_dx12
         }
 
         D3D12_RAYTRACING_SHADER_CONFIG shaderDesc;
-        shaderDesc.MaxPayloadSizeInBytes   = m_maxPayLoadSizeInBytes;
-        shaderDesc.MaxAttributeSizeInBytes = m_maxAttributeSizeInBytes;
+        shaderDesc.MaxPayloadSizeInBytes   = maxPayLoadSizeInBytes;
+        shaderDesc.MaxAttributeSizeInBytes = maxAttributeSizeInBytes;
 
         D3D12_STATE_SUBOBJECT shaderConfigObject;
         shaderConfigObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_SHADER_CONFIG;
@@ -156,7 +156,7 @@ namespace nv_helpers_dx12
         subobjects[currentIndex] = shaderPayloadAssociationObject;
         currentIndex++;
 
-        for (RootSignatureAssociation& assoc : m_rootSignatureAssociations)
+        for (RootSignatureAssociation& assoc : rootSignatureAssociations)
         {
             D3D12_STATE_SUBOBJECT rootSigObject;
             rootSigObject.Type  = assoc.local ? D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE : D3D12_STATE_SUBOBJECT_TYPE_GLOBAL_ROOT_SIGNATURE;
@@ -187,14 +187,14 @@ namespace nv_helpers_dx12
 
         D3D12_STATE_SUBOBJECT dummyLocalRootSig;
         dummyLocalRootSig.Type     = D3D12_STATE_SUBOBJECT_TYPE_LOCAL_ROOT_SIGNATURE;
-        ID3D12RootSignature* dlSig = m_dummyLocalRootSignature.Get();
+        ID3D12RootSignature* dlSig = dummyLocalRootSignature.Get();
         dummyLocalRootSig.pDesc    = reinterpret_cast<void*>(&dlSig);
 
         subobjects[currentIndex] = dummyLocalRootSig;
         currentIndex++;
 
         D3D12_RAYTRACING_PIPELINE_CONFIG pipelineConfig;
-        pipelineConfig.MaxTraceRecursionDepth = m_maxRecursionDepth;
+        pipelineConfig.MaxTraceRecursionDepth = maxRecursionDepth;
 
         D3D12_STATE_SUBOBJECT pipelineConfigObject;
         pipelineConfigObject.Type  = D3D12_STATE_SUBOBJECT_TYPE_RAYTRACING_PIPELINE_CONFIG;
@@ -210,7 +210,7 @@ namespace nv_helpers_dx12
 
         Microsoft::WRL::ComPtr<ID3D12StateObject> rtStateObject = nullptr;
 
-        if (HRESULT const hr = m_device->CreateStateObject(&pipelineDesc, IID_PPV_ARGS(&rtStateObject));
+        if (HRESULT const hr = device->CreateStateObject(&pipelineDesc, IID_PPV_ARGS(&rtStateObject));
             FAILED(hr))
             throw std::logic_error("Could not create the raytracing state object.");
 
@@ -231,12 +231,13 @@ namespace nv_helpers_dx12
 
         if (FAILED(hr)) throw std::logic_error("Could not serialize the local root signature.");
 
-        hr = m_device->CreateRootSignature(0, serializedRootSignature->GetBufferPointer(), serializedRootSignature->GetBufferSize(), IID_PPV_ARGS(&m_dummyLocalRootSignature));
+        hr = device->CreateRootSignature(0, serializedRootSignature->GetBufferPointer(), serializedRootSignature->GetBufferSize(), IID_PPV_ARGS(&dummyLocalRootSignature));
 
         if (FAILED(hr)) throw std::logic_error("Could not create the local root signature.");
 
 #if defined(NATIVE_DEBUG)
-        hr = m_dummyLocalRootSignature->SetName(L"Local Root Signature"); if (FAILED(hr)) throw std::logic_error("Could not name the local root signature.");
+        hr = dummyLocalRootSignature->SetName(L"Local Root Signature");
+        if (FAILED(hr)) throw std::logic_error("Could not name the local root signature.");
 #endif
     }
 
@@ -244,7 +245,7 @@ namespace nv_helpers_dx12
     {
         std::unordered_set<std::wstring> exports;
 
-        for (Library const& lib : m_libraries)
+        for (Library const& lib : libraries)
             for (auto const& exportName : lib.exportedSymbols)
             {
 #if defined(NATIVE_DEBUG)
@@ -254,7 +255,8 @@ namespace nv_helpers_dx12
             }
 
 #if defined(NATIVE_DEBUG)
-        std::unordered_set<std::wstring> allExports = exports; for (auto const& hitGroup : m_hitGroups)
+        std::unordered_set<std::wstring> allExports = exports;
+        for (auto const& hitGroup : hitGroups)
         {
             if (!hitGroup.anyHitSymbol.empty() && !exports.contains(hitGroup.anyHitSymbol)) throw std::logic_error("Any hit symbol not found in the imported DXIL libraries.");
 
@@ -265,13 +267,14 @@ namespace nv_helpers_dx12
                 throw std::logic_error("Intersection symbol not found in the imported DXIL libraries.");
 
             allExports.insert(hitGroup.hitGroupName);
-        } for (auto const& assoc : m_rootSignatureAssociations)
+        }
+        for (auto const& assoc : rootSignatureAssociations)
             for (auto const& symbol : assoc.symbols)
                 if (!symbol.empty() && !allExports.contains(symbol)) throw std::logic_error(
                     "Root association symbol not found in the " "imported DXIL libraries and hit group names.");
 #endif
 
-        for (auto const& hitGroup : m_hitGroups)
+        for (auto const& hitGroup : hitGroups)
         {
             if (!hitGroup.anyHitSymbol.empty()) exports.erase(hitGroup.anyHitSymbol);
             if (!hitGroup.closestHitSymbol.empty()) exports.erase(hitGroup.closestHitSymbol);

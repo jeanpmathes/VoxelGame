@@ -68,7 +68,7 @@ public:
 
     [[nodiscard]] bool CanClose() const;
 
-    void HandleSizeChanged(UINT width, UINT height, bool minimized);
+    void HandleSizeChanged(UINT newWidth, UINT newHeight, bool minimized);
     void HandleWindowMoved(int xPos, int yPos);
     void HandleActiveStateChange(bool active);
 
@@ -83,16 +83,16 @@ public:
 
     void DoCursorSet() const;
 
-    [[nodiscard]] UINT         GetWidth() const { return m_width; }
-    [[nodiscard]] UINT         GetHeight() const { return m_height; }
-    [[nodiscard]] WCHAR const* GetTitle() const { return m_title.c_str(); }
-    [[nodiscard]] HICON        GetIcon() const { return m_icon; }
+    [[nodiscard]] UINT         GetWidth() const { return width; }
+    [[nodiscard]] UINT         GetHeight() const { return height; }
+    [[nodiscard]] WCHAR const* GetTitle() const { return title.c_str(); }
+    [[nodiscard]] HICON        GetIcon() const { return icon; }
 
-    [[nodiscard]] bool IsTearingSupportEnabled() const { return m_tearingSupport; }
+    [[nodiscard]] bool IsTearingSupportEnabled() const { return tearingSupport; }
 
-    [[nodiscard]] bool SupportPIX() const { return static_cast<bool>(m_configuration.options & ConfigurationOptions::SUPPORT_PIX); }
+    [[nodiscard]] bool SupportPIX() const { return static_cast<bool>(configuration.options & ConfigurationOptions::SUPPORT_PIX); }
 
-    [[nodiscard]] bool UseGBV() const { return static_cast<bool>(m_configuration.options & ConfigurationOptions::USE_GBV); }
+    [[nodiscard]] bool UseGBV() const { return static_cast<bool>(configuration.options & ConfigurationOptions::USE_GBV); }
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
@@ -106,10 +106,10 @@ public:
     void SetMouseLock(bool lock);
 
     [[nodiscard]] float GetAspectRatio() const;
-    [[nodiscard]] POINT GetMousePosition() const { return {m_xMousePosition, m_yMousePosition}; }
+    [[nodiscard]] POINT GetMousePosition() const { return {xMousePosition, yMousePosition}; }
 
-    [[nodiscard]] double GetTotalRealRenderUpdateTime() const { return m_totalRealRenderUpdateTime; }
-    [[nodiscard]] double GetTotalScaledRenderUpdateTime() const { return m_totalScaledRenderUpdateTime; }
+    [[nodiscard]] double GetTotalRealRenderUpdateTime() const { return totalRealRenderUpdateTime; }
+    [[nodiscard]] double GetTotalScaledRenderUpdateTime() const { return totalScaledRenderUpdateTime; }
 
     void SetTimeScale(double scale);
 
@@ -156,49 +156,49 @@ protected:
     void SetCustomWindowText(LPCWSTR text) const;
     void CheckTearingSupport();
 
-    [[nodiscard]] FLOAT GetRenderScale() const { return m_configuration.renderScale; }
+    [[nodiscard]] FLOAT GetRenderScale() const { return configuration.renderScale; }
 
 private:
-    std::wstring m_title;
-    HICON        m_icon;
+    std::wstring title;
+    HICON        icon;
 
-    Configuration m_configuration;
+    Configuration configuration;
 
-    StepTimer m_logicTimer{};
-    StepTimer m_renderTimer{};
+    StepTimer logicTimer{};
+    StepTimer renderTimer{};
 
-    double m_baseLogicUpdateTarget = 1.0;
-    double m_timeScale             = 1.0;
+    double baseLogicUpdateTarget = 1.0;
+    double timeScale             = 1.0;
 
-    double m_totalRealRenderUpdateTime   = 0.0;
-    double m_totalScaledRenderUpdateTime = 0.0;
+    double totalRealRenderUpdateTime   = 0.0;
+    double totalScaledRenderUpdateTime = 0.0;
 
-    UINT  m_width;
-    UINT  m_height;
-    float m_aspectRatio  = 0.0f;
-    RECT  m_windowBounds = {0, 0, 0, 0};
+    UINT  width;
+    UINT  height;
+    float aspectRatio  = 0.0f;
+    RECT  windowBounds = {0, 0, 0, 0};
 
-    bool m_tearingSupport = false;
+    bool tearingSupport = false;
 
-    int  m_xMousePosition = 0;
-    int  m_yMousePosition = 0;
-    bool m_mouseLocked    = false;
+    int  xMousePosition = 0;
+    int  yMousePosition = 0;
+    bool mouseLocked    = false;
 
-    MouseCursor                    m_mouseCursor = MouseCursor::ARROW;
-    std::map<MouseCursor, HCURSOR> m_mouseCursors;
+    MouseCursor                    mouseCursor = MouseCursor::ARROW;
+    std::map<MouseCursor, HCURSOR> mouseCursors;
 
-    std::optional<Cycle> m_cycle        = std::nullopt;
-    std::thread::id      m_mainThreadId = std::this_thread::get_id();
+    std::optional<Cycle> cycle        = std::nullopt;
+    std::thread::id      mainThreadId = std::this_thread::get_id();
 
-    bool m_inUpdate = false;
+    bool inUpdate = false;
 
     enum TimerID : UINT_PTR
     {
         IDT_UPDATE = 1,
     };
 
-    bool m_isUpdateTimerRunning = false;
-    bool m_isActive             = false;
+    bool isUpdateTimerRunning = false;
+    bool isActive             = false;
 };
 
 #define CALL_IN_LOGIC(client) ((client)->GetCycle() == DXApp::Cycle::LOGIC_UPDATE)

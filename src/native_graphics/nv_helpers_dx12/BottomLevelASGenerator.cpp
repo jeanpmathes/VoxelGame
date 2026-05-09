@@ -74,11 +74,11 @@ namespace nv_helpers_dx12
         descriptor.Triangles.Transform3x4               = transformBuffer.IsSet() ? (transformBuffer.GetGPUVirtualAddress<ID3D12Resource>() + transformOffsetInBytes) : 0;
         descriptor.Flags                                = isOpaque ? D3D12_RAYTRACING_GEOMETRY_FLAG_OPAQUE : D3D12_RAYTRACING_GEOMETRY_FLAG_NONE;
 
-        m_geometryBuffers.push_back(descriptor);
+        geometryBuffers.push_back(descriptor);
 
-        m_usedResources.push_back(vertexBuffer);
-        if (indexBuffer.IsSet()) m_usedResources.push_back(indexBuffer);
-        if (transformBuffer.IsSet()) m_usedResources.push_back(transformBuffer);
+        usedResources.push_back(vertexBuffer);
+        if (indexBuffer.IsSet()) usedResources.push_back(indexBuffer);
+        if (transformBuffer.IsSet()) usedResources.push_back(transformBuffer);
     }
 
     void BottomLevelASGenerator::AddBoundsBuffer(
@@ -96,32 +96,33 @@ namespace nv_helpers_dx12
         descriptor.AABBs.AABBs.StrideInBytes      = boundsSizeInBytes;
         descriptor.AABBs.AABBCount                = boundsCount;
 
-        m_geometryBuffers.push_back(descriptor);
+        geometryBuffers.push_back(descriptor);
 
-        m_usedResources.push_back(boundsBuffer);
+        usedResources.push_back(boundsBuffer);
     }
 
-    void BottomLevelASGenerator::ComputeASBufferSizes(ID3D12Device5* device, bool const allowUpdate, UINT64* scratchSizeInBytes, UINT64* resultSizeInBytes)
+    void BottomLevelASGenerator::ComputeASBufferSizes(ID3D12Device5* device, bool const allowUpdate, UINT64* outScratchSizeInBytes, UINT64* outResultSizeInBytes)
     {
         // The generated AS can support iterative updates. This may change the final
         // size of the AS as well as the temporary memory requirements, and hence has
         // to be set before the actual build.
-        m_flags = allowUpdate ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        flags = allowUpdate ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc;
         prebuildDesc.Type           = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
         prebuildDesc.DescsLayout    = D3D12_ELEMENTS_LAYOUT_ARRAY;
-        prebuildDesc.NumDescs       = static_cast<UINT>(m_geometryBuffers.size());
-        prebuildDesc.pGeometryDescs = m_geometryBuffers.data();
-        prebuildDesc.Flags          = m_flags;
+        prebuildDesc.NumDescs       = static_cast<UINT>(geometryBuffers.size());
+        prebuildDesc.pGeometryDescs = geometryBuffers.data();
+        prebuildDesc.Flags          = flags;
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info = {};
         device->GetRaytracingAccelerationStructurePrebuildInfo(&prebuildDesc, &info);
 
-        *scratchSizeInBytes  = RoundUp(info.ScratchDataSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-        *resultSizeInBytes   = RoundUp(info.ResultDataMaxSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
-        m_scratchSizeInBytes = *scratchSizeInBytes;
-        m_resultSizeInBytes  = *resultSizeInBytes;
+        *outScratchSizeInBytes = RoundUp(info.ScratchDataSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        *outResultSizeInBytes  = RoundUp(info.ResultDataMaxSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+
+        scratchSizeInBytes = *outScratchSizeInBytes;
+        resultSizeInBytes  = *outResultSizeInBytes;
     }
 
     void BottomLevelASGenerator::Generate(
@@ -131,7 +132,7 @@ namespace nv_helpers_dx12
         bool const                      updateOnly,
         D3D12_GPU_VIRTUAL_ADDRESS const previousResult) const
     {
-        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS localFlags = flags;
 
         // The stored flags represent whether the AS has been built for updates or
         // not. If yes and an update is requested, the builder is told to only update
@@ -139,17 +140,17 @@ namespace nv_helpers_dx12
 
         if (bool const isUpdateAllowed = flags & D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE;
             updateOnly && isUpdateAllowed)
-            flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+            localFlags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;
         buildDesc.Inputs.Type                      = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_BOTTOM_LEVEL;
         buildDesc.Inputs.DescsLayout               = D3D12_ELEMENTS_LAYOUT_ARRAY;
-        buildDesc.Inputs.NumDescs                  = static_cast<UINT>(m_geometryBuffers.size());
-        buildDesc.Inputs.pGeometryDescs            = m_geometryBuffers.data();
+        buildDesc.Inputs.NumDescs                  = static_cast<UINT>(geometryBuffers.size());
+        buildDesc.Inputs.pGeometryDescs            = geometryBuffers.data();
         buildDesc.DestAccelerationStructureData    = resultBuffer;
         buildDesc.ScratchAccelerationStructureData = scratchBuffer;
         buildDesc.SourceAccelerationStructureData  = previousResult;
-        buildDesc.Inputs.Flags                     = flags;
+        buildDesc.Inputs.Flags                     = localFlags;
 
         commandList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
     }

@@ -77,11 +77,11 @@ class AftermathException : public std::runtime_error
 public:
     AftermathException(GFSDK_Aftermath_Result result)
         : std::runtime_error(GetErrorMessage(result))
-      , m_result(result)
+      , result(result)
     {
     }
 
-    AftermathException Error() const { return m_result; }
+    AftermathException Error() const { return result; }
 
     static std::string GetErrorMessage(GFSDK_Aftermath_Result result)
     {
@@ -97,7 +97,7 @@ public:
     }
 
 private:
-    GFSDK_Aftermath_Result const m_result;
+    GFSDK_Aftermath_Result const result;
 };
 
 #define AFTERMATH_CHECK_ERROR(FC)                                                                       \

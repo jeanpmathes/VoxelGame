@@ -58,6 +58,6 @@ public:
     void AddShader(std::vector<uint8_t>&& binary, std::vector<uint8_t>&& pdb);
 
 private:
-    std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<uint8_t>> m_shaderBinaries        = {};
-    std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<uint8_t>>  m_sourceShaderDebugData = {};
+    std::map<GFSDK_Aftermath_ShaderBinaryHash, std::vector<uint8_t>> shaderBinaries        = {};
+    std::map<GFSDK_Aftermath_ShaderDebugName, std::vector<uint8_t>>  sourceShaderDebugData = {};
 };

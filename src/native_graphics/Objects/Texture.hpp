@@ -86,11 +86,11 @@ public:
     static void CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> commandList, Allocation<ID3D12Resource> resource);
 
 private:
-    Allocation<ID3D12Resource>      m_resource;
-    D3D12_SHADER_RESOURCE_VIEW_DESC m_srvDesc;
+    Allocation<ID3D12Resource>      resource;
+    D3D12_SHADER_RESOURCE_VIEW_DESC srvDesc;
 
-    DirectX::XMUINT3 m_size;
+    DirectX::XMUINT3 size;
 
-    bool                       m_usable = false;
-    NativeClient::ObjectHandle m_handle{};
+    bool                       usable = false;
+    NativeClient::ObjectHandle handle{};
 };

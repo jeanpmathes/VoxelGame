@@ -64,9 +64,9 @@ public:
 
     /**
      * \brief Set the enabled state of this object. Only enabled objects that have data will be drawn.
-     * \param enabled Whether this object should be enabled.
+     * \param newEnabledState Whether this object should be enabled.
      */
-    void SetEnabledState(bool enabled);
+    void SetEnabledState(bool newEnabledState);
 
     /**
      * Return this object to the space. This will allow the space to reuse the object later.
@@ -85,7 +85,7 @@ public:
      */
     void CleanupDataUpload();
 
-    void AssociateWithIndices(BaseIndex base, EntryIndex entry);
+    void AssociateWithIndices(BaseIndex associatedBase, EntryIndex associatedEntry);
     void SetActiveIndex(std::optional<ActiveIndex> index);
 
     void Reset();
@@ -112,12 +112,12 @@ public:
         Visitor& OnEffect(std::function<void(Effect&)> const& effect);
 
     private:
-        std::function<void(Drawable&)> m_else = [](Drawable const&)
+        std::function<void(Drawable&)> fallbackHandler = [](Drawable const&)
         {
             /* Default does nothing. */
         };
-        std::function<void(Mesh&)>   m_mesh;
-        std::function<void(Effect&)> m_effect;
+        std::function<void(Mesh&)>   meshHandler;
+        std::function<void(Effect&)> effectHandler;
     };
 
     virtual void Accept(Visitor& visitor) = 0;
@@ -132,14 +132,14 @@ protected:
 private:
     void UpdateActiveState();
 
-    std::optional<BaseIndex>   m_base    = std::nullopt;
-    std::optional<EntryIndex>  m_entry   = std::nullopt;
-    std::optional<ActiveIndex> m_active  = std::nullopt;
-    bool                       m_enabled = false;
+    std::optional<BaseIndex>   base    = std::nullopt;
+    std::optional<EntryIndex>  entry   = std::nullopt;
+    std::optional<ActiveIndex> active  = std::nullopt;
+    bool                       enabled = false;
 
-    bool m_uploadRequired = false;
-    bool m_uploadEnqueued = false;
+    bool uploadRequired = false;
+    bool uploadEnqueued = false;
 
-    Allocation<ID3D12Resource> m_dataBufferUpload = {};
-    UINT                       m_dataElementCount = 0;
+    Allocation<ID3D12Resource> dataBufferUpload = {};
+    UINT                       dataElementCount = 0;
 };

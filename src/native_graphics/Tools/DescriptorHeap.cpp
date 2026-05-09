@@ -7,74 +7,79 @@ DescriptorHeap DescriptorHeap::CreateNew(ComPtr<ID3D12Device5> const& device, UI
     return heap;
 }
 
-void DescriptorHeap::Create(ComPtr<ID3D12Device5> const& device, UINT const numDescriptors, D3D12_DESCRIPTOR_HEAP_TYPE const type, bool const shaderVisible, bool const copyExisting)
+void DescriptorHeap::Create(
+    ComPtr<ID3D12Device5> const&     targetDevice,
+    UINT const                       descriptorCount,
+    D3D12_DESCRIPTOR_HEAP_TYPE const heapType,
+    bool const                       shaderVisible,
+    bool const                       copyExisting)
 {
-    ComPtr<ID3D12DescriptorHeap> const oldHeap           = m_heap;
-    UINT const                         oldNumDescriptors = m_numDescriptors;
-    Require(Implies(copyExisting, numDescriptors >= oldNumDescriptors));
+    ComPtr<ID3D12DescriptorHeap> const oldHeap           = heap;
+    UINT const                         oldNumDescriptors = numDescriptors;
+    Require(Implies(copyExisting, descriptorCount >= oldNumDescriptors));
 
-    m_heap = nullptr;
+    heap = nullptr;
 
-    m_device         = device;
-    m_increment      = device->GetDescriptorHandleIncrementSize(type);
-    m_numDescriptors = numDescriptors;
-    m_type           = type;
+    device         = targetDevice;
+    increment      = device->GetDescriptorHandleIncrementSize(heapType);
+    numDescriptors = descriptorCount;
+    type           = heapType;
 
     D3D12_DESCRIPTOR_HEAP_DESC description = {};
-    description.NumDescriptors             = numDescriptors;
-    description.Type                       = type;
+    description.NumDescriptors             = descriptorCount;
+    description.Type                       = heapType;
     description.Flags                      = shaderVisible ? D3D12_DESCRIPTOR_HEAP_FLAG_SHADER_VISIBLE : D3D12_DESCRIPTOR_HEAP_FLAG_NONE;
 
-    TryDo(device->CreateDescriptorHeap(&description, IID_PPV_ARGS(&m_heap)));
+    TryDo(device->CreateDescriptorHeap(&description, IID_PPV_ARGS(&heap)));
 
-    m_startCPU = m_heap->GetCPUDescriptorHandleForHeapStart();
-    m_startGPU = shaderVisible ? m_heap->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{};
+    startCPU = heap->GetCPUDescriptorHandleForHeapStart();
+    startGPU = shaderVisible ? heap->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{};
 
     if (copyExisting && oldHeap != nullptr && oldNumDescriptors > 0) device->CopyDescriptorsSimple(
         oldNumDescriptors,
-        m_startCPU,
+        startCPU,
         oldHeap->GetCPUDescriptorHandleForHeapStart(),
-        type);
+        heapType);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetDescriptorHandleCPU(UINT const index) const
 {
     Require(IsCreated());
-    return Offset(m_startCPU, index);
+    return Offset(startCPU, index);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::GetDescriptorHandleGPU(UINT const index) const
 {
     Require(IsCreated());
-    return Offset(m_startGPU, index);
+    return Offset(startGPU, index);
 }
 
 ID3D12DescriptorHeap* DescriptorHeap::Get() const
 {
     Require(IsCreated());
-    return m_heap.Get();
+    return heap.Get();
 }
 
-bool DescriptorHeap::IsCreated() const { return m_heap != nullptr; }
+bool DescriptorHeap::IsCreated() const { return heap != nullptr; }
 
 UINT DescriptorHeap::GetDescriptorCount() const
 {
     Require(IsCreated());
-    return m_numDescriptors;
+    return numDescriptors;
 }
 
-ID3D12DescriptorHeap** DescriptorHeap::GetAddressOf() { return m_heap.GetAddressOf(); }
+ID3D12DescriptorHeap** DescriptorHeap::GetAddressOf() { return heap.GetAddressOf(); }
 
-UINT DescriptorHeap::GetIncrement() const { return m_increment; }
+UINT DescriptorHeap::GetIncrement() const { return increment; }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::Offset(D3D12_CPU_DESCRIPTOR_HANDLE const handle, UINT const index) const
 {
-    return CD3DX12_CPU_DESCRIPTOR_HANDLE(handle, static_cast<INT>(index), m_increment);
+    return CD3DX12_CPU_DESCRIPTOR_HANDLE(handle, static_cast<INT>(index), increment);
 }
 
 D3D12_GPU_DESCRIPTOR_HANDLE DescriptorHeap::Offset(D3D12_GPU_DESCRIPTOR_HANDLE const handle, UINT const index) const
 {
-    return CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, static_cast<INT>(index), m_increment);
+    return CD3DX12_GPU_DESCRIPTOR_HANDLE(handle, static_cast<INT>(index), increment);
 }
 
 void DescriptorHeap::CopyTo(DescriptorHeap const& other, UINT const offset) const
@@ -82,8 +87,8 @@ void DescriptorHeap::CopyTo(DescriptorHeap const& other, UINT const offset) cons
     Require(IsCreated());
     Require(other.IsCreated());
 
-    Require(m_type == other.m_type);
+    Require(type == other.type);
     Require(other.GetDescriptorCount() >= GetDescriptorCount() + offset);
 
-    m_device->CopyDescriptorsSimple(GetDescriptorCount(), other.GetDescriptorHandleCPU(offset), GetDescriptorHandleCPU(), m_type);
+    device->CopyDescriptorsSimple(GetDescriptorCount(), other.GetDescriptorHandleCPU(offset), GetDescriptorHandleCPU(), type);
 }

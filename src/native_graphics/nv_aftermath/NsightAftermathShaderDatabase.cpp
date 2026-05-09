@@ -26,8 +26,8 @@
 
 bool ShaderDatabase::FindShaderBinary(GFSDK_Aftermath_ShaderBinaryHash const& shaderHash, std::vector<uint8_t>& shader) const
 {
-    auto const iterator = m_shaderBinaries.find(shaderHash);
-    if (iterator == m_shaderBinaries.end()) return false;
+    auto const iterator = shaderBinaries.find(shaderHash);
+    if (iterator == shaderBinaries.end()) return false;
 
     shader = iterator->second;
     return true;
@@ -36,8 +36,8 @@ bool ShaderDatabase::FindShaderBinary(GFSDK_Aftermath_ShaderBinaryHash const& sh
 bool ShaderDatabase::FindSourceShaderDebugData(GFSDK_Aftermath_ShaderDebugName const& shaderDebugName, std::vector<uint8_t>& debugData) const
 {
     // Find shader debug data for the shader debug name.
-    auto const iterator = m_sourceShaderDebugData.find(shaderDebugName);
-    if (iterator == m_sourceShaderDebugData.end()) return false;
+    auto const iterator = sourceShaderDebugData.find(shaderDebugName);
+    if (iterator == sourceShaderDebugData.end()) return false;
 
     debugData = iterator->second;
     return true;
@@ -59,6 +59,6 @@ void ShaderDatabase::AddShader(std::vector<uint8_t>&& binary, std::vector<uint8_
     GpuCrashTracker::WriteToAftermathFile(name + ".cso", reinterpret_cast<std::byte const*>(binary.data()), binary.size());
     GpuCrashTracker::WriteToAftermathFile(name + ".pdb", reinterpret_cast<std::byte const*>(pdb.data()), pdb.size());
 
-    m_shaderBinaries[shaderHash].swap(binary);
-    m_sourceShaderDebugData[debugName].swap(pdb);
+    shaderBinaries[shaderHash].swap(binary);
+    sourceShaderDebugData[debugName].swap(pdb);
 }

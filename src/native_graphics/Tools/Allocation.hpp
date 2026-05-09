@@ -37,7 +37,7 @@ class Mapping
 {
 public:
     Mapping()
-        : m_resource({})
+        : resource({})
     {
     }
 
@@ -48,27 +48,27 @@ public:
      * \param size The size of the resource in number of elements.
      */
     explicit Mapping(Allocation<R> const& resource, HRESULT* out, size_t const size)
-        : m_resource(resource)
-      , m_size(size)
+        : resource(resource)
+      , size(size)
     {
         Require(resource.resource != nullptr);
         Require(out != nullptr);
         Require(size > 0);
 
         constexpr D3D12_RANGE readRange = {0, 0}; // We do not intend to read from this resource on the CPU.
-        *out                            = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&m_data));
+        *out                            = resource.resource->Map(0, &readRange, reinterpret_cast<void**>(&data));
 
-        Require(m_data != nullptr);
+        Require(data != nullptr);
 
-        size_t const requiredSizeInBytes = m_size * sizeof(S);
-        size_t const actualSizeInBytes   = m_resource.resource->GetDesc().Width;
+        size_t const requiredSizeInBytes = size * sizeof(S);
+        size_t const actualSizeInBytes   = resource.resource->GetDesc().Width;
         Require(requiredSizeInBytes <= actualSizeInBytes);
     }
 
     /**
      * \return The size of the mapped resource in number of elements.
      */
-    [[nodiscard]] size_t GetSize() const { return m_size; }
+    [[nodiscard]] size_t GetSize() const { return size; }
 
     /**
      * \brief Write directly to the resource.
@@ -76,32 +76,32 @@ public:
      */
     S* operator->()
     {
-        Require(m_data != nullptr);
-        return m_data;
+        Require(data != nullptr);
+        return data;
     }
 
     /**
      * \brief Write data to the resource.
-     * \param data The data to write.
+     * \param newData The data to write.
      */
-    void Write(S const& data)
+    void Write(S const& newData)
     {
-        Require(m_data != nullptr);
+        Require(data != nullptr);
 
-        *m_data = data;
+        *data = newData;
     }
 
     /**
      * \brief Write data to the resource.
-     * \param data Where to read the data from.
+     * \param newData Where to read the data from.
      * \param count How many elements to write.
      */
-    void Write(S const* data, size_t const count)
+    void Write(S const* newData, size_t const count)
     {
-        Require(m_data != nullptr);
-        Require(count <= m_size);
+        Require(data != nullptr);
+        Require(count <= size);
 
-        std::memcpy(m_data, data, count * sizeof(S));
+        std::memcpy(data, newData, count * sizeof(S));
     }
 
     /**
@@ -109,9 +109,9 @@ public:
      */
     void Clear()
     {
-        Require(m_data != nullptr);
+        Require(data != nullptr);
 
-        std::memset(m_data, 0, m_size * sizeof(S));
+        std::memset(data, 0, size * sizeof(S));
     }
 
     /**
@@ -127,15 +127,15 @@ public:
 
     void Unmap()
     {
-        Require(m_data != nullptr);
+        Require(data != nullptr);
 
-        m_resource.resource->Unmap(0, nullptr);
-        m_data = nullptr;
+        resource.resource->Unmap(0, nullptr);
+        data = nullptr;
     }
 
     void UnmapSafe()
     {
-        if (m_data == nullptr) return;
+        if (data == nullptr) return;
 
         try { Unmap(); }
         catch (...)
@@ -150,28 +150,28 @@ public:
     Mapping& operator=(Mapping const&) = delete;
 
     Mapping(Mapping&& other) noexcept
-        : m_resource(other.m_resource)
-      , m_data(other.m_data)
-      , m_size(other.m_size) { other.m_data = nullptr; }
+        : resource(other.resource)
+      , data(other.data)
+      , size(other.size) { other.data = nullptr; }
 
     Mapping& operator=(Mapping&& other) noexcept
     {
         UnmapSafe();
 
-        m_resource = other.m_resource;
-        m_data     = other.m_data;
-        m_size     = other.m_size;
+        resource = other.resource;
+        data     = other.data;
+        size     = other.size;
 
-        other.m_data = nullptr;
+        other.data = nullptr;
 
         return *this;
     }
 
 private:
-    Allocation<R> m_resource;
+    Allocation<R> resource;
 
-    S*     m_data = nullptr;
-    size_t m_size = 0;
+    S*     data = nullptr;
+    size_t size = 0;
 };
 
 /**

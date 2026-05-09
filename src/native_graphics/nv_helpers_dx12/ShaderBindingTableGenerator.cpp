@@ -45,25 +45,25 @@ dispatch rays description.
 
 namespace nv_helpers_dx12
 {
-    void ShaderBindingTableGenerator::AddRayGenerationProgram(std::wstring const& entryPoint, std::vector<void*> const& inputData) { m_rayGen.emplace_back(entryPoint, inputData); }
+    void ShaderBindingTableGenerator::AddRayGenerationProgram(std::wstring const& entryPoint, std::vector<void*> const& inputData) { rayGen.emplace_back(entryPoint, inputData); }
 
-    void ShaderBindingTableGenerator::AddMissProgram(std::wstring const& entryPoint, std::vector<void*> const& inputData) { m_miss.emplace_back(entryPoint, inputData); }
+    void ShaderBindingTableGenerator::AddMissProgram(std::wstring const& entryPoint, std::vector<void*> const& inputData) { miss.emplace_back(entryPoint, inputData); }
 
     void ShaderBindingTableGenerator::AddHitGroup(std::wstring const& entryPoint, std::vector<void*> const& inputData)
     {
-        m_hitGroup.emplace_back(entryPoint, inputData);
+        hitGroup.emplace_back(entryPoint, inputData);
     }
 
     uint32_t ShaderBindingTableGenerator::ComputeSBTSize()
     {
-        m_programIdSize     = D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
-        m_rayGenEntrySize   = GetEntrySize(m_rayGen);
-        m_missEntrySize     = GetEntrySize(m_miss);
-        m_hitGroupEntrySize = GetEntrySize(m_hitGroup);
+        programIdSize     = D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT;
+        rayGenEntrySize   = GetEntrySize(rayGen);
+        missEntrySize     = GetEntrySize(miss);
+        hitGroupEntrySize = GetEntrySize(hitGroup);
 
-        uint32_t const rayGenSize   = static_cast<uint32_t>(m_rayGen.size()) * m_rayGenEntrySize;
-        uint32_t const missSize     = static_cast<uint32_t>(m_miss.size()) * m_missEntrySize;
-        uint32_t const hitGroupSize = static_cast<uint32_t>(m_hitGroup.size()) * m_hitGroupEntrySize;
+        uint32_t const rayGenSize   = static_cast<uint32_t>(rayGen.size()) * rayGenEntrySize;
+        uint32_t const missSize     = static_cast<uint32_t>(miss.size()) * missEntrySize;
+        uint32_t const hitGroupSize = static_cast<uint32_t>(hitGroup.size()) * hitGroupEntrySize;
 
         uint32_t const totalSize = RoundUp(rayGenSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(missSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(
             hitGroupSize,
@@ -84,65 +84,65 @@ namespace nv_helpers_dx12
 
         uint32_t offset      = 0;
         uint32_t totalOffset = 0;
-        m_rayGenStart        = offset;
+        rayGenStart          = offset;
 
-        offset = CopyShaderData(raytracingPipeline, pData, m_rayGen, m_rayGenEntrySize);
+        offset = CopyShaderData(raytracingPipeline, pData, rayGen, rayGenEntrySize);
         offset = RoundUp(offset, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
         totalOffset += offset;
         pData       += offset;
-        m_missStart = totalOffset;
+        missStart   = totalOffset;
 
-        offset = CopyShaderData(raytracingPipeline, pData, m_miss, m_missEntrySize);
+        offset = CopyShaderData(raytracingPipeline, pData, miss, missEntrySize);
         offset = RoundUp(offset, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
-        totalOffset     += offset;
-        pData           += offset;
-        m_hitGroupStart = totalOffset;
+        totalOffset   += offset;
+        pData         += offset;
+        hitGroupStart = totalOffset;
 
-        CopyShaderData(raytracingPipeline, pData, m_hitGroup, m_hitGroupEntrySize);
+        CopyShaderData(raytracingPipeline, pData, hitGroup, hitGroupEntrySize);
 
         sbtBuffer->Unmap(0, nullptr);
     }
 
     void ShaderBindingTableGenerator::Reset()
     {
-        m_rayGen.clear();
-        m_miss.clear();
-        m_hitGroup.clear();
+        rayGen.clear();
+        miss.clear();
+        hitGroup.clear();
 
-        m_rayGenEntrySize   = 0;
-        m_missEntrySize     = 0;
-        m_hitGroupEntrySize = 0;
-        m_programIdSize     = 0;
+        rayGenEntrySize   = 0;
+        missEntrySize     = 0;
+        hitGroupEntrySize = 0;
+        programIdSize     = 0;
     }
 
     UINT ShaderBindingTableGenerator::GetRayGenSectionSize() const
     {
-        return m_rayGenEntrySize * static_cast<UINT>(m_rayGen.size());
+        return rayGenEntrySize * static_cast<UINT>(rayGen.size());
     }
 
-    UINT ShaderBindingTableGenerator::GetRayGenEntrySize() const { return m_rayGenEntrySize; }
+    UINT ShaderBindingTableGenerator::GetRayGenEntrySize() const { return rayGenEntrySize; }
 
-    UINT ShaderBindingTableGenerator::GetRayGenSectionOffset() const { return m_rayGenStart; }
+    UINT ShaderBindingTableGenerator::GetRayGenSectionOffset() const { return rayGenStart; }
 
     UINT ShaderBindingTableGenerator::GetMissSectionSize() const
     {
-        return m_missEntrySize * static_cast<UINT>(m_miss.size());
+        return missEntrySize * static_cast<UINT>(miss.size());
     }
 
-    UINT ShaderBindingTableGenerator::GetMissEntrySize() const { return m_missEntrySize; }
+    UINT ShaderBindingTableGenerator::GetMissEntrySize() const { return missEntrySize; }
 
-    UINT ShaderBindingTableGenerator::GetMissSectionOffset() const { return m_missStart; }
+    UINT ShaderBindingTableGenerator::GetMissSectionOffset() const { return missStart; }
 
     UINT ShaderBindingTableGenerator::GetHitGroupSectionSize() const
     {
-        return m_hitGroupEntrySize * static_cast<UINT>(m_hitGroup.size());
+        return hitGroupEntrySize * static_cast<UINT>(hitGroup.size());
     }
 
-    UINT ShaderBindingTableGenerator::GetHitGroupEntrySize() const { return m_hitGroupEntrySize; }
+    UINT ShaderBindingTableGenerator::GetHitGroupEntrySize() const { return hitGroupEntrySize; }
 
-    UINT ShaderBindingTableGenerator::GetHitGroupSectionOffset() const { return m_hitGroupStart; }
+    UINT ShaderBindingTableGenerator::GetHitGroupSectionOffset() const { return hitGroupStart; }
 
     uint32_t ShaderBindingTableGenerator::CopyShaderData(
         ID3D12StateObjectProperties* raytracingPipeline,
@@ -164,8 +164,8 @@ namespace nv_helpers_dx12
 
             static_assert(sizeof(void*) == 8);
 
-            memcpy(pData, id, m_programIdSize);
-            memcpy(pData + m_programIdSize, shader.inputData.data(), shader.inputData.size() * sizeof(void*));
+            memcpy(pData, id, programIdSize);
+            memcpy(pData + programIdSize, shader.inputData.data(), shader.inputData.size() * sizeof(void*));
 
             pData += entrySize;
         }
@@ -178,7 +178,7 @@ namespace nv_helpers_dx12
         size_t maxArgs = 0;
         for (auto const& shader : entries) maxArgs = max(maxArgs, shader.inputData.size());
 
-        uint32_t entrySize = m_programIdSize + 8 * static_cast<uint32_t>(maxArgs);
+        uint32_t entrySize = programIdSize + 8 * static_cast<uint32_t>(maxArgs);
         entrySize          = RoundUp(entrySize, D3D12_RAYTRACING_SHADER_RECORD_BYTE_ALIGNMENT);
 
         return entrySize;

@@ -312,76 +312,76 @@ std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetUpEffectBindings(Na
 
 RasterPipeline::RasterPipeline(NativeClient& client, PipelineConfiguration configuration, PipelineObjects objects)
     : Object(client)
-  , m_preset(configuration.preset)
-  , m_topology(configuration.topology)
-  , m_name(std::move(configuration.name))
-  , m_resources(std::move(objects.resources))
-  , m_bindings(std::move(objects.bindings))
-  , m_pipelineState(std::move(objects.pipelineState))
-  , m_shaderBuffer(std::move(objects.shaderBuffer)) { NAME_D3D12_OBJECT_WITH_ID(m_pipelineState); }
+  , preset(configuration.preset)
+  , topology(configuration.topology)
+  , name(std::move(configuration.name))
+  , resources(std::move(objects.resources))
+  , bindings(std::move(objects.bindings))
+  , pipelineState(std::move(objects.pipelineState))
+  , shaderBuffer(std::move(objects.shaderBuffer)) { NAME_D3D12_OBJECT_WITH_ID(pipelineState); }
 
 void RasterPipeline::SetPipeline(ComPtr<ID3D12GraphicsCommandList4> commandList) const
 {
-    commandList->SetPipelineState(m_pipelineState.Get());
+    commandList->SetPipelineState(pipelineState.Get());
 
-    if (m_preset != ShaderPreset::SPATIAL_EFFECT)
+    if (preset != ShaderPreset::SPATIAL_EFFECT)
         // The space class already sets the root signature.
-        commandList->SetGraphicsRootSignature(m_resources->GetGraphicsRootSignature().Get());
+        commandList->SetGraphicsRootSignature(resources->GetGraphicsRootSignature().Get());
 
     commandList->IASetPrimitiveTopology(GetTopology());
 }
 
 void RasterPipeline::BindResources(ComPtr<ID3D12GraphicsCommandList4> commandList)
 {
-    if (m_preset == ShaderPreset::SPATIAL_EFFECT)
+    if (preset == ShaderPreset::SPATIAL_EFFECT)
     {
         // The space class owns the resources and will bind them.
-        m_update = true;
+        update = true;
 
-        if (m_shaderBuffer != nullptr) m_resources->CreateConstantBufferView(GetBindings().SpatialEffect().customData, 0, m_shaderBuffer->GetDescriptor());
+        if (shaderBuffer != nullptr) resources->CreateConstantBufferView(GetBindings().SpatialEffect().customData, 0, shaderBuffer->GetDescriptor());
     }
     else
     {
-        m_resources->Update();
-        m_update = true;
+        resources->Update();
+        update = true;
 
-        m_resources->Bind(commandList);
+        resources->Bind(commandList);
     }
 }
 
-RasterPipeline::Bindings& RasterPipeline::GetBindings() const { return *m_bindings; }
+RasterPipeline::Bindings& RasterPipeline::GetBindings() const { return *bindings; }
 
-ShaderPreset RasterPipeline::GetPreset() const { return m_preset; }
+ShaderPreset RasterPipeline::GetPreset() const { return preset; }
 
-LPCWSTR RasterPipeline::GetName() const { return m_name.c_str(); }
+LPCWSTR RasterPipeline::GetName() const { return name.c_str(); }
 
 
-D3D12_PRIMITIVE_TOPOLOGY RasterPipeline::GetTopology() const { return m_topology; }
+D3D12_PRIMITIVE_TOPOLOGY RasterPipeline::GetTopology() const { return topology; }
 
-ShaderBuffer* RasterPipeline::GetShaderBuffer() const { return m_shaderBuffer.get(); }
+ShaderBuffer* RasterPipeline::GetShaderBuffer() const { return shaderBuffer.get(); }
 
 void RasterPipeline::CreateConstantBufferView(ShaderResources::Table::Entry const entry, UINT const index, ShaderResources::ConstantBufferViewDescriptor const& descriptor)
 {
     EnsureFirstUpdate();
-    m_resources->CreateConstantBufferView(entry, index, descriptor);
+    resources->CreateConstantBufferView(entry, index, descriptor);
 }
 
 void RasterPipeline::CreateShaderResourceView(ShaderResources::Table::Entry const entry, UINT const index, ShaderResources::ShaderResourceViewDescriptor const& descriptor)
 {
     EnsureFirstUpdate();
-    m_resources->CreateShaderResourceView(entry, index, descriptor);
+    resources->CreateShaderResourceView(entry, index, descriptor);
 }
 
 void RasterPipeline::CreateUnorderedAccessView(ShaderResources::Table::Entry const entry, UINT const index, ShaderResources::UnorderedAccessViewDescriptor const& descriptor)
 {
     EnsureFirstUpdate();
-    m_resources->CreateUnorderedAccessView(entry, index, descriptor);
+    resources->CreateUnorderedAccessView(entry, index, descriptor);
 }
 
 void RasterPipeline::EnsureFirstUpdate()
 {
-    if (m_update) return;
+    if (update) return;
 
-    m_resources->Update();
-    m_update = true;
+    resources->Update();
+    update = true;
 }

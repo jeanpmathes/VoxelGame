@@ -7,14 +7,14 @@ Light::Light(NativeClient& client)
 {
 }
 
-void Light::SetDirection(DirectX::XMFLOAT3 const& direction) { m_direction = direction; }
+void Light::SetDirection(DirectX::XMFLOAT3 const& newDirection) { direction = newDirection; }
 
-DirectX::XMFLOAT3 const& Light::GetDirection() const { return m_direction; }
+DirectX::XMFLOAT3 const& Light::GetDirection() const { return direction; }
 
-void Light::SetColor(DirectX::XMFLOAT3 const& color) { m_color = color; }
+void Light::SetColor(DirectX::XMFLOAT3 const& newColor) { color = newColor; }
 
-DirectX::XMFLOAT3 const& Light::GetColor() const { return m_color; }
+DirectX::XMFLOAT3 const& Light::GetColor() const { return color; }
 
-void Light::SetIntensity(float const intensity) { m_intensity = intensity; }
+void Light::SetIntensity(float const newIntensity) { intensity = newIntensity; }
 
-float Light::GetIntensity() const { return m_intensity; }
+float Light::GetIntensity() const { return intensity; }

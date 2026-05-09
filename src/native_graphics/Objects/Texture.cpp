@@ -76,8 +76,8 @@ Texture* Texture::Create(Uploader& uploader, std::byte** data, TextureDescriptio
     auto const ptr    = result.get();
 
     // When uploading before use, the texture will be in safe (non-fresh) state and can be used without transition.
-    ptr->m_usable = uploader.IsUploadingBeforeAnyUse();
-    ptr->m_handle = uploader.GetClient().StoreObject(std::move(result));
+    ptr->usable = uploader.IsUploadingBeforeAnyUse();
+    ptr->handle = uploader.GetClient().StoreObject(std::move(result));
 
     return ptr;
 }
@@ -94,33 +94,33 @@ Texture* Texture::Create(NativeClient& client, TextureDescription const descript
     auto const ptr = result.get();
 
     // The texture is directly created in the usable state.
-    ptr->m_usable = true;
-    ptr->m_handle = client.StoreObject(std::move(result));
+    ptr->usable = true;
+    ptr->handle = client.StoreObject(std::move(result));
 
     return ptr;
 }
 
 Texture::Texture(NativeClient& client, Allocation<ID3D12Resource> const& resource, DirectX::XMUINT3 size, D3D12_SHADER_RESOURCE_VIEW_DESC const& srvDesc)
     : Object(client)
-  , m_resource(resource)
-  , m_srvDesc(srvDesc)
-  , m_size(size) { NAME_D3D12_OBJECT_WITH_ID(m_resource); }
+  , resource(resource)
+  , srvDesc(srvDesc)
+  , size(size) { NAME_D3D12_OBJECT_WITH_ID(resource); }
 
-void Texture::Free() const { GetClient().DeleteObject(m_handle); }
+void Texture::Free() const { GetClient().DeleteObject(handle); }
 
-Allocation<ID3D12Resource> Texture::GetResource() const { return m_resource; }
+Allocation<ID3D12Resource> Texture::GetResource() const { return resource; }
 
-D3D12_SHADER_RESOURCE_VIEW_DESC const& Texture::GetView() const { return m_srvDesc; }
+D3D12_SHADER_RESOURCE_VIEW_DESC const& Texture::GetView() const { return srvDesc; }
 
-DirectX::XMUINT3 Texture::GetSize() const { return m_size; }
+DirectX::XMUINT3 Texture::GetSize() const { return size; }
 
 void Texture::TransitionToUsable(ComPtr<ID3D12GraphicsCommandList> const commandList)
 {
-    if (m_usable) return;
+    if (usable) return;
 
-    CreateUsabilityBarrier(commandList, m_resource);
+    CreateUsabilityBarrier(commandList, resource);
 
-    m_usable = true;
+    usable = true;
 }
 
 void Texture::CreateUsabilityBarrier(ComPtr<ID3D12GraphicsCommandList> const commandList, Allocation<ID3D12Resource> const resource)

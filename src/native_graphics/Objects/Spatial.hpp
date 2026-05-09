@@ -42,10 +42,10 @@ protected:
     [[nodiscard]] bool ClearTransformDirty();
 
 public:
-    void                                   SetPosition(DirectX::XMFLOAT3 const& position);
+    void                                   SetPosition(DirectX::XMFLOAT3 const& newPosition);
     [[nodiscard]] DirectX::XMFLOAT3 const& GetPosition() const;
 
-    void                                   SetRotation(DirectX::XMFLOAT4 const& rotation);
+    void                                   SetRotation(DirectX::XMFLOAT4 const& newRotation);
     [[nodiscard]] DirectX::XMFLOAT4 const& GetRotation() const;
 
     [[nodiscard]] DirectX::XMFLOAT4X4 const& GetTransform() const;
@@ -53,9 +53,9 @@ public:
 private:
     void RecalculateTransform();
 
-    DirectX::XMFLOAT3   m_position{};
-    DirectX::XMFLOAT4   m_rotation{};
-    DirectX::XMFLOAT4X4 m_transform{};
+    DirectX::XMFLOAT3   position{};
+    DirectX::XMFLOAT4   rotation{};
+    DirectX::XMFLOAT4X4 transform{};
 
-    bool m_transformDirty = true;
+    bool transformDirty = true;
 };

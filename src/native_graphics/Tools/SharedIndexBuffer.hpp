@@ -34,10 +34,10 @@ public:
     void                                        CleanupRender();
 
 private:
-    Space& m_space;
+    Space& space;
 
-    std::vector<UINT>                                                              m_indices            = {};
-    Allocation<ID3D12Resource>                                                     m_sharedIndexBuffer  = {};
-    UINT                                                                           m_sharedIndexCount   = 0;
-    std::vector<std::pair<Allocation<ID3D12Resource>, Allocation<ID3D12Resource>>> m_indexBufferUploads = {};
+    std::vector<UINT>                                                              indices            = {};
+    Allocation<ID3D12Resource>                                                     sharedIndexBuffer  = {};
+    UINT                                                                           sharedIndexCount   = 0;
+    std::vector<std::pair<Allocation<ID3D12Resource>, Allocation<ID3D12Resource>>> indexBufferUploads = {};
 };

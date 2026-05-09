@@ -24,17 +24,17 @@ class HResultException final : public std::runtime_error
 public:
     explicit HResultException(HRESULT const hr, std::string const& info)
         : std::runtime_error(HResultToString(hr) + "\nInfo: " + info)
-      , m_hr(hr)
-      , m_info(info)
+      , hr(hr)
+      , info(info)
     {
     }
 
-    [[nodiscard]] HRESULT     Error() const { return m_hr; }
-    [[nodiscard]] char const* Info() const { return m_info.c_str(); }
+    [[nodiscard]] HRESULT     Error() const { return hr; }
+    [[nodiscard]] char const* Info() const { return info.c_str(); }
 
 private:
-    HRESULT     m_hr;
-    std::string m_info;
+    HRESULT     hr;
+    std::string info;
 };
 
 class NativeException final : public std::runtime_error

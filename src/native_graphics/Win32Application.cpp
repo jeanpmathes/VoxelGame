@@ -6,11 +6,10 @@
 
 #include "stdafx.h"
 
-void*  Win32Application::m_app            = nullptr;
-HWND   Win32Application::m_hwnd           = nullptr;
-bool   Win32Application::m_fullscreenMode = false;
-RECT   Win32Application::m_windowRect;
-size_t Win32Application::m_errorModeDepth = 0;
+HWND   Win32Application::hwnd           = nullptr;
+bool   Win32Application::fullscreenMode = false;
+RECT   Win32Application::windowRectangle;
+size_t Win32Application::errorModeDepth = 0;
 
 // ReSharper disable once CppParameterMayBeConst
 int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
@@ -25,28 +24,27 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
     windowClass.lpszClassName = L"DXApp";
     RegisterClassEx(&windowClass);
 
-    RECT windowRect = {0, 0, static_cast<LONG>(app->GetWidth()), static_cast<LONG>(app->GetHeight())};
-    TryDo(AdjustWindowRect(&windowRect, WS_OVERLAPPEDWINDOW, FALSE));
+    RECT initialWindowRectangle = {0, 0, static_cast<LONG>(app->GetWidth()), static_cast<LONG>(app->GetHeight())};
+    TryDo(AdjustWindowRect(&initialWindowRectangle, WS_OVERLAPPEDWINDOW, FALSE));
 
-    m_hwnd = CreateWindow(
+    hwnd = CreateWindow(
         windowClass.lpszClassName,
         app->GetTitle(),
         WINDOW_STYLE,
         CW_USEDEFAULT,
         CW_USEDEFAULT,
-        windowRect.right - windowRect.left,
-        windowRect.bottom - windowRect.top,
+        initialWindowRectangle.right - initialWindowRectangle.left,
+        initialWindowRectangle.bottom - initialWindowRectangle.top,
         nullptr,
         nullptr,
         instance,
         app);
-    m_app = app;
 
     app->Init();
     app->Update(DXApp::CycleFlags::ALLOW_LOGIC_UPDATE);
     app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
 
-    ShowWindow(m_hwnd, cmdShow);
+    ShowWindow(hwnd, cmdShow);
 
     app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
 
@@ -66,27 +64,27 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
 
 void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
 {
-    if (m_fullscreenMode)
+    if (fullscreenMode)
     {
-        SetWindowLongPtr(m_hwnd, GWL_STYLE, WINDOW_STYLE);
+        SetWindowLongPtr(hwnd, GWL_STYLE, WINDOW_STYLE);
 
         TryDo(
             SetWindowPos(
-                m_hwnd,
+                hwnd,
                 HWND_NOTOPMOST,
-                m_windowRect.left,
-                m_windowRect.top,
-                m_windowRect.right - m_windowRect.left,
-                m_windowRect.bottom - m_windowRect.top,
+                windowRectangle.left,
+                windowRectangle.top,
+                windowRectangle.right - windowRectangle.left,
+                windowRectangle.bottom - windowRectangle.top,
                 SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
-        ShowWindow(m_hwnd, SW_NORMAL);
+        ShowWindow(hwnd, SW_NORMAL);
     }
     else
     {
-        TryDo(GetWindowRect(m_hwnd, &m_windowRect));
+        TryDo(GetWindowRect(hwnd, &windowRectangle));
 
-        SetWindowLongPtr(m_hwnd, GWL_STYLE, WINDOW_FULLSCREEN_STYLE);
+        SetWindowLongPtr(hwnd, GWL_STYLE, WINDOW_FULLSCREEN_STYLE);
 
         RECT fullscreenWindowRect;
         try
@@ -117,7 +115,7 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
 
         TryDo(
             SetWindowPos(
-                m_hwnd,
+                hwnd,
                 HWND_TOPMOST,
                 fullscreenWindowRect.left,
                 fullscreenWindowRect.top,
@@ -125,20 +123,20 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
                 fullscreenWindowRect.bottom,
                 SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
-        ShowWindow(m_hwnd, SW_MAXIMIZE);
+        ShowWindow(hwnd, SW_MAXIMIZE);
     }
 
-    m_fullscreenMode = !m_fullscreenMode;
+    fullscreenMode = !fullscreenMode;
 }
 
 void Win32Application::SetWindowOrderToTopMost(bool const setToTopMost)
 {
     RECT windowRect;
-    TryDo(GetWindowRect(m_hwnd, &windowRect));
+    TryDo(GetWindowRect(hwnd, &windowRect));
 
     TryDo(
         SetWindowPos(
-            m_hwnd,
+            hwnd,
             setToTopMost ? HWND_TOPMOST : HWND_NOTOPMOST,
             windowRect.left,
             windowRect.top,
@@ -150,15 +148,15 @@ void Win32Application::SetWindowOrderToTopMost(bool const setToTopMost)
 void Win32Application::ShowErrorMessage(LPCWSTR const message, LPCWSTR const title)
 {
     EnterErrorMode();
-    MessageBoxW(m_hwnd, message, title, MB_OK | MB_ICONERROR | MB_SETFOREGROUND);
+    MessageBoxW(hwnd, message, title, MB_OK | MB_ICONERROR | MB_SETFOREGROUND);
     ExitErrorMode();
 }
 
-void Win32Application::EnterErrorMode() { ++m_errorModeDepth; }
+void Win32Application::EnterErrorMode() { ++errorModeDepth; }
 
-void Win32Application::ExitErrorMode() { --m_errorModeDepth; }
+void Win32Application::ExitErrorMode() { --errorModeDepth; }
 
-bool Win32Application::IsInErrorMode() { return m_errorModeDepth > 0; }
+bool Win32Application::IsInErrorMode() { return errorModeDepth > 0; }
 
 // ReSharper disable once CppParameterMayBeConst
 LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPARAM const wParam, LPARAM const lParam)
@@ -195,7 +193,7 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPA
         if (app)
         {
             app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
-            ValidateRect(m_hwnd, nullptr);
+            ValidateRect(hwnd, nullptr);
         }
 
         return 0;

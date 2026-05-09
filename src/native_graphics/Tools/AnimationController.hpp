@@ -43,10 +43,10 @@ public:
      * Creates a new animation controller.
      * The shader binds both UAV and SRV resources and occupies one space in each.
      */
-    AnimationController(ComPtr<IDxcBlob> const& shader, UINT space);
+    AnimationController(ComPtr<IDxcBlob> const& shaderBlob, UINT space);
 
     void SetUpResourceLayout(ShaderResources::Description* description);
-    void Initialize(NativeClient& client, ComPtr<ID3D12RootSignature> const& rootSignature);
+    void Initialize(NativeClient& usedClient, ComPtr<ID3D12RootSignature> const& rootSignature);
 
     void AddMesh(Mesh& mesh);
     void UpdateMesh(Mesh const& mesh);
@@ -73,27 +73,27 @@ public:
 private:
     void CreateBarriers();
 
-    ShaderLocation m_threadGroupDataLocation;
-    ShaderLocation m_inputGeometryListLocation;
-    ShaderLocation m_outputGeometryListLocation;
+    ShaderLocation threadGroupDataLocation;
+    ShaderLocation inputGeometryListLocation;
+    ShaderLocation outputGeometryListLocation;
 
-    ComPtr<ID3DBlob> m_shader = {};
+    ComPtr<ID3DBlob> shader = {};
 
-    Bag<Mesh*, Handle> m_meshes        = {};
-    IntegerSet<Handle> m_changedMeshes = {};
-    IntegerSet<Handle> m_removedMeshes = {};
+    Bag<Mesh*, Handle> meshes        = {};
+    IntegerSet<Handle> changedMeshes = {};
+    IntegerSet<Handle> removedMeshes = {};
 
-    ShaderResources::Value32 m_workIndex = {};
-    ShaderResources::Value32 m_workSize  = {};
+    ShaderResources::Value32 workIndex = {};
+    ShaderResources::Value32 workSize  = {};
 
-    ShaderResources::ConstantHandle m_workIndexConstant = ShaderResources::ConstantHandle::INVALID;
-    ShaderResources::ConstantHandle m_workSizeConstant  = ShaderResources::ConstantHandle::INVALID;
-    ShaderResources::ListHandle     m_srcGeometryList   = ShaderResources::ListHandle::INVALID;
-    ShaderResources::ListHandle     m_dstGeometryList   = ShaderResources::ListHandle::INVALID;
+    ShaderResources::ConstantHandle workIndexConstant = ShaderResources::ConstantHandle::INVALID;
+    ShaderResources::ConstantHandle workSizeConstant  = ShaderResources::ConstantHandle::INVALID;
+    ShaderResources::ListHandle     srcGeometryList   = ShaderResources::ListHandle::INVALID;
+    ShaderResources::ListHandle     dstGeometryList   = ShaderResources::ListHandle::INVALID;
 
-    NativeClient*               m_client        = {};
-    ComPtr<ID3D12PipelineState> m_pipelineState = {};
+    NativeClient*               client        = {};
+    ComPtr<ID3D12PipelineState> pipelineState = {};
 
-    std::vector<CD3DX12_RESOURCE_BARRIER> m_entryBarriers = {};
-    std::vector<CD3DX12_RESOURCE_BARRIER> m_exitBarriers  = {};
+    std::vector<CD3DX12_RESOURCE_BARRIER> entryBarriers = {};
+    std::vector<CD3DX12_RESOURCE_BARRIER> exitBarriers  = {};
 };

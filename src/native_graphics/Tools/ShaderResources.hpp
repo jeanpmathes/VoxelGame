@@ -135,8 +135,8 @@ public:
             [[nodiscard]] bool IsValid() const;
 
         private:
-            UINT m_heapParameterIndex;
-            UINT m_inHeapIndex;
+            UINT heapParameterIndex;
+            UINT inHeapIndex;
         };
 
         Entry AddConstantBufferView(ShaderLocation location, UINT count = 1);
@@ -147,10 +147,10 @@ public:
         Entry AddView(ShaderLocation location, UINT count, D3D12_DESCRIPTOR_RANGE_TYPE type);
 
         explicit Table(UINT heap);
-        UINT     m_heap;
+        UINT     heap;
 
-        std::vector<nv_helpers_dx12::RootSignatureGenerator::HeapRange> m_heapRanges = {};
-        std::vector<UINT>                                               m_offsets    = {{0}};
+        std::vector<nv_helpers_dx12::RootSignatureGenerator::HeapRange> heapRanges = {};
+        std::vector<UINT>                                               offsets    = {{0}};
     };
 
     enum class ConstantHandle : UINT
@@ -204,16 +204,16 @@ public:
         template <class TableBuilder>
         TableHandle AddHeapDescriptorTable(TableBuilder builder)
         {
-            auto const handle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
+            auto const handle = static_cast<UINT>(rootParameters.size()) + existingRootParameterCount;
             Table      table(handle);
 
             builder(table);
 
-            m_heapDescriptorTableCount += table.m_offsets.back();
+            heapDescriptorTableCount += table.offsets.back();
 
-            m_rootSignatureGenerator.AddHeapRangesParameter(table.m_heapRanges);
-            m_rootParameters.emplace_back(RootHeapDescriptorTable{});
-            m_heapDescriptorTableOffsets.emplace_back(std::move(table.m_offsets));
+            rootSignatureGenerator.AddHeapRangesParameter(table.heapRanges);
+            rootParameters.emplace_back(RootHeapDescriptorTable{});
+            heapDescriptorTableOffsets.emplace_back(std::move(table.offsets));
 
             return static_cast<TableHandle>(handle);
         }
@@ -282,11 +282,11 @@ public:
             std::optional<UINT> const           numberOfDescriptorsIfSelectionList)
         {
             UINT const number     = numberOfDescriptorsIfSelectionList.value_or(UNBOUNDED);
-            auto const listHandle = static_cast<UINT>(m_rootParameters.size()) + m_existingRootParameterCount;
+            auto const listHandle = static_cast<UINT>(rootParameters.size()) + existingRootParameterCount;
 
-            m_rootSignatureGenerator.AddHeapRangesParameter({{location.reg, number, location.space, Descriptor::RANGE_TYPE, 0},});
-            m_rootParameters.emplace_back(RootHeapDescriptorList{});
-            m_descriptorListDescriptions.emplace_back(
+            rootSignatureGenerator.AddHeapRangesParameter({{location.reg, number, location.space, Descriptor::RANGE_TYPE, 0},});
+            rootParameters.emplace_back(RootHeapDescriptorList{});
+            descriptorListDescriptions.emplace_back(
                 std::move(count),
                 [descriptor](auto device, auto index, auto cpuHandle)
                 {
@@ -340,15 +340,15 @@ public:
         ComPtr<ID3D12RootSignature> GenerateRootSignature(ComPtr<ID3D12Device> const& device);
 
         explicit Description(UINT existingRootParameterCount);
-        UINT     m_existingRootParameterCount = 0;
+        UINT     existingRootParameterCount = 0;
 
-        std::vector<RootParameter>              m_rootParameters         = {};
-        nv_helpers_dx12::RootSignatureGenerator m_rootSignatureGenerator = {};
+        std::vector<RootParameter>              rootParameters         = {};
+        nv_helpers_dx12::RootSignatureGenerator rootSignatureGenerator = {};
 
-        std::vector<std::function<Value32()>> m_rootConstants = {};
+        std::vector<std::function<Value32()>> rootConstants = {};
 
-        std::vector<std::vector<UINT>> m_heapDescriptorTableOffsets = {};
-        UINT                           m_heapDescriptorTableCount   = 0;
+        std::vector<std::vector<UINT>> heapDescriptorTableOffsets = {};
+        UINT                           heapDescriptorTableCount   = 0;
 
         struct DescriptorListDescription
         {
@@ -359,7 +359,7 @@ public:
             bool isSelectionList = false;
         };
 
-        std::vector<DescriptorListDescription> m_descriptorListDescriptions = {};
+        std::vector<DescriptorListDescription> descriptorListDescriptions = {};
     };
 
     /**
@@ -385,25 +385,25 @@ public:
 
     private:
         SelectionList(ShaderLocation const location, Description* description, UINT window)
-            : m_data(std::make_unique<Data>())
+            : data(std::make_unique<Data>())
         {
-            m_data->window = window;
-            m_data->handle = description->AddDescriptorList<Descriptor>(
+            data->window = window;
+            data->handle = description->AddDescriptorList<Descriptor>(
                 location,
-                [ptr = m_data.get()] { return static_cast<UINT>(ptr->descriptors.size()); },
-                [ptr = m_data.get()](UINT index) -> Descriptor { return ptr->descriptors[index]; },
-                [ptr = m_data.get()](Description::DescriptorBuilder const& builder) { for (UINT i = 0; i < ptr->count; i++) builder(i); },
+                [ptr = data.get()] { return static_cast<UINT>(ptr->descriptors.size()); },
+                [ptr = data.get()](UINT index) -> Descriptor { return ptr->descriptors[index]; },
+                [ptr = data.get()](Description::DescriptorBuilder const& builder) { for (UINT i = 0; i < ptr->count; i++) builder(i); },
                 window);
         }
 
         void SetDescriptors(std::vector<Descriptor> const& descriptors)
         {
-            Require(descriptors.size() >= m_data->window || m_data->window == UNBOUNDED);
+            Require(descriptors.size() >= data->window || data->window == UNBOUNDED);
 
-            m_data->count = static_cast<UINT>(descriptors.size());
-            m_data->descriptors.resize(std::max(static_cast<size_t>(m_data->count), m_data->descriptors.size()));
+            data->count = static_cast<UINT>(descriptors.size());
+            data->descriptors.resize(std::max(static_cast<size_t>(data->count), data->descriptors.size()));
 
-            for (UINT index = 0; index < m_data->count; index++) m_data->descriptors[index] = descriptors[index];
+            for (UINT index = 0; index < data->count; index++) data->descriptors[index] = descriptors[index];
         }
 
         struct Data
@@ -415,29 +415,29 @@ public:
             UINT count  = 0;
         };
 
-        std::unique_ptr<Data> m_data = nullptr;
+        std::unique_ptr<Data> data = nullptr;
     };
 
     template <class GraphicsBuilder, class ComputeBuilder>
-    void Initialize(GraphicsBuilder graphics, ComputeBuilder compute, ComPtr<ID3D12Device5> device)
+    void Initialize(GraphicsBuilder graphics, ComputeBuilder compute, ComPtr<ID3D12Device5> hostDevice)
     {
-        m_device = device;
+        device = hostDevice;
 
         UINT        rootParameterCount = 0;
         Description graphicsDesc(rootParameterCount);
         graphics(graphicsDesc);
 
-        rootParameterCount = static_cast<UINT>(graphicsDesc.m_rootParameters.size());
+        rootParameterCount = static_cast<UINT>(graphicsDesc.rootParameters.size());
         Description computeDesc(rootParameterCount);
         compute(computeDesc);
 
-        m_graphicsRootSignature  = graphicsDesc.GenerateRootSignature(device);
-        m_graphicsRootParameters = std::move(graphicsDesc.m_rootParameters);
-        NAME_D3D12_OBJECT(m_graphicsRootSignature);
+        graphicsRootSignature  = graphicsDesc.GenerateRootSignature(device);
+        graphicsRootParameters = std::move(graphicsDesc.rootParameters);
+        NAME_D3D12_OBJECT(graphicsRootSignature);
 
-        m_computeRootSignature  = computeDesc.GenerateRootSignature(device);
-        m_computeRootParameters = std::move(computeDesc.m_rootParameters);
-        NAME_D3D12_OBJECT(m_computeRootSignature);
+        computeRootSignature  = computeDesc.GenerateRootSignature(device);
+        computeRootParameters = std::move(computeDesc.rootParameters);
+        NAME_D3D12_OBJECT(computeRootSignature);
 
         auto initializeConstants = [&](std::vector<RootParameter>& rootParameters, std::vector<std::function<Value32()>>&& getters, QueueType const queue)
         {
@@ -447,10 +447,10 @@ public:
                 if (std::holds_alternative<RootConstant>(rootParameters[rootParameterIndex]))
                 {
                     RootConstant& rootConstant = std::get<RootConstant>(rootParameters[rootParameterIndex]);
-                    rootConstant.index         = static_cast<UINT>(m_constants.size());
+                    rootConstant.index         = static_cast<UINT>(constants.size());
                     rootConstant.queue         = queue;
 
-                    Constant& constant          = m_constants.emplace_back();
+                    Constant& constant          = constants.emplace_back();
                     constant.getter             = std::move(getters[index]);
                     constant.rootParameterIndex = rootParameterIndex;
 
@@ -458,10 +458,10 @@ public:
                 }
         };
 
-        initializeConstants(m_graphicsRootParameters, std::move(graphicsDesc.m_rootConstants), QueueType::GRAPHICS);
-        initializeConstants(m_computeRootParameters, std::move(computeDesc.m_rootConstants), QueueType::COMPUTE);
+        initializeConstants(graphicsRootParameters, std::move(graphicsDesc.rootConstants), QueueType::GRAPHICS);
+        initializeConstants(computeRootParameters, std::move(computeDesc.rootConstants), QueueType::COMPUTE);
 
-        m_totalTableDescriptorCount = graphicsDesc.m_heapDescriptorTableCount + computeDesc.m_heapDescriptorTableCount;
+        totalTableDescriptorCount = graphicsDesc.heapDescriptorTableCount + computeDesc.heapDescriptorTableCount;
 
         auto initializeDescriptorTables = [&](std::vector<RootParameter>& rootParameters, std::vector<std::vector<UINT>>& internalOffsets, UINT* externalOffset)
         {
@@ -473,9 +473,9 @@ public:
                     UINT const size = internalOffsets[tableIndex].back();
 
                     auto& tableParameter = std::get<RootHeapDescriptorTable>(parameter);
-                    tableParameter.index = static_cast<UINT>(m_descriptorTables.size());
+                    tableParameter.index = static_cast<UINT>(descriptorTables.size());
 
-                    auto& tableData = m_descriptorTables.emplace_back();
+                    auto& tableData = descriptorTables.emplace_back();
                     tableData.heap.Create(device, size, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, false);
                     tableData.parameter       = &tableParameter;
                     tableData.internalOffsets = std::move(internalOffsets[tableIndex]);
@@ -488,10 +488,10 @@ public:
                 }
         };
 
-        m_totalTableOffset = 0;
+        totalTableOffset = 0;
 
-        initializeDescriptorTables(m_graphicsRootParameters, graphicsDesc.m_heapDescriptorTableOffsets, &m_totalTableOffset);
-        initializeDescriptorTables(m_computeRootParameters, computeDesc.m_heapDescriptorTableOffsets, &m_totalTableOffset);
+        initializeDescriptorTables(graphicsRootParameters, graphicsDesc.heapDescriptorTableOffsets, &totalTableOffset);
+        initializeDescriptorTables(computeRootParameters, computeDesc.heapDescriptorTableOffsets, &totalTableOffset);
 
         auto initializeDescriptorLists = [&](std::vector<RootParameter>& rootParameters, auto const& descriptions)
         {
@@ -501,11 +501,11 @@ public:
                 if (std::holds_alternative<RootHeapDescriptorList>(parameter))
                 {
                     auto& listParameter = std::get<RootHeapDescriptorList>(parameter);
-                    listParameter.index = static_cast<UINT>(m_descriptorLists.size());
+                    listParameter.index = static_cast<UINT>(descriptorLists.size());
 
                     auto& description = descriptions[listIndex];
 
-                    auto& listData              = m_descriptorLists.emplace_back();
+                    auto& listData              = descriptorLists.emplace_back();
                     listData.sizeGetter         = description.sizeGetter;
                     listData.descriptorAssigner = description.descriptorAssigner;
                     listData.listBuilder        = description.listBuilder;
@@ -517,8 +517,8 @@ public:
                 }
         };
 
-        initializeDescriptorLists(m_graphicsRootParameters, graphicsDesc.m_descriptorListDescriptions);
-        initializeDescriptorLists(m_computeRootParameters, computeDesc.m_descriptorListDescriptions);
+        initializeDescriptorLists(graphicsRootParameters, graphicsDesc.descriptorListDescriptions);
+        initializeDescriptorLists(computeRootParameters, computeDesc.descriptorListDescriptions);
 
         Update();
     }
@@ -541,7 +541,7 @@ public:
     void SetSelectionListContent(SelectionList<Descriptor>& list, std::vector<Descriptor> const& descriptors)
     {
         list.SetDescriptors(descriptors);
-        RequestListRefresh(list.m_data->handle, IntegerSet<>::Full(list.m_data->count));
+        RequestListRefresh(list.data->handle, IntegerSet<>::Full(list.data->count));
     }
 
     void Bind(ComPtr<ID3D12GraphicsCommandList> commandList);
@@ -551,14 +551,14 @@ public:
             Descriptor, UnorderedAccessViewDescriptor>)
     void BindSelectionListIndex(SelectionList<Descriptor>& list, UINT index, ComPtr<ID3D12GraphicsCommandList> const commandList)
     {
-        auto const           parameterIndex = static_cast<UINT>(list.m_data->handle);
+        auto const           parameterIndex = static_cast<UINT>(list.data->handle);
         RootParameter const& parameter      = GetRootParameter(parameterIndex);
 
         if (std::holds_alternative<RootHeapDescriptorList>(parameter))
         {
-            auto& data = m_descriptorLists[std::get<RootHeapDescriptorList>(parameter).index];
+            auto& data = descriptorLists[std::get<RootHeapDescriptorList>(parameter).index];
 
-            Require(list.m_data->count > index);
+            Require(list.data->count > index);
 
             data.selection = index;
             data.bind(commandList);
@@ -598,11 +598,11 @@ private:
     bool CheckListSizeUpdate(UINT* firstResizedList, UINT* totalListDescriptorCount);
     void PerformSizeUpdate(UINT firstResizedListIndex, UINT totalListDescriptorCount);
 
-    DescriptorHeap m_cpuDescriptorHeap      = {};
-    DescriptorHeap m_gpuDescriptorHeap      = {};
-    bool           m_cpuDescriptorHeapDirty = false;
+    DescriptorHeap cpuDescriptorHeap      = {};
+    DescriptorHeap gpuDescriptorHeap      = {};
+    bool           cpuDescriptorHeapDirty = false;
 
-    ComPtr<ID3D12Device5> m_device = nullptr;
+    ComPtr<ID3D12Device5> device = nullptr;
 
     struct Constant
     {
@@ -610,7 +610,7 @@ private:
         UINT                     rootParameterIndex = 0;
     };
 
-    std::vector<Constant> m_constants = {};
+    std::vector<Constant> constants = {};
 
     struct DescriptorTable
     {
@@ -621,9 +621,9 @@ private:
         UINT              externalOffset  = 0;
     };
 
-    std::vector<DescriptorTable> m_descriptorTables          = {};
-    UINT                         m_totalTableDescriptorCount = 0;
-    UINT                         m_totalTableOffset          = 0;
+    std::vector<DescriptorTable> descriptorTables          = {};
+    UINT                         totalTableDescriptorCount = 0;
+    UINT                         totalTableOffset          = 0;
 
     struct DescriptorList
     {
@@ -641,13 +641,13 @@ private:
         std::function<void(ComPtr<ID3D12GraphicsCommandList>)> bind      = {};
     };
 
-    std::vector<DescriptorList> m_descriptorLists = {};
+    std::vector<DescriptorList> descriptorLists = {};
 
-    ComPtr<ID3D12RootSignature> m_graphicsRootSignature  = nullptr;
-    std::vector<RootParameter>  m_graphicsRootParameters = {};
+    ComPtr<ID3D12RootSignature> graphicsRootSignature  = nullptr;
+    std::vector<RootParameter>  graphicsRootParameters = {};
 
-    ComPtr<ID3D12RootSignature> m_computeRootSignature  = nullptr;
-    std::vector<RootParameter>  m_computeRootParameters = {};
+    ComPtr<ID3D12RootSignature> computeRootSignature  = nullptr;
+    std::vector<RootParameter>  computeRootParameters = {};
 };
 
 template <typename Entry, typename Index>

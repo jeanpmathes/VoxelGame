@@ -91,11 +91,11 @@ private:
     static void ShaderLookupCallback(GFSDK_Aftermath_ShaderBinaryHash const* pShaderHash, PFN_GFSDK_Aftermath_SetData setShaderBinary, void* pUserData);
     static void ShaderSourceDebugInfoLookupCallback(GFSDK_Aftermath_ShaderDebugName const* pShaderDebugName, PFN_GFSDK_Aftermath_SetData setShaderBinary, void* pUserData);
 
-    bool                                                                      m_initialized;
-    mutable std::mutex                                                        m_mutex;
-    std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<uint8_t>> m_shaderDebugInfo = {};
-    MarkerMap const&                                                          m_markerMap;
-    ShaderDatabase const&                                                     m_shaderDatabase;
+    bool                                                                      initialized;
+    mutable std::mutex                                                        mutex;
+    std::map<GFSDK_Aftermath_ShaderDebugInfoIdentifier, std::vector<uint8_t>> shaderDebugInfo = {};
+    MarkerMap const&                                                          markerMap;
+    ShaderDatabase const&                                                     shaderDatabase;
 
-    Description const m_description;
+    Description const description;
 };

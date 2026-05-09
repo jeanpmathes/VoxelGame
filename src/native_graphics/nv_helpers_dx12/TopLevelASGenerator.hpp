@@ -68,11 +68,16 @@ namespace nv_helpers_dx12
          * \brief Compute the size of the scratch space required to build the acceleration structure, as well as the size of the resulting structure. The allocation of the buffers is then left to the application.
          * \param device Device on which the build will be performed.
          * \param allowUpdate If true, the resulting acceleration structure will allow iterative updates.
-         * \param scratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure.
-         * \param resultSizeInBytes Required GPU memory to store the acceleration structure.
-         * \param descriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
+         * \param outScratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure.
+         * \param outResultSizeInBytes Required GPU memory to store the acceleration structure.
+         * \param outDescriptorsSizeInBytes Required GPU memory to store instance descriptors, containing the matrices, indices etc.
          */
-        void ComputeASBufferSizes(ComPtr<ID3D12Device5> const& device, bool allowUpdate, UINT64* scratchSizeInBytes, UINT64* resultSizeInBytes, UINT64* descriptorsSizeInBytes);
+        void ComputeASBufferSizes(
+            ComPtr<ID3D12Device5> const& device,
+            bool                         allowUpdate,
+            UINT64*                      outScratchSizeInBytes,
+            UINT64*                      outResultSizeInBytes,
+            UINT64*                      outDescriptorsSizeInBytes);
 
         /**
          * \brief Enqueue the construction of the acceleration structure on a command list, using application-provided buffers and possibly a pointer to the previous acceleration structure in case of iterative updates. Note that the update can be done in place: the result and previousResult pointers can be the same.
@@ -104,12 +109,12 @@ namespace nv_helpers_dx12
             BYTE                            inclusionMask;
         };
 
-        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
-        std::vector<Instance> m_instances{};
+        std::vector<Instance> instances{};
 
-        UINT64 m_scratchSizeInBytes              = 0;
-        UINT64 m_instanceDescriptionsSizeInBytes = 0;
-        UINT64 m_resultSizeInBytes               = 0;
+        UINT64 scratchSizeInBytes              = 0;
+        UINT64 instanceDescriptionsSizeInBytes = 0;
+        UINT64 resultSizeInBytes               = 0;
     };
 }

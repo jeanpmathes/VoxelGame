@@ -69,8 +69,8 @@ public:
     void Initialize();
     void Update();
 
-    void SetPosition(DirectX::XMFLOAT3 const& position);
-    void SetOrientation(DirectX::XMFLOAT3 const& front, DirectX::XMFLOAT3 const& up);
+    void SetPosition(DirectX::XMFLOAT3 const& newPosition);
+    void SetOrientation(DirectX::XMFLOAT3 const& newFront, DirectX::XMFLOAT3 const& newTop);
 
     [[nodiscard]] DirectX::XMFLOAT3 const&   GetPosition() const;
     [[nodiscard]] DirectX::XMFLOAT4X4 const& GetViewMatrix() const;
@@ -80,7 +80,7 @@ public:
     [[nodiscard]] float GetNearPlane() const;
     [[nodiscard]] float GetFarPlane() const;
 
-    void SetFov(float fov);
+    void SetFov(float newFov);
     void SetPlanes(float nearDistance, float farDistance);
 
     /**
@@ -92,19 +92,19 @@ public:
     [[nodiscard]] Space& GetSpace() const;
 
 private:
-    DirectX::XMFLOAT3 m_position = {};
-    DirectX::XMFLOAT3 m_front    = {};
-    DirectX::XMFLOAT3 m_up       = {};
+    DirectX::XMFLOAT3 position = {};
+    DirectX::XMFLOAT3 front    = {};
+    DirectX::XMFLOAT3 top      = {};
 
-    float m_fov  = 0.0f;
-    float m_near = 0.0f;
-    float m_far  = 0.0f;
+    float fov   = 0.0f;
+    float nearZ = 0.0f;
+    float farZ  = 0.0f;
 
-    DirectX::XMFLOAT4X4 m_vMatrix  = {};
-    DirectX::XMFLOAT4X4 m_pMatrix  = {};
-    DirectX::XMFLOAT4X4 m_vpMatrix = {};
+    DirectX::XMFLOAT4X4 vMatrix  = {};
+    DirectX::XMFLOAT4X4 pMatrix  = {};
+    DirectX::XMFLOAT4X4 vpMatrix = {};
 
-    Allocation<ID3D12Resource>                      m_spaceCameraBuffer        = {};
-    Mapping<ID3D12Resource, CameraParametersBuffer> m_spaceCameraBufferMapping = {};
-    UINT64                                          m_spaceCameraBufferSize    = 0;
+    Allocation<ID3D12Resource>                      spaceCameraBuffer        = {};
+    Mapping<ID3D12Resource, CameraParametersBuffer> spaceCameraBufferMapping = {};
+    UINT64                                          spaceCameraBufferSize    = 0;
 };

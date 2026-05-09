@@ -45,7 +45,7 @@ class Effect final : public Drawable
 
 public:
     explicit Effect(NativeClient& client);
-    void     Initialize(RasterPipeline& pipeline);
+    void     Initialize(RasterPipeline& hostPipeline);
 
     void Update() override;
 
@@ -69,13 +69,13 @@ protected:
     void DoReset() override;
 
 private:
-    RasterPipeline* m_pipeline = nullptr;
+    RasterPipeline* pipeline = nullptr;
 
-    Allocation<ID3D12Resource>                m_instanceConstantDataBuffer            = {};
-    UINT64                                    m_instanceConstantDataBufferAlignedSize = 0;
-    D3D12_CONSTANT_BUFFER_VIEW_DESC           m_instanceConstantDataBufferView        = {};
-    Mapping<ID3D12Resource, EffectDataBuffer> m_instanceConstantBufferMapping         = {};
+    Allocation<ID3D12Resource>                instanceConstantDataBuffer            = {};
+    UINT64                                    instanceConstantDataBufferAlignedSize = 0;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC           instanceConstantDataBufferView        = {};
+    Mapping<ID3D12Resource, EffectDataBuffer> instanceConstantBufferMapping         = {};
 
-    Allocation<ID3D12Resource> m_geometryBuffer = {};
-    D3D12_VERTEX_BUFFER_VIEW   m_geometryVBV    = {};
+    Allocation<ID3D12Resource> geometryBuffer = {};
+    D3D12_VERTEX_BUFFER_VIEW   geometryVBV    = {};
 };

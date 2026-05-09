@@ -64,8 +64,8 @@ public:
      * \param common A common bag of drawables of all subtypes.
      */
     explicit DrawablesGroup(NativeClient& client, Drawable::BaseContainer& common)
-        : m_client(&client)
-      , m_common(&common)
+        : client(&client)
+      , common(&common)
     {
     }
 
@@ -80,7 +80,7 @@ public:
      * \brief Spool a number of drawables. This fills the internal pool with new drawables.
      * @param count The number of drawables to spool.
      */
-    void Spool(UINT const count) { for (UINT i = 0; i < count; i++) m_pool.push_back(std::make_unique<D>(*m_client)); }
+    void Spool(UINT const count) { for (UINT i = 0; i < count; i++) pool.push_back(std::make_unique<D>(*client)); }
 
     /**
      * \brief Creates and stores a new drawable.
@@ -91,17 +91,17 @@ public:
     {
         std::unique_ptr<D> stored;
 
-        if (m_pool.empty()) stored = std::make_unique<D>(*m_client);
+        if (pool.empty()) stored = std::make_unique<D>(*client);
         else
         {
-            stored = std::move(m_pool.back());
-            m_pool.pop_back();
+            stored = std::move(pool.back());
+            pool.pop_back();
         }
 
         auto& object = *stored;
 
-        Drawable::BaseIndex  base  = m_common->Push(&object);
-        Drawable::EntryIndex entry = m_entries.Push(std::move(stored));
+        Drawable::BaseIndex  base  = common->Push(&object);
+        Drawable::EntryIndex entry = entries.Push(std::move(stored));
         object.AssociateWithIndices(base, entry);
 
         initializer(object);
@@ -116,7 +116,7 @@ public:
     void MarkModified(D& drawable)
     {
         Drawable::EntryIndex const entry = drawable.GetEntryIndex();
-        m_modified.Insert(entry);
+        modified.Insert(entry);
     }
 
     /**
@@ -127,10 +127,10 @@ public:
     {
         Require(!drawable.GetActiveIndex());
 
-        Drawable::ActiveIndex active = m_active.Push(&drawable);
-        m_activated.Insert(active);
+        Drawable::ActiveIndex activeIndex = active.Push(&drawable);
+        activated.Insert(activeIndex);
 
-        drawable.SetActiveIndex(active);
+        drawable.SetActiveIndex(activeIndex);
     }
 
     /**
@@ -141,9 +141,9 @@ public:
     {
         Require(drawable.GetActiveIndex().has_value());
 
-        Drawable::ActiveIndex const active = *drawable.GetActiveIndex();
-        m_active.Pop(active);
-        m_activated.Erase(active);
+        Drawable::ActiveIndex const activeIndex = *drawable.GetActiveIndex();
+        active.Pop(activeIndex);
+        activated.Erase(activeIndex);
 
         drawable.SetActiveIndex(std::nullopt);
     }
@@ -157,19 +157,19 @@ public:
         Drawable::EntryIndex const entry = drawable.GetEntryIndex();
         Drawable::BaseIndex const  base  = drawable.GetHandle();
 
-        m_modified.Erase(entry);
-        m_common->Pop(base);
+        modified.Erase(entry);
+        common->Pop(base);
 
-        std::unique_ptr<D> object = m_entries.Pop(entry);
+        std::unique_ptr<D> object = entries.Pop(entry);
         object->Reset();
-        m_pool.push_back(std::move(object));
+        pool.push_back(std::move(object));
     }
 
     /**
      * \brief Get the bag of active drawables.
      * \return The bag of active drawables.
      */
-    Bag<D*, Drawable::ActiveIndex>& GetActive() { return m_active; }
+    Bag<D*, Drawable::ActiveIndex>& GetActive() { return active; }
 
     /**
      * \brief Get all modified drawables.
@@ -178,15 +178,15 @@ public:
     auto GetModified()
     {
         return std::ranges::views::transform(
-            m_modified,
+            modified,
             [this](Drawable::EntryIndex const entry) -> D*
             {
-                Require(m_entries[entry] != nullptr);
-                return m_entries[entry].get();
+                Require(entries[entry] != nullptr);
+                return entries[entry].get();
             });
     }
 
-    [[nodiscard]] size_t GetModifiedCount() const { return m_modified.Count(); }
+    [[nodiscard]] size_t GetModifiedCount() const { return modified.Count(); }
 
     /**
      * \brief Get all changed drawables. A drawable is changed if it is active and either newly activated or modified.
@@ -194,16 +194,16 @@ public:
      */
     IntegerSet<> ClearChanged()
     {
-        IntegerSet<> changed(m_activated);
-        for (Drawable::EntryIndex const entry : m_modified)
+        IntegerSet<> changed(activated);
+        for (Drawable::EntryIndex const entry : modified)
         {
-            Require(m_entries[entry] != nullptr);
-            auto active = m_entries[entry]->GetActiveIndex();
+            Require(entries[entry] != nullptr);
+            auto activeIndex = entries[entry]->GetActiveIndex();
 
-            if (active) changed.Insert(static_cast<size_t>(*active));
+            if (activeIndex) changed.Insert(static_cast<size_t>(*activeIndex));
         }
 
-        m_activated.Clear();
+        activated.Clear();
 
         return changed;
     }
@@ -211,12 +211,12 @@ public:
     void EnqueueDataUpload(ComPtr<ID3D12GraphicsCommandList4> commandList) override
     {
         std::vector<D3D12_RESOURCE_BARRIER> barriers;
-        barriers.reserve(m_modified.Count());
+        barriers.reserve(modified.Count());
 
-        for (Drawable::EntryIndex const entry : m_modified)
+        for (Drawable::EntryIndex const entry : modified)
         {
-            Require(m_entries[entry] != nullptr);
-            m_entries[entry]->EnqueueDataUpload(commandList, &barriers);
+            Require(entries[entry] != nullptr);
+            entries[entry]->EnqueueDataUpload(commandList, &barriers);
         }
 
         if (!barriers.empty()) commandList->ResourceBarrier(static_cast<UINT>(barriers.size()), barriers.data());
@@ -224,22 +224,22 @@ public:
 
     void CleanupDataUpload() override
     {
-        for (Drawable::EntryIndex const entry : m_modified)
+        for (Drawable::EntryIndex const entry : modified)
         {
-            Require(m_entries[entry] != nullptr);
-            m_entries[entry]->CleanupDataUpload();
+            Require(entries[entry] != nullptr);
+            entries[entry]->CleanupDataUpload();
         }
-        m_modified.Clear();
+        modified.Clear();
     }
 
 private:
-    NativeClient*            m_client;
-    Drawable::BaseContainer* m_common;
+    NativeClient*            client;
+    Drawable::BaseContainer* common;
 
-    Bag<std::unique_ptr<D>, Drawable::EntryIndex> m_entries = {};
-    std::vector<std::unique_ptr<D>>               m_pool    = {};
+    Bag<std::unique_ptr<D>, Drawable::EntryIndex> entries = {};
+    std::vector<std::unique_ptr<D>>               pool    = {};
 
-    IntegerSet<Drawable::EntryIndex>  m_modified  = {};
-    IntegerSet<Drawable::ActiveIndex> m_activated = {};
-    Bag<D*, Drawable::ActiveIndex>    m_active    = {};
+    IntegerSet<Drawable::EntryIndex>  modified  = {};
+    IntegerSet<Drawable::ActiveIndex> activated = {};
+    Bag<D*, Drawable::ActiveIndex>    active    = {};
 };

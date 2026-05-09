@@ -35,11 +35,11 @@ protected:
         std::vector<BinaryData> data  = {};
     };
 
-    Data&                     data() { return m_content; }
-    [[nodiscard]] Data const& data() const { return m_content; }
+    Data&                     data() { return storedData; }
+    [[nodiscard]] Data const& data() const { return storedData; }
 
 private:
-    Data m_content = {};
+    Data storedData = {};
 };
 
 /**
@@ -148,11 +148,11 @@ public:
     private:
         void Advance();
 
-        std::vector<BinaryData>::const_iterator m_dataIterator;
-        std::vector<BinaryData>::const_iterator m_dataEnd;
+        std::vector<BinaryData>::const_iterator dataIterator;
+        std::vector<BinaryData>::const_iterator dataEnd;
 
-        size_t m_inDataIndex = 0;
-        size_t m_totalIndex  = 0;
+        size_t inDataIndex = 0;
+        size_t totalIndex  = 0;
     };
 
     const_iterator begin() const;
@@ -179,11 +179,11 @@ void IntegerSet<I>::Insert(I element)
 
     if (dataIndex >= data().data.size()) data().data.resize(dataIndex + 1, 0);
 
-    size_t& content = data().data[dataIndex];
+    size_t& loaded = data().data[dataIndex];
 
-    if (!GetBit(content, bitIndex)) data().count += 1;
+    if (!GetBit(loaded, bitIndex)) data().count += 1;
 
-    content |= (static_cast<BinaryData>(1) << bitIndex);
+    loaded |= (static_cast<BinaryData>(1) << bitIndex);
 }
 
 template <UnsignedNativeSizedInteger I>
@@ -224,8 +224,8 @@ bool IntegerSet<I>::IsEmpty() const { return data().count == 0; }
 
 template <UnsignedNativeSizedInteger I>
 IntegerSet<I>::const_iterator::const_iterator(std::vector<BinaryData>::const_iterator const dataIterator, std::vector<BinaryData>::const_iterator const dataEnd)
-    : m_dataIterator(dataIterator)
-  , m_dataEnd(dataEnd) { if (m_dataIterator != m_dataEnd && !GetBit(*m_dataIterator, m_inDataIndex)) Advance(); }
+    : dataIterator(dataIterator)
+  , dataEnd(dataEnd) { if (dataIterator != dataEnd && !GetBit(*dataIterator, inDataIndex)) Advance(); }
 
 template <UnsignedNativeSizedInteger I>
 IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++()
@@ -245,31 +245,31 @@ IntegerSet<I>::const_iterator& IntegerSet<I>::const_iterator::operator++(int)
 template <UnsignedNativeSizedInteger I>
 bool IntegerSet<I>::const_iterator::operator==(const_iterator const& other) const
 {
-    return std::tie(m_dataIterator, m_inDataIndex) == std::tie(other.m_dataIterator, other.m_inDataIndex);
+    return std::tie(dataIterator, inDataIndex) == std::tie(other.dataIterator, other.inDataIndex);
 }
 
 template <UnsignedNativeSizedInteger I>
-I IntegerSet<I>::const_iterator::operator*() const { return static_cast<I>(m_totalIndex); }
+I IntegerSet<I>::const_iterator::operator*() const { return static_cast<I>(totalIndex); }
 
 template <UnsignedNativeSizedInteger I>
 void IntegerSet<I>::const_iterator::Advance()
 {
-    if (m_dataIterator == m_dataEnd) return;
+    if (dataIterator == dataEnd) return;
 
     // First step is to increment the in-data index and handle out-of-bounds.
-    std::tie(m_inDataIndex, m_totalIndex) = std::make_tuple(m_inDataIndex + 1, m_totalIndex + 1);
-    if (m_inDataIndex == BINARY_DATA_BITS) std::tie(m_inDataIndex, m_dataIterator) = std::make_tuple(0, std::next(m_dataIterator));
+    std::tie(inDataIndex, totalIndex) = std::make_tuple(inDataIndex + 1, totalIndex + 1);
+    if (inDataIndex == BINARY_DATA_BITS) std::tie(inDataIndex, dataIterator) = std::make_tuple(0, std::next(dataIterator));
 
     // Then search for the next data unit that has a bit set that is not read yet.
-    while (m_dataIterator != m_dataEnd && *m_dataIterator >> m_inDataIndex == 0) std::tie(m_dataIterator, m_inDataIndex, m_totalIndex) = std::make_tuple(
-        std::next(m_dataIterator),
+    while (dataIterator != dataEnd && *dataIterator >> inDataIndex == 0) std::tie(dataIterator, inDataIndex, totalIndex) = std::make_tuple(
+        std::next(dataIterator),
         0,
-        m_totalIndex + (BINARY_DATA_BITS - m_inDataIndex));
+        totalIndex + (BINARY_DATA_BITS - inDataIndex));
 
-    if (m_dataIterator == m_dataEnd) return;
+    if (dataIterator == dataEnd) return;
 
     // Lastly, search for the next bit in the current data unit that is set.
-    while (!GetBit(*m_dataIterator, m_inDataIndex)) std::tie(m_inDataIndex, m_totalIndex) = std::make_tuple(m_inDataIndex + 1, m_totalIndex + 1);
+    while (!GetBit(*dataIterator, inDataIndex)) std::tie(inDataIndex, totalIndex) = std::make_tuple(inDataIndex + 1, totalIndex + 1);
 }
 
 template <UnsignedNativeSizedInteger I>

@@ -109,25 +109,25 @@ private:
 
     void UpdateGeometryViews(UINT count, UINT stride);
 
-    Material const* m_material = nullptr;
+    Material const* material = nullptr;
 
-    Allocation<ID3D12Resource>              m_instanceDataBuffer            = {};
-    UINT64                                  m_instanceDataBufferAlignedSize = 0;
-    D3D12_CONSTANT_BUFFER_VIEW_DESC         m_instanceDataBufferView        = {};
-    Mapping<ID3D12Resource, MeshDataBuffer> m_instanceConstantBufferMapping = {};
+    Allocation<ID3D12Resource>              instanceDataBuffer            = {};
+    UINT64                                  instanceDataBufferAlignedSize = 0;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC         instanceDataBufferView        = {};
+    Mapping<ID3D12Resource, MeshDataBuffer> instanceConstantBufferMapping = {};
 
-    Allocation<ID3D12Resource> m_sourceGeometryBuffer      = {};
-    Allocation<ID3D12Resource> m_destinationGeometryBuffer = {};
+    Allocation<ID3D12Resource> sourceGeometryBuffer      = {};
+    Allocation<ID3D12Resource> destinationGeometryBuffer = {};
 
-    D3D12_SHADER_RESOURCE_VIEW_DESC  m_geometrySRV = {};
-    D3D12_UNORDERED_ACCESS_VIEW_DESC m_geometryUAV = {};
+    D3D12_SHADER_RESOURCE_VIEW_DESC  geometrySRV = {};
+    D3D12_UNORDERED_ACCESS_VIEW_DESC geometryUAV = {};
 
-    Allocation<ID3D12Resource> m_usedIndexBuffer = {};
-    UINT                       m_usedIndexCount  = 0;
+    Allocation<ID3D12Resource> usedIndexBuffer = {};
+    UINT                       usedIndexCount  = 0;
 
-    nv_helpers_dx12::BottomLevelASGenerator m_bottomLevelASGenerator = {};
-    BLAS                                    m_blas                   = {};
-    bool                                    m_requiresFreshBLAS      = false;
+    nv_helpers_dx12::BottomLevelASGenerator bottomLevelASGenerator = {};
+    BLAS                                    blas                   = {};
+    bool                                    requiresFreshBLAS      = false;
 
-    AnimationController::Handle m_animationHandle = AnimationController::Handle::INVALID;
+    AnimationController::Handle animationHandle = AnimationController::Handle::INVALID;
 };

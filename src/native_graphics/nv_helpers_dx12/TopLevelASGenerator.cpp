@@ -55,11 +55,11 @@ namespace nv_helpers_dx12
 {
     void TopLevelASGenerator::Clear()
     {
-        m_instances.clear();
+        instances.clear();
 
-        m_resultSizeInBytes               = 0;
-        m_scratchSizeInBytes              = 0;
-        m_instanceDescriptionsSizeInBytes = 0;
+        resultSizeInBytes               = 0;
+        scratchSizeInBytes              = 0;
+        instanceDescriptionsSizeInBytes = 0;
     }
 
     void TopLevelASGenerator::AddInstance(
@@ -70,25 +70,25 @@ namespace nv_helpers_dx12
         BYTE const                            inclusionMask,
         D3D12_RAYTRACING_INSTANCE_FLAGS const flags)
     {
-        m_instances.emplace_back(bottomLevelAS, transform, instanceID, hitGroupIndex, inclusionMask, flags);
+        instances.emplace_back(bottomLevelAS, transform, instanceID, hitGroupIndex, inclusionMask, flags);
     }
 
     void TopLevelASGenerator::ComputeASBufferSizes(
         ComPtr<ID3D12Device5> const& device,
         bool const                   allowUpdate,
-        UINT64*                      scratchSizeInBytes,
-        UINT64*                      resultSizeInBytes,
-        UINT64*                      descriptorsSizeInBytes)
+        UINT64*                      outScratchSizeInBytes,
+        UINT64*                      outResultSizeInBytes,
+        UINT64*                      outDescriptorsSizeInBytes)
     {
-        m_flags = allowUpdate ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        flags = allowUpdate ? D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE : D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
 
-        m_flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
+        flags |= D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PREFER_FAST_TRACE;
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_INPUTS prebuildDesc = {};
         prebuildDesc.Type                                                 = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
         prebuildDesc.DescsLayout                                          = D3D12_ELEMENTS_LAYOUT_ARRAY;
-        prebuildDesc.NumDescs                                             = static_cast<UINT>(m_instances.size());
-        prebuildDesc.Flags                                                = m_flags;
+        prebuildDesc.NumDescs                                             = static_cast<UINT>(instances.size());
+        prebuildDesc.Flags                                                = flags;
 
         D3D12_RAYTRACING_ACCELERATION_STRUCTURE_PREBUILD_INFO info = {};
 
@@ -97,15 +97,15 @@ namespace nv_helpers_dx12
         info.ResultDataMaxSizeInBytes = RoundUp(info.ResultDataMaxSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
         info.ScratchDataSizeInBytes   = RoundUp(info.ScratchDataSizeInBytes, D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-        m_resultSizeInBytes               = info.ResultDataMaxSizeInBytes;
-        m_scratchSizeInBytes              = info.ScratchDataSizeInBytes;
-        m_instanceDescriptionsSizeInBytes = RoundUp(sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * m_instances.size(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
+        resultSizeInBytes               = info.ResultDataMaxSizeInBytes;
+        scratchSizeInBytes              = info.ScratchDataSizeInBytes;
+        instanceDescriptionsSizeInBytes = RoundUp(sizeof(D3D12_RAYTRACING_INSTANCE_DESC) * instances.size(), D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT);
 
-        if (m_instanceDescriptionsSizeInBytes == 0) m_instanceDescriptionsSizeInBytes = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
+        if (instanceDescriptionsSizeInBytes == 0) instanceDescriptionsSizeInBytes = D3D12_CONSTANT_BUFFER_DATA_PLACEMENT_ALIGNMENT;
 
-        *scratchSizeInBytes     = m_scratchSizeInBytes;
-        *resultSizeInBytes      = m_resultSizeInBytes;
-        *descriptorsSizeInBytes = m_instanceDescriptionsSizeInBytes;
+        *outScratchSizeInBytes     = scratchSizeInBytes;
+        *outResultSizeInBytes      = resultSizeInBytes;
+        *outDescriptorsSizeInBytes = instanceDescriptionsSizeInBytes;
     }
 
     void TopLevelASGenerator::Generate(
@@ -123,32 +123,33 @@ namespace nv_helpers_dx12
             FAILED(ok) || !instanceDescription)
             throw std::logic_error("Cannot map the instance descriptor buffer - is it in the upload heap?");
 
-        auto const instanceCount = static_cast<UINT>(m_instances.size());
+        auto const instanceCount = static_cast<UINT>(instances.size());
 
         if (!updateOnly)
-            ZeroMemory(instanceDescription, m_instanceDescriptionsSizeInBytes);
+            ZeroMemory(instanceDescription, instanceDescriptionsSizeInBytes);
 
         for (uint32_t i = 0; i < instanceCount; i++)
         {
-            instanceDescription[i].InstanceID                          = m_instances[i].instanceID;
-            instanceDescription[i].InstanceContributionToHitGroupIndex = m_instances[i].hitGroupIndex;
-            instanceDescription[i].Flags                               = m_instances[i].flags;
+            instanceDescription[i].InstanceID                          = instances[i].instanceID;
+            instanceDescription[i].InstanceContributionToHitGroupIndex = instances[i].hitGroupIndex;
+            instanceDescription[i].Flags                               = instances[i].flags;
 
-            DirectX::XMMATRIX const instance   = XMLoadFloat4x4(m_instances[i].transform);
+            DirectX::XMMATRIX const instance   = XMLoadFloat4x4(instances[i].transform);
             DirectX::XMMATRIX       transposed = XMMatrixTranspose(instance);
             std::memcpy(instanceDescription[i].Transform, &transposed, sizeof instanceDescription[i].Transform);
 
-            instanceDescription[i].AccelerationStructure = m_instances[i].bottomLevelAS;
-            instanceDescription[i].InstanceMask          = m_instances[i].inclusionMask;
+            instanceDescription[i].AccelerationStructure = instances[i].bottomLevelAS;
+            instanceDescription[i].InstanceMask          = instances[i].inclusionMask;
         }
 
         descriptorsBuffer.resource->Unmap(0, nullptr);
 
         D3D12_GPU_VIRTUAL_ADDRESS const sourceAS = updateOnly ? previousResult.GetGPUVirtualAddress<ID3D12Resource>() : 0;
 
-        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = m_flags;
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS localFlags = flags;
 
-        if (flags == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly) flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
+        if (localFlags == D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_ALLOW_UPDATE && updateOnly)
+            localFlags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_PERFORM_UPDATE;
 
         D3D12_BUILD_RAYTRACING_ACCELERATION_STRUCTURE_DESC buildDesc;
         buildDesc.Inputs.Type                      = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_TYPE_TOP_LEVEL;
@@ -158,7 +159,7 @@ namespace nv_helpers_dx12
         buildDesc.DestAccelerationStructureData    = {resultBuffer.GetGPUVirtualAddress<ID3D12Resource>()};
         buildDesc.ScratchAccelerationStructureData = {scratchBuffer.GetGPUVirtualAddress<ID3D12Resource>()};
         buildDesc.SourceAccelerationStructureData  = sourceAS;
-        buildDesc.Inputs.Flags                     = flags;
+        buildDesc.Inputs.Flags                     = localFlags;
 
         commandList->BuildRaytracingAccelerationStructure(&buildDesc, 0, nullptr);
 

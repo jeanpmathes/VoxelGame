@@ -75,9 +75,9 @@ struct CommandAllocatorGroup
 #define INITIALIZE_COMMAND_ALLOCATOR_GROUP(client, group, type) \
     do { \
         CommandAllocatorGroup::Initialize(client, (group), type); \
-        for (UINT n = 0; n < FRAME_COUNT; n++) \
+        for (UINT frame = 0; frame < FRAME_COUNT; frame++) \
         { \
-            NAME_D3D12_OBJECT_INDEXED((group)->commandAllocators, n); \
+            NAME_D3D12_OBJECT_INDEXED((group)->commandAllocators, frame); \
         } \
         NAME_D3D12_OBJECT((group)->commandList); \
     } while (false)

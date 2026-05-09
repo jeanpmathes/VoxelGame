@@ -1,20 +1,20 @@
 ﻿#include "stdafx.h"
 
 Uploader::Uploader(NativeClient& client, ComPtr<ID3D12GraphicsCommandList> const& optionalCommandList)
-    : m_client(&client)
-  , m_commandList(optionalCommandList)
-  , m_ownsCommandList(optionalCommandList == nullptr)
+    : client(&client)
+  , commandList(optionalCommandList)
+  , ownsCommandList(optionalCommandList == nullptr)
 {
-    if (m_ownsCommandList)
+    if (ownsCommandList)
     {
-        TryDo(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&m_commandAllocator)));
-        NAME_D3D12_OBJECT(m_commandAllocator);
+        TryDo(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator)));
+        NAME_D3D12_OBJECT(commandAllocator);
 
-        TryDo(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, m_commandAllocator.Get(), nullptr, IID_PPV_ARGS(&m_commandList)));
-        NAME_D3D12_OBJECT(m_commandList);
+        TryDo(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
+        NAME_D3D12_OBJECT(commandList);
 
 #if defined(USE_NSIGHT_AFTERMATH)
-        client.SetUpCommandListForAftermath(m_commandList);
+        client.SetUpCommandListForAftermath(commandList);
 #endif
     }
 }
@@ -32,7 +32,7 @@ void Uploader::UploadTexture(std::byte** data, TextureDescription const& descrip
         D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT(textureUploadBuffer);
 
-    m_uploadBuffers.push_back(textureUploadBuffer);
+    uploadBuffers.push_back(textureUploadBuffer);
 
     std::vector<D3D12_SUBRESOURCE_DATA> uploadDescription(subresources);
     for (UINT layer = 0; layer < 1; layer++)
@@ -53,9 +53,9 @@ void Uploader::UploadTexture(std::byte** data, TextureDescription const& descrip
         }
     }
 
-    UpdateSubresources(m_commandList.Get(), destination.Get(), textureUploadBuffer.Get(), 0, 0, subresources, uploadDescription.data());
+    UpdateSubresources(commandList.Get(), destination.Get(), textureUploadBuffer.Get(), 0, 0, subresources, uploadDescription.data());
 
-    if (m_ownsCommandList) Texture::CreateUsabilityBarrier(m_commandList, destination);
+    if (ownsCommandList) Texture::CreateUsabilityBarrier(commandList, destination);
 }
 
 void Uploader::UploadBuffer(std::byte const* data, UINT const size, Allocation<ID3D12Resource> const& destination)
@@ -68,28 +68,28 @@ void Uploader::UploadBuffer(std::byte const* data, UINT const size, Allocation<I
         D3D12_HEAP_TYPE_UPLOAD);
     NAME_D3D12_OBJECT(normalUploadBuffer);
 
-    m_uploadBuffers.push_back(normalUploadBuffer);
+    uploadBuffers.push_back(normalUploadBuffer);
 
     TryDo(util::MapAndWrite(normalUploadBuffer, data, size));
 
     auto transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
-    m_commandList->ResourceBarrier(1, &transition);
+    commandList->ResourceBarrier(1, &transition);
 
-    m_commandList->CopyBufferRegion(destination.Get(), 0, normalUploadBuffer.Get(), 0, size);
+    commandList->CopyBufferRegion(destination.Get(), 0, normalUploadBuffer.Get(), 0, size);
 
     transition = CD3DX12_RESOURCE_BARRIER::Transition(destination.Get(), D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_VERTEX_AND_CONSTANT_BUFFER);
-    m_commandList->ResourceBarrier(1, &transition);
+    commandList->ResourceBarrier(1, &transition);
 }
 
 void Uploader::ExecuteUploads(ComPtr<ID3D12CommandQueue> const& commandQueue) const
 {
-    TryDo(m_commandList->Close());
-    std::array<ID3D12CommandList*, 1> const commandLists = {m_commandList.Get()};
+    TryDo(commandList->Close());
+    std::array<ID3D12CommandList*, 1> const commandLists = {commandList.Get()};
     commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
 }
 
-ComPtr<ID3D12Device4> Uploader::GetDevice() const { return m_client->GetDevice(); }
+ComPtr<ID3D12Device4> Uploader::GetDevice() const { return client->GetDevice(); }
 
-NativeClient& Uploader::GetClient() const { return *m_client; }
+NativeClient& Uploader::GetClient() const { return *client; }
 
-bool Uploader::IsUploadingBeforeAnyUse() const { return m_ownsCommandList; }
+bool Uploader::IsUploadingBeforeAnyUse() const { return ownsCommandList; }

@@ -40,19 +40,19 @@ public:
         Require(element != nullptr);
 
         size_t index;
-        if (m_gaps.empty())
+        if (gaps.empty())
         {
-            m_elements.emplace_back(std::move(element));
-            index = m_elements.size() - 1;
+            elements.emplace_back(std::move(element));
+            index = elements.size() - 1;
         }
         else
         {
-            index = m_gaps.top();
-            m_gaps.pop();
-            m_elements[index] = std::move(element);
+            index = gaps.top();
+            gaps.pop();
+            elements[index] = std::move(element);
         }
 
-        m_size++;
+        size++;
         return static_cast<I>(index);
     }
 
@@ -63,32 +63,32 @@ public:
     {
         auto const index = static_cast<size_t>(i);
 
-        Require(index < m_elements.size());
-        Require(m_elements[index] != nullptr);
+        Require(index < elements.size());
+        Require(elements[index] != nullptr);
 
-        auto element      = std::move(m_elements[index]);
-        m_elements[index] = nullptr;
+        auto element    = std::move(elements[index]);
+        elements[index] = nullptr;
 
-        m_gaps.push(index);
-        m_size--;
+        gaps.push(index);
+        size--;
 
         return element;
     }
 
-    [[nodiscard]] size_t GetCount() const { return m_size; }
+    [[nodiscard]] size_t GetCount() const { return size; }
 
-    [[nodiscard]] size_t GetCapacity() const { return m_elements.size(); }
+    [[nodiscard]] size_t GetCapacity() const { return elements.size(); }
 
-    [[nodiscard]] bool IsEmpty() const { return m_size == 0; }
+    [[nodiscard]] bool IsEmpty() const { return size == 0; }
 
     E& operator[](I i)
     {
         auto const index = static_cast<size_t>(i);
 
-        Require(index < m_elements.size());
-        Require(m_elements[index] != nullptr);
+        Require(index < elements.size());
+        Require(elements[index] != nullptr);
 
-        return m_elements[index];
+        return elements[index];
     }
 
     /**
@@ -101,16 +101,16 @@ public:
     {
         size_t done = 0;
 
-        for (size_t index = 0; index < m_elements.size() && done < m_size; index++)
-            if (m_elements[index] != nullptr)
+        for (size_t index = 0; index < elements.size() && done < size; index++)
+            if (elements[index] != nullptr)
             {
-                f(m_elements[index]);
+                f(elements[index]);
                 done++;
             }
     }
 
 private:
-    std::vector<E>                                                         m_elements = {};
-    std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> m_gaps     = {};
-    size_t                                                                 m_size     = 0;
+    std::vector<E>                                                         elements = {};
+    std::priority_queue<size_t, std::vector<size_t>, std::greater<size_t>> gaps     = {};
+    size_t                                                                 size     = 0;
 };

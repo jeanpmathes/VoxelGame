@@ -79,8 +79,8 @@ public:
     [[nodiscard]] UINT64        GetID() const;
 
 private:
-    NativeClient* m_client;
+    NativeClient* client;
 
-    static UINT64 m_nextID;
-    UINT64        m_id = m_nextID++;
+    static UINT64 nextID;
+    UINT64        id = nextID++;
 };

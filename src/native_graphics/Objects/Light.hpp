@@ -31,17 +31,17 @@ class Light final : public Spatial
 public:
     explicit Light(NativeClient& client);
 
-    void                                   SetDirection(DirectX::XMFLOAT3 const& direction);
+    void                                   SetDirection(DirectX::XMFLOAT3 const& newDirection);
     [[nodiscard]] DirectX::XMFLOAT3 const& GetDirection() const;
 
-    void                                   SetColor(DirectX::XMFLOAT3 const& color);
+    void                                   SetColor(DirectX::XMFLOAT3 const& newColor);
     [[nodiscard]] DirectX::XMFLOAT3 const& GetColor() const;
 
-    void                SetIntensity(float intensity);
+    void                SetIntensity(float newIntensity);
     [[nodiscard]] float GetIntensity() const;
 
 private:
-    DirectX::XMFLOAT3 m_direction = {0.0f, 0.0f, 0.0f};
-    DirectX::XMFLOAT3 m_color     = {1.0f, 1.0f, 1.0f};
-    float             m_intensity = 1.0f;
+    DirectX::XMFLOAT3 direction = {0.0f, 0.0f, 0.0f};
+    DirectX::XMFLOAT3 color     = {1.0f, 1.0f, 1.0f};
+    float             intensity = 1.0f;
 };

@@ -41,9 +41,9 @@ namespace nv_helpers_dx12
     public:
         /**
          * \brief Add a set of heap range descriptors as a parameter of the root signature.
-         * \param ranges The set of ranges to add.
+         * \param heapRanges The set of ranges to add.
          */
-        void AddHeapRangesParameter(std::vector<D3D12_DESCRIPTOR_RANGE> const& ranges);
+        void AddHeapRangesParameter(std::vector<D3D12_DESCRIPTOR_RANGE> const& heapRanges);
 
         using HeapRange = std::tuple<UINT,                        // BaseShaderRegister,
                                      UINT,                        // NumDescriptors
@@ -54,9 +54,9 @@ namespace nv_helpers_dx12
 
         /**
          * \brief Add a set of heap range descriptors as a parameter of the root signature.
-         * \param ranges The set of ranges to add.
+         * \param heapRanges The set of ranges to add.
          */
-        void AddHeapRangesParameter(std::vector<HeapRange> const& ranges);
+        void AddHeapRangesParameter(std::vector<HeapRange> const& heapRanges);
 
         /**
          * \brief Add a root parameter to the shader, defined by its type.
@@ -77,7 +77,7 @@ namespace nv_helpers_dx12
          * \brief Set whether input assembler is allowed.
          * \param useInputAssembler True if input assembler is allowed, false otherwise.
          */
-        void SetInputAssembler(bool const useInputAssembler) { m_allowInputAssembler = useInputAssembler; }
+        void SetInputAssembler(bool const useInputAssembler) { allowInputAssembler = useInputAssembler; }
 
         /**
          * \brief Create the root signature from the set of parameters, in the order of the addition calls
@@ -88,16 +88,16 @@ namespace nv_helpers_dx12
         Microsoft::WRL::ComPtr<ID3D12RootSignature> Generate(Microsoft::WRL::ComPtr<ID3D12Device> const& device, bool isLocal);
 
     private:
-        std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> m_ranges         = {};
-        std::vector<D3D12_ROOT_PARAMETER>                m_parameters     = {};
-        std::vector<D3D12_STATIC_SAMPLER_DESC>           m_staticSamplers = {};
+        std::vector<std::vector<D3D12_DESCRIPTOR_RANGE>> ranges         = {};
+        std::vector<D3D12_ROOT_PARAMETER>                parameters     = {};
+        std::vector<D3D12_STATIC_SAMPLER_DESC>           staticSamplers = {};
 
         /**
-         * \brief For each entry of m_parameter, indicate the index of the range array in m_ranges, and ~0u if the parameter is not a heap range descriptor.
+         * \brief For each entry of parameter, indicate the index of the range array in ranges, and ~0u if the parameter is not a heap range descriptor.
          */
-        std::vector<UINT> m_rangeLocations = {};
+        std::vector<UINT> rangeLocations = {};
 
-        bool m_allowInputAssembler = false;
+        bool allowInputAssembler = false;
 
         enum
         {

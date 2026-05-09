@@ -7,27 +7,27 @@ Camera::Camera(NativeClient& client)
 
 void Camera::Initialize()
 {
-    m_spaceCameraBufferSize = sizeof(CameraParametersBuffer);
-    m_spaceCameraBuffer     = util::AllocateConstantBuffer(GetClient(), &m_spaceCameraBufferSize);
-    NAME_D3D12_OBJECT(m_spaceCameraBuffer);
+    spaceCameraBufferSize = sizeof(CameraParametersBuffer);
+    spaceCameraBuffer     = util::AllocateConstantBuffer(GetClient(), &spaceCameraBufferSize);
+    NAME_D3D12_OBJECT(spaceCameraBuffer);
 
-    TryDo(m_spaceCameraBuffer.Map(&m_spaceCameraBufferMapping, 1));
+    TryDo(spaceCameraBuffer.Map(&spaceCameraBufferMapping, 1));
 }
 
 void Camera::Update()
 {
-    DirectX::XMVECTOR const eye     = XMLoadFloat3(&m_position);
-    DirectX::XMVECTOR const forward = XMLoadFloat3(&m_front);
-    DirectX::XMVECTOR const up      = XMLoadFloat3(&m_up);
+    DirectX::XMVECTOR const eye     = XMLoadFloat3(&position);
+    DirectX::XMVECTOR const forward = XMLoadFloat3(&front);
+    DirectX::XMVECTOR const up      = XMLoadFloat3(&top);
 
-    float const fovAngleY = m_fov * DirectX::XM_PI / 180.0f;
+    float const fovAngleY = fov * DirectX::XM_PI / 180.0f;
 
     auto const view       = DirectX::XMMatrixLookToRH(eye, forward, up);
-    auto const projection = DirectX::XMMatrixPerspectiveFovRH(fovAngleY, GetClient().GetAspectRatio(), m_near, m_far);
+    auto const projection = DirectX::XMMatrixPerspectiveFovRH(fovAngleY, GetClient().GetAspectRatio(), nearZ, farZ);
 
-    XMStoreFloat4x4(&m_vMatrix, view);
-    XMStoreFloat4x4(&m_pMatrix, projection);
-    XMStoreFloat4x4(&m_vpMatrix, view * projection);
+    XMStoreFloat4x4(&vMatrix, view);
+    XMStoreFloat4x4(&pMatrix, projection);
+    XMStoreFloat4x4(&vpMatrix, view * projection);
 
     DirectX::XMVECTOR det;
     auto const        viewI       = XMMatrixInverse(&det, view);
@@ -39,8 +39,8 @@ void Camera::Update()
     XMStoreFloat4x4(&data.viewI, XMMatrixTranspose(viewI));
     XMStoreFloat4x4(&data.projectionI, XMMatrixTranspose(projectionI));
 
-    data.dNear = m_near;
-    data.dFar  = m_far;
+    data.dNear = nearZ;
+    data.dFar  = farZ;
 
     auto height = static_cast<float>(GetSpace().GetResolution().height);
 
@@ -48,40 +48,40 @@ void Camera::Update()
     // Here, an estimate is pre-calculated.
     data.spread = std::atan(2.0f * std::tan(fovAngleY / 2.0f) / height);
 
-    m_spaceCameraBufferMapping.Write(data);
+    spaceCameraBufferMapping.Write(data);
 }
 
-void Camera::SetPosition(DirectX::XMFLOAT3 const& position) { m_position = position; }
+void Camera::SetPosition(DirectX::XMFLOAT3 const& newPosition) { position = newPosition; }
 
-void Camera::SetOrientation(DirectX::XMFLOAT3 const& front, DirectX::XMFLOAT3 const& up)
+void Camera::SetOrientation(DirectX::XMFLOAT3 const& newFront, DirectX::XMFLOAT3 const& newTop)
 {
-    m_front = front;
-    m_up    = up;
+    front = newFront;
+    top   = newTop;
 }
 
-DirectX::XMFLOAT3 const& Camera::GetPosition() const { return m_position; }
+DirectX::XMFLOAT3 const& Camera::GetPosition() const { return position; }
 
-DirectX::XMFLOAT4X4 const& Camera::GetViewMatrix() const { return m_vMatrix; }
+DirectX::XMFLOAT4X4 const& Camera::GetViewMatrix() const { return vMatrix; }
 
-DirectX::XMFLOAT4X4 const& Camera::GetProjectionMatrix() const { return m_pMatrix; }
+DirectX::XMFLOAT4X4 const& Camera::GetProjectionMatrix() const { return pMatrix; }
 
-DirectX::XMFLOAT4X4 const& Camera::GetViewProjectionMatrix() const { return m_vpMatrix; }
+DirectX::XMFLOAT4X4 const& Camera::GetViewProjectionMatrix() const { return vpMatrix; }
 
-float Camera::GetNearPlane() const { return m_near; }
+float Camera::GetNearPlane() const { return nearZ; }
 
-float Camera::GetFarPlane() const { return m_far; }
+float Camera::GetFarPlane() const { return farZ; }
 
-void Camera::SetFov(float const fov) { m_fov = fov; }
+void Camera::SetFov(float const newFov) { fov = newFov; }
 
 void Camera::SetPlanes(float const nearDistance, float const farDistance)
 {
     Require(nearDistance > 0.0f);
     Require(farDistance > nearDistance);
 
-    m_near = nearDistance;
-    m_far  = farDistance;
+    nearZ = nearDistance;
+    farZ  = farDistance;
 }
 
-D3D12_GPU_VIRTUAL_ADDRESS Camera::GetCameraBufferAddress() const { return m_spaceCameraBuffer.GetGPUVirtualAddress(); }
+D3D12_GPU_VIRTUAL_ADDRESS Camera::GetCameraBufferAddress() const { return spaceCameraBuffer.GetGPUVirtualAddress(); }
 
 Space& Camera::GetSpace() const { return *GetClient().GetSpace(); }

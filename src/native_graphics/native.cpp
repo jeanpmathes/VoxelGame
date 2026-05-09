@@ -31,7 +31,8 @@ NATIVE void NativeFinalize(NativeClient const* client)
         delete client;
 
 #if defined(NATIVE_DEBUG)
-        IDXGIDebug1* debug = nullptr; if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
+        IDXGIDebug1* debug = nullptr;
+        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
         {
             HRESULT const result = debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
             debug->Release();
@@ -47,7 +48,6 @@ NATIVE void NativeRequestClose(NativeClient const* client)
     TRY
     {
         Require(CALL_ON_MAIN_THREAD(client));
-        Require(Win32Application::IsRunning(client));
 
         PostMessage(Win32Application::GetWindowHandle(), WM_CLOSE, 0, 0);
     } CATCH();

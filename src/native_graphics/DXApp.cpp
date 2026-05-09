@@ -67,13 +67,13 @@ namespace
 }
 
 DXApp::DXApp(Configuration const& configuration)
-    : m_title(configuration.title)
-  , m_icon(configuration.icon)
-  , m_configuration(configuration)
-  , m_width(std::max(configuration.width, Win32Application::MINIMUM_WINDOW_WIDTH))
-  , m_height(std::max(configuration.height, Win32Application::MINIMUM_WINDOW_HEIGHT))
+    : title(configuration.title)
+  , icon(configuration.icon)
+  , configuration(configuration)
+  , width(std::max(configuration.width, Win32Application::MINIMUM_WINDOW_WIDTH))
+  , height(std::max(configuration.height, Win32Application::MINIMUM_WINDOW_HEIGHT))
 {
-    UpdateForSizeChange(m_width, m_height);
+    UpdateForSizeChange(width, height);
     CheckTearingSupport();
 }
 
@@ -83,38 +83,38 @@ bool DXApp::HasFlag(CycleFlags value, CycleFlags flag) { return static_cast<bool
 
 void DXApp::Update(CycleFlags const flags, bool const timer)
 {
-    if (m_inUpdate) return;
-    m_inUpdate = true;
+    if (inUpdate) return;
+    inUpdate = true;
 
-    if (!timer && m_isUpdateTimerRunning)
+    if (!timer && isUpdateTimerRunning)
     {
         CheckReturn(KillTimer(Win32Application::GetWindowHandle(), IDT_UPDATE));
-        m_isUpdateTimerRunning = false;
+        isUpdateTimerRunning = false;
     }
 
-    if (HasFlag(flags, CycleFlags::ALLOW_LOGIC_UPDATE)) m_logicTimer.Tick([this] { Update(m_logicTimer); });
+    if (HasFlag(flags, CycleFlags::ALLOW_LOGIC_UPDATE)) logicTimer.Tick([this] { Update(logicTimer); });
 
-    if (HasFlag(flags, CycleFlags::ALLOW_RENDER_UPDATE)) m_renderTimer.Tick([this] { RenderUpdate(m_renderTimer); });
+    if (HasFlag(flags, CycleFlags::ALLOW_RENDER_UPDATE)) renderTimer.Tick([this] { RenderUpdate(renderTimer); });
 
-    m_inUpdate = false;
+    inUpdate = false;
 }
 
 void DXApp::Init()
 {
-    m_mouseCursors = LoadAllCursors();
+    mouseCursors = LoadAllCursors();
 
     OnPreInitialization();
 
-    m_configuration.onInit();
+    configuration.onInit();
 
     OnPostInitialization();
 
-    m_baseLogicUpdateTarget = 1.0 / static_cast<double>(std::max(m_configuration.baseLogicUpdatesPerSecond, 1LL));
+    baseLogicUpdateTarget = 1.0 / static_cast<double>(std::max(configuration.baseLogicUpdatesPerSecond, 1LL));
 
-    m_logicTimer.SetFixedTimeStep(true);
-    m_logicTimer.SetTargetElapsedSeconds(m_baseLogicUpdateTarget);
+    logicTimer.SetFixedTimeStep(true);
+    logicTimer.SetTargetElapsedSeconds(baseLogicUpdateTarget);
 
-    m_renderTimer.SetFixedTimeStep(false);
+    renderTimer.SetFixedTimeStep(false);
 
     OnInitializationComplete();
 }
@@ -122,127 +122,127 @@ void DXApp::Init()
 void DXApp::Update(StepTimer const& timer)
 {
     double const delta       = timer.GetElapsedSeconds();
-    double const scaledDelta = delta * m_timeScale;
+    double const scaledDelta = delta * timeScale;
 
-    m_cycle = Cycle::LOGIC_UPDATE;
+    cycle = Cycle::LOGIC_UPDATE;
 
-    m_configuration.onLogicUpdate(delta, scaledDelta);
+    configuration.onLogicUpdate(delta, scaledDelta);
     OnLogicUpdate();
 
-    m_cycle = std::nullopt;
+    cycle = std::nullopt;
 }
 
 void DXApp::RenderUpdate(StepTimer const& timer)
 {
-    if (m_logicTimer.GetFrameCount() == 0) return;
+    if (logicTimer.GetFrameCount() == 0) return;
 
     double const delta       = timer.GetElapsedSeconds();
-    double const scaledDelta = delta * m_timeScale;
+    double const scaledDelta = delta * timeScale;
 
-    m_totalRealRenderUpdateTime   += delta;
-    m_totalScaledRenderUpdateTime += scaledDelta;
+    totalRealRenderUpdateTime   += delta;
+    totalScaledRenderUpdateTime += scaledDelta;
 
-    m_cycle = Cycle::RENDER_UPDATE;
+    cycle = Cycle::RENDER_UPDATE;
 
     OnPreRenderUpdate();
-    m_configuration.onRenderUpdate(delta, scaledDelta);
+    configuration.onRenderUpdate(delta, scaledDelta);
     OnRenderUpdate();
 
-    m_cycle = std::nullopt;
+    cycle = std::nullopt;
 }
 
 void DXApp::Destroy()
 {
     OnDestroy();
-    m_configuration.onDestroy();
+    configuration.onDestroy();
 }
 
-bool DXApp::CanClose() const { return m_configuration.canClose(); }
+bool DXApp::CanClose() const { return configuration.canClose(); }
 
-void DXApp::HandleSizeChanged(UINT const width, UINT const height, bool const minimized)
+void DXApp::HandleSizeChanged(UINT const newWidth, UINT const newHeight, bool const minimized)
 {
-    OnSizeChanged(width, height, minimized);
-    m_configuration.onResize(width, height);
+    OnSizeChanged(newWidth, newHeight, minimized);
+    configuration.onResize(newWidth, newHeight);
 
-    if (m_mouseLocked) SetMouseLock(true);
+    if (mouseLocked) SetMouseLock(true);
 }
 
 void DXApp::HandleWindowMoved(int const xPos, int const yPos)
 {
     OnWindowMoved(xPos, yPos);
 
-    if (m_mouseLocked) SetMouseLock(true);
+    if (mouseLocked) SetMouseLock(true);
 }
 
 void DXApp::HandleActiveStateChange(bool const active)
 {
-    m_isActive = active;
+    isActive = active;
 
-    m_configuration.onActiveStateChange(active);
+    configuration.onActiveStateChange(active);
 }
 
 void DXApp::OnSizeMove(bool const enter)
 {
     if (enter)
     {
-        CheckReturn(SetTimer(Win32Application::GetWindowHandle(), IDT_UPDATE, m_logicTimer.GetTargetElapsedMilliseconds(), nullptr));
-        m_isUpdateTimerRunning = true;
+        CheckReturn(SetTimer(Win32Application::GetWindowHandle(), IDT_UPDATE, logicTimer.GetTargetElapsedMilliseconds(), nullptr));
+        isUpdateTimerRunning = true;
     }
-    else if (m_isUpdateTimerRunning)
+    else if (isUpdateTimerRunning)
     {
         CheckReturn(KillTimer(Win32Application::GetWindowHandle(), IDT_UPDATE));
-        m_isUpdateTimerRunning = false;
+        isUpdateTimerRunning = false;
     }
 }
 
 void DXApp::OnTimer(UINT_PTR const id) { if (id == IDT_UPDATE) Update(CycleFlags::ALLOW_LOGIC_UPDATE, true); }
 
-void DXApp::OnKeyDown(UINT8 const param) const { m_configuration.onKeyDown(param); }
+void DXApp::OnKeyDown(UINT8 const param) const { configuration.onKeyDown(param); }
 
-void DXApp::OnKeyUp(UINT8 const param) const { m_configuration.onKeyUp(param); }
+void DXApp::OnKeyUp(UINT8 const param) const { configuration.onKeyUp(param); }
 
-void DXApp::OnChar(UINT16 const c) const { m_configuration.onChar(c); }
+void DXApp::OnChar(UINT16 const c) const { configuration.onChar(c); }
 
 void DXApp::OnMouseMove(int const x, int const y)
 {
-    m_xMousePosition = x;
-    m_yMousePosition = y;
+    xMousePosition = x;
+    yMousePosition = y;
 
-    m_configuration.onMouseMove(x, y);
+    configuration.onMouseMove(x, y);
 }
 
-void DXApp::OnMouseWheel(double const delta) const { m_configuration.onMouseScroll(delta); }
+void DXApp::OnMouseWheel(double const delta) const { configuration.onMouseScroll(delta); }
 
-void DXApp::DoCursorSet() const { SetCursor(m_mouseCursors.at(m_mouseCursor)); }
+void DXApp::DoCursorSet() const { SetCursor(mouseCursors.at(mouseCursor)); }
 
 void DXApp::SetWindowBounds(int const left, int const top, int const right, int const bottom)
 {
-    m_windowBounds.left   = static_cast<LONG>(left);
-    m_windowBounds.top    = static_cast<LONG>(top);
-    m_windowBounds.right  = static_cast<LONG>(right);
-    m_windowBounds.bottom = static_cast<LONG>(bottom);
+    windowBounds.left   = static_cast<LONG>(left);
+    windowBounds.top    = static_cast<LONG>(top);
+    windowBounds.right  = static_cast<LONG>(right);
+    windowBounds.bottom = static_cast<LONG>(bottom);
 }
 
 void DXApp::UpdateForSizeChange(UINT const clientWidth, UINT const clientHeight)
 {
-    m_width  = clientWidth;
-    m_height = clientHeight;
+    width  = clientWidth;
+    height = clientHeight;
 
-    m_aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
+    aspectRatio = static_cast<float>(clientWidth) / static_cast<float>(clientHeight);
 }
 
 void DXApp::SetMousePosition(POINT position)
 {
-    if (!m_isActive) return;
+    if (!isActive) return;
 
-    m_xMousePosition = position.x;
-    m_yMousePosition = position.y;
+    xMousePosition = position.x;
+    yMousePosition = position.y;
 
     TryDo(ClientToScreen(Win32Application::GetWindowHandle(), &position));
     TryDo(SetCursorPos(position.x, position.y));
 }
 
-void DXApp::SetMouseCursor(MouseCursor const cursor) { m_mouseCursor = cursor; }
+void DXApp::SetMouseCursor(MouseCursor const cursor) { mouseCursor = cursor; }
 
 void DXApp::SetMouseLock(bool const lock)
 {
@@ -255,14 +255,14 @@ void DXApp::SetMouseLock(bool const lock)
     }
     else TryDo(ClipCursor(nullptr));
 
-    if (m_mouseLocked != lock)
+    if (mouseLocked != lock)
         // The function uses a display count, thus repeated calls would cause incorrect behavior.
         ShowCursor(!lock);
 
-    m_mouseLocked = lock;
+    mouseLocked = lock;
 }
 
-float DXApp::GetAspectRatio() const { return m_aspectRatio; }
+float DXApp::GetAspectRatio() const { return aspectRatio; }
 
 void DXApp::SetTimeScale(double const scale)
 {
@@ -271,13 +271,13 @@ void DXApp::SetTimeScale(double const scale)
     // Because the timer takes the targeted elapsed time per update, we need to divide by the timescale.
     // For example, a timescale of 2.0 means we want to run logic updates twice as fast, thus the target elapsed time per update is halved.
 
-    m_timeScale = scale;
-    m_logicTimer.SetTargetElapsedSeconds(m_baseLogicUpdateTarget / m_timeScale);
+    timeScale = scale;
+    logicTimer.SetTargetElapsedSeconds(baseLogicUpdateTarget / timeScale);
 }
 
 std::optional<DXApp::Cycle> DXApp::GetCycle() const
 {
-    if (m_mainThreadId == std::this_thread::get_id()) return m_cycle;
+    if (mainThreadId == std::this_thread::get_id()) return cycle;
 
     return Cycle::WORKER;
 }
@@ -318,7 +318,7 @@ ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(ComPtr<IDXGIFactory4> const& dxg
 
 void DXApp::SetCustomWindowText(LPCWSTR const text) const
 {
-    std::wstring const windowText = m_title + L": " + text;
+    std::wstring const windowText = title + L": " + text;
     SetWindowText(Win32Application::GetWindowHandle(), windowText.c_str());
 }
 
@@ -330,6 +330,6 @@ void DXApp::CheckTearingSupport()
     bool allowTearing = false;
     if (SUCCEEDED(hr)) hr = factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
 
-    auto const isTearingConfigured = static_cast<bool>(m_configuration.options & ConfigurationOptions::ALLOW_TEARING);
-    m_tearingSupport               = SUCCEEDED(hr) && allowTearing && isTearingConfigured;
+    auto const isTearingConfigured = static_cast<bool>(configuration.options & ConfigurationOptions::ALLOW_TEARING);
+    tearingSupport                 = SUCCEEDED(hr) && allowTearing && isTearingConfigured;
 }

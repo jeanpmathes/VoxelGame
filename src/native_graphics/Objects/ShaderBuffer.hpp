@@ -29,7 +29,7 @@ class ShaderBuffer final : public Object
     DECLARE_OBJECT_SUBCLASS(ShaderBuffer)
 
 public:
-    ShaderBuffer(NativeClient& client, UINT size);
+    ShaderBuffer(NativeClient& client, UINT bufferSize);
 
     /**
      * Set the data of the buffer.
@@ -48,7 +48,7 @@ public:
     [[nodiscard]] ShaderResources::ConstantBufferViewDescriptor GetDescriptor() const;
 
 private:
-    UINT                            m_size;
-    Allocation<ID3D12Resource>      m_constantBuffer;
-    D3D12_CONSTANT_BUFFER_VIEW_DESC m_cbvDesc = {};
+    UINT                            size;
+    Allocation<ID3D12Resource>      constantBuffer;
+    D3D12_CONSTANT_BUFFER_VIEW_DESC cbvDesc = {};
 };

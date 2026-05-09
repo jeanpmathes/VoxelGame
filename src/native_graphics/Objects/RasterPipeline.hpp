@@ -110,23 +110,23 @@ public:
             switch (preset)
             {
             case DRAW_2D:
-                m_preset = Draw2dBindings();
+                bindings = Draw2dBindings();
                 break;
             case POST_PROCESSING:
-                m_preset = PostProcessingBindings();
+                bindings = PostProcessingBindings();
                 break;
             case SPATIAL_EFFECT:
-                m_preset = SpatialEffectBindings();
+                bindings = SpatialEffectBindings();
                 break;
             }
         }
 
-        Draw2dBindings&         Draw2D() { return std::get<Draw2dBindings>(m_preset); }
-        PostProcessingBindings& PostProcessing() { return std::get<PostProcessingBindings>(m_preset); }
-        SpatialEffectBindings&  SpatialEffect() { return std::get<SpatialEffectBindings>(m_preset); }
+        Draw2dBindings&         Draw2D() { return std::get<Draw2dBindings>(bindings); }
+        PostProcessingBindings& PostProcessing() { return std::get<PostProcessingBindings>(bindings); }
+        SpatialEffectBindings&  SpatialEffect() { return std::get<SpatialEffectBindings>(bindings); }
 
     private:
-        std::variant<Draw2dBindings, PostProcessingBindings, SpatialEffectBindings> m_preset;
+        std::variant<Draw2dBindings, PostProcessingBindings, SpatialEffectBindings> bindings;
     };
 
     /**
@@ -188,7 +188,7 @@ public:
     template <class Descriptor>
     void SetSelectionListContent(ShaderResources::SelectionList<Descriptor>& selectionList, std::vector<Descriptor> const& descriptors)
     {
-        m_resources->SetSelectionListContent(selectionList, descriptors);
+        resources->SetSelectionListContent(selectionList, descriptors);
     }
 
     /**
@@ -201,7 +201,7 @@ public:
     template <class Descriptor>
     void BindSelectionIndex(ComPtr<ID3D12GraphicsCommandList4> commandList, ShaderResources::SelectionList<Descriptor>& selectionList, UINT index)
     {
-        m_resources->BindSelectionListIndex(selectionList, index, commandList);
+        resources->BindSelectionListIndex(selectionList, index, commandList);
     }
 
 private:
@@ -210,15 +210,15 @@ private:
      */
     void EnsureFirstUpdate();
 
-    ShaderPreset             m_preset;
-    D3D12_PRIMITIVE_TOPOLOGY m_topology;
-    std::wstring             m_name;
+    ShaderPreset             preset;
+    D3D12_PRIMITIVE_TOPOLOGY topology;
+    std::wstring             name;
 
-    std::shared_ptr<ShaderResources> m_resources;
-    std::shared_ptr<Bindings>        m_bindings;
+    std::shared_ptr<ShaderResources> resources;
+    std::shared_ptr<Bindings>        bindings;
 
-    ComPtr<ID3D12PipelineState> m_pipelineState;
+    ComPtr<ID3D12PipelineState> pipelineState;
 
-    std::unique_ptr<ShaderBuffer> m_shaderBuffer = nullptr;
-    bool                          m_update       = false;
+    std::unique_ptr<ShaderBuffer> shaderBuffer = nullptr;
+    bool                          update       = false;
 };

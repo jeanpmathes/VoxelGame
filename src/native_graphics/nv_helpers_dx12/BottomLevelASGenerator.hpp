@@ -96,10 +96,10 @@ namespace nv_helpers_dx12
          * \brief Compute the size of the scratch space required to build the acceleration structure, as well as the size of the resulting structure. The allocation of the buffers is then left to the application.
          * \param device Device on which the build will be performed.
          * \param allowUpdate If true, the resulting acceleration structure will allow iterative updates.
-         * \param scratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure.
-         * \param resultSizeInBytes Required GPU memory to store the acceleration structure.
+         * \param outScratchSizeInBytes Required scratch memory on the GPU to build the acceleration structure.
+         * \param outResultSizeInBytes Required GPU memory to store the acceleration structure.
          */
-        void ComputeASBufferSizes(ID3D12Device5* device, bool allowUpdate, UINT64* scratchSizeInBytes, UINT64* resultSizeInBytes);
+        void ComputeASBufferSizes(ID3D12Device5* device, bool allowUpdate, UINT64* outScratchSizeInBytes, UINT64* outResultSizeInBytes);
 
         /**
          * \brief Enqueue the construction of the acceleration structure on a command list, using application-provided buffers and possibly a pointer to the previous acceleration structure in case of iterative updates. Note that the update can be done in place: the result and previousResult pointers can be the same.
@@ -120,16 +120,16 @@ namespace nv_helpers_dx12
         /**
          * \brief Vertex buffer descriptors used to generate the AS.
          */
-        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> m_geometryBuffers = {};
+        std::vector<D3D12_RAYTRACING_GEOMETRY_DESC> geometryBuffers = {};
 
         /**
          * \brief Buffers used to store the geometry data, to make sure they are not released.
          */
-        std::vector<Allocation<ID3D12Resource>> m_usedResources = {};
+        std::vector<Allocation<ID3D12Resource>> usedResources = {};
 
-        UINT64 m_scratchSizeInBytes = 0;
-        UINT64 m_resultSizeInBytes  = 0;
+        UINT64 scratchSizeInBytes = 0;
+        UINT64 resultSizeInBytes  = 0;
 
-        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS m_flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
+        D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAGS flags = D3D12_RAYTRACING_ACCELERATION_STRUCTURE_BUILD_FLAG_NONE;
     };
 }
