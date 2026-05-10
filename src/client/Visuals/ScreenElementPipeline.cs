@@ -24,7 +24,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Definition;
-using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
 using Image = VoxelGame.Core.Visuals.Image;
 

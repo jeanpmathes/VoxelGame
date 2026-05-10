@@ -34,7 +34,7 @@ using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.Graphics.Graphics.Raytracing;
+namespace VoxelGame.Graphics.Raytracing;
 
 /// <summary>
 ///     Helps with initialization of the raytracing pipeline.

@@ -21,8 +21,8 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Definition;
-using VoxelGame.Graphics.Graphics.Raytracing;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Graphics.Raytracing;
 
 namespace VoxelGame.Graphics.Core;
 

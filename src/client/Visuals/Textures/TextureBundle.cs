@@ -21,7 +21,7 @@ using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Client.Visuals.Textures;
 

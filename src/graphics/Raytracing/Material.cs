@@ -19,7 +19,7 @@
 
 using System;
 
-namespace VoxelGame.Graphics.Graphics.Raytracing;
+namespace VoxelGame.Graphics.Raytracing;
 
 /// <summary>
 ///     A material that can be used in the raytracing pipeline.

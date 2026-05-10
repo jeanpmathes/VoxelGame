@@ -23,11 +23,10 @@ using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
-using VoxelGame.Graphics.Definition;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
 
-namespace VoxelGame.Graphics.Graphics;
+namespace VoxelGame.Graphics.Definition;
 
 /// <summary>
 ///     Offers support for DirectX debug message formatting.
@@ -42,11 +41,11 @@ internal sealed class D3D12Debug
 #pragma warning disable S1450
 
     // Has to be a member to prevent garbage collection.
-    private readonly Definition.Native.D3D12MessageFunc debugCallbackDelegate;
+    private readonly Native.D3D12MessageFunc debugCallbackDelegate;
 
 #pragma warning restore S1450
 
-    private D3D12Debug(Definition.Native.D3D12MessageFunc debugCallbackDelegate)
+    private D3D12Debug(Native.D3D12MessageFunc debugCallbackDelegate)
     {
         this.debugCallbackDelegate = debugCallbackDelegate;
     }
@@ -55,7 +54,7 @@ internal sealed class D3D12Debug
     ///     Enable the debugging features. This method should be called exactly once, and the result must be passed to the
     ///     native configuration.
     /// </summary>
-    internal static unsafe Definition.Native.D3D12MessageFunc Enable(Client client)
+    internal static unsafe Native.D3D12MessageFunc Enable(Client client)
     {
         Debug.Assert(instance is null);
 
@@ -66,9 +65,9 @@ internal sealed class D3D12Debug
     }
 
     private static unsafe void DebugCallback(
-        Definition.Native.D3D12_MESSAGE_CATEGORY category,
-        Definition.Native.D3D12_MESSAGE_SEVERITY severity,
-        Definition.Native.D3D12_MESSAGE_ID id,
+        Native.D3D12_MESSAGE_CATEGORY category,
+        Native.D3D12_MESSAGE_SEVERITY severity,
+        Native.D3D12_MESSAGE_ID id,
         Byte* messagePointer, IntPtr context)
     {
         LogLevel level = GetLevel(severity);
@@ -92,9 +91,9 @@ internal sealed class D3D12Debug
         Debugger.Log((Int32) level, DebugCategory, $"Category: {categoryName} | Id: {idResolved} | Message: {message}");
 
         if (id
-            is Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_AT_FAULT
-            or Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_POSSIBLY_AT_FAULT
-            or Definition.Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_NOT_AT_FAULT)
+            is Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_AT_FAULT
+            or Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_POSSIBLY_AT_FAULT
+            or Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_DEVICE_REMOVAL_PROCESS_NOT_AT_FAULT)
         {
             Client client = instance!.Value.client;
 
@@ -109,39 +108,39 @@ internal sealed class D3D12Debug
         if (level >= LogLevel.Warning) Debugger.Break();
     }
 
-    private static LogLevel GetLevel(Definition.Native.D3D12_MESSAGE_SEVERITY severity)
+    private static LogLevel GetLevel(Native.D3D12_MESSAGE_SEVERITY severity)
     {
         return severity switch
         {
-            Definition.Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_CORRUPTION => LogLevel.Critical,
-            Definition.Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_ERROR => LogLevel.Error,
-            Definition.Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_WARNING => LogLevel.Warning,
-            Definition.Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_INFO => LogLevel.Information,
-            Definition.Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_MESSAGE => LogLevel.Debug,
+            Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_CORRUPTION => LogLevel.Critical,
+            Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_ERROR => LogLevel.Error,
+            Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_WARNING => LogLevel.Warning,
+            Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_INFO => LogLevel.Information,
+            Native.D3D12_MESSAGE_SEVERITY.D3D12_MESSAGE_SEVERITY_MESSAGE => LogLevel.Debug,
             _ => throw Exceptions.UnsupportedEnumValue(severity)
         };
     }
 
-    private static String ResolveCategory(Definition.Native.D3D12_MESSAGE_CATEGORY category)
+    private static String ResolveCategory(Native.D3D12_MESSAGE_CATEGORY category)
     {
         return category switch
         {
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED => "APPLICATION DEFINED",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_MISCELLANEOUS => "MISCELLANEOUS",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_INITIALIZATION => "INITIALIZATION",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_CLEANUP => "CLEANUP",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_COMPILATION => "COMPILATION",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_STATE_CREATION => "STATE CREATION",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_STATE_SETTING => "STATE SETTING",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_STATE_GETTING => "STATE GETTING",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_RESOURCE_MANIPULATION => "MANIPULATION",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_EXECUTION => "EXECUTION",
-            Definition.Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_SHADER => "SHADER",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED => "APPLICATION DEFINED",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_MISCELLANEOUS => "MISCELLANEOUS",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_INITIALIZATION => "INITIALIZATION",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_CLEANUP => "CLEANUP",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_COMPILATION => "COMPILATION",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_STATE_CREATION => "STATE CREATION",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_STATE_SETTING => "STATE SETTING",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_STATE_GETTING => "STATE GETTING",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_RESOURCE_MANIPULATION => "MANIPULATION",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_EXECUTION => "EXECUTION",
+            Native.D3D12_MESSAGE_CATEGORY.D3D12_MESSAGE_CATEGORY_SHADER => "SHADER",
             _ => throw Exceptions.UnsupportedEnumValue(category)
         };
     }
 
-    private static (String, Int32) ResolveEvent(Definition.Native.D3D12_MESSAGE_ID id)
+    private static (String, Int32) ResolveEvent(Native.D3D12_MESSAGE_ID id)
     {
         return (id.ToStringFast(), LogID.D3D12);
     }

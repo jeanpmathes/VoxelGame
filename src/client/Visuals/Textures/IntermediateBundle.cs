@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Visuals.Textures;

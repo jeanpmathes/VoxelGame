@@ -26,9 +26,10 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
-using VoxelGame.Graphics.Graphics.Raytracing;
+using VoxelGame.Graphics.Raytracing;
 using VoxelGame.Toolkit.Utilities;
 using Mesh = VoxelGame.Graphics.Objects.Mesh;
+using PipelineBuilder = VoxelGame.Graphics.Raytracing.PipelineBuilder;
 
 namespace VoxelGame.Client.Visuals;
 

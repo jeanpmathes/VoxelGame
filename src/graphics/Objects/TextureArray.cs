@@ -26,9 +26,8 @@ using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
-using VoxelGame.Graphics.Objects;
 
-namespace VoxelGame.Graphics.Graphics;
+namespace VoxelGame.Graphics.Objects;
 
 /// <summary>
 ///     Represents an array of textures, where all textures are the same size.

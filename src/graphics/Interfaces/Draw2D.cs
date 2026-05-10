@@ -25,7 +25,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Interop;
 
-namespace VoxelGame.Graphics.Graphics;
+namespace VoxelGame.Graphics.Interfaces;
 
 /// <summary>
 ///     Wraps the draw 2D functionality.

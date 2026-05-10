@@ -31,7 +31,7 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
-using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;

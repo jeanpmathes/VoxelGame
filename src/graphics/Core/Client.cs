@@ -32,7 +32,7 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Definition;
-using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Interop;
@@ -231,7 +231,7 @@ public partial class Client : Application
     /// </summary>
     internal ShaderBuffer<T>? InitializeRaytracing<T>(SpacePipelineDescription description) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
-        return VoxelGame.Graphics.Native.InitializeRaytracing<T>(this, description);
+        return Graphics.Native.InitializeRaytracing<T>(this, description);
     }
 
     private static String FormatErrorMessage(Int32 hr, String message)
@@ -256,12 +256,12 @@ public partial class Client : Application
 
     internal String GetDRED()
     {
-        return VoxelGame.Graphics.Native.GetDRED(this);
+        return Graphics.Native.GetDRED(this);
     }
 
     internal String GetAllocatorStatistics()
     {
-        return VoxelGame.Graphics.Native.GetAllocatorStatistics(this);
+        return Graphics.Native.GetAllocatorStatistics(this);
     }
 
     /// <summary>
@@ -290,7 +290,7 @@ public partial class Client : Application
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        return VoxelGame.Graphics.Native.CreateRasterPipeline(this, description, CreateErrorFunc(errorCallback));
+        return Graphics.Native.CreateRasterPipeline(this, description, CreateErrorFunc(errorCallback));
     }
 
     /// <summary>
@@ -304,7 +304,7 @@ public partial class Client : Application
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        return VoxelGame.Graphics.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
+        return Graphics.Native.CreateRasterPipeline<T>(this, description, CreateErrorFunc(errorCallback));
     }
 
     private static unsafe Definition.Native.NativeErrorFunction CreateErrorFunc(Action<String> errorCallback)
@@ -342,7 +342,7 @@ public partial class Client : Application
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        return VoxelGame.Graphics.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
+        return Graphics.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
     }
 
     /// <summary>
@@ -354,7 +354,7 @@ public partial class Client : Application
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        return VoxelGame.Graphics.Native.LoadTexture(this, [image]);
+        return Graphics.Native.LoadTexture(this, [image]);
     }
 
     /// <summary>
@@ -366,7 +366,7 @@ public partial class Client : Application
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        return VoxelGame.Graphics.Native.LoadTexture(this, images);
+        return Graphics.Native.LoadTexture(this, images);
     }
 
     /// <summary>
@@ -387,7 +387,7 @@ public partial class Client : Application
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        VoxelGame.Graphics.Native.EnqueueScreenshot(this,
+        Graphics.Native.EnqueueScreenshot(this,
             (data, width, height) =>
             {
                 Int32[] copy = new Int32[width * height];

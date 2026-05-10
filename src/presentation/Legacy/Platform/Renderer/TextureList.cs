@@ -25,7 +25,7 @@ using Gwen.Net;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
-using VoxelGame.Graphics.Graphics;
+using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Toolkit.Utilities;
 using Texture = VoxelGame.Graphics.Objects.Texture;
 
