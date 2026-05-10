@@ -14,12 +14,12 @@ LPCSTR const NativeClient::AGILITY_SDK_PATH    = ".\\D3D12\\";
 
 NativeClient::NativeClient(Configuration const& configuration)
     : DXApp(configuration)
-  , resolution(Resolution{configuration.width, configuration.height} * configuration.renderScale)
-#if defined(NATIVE_DEBUG)
+  , resolution(Resolution{.width = configuration.width, .height = configuration.height} * configuration.renderScale)
+#ifdef NATIVE_DEBUG
   , debugCallback(configuration.onDebug)
 #endif
   , space(std::make_unique<Space>(*this))
-#if defined(USE_NSIGHT_AFTERMATH)
+#ifdef USE_NSIGHT_AFTERMATH
 , gpuCrashTracker(markerMap, shaderDatabase, GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
 #endif
 {
@@ -59,7 +59,7 @@ void NativeClient::OnInitializationComplete() { if (space) space->SpoolUp(); }
 
 void NativeClient::LoadDevice()
 {
-#if defined(NATIVE_DEBUG)
+#ifdef NATIVE_DEBUG
     constexpr UINT dxgiFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
 #else
     constexpr UINT dxgiFactoryFlags = 0;
@@ -74,7 +74,7 @@ void NativeClient::LoadDevice()
     ComPtr<ID3D12DeviceFactory> deviceFactory;
     TryDo(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
 
-#if defined(NATIVE_DEBUG)
+#ifdef NATIVE_DEBUG
     ComPtr<ID3D12Debug5> debug;
     if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12Debug, IID_PPV_ARGS(&debug))))
     {
@@ -94,14 +94,14 @@ void NativeClient::LoadDevice()
 
     ComPtr<IDXGIAdapter1> const hardwareAdapter = GetHardwareAdapter(dxgiFactory, deviceFactory);
 
-#if defined(USE_NSIGHT_AFTERMATH)
+#ifdef USE_NSIGHT_AFTERMATH
     if (!SupportPIX()) gpuCrashTracker.Initialize();
 #endif
 
     TryDo(deviceFactory->CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device)));
     NAME_D3D12_OBJECT(device);
 
-#if defined(USE_NSIGHT_AFTERMATH)
+#ifdef USE_NSIGHT_AFTERMATH
     if (!SupportPIX())
     {
         constexpr uint32_t aftermathFlags = GFSDK_Aftermath_FeatureFlags_EnableMarkers | GFSDK_Aftermath_FeatureFlags_EnableResourceTracking |
@@ -111,7 +111,7 @@ void NativeClient::LoadDevice()
     }
 #endif
 
-#if defined(NATIVE_DEBUG)
+#ifdef NATIVE_DEBUG
     auto callback = [](D3D12_MESSAGE_CATEGORY const category, D3D12_MESSAGE_SEVERITY const severity, D3D12_MESSAGE_ID const id, LPCSTR const description, void* context) -> void
     {
         auto const self = static_cast<NativeClient*>(context);
@@ -190,10 +190,10 @@ void NativeClient::InitializeFences()
 void NativeClient::LoadRasterPipeline()
 {
     constexpr std::array quadVertices = {
-        PostVertex{{-1.0f, 1.0f, 0.0f, 1.0f}, {0.0f, 0.0f}},
-        PostVertex{{1.0f, 1.0f, 0.0f, 1.0f}, {1.0f, 0.0f}},
-        PostVertex{{-1.0f, -1.0f, 0.0f, 1.0f}, {0.0f, 1.0f}},
-        PostVertex{{1.0f, -1.0f, 0.0f, 1.0f}, {1.0f, 1.0f}}
+        PostVertex{.position = {-1.0f, 1.0f, 0.0f, 1.0f}, .uv = {0.0f, 0.0f}},
+        PostVertex{.position = {1.0f, 1.0f, 0.0f, 1.0f}, .uv = {1.0f, 0.0f}},
+        PostVertex{.position = {-1.0f, -1.0f, 0.0f, 1.0f}, .uv = {0.0f, 1.0f}},
+        PostVertex{.position = {1.0f, -1.0f, 0.0f, 1.0f}, .uv = {1.0f, 1.0f}}
     };
 
     constexpr UINT vertexBufferSize = sizeof quadVertices;
@@ -397,7 +397,7 @@ void NativeClient::OnRenderUpdate()
     constexpr DXGI_PRESENT_PARAMETERS presentParameters = {};
     HRESULT const                     present           = swapChain->Present1(syncInterval, presentFlags, &presentParameters);
 
-#if defined(USE_NSIGHT_AFTERMATH)
+#ifdef USE_NSIGHT_AFTERMATH
     if (FAILED(present))
     {
         if (SupportPIX()) throw std::runtime_error("Present failed");
@@ -620,7 +620,7 @@ std::wstring NativeClient::GetDRED() const
 
     return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
 }
-#if defined(USE_NSIGHT_AFTERMATH)
+#ifdef USE_NSIGHT_AFTERMATH
 void NativeClient::SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const
 {
     if (SupportPIX()) return;
