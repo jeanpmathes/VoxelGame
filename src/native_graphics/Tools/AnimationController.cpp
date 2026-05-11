@@ -52,7 +52,7 @@ void AnimationController::Initialize(NativeClient& usedClient, ComPtr<ID3D12Root
     pipelineStateDescription.pRootSignature                    = rootSignature.Get();
     pipelineStateDescription.CS                                = CD3DX12_SHADER_BYTECODE(shader.Get());
 
-    TryDo(client->GetDevice()->CreateComputePipelineState(&pipelineStateDescription, IID_PPV_ARGS(&pipelineState)));
+    TryDo(client->GetContext().GetD3D12Device()->CreateComputePipelineState(&pipelineStateDescription, IID_PPV_ARGS(&pipelineState)));
 }
 
 void AnimationController::AddMesh(Mesh& mesh)

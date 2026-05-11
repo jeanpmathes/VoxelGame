@@ -32,27 +32,27 @@ namespace VoxelGame.Core.Visuals;
 ///     Neutral colors will be provided by the environment at appropriate points.
 ///     This is used by the tint system, which uses multiplication to apply tints.
 /// </summary>
-public struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f) : IEquatable<ColorS>
+public readonly struct ColorS(Single red, Single green, Single blue, Single alpha = 1.0f) : IEquatable<ColorS>
 {
     /// <summary>
     ///     The red color channel.
     /// </summary>
-    public Single R { get; set; } = red;
+    public Single R { get; init; } = red;
 
     /// <summary>
     ///     The green color channel.
     /// </summary>
-    public Single G { get; set; } = green;
+    public Single G { get; init; } = green;
 
     /// <summary>
     ///     The blue color channel.
     /// </summary>
-    public Single B { get; set; } = blue;
+    public Single B { get; init; } = blue;
 
     /// <summary>
     ///     The alpha color channel.
     /// </summary>
-    public Single A { get; set; } = alpha;
+    public Single A { get; init; } = alpha;
 
     /// <summary>
     ///     Whether this color is neutral.

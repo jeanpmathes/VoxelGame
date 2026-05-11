@@ -9,33 +9,27 @@
 constexpr std::array<float, 4> NativeClient::CLEAR_COLOR     = {1.0f, 1.0f, 1.0f, 1.0f};
 constexpr std::array<float, 4> NativeClient::LETTERBOX_COLOR = {0.0f, 0.0f, 0.0f, 1.0f};
 
-UINT const   NativeClient::AGILITY_SDK_VERSION = 614;
-LPCSTR const NativeClient::AGILITY_SDK_PATH    = ".\\D3D12\\";
-
 NativeClient::NativeClient(Configuration const& configuration)
     : DXApp(configuration)
+  , configuration(configuration)
   , resolution(Resolution{.width = configuration.width, .height = configuration.height} * configuration.renderScale)
-#ifdef NATIVE_DEBUG
-  , debugCallback(configuration.onDebug)
-#endif
   , space(std::make_unique<Space>(*this))
-#ifdef USE_NSIGHT_AFTERMATH
-, gpuCrashTracker(markerMap, shaderDatabase, GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
-#endif
 {
     if (SupportPIX() && !PIXIsAttachedForGpuCapture()) PIXLoadLatestWinPixGpuCapturerLibrary();
 }
 
-ComPtr<ID3D12Device5> NativeClient::GetDevice() const { return device; }
-
-ComPtr<D3D12MA::Allocator> NativeClient::GetAllocator() const { return allocator; }
+Context& NativeClient::GetContext() const { return *context; }
 
 void NativeClient::OnPreInitialization()
 {
-    LoadDevice();
-    InitializeFences();
+    context = std::make_unique<Context>(*this, configuration.applicationName, configuration.applicationVersion);
+    context->LoadDevice(configuration);
+    context->CreateSwapChain(GetWidth(), GetHeight());
 
-    space->PerformInitialSetupStepOne(commandQueue);
+    space->PerformInitialSetupStepOne(context->GetCommandQueue());
+
+    dsvHeap.Create(context->GetD3D12Device(), FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
+    NAME_D3D12_OBJECT(dsvHeap);
 
     SetUpSizeDependentResources();
     SetUpSpaceResolutionDependentResources();
@@ -49,143 +43,13 @@ void NativeClient::OnPostInitialization()
 {
     if (!spaceInitialized) space = nullptr;
 
-    uploader->ExecuteUploads(commandQueue);
+    uploader->ExecuteUploads(context->GetCommandQueue());
 
     WaitForGPU();
     uploader = nullptr;
 }
 
 void NativeClient::OnInitializationComplete() { if (space) space->SpoolUp(); }
-
-void NativeClient::LoadDevice()
-{
-#ifdef NATIVE_DEBUG
-    constexpr UINT dxgiFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
-#else
-    constexpr UINT dxgiFactoryFlags = 0;
-#endif
-
-    ComPtr<IDXGIFactory4> dxgiFactory;
-    TryDo(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
-
-    ComPtr<ID3D12SDKConfiguration1> sdk;
-    TryDo(D3D12GetInterface(CLSID_D3D12SDKConfiguration, IID_PPV_ARGS(&sdk)));
-
-    ComPtr<ID3D12DeviceFactory> deviceFactory;
-    TryDo(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
-
-#ifdef NATIVE_DEBUG
-    ComPtr<ID3D12Debug5> debug;
-    if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12Debug, IID_PPV_ARGS(&debug))))
-    {
-        debug->EnableDebugLayer();
-        debug->SetEnableAutoName(TRUE);
-
-        if (!SupportPIX() && UseGBV()) debug->SetEnableGPUBasedValidation(TRUE);
-    }
-    ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
-    if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12DeviceRemovedExtendedData, IID_PPV_ARGS(&dredSettings))))
-    {
-        dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-        dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-        dredSettings->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-    }
-#endif
-
-    ComPtr<IDXGIAdapter1> const hardwareAdapter = GetHardwareAdapter(dxgiFactory, deviceFactory);
-
-#ifdef USE_NSIGHT_AFTERMATH
-    if (!SupportPIX()) gpuCrashTracker.Initialize();
-#endif
-
-    TryDo(deviceFactory->CreateDevice(hardwareAdapter.Get(), D3D_FEATURE_LEVEL_12_2, IID_PPV_ARGS(&device)));
-    NAME_D3D12_OBJECT(device);
-
-#ifdef USE_NSIGHT_AFTERMATH
-    if (!SupportPIX())
-    {
-        constexpr uint32_t aftermathFlags = GFSDK_Aftermath_FeatureFlags_EnableMarkers | GFSDK_Aftermath_FeatureFlags_EnableResourceTracking |
-        GFSDK_Aftermath_FeatureFlags_CallStackCapturing | GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
-
-        AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_Initialize(GFSDK_Aftermath_Version_API, aftermathFlags, device.Get()));
-    }
-#endif
-
-#ifdef NATIVE_DEBUG
-    auto callback = [](D3D12_MESSAGE_CATEGORY const category, D3D12_MESSAGE_SEVERITY const severity, D3D12_MESSAGE_ID const id, LPCSTR const description, void* context) -> void
-    {
-        auto const self = static_cast<NativeClient*>(context);
-
-        Win32Application::EnterErrorMode();
-        self->debugCallback(category, severity, id, description, nullptr);
-        Win32Application::ExitErrorMode();
-    };
-    HRESULT const infoQueueResult = device->QueryInterface(IID_PPV_ARGS(&infoQueue));
-    if (SUCCEEDED(infoQueueResult))
-    {
-        TryDo(device->QueryInterface(IID_PPV_ARGS(&infoQueue)));
-        TryDo(infoQueue->RegisterMessageCallback(callback, D3D12_MESSAGE_CALLBACK_FLAG_NONE, this, &callbackCookie));
-
-        TryDo(infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
-
-        if (PIXIsAttachedForGpuCapture() && !SupportPIX()) TryDo(
-            infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_WARNING, "PIX detected, consider using the --pix command line argument"));
-    }
-    else debugCallback(D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED, D3D12_MESSAGE_SEVERITY_WARNING, D3D12_MESSAGE_ID_UNKNOWN, "Failed to install debug callback", nullptr);
-
-#endif
-
-    D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
-    allocatorDesc.pDevice                 = device.Get();
-    allocatorDesc.pAdapter                = hardwareAdapter.Get();
-
-    TryDo(CreateAllocator(&allocatorDesc, &allocator));
-
-    CheckRaytracingSupport();
-
-    D3D12_COMMAND_QUEUE_DESC queueDesc = {};
-    queueDesc.Flags                    = D3D12_COMMAND_QUEUE_FLAG_NONE;
-    queueDesc.Type                     = D3D12_COMMAND_LIST_TYPE_DIRECT;
-
-    TryDo(device->CreateCommandQueue(&queueDesc, IID_PPV_ARGS(&commandQueue)));
-    NAME_D3D12_OBJECT(commandQueue);
-
-    DXGI_SWAP_CHAIN_DESC1 swapChainDesc = {};
-    swapChainDesc.BufferCount           = FRAME_COUNT;
-    swapChainDesc.Width                 = GetWidth();
-    swapChainDesc.Height                = GetHeight();
-    swapChainDesc.Format                = DXGI_FORMAT_B8G8R8A8_UNORM;
-    swapChainDesc.BufferUsage           = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapChainDesc.SwapEffect            = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapChainDesc.SampleDesc.Count      = 1;
-
-    swapChainDesc.Flags = IsTearingSupportEnabled() ? DXGI_SWAP_CHAIN_FLAG_ALLOW_TEARING : 0;
-
-    ComPtr<IDXGISwapChain1> swapChain1;
-    TryDo(dxgiFactory->CreateSwapChainForHwnd(commandQueue.Get(), Win32Application::GetWindowHandle(), &swapChainDesc, nullptr, nullptr, &swapChain1));
-
-    TryDo(dxgiFactory->MakeWindowAssociation(Win32Application::GetWindowHandle(), DXGI_MWA_NO_ALT_ENTER));
-
-    TryDo(swapChain1.As(&swapChain));
-    frameIndex = swapChain->GetCurrentBackBufferIndex();
-
-    rtvHeap.Create(device, FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
-    NAME_D3D12_OBJECT(rtvHeap);
-
-    dsvHeap.Create(device, FRAME_COUNT + 1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
-    NAME_D3D12_OBJECT(dsvHeap);
-}
-
-void NativeClient::InitializeFences()
-{
-    TryDo(device->CreateFence(fenceValues[frameIndex], D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&fence)));
-    NAME_D3D12_OBJECT(fence);
-
-    fenceValues[frameIndex]++;
-
-    fenceEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-    if (fenceEvent == nullptr) TryDo(HRESULT_FROM_WIN32(GetLastError()));
-}
 
 void NativeClient::LoadRasterPipeline()
 {
@@ -235,7 +99,8 @@ void NativeClient::CreateFinalDepthBuffers()
     dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
     dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
 
-    for (UINT frame = 0; frame < FRAME_COUNT; frame++) device->CreateDepthStencilView(finalDepthStencilBuffers[frame].Get(), &dsvDesc, dsvHeap.GetDescriptorHandleCPU(frame));
+    for (UINT frame = 0; frame < FRAME_COUNT; frame++)
+        context->GetD3D12Device()->CreateDepthStencilView(finalDepthStencilBuffers[frame].Get(), &dsvDesc, dsvHeap.GetDescriptorHandleCPU(frame));
 }
 
 void NativeClient::EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> const commandList)
@@ -260,7 +125,7 @@ void NativeClient::CreateScreenShotBuffers()
 
     for (UINT frame = 0; frame < FRAME_COUNT; frame++)
     {
-        UINT64 const        size = GetRequiredIntermediateSize(finalRenderTargets[frame].Get(), 0, 1);
+        UINT64 const        size = GetRequiredIntermediateSize(context->GetFinalRenderTarget(frame).Get(), 0, 1);
         D3D12_RESOURCE_DESC desc = CD3DX12_RESOURCE_DESC::Buffer(size);
 
         screenshotBuffers[frame] = util::AllocateResource<ID3D12Resource>(*this, desc, D3D12_HEAP_TYPE_READBACK, D3D12_RESOURCE_STATE_COPY_DEST, nullptr);
@@ -285,14 +150,6 @@ void NativeClient::SetUpSizeDependentResources()
     draw2dViewport.scissorRect.right  = static_cast<LONG>(GetWidth());
     draw2dViewport.scissorRect.bottom = static_cast<LONG>(GetHeight());
 
-    for (UINT frame = 0; frame < FRAME_COUNT; frame++)
-    {
-        TryDo(swapChain->GetBuffer(frame, IID_PPV_ARGS(&finalRenderTargets[frame])));
-        device->CreateRenderTargetView(finalRenderTargets[frame].Get(), nullptr, rtvHeap.GetDescriptorHandleCPU(frame));
-
-        NAME_D3D12_OBJECT_INDEXED(finalRenderTargets, frame);
-    }
-
     CreateFinalDepthBuffers();
     CreateScreenShotBuffers();
 }
@@ -307,7 +164,7 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
 
     UpdatePostViewAndScissor();
 
-    D3D12_RESOURCE_DESC const   swapChainDesc = finalRenderTargets[frameIndex]->GetDesc();
+    D3D12_RESOURCE_DESC const   swapChainDesc = context->GetFinalRenderTarget(context->GetFrameIndex())->GetDesc();
     CD3DX12_CLEAR_VALUE const   clearValue(swapChainDesc.Format, CLEAR_COLOR.data());
     CD3DX12_RESOURCE_DESC const renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
         swapChainDesc.Format,
@@ -326,7 +183,7 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
 
     intermediateRenderTargetInitialized = false;
 
-    device->CreateRenderTargetView(intermediateRenderTarget.Get(), nullptr, rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
+    context->GetD3D12Device()->CreateRenderTargetView(intermediateRenderTarget.Get(), nullptr, context->GetIntermediateRenderTargetView());
 
     if (space) space->PerformResolutionDependentSetup(resolution);
 
@@ -348,7 +205,7 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
     dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
     dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
 
-    device->CreateDepthStencilView(intermediateDepthStencilBuffer.Get(), &dsvDesc, dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
+    context->GetD3D12Device()->CreateDepthStencilView(intermediateDepthStencilBuffer.Get(), &dsvDesc, dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT));
 
     if (postProcessingPipeline != nullptr) CreatePostProcessingShaderResourceViews();
 }
@@ -367,7 +224,7 @@ void NativeClient::OnPreRenderUpdate()
 {
     if (!windowVisible) return;
 
-    uploadGroup.Reset(frameIndex);
+    uploadGroup.Reset(context->GetFrameIndex());
     uploader = std::make_unique<Uploader>(*this, uploadGroup.commandList);
 }
 
@@ -376,7 +233,7 @@ void NativeClient::OnRenderUpdate()
     if (!windowVisible) return;
 
     {
-        PIXScopedEvent(commandQueue.Get(), PIX_COLOR_DEFAULT, L"Render");
+        PIXScopedEvent(context->GetCommandQueue().Get(), PIX_COLOR_DEFAULT, L"Render");
 
         uploadGroup.Close();
 
@@ -389,13 +246,13 @@ void NativeClient::OnRenderUpdate()
         if (space && space->IsRendered()) commandLists.push_back(space->GetCommandList().Get());
         commandLists.push_back(draw2dGroup.commandList.Get());
 
-        commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
+        context->GetCommandQueue()->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }
 
     UINT const                        syncInterval      = IsTearingSupportEnabled() && windowedMode ? 0 : 1;
     UINT const                        presentFlags      = IsTearingSupportEnabled() && windowedMode ? DXGI_PRESENT_ALLOW_TEARING : 0;
     constexpr DXGI_PRESENT_PARAMETERS presentParameters = {};
-    HRESULT const                     present           = swapChain->Present1(syncInterval, presentFlags, &presentParameters);
+    HRESULT const                     present           = context->GetSwapChain()->Present1(syncInterval, presentFlags, &presentParameters);
 
 #ifdef USE_NSIGHT_AFTERMATH
     if (FAILED(present))
@@ -443,7 +300,6 @@ void NativeClient::OnRenderUpdate()
 void NativeClient::OnDestroy()
 {
     WaitForGPU();
-    CloseHandle(fenceEvent);
 }
 
 void NativeClient::OnSizeChanged(UINT const newWidth, UINT const newHeight, bool const minimized)
@@ -452,21 +308,11 @@ void NativeClient::OnSizeChanged(UINT const newWidth, UINT const newHeight, bool
     {
         WaitForGPU();
 
-        for (UINT frame = 0; frame < FRAME_COUNT; frame++) // NOLINT(modernize-loop-convert)
-        {
-            finalRenderTargets[frame].Reset();
-            fenceValues[frame] = fenceValues[frameIndex];
-        }
-
-        DXGI_SWAP_CHAIN_DESC desc = {};
-        TryDo(swapChain->GetDesc(&desc));
-        TryDo(swapChain->ResizeBuffers(FRAME_COUNT, newWidth, newHeight, desc.BufferDesc.Format, desc.Flags));
+        context->ResizeSwapChain(newWidth, newHeight);
 
         BOOL fullscreenState;
-        TryDo(swapChain->GetFullscreenState(&fullscreenState, nullptr));
+        TryDo(context->GetSwapChain()->GetFullscreenState(&fullscreenState, nullptr));
         windowedMode = !static_cast<bool>(fullscreenState);
-
-        frameIndex = swapChain->GetCurrentBackBufferIndex();
 
         UpdateForSizeChange(newWidth, newHeight);
         SetUpSizeDependentResources();
@@ -494,7 +340,7 @@ void NativeClient::InitRaytracingPipeline(SpacePipelineDescription const& pipeli
 }
 
 // ReSharper disable once CppMemberFunctionMayBeStatic
-void NativeClient::ToggleFullscreen() const { Win32Application::ToggleFullscreenWindow(swapChain.Get()); }
+void NativeClient::ToggleFullscreen() const { Win32Application::ToggleFullscreenWindow(context->GetSwapChain().Get()); }
 
 void NativeClient::TakeScreenshot(ScreenshotFunc func)
 {
@@ -583,34 +429,18 @@ void NativeClient::DeleteObject(ObjectHandle const handle) { objects.Pop(handle)
 
 void NativeClient::WaitForGPU()
 {
-    TryDo(commandQueue->Signal(fence.Get(), fenceValues[frameIndex]));
-
-    TryDo(fence->SetEventOnCompletion(fenceValues[frameIndex], fenceEvent));
-    WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
-
-    fenceValues[frameIndex]++;
+    context->WaitForGPU();
 }
 
 void NativeClient::MoveToNextFrame()
 {
-    TryDo(commandQueue->Signal(fence.Get(), fenceValues[frameIndex]));
-
-    UINT64 const currentFenceValue = fenceValues[static_cast<UINT64>(frameIndex)];
-    frameIndex                     = swapChain->GetCurrentBackBufferIndex();
-
-    if (fence->GetCompletedValue() < fenceValues[frameIndex])
-    {
-        TryDo(fence->SetEventOnCompletion(fenceValues[frameIndex], fenceEvent));
-        WaitForSingleObjectEx(fenceEvent, INFINITE, FALSE);
-    }
-
-    fenceValues[frameIndex] = currentFenceValue + 1;
+    context->MoveToNextFrame();
 }
 
 std::wstring NativeClient::GetDRED() const
 {
     ComPtr<ID3D12DeviceRemovedExtendedData2> dred;
-    TryDo(device->QueryInterface(IID_PPV_ARGS(&dred)));
+    TryDo(context->GetD3D12Device()->QueryInterface(IID_PPV_ARGS(&dred)));
 
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dredAutoBreadcrumbsOutput = {};
     TryDo(dred->GetAutoBreadcrumbsOutput1(&dredAutoBreadcrumbsOutput));
@@ -620,47 +450,15 @@ std::wstring NativeClient::GetDRED() const
 
     return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
 }
-#ifdef USE_NSIGHT_AFTERMATH
-void NativeClient::SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const
-{
-    if (SupportPIX()) return;
-
-    GFSDK_Aftermath_ContextHandle contextHandle;
-    AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
-}void NativeClient::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
-{
-    if (SupportPIX()) return;
-
-    ComPtr<IDxcBlob> objectBlob;
-    TryDo(result->GetOutput(DXC_OUT_OBJECT, IID_PPV_ARGS(&objectBlob), nullptr));
-    std::vector<uint8_t> binary(objectBlob->GetBufferSize());
-    std::memcpy(binary.data(), objectBlob->GetBufferPointer(), objectBlob->GetBufferSize());
-
-    ComPtr<IDxcBlob> pdbBlob;
-    TryDo(result->GetOutput(DXC_OUT_PDB, IID_PPV_ARGS(&pdbBlob), nullptr));
-    std::vector<uint8_t> pdb(pdbBlob->GetBufferSize());
-    std::memcpy(pdb.data(), pdbBlob->GetBufferPointer(), pdbBlob->GetBufferSize());
-
-    shaderDatabase.AddShader(std::move(binary), std::move(pdb));
-}
-#endif
-
-void NativeClient::CheckRaytracingSupport() const
-{
-    D3D12_FEATURE_DATA_D3D12_OPTIONS5 options5 = {};
-    TryDo(device->CheckFeatureSupport(D3D12_FEATURE_D3D12_OPTIONS5, &options5, sizeof(options5)));
-
-    if (options5.RaytracingTier < D3D12_RAYTRACING_TIER_1_1) throw NativeException("Raytracing not supported on device.");
-}
 
 void NativeClient::PopulateSpaceCommandList() const
 {
     Require(space != nullptr);
 
-    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = rtvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
+    D3D12_CPU_DESCRIPTOR_HANDLE rtvHandle = context->GetIntermediateRenderTargetView();
     D3D12_CPU_DESCRIPTOR_HANDLE dsvHandle = dsvHeap.GetDescriptorHandleCPU(FRAME_COUNT);
 
-    space->Reset(frameIndex);
+    space->Reset(context->GetFrameIndex());
     space->Render(intermediateRenderTarget, intermediateDepthStencilBuffer, {.rtv = &rtvHandle, .dsv = &dsvHandle, .viewport = &spaceViewport});
 }
 
@@ -687,7 +485,7 @@ void NativeClient::PopulateScreenshotCommandList() const
     PIXScopedEvent(draw2dGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Screenshot");
 
     D3D12_RESOURCE_BARRIER const entry = CD3DX12_RESOURCE_BARRIER::Transition(
-        finalRenderTargets[frameIndex].Get(),
+        context->GetFinalRenderTarget(context->GetFrameIndex()).Get(),
         D3D12_RESOURCE_STATE_RENDER_TARGET,
         D3D12_RESOURCE_STATE_COPY_SOURCE);
     draw2dGroup.commandList->ResourceBarrier(1, &entry);
@@ -699,12 +497,12 @@ void NativeClient::PopulateScreenshotCommandList() const
     footprint.Footprint.Depth                    = 1;
     footprint.Footprint.RowPitch                 = GetWidth() * 4;
 
-    auto const dst = CD3DX12_TEXTURE_COPY_LOCATION(screenshotBuffers[frameIndex].Get(), footprint);
-    auto const src = CD3DX12_TEXTURE_COPY_LOCATION(finalRenderTargets[frameIndex].Get(), 0);
+    auto const dst = CD3DX12_TEXTURE_COPY_LOCATION(screenshotBuffers[context->GetFrameIndex()].Get(), footprint);
+    auto const src = CD3DX12_TEXTURE_COPY_LOCATION(context->GetFinalRenderTarget(context->GetFrameIndex()).Get(), 0);
     draw2dGroup.commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
 
     D3D12_RESOURCE_BARRIER const exit = CD3DX12_RESOURCE_BARRIER::Transition(
-        finalRenderTargets[frameIndex].Get(),
+        context->GetFinalRenderTarget(context->GetFrameIndex()).Get(),
         D3D12_RESOURCE_STATE_COPY_SOURCE,
         D3D12_RESOURCE_STATE_RENDER_TARGET);
     draw2dGroup.commandList->ResourceBarrier(1, &exit);
@@ -712,13 +510,13 @@ void NativeClient::PopulateScreenshotCommandList() const
 
 void NativeClient::PopulateCommandLists()
 {
-    draw2dGroup.Reset(frameIndex);
+    draw2dGroup.Reset(context->GetFrameIndex());
 
     EnsureValidDepthBuffers(draw2dGroup.commandList);
     EnsureValidIntermediateRenderTarget(draw2dGroup.commandList);
 
     std::array<D3D12_RESOURCE_BARRIER, 3> barriers = {
-        CD3DX12_RESOURCE_BARRIER::Transition(finalRenderTargets[frameIndex].Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET),
+        CD3DX12_RESOURCE_BARRIER::Transition(context->GetFinalRenderTarget(context->GetFrameIndex()).Get(), D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET),
         CD3DX12_RESOURCE_BARRIER::Transition(intermediateRenderTarget.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE),
         CD3DX12_RESOURCE_BARRIER::Transition(intermediateDepthStencilBuffer.Get(), D3D12_RESOURCE_STATE_DEPTH_WRITE, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE)
     };
@@ -727,8 +525,8 @@ void NativeClient::PopulateCommandLists()
 
     if (space && space->IsRendered()) PopulateSpaceCommandList();
 
-    auto const rtvHandle = rtvHeap.GetDescriptorHandleCPU(frameIndex);
-    auto const dsvHandle = dsvHeap.GetDescriptorHandleCPU(frameIndex);
+    auto const rtvHandle = context->GetFinalRenderTargetView(context->GetFrameIndex());
+    auto const dsvHandle = dsvHeap.GetDescriptorHandleCPU(context->GetFrameIndex());
 
     draw2dGroup.commandList->OMSetRenderTargets(1, &rtvHandle, FALSE, &dsvHandle);
     draw2dGroup.commandList->ClearRenderTargetView(rtvHandle, LETTERBOX_COLOR.data(), 0, nullptr);
@@ -792,7 +590,7 @@ void NativeClient::HandleScreenshot()
     UINT const size = GetWidth() * GetHeight() * 4;
     auto const data = std::make_unique<std::byte[]>(size);
 
-    TryDo(util::MapAndRead(screenshotBuffers[frameIndex], data.get(), size));
+    TryDo(util::MapAndRead(screenshotBuffers[context->GetFrameIndex()], data.get(), size));
 
     func(data.get(), GetWidth(), GetHeight());
     screenshotFunc = std::nullopt;

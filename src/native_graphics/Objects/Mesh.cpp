@@ -1,10 +1,9 @@
 ﻿#include "stdafx.h"
-#include "Mesh.hpp"
 
 Mesh::Mesh(NativeClient& client)
     : Drawable(client)
 {
-    Require(GetClient().GetDevice() != nullptr);
+    Require(GetClient().GetContext().GetD3D11Device() != nullptr);
 
     instanceDataBufferAlignedSize = sizeof MeshDataBuffer;
     instanceDataBuffer            = util::AllocateConstantBuffer(GetClient(), &instanceDataBufferAlignedSize);
@@ -290,7 +289,7 @@ void Mesh::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& command
         UINT64     resultSizeInBytes  = 0;
         bool const allowUpdate        = GetMaterial().IsAnimated();
 
-        bottomLevelASGenerator.ComputeASBufferSizes(GetClient().GetDevice().Get(), allowUpdate, &scratchSizeInBytes, &resultSizeInBytes);
+        bottomLevelASGenerator.ComputeASBufferSizes(GetClient().GetContext().GetD3D12Device().Get(), allowUpdate, &scratchSizeInBytes, &resultSizeInBytes);
 
         blas = GetClient().GetSpace()->AllocateBLAS(resultSizeInBytes, scratchSizeInBytes);
 

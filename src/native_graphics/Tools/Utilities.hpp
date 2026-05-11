@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "Context.hpp"
 #include "NativeClient.hpp"
 
 namespace util
@@ -32,7 +33,7 @@ namespace util
         ComPtr<T>                   resource;
         ComPtr<D3D12MA::Allocation> allocation;
 
-        TryDo(client.GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, initState, optimizedClearValue, &allocation, IID_PPV_ARGS(&resource)));
+        TryDo(client.GetContext().GetAllocator()->CreateResource(&allocationDesc, &resourceDesc, initState, optimizedClearValue, &allocation, IID_PPV_ARGS(&resource)));
 
         return {allocation, resource};
     }

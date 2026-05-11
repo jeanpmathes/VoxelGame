@@ -13,8 +13,8 @@ Uploader::Uploader(NativeClient& client, ComPtr<ID3D12GraphicsCommandList> const
         TryDo(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
         NAME_D3D12_OBJECT(commandList);
 
-#if defined(USE_NSIGHT_AFTERMATH)
-        client.SetUpCommandListForAftermath(commandList);
+#ifdef USE_NSIGHT_AFTERMATH
+        client.GetContext().SetUpCommandListForAftermath(commandList);
 #endif
     }
 }
@@ -88,7 +88,7 @@ void Uploader::ExecuteUploads(ComPtr<ID3D12CommandQueue> const& commandQueue) co
     commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
 }
 
-ComPtr<ID3D12Device4> Uploader::GetDevice() const { return client->GetDevice(); }
+ComPtr<ID3D12Device4> Uploader::GetDevice() const { return client->GetContext().GetD3D12Device(); }
 
 NativeClient& Uploader::GetClient() const { return *client; }
 

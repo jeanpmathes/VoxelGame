@@ -72,8 +72,4 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Graphics\"/>
-    </ItemGroup>
 </Project>

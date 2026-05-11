@@ -20,6 +20,7 @@
 struct TextureDescription;
 using Microsoft::WRL::ComPtr;
 
+class Context;
 class RasterPipeline;
 class Texture;
 
@@ -30,9 +31,9 @@ class NativeClient final : public DXApp
 public:
     explicit NativeClient(Configuration const& configuration);
 
-    [[nodiscard]] ComPtr<ID3D12Device5>      GetDevice() const;
-    [[nodiscard]] ComPtr<D3D12MA::Allocator> GetAllocator() const;
+    [[nodiscard]] Context& GetContext() const;
 
+protected:
     void OnPreInitialization() override;
     void OnPostInitialization() override;
     void OnInitializationComplete() override;
@@ -44,6 +45,7 @@ public:
     void OnSizeChanged(UINT newWidth, UINT newHeight, bool minimized) override;
     void OnWindowMoved(int xPos, int yPos) override;
 
+public:
     void InitRaytracingPipeline(SpacePipelineDescription const& pipeline);
 
     /**
@@ -108,27 +110,15 @@ private:
     static std::array<float, 4> const CLEAR_COLOR;
     static std::array<float, 4> const LETTERBOX_COLOR;
 
-    static UINT const   AGILITY_SDK_VERSION;
-    static LPCSTR const AGILITY_SDK_PATH;
-
     struct PostVertex
     {
         DirectX::XMFLOAT4 position;
         DirectX::XMFLOAT2 uv;
     };
 
-    ComPtr<ID3D12Device5>      device;
-    ComPtr<D3D12MA::Allocator> allocator;
-    ComPtr<IDXGISwapChain3>    swapChain;
-    ComPtr<ID3D12InfoQueue1>   infoQueue;
-    ComPtr<ID3D12CommandQueue> commandQueue;
-
-    Resolution resolution;
-
-#if defined(NATIVE_DEBUG)
-    D3D12MessageFunc debugCallback;
-    DWORD            callbackCookie{};
-#endif
+    Configuration            configuration;
+    std::unique_ptr<Context> context;
+    Resolution               resolution;
 
     std::unique_ptr<Uploader>    uploader = nullptr;
     Bag<std::unique_ptr<Object>> objects  = {};
@@ -158,10 +148,8 @@ private:
     CommandAllocatorGroup uploadGroup;
     CommandAllocatorGroup draw2dGroup;
 
-    DescriptorHeap                                  rtvHeap;
-    std::array<ComPtr<ID3D12Resource>, FRAME_COUNT> finalRenderTargets;
-    Allocation<ID3D12Resource>                      intermediateRenderTarget;
-    bool                                            intermediateRenderTargetInitialized = false;
+    Allocation<ID3D12Resource> intermediateRenderTarget;
+    bool                       intermediateRenderTargetInitialized = false;
 
     DescriptorHeap                                      dsvHeap;
     std::array<Allocation<ID3D12Resource>, FRAME_COUNT> finalDepthStencilBuffers;
@@ -173,26 +161,13 @@ private:
     bool                                                screenshotBuffersInitialized = false;
     std::optional<ScreenshotFunc>                       screenshotFunc               = std::nullopt;
 
-    UINT                            frameIndex = 0;
-    HANDLE                          fenceEvent = {};
-    ComPtr<ID3D12Fence>             fence;
-    std::array<UINT64, FRAME_COUNT> fenceValues = {0};
-
     bool windowVisible = true;
     bool windowedMode  = true;
 
-#if defined(USE_NSIGHT_AFTERMATH)
-    GpuCrashTracker::MarkerMap markerMap = {}; ShaderDatabase shaderDatabase = {}; GpuCrashTracker gpuCrashTracker;public: void SetUpCommandListForAftermath(
-        ComPtr<ID3D12GraphicsCommandList> const& commandList) const; void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);private:
-#endif
-
-    void CheckRaytracingSupport() const;
     void PopulateSpaceCommandList() const;
     void PopulatePostProcessingCommandList() const;
     void PopulateScreenshotCommandList() const;
 
-    void LoadDevice();
-    void InitializeFences();
     void LoadRasterPipeline();
     void CreateFinalDepthBuffers();
     void EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> commandList);
@@ -206,12 +181,3 @@ private:
 
     void HandleScreenshot();
 };
-
-#if defined(USE_NSIGHT_AFTERMATH)
-#define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult> result){(client).SetUpShaderForAftermath(result);} // NOLINT(bugprone-macro-parentheses)
-
-
-
-#else
-#define VG_SHADER_REGISTRY(client) [&client](ComPtr<IDxcResult>){(void)(client);} // NOLINT(bugprone-macro-parentheses)
-#endif

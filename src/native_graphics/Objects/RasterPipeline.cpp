@@ -74,7 +74,7 @@ namespace
             {
                 // No compute resources.
             },
-            client.GetDevice());
+            client.GetContext().GetD3D12Device());
 
         return {std::move(resources), std::move(bindings), input};
     }
@@ -109,7 +109,7 @@ namespace
             {
                 // No compute resources.
             },
-            client.GetDevice());
+            client.GetContext().GetD3D12Device());
 
         return {std::move(resources), std::move(bindings), input};
     }
@@ -282,7 +282,7 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(NativeClient& client, Ras
     ApplyDescriptionToPipeline(description, &psoDesc, &topology);
 
     ComPtr<ID3D12PipelineState> pipelineState;
-    TryDo(client.GetDevice()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
+    TryDo(client.GetContext().GetD3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
 
     PipelineConfiguration configuration = {description.shaderPreset, topology, CreateName(description)};
     PipelineObjects       objects       = {std::move(shaderBuffer), std::move(resources), std::move(bindings), pipelineState};

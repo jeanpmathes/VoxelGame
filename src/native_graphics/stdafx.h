@@ -28,6 +28,8 @@
 #include "pix3.h"
 
 #include <comdef.h>
+#include <d3d11.h>
+#include <d3d11on12.h>
 #include <dxgi1_6.h>
 
 // STD
@@ -103,6 +105,7 @@
 
 // General
 
+#include "Context.hpp"
 #include "DXApp.hpp"
 #include "native.hpp"
 #include "NativeClient.hpp"

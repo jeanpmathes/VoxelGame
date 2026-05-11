@@ -282,40 +282,6 @@ std::optional<DXApp::Cycle> DXApp::GetCycle() const
     return Cycle::WORKER;
 }
 
-ComPtr<IDXGIAdapter1> DXApp::GetHardwareAdapter(ComPtr<IDXGIFactory4> const& dxgiFactory, ComPtr<ID3D12DeviceFactory> const& deviceFactory, bool const requestHighPerformanceAdapter)
-{
-    ComPtr<IDXGIAdapter1> adapter;
-
-    ComPtr<IDXGIFactory6> factory6;
-    if (SUCCEEDED(dxgiFactory->QueryInterface(IID_PPV_ARGS(&factory6))))
-        for (UINT adapterIndex = 0; SUCCEEDED(
-                 factory6->EnumAdapterByGpuPreference( adapterIndex, requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE : DXGI_GPU_PREFERENCE_UNSPECIFIED,
-                     IID_PPV_ARGS(&adapter))); ++adapterIndex)
-        {
-            DXGI_ADAPTER_DESC1 desc;
-            TryDo(adapter->GetDesc1(&desc));
-
-            if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
-
-            ComPtr<ID3D12Device> uselessDevice;
-            if (SUCCEEDED(deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr))) break ;
-        }
-
-    if (adapter.Get() == nullptr)
-        for (UINT adapterIndex = 0; SUCCEEDED(dxgiFactory->EnumAdapters1(adapterIndex, &adapter)); ++adapterIndex)
-        {
-            DXGI_ADAPTER_DESC1 desc;
-            TryDo(adapter->GetDesc1(&desc));
-
-            if (desc.Flags & DXGI_ADAPTER_FLAG_SOFTWARE) continue;
-
-            ComPtr<ID3D12Device> uselessDevice;
-            if (SUCCEEDED(deviceFactory->CreateDevice(adapter.Get(), D3D_FEATURE_LEVEL_12_2, __uuidof(ID3D12Device), nullptr))) break ;
-        }
-
-    return adapter;
-}
-
 void DXApp::SetCustomWindowText(LPCWSTR const text) const
 {
     std::wstring const windowText = title + L": " + text;

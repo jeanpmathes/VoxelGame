@@ -31,8 +31,7 @@ NATIVE void NativeFinalize(NativeClient const* client)
         delete client;
 
 #if defined(NATIVE_DEBUG)
-        IDXGIDebug1* debug = nullptr;
-        if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
+        IDXGIDebug1* debug = nullptr; if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
         {
             HRESULT const result = debug->ReportLiveObjects(DXGI_DEBUG_ALL, DXGI_DEBUG_RLO_ALL);
             debug->Release();
@@ -80,11 +79,11 @@ NATIVE void NativePassAllocatorStatistics(NativeClient const* client, NativeWStr
         Require(CALL_ON_MAIN_THREAD(client));
 
         LPWSTR statistics;
-        client->GetAllocator()->BuildStatsString(&statistics, TRUE);
+        client->GetContext().GetAllocator()->BuildStatsString(&statistics, TRUE);
 
         receiver(statistics);
 
-        client->GetAllocator()->FreeStatsString(statistics);
+        client->GetContext().GetAllocator()->FreeStatsString(statistics);
     } CATCH();
 }
 
