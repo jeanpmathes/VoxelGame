@@ -15,6 +15,9 @@
 // ReSharper disable once CppUnusedIncludeDirective
 #include <wrl.h>
 
+#include <d2d1_3.h>
+#include <d3d11.h>
+
 using Microsoft::WRL::ComPtr;
 
 inline std::string HResultToString(HRESULT const hr) { return std::format("Error: (HRESULT) {:#x}", hr); }
@@ -136,18 +139,28 @@ inline std::wstring GetNameIndexed(LPCWSTR const name, UINT const index)
 
 inline void SetName(ComPtr<ID3D12Object> const& object, LPCWSTR const name) { TryDo(object->SetName(name)); }
 
+inline void SetName(ComPtr<ID3D11DeviceChild> const& object, LPCWSTR const name)
+{
+    TryDo(object->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(wcslen(name)) * sizeof(WCHAR), name));
+}
+
+inline void SetName(ComPtr<IDXGIObject> const& object, LPCWSTR const name)
+{
+    TryDo(object->SetPrivateData(WKPDID_D3DDebugObjectName, static_cast<UINT>(wcslen(name)) * sizeof(WCHAR), name));
+}
+
 // Naming helper for ComPtr<T>.
 // Assigns the name of the variable as the name of the object.
 // The indexed variant will include the index in the name of the object.
 
 // ReSharper disable CppInconsistentNaming
-#define NAME_D3D12_OBJECT(object) \
+#define NAME_DIRECT_OBJECT(object) \
     do { \
         if (!IS_DEBUG_BUILD) break; \
         SetName((object), L#object); \
     } while (false)
 
-#define NAME_D3D12_OBJECT_INDEXED(object, index) \
+#define NAME_DIRECT_OBJECT_INDEXED(object, index) \
     do { \
         if (!IS_DEBUG_BUILD) break; \
         SetName((object)[index], GetNameIndexed(L#object, index).c_str()); \

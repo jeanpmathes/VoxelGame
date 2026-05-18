@@ -6,7 +6,7 @@ ShaderBuffer::ShaderBuffer(NativeClient& client, UINT const bufferSize)
 {
     UINT64 alignedSize = bufferSize;
     constantBuffer     = util::AllocateConstantBuffer(GetClient(), &alignedSize);
-    NAME_D3D12_OBJECT_WITH_ID(constantBuffer);
+    NAME_DIRECT_OBJECT_WITH_ID(constantBuffer);
 
     Require(alignedSize <= UINT_MAX);
     size = static_cast<UINT>(alignedSize);

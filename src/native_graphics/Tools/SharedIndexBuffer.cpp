@@ -23,7 +23,7 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
             D3D12_RESOURCE_FLAG_NONE,
             D3D12_RESOURCE_STATE_GENERIC_READ,
             D3D12_HEAP_TYPE_UPLOAD);
-        NAME_D3D12_OBJECT(sharedIndexUpload);
+        NAME_DIRECT_OBJECT(sharedIndexUpload);
 
         UINT const availableQuadCount = sharedIndexCount / 6;
         for (UINT quad = availableQuadCount; quad < requiredQuadCount; quad++)
@@ -51,7 +51,7 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
             D3D12_RESOURCE_FLAG_NONE,
             D3D12_RESOURCE_STATE_COPY_DEST,
             D3D12_HEAP_TYPE_DEFAULT);
-        NAME_D3D12_OBJECT(sharedIndexBuffer);
+        NAME_DIRECT_OBJECT(sharedIndexBuffer);
 
         space.GetCommandList()->CopyBufferRegion(sharedIndexBuffer.Get(), 0, sharedIndexUpload.resource.Get(), 0, requiredIndexBufferSize);
 

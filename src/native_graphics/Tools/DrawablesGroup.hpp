@@ -78,7 +78,7 @@ public:
 
     /**
      * \brief Spool a number of drawables. This fills the internal pool with new drawables.
-     * @param count The number of drawables to spool.
+     * \param count The number of drawables to spool.
      */
     void Spool(UINT const count) { for (UINT i = 0; i < count; i++) pool.push_back(std::make_unique<D>(*client)); }
 

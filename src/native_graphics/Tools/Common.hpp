@@ -77,9 +77,9 @@ struct CommandAllocatorGroup
         CommandAllocatorGroup::Initialize(client, (group), type); \
         for (UINT frame = 0; frame < FRAME_COUNT; frame++) \
         { \
-            NAME_D3D12_OBJECT_INDEXED((group)->commandAllocators, frame); \
+            NAME_DIRECT_OBJECT_INDEXED((group)->commandAllocators, frame); \
         } \
-        NAME_D3D12_OBJECT((group)->commandList); \
+        NAME_DIRECT_OBJECT((group)->commandList); \
     } while (false)
 
 inline DirectX::XMMATRIX XMMatrixToNormal(DirectX::XMMATRIX const& matrix)

@@ -29,15 +29,15 @@ public enum Style : Byte
     /// <summary>
     ///     Normal text.
     /// </summary>
-    Normal,
+    Normal = 0,
 
     /// <summary>
     ///     Italic text.
     /// </summary>
-    Italic,
+    Italic = 1,
 
     /// <summary>
     ///     Oblique text.
     /// </summary>
-    Oblique
+    Oblique = 2
 }

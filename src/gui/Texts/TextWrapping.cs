@@ -29,10 +29,10 @@ public enum TextWrapping : Byte
     /// <summary>
     ///     Text does not wrap; it overflows beyond the layout bounds.
     /// </summary>
-    NoWrap,
+    NoWrap = 0,
 
     /// <summary>
     ///     Text wraps at word boundaries when it exceeds the layout width.
     /// </summary>
-    Wrap
+    Wrap = 1
 }

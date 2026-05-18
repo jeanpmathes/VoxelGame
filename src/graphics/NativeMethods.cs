@@ -24,9 +24,11 @@ using OpenTK.Mathematics;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Definition.UserInterface;
 using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Interop;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics;
@@ -151,4 +153,37 @@ internal static partial class NativeMethods
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeFreeTexture")]
     internal static partial void FreeTexture(Texture texture);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterface")]
+    internal static partial IntPtr CreateUserInterface(Client client, Int32 priority);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeFreeUserInterface")]
+    internal static partial void FreeUserInterface(Renderer renderer);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSubmitUserInterfaceCommands")]
+    internal static unsafe partial void SubmitUserInterfaceCommands(Renderer renderer, Command* commands, UInt32 commandCount);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceSolidColorBrush")]
+    internal static partial IntPtr CreateUserInterfaceSolidColorBrush(Renderer renderer, NativeColorF color);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeFreeUserInterfaceBrush")]
+    internal static partial void FreeUserInterfaceBrush(Brush brush);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceTextFormat")]
+    internal static partial IntPtr CreateUserInterfaceTextFormat(Renderer renderer, TextFormatDescription description);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeFreeUserInterfaceTextFormat")]
+    internal static partial void FreeUserInterfaceTextFormat(TextFormat format);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceText")]
+    internal static partial IntPtr CreateUserInterfaceText(
+        Renderer renderer,
+        [MarshalAs(UnmanagedType.LPWStr)] String text,
+        TextFormat format);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeFreeUserInterfaceText")]
+    internal static partial void FreeUserInterfaceText(Text text);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeMeasureUserInterfaceText")]
+    internal static partial NativeSizeF MeasureUserInterfaceText(Text text, NativeSizeF availableSize);
 }

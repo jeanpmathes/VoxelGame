@@ -32,7 +32,7 @@ class NativeClient;
     private: \
     constexpr static const wchar_t* const ClassName = L#name;
 // ReSharper disable once CppInconsistentNaming
-#define NAME_D3D12_OBJECT_WITH_ID(object) \
+#define NAME_DIRECT_OBJECT_WITH_ID(object) \
     do \
     { \
         if (!IS_DEBUG_BUILD) break; \
@@ -45,7 +45,7 @@ class NativeClient;
     } while (false)
 
 // ReSharper disable once CppInconsistentNaming
-#define NAME_D3D12_OBJECT_INDEXED_WITH_ID(objects, index) \
+#define NAME_DIRECT_OBJECT_INDEXED_WITH_ID(objects, index) \
     do \
     { \
         if (!IS_DEBUG_BUILD) break; \

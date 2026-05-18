@@ -29,45 +29,45 @@ public enum Stretch : Byte
     /// <summary>
     ///     The font is ultra-condensed.
     /// </summary>
-    UltraCondensed,
+    UltraCondensed = 0,
 
     /// <summary>
     ///     The font is extra-condensed.
     /// </summary>
-    ExtraCondensed,
+    ExtraCondensed = 1,
 
     /// <summary>
     ///     The font is condensed.
     /// </summary>
-    Condensed,
+    Condensed = 2,
 
     /// <summary>
     ///     The font is semi-condensed.
     /// </summary>
-    SemiCondensed,
+    SemiCondensed = 3,
 
     /// <summary>
     ///     The font is normal (not condensed or expanded).
     /// </summary>
-    Normal,
+    Normal = 4,
 
     /// <summary>
     ///     The font is semi-expanded.
     /// </summary>
-    SemiExpanded,
+    SemiExpanded = 5,
 
     /// <summary>
     ///     The font is expanded.
     /// </summary>
-    Expanded,
+    Expanded = 6,
 
     /// <summary>
     ///     The font is extra-expanded.
     /// </summary>
-    ExtraExpanded,
+    ExtraExpanded = 7,
 
     /// <summary>
     ///     The font is ultra-expanded.
     /// </summary>
-    UltraExpanded
+    UltraExpanded = 8
 }

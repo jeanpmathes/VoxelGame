@@ -48,7 +48,7 @@ namespace
         auto const state = requiresUpload ? UPLOAD_STATE : USABLE_STATE;
 
         Allocation<ID3D12Resource> texture = util::AllocateResource<ID3D12Resource>(client, textureDescription, D3D12_HEAP_TYPE_DEFAULT, state);
-        NAME_D3D12_OBJECT(texture);
+        NAME_DIRECT_OBJECT(texture);
 
         if (srv != nullptr)
         {
@@ -104,7 +104,7 @@ Texture::Texture(NativeClient& client, Allocation<ID3D12Resource> const& resourc
     : Object(client)
   , resource(resource)
   , srvDesc(srvDesc)
-  , size(size) { NAME_D3D12_OBJECT_WITH_ID(resource); }
+  , size(size) { NAME_DIRECT_OBJECT_WITH_ID(resource); }
 
 void Texture::Free() const { GetClient().DeleteObject(handle); }
 

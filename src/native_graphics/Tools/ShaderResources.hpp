@@ -433,11 +433,11 @@ public:
 
         graphicsRootSignature  = graphicsDesc.GenerateRootSignature(device);
         graphicsRootParameters = std::move(graphicsDesc.rootParameters);
-        NAME_D3D12_OBJECT(graphicsRootSignature);
+        NAME_DIRECT_OBJECT(graphicsRootSignature);
 
         computeRootSignature  = computeDesc.GenerateRootSignature(device);
         computeRootParameters = std::move(computeDesc.rootParameters);
-        NAME_D3D12_OBJECT(computeRootSignature);
+        NAME_DIRECT_OBJECT(computeRootSignature);
 
         auto initializeConstants = [&](std::vector<RootParameter>& rootParameters, std::vector<std::function<Value32()>>&& getters, QueueType const queue)
         {
@@ -481,7 +481,7 @@ public:
                     tableData.internalOffsets = std::move(internalOffsets[tableIndex]);
                     tableData.externalOffset  = *externalOffset;
 
-                    NAME_D3D12_OBJECT(tableData.heap);
+                    NAME_DIRECT_OBJECT(tableData.heap);
 
                     *externalOffset += size;
                     tableIndex++;

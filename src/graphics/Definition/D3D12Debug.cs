@@ -70,6 +70,8 @@ internal sealed class D3D12Debug
         Native.D3D12_MESSAGE_ID id,
         Byte* messagePointer, IntPtr context)
     {
+        if (id == Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_CREATERESOURCE_STATE_IGNORED) return;
+
         LogLevel level = GetLevel(severity);
         String categoryName = ResolveCategory(category);
         (String idResolved, Int32 eventId) = ResolveEvent(id);

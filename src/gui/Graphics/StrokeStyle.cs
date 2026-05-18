@@ -17,31 +17,33 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+
 namespace VoxelGame.GUI.Graphics;
 
 /// <summary>
-///     The style of a stroke, for example the line around a border.
+///     The style of a stroke, for example, the line around a border.
 /// </summary>
-public enum StrokeStyle
+public enum StrokeStyle : Byte
 {
     /// <summary>
     ///     A solid stroke. The default stroke.
     /// </summary>
-    Solid,
+    Solid = 0,
 
     /// <summary>
     ///     A dashed stroke.
     /// </summary>
-    Dashes,
+    Dashes = 1,
 
     /// <summary>
     ///     A squared stroke, consisting of many squares.
     ///     Essentially like <see cref="Dotted" />, but not round.
     /// </summary>
-    Squared,
+    Squared = 2,
 
     /// <summary>
     ///     A dotted stroke, using round markers.
     /// </summary>
-    Dotted
+    Dotted = 3
 }

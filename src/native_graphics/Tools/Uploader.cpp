@@ -8,10 +8,10 @@ Uploader::Uploader(NativeClient& client, ComPtr<ID3D12GraphicsCommandList> const
     if (ownsCommandList)
     {
         TryDo(GetDevice()->CreateCommandAllocator(D3D12_COMMAND_LIST_TYPE_DIRECT, IID_PPV_ARGS(&commandAllocator)));
-        NAME_D3D12_OBJECT(commandAllocator);
+        NAME_DIRECT_OBJECT(commandAllocator);
 
         TryDo(GetDevice()->CreateCommandList(0, D3D12_COMMAND_LIST_TYPE_DIRECT, commandAllocator.Get(), nullptr, IID_PPV_ARGS(&commandList)));
-        NAME_D3D12_OBJECT(commandList);
+        NAME_DIRECT_OBJECT(commandList);
 
 #ifdef USE_NSIGHT_AFTERMATH
         client.GetContext().SetUpCommandListForAftermath(commandList);
@@ -30,7 +30,7 @@ void Uploader::UploadTexture(std::byte** data, TextureDescription const& descrip
         D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ,
         D3D12_HEAP_TYPE_UPLOAD);
-    NAME_D3D12_OBJECT(textureUploadBuffer);
+    NAME_DIRECT_OBJECT(textureUploadBuffer);
 
     uploadBuffers.push_back(textureUploadBuffer);
 
@@ -66,7 +66,7 @@ void Uploader::UploadBuffer(std::byte const* data, UINT const size, Allocation<I
         D3D12_RESOURCE_FLAG_NONE,
         D3D12_RESOURCE_STATE_GENERIC_READ,
         D3D12_HEAP_TYPE_UPLOAD);
-    NAME_D3D12_OBJECT(normalUploadBuffer);
+    NAME_DIRECT_OBJECT(normalUploadBuffer);
 
     uploadBuffers.push_back(normalUploadBuffer);
 

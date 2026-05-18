@@ -497,10 +497,10 @@ void ShaderResources::PerformSizeUpdate(UINT const firstResizedListIndex, UINT c
     UINT const totalDescriptorCount = totalTableDescriptorCount + totalListDescriptorCount;
 
     cpuDescriptorHeap.Create(device, totalDescriptorCount, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, false, true);
-    NAME_D3D12_OBJECT(cpuDescriptorHeap);
+    NAME_DIRECT_OBJECT(cpuDescriptorHeap);
 
     gpuDescriptorHeap.Create(device, totalDescriptorCount, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true, false);
-    NAME_D3D12_OBJECT(gpuDescriptorHeap);
+    NAME_DIRECT_OBJECT(gpuDescriptorHeap);
 
     for (auto const& table : descriptorTables) table.parameter->gpuHandle = gpuDescriptorHeap.GetDescriptorHandleGPU(table.externalOffset);
 

@@ -7,7 +7,7 @@ Mesh::Mesh(NativeClient& client)
 
     instanceDataBufferAlignedSize = sizeof MeshDataBuffer;
     instanceDataBuffer            = util::AllocateConstantBuffer(GetClient(), &instanceDataBufferAlignedSize);
-    NAME_D3D12_OBJECT_WITH_ID(instanceDataBuffer);
+    NAME_DIRECT_OBJECT_WITH_ID(instanceDataBuffer);
 
     instanceDataBufferView.BufferLocation = instanceDataBuffer.GetGPUVirtualAddress();
     instanceDataBufferView.SizeInBytes    = static_cast<UINT>(instanceDataBufferAlignedSize);
@@ -69,7 +69,7 @@ void Mesh::SetNewVertices(SpatialVertex const* vertices, UINT const vertexCount)
 
     auto const vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
     util::ReAllocateBuffer(&GetUploadDataBuffer(), GetClient(), vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
-    NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
+    NAME_DIRECT_OBJECT_WITH_ID(GetUploadDataBuffer());
 
     TryDo(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
 }
@@ -87,7 +87,7 @@ void Mesh::SetNewBounds(SpatialBounds const* bounds, UINT const boundsCount)
 
     auto const vertexBufferSize = sizeof(SpatialBounds) * boundsCount;
     util::ReAllocateBuffer(&GetUploadDataBuffer(), GetClient(), vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
-    NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
+    NAME_DIRECT_OBJECT_WITH_ID(GetUploadDataBuffer());
 
     TryDo(util::MapAndWrite(GetUploadDataBuffer(), bounds, boundsCount));
 }
@@ -179,7 +179,7 @@ void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, st
     auto const geometryBufferSize = GetUploadDataBuffer().resource->GetDesc().Width;
 
     util::ReAllocateBuffer(&sourceGeometryBuffer, GetClient(), geometryBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_HEAP_TYPE_DEFAULT);
-    NAME_D3D12_OBJECT_WITH_ID(sourceGeometryBuffer);
+    NAME_DIRECT_OBJECT_WITH_ID(sourceGeometryBuffer);
 
     if (GetMaterial().IsAnimated())
     {
@@ -198,7 +198,7 @@ void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, st
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
             requiresCopy ? destState : srvState,
             D3D12_HEAP_TYPE_DEFAULT);
-        NAME_D3D12_OBJECT_WITH_ID(destinationGeometryBuffer);
+        NAME_DIRECT_OBJECT_WITH_ID(destinationGeometryBuffer);
 
         if (requiresCopy)
         {
@@ -293,8 +293,8 @@ void Mesh::CreateBottomLevelAS(ComPtr<ID3D12GraphicsCommandList4> const& command
 
         blas = GetClient().GetSpace()->AllocateBLAS(resultSizeInBytes, scratchSizeInBytes);
 
-        NAME_D3D12_OBJECT_WITH_ID(blas.scratch);
-        NAME_D3D12_OBJECT_WITH_ID(blas.result);
+        NAME_DIRECT_OBJECT_WITH_ID(blas.scratch);
+        NAME_DIRECT_OBJECT_WITH_ID(blas.result);
 
         updateOnly     = false;
         previousResult = 0;

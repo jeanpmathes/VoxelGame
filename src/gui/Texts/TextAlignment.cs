@@ -29,20 +29,20 @@ public enum TextAlignment : Byte
     /// <summary>
     ///     Text is aligned to the leading edge (left in left-to-right layouts).
     /// </summary>
-    Leading,
+    Leading = 0,
 
     /// <summary>
     ///     Text is centered within the layout bounds.
     /// </summary>
-    Center,
+    Center = 1,
 
     /// <summary>
     ///     Text is aligned to the trailing edge (right in left-to-right layouts).
     /// </summary>
-    Trailing,
+    Trailing = 2,
 
     /// <summary>
     ///     Text is justified to fill the full width of the layout bounds.
     /// </summary>
-    Justify
+    Justify = 3
 }

@@ -318,7 +318,7 @@ RasterPipeline::RasterPipeline(NativeClient& client, PipelineConfiguration confi
   , resources(std::move(objects.resources))
   , bindings(std::move(objects.bindings))
   , pipelineState(std::move(objects.pipelineState))
-  , shaderBuffer(std::move(objects.shaderBuffer)) { NAME_D3D12_OBJECT_WITH_ID(pipelineState); }
+  , shaderBuffer(std::move(objects.shaderBuffer)) { NAME_DIRECT_OBJECT_WITH_ID(pipelineState); }
 
 void RasterPipeline::SetPipeline(ComPtr<ID3D12GraphicsCommandList4> commandList) const
 {

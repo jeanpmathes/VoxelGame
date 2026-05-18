@@ -12,7 +12,7 @@ AddressableBuffer InBufferAllocator::Allocate(UINT64 const size)
     if (pix || size > MAX_SHARED_SIZE)
     {
         auto buffer = AllocateMemory(size);
-        NAME_D3D12_OBJECT(buffer.resource);
+        NAME_DIRECT_OBJECT(buffer.resource);
         return AddressableBuffer(std::move(buffer));
     }
 
@@ -84,7 +84,7 @@ std::unique_ptr<InBufferAllocator::Block> InBufferAllocator::Block::Create(InBuf
     TryDo(CreateVirtualBlock(&allocator.blockDescription, &block));
 
     Allocation<ID3D12Resource> memory = allocator.AllocateMemory(BLOCK_SIZE);
-    NAME_D3D12_OBJECT(memory.resource);
+    NAME_DIRECT_OBJECT(memory.resource);
 
     return std::make_unique<Block>(block, std::move(memory), &allocator, index);
 }

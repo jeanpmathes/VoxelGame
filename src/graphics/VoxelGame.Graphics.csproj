@@ -55,6 +55,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\core\VoxelGame.Core.csproj"/>
+        <ProjectReference Include="..\gui\VoxelGame.GUI.csproj"/>
         <ProjectReference Include="..\logging\VoxelGame.Logging.csproj"/>
         <ProjectReference Include="..\native_graphics\NativeGraphics.vcxproj">
             <ReferenceOutputAssembly>false</ReferenceOutputAssembly>

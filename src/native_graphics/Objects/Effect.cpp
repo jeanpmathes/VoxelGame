@@ -5,7 +5,7 @@ Effect::Effect(NativeClient& client)
 {
     instanceConstantDataBufferAlignedSize = sizeof EffectDataBuffer;
     instanceConstantDataBuffer            = util::AllocateConstantBuffer(GetClient(), &instanceConstantDataBufferAlignedSize);
-    NAME_D3D12_OBJECT_WITH_ID(instanceConstantDataBuffer);
+    NAME_DIRECT_OBJECT_WITH_ID(instanceConstantDataBuffer);
 
     instanceConstantDataBufferView.BufferLocation = instanceConstantDataBuffer.GetGPUVirtualAddress();
     instanceConstantDataBufferView.SizeInBytes    = static_cast<UINT>(instanceConstantDataBufferAlignedSize);
@@ -44,7 +44,7 @@ void Effect::SetNewVertices(EffectVertex const* vertices, UINT const vertexCount
 
     auto const vertexBufferSize = sizeof(SpatialVertex) * vertexCount;
     util::ReAllocateBuffer(&GetUploadDataBuffer(), GetClient(), vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
-    NAME_D3D12_OBJECT_WITH_ID(GetUploadDataBuffer());
+    NAME_DIRECT_OBJECT_WITH_ID(GetUploadDataBuffer());
 
     TryDo(util::MapAndWrite(GetUploadDataBuffer(), vertices, vertexCount));
 }
@@ -80,7 +80,7 @@ void Effect::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, 
     auto const geometryBufferSize = GetUploadDataBuffer().resource->GetDesc().Width;
 
     util::ReAllocateBuffer(&geometryBuffer, GetClient(), geometryBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_HEAP_TYPE_DEFAULT);
-    NAME_D3D12_OBJECT_WITH_ID(geometryBuffer);
+    NAME_DIRECT_OBJECT_WITH_ID(geometryBuffer);
 
     commandList->CopyBufferRegion(geometryBuffer.Get(), 0, GetUploadDataBuffer().Get(), 0, geometryBufferSize);
 

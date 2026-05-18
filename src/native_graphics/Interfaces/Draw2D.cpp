@@ -15,7 +15,7 @@ draw2d::Pipeline::Pipeline(NativeClient& hostClient, RasterPipeline* raster, UIN
         UINT64 alignedSize = size;
 
         Allocation<ID3D12Resource> const booleanConstantBuffer = util::AllocateConstantBuffer(*client, &alignedSize);
-        NAME_D3D12_OBJECT(booleanConstantBuffer);
+        NAME_DIRECT_OBJECT(booleanConstantBuffer);
 
         this->cbuffers.push_back(booleanConstantBuffer);
         this->constantBufferViews.push_back({booleanConstantBuffer.GetGPUVirtualAddress(), static_cast<UINT>(alignedSize)});
@@ -66,12 +66,12 @@ void draw2d::Pipeline::PopulateCommandList(ComPtr<ID3D12GraphicsCommandList4> co
             UINT const vertexBufferSize = vertexCount * sizeof(Vertex);
 
             util::ReAllocateBuffer(&ctx->uploadBuffer, *ctx->client, vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
-            NAME_D3D12_OBJECT(ctx->uploadBuffer);
+            NAME_DIRECT_OBJECT(ctx->uploadBuffer);
 
             TryDo(util::MapAndWrite(ctx->uploadBuffer, vertices, vertexCount));
 
             util::ReAllocateBuffer(&ctx->vertexBuffer, *ctx->client, vertexBufferSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COMMON, D3D12_HEAP_TYPE_DEFAULT);
-            NAME_D3D12_OBJECT(ctx->vertexBuffer);
+            NAME_DIRECT_OBJECT(ctx->vertexBuffer);
 
             auto transition = CD3DX12_RESOURCE_BARRIER::Transition(ctx->vertexBuffer.Get(), D3D12_RESOURCE_STATE_COMMON, D3D12_RESOURCE_STATE_COPY_DEST);
             ctx->currentCommandList->ResourceBarrier(1, &transition);

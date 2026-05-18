@@ -9,7 +9,7 @@ void Camera::Initialize()
 {
     spaceCameraBufferSize = sizeof(CameraParametersBuffer);
     spaceCameraBuffer     = util::AllocateConstantBuffer(GetClient(), &spaceCameraBufferSize);
-    NAME_D3D12_OBJECT(spaceCameraBuffer);
+    NAME_DIRECT_OBJECT(spaceCameraBuffer);
 
     TryDo(spaceCameraBuffer.Map(&spaceCameraBufferMapping, 1));
 }

@@ -28,8 +28,10 @@
 #include "pix3.h"
 
 #include <comdef.h>
+#include <d2d1_3.h>
 #include <d3d11.h>
 #include <d3d11on12.h>
+#include <dwrite.h>
 #include <dxgi1_6.h>
 
 // STD
@@ -48,10 +50,12 @@
 #include <memory>
 #include <mutex>
 #include <numbers>
+#include <optional>
 #include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -128,6 +132,21 @@
 // Interfaces
 
 #include "Interfaces/Draw2D.hpp"
+
+// UserInterface
+
+#include "UserInterface/Commands.hpp"
+#include "UserInterface/Context.hpp"
+#include "UserInterface/Definitions.hpp"
+#include "UserInterface/Objects/Brush.hpp"
+#include "UserInterface/Objects/Renderer.hpp"
+#include "UserInterface/Objects/Text.hpp"
+#include "UserInterface/Objects/TextFormat.hpp"
+#include "UserInterface/Tools/BrushSupport.hpp"
+#include "UserInterface/Tools/State.hpp"
+#include "UserInterface/Tools/StrokeSupport.hpp"
+#include "UserInterface/Tools/TextFormatSupport.hpp"
+#include "UserInterface/Tools/TextSupport.hpp"
 
 #ifdef NATIVE_DEBUG
 #include <dxgidebug.h>

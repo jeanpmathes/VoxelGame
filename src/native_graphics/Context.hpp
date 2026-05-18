@@ -8,10 +8,15 @@
 
 class NativeClient;
 
+namespace ui
+{
+    class Context;
+}
+
 class Context final
 {
 public:
-    Context(NativeClient& client, LPWSTR applicationName, LPWSTR applicationVersion);
+    Context(NativeClient& client, Configuration const& configuration, UINT width, UINT height);
     ~Context();
 
     Context(Context const&)            = delete;
@@ -19,10 +24,8 @@ public:
     Context& operator=(Context const&) = delete;
     Context& operator=(Context&&)      = delete;
 
-    void LoadDevice(Configuration const& configuration);
-    void CreateSwapChain(UINT width, UINT height);
-    void CreateSizeDependentResources();
-    void ResizeSwapChain(UINT width, UINT height);
+    void OnResize(UINT width, UINT height);
+
     void MoveToNextFrame();
     void WaitForGPU();
 
@@ -36,6 +39,8 @@ public:
     [[nodiscard]] ComPtr<ID3D12Resource>      GetFinalRenderTarget(UINT frame) const;
     [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetFinalRenderTargetView(UINT frame) const;
     [[nodiscard]] D3D12_CPU_DESCRIPTOR_HANDLE GetIntermediateRenderTargetView() const;
+
+    [[nodiscard]] ui::Context& GetUserInterfaceContext() const;
 
     [[nodiscard]] ComPtr<ID3D11On12Device>    GetD3D11On12Device() const;
     [[nodiscard]] ComPtr<ID3D11Device>        GetD3D11Device() const;
@@ -56,9 +61,11 @@ private:
     DescriptorHeap                                  rtvHeap;
     std::array<ComPtr<ID3D12Resource>, FRAME_COUNT> finalRenderTargets;
 
-    ComPtr<ID3D11On12Device>    d3d11On12Device;
-    ComPtr<ID3D11Device>        d3d11Device;
-    ComPtr<ID3D11DeviceContext> d3d11DeviceContext;
+    ComPtr<ID3D11On12Device>    direct3D11On12Device;
+    ComPtr<ID3D11Device>        direct3D11Device;
+    ComPtr<ID3D11DeviceContext> direct3D11DeviceContext;
+
+    std::unique_ptr<ui::Context> userInterfaceContext;
 
     UINT                            frameIndex = 0;
     HANDLE                          fenceEvent = {};
@@ -66,24 +73,20 @@ private:
     std::array<UINT64, FRAME_COUNT> fenceValues = {0};
 
 #ifdef NATIVE_DEBUG
-    D3D12MessageFunc debugCallback; DWORD callbackCookie{};
+    D3D12MessageFunc debugCallback;
+    DWORD            callbackCookie{};
 #endif
 
 #ifdef USE_NSIGHT_AFTERMATH
-    GpuCrashTracker::MarkerMap markerMap      = {};
-    ShaderDatabase             shaderDatabase = {};
-    GpuCrashTracker            gpuCrashTracker;
-
-public:
-    void InitializeGpuCrashTracker();
-    void InitializeAftermath() const;
-    void SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
-    void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);
-
-private:
+    GpuCrashTracker::MarkerMap        markerMap = {}; ShaderDatabase shaderDatabase = {}; GpuCrashTracker gpuCrashTracker;public: void InitializeGpuCrashTracker(); void
+    InitializeAftermath() const; void SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const; void SetUpShaderForAftermath(
+        ComPtr<IDxcResult> const& result);private:
 #endif
 
-    void InitializeFences();
+    void CreateDevice(Configuration const& configuration);
+    void CreateSwapChain(UINT width, UINT height);
+    void CreateSizeDependentResources();
+    void CreateFences();
     void CreateD3D11On12Device();
     void CheckRaytracingSupport() const;
 };

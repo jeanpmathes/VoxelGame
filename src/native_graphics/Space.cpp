@@ -26,7 +26,7 @@ void Space::PerformInitialSetupStepOne(ComPtr<ID3D12CommandQueue> const& command
     std::array<ID3D12CommandList*, 1> const commandLists = {GetCommandList().Get()};
     commandQueue->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
 
-    client->WaitForGPU();
+    client->GetContext().WaitForGPU();
 
     camera.Initialize();
 
@@ -188,7 +188,7 @@ void Space::CreateGlobalConstBuffer()
 {
     globalConstantBufferSize = sizeof(GlobalBuffer);
     globalConstantBuffer     = util::AllocateConstantBuffer(*client, &globalConstantBufferSize);
-    NAME_D3D12_OBJECT(globalConstantBuffer);
+    NAME_DIRECT_OBJECT(globalConstantBuffer);
 
     TryDo(globalConstantBuffer.Map(&globalConstantBufferMapping, 1));
 
@@ -259,10 +259,10 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     if (!ok) return false;
 
     rayGenSignature = CreateRayGenSignature();
-    NAME_D3D12_OBJECT(rayGenSignature);
+    NAME_DIRECT_OBJECT(rayGenSignature);
 
     missSignature = CreateMissSignature();
-    NAME_D3D12_OBJECT(missSignature);
+    NAME_DIRECT_OBJECT(missSignature);
 
     for (UINT index = 0; index < pipelineDescription.materialCount; index++) materials.push_back(SetUpMaterial(pipelineDescription.materials[index], index, pipeline));
 
@@ -300,8 +300,8 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
         },
         GetDevice());
 
-    NAME_D3D12_OBJECT(globalShaderResources->GetComputeRootSignature());
-    NAME_D3D12_OBJECT(globalShaderResources->GetGraphicsRootSignature());
+    NAME_DIRECT_OBJECT(globalShaderResources->GetComputeRootSignature());
+    NAME_DIRECT_OBJECT(globalShaderResources->GetGraphicsRootSignature());
 
     InitializeAnimations();
 
@@ -310,7 +310,7 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     pipeline.SetMaxRecursionDepth(2);
 
     rtStateObject = pipeline.Generate(globalShaderResources->GetComputeRootSignature());
-    NAME_D3D12_OBJECT(rtStateObject);
+    NAME_DIRECT_OBJECT(rtStateObject);
 
     TryDo(rtStateObject->QueryInterface(IID_PPV_ARGS(&rtStateObjectProperties)));
 
@@ -411,15 +411,16 @@ std::unique_ptr<Material> Space::SetUpMaterial(MaterialDescription const& descri
 
     UINT64 materialConstantBufferSize = sizeof MaterialBuffer;
     material->materialConstantBuffer  = util::AllocateConstantBuffer(*client, &materialConstantBufferSize);
-    NAME_D3D12_OBJECT(material->materialConstantBuffer);
+    NAME_DIRECT_OBJECT(material->materialConstantBuffer);
 
     MaterialBuffer const materialConstantBufferData = {.index = index};
     TryDo(util::MapAndWrite(material->materialConstantBuffer, materialConstantBufferData));
 
-#if defined(NATIVE_DEBUG)
+#ifdef NATIVE_DEBUG
     std::wstring const debugName = description.name;
     // DirectX seems to return the same pointer for both signatures, so naming them is not very useful.
-    TryDo(material->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str())); TryDo(material->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
+    TryDo(material->normalRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
+    TryDo(material->shadowRootSignature->SetName((L"RT Material RS " + debugName).c_str()));
 #endif
 
     return material;
@@ -518,7 +519,7 @@ void Space::CreateRaytracingOutputBuffer()
     colorOutputDescription.SampleDesc.Count = 1;
 
     colorOutput = util::AllocateResource<ID3D12Resource>(*client, colorOutputDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    NAME_D3D12_OBJECT(colorOutput);
+    NAME_DIRECT_OBJECT(colorOutput);
 
     depthOutputDescription.DepthOrArraySize = 1;
     depthOutputDescription.Dimension        = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
@@ -532,7 +533,7 @@ void Space::CreateRaytracingOutputBuffer()
     depthOutputDescription.SampleDesc.Count = 1;
 
     depthOutput = util::AllocateResource<ID3D12Resource>(*client, depthOutputDescription, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
-    NAME_D3D12_OBJECT(depthOutput);
+    NAME_DIRECT_OBJECT(depthOutput);
 
     outputResourcesFresh = true;
     UpdateOutputResourceViews();
@@ -580,7 +581,7 @@ void Space::CreateShaderBindingTable()
     uint32_t const sbtSize = sbtHelper.ComputeSBTSize();
 
     util::ReAllocateBuffer(&sbtStorage, *client, sbtSize, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_GENERIC_READ, D3D12_HEAP_TYPE_UPLOAD);
-    NAME_D3D12_OBJECT(sbtStorage);
+    NAME_DIRECT_OBJECT(sbtStorage);
 
     sbtHelper.Generate(sbtStorage.Get(), rtStateObjectProperties.Get());
 }
@@ -658,9 +659,9 @@ void Space::CreateTLAS()
         D3D12_HEAP_TYPE_UPLOAD,
         committed);
 
-    NAME_D3D12_OBJECT(topLevelASBuffers.scratch);
-    NAME_D3D12_OBJECT(topLevelASBuffers.result);
-    NAME_D3D12_OBJECT(topLevelASBuffers.instanceDescription);
+    NAME_DIRECT_OBJECT(topLevelASBuffers.scratch);
+    NAME_DIRECT_OBJECT(topLevelASBuffers.result);
+    NAME_DIRECT_OBJECT(topLevelASBuffers.instanceDescription);
 
     tlasGenerator.Generate(GetCommandList().Get(), topLevelASBuffers.scratch, topLevelASBuffers.result, topLevelASBuffers.instanceDescription);
 }

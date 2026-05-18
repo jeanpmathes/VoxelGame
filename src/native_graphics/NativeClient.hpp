@@ -24,6 +24,11 @@ class Context;
 class RasterPipeline;
 class Texture;
 
+namespace ui
+{
+    class Renderer;
+}
+
 using ScreenshotFunc = void(*)(std::byte*, UINT, UINT);
 
 class NativeClient final : public DXApp
@@ -75,24 +80,37 @@ public:
     void AddRasterPipeline(std::unique_ptr<RasterPipeline> pipeline);
 
     /**
-     * Set the pipeline that will be used for post processing.
+     * Set the pipeline that will be used for post-processing.
      */
     void SetPostProcessingPipeline(RasterPipeline* pipeline);
 
     /**
-     * \brief Add a draw2d pipeline to the client.
+     * \brief Add a draw2D pipeline to the client.
      * \param pipeline The pipeline to add. Must use the DRAW_2D preset.
      * \param priority The priority of the pipeline. Higher priorities are drawn later, and thus on top of lower priorities.
-     * \param callback The associated callback will be called every frame, after the post processing pipeline.
+     * \param callback The associated callback will be called every frame after the post-processing pipeline.
      * \return The ID of the pipeline. Can be used to remove it later.
      */
     UINT AddDraw2DPipeline(RasterPipeline* pipeline, INT priority, draw2d::Callback callback);
 
     /**
-     * \brief Remove a draw2d pipeline from the client.
+     * \brief Remove a draw2D pipeline from the client.
      * \param id The ID of the pipeline to remove.
      */
     void RemoveDraw2DPipeline(UINT id);
+
+    /**
+     * \brief Create and register a user-interface renderer.
+     * \param priority The render priority of the user interface. Higher priorities are drawn later, and thus on top of lower priorities.
+     * \returns The created user-interface renderer.
+     */
+    ui::Renderer* CreateUserInterface(INT priority);
+
+    /**
+     * \brief Remove and destroy a user-interface renderer.
+     * \param renderer The renderer to free.
+     */
+    void FreeUserInterface(ui::Renderer* renderer);
 
     void CreatePostProcessingShaderResourceViews() const;
 
@@ -100,9 +118,6 @@ public:
 
     ObjectHandle StoreObject(std::unique_ptr<Object> object);
     void         DeleteObject(ObjectHandle handle);
-
-    void WaitForGPU();
-    void MoveToNextFrame();
 
     [[nodiscard]] std::wstring GetDRED() const;
 
@@ -119,6 +134,8 @@ private:
     Configuration            configuration;
     std::unique_ptr<Context> context;
     Resolution               resolution;
+
+    std::list<std::unique_ptr<ui::Renderer>> userInterfaces;
 
     std::unique_ptr<Uploader>    uploader = nullptr;
     Bag<std::unique_ptr<Object>> objects  = {};
@@ -146,7 +163,8 @@ private:
     UINT                                                nextDraw2dPipelineID   = 0;
 
     CommandAllocatorGroup uploadGroup;
-    CommandAllocatorGroup draw2dGroup;
+    CommandAllocatorGroup draw2DGroup;
+    CommandAllocatorGroup screenshotGroup;
 
     Allocation<ID3D12Resource> intermediateRenderTarget;
     bool                       intermediateRenderTargetInitialized = false;
@@ -159,7 +177,7 @@ private:
 
     std::array<Allocation<ID3D12Resource>, FRAME_COUNT> screenshotBuffers;
     bool                                                screenshotBuffersInitialized = false;
-    std::optional<ScreenshotFunc>                       screenshotFunc               = std::nullopt;
+    std::optional<ScreenshotFunc>                       screenshotFunction           = std::nullopt;
 
     bool windowVisible = true;
     bool windowedMode  = true;
@@ -176,8 +194,9 @@ private:
     void SetUpSizeDependentResources();
     void SetUpSpaceResolutionDependentResources();
     void EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsCommandList4> commandList);
-    void PopulateCommandLists();
+    void PopulateRenderingCommandLists();
     void UpdatePostViewAndScissor();
+    void RenderUserInterfaces();
 
     void HandleScreenshot();
 };
