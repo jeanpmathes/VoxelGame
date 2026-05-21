@@ -101,6 +101,8 @@ void DXApp::Update(CycleFlags const flags, bool const timer)
 
 void DXApp::Init()
 {
+    cycle = Cycle::INITIALIZATION;
+
     mouseCursors = LoadAllCursors();
 
     OnPreInitialization();
@@ -117,6 +119,8 @@ void DXApp::Init()
     renderTimer.SetFixedTimeStep(false);
 
     OnInitializationComplete();
+
+    cycle = std::nullopt;
 }
 
 void DXApp::Update(StepTimer const& timer)
@@ -153,8 +157,12 @@ void DXApp::RenderUpdate(StepTimer const& timer)
 
 void DXApp::Destroy()
 {
+    cycle = Cycle::DESTROY;
+
     OnDestroy();
     configuration.onDestroy();
+
+    cycle = std::nullopt;
 }
 
 bool DXApp::CanClose() const { return configuration.canClose(); }

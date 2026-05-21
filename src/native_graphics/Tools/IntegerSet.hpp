@@ -261,10 +261,11 @@ void IntegerSet<I>::const_iterator::Advance()
     if (inDataIndex == BINARY_DATA_BITS) std::tie(inDataIndex, dataIterator) = std::make_tuple(0, std::next(dataIterator));
 
     // Then search for the next data unit that has a bit set that is not read yet.
-    while (dataIterator != dataEnd && *dataIterator >> inDataIndex == 0) std::tie(dataIterator, inDataIndex, totalIndex) = std::make_tuple(
-        std::next(dataIterator),
-        0,
-        totalIndex + (BINARY_DATA_BITS - inDataIndex));
+    while (dataIterator != dataEnd && *dataIterator >> inDataIndex == 0)
+        std::tie(dataIterator, inDataIndex, totalIndex) = std::make_tuple(
+                                                                          std::next(dataIterator),
+                                                                          0,
+                                                                          totalIndex + (BINARY_DATA_BITS - inDataIndex));
 
     if (dataIterator == dataEnd) return;
 

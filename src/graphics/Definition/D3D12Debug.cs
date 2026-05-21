@@ -70,8 +70,6 @@ internal sealed class D3D12Debug
         Native.D3D12_MESSAGE_ID id,
         Byte* messagePointer, IntPtr context)
     {
-        if (id == Native.D3D12_MESSAGE_ID.D3D12_MESSAGE_ID_CREATERESOURCE_STATE_IGNORED) return;
-
         LogLevel level = GetLevel(severity);
         String categoryName = ResolveCategory(category);
         (String idResolved, Int32 eventId) = ResolveEvent(id);
@@ -107,7 +105,7 @@ internal sealed class D3D12Debug
             throw Exceptions.InvalidOperation("Device removed.");
         }
 
-        if (level >= LogLevel.Warning) Debugger.Break();
+        if (level >= LogLevel.Information) Debugger.Break();
     }
 
     private static LogLevel GetLevel(Native.D3D12_MESSAGE_SEVERITY severity)

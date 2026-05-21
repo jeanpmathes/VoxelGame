@@ -35,11 +35,12 @@ void DescriptorHeap::Create(
     startCPU = heap->GetCPUDescriptorHandleForHeapStart();
     startGPU = shaderVisible ? heap->GetGPUDescriptorHandleForHeapStart() : D3D12_GPU_DESCRIPTOR_HANDLE{};
 
-    if (copyExisting && oldHeap != nullptr && oldNumDescriptors > 0) device->CopyDescriptorsSimple(
-        oldNumDescriptors,
-        startCPU,
-        oldHeap->GetCPUDescriptorHandleForHeapStart(),
-        heapType);
+    if (copyExisting && oldHeap != nullptr && oldNumDescriptors > 0)
+        device->CopyDescriptorsSimple(
+                                      oldNumDescriptors,
+                                      startCPU,
+                                      oldHeap->GetCPUDescriptorHandleForHeapStart(),
+                                      heapType);
 }
 
 D3D12_CPU_DESCRIPTOR_HANDLE DescriptorHeap::GetDescriptorHandleCPU(UINT const index) const

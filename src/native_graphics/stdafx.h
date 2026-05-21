@@ -34,6 +34,11 @@
 #include <dwrite.h>
 #include <dxgi1_6.h>
 
+#ifdef NATIVE_DEBUG
+#include <dxgidebug.h>
+#include <Initguid.h>
+#endif
+
 // STD
 
 #include <algorithm>
@@ -96,6 +101,7 @@
 #include "Tools/Bag.hpp"
 #include "Tools/Common.hpp"
 #include "Tools/Concepts.hpp"
+#include "Tools/DebugLayer.hpp"
 #include "Tools/DescriptorHeap.hpp"
 #include "Tools/DrawablesGroup.hpp"
 #include "Tools/InBufferAllocator.hpp"
@@ -147,8 +153,3 @@
 #include "UserInterface/Tools/StrokeSupport.hpp"
 #include "UserInterface/Tools/TextFormatSupport.hpp"
 #include "UserInterface/Tools/TextSupport.hpp"
-
-#ifdef NATIVE_DEBUG
-#include <dxgidebug.h>
-#include <Initguid.h>
-#endif

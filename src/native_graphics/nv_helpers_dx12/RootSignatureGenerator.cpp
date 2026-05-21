@@ -103,7 +103,9 @@ namespace nv_helpers_dx12
     Microsoft::WRL::ComPtr<ID3D12RootSignature> RootSignatureGenerator::Generate(Microsoft::WRL::ComPtr<ID3D12Device> const& device, bool const isLocal)
     {
         for (size_t i = 0; i < parameters.size(); i++)
-            if (parameters[i].ParameterType == D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE) parameters[i].DescriptorTable.pDescriptorRanges = ranges[rangeLocations[i]].data();
+            if (parameters[i].ParameterType ==
+                D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE)
+                parameters[i].DescriptorTable.pDescriptorRanges = ranges[rangeLocations[i]].data();
 
         D3D12_ROOT_SIGNATURE_DESC rootDesc;
         rootDesc.NumParameters     = static_cast<UINT>(parameters.size());

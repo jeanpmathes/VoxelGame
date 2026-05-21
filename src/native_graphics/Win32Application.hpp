@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <exception>
+
 #include "DXApp.hpp"
 
 class DXApp;
@@ -34,6 +36,9 @@ protected:
     static LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
 private:
+    static LRESULT WindowProcImplementation(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    static void    RethrowPendingWindowProcException();
+
     static HWND hwnd;
     static bool fullscreenMode;
 
@@ -42,4 +47,6 @@ private:
 
     static RECT   windowRectangle;
     static size_t errorModeDepth;
+
+    static std::exception_ptr pendingWindowProcException;
 };

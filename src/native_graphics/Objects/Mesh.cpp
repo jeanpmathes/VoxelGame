@@ -145,14 +145,16 @@ void Mesh::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> const& commandList, std
         return;
     }
 
-    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES) CreateBottomLevelASFromVertices(
-        commandList,
-        {{GeometryBuffer(), GetDataElementCount()}},
-        {{usedIndexBuffer, usedIndexCount}});
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
+        CreateBottomLevelASFromVertices(
+                                        commandList,
+                                        {{GeometryBuffer(), GetDataElementCount()}},
+                                        {{usedIndexBuffer, usedIndexCount}});
 
-    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS) CreateBottomLevelASFromBounds(
-        commandList,
-        {{GeometryBuffer(), GetDataElementCount()}});
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_PROCEDURAL_PRIMITIVE_AABBS)
+        CreateBottomLevelASFromBounds(
+                                      commandList,
+                                      {{GeometryBuffer(), GetDataElementCount()}});
 
     if (ID3D12Resource* resource = blas.result.GetResource();
         resource != nullptr)
@@ -192,12 +194,12 @@ void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, st
         D3D12_RESOURCE_STATES constexpr srvState  = D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE;
 
         util::ReAllocateBuffer(
-            &destinationGeometryBuffer,
-            GetClient(),
-            geometryBufferSize,
-            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-            requiresCopy ? destState : srvState,
-            D3D12_HEAP_TYPE_DEFAULT);
+                               &destinationGeometryBuffer,
+                               GetClient(),
+                               geometryBufferSize,
+                               D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                               requiresCopy ? destState : srvState,
+                               D3D12_HEAP_TYPE_DEFAULT);
         NAME_DIRECT_OBJECT_WITH_ID(destinationGeometryBuffer);
 
         if (requiresCopy)
@@ -217,9 +219,10 @@ void Mesh::DoDataUpload(ComPtr<ID3D12GraphicsCommandList> const& commandList, st
     };
     barriers->push_back(transitionCopyDestToShaderResource);
 
-    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES) std::tie(usedIndexBuffer, usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(
-        GetDataElementCount(),
-        barriers);
+    if (GetMaterial().geometryType == D3D12_RAYTRACING_GEOMETRY_TYPE_TRIANGLES)
+        std::tie(usedIndexBuffer, usedIndexCount) = GetClient().GetSpace()->GetIndexBuffer(
+                                                                                           GetDataElementCount(),
+                                                                                           barriers);
 }
 
 void Mesh::DoReset()

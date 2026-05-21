@@ -61,7 +61,7 @@ NATIVE int NativeRun(NativeClient* client)
 {
     TRY
     {
-        Require(CALL_OUTSIDE_CYCLE(client));
+        Require(CALL_IN_EVENT_OR_OTHER(client));
 
         return Win32Application::Run(client, GetModuleHandle(nullptr), 1);
     } CATCH();
@@ -167,7 +167,7 @@ NATIVE ShaderBuffer* NativeInitializeRaytracing(NativeClient* client, SpacePipel
 {
     TRY
     {
-        Require(CALL_OUTSIDE_CYCLE(client));
+        Require(CALL_IN_INITIALIZATION(client));
 
         client->InitRaytracingPipeline(description);
 
@@ -191,7 +191,7 @@ NATIVE void NativeSetSpaceIsRendered(NativeClient const* client, bool const isRe
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(client));
+        Require(CALL_IN_LOGIC(client) || CALL_IN_INITIALIZATION_OR_DESTROY(client));
 
         client->GetSpace()->SetIsRendered(isRendered);
     } CATCH();
@@ -306,7 +306,7 @@ NATIVE void NativeSetDrawableEnabledState(Drawable* object, bool const enabled)
 {
     TRY
     {
-        Require(CALL_INSIDE_CYCLE(&object->GetClient()));
+        Require(CALL_IN_LOGIC(&object->GetClient()) || CALL_IN_RENDER(&object->GetClient()));
 
         object->SetEnabledState(enabled);
     } CATCH();
@@ -316,7 +316,7 @@ NATIVE RasterPipeline* NativeCreateRasterPipeline(NativeClient* client, RasterPi
 {
     TRY
     {
-        Require(CALL_OUTSIDE_CYCLE(client));
+        Require(CALL_IN_INITIALIZATION(client));
 
         std::unique_ptr<RasterPipeline> pipeline = RasterPipeline::Create(*client, description, callback);
         RasterPipeline*                 ptr      = pipeline.get();
@@ -336,7 +336,7 @@ NATIVE void NativeDesignatePostProcessingPipeline(NativeClient* client, RasterPi
 {
     TRY
     {
-        Require(CALL_OUTSIDE_CYCLE(client));
+        Require(CALL_IN_INITIALIZATION(client));
 
         client->SetPostProcessingPipeline(pipeline);
     } CATCH();
@@ -356,7 +356,7 @@ NATIVE UINT NativeAddDraw2DPipeline(NativeClient* client, RasterPipeline* pipeli
 {
     TRY
     {
-        Require(CALL_OUTSIDE_CYCLE(client));
+        Require(CALL_IN_INITIALIZATION_OR_DESTROY(client));
 
         return client->AddDraw2DPipeline(pipeline, priority, callback);
     } CATCH();
@@ -366,7 +366,7 @@ NATIVE void NativeRemoveDraw2DPipeline(NativeClient* client, UINT const id)
 {
     TRY
     {
-        Require(CALL_OUTSIDE_CYCLE(client));
+        Require(CALL_IN_INITIALIZATION_OR_DESTROY(client));
 
         client->RemoveDraw2DPipeline(id);
     } CATCH();
@@ -376,7 +376,7 @@ NATIVE Texture* NativeLoadTexture(NativeClient const* client, std::byte** data, 
 {
     TRY
     {
-        Require(CALL_OUTSIDE_CYCLE(client) || CALL_IN_RENDER(client));
+        Require(CALL_IN_INITIALIZATION_OR_DESTROY(client) || CALL_IN_RENDER(client));
 
         return client->LoadTexture(data, description);
     } CATCH();

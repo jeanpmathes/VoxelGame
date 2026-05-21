@@ -178,8 +178,9 @@ void SampleAt(float2 offset, uint2 launchIndex, float2 dimensions, out float4 co
     float const relativeY = 1.0f - (pixel.y + 1.0f) / 2.0f;
     Fog         fog       = Fog::CreateDefault();
 
-    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f && relativeY > vg::custom.fogOverlapSize + 1.0f)) fog =
-    Fog::CreateVolume(vg::custom.fogOverlapColor);
+    if ((vg::custom.fogOverlapSize > 0.0f && relativeY < vg::custom.fogOverlapSize) || (vg::custom.fogOverlapSize < 0.0f && relativeY > vg::custom.fogOverlapSize + 1.0f))
+        fog =
+        Fog::CreateVolume(vg::custom.fogOverlapColor);
 
     color = 0;
     depth = 0;

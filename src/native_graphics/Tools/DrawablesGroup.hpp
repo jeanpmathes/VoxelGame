@@ -178,12 +178,12 @@ public:
     auto GetModified()
     {
         return std::ranges::views::transform(
-            modified,
-            [this](Drawable::EntryIndex const entry) -> D*
-            {
-                Require(entries[entry] != nullptr);
-                return entries[entry].get();
-            });
+                                             modified,
+                                             [this](Drawable::EntryIndex const entry) -> D*
+                                             {
+                                                 Require(entries[entry] != nullptr);
+                                                 return entries[entry].get();
+                                             });
     }
 
     [[nodiscard]] size_t GetModifiedCount() const { return modified.Count(); }

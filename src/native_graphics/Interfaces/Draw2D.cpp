@@ -145,9 +145,9 @@ void draw2d::Pipeline::Initialize(Pipeline* ctx)
 void draw2d::Pipeline::BindBoolean() const
 {
     this->raster->BindSelectionIndex(
-        this->currentCommandList,
-        this->raster->GetBindings().Draw2D().booleans,
-        this->currentUseTexture ? TRUE_DESCRIPTOR_INDEX : FALSE_DESCRIPTOR_INDEX);
+                                     this->currentCommandList,
+                                     this->raster->GetBindings().Draw2D().booleans,
+                                     this->currentUseTexture ? TRUE_DESCRIPTOR_INDEX : FALSE_DESCRIPTOR_INDEX);
 }
 
 void draw2d::Pipeline::BindTextures() const

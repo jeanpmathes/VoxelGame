@@ -18,8 +18,8 @@ namespace
         ComPtr<IDXGIFactory6> factory;
         if (SUCCEEDED(dxgiFactory->QueryInterface(IID_PPV_ARGS(&factory))))
             for (UINT adapterIndex = 0; SUCCEEDED(
-                     factory->EnumAdapterByGpuPreference( adapterIndex, requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE :
-                         DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&adapter))); ++adapterIndex)
+                                                  factory->EnumAdapterByGpuPreference( adapterIndex, requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE :
+                                                      DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&adapter))); ++adapterIndex)
             {
                 DXGI_ADAPTER_DESC1 description;
                 TryDo(adapter->GetDesc1(&description));
@@ -49,11 +49,9 @@ LPCSTR const Context::AGILITY_SDK_PATH    = ".\\D3D12\\";
 
 Context::Context(NativeClient& client, Configuration const& configuration, UINT const width, UINT const height)
     : client(&client)
-#ifdef NATIVE_DEBUG
-  , debugCallback(nullptr)
-#endif
+  , debugLayer(configuration.onDebug)
 #ifdef USE_NSIGHT_AFTERMATH
-, gpuCrashTracker(markerMap, shaderDatabase, GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
+  , gpuCrashTracker(markerMap, shaderDatabase, GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
 #endif
 {
     CreateDevice(configuration);
@@ -72,7 +70,11 @@ Context::~Context()
 
 void Context::OnResize(UINT const width, UINT const height)
 {
+    WaitForGPU();
+
     userInterfaceContext->ReleaseRenderTargets();
+
+    WaitForGPU();
 
     {
         for (UINT frame = 0; frame < FRAME_COUNT; frame++)
@@ -119,6 +121,11 @@ void Context::WaitForGPU()
 
 NativeClient& Context::GetClient() const { return *client; }
 
+DebugLayer& Context::GetDebugLayer()
+{
+    return debugLayer;
+}
+
 UINT Context::GetFrameIndex() const { return frameIndex; }
 
 ComPtr<ID3D12Device5> Context::GetD3D12Device() const { return device; }
@@ -152,21 +159,27 @@ void Context::InitializeGpuCrashTracker()
     if (client->SupportPIX()) return;
 
     gpuCrashTracker.Initialize();
-}void Context::InitializeAftermath() const
+}
+
+void Context::InitializeAftermath() const
 {
     if (client->SupportPIX()) return;
 
     constexpr uint32_t aftermathFlags = GFSDK_Aftermath_FeatureFlags_EnableMarkers | GFSDK_Aftermath_FeatureFlags_EnableResourceTracking |
-    GFSDK_Aftermath_FeatureFlags_CallStackCapturing | GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
+                                        GFSDK_Aftermath_FeatureFlags_CallStackCapturing | GFSDK_Aftermath_FeatureFlags_GenerateShaderDebugInfo;
 
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_Initialize(GFSDK_Aftermath_Version_API, aftermathFlags, device.Get()));
-}void Context::SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const
+}
+
+void Context::SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const
 {
     if (client->SupportPIX()) return;
 
     GFSDK_Aftermath_ContextHandle contextHandle;
     AFTERMATH_CHECK_ERROR(GFSDK_Aftermath_DX12_CreateContextHandle(commandList.Get(), &contextHandle));
-}void Context::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
+}
+
+void Context::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
 {
     if (client->SupportPIX()) return;
 
@@ -184,14 +197,9 @@ void Context::InitializeGpuCrashTracker()
 }
 #endif
 
-void Context::CreateDevice(Configuration const& configuration)
+void Context::CreateDevice(Configuration const&)
 {
-#ifdef NATIVE_DEBUG
-    constexpr UINT dxgiFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
-    debugCallback                   = configuration.onDebug;
-#else
-    (void)configuration; constexpr UINT dxgiFactoryFlags = 0;
-#endif
+    UINT const dxgiFactoryFlags = debugLayer.GetDXGIFactoryFlags();
 
     ComPtr<IDXGIFactory4> dxgiFactory;
     TryDo(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
@@ -202,23 +210,7 @@ void Context::CreateDevice(Configuration const& configuration)
     ComPtr<ID3D12DeviceFactory> deviceFactory;
     TryDo(sdk->CreateDeviceFactory(AGILITY_SDK_VERSION, AGILITY_SDK_PATH, IID_PPV_ARGS(&deviceFactory)));
 
-#ifdef NATIVE_DEBUG
-    ComPtr<ID3D12Debug5> debug;
-    if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12Debug, IID_PPV_ARGS(&debug))))
-    {
-        debug->EnableDebugLayer();
-        debug->SetEnableAutoName(TRUE);
-
-        if (!client->SupportPIX() && client->UseGBV()) debug->SetEnableGPUBasedValidation(TRUE);
-    }
-    ComPtr<ID3D12DeviceRemovedExtendedDataSettings1> dredSettings;
-    if (SUCCEEDED(deviceFactory->GetConfigurationInterface(CLSID_D3D12DeviceRemovedExtendedData, IID_PPV_ARGS(&dredSettings))))
-    {
-        dredSettings->SetAutoBreadcrumbsEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-        dredSettings->SetPageFaultEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-        dredSettings->SetBreadcrumbContextEnablement(D3D12_DRED_ENABLEMENT_FORCED_ON);
-    }
-#endif
+    debugLayer.ConfigureDeviceFactory(deviceFactory, *client);
 
     ComPtr<IDXGIAdapter1> const hardwareAdapter = GetHardwareAdapter(dxgiFactory, deviceFactory);
 
@@ -233,28 +225,7 @@ void Context::CreateDevice(Configuration const& configuration)
     InitializeAftermath();
 #endif
 
-#ifdef NATIVE_DEBUG
-    auto callback = [](D3D12_MESSAGE_CATEGORY const category, D3D12_MESSAGE_SEVERITY const severity, D3D12_MESSAGE_ID const id, LPCSTR const description, void* context) -> void
-    {
-        auto const self = static_cast<Context*>(context);
-
-        Win32Application::EnterErrorMode();
-        self->debugCallback(category, severity, id, description, nullptr);
-        Win32Application::ExitErrorMode();
-    };
-    HRESULT const infoQueueResult = device->QueryInterface(IID_PPV_ARGS(&infoQueue));
-    if (SUCCEEDED(infoQueueResult))
-    {
-        TryDo(device->QueryInterface(IID_PPV_ARGS(&infoQueue)));
-        TryDo(infoQueue->RegisterMessageCallback(callback, D3D12_MESSAGE_CALLBACK_FLAG_NONE, this, &callbackCookie));
-
-        TryDo(infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_MESSAGE, "Installed debug callback"));
-
-        if (PIXIsAttachedForGpuCapture() && !client->SupportPIX()) TryDo(
-            infoQueue->AddApplicationMessage(D3D12_MESSAGE_SEVERITY_WARNING, "PIX detected, consider using the --pix command line argument"));
-    }
-    else debugCallback(D3D12_MESSAGE_CATEGORY_APPLICATION_DEFINED, D3D12_MESSAGE_SEVERITY_WARNING, D3D12_MESSAGE_ID_UNKNOWN, "Failed to install debug callback", nullptr);
-#endif
+    debugLayer.ConfigureDevice(device, *client);
 
     D3D12MA::ALLOCATOR_DESC allocatorDesc = {};
     allocatorDesc.pDevice                 = device.Get();
@@ -279,11 +250,7 @@ void Context::CreateDevice(Configuration const& configuration)
 
 void Context::CreateSwapChain(UINT const width, UINT const height)
 {
-#ifdef NATIVE_DEBUG
-    constexpr UINT dxgiFactoryFlags = DXGI_CREATE_FACTORY_DEBUG;
-#else
-    constexpr UINT dxgiFactoryFlags = 0;
-#endif
+    UINT const dxgiFactoryFlags = debugLayer.GetDXGIFactoryFlags();
 
     ComPtr<IDXGIFactory4> dxgiFactory;
     TryDo(CreateDXGIFactory2(dxgiFactoryFlags, IID_PPV_ARGS(&dxgiFactory)));
@@ -337,17 +304,17 @@ void Context::CreateD3D11On12Device()
     std::array<IUnknown*, 1> const commandQueues = {commandQueue.Get()};
 
     TryDo(
-        D3D11On12CreateDevice(
-            device.Get(),
-            D3D11_CREATE_DEVICE_BGRA_SUPPORT,
-            nullptr,
-            0,
-            commandQueues.data(),
-            static_cast<UINT>(commandQueues.size()),
-            0,
-            &direct3D11Device,
-            &direct3D11DeviceContext,
-            nullptr));
+          D3D11On12CreateDevice(
+                                device.Get(),
+                                D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+                                nullptr,
+                                0,
+                                commandQueues.data(),
+                                static_cast<UINT>(commandQueues.size()),
+                                0,
+                                &direct3D11Device,
+                                &direct3D11DeviceContext,
+                                nullptr));
 
     NAME_DIRECT_OBJECT(direct3D11DeviceContext);
 

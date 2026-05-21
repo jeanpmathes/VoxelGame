@@ -66,8 +66,8 @@ namespace nv_helpers_dx12
         uint32_t const hitGroupSize = static_cast<uint32_t>(hitGroup.size()) * hitGroupEntrySize;
 
         uint32_t const totalSize = RoundUp(rayGenSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(missSize, D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT) + RoundUp(
-            hitGroupSize,
-            D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
+                                        hitGroupSize,
+                                        D3D12_RAYTRACING_SHADER_TABLE_BYTE_ALIGNMENT);
 
         uint32_t const sbtSize = RoundUp(totalSize, 256);
 

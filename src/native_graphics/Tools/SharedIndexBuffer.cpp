@@ -18,11 +18,11 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
         UINT const requiredIndexBufferSize = requiredIndexCount * sizeof(UINT);
 
         Allocation<ID3D12Resource> sharedIndexUpload = util::AllocateBuffer(
-            space.GetNativeClient(),
-            requiredIndexBufferSize,
-            D3D12_RESOURCE_FLAG_NONE,
-            D3D12_RESOURCE_STATE_GENERIC_READ,
-            D3D12_HEAP_TYPE_UPLOAD);
+                                                                            space.GetNativeClient(),
+                                                                            requiredIndexBufferSize,
+                                                                            D3D12_RESOURCE_FLAG_NONE,
+                                                                            D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                                            D3D12_HEAP_TYPE_UPLOAD);
         NAME_DIRECT_OBJECT(sharedIndexUpload);
 
         UINT const availableQuadCount = sharedIndexCount / 6;
@@ -46,11 +46,11 @@ std::pair<Allocation<ID3D12Resource>, UINT> SharedIndexBuffer::GetIndexBuffer(UI
         TryDo(util::MapAndWrite(sharedIndexUpload, indices.data(), requiredIndexCount));
 
         sharedIndexBuffer = util::AllocateBuffer(
-            space.GetNativeClient(),
-            requiredIndexBufferSize,
-            D3D12_RESOURCE_FLAG_NONE,
-            D3D12_RESOURCE_STATE_COPY_DEST,
-            D3D12_HEAP_TYPE_DEFAULT);
+                                                 space.GetNativeClient(),
+                                                 requiredIndexBufferSize,
+                                                 D3D12_RESOURCE_FLAG_NONE,
+                                                 D3D12_RESOURCE_STATE_COPY_DEST,
+                                                 D3D12_HEAP_TYPE_DEFAULT);
         NAME_DIRECT_OBJECT(sharedIndexBuffer);
 
         space.GetCommandList()->CopyBufferRegion(sharedIndexBuffer.Get(), 0, sharedIndexUpload.resource.Get(), 0, requiredIndexBufferSize);

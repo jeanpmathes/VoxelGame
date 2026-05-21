@@ -12,8 +12,8 @@ namespace
         Require(description.pixelShaderPath != nullptr);
 
         Require(
-            description.shaderPreset == ShaderPreset::POST_PROCESSING || description.shaderPreset == ShaderPreset::DRAW_2D || description.shaderPreset ==
-            ShaderPreset::SPATIAL_EFFECT);
+                description.shaderPreset == ShaderPreset::POST_PROCESSING || description.shaderPreset == ShaderPreset::DRAW_2D || description.shaderPreset ==
+                ShaderPreset::SPATIAL_EFFECT);
 
         Require(description.bufferSize < D3D12_REQ_IMMEDIATE_CONSTANT_BUFFER_ELEMENT_COUNT * 4 * 4);
 
@@ -52,29 +52,32 @@ namespace
         auto bindings  = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::POST_PROCESSING);
 
         resources->Initialize(
-            [&client, &shaderBuffer, &description, &bindings](ShaderResources::Description& graphics)
-            {
-                graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0}, GetFilter(description), D3D12_TEXTURE_ADDRESS_MODE_BORDER);
+                              [&client, &shaderBuffer, &description, &bindings](ShaderResources::Description& graphics)
+                              {
+                                  graphics.EnableInputAssembler();
+                                  graphics.AddStaticSampler({.reg = 0}, GetFilter(description), D3D12_TEXTURE_ADDRESS_MODE_BORDER);
 
-                if (shaderBuffer != nullptr) graphics.AddConstantBufferView(shaderBuffer->GetGPUVirtualAddress(), {.reg = 0});
+                                  if (shaderBuffer != nullptr) graphics.AddConstantBufferView(shaderBuffer->GetGPUVirtualAddress(), {.reg = 0});
 
-                graphics.AddRootConstant(
-                    [&client]() -> ShaderResources::Value32 { return {.floating = static_cast<FLOAT>(client.GetTotalRealRenderUpdateTime())}; },
-                    {.reg = 0, .space = 1});
+                                  graphics.AddRootConstant(
+                                                           [&client]() -> ShaderResources::Value32
+                                                           {
+                                                               return {.floating = static_cast<FLOAT>(client.GetTotalRealRenderUpdateTime())};
+                                                           },
+                                                           {.reg = 0, .space = 1});
 
-                graphics.AddHeapDescriptorTable(
-                    [&bindings](auto& table)
-                    {
-                        bindings->PostProcessing().color = table.AddShaderResourceView({.reg = 0});
-                        bindings->PostProcessing().depth = table.AddShaderResourceView({.reg = 1});
-                    });
-            },
-            [](auto&)
-            {
-                // No compute resources.
-            },
-            client.GetContext().GetD3D12Device());
+                                  graphics.AddHeapDescriptorTable(
+                                                                  [&bindings](auto& table)
+                                                                  {
+                                                                      bindings->PostProcessing().color = table.AddShaderResourceView({.reg = 0});
+                                                                      bindings->PostProcessing().depth = table.AddShaderResourceView({.reg = 1});
+                                                                  });
+                              },
+                              [](auto&)
+                              {
+                                  // No compute resources.
+                              },
+                              client.GetContext().GetD3D12Device());
 
         return {std::move(resources), std::move(bindings), input};
     }
@@ -91,25 +94,28 @@ namespace
         auto bindings  = std::make_shared<RasterPipeline::Bindings>(ShaderPreset::DRAW_2D);
 
         resources->Initialize(
-            [&client, &shaderBuffer, &description, &bindings](ShaderResources::Description& graphics)
-            {
-                graphics.EnableInputAssembler();
-                graphics.AddStaticSampler({.reg = 0}, GetFilter(description), D3D12_TEXTURE_ADDRESS_MODE_BORDER);
+                              [&client, &shaderBuffer, &description, &bindings](ShaderResources::Description& graphics)
+                              {
+                                  graphics.EnableInputAssembler();
+                                  graphics.AddStaticSampler({.reg = 0}, GetFilter(description), D3D12_TEXTURE_ADDRESS_MODE_BORDER);
 
-                if (shaderBuffer != nullptr) graphics.AddConstantBufferView(shaderBuffer->GetGPUVirtualAddress(), {.reg = 0});
+                                  if (shaderBuffer != nullptr) graphics.AddConstantBufferView(shaderBuffer->GetGPUVirtualAddress(), {.reg = 0});
 
-                graphics.AddRootConstant(
-                    [&client]() -> ShaderResources::Value32 { return {.floating = static_cast<FLOAT>(client.GetTotalRealRenderUpdateTime())}; },
-                    {.reg = 0, .space = 1});
+                                  graphics.AddRootConstant(
+                                                           [&client]() -> ShaderResources::Value32
+                                                           {
+                                                               return {.floating = static_cast<FLOAT>(client.GetTotalRealRenderUpdateTime())};
+                                                           },
+                                                           {.reg = 0, .space = 1});
 
-                bindings->Draw2D().booleans = graphics.AddConstantBufferViewDescriptorSelectionList({.reg = 1});
-                bindings->Draw2D().textures = graphics.AddShaderResourceViewDescriptorSelectionList({.reg = 0}, ShaderResources::UNBOUNDED);
-            },
-            [](auto&)
-            {
-                // No compute resources.
-            },
-            client.GetContext().GetD3D12Device());
+                                  bindings->Draw2D().booleans = graphics.AddConstantBufferViewDescriptorSelectionList({.reg = 1});
+                                  bindings->Draw2D().textures = graphics.AddShaderResourceViewDescriptorSelectionList({.reg = 0}, ShaderResources::UNBOUNDED);
+                              },
+                              [](auto&)
+                              {
+                                  // No compute resources.
+                              },
+                              client.GetContext().GetD3D12Device());
 
         return {std::move(resources), std::move(bindings), input};
     }
@@ -297,15 +303,15 @@ std::shared_ptr<RasterPipeline::Bindings> RasterPipeline::SetUpEffectBindings(Na
     description.EnableInputAssembler();
 
     description.AddHeapDescriptorTable(
-        [&bindings](auto& table)
-        {
-            bindings->SpatialEffect().customData   = table.AddConstantBufferView({.reg = 0});
-            bindings->SpatialEffect().instanceData = table.AddConstantBufferView({.reg = 1});
-        });
+                                       [&bindings](auto& table)
+                                       {
+                                           bindings->SpatialEffect().customData   = table.AddConstantBufferView({.reg = 0});
+                                           bindings->SpatialEffect().instanceData = table.AddConstantBufferView({.reg = 1});
+                                       });
 
     description.AddRootConstant(
-        [&client]() -> ShaderResources::Value32 { return {.floating = static_cast<FLOAT>(client.GetTotalScaledRenderUpdateTime())}; },
-        {.reg = 0, .space = 1});
+                                [&client]() -> ShaderResources::Value32 { return {.floating = static_cast<FLOAT>(client.GetTotalScaledRenderUpdateTime())}; },
+                                {.reg = 0, .space = 1});
 
     return bindings;
 }

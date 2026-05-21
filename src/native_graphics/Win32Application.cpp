@@ -6,10 +6,11 @@
 
 #include "stdafx.h"
 
-HWND   Win32Application::hwnd           = nullptr;
-bool   Win32Application::fullscreenMode = false;
-RECT   Win32Application::windowRectangle;
-size_t Win32Application::errorModeDepth = 0;
+HWND               Win32Application::hwnd           = nullptr;
+bool               Win32Application::fullscreenMode = false;
+RECT               Win32Application::windowRectangle;
+size_t             Win32Application::errorModeDepth             = 0;
+std::exception_ptr Win32Application::pendingWindowProcException = nullptr;
 
 // ReSharper disable once CppParameterMayBeConst
 int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
@@ -28,23 +29,24 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
     TryDo(AdjustWindowRect(&initialWindowRectangle, WS_OVERLAPPEDWINDOW, FALSE));
 
     hwnd = CreateWindow(
-        windowClass.lpszClassName,
-        app->GetTitle(),
-        WINDOW_STYLE,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        initialWindowRectangle.right - initialWindowRectangle.left,
-        initialWindowRectangle.bottom - initialWindowRectangle.top,
-        nullptr,
-        nullptr,
-        instance,
-        app);
+                        windowClass.lpszClassName,
+                        app->GetTitle(),
+                        WINDOW_STYLE,
+                        CW_USEDEFAULT,
+                        CW_USEDEFAULT,
+                        initialWindowRectangle.right - initialWindowRectangle.left,
+                        initialWindowRectangle.bottom - initialWindowRectangle.top,
+                        nullptr,
+                        nullptr,
+                        instance,
+                        app);
 
     app->Init();
     app->Update(DXApp::CycleFlags::ALLOW_LOGIC_UPDATE);
     app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
 
     ShowWindow(hwnd, cmdShow);
+    RethrowPendingWindowProcException();
 
     app->Update(DXApp::CycleFlags::ALLOW_RENDER_UPDATE);
 
@@ -54,6 +56,8 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
         {
             TranslateMessage(&message);
             DispatchMessage(&message);
+
+            RethrowPendingWindowProcException();
         }
         else app->Update(DXApp::CycleFlags::ALLOW_BOTH);
 
@@ -69,14 +73,14 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
         SetWindowLongPtr(hwnd, GWL_STYLE, WINDOW_STYLE);
 
         TryDo(
-            SetWindowPos(
-                hwnd,
-                HWND_NOTOPMOST,
-                windowRectangle.left,
-                windowRectangle.top,
-                windowRectangle.right - windowRectangle.left,
-                windowRectangle.bottom - windowRectangle.top,
-                SWP_FRAMECHANGED | SWP_NOACTIVATE));
+              SetWindowPos(
+                           hwnd,
+                           HWND_NOTOPMOST,
+                           windowRectangle.left,
+                           windowRectangle.top,
+                           windowRectangle.right - windowRectangle.left,
+                           windowRectangle.bottom - windowRectangle.top,
+                           SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
         ShowWindow(hwnd, SW_NORMAL);
     }
@@ -114,14 +118,14 @@ void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
         }
 
         TryDo(
-            SetWindowPos(
-                hwnd,
-                HWND_TOPMOST,
-                fullscreenWindowRect.left,
-                fullscreenWindowRect.top,
-                fullscreenWindowRect.right,
-                fullscreenWindowRect.bottom,
-                SWP_FRAMECHANGED | SWP_NOACTIVATE));
+              SetWindowPos(
+                           hwnd,
+                           HWND_TOPMOST,
+                           fullscreenWindowRect.left,
+                           fullscreenWindowRect.top,
+                           fullscreenWindowRect.right - fullscreenWindowRect.left,
+                           fullscreenWindowRect.bottom - fullscreenWindowRect.top,
+                           SWP_FRAMECHANGED | SWP_NOACTIVATE));
 
         ShowWindow(hwnd, SW_MAXIMIZE);
     }
@@ -135,14 +139,14 @@ void Win32Application::SetWindowOrderToTopMost(bool const setToTopMost)
     TryDo(GetWindowRect(hwnd, &windowRect));
 
     TryDo(
-        SetWindowPos(
-            hwnd,
-            setToTopMost ? HWND_TOPMOST : HWND_NOTOPMOST,
-            windowRect.left,
-            windowRect.top,
-            windowRect.right - windowRect.left,
-            windowRect.bottom - windowRect.top,
-            SWP_FRAMECHANGED | SWP_NOACTIVATE));
+          SetWindowPos(
+                       hwnd,
+                       setToTopMost ? HWND_TOPMOST : HWND_NOTOPMOST,
+                       windowRect.left,
+                       windowRect.top,
+                       windowRect.right - windowRect.left,
+                       windowRect.bottom - windowRect.top,
+                       SWP_FRAMECHANGED | SWP_NOACTIVATE));
 }
 
 void Win32Application::ShowErrorMessage(LPCWSTR const message, LPCWSTR const title)
@@ -158,8 +162,27 @@ void Win32Application::ExitErrorMode() { --errorModeDepth; }
 
 bool Win32Application::IsInErrorMode() { return errorModeDepth > 0; }
 
-// ReSharper disable once CppParameterMayBeConst
 LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPARAM const wParam, LPARAM const lParam)
+{
+    // On modern Windows systems, exceptions thrown in WindowProc are not guaranteed to propagete well through it.
+    // As such, we catch the first exceptions and store it to rethrow later.
+    // See: https://learn.microsoft.com/en-us/windows/win32/api/winuser/nc-winuser-wndproc
+
+    try
+    {
+        return WindowProcImplementation(hWnd, message, wParam, lParam);
+    }
+    catch (...)
+    {
+        if (!pendingWindowProcException) pendingWindowProcException = std::current_exception();
+
+        PostQuitMessage(1);
+
+        return 0;
+    }
+}
+
+LRESULT Win32Application::WindowProcImplementation(HWND hWnd, UINT const message, WPARAM const wParam, LPARAM const lParam)
 {
     auto const app = reinterpret_cast<DXApp*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
 
@@ -374,4 +397,9 @@ LRESULT CALLBACK Win32Application::WindowProc(HWND hWnd, UINT const message, WPA
     default:
         return def();
     }
+}
+
+void Win32Application::RethrowPendingWindowProcException()
+{
+    if (std::exception_ptr const pending = std::exchange(pendingWindowProcException, nullptr)) std::rethrow_exception(pending);
 }

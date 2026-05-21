@@ -36,14 +36,14 @@ namespace
         D3D12_SHADER_RESOURCE_VIEW_DESC* srv)
     {
         D3D12_RESOURCE_DESC const textureDescription = CD3DX12_RESOURCE_DESC::Tex2D(
-            GetFormat(description.format),
-            description.width,
-            description.height,
-            1,
-            static_cast<UINT16>(description.levels),
-            1,
-            0,
-            D3D12_RESOURCE_FLAG_NONE);
+                                                                                    GetFormat(description.format),
+                                                                                    description.width,
+                                                                                    description.height,
+                                                                                    1,
+                                                                                    static_cast<UINT16>(description.levels),
+                                                                                    1,
+                                                                                    0,
+                                                                                    D3D12_RESOURCE_FLAG_NONE);
 
         auto const state = requiresUpload ? UPLOAD_STATE : USABLE_STATE;
 

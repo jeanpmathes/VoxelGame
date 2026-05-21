@@ -184,7 +184,7 @@ private:
 
     void PopulateSpaceCommandList() const;
     void PopulatePostProcessingCommandList() const;
-    void PopulateScreenshotCommandList() const;
+    void PopulateScreenshotCommandList();
 
     void LoadRasterPipeline();
     void CreateFinalDepthBuffers();

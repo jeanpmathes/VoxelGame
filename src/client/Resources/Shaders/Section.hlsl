@@ -185,12 +185,12 @@ namespace vg
         float4 GetFluidDominantColor(in spatial::Info const info)
         {
             return native::rt::textureSlotTwo[decode::GetTextureIndex(info.data)].Load(
-                int3(
-                    0,
-                    0,
-                    // Only one texel in highest mip level.
-                    native::spatial::global.textureSize.z - 1 // Index of the highest mip level.
-                ));
+                                                                                       int3(
+                                                                                            0,
+                                                                                            0,
+                                                                                            // Only one texel in highest mip level.
+                                                                                            native::spatial::global.textureSize.z - 1 // Index of the highest mip level.
+                                                                                           ));
         }
 
         /**

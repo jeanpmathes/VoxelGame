@@ -54,14 +54,16 @@ void CommandAllocatorGroup::Reset(UINT const frameIndex, ComPtr<ID3D12PipelineSt
     if (pipelineState != nullptr) pipelineStatePtr = pipelineState.Get();
 
 #ifdef NATIVE_DEBUG
-    std::wstring const commandAllocatorName = GetObjectName(commandAllocators[frameIndex]); std::wstring const commandListName = GetObjectName(commandList);
+    std::wstring const commandAllocatorName = GetObjectName(commandAllocators[frameIndex]);
+    std::wstring const commandListName      = GetObjectName(commandList);
 #endif
 
     TryDo(commandAllocators[frameIndex]->Reset());
     TryDo(commandList->Reset(commandAllocators[frameIndex].Get(), pipelineStatePtr));
 
 #if defined(NATIVE_DEBUG)
-    SetObjectName(commandAllocators[frameIndex], commandAllocatorName); SetObjectName(commandList, commandListName);
+    SetObjectName(commandAllocators[frameIndex], commandAllocatorName);
+    SetObjectName(commandList, commandListName);
 #endif
 
     open = true;

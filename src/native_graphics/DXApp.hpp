@@ -116,6 +116,18 @@ public:
     enum class Cycle
     {
         /**
+         * The thread is performing the initialization of the client.
+         * This occurs exactly once and only on the main thread.
+         */
+        INITIALIZATION,
+
+        /**
+         * The thread is performing the final destruction of the client.
+         * This occurs exactly once and only on the main thread.
+         */
+        DESTROY,
+
+        /**
          * The thread is in the logic update cycle.
          */
         LOGIC_UPDATE,
@@ -196,10 +208,12 @@ private:
     bool isActive             = false;
 };
 
+#define CALL_IN_INITIALIZATION(client) ((client)->GetCycle() == DXApp::Cycle::INITIALIZATION)
+#define CALL_IN_DESTROY(client) ((client)->GetCycle() == DXApp::Cycle::DESTROY)
 #define CALL_IN_LOGIC(client) ((client)->GetCycle() == DXApp::Cycle::LOGIC_UPDATE)
 #define CALL_IN_RENDER(client) ((client)->GetCycle() == DXApp::Cycle::RENDER_UPDATE)
 #define CALL_IN_WORKER(client) ((client)->GetCycle() == DXApp::Cycle::WORKER)
-#define CALL_OUTSIDE_CYCLE(client) (!(client)->GetCycle().has_value())
-#define CALL_IN_LOGIC_OR_EVENT(client) (CALL_IN_LOGIC(client) || CALL_OUTSIDE_CYCLE(client))
-#define CALL_INSIDE_CYCLE(client) ((client)->GetCycle().has_value() && (client)->GetCycle().value() != DXApp::Cycle::WORKER)
+#define CALL_IN_EVENT_OR_OTHER(client) (!(client)->GetCycle().has_value())
+#define CALL_IN_LOGIC_OR_EVENT(client) (CALL_IN_LOGIC(client) || CALL_IN_EVENT_OR_OTHER(client))
+#define CALL_IN_INITIALIZATION_OR_DESTROY(client) (CALL_IN_INITIALIZATION(client) || CALL_IN_DESTROY(client))
 #define CALL_ON_MAIN_THREAD(client) (!(client)->GetCycle().has_value() || (client)->GetCycle().value() != DXApp::Cycle::WORKER)

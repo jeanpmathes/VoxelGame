@@ -222,59 +222,59 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
         auto& parameter = graphicsRootParameters[parameterIndex];
 
         std::visit(
-            [this, commandList, parameterIndex]<typename Arg>(Arg& arg)
-            {
-                using T = std::decay_t<Arg>;
+                   [this, commandList, parameterIndex]<typename Arg>(Arg& arg)
+                   {
+                       using T = std::decay_t<Arg>;
 
-                if constexpr (std::is_same_v<T, RootConstant>)
-                {
-                    auto const& [index, queue] = arg;
-                    auto&       constant       = constants[index];
+                       if constexpr (std::is_same_v<T, RootConstant>)
+                       {
+                           auto const& [index, queue] = arg;
+                           auto&       constant       = constants[index];
 
-                    commandList->SetGraphicsRoot32BitConstant(static_cast<UINT>(parameterIndex), constant.getter().uInteger, 0);
-                }
-                else if constexpr (std::is_same_v<T, RootConstantBufferView>)
-                {
-                    auto const& [gpuAddress] = arg;
-                    commandList->SetGraphicsRootConstantBufferView(static_cast<UINT>(parameterIndex), gpuAddress);
-                }
-                else if constexpr (std::is_same_v<T, RootShaderResourceView>)
-                {
-                    auto const& [gpuAddress] = arg;
-                    commandList->SetGraphicsRootShaderResourceView(static_cast<UINT>(parameterIndex), gpuAddress);
-                }
-                else if constexpr (std::is_same_v<T, RootUnorderedAccessView>)
-                {
-                    auto const& [gpuAddress] = arg;
-                    commandList->SetGraphicsRootUnorderedAccessView(static_cast<UINT>(parameterIndex), gpuAddress);
-                }
-                else if constexpr (std::is_same_v<T, RootHeapDescriptorTable>)
-                {
-                    auto const& [gpuHandle, index] = arg;
-                    commandList->SetGraphicsRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
-                }
-                else if constexpr (std::is_same_v<T, RootHeapDescriptorList>)
-                {
-                    auto const& [gpuHandle, index, isSelectionList] = arg;
+                           commandList->SetGraphicsRoot32BitConstant(static_cast<UINT>(parameterIndex), constant.getter().uInteger, 0);
+                       }
+                       else if constexpr (std::is_same_v<T, RootConstantBufferView>)
+                       {
+                           auto const& [gpuAddress] = arg;
+                           commandList->SetGraphicsRootConstantBufferView(static_cast<UINT>(parameterIndex), gpuAddress);
+                       }
+                       else if constexpr (std::is_same_v<T, RootShaderResourceView>)
+                       {
+                           auto const& [gpuAddress] = arg;
+                           commandList->SetGraphicsRootShaderResourceView(static_cast<UINT>(parameterIndex), gpuAddress);
+                       }
+                       else if constexpr (std::is_same_v<T, RootUnorderedAccessView>)
+                       {
+                           auto const& [gpuAddress] = arg;
+                           commandList->SetGraphicsRootUnorderedAccessView(static_cast<UINT>(parameterIndex), gpuAddress);
+                       }
+                       else if constexpr (std::is_same_v<T, RootHeapDescriptorTable>)
+                       {
+                           auto const& [gpuHandle, index] = arg;
+                           commandList->SetGraphicsRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
+                       }
+                       else if constexpr (std::is_same_v<T, RootHeapDescriptorList>)
+                       {
+                           auto const& [gpuHandle, index, isSelectionList] = arg;
 
-                    if (isSelectionList)
-                    {
-                        auto& list = descriptorLists[index];
+                           if (isSelectionList)
+                           {
+                               auto& list = descriptorLists[index];
 
-                        list.bind = [parameterIndex, gpuHandle, ptr = &list, increment = gpuDescriptorHeap.GetIncrement() ](auto command)
-                        {
-                            command->SetGraphicsRootDescriptorTable(
-                                static_cast<UINT>(parameterIndex),
-                                CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuHandle, static_cast<INT>(ptr->selection), increment));
-                        };
+                               list.bind = [parameterIndex, gpuHandle, ptr = &list, increment = gpuDescriptorHeap.GetIncrement() ](auto command)
+                               {
+                                   command->SetGraphicsRootDescriptorTable(
+                                                                           static_cast<UINT>(parameterIndex),
+                                                                           CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuHandle, static_cast<INT>(ptr->selection), increment));
+                               };
 
-                        // Intentionally do not bind yet, as last value might not be safe anymore.
-                    }
-                    else commandList->SetGraphicsRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
-                }
-                else Require(FALSE);
-            },
-            parameter);
+                               // Intentionally do not bind yet, as last value might not be safe anymore.
+                           }
+                           else commandList->SetGraphicsRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
+                       }
+                       else Require(FALSE);
+                   },
+                   parameter);
     }
 
     for (size_t parameterIndex = 0; parameterIndex < computeRootParameters.size(); ++parameterIndex)
@@ -282,59 +282,59 @@ void ShaderResources::Bind(ComPtr<ID3D12GraphicsCommandList> commandList)
         auto& parameter = computeRootParameters[parameterIndex];
 
         std::visit(
-            [this, commandList, parameterIndex]<typename Arg>(Arg& arg)
-            {
-                using T = std::decay_t<Arg>;
+                   [this, commandList, parameterIndex]<typename Arg>(Arg& arg)
+                   {
+                       using T = std::decay_t<Arg>;
 
-                if constexpr (std::is_same_v<T, RootConstant>)
-                {
-                    auto const& [index, queue] = arg;
-                    auto&       constant       = constants[index];
+                       if constexpr (std::is_same_v<T, RootConstant>)
+                       {
+                           auto const& [index, queue] = arg;
+                           auto&       constant       = constants[index];
 
-                    commandList->SetComputeRoot32BitConstant(static_cast<UINT>(parameterIndex), constant.getter().uInteger, 0);
-                }
-                else if constexpr (std::is_same_v<T, RootConstantBufferView>)
-                {
-                    auto const& [gpuAddress] = arg;
-                    commandList->SetComputeRootConstantBufferView(static_cast<UINT>(parameterIndex), gpuAddress);
-                }
-                else if constexpr (std::is_same_v<T, RootShaderResourceView>)
-                {
-                    auto const& [gpuAddress] = arg;
-                    commandList->SetComputeRootShaderResourceView(static_cast<UINT>(parameterIndex), gpuAddress);
-                }
-                else if constexpr (std::is_same_v<T, RootUnorderedAccessView>)
-                {
-                    auto const& [gpuAddress] = arg;
-                    commandList->SetComputeRootUnorderedAccessView(static_cast<UINT>(parameterIndex), gpuAddress);
-                }
-                else if constexpr (std::is_same_v<T, RootHeapDescriptorTable>)
-                {
-                    auto const& [gpuHandle, index] = arg;
-                    commandList->SetComputeRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
-                }
-                else if constexpr (std::is_same_v<T, RootHeapDescriptorList>)
-                {
-                    auto const& [gpuHandle, index, isSelectionList] = arg;
+                           commandList->SetComputeRoot32BitConstant(static_cast<UINT>(parameterIndex), constant.getter().uInteger, 0);
+                       }
+                       else if constexpr (std::is_same_v<T, RootConstantBufferView>)
+                       {
+                           auto const& [gpuAddress] = arg;
+                           commandList->SetComputeRootConstantBufferView(static_cast<UINT>(parameterIndex), gpuAddress);
+                       }
+                       else if constexpr (std::is_same_v<T, RootShaderResourceView>)
+                       {
+                           auto const& [gpuAddress] = arg;
+                           commandList->SetComputeRootShaderResourceView(static_cast<UINT>(parameterIndex), gpuAddress);
+                       }
+                       else if constexpr (std::is_same_v<T, RootUnorderedAccessView>)
+                       {
+                           auto const& [gpuAddress] = arg;
+                           commandList->SetComputeRootUnorderedAccessView(static_cast<UINT>(parameterIndex), gpuAddress);
+                       }
+                       else if constexpr (std::is_same_v<T, RootHeapDescriptorTable>)
+                       {
+                           auto const& [gpuHandle, index] = arg;
+                           commandList->SetComputeRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
+                       }
+                       else if constexpr (std::is_same_v<T, RootHeapDescriptorList>)
+                       {
+                           auto const& [gpuHandle, index, isSelectionList] = arg;
 
-                    if (isSelectionList)
-                    {
-                        auto& list = descriptorLists[index];
+                           if (isSelectionList)
+                           {
+                               auto& list = descriptorLists[index];
 
-                        list.bind = [parameterIndex, gpuHandle, ptr = &list, increment = gpuDescriptorHeap.GetIncrement() ](auto command)
-                        {
-                            command->SetComputeRootDescriptorTable(
-                                static_cast<UINT>(parameterIndex),
-                                CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuHandle, static_cast<INT>(ptr->selection), increment));
-                        };
+                               list.bind = [parameterIndex, gpuHandle, ptr = &list, increment = gpuDescriptorHeap.GetIncrement() ](auto command)
+                               {
+                                   command->SetComputeRootDescriptorTable(
+                                                                          static_cast<UINT>(parameterIndex),
+                                                                          CD3DX12_GPU_DESCRIPTOR_HANDLE(gpuHandle, static_cast<INT>(ptr->selection), increment));
+                               };
 
-                        // Intentionally do not bind yet, as last value might not be safe anymore.
-                    }
-                    else commandList->SetComputeRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
-                }
-                else Require(FALSE);
-            },
-            parameter);
+                               // Intentionally do not bind yet, as last value might not be safe anymore.
+                           }
+                           else commandList->SetComputeRootDescriptorTable(static_cast<UINT>(parameterIndex), gpuHandle);
+                       }
+                       else Require(FALSE);
+                   },
+                   parameter);
     }
 }
 

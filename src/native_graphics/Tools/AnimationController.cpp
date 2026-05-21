@@ -32,16 +32,16 @@ void AnimationController::SetUpResourceLayout(ShaderResources::Description* desc
     };
 
     srcGeometryList = description->AddShaderResourceViewDescriptorList(
-        inputGeometryListLocation,
-        CreateSizeGetter(&meshes),
-        getSourceDescriptor,
-        CreateBagBuilder(&meshes, getIndexOfMesh));
+                                                                       inputGeometryListLocation,
+                                                                       CreateSizeGetter(&meshes),
+                                                                       getSourceDescriptor,
+                                                                       CreateBagBuilder(&meshes, getIndexOfMesh));
 
     dstGeometryList = description->AddUnorderedAccessViewDescriptorList(
-        outputGeometryListLocation,
-        CreateSizeGetter(&meshes),
-        getDestinationDescriptor,
-        CreateBagBuilder(&meshes, getIndexOfMesh));
+                                                                        outputGeometryListLocation,
+                                                                        CreateSizeGetter(&meshes),
+                                                                        getDestinationDescriptor,
+                                                                        CreateBagBuilder(&meshes, getIndexOfMesh));
 }
 
 void AnimationController::Initialize(NativeClient& usedClient, ComPtr<ID3D12RootSignature> const& rootSignature)
@@ -114,19 +114,19 @@ void AnimationController::Run(ShaderResources const& resources, ComPtr<ID3D12Gra
     constexpr UINT threadGroupSize = 32;
 
     meshes.ForEach(
-        [this, &resources, &commandList](Mesh* const& mesh)
-        {
-            UINT const meshSize         = mesh->GetGeometryUnitCount();
-            UINT const threadGroupCount = (meshSize + threadGroupSize - 1) / threadGroupSize;
+                   [this, &resources, &commandList](Mesh* const& mesh)
+                   {
+                       UINT const meshSize         = mesh->GetGeometryUnitCount();
+                       UINT const threadGroupCount = (meshSize + threadGroupSize - 1) / threadGroupSize;
 
-            workIndex.uInteger = static_cast<UINT>(mesh->GetAnimationHandle());
-            resources.UpdateConstant(workIndexConstant, commandList);
+                       workIndex.uInteger = static_cast<UINT>(mesh->GetAnimationHandle());
+                       resources.UpdateConstant(workIndexConstant, commandList);
 
-            workSize.uInteger = meshSize;
-            resources.UpdateConstant(workSizeConstant, commandList);
+                       workSize.uInteger = meshSize;
+                       resources.UpdateConstant(workSizeConstant, commandList);
 
-            commandList->Dispatch(threadGroupCount, 1, 1);
-        });
+                       commandList->Dispatch(threadGroupCount, 1, 1);
+                   });
 
     commandList->ResourceBarrier(static_cast<UINT>(exitBarriers.size()), exitBarriers.data());
 }
@@ -136,11 +136,11 @@ void AnimationController::CreateBLAS(ComPtr<ID3D12GraphicsCommandList4> const& c
     PIXScopedEvent(commandList.Get(), PIX_COLOR_DEFAULT, L"Animation BLAS Update");
 
     meshes.ForEach(
-        [&commandList, uavs](Mesh* const& mesh)
-        {
-            constexpr bool isForAnimation = true;
-            mesh->CreateBLAS(commandList, uavs, isForAnimation);
-        });
+                   [&commandList, uavs](Mesh* const& mesh)
+                   {
+                       constexpr bool isForAnimation = true;
+                       mesh->CreateBLAS(commandList, uavs, isForAnimation);
+                   });
 }
 
 void AnimationController::CreateBarriers()
@@ -152,12 +152,18 @@ void AnimationController::CreateBarriers()
     exitBarriers.reserve(meshes.GetCount());
 
     meshes.ForEach(
-        [this](Mesh* const& mesh)
-        {
-            entryBarriers.emplace_back(
-                CD3DX12_RESOURCE_BARRIER::Transition(mesh->GetGeometryBuffer().Get(), D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE, D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
+                   [this](Mesh* const& mesh)
+                   {
+                       entryBarriers.emplace_back(
+                                                  CD3DX12_RESOURCE_BARRIER::Transition(
+                                                                                       mesh->GetGeometryBuffer().Get(),
+                                                                                       D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE,
+                                                                                       D3D12_RESOURCE_STATE_UNORDERED_ACCESS));
 
-            exitBarriers.emplace_back(
-                CD3DX12_RESOURCE_BARRIER::Transition(mesh->GetGeometryBuffer().Get(), D3D12_RESOURCE_STATE_UNORDERED_ACCESS, D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
-        });
+                       exitBarriers.emplace_back(
+                                                 CD3DX12_RESOURCE_BARRIER::Transition(
+                                                                                      mesh->GetGeometryBuffer().Get(),
+                                                                                      D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+                                                                                      D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE));
+                   });
 }

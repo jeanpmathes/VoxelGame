@@ -30,6 +30,7 @@ public:
     void WaitForGPU();
 
     [[nodiscard]] NativeClient& GetClient() const;
+    [[nodiscard]] DebugLayer&   GetDebugLayer();
     [[nodiscard]] UINT          GetFrameIndex() const;
 
     [[nodiscard]] ComPtr<ID3D12Device5>       GetD3D12Device() const;
@@ -51,10 +52,10 @@ private:
     static LPCSTR const AGILITY_SDK_PATH;
 
     NativeClient* client;
+    DebugLayer    debugLayer;
 
     ComPtr<ID3D12Device5>      device;
     ComPtr<D3D12MA::Allocator> allocator;
-    ComPtr<ID3D12InfoQueue1>   infoQueue;
     ComPtr<ID3D12CommandQueue> commandQueue;
     ComPtr<IDXGISwapChain3>    swapChain;
 
@@ -72,15 +73,18 @@ private:
     ComPtr<ID3D12Fence>             fence;
     std::array<UINT64, FRAME_COUNT> fenceValues = {0};
 
-#ifdef NATIVE_DEBUG
-    D3D12MessageFunc debugCallback;
-    DWORD            callbackCookie{};
-#endif
-
 #ifdef USE_NSIGHT_AFTERMATH
-    GpuCrashTracker::MarkerMap        markerMap = {}; ShaderDatabase shaderDatabase = {}; GpuCrashTracker gpuCrashTracker;public: void InitializeGpuCrashTracker(); void
-    InitializeAftermath() const; void SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const; void SetUpShaderForAftermath(
-        ComPtr<IDxcResult> const& result);private:
+    GpuCrashTracker::MarkerMap markerMap      = {};
+    ShaderDatabase             shaderDatabase = {};
+    GpuCrashTracker            gpuCrashTracker;
+
+public:
+    void InitializeGpuCrashTracker();
+    void InitializeAftermath() const;
+    void SetUpCommandListForAftermath(ComPtr<ID3D12GraphicsCommandList> const& commandList) const;
+    void SetUpShaderForAftermath(ComPtr<IDxcResult> const& result);
+
+private:
 #endif
 
     void CreateDevice(Configuration const& configuration);

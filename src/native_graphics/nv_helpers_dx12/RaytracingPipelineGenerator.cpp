@@ -95,10 +95,10 @@ namespace nv_helpers_dx12
 
     Microsoft::WRL::ComPtr<ID3D12StateObject> RayTracingPipelineGenerator::Generate(Microsoft::WRL::ComPtr<ID3D12RootSignature> const& globalRootSignature)
     {
-        UINT64 const subObjectCount = libraries.size() + hitGroups.size() + 1 + // Shader configuration.
-        1 +                                                                     // Shader payload.
-        2 * rootSignatureAssociations.size() + 2 +                              // Empty global and local root signatures.
-        1;                                                                      // Final pipeline subobject.
+        UINT64 const subObjectCount = libraries.size() + hitGroups.size() + 1 +  // Shader configuration.
+                                      1 +                                        // Shader payload.
+                                      2 * rootSignatureAssociations.size() + 2 + // Empty global and local root signatures.
+                                      1;                                         // Final pipeline subobject.
 
         std::vector<D3D12_STATE_SUBOBJECT> subobjects(subObjectCount);
 
@@ -261,17 +261,20 @@ namespace nv_helpers_dx12
             if (!hitGroup.anyHitSymbol.empty() && !exports.contains(hitGroup.anyHitSymbol)) throw std::logic_error("Any hit symbol not found in the imported DXIL libraries.");
 
             if (!hitGroup.closestHitSymbol.empty() && !exports.contains(hitGroup.closestHitSymbol))
-                throw std::logic_error("Closest hit symbol not found in the imported DXIL libraries.");
+                throw std::logic_error(
+                                       "Closest hit symbol not found in the imported DXIL libraries.");
 
             if (!hitGroup.intersectionSymbol.empty() && !exports.contains(hitGroup.intersectionSymbol))
-                throw std::logic_error("Intersection symbol not found in the imported DXIL libraries.");
+                throw std::logic_error(
+                                       "Intersection symbol not found in the imported DXIL libraries.");
 
             allExports.insert(hitGroup.hitGroupName);
         }
         for (auto const& assoc : rootSignatureAssociations)
             for (auto const& symbol : assoc.symbols)
-                if (!symbol.empty() && !allExports.contains(symbol)) throw std::logic_error(
-                    "Root association symbol not found in the " "imported DXIL libraries and hit group names.");
+                if (!symbol.empty() && !allExports.contains(symbol))
+                    throw std::logic_error(
+                                           "Root association symbol not found in the " "imported DXIL libraries and hit group names.");
 #endif
 
         for (auto const& hitGroup : hitGroups)

@@ -86,11 +86,11 @@ void NativeClient::CreateFinalDepthBuffers()
     for (UINT frame = 0; frame < FRAME_COUNT; frame++)
     {
         finalDepthStencilBuffers[frame] = util::AllocateResource<ID3D12Resource>(
-            *this,
-            depthResourceDesc,
-            D3D12_HEAP_TYPE_DEFAULT,
-            D3D12_RESOURCE_STATE_DEPTH_WRITE,
-            &depthOptimizedClearValue);
+                                                                                 *this,
+                                                                                 depthResourceDesc,
+                                                                                 D3D12_HEAP_TYPE_DEFAULT,
+                                                                                 D3D12_RESOURCE_STATE_DEPTH_WRITE,
+                                                                                 &depthOptimizedClearValue);
         NAME_DIRECT_OBJECT_INDEXED(finalDepthStencilBuffers, frame);
     }
 
@@ -99,8 +99,10 @@ void NativeClient::CreateFinalDepthBuffers()
     dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
     dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
 
-    for (UINT frame = 0; frame < FRAME_COUNT; frame++)
-        context->GetD3D12Device()->CreateDepthStencilView(finalDepthStencilBuffers[frame].Get(), &dsvDesc, dsvHeap.GetDescriptorHandleCPU(frame));
+    for (UINT frame = 0; frame < FRAME_COUNT; frame++) context->GetD3D12Device()->CreateDepthStencilView(
+                                                                                                         finalDepthStencilBuffers[frame].Get(),
+                                                                                                         &dsvDesc,
+                                                                                                         dsvHeap.GetDescriptorHandleCPU(frame));
 }
 
 void NativeClient::EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> const commandList)
@@ -167,16 +169,16 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
     D3D12_RESOURCE_DESC const   swapChainDesc = context->GetFinalRenderTarget(context->GetFrameIndex())->GetDesc();
     CD3DX12_CLEAR_VALUE const   clearValue(swapChainDesc.Format, CLEAR_COLOR.data());
     CD3DX12_RESOURCE_DESC const renderTargetDesc = CD3DX12_RESOURCE_DESC::Tex2D(
-        swapChainDesc.Format,
-        resolution.width,
-        resolution.height,
-        1,
-        1,
-        swapChainDesc.SampleDesc.Count,
-        swapChainDesc.SampleDesc.Quality,
-        D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
-        D3D12_TEXTURE_LAYOUT_UNKNOWN,
-        0u);
+                                                                                swapChainDesc.Format,
+                                                                                resolution.width,
+                                                                                resolution.height,
+                                                                                1,
+                                                                                1,
+                                                                                swapChainDesc.SampleDesc.Count,
+                                                                                swapChainDesc.SampleDesc.Quality,
+                                                                                D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET,
+                                                                                D3D12_TEXTURE_LAYOUT_UNKNOWN,
+                                                                                0u);
 
     intermediateRenderTarget = util::AllocateResource<ID3D12Resource>(*this, renderTargetDesc, D3D12_HEAP_TYPE_DEFAULT, D3D12_RESOURCE_STATE_RENDER_TARGET, &clearValue);
     NAME_DIRECT_OBJECT(intermediateRenderTarget);
@@ -193,11 +195,11 @@ void NativeClient::SetUpSpaceResolutionDependentResources()
     CD3DX12_CLEAR_VALUE const depthOptimizedClearValue(DXGI_FORMAT_D32_FLOAT, 1.0f, 0);
 
     intermediateDepthStencilBuffer = util::AllocateResource<ID3D12Resource>(
-        *this,
-        depthResourceDesc,
-        D3D12_HEAP_TYPE_DEFAULT,
-        D3D12_RESOURCE_STATE_DEPTH_WRITE,
-        &depthOptimizedClearValue);
+                                                                            *this,
+                                                                            depthResourceDesc,
+                                                                            D3D12_HEAP_TYPE_DEFAULT,
+                                                                            D3D12_RESOURCE_STATE_DEPTH_WRITE,
+                                                                            &depthOptimizedClearValue);
     NAME_DIRECT_OBJECT(intermediateDepthStencilBuffer);
 
     D3D12_DEPTH_STENCIL_VIEW_DESC dsvDesc = {};
@@ -262,7 +264,7 @@ void NativeClient::OnRenderUpdate()
 
     if (screenshotFunction.has_value())
     {
-        PIXScopedEvent(screenshotGroup.commandList.Get(), PIX_COLOR_DEFAULT, L"Screenshot");
+        PIXScopedEvent(context->GetCommandQueue().Get(), PIX_COLOR_DEFAULT, L"Screenshot");
 
         PopulateScreenshotCommandList();
 
@@ -331,8 +333,6 @@ void NativeClient::OnSizeChanged(UINT const newWidth, UINT const newHeight, bool
 {
     if ((newWidth != GetWidth() || newHeight != GetHeight()) && !minimized)
     {
-        context->WaitForGPU();
-
         context->OnResize(newWidth, newHeight);
 
         BOOL fullscreenState;
@@ -509,14 +509,14 @@ void NativeClient::PopulatePostProcessingCommandList() const
     draw2DGroup.commandList->DrawInstanced(4, 1, 0, 0);
 }
 
-void NativeClient::PopulateScreenshotCommandList() const
+void NativeClient::PopulateScreenshotCommandList()
 {
-    // todo: this has to use a different group for command list and allocator, not draw2dGroup
+    screenshotGroup.Reset(context->GetFrameIndex());
 
     D3D12_RESOURCE_BARRIER const entry = CD3DX12_RESOURCE_BARRIER::Transition(
-        context->GetFinalRenderTarget(context->GetFrameIndex()).Get(),
-        D3D12_RESOURCE_STATE_RENDER_TARGET,
-        D3D12_RESOURCE_STATE_COPY_SOURCE);
+                                                                              context->GetFinalRenderTarget(context->GetFrameIndex()).Get(),
+                                                                              D3D12_RESOURCE_STATE_PRESENT,
+                                                                              D3D12_RESOURCE_STATE_COPY_SOURCE);
     screenshotGroup.commandList->ResourceBarrier(1, &entry);
 
     D3D12_PLACED_SUBRESOURCE_FOOTPRINT footprint = {};
@@ -531,10 +531,12 @@ void NativeClient::PopulateScreenshotCommandList() const
     screenshotGroup.commandList->CopyTextureRegion(&dst, 0, 0, 0, &src, nullptr);
 
     D3D12_RESOURCE_BARRIER const exit = CD3DX12_RESOURCE_BARRIER::Transition(
-        context->GetFinalRenderTarget(context->GetFrameIndex()).Get(),
-        D3D12_RESOURCE_STATE_COPY_SOURCE,
-        D3D12_RESOURCE_STATE_RENDER_TARGET);
+                                                                             context->GetFinalRenderTarget(context->GetFrameIndex()).Get(),
+                                                                             D3D12_RESOURCE_STATE_COPY_SOURCE,
+                                                                             D3D12_RESOURCE_STATE_PRESENT);
     screenshotGroup.commandList->ResourceBarrier(1, &exit);
+
+    TryDo(screenshotGroup.commandList->Close());
 }
 
 void NativeClient::PopulateRenderingCommandLists()

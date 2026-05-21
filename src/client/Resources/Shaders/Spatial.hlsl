@@ -77,10 +77,10 @@ namespace vg
             posC = mul(instances[instance].world, float4(posC, 1.0f)).xyz;
 
             data = uint4(
-                vertices[instance][vertexIndex + 0].data,
-                vertices[instance][vertexIndex + 1].data,
-                vertices[instance][vertexIndex + 2].data,
-                vertices[instance][vertexIndex + 3].data);
+                         vertices[instance][vertexIndex + 0].data,
+                         vertices[instance][vertexIndex + 1].data,
+                         vertices[instance][vertexIndex + 2].data,
+                         vertices[instance][vertexIndex + 3].data);
 
             if (decode::GetNormalInvertedFlag(data)) normal *= -1.0f;
         }

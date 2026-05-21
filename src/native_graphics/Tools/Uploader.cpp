@@ -25,11 +25,11 @@ void Uploader::UploadTexture(std::byte** data, TextureDescription const& descrip
     UINT64 const uploadBufferSize = GetRequiredIntermediateSize(destination.Get(), 0, subresources);
 
     Allocation<ID3D12Resource> const textureUploadBuffer = util::AllocateBuffer(
-        GetClient(),
-        uploadBufferSize,
-        D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        D3D12_HEAP_TYPE_UPLOAD);
+                                                                                GetClient(),
+                                                                                uploadBufferSize,
+                                                                                D3D12_RESOURCE_FLAG_NONE,
+                                                                                D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                                                D3D12_HEAP_TYPE_UPLOAD);
     NAME_DIRECT_OBJECT(textureUploadBuffer);
 
     uploadBuffers.push_back(textureUploadBuffer);
@@ -61,11 +61,11 @@ void Uploader::UploadTexture(std::byte** data, TextureDescription const& descrip
 void Uploader::UploadBuffer(std::byte const* data, UINT const size, Allocation<ID3D12Resource> const& destination)
 {
     Allocation<ID3D12Resource> const normalUploadBuffer = util::AllocateBuffer(
-        GetClient(),
-        size,
-        D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        D3D12_HEAP_TYPE_UPLOAD);
+                                                                               GetClient(),
+                                                                               size,
+                                                                               D3D12_RESOURCE_FLAG_NONE,
+                                                                               D3D12_RESOURCE_STATE_GENERIC_READ,
+                                                                               D3D12_HEAP_TYPE_UPLOAD);
     NAME_DIRECT_OBJECT(normalUploadBuffer);
 
     uploadBuffers.push_back(normalUploadBuffer);

@@ -170,7 +170,7 @@ public:
 
     template <class Descriptor>
         requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor> || std::is_same_v<Descriptor, ShaderResourceViewDescriptor> || std::is_same_v<
-            Descriptor, UnorderedAccessViewDescriptor>)
+                      Descriptor, UnorderedAccessViewDescriptor>)
     class SelectionList;
 
     struct Description
@@ -273,7 +273,7 @@ public:
     private:
         template <class Descriptor>
             requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor> || std::is_same_v<Descriptor, ShaderResourceViewDescriptor> || std::is_same_v<
-                Descriptor, UnorderedAccessViewDescriptor>)
+                          Descriptor, UnorderedAccessViewDescriptor>)
         ListHandle AddDescriptorList(
             ShaderLocation const&               location,
             SizeGetter&&                        count,
@@ -287,14 +287,14 @@ public:
             rootSignatureGenerator.AddHeapRangesParameter({{location.reg, number, location.space, Descriptor::RANGE_TYPE, 0},});
             rootParameters.emplace_back(RootHeapDescriptorList{});
             descriptorListDescriptions.emplace_back(
-                std::move(count),
-                [descriptor](auto device, auto index, auto cpuHandle)
-                {
-                    Descriptor const view = descriptor(index);
-                    view.Create(device, cpuHandle);
-                },
-                std::move(builder),
-                numberOfDescriptorsIfSelectionList.has_value());
+                                                    std::move(count),
+                                                    [descriptor](auto device, auto index, auto cpuHandle)
+                                                    {
+                                                        Descriptor const view = descriptor(index);
+                                                        view.Create(device, cpuHandle);
+                                                    },
+                                                    std::move(builder),
+                                                    numberOfDescriptorsIfSelectionList.has_value());
 
             return static_cast<ListHandle>(listHandle);
         }
@@ -327,7 +327,7 @@ public:
     private:
         template <class Descriptor>
             requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor> || std::is_same_v<Descriptor, ShaderResourceViewDescriptor> || std::is_same_v<
-                Descriptor, UnorderedAccessViewDescriptor>)
+                          Descriptor, UnorderedAccessViewDescriptor>)
         SelectionList<Descriptor> AddSelectionList(ShaderLocation const& location, UINT const window)
         {
             Require(window > 0);
@@ -368,7 +368,7 @@ public:
      */
     template <class Descriptor>
         requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor> || std::is_same_v<Descriptor, ShaderResourceViewDescriptor> || std::is_same_v<
-            Descriptor, UnorderedAccessViewDescriptor>)
+                      Descriptor, UnorderedAccessViewDescriptor>)
     class SelectionList
     {
     public:
@@ -389,11 +389,14 @@ public:
         {
             data->window = window;
             data->handle = description->AddDescriptorList<Descriptor>(
-                location,
-                [ptr = data.get()] { return static_cast<UINT>(ptr->descriptors.size()); },
-                [ptr = data.get()](UINT index) -> Descriptor { return ptr->descriptors[index]; },
-                [ptr = data.get()](Description::DescriptorBuilder const& builder) { for (UINT i = 0; i < ptr->count; i++) builder(i); },
-                window);
+                                                                      location,
+                                                                      [ptr = data.get()] { return static_cast<UINT>(ptr->descriptors.size()); },
+                                                                      [ptr = data.get()](UINT index) -> Descriptor { return ptr->descriptors[index]; },
+                                                                      [ptr = data.get()](Description::DescriptorBuilder const& builder)
+                                                                      {
+                                                                          for (UINT i = 0; i < ptr->count; i++) builder(i);
+                                                                      },
+                                                                      window);
         }
 
         void SetDescriptors(std::vector<Descriptor> const& descriptors)
@@ -537,7 +540,7 @@ public:
 
     template <class Descriptor>
         requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor> || std::is_same_v<Descriptor, ShaderResourceViewDescriptor> || std::is_same_v<
-            Descriptor, UnorderedAccessViewDescriptor>)
+                      Descriptor, UnorderedAccessViewDescriptor>)
     void SetSelectionListContent(SelectionList<Descriptor>& list, std::vector<Descriptor> const& descriptors)
     {
         list.SetDescriptors(descriptors);
@@ -548,7 +551,7 @@ public:
 
     template <class Descriptor>
         requires (std::is_same_v<Descriptor, ConstantBufferViewDescriptor> || std::is_same_v<Descriptor, ShaderResourceViewDescriptor> || std::is_same_v<
-            Descriptor, UnorderedAccessViewDescriptor>)
+                      Descriptor, UnorderedAccessViewDescriptor>)
     void BindSelectionListIndex(SelectionList<Descriptor>& list, UINT index, ComPtr<ID3D12GraphicsCommandList> const commandList)
     {
         auto const           parameterIndex = static_cast<UINT>(list.data->handle);
