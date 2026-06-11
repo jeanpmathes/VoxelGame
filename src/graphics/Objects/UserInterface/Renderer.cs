@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Drawing;
 using System.Runtime.InteropServices.Marshalling;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition.UserInterface;
@@ -29,10 +30,8 @@ namespace VoxelGame.Graphics.Objects.UserInterface;
 ///     Native user-interface renderer wrapper.
 /// </summary>
 [NativeMarshalling(typeof(RendererMarshaller))]
-public sealed class Renderer : NativeObject, IDisposable
+public sealed class Renderer : DisposableNativeObject<Renderer>
 {
-    private Boolean disposed;
-
     internal Renderer(IntPtr nativePointer, Client client) : base(nativePointer, client)
     {
         NativeClient = client;
@@ -40,48 +39,70 @@ public sealed class Renderer : NativeObject, IDisposable
 
     internal Client NativeClient { get; }
 
-    internal void Submit(ReadOnlySpan<Command> commands)
+    /// <summary>
+    /// Submit a command span to the renderer.
+    /// </summary>
+    /// <param name="commands">The commands to submit.</param>
+    public void Submit(ReadOnlySpan<Command> commands)
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
-        // todo: Submit the command span to NativeMethods.SubmitUserInterfaceCommands.
-        // Contract: throw on use after dispose; the native renderer copies the passed span and the caller retains no
-        // ownership after the call.
+        unsafe
+        {
+            fixed (Command* commandPointer = commands)
+            {
+                NativeMethods.SubmitUserInterfaceCommands(this, commandPointer, (UInt32) commands.Length);
+            }
+        }
+    }
 
-        throw new NotImplementedException();
+    /// <summary>
+    /// Creates a solid color brush.
+    /// </summary>
+    /// <param name="color">The color of the brush to create.</param>
+    /// <returns>The created brush.</returns>
+    public Brush CreateSolidColorBrush(Color color)
+    {
+        return Native.CreateSolidColorBrush(this, color);
+    }
+
+    /// <summary>
+    /// Creates a text format.
+    /// </summary>
+    /// <param name="description">The description of the text format to create.</param>
+    /// <returns>The created text format.</returns>
+    public TextFormat CreateTextFormat(TextFormatDescription description)
+    {
+        return Native.CreateTextFormat(this, description);
+    }
+
+    /// <summary>
+    /// Creates a text that can be rendered.
+    /// </summary>
+    /// <param name="text">The content of the text.</param>
+    /// <param name="format">The format of the text.</param>
+    /// <returns>The created text.</returns>
+    public Text CreateText(String text, TextFormat format)
+    {
+        return Native.CreateText(this, text, format);
     }
 
     #region DISPOSABLE
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
+    private Boolean disposed;
 
-    private void Dispose(Boolean disposing)
+    /// <inheritdoc/>
+    protected override void Dispose(Boolean disposing)
     {
-        if (disposed) return;
-
-        if (disposing)
+        if (!disposed)
         {
-            // todo: Deregister and call NativeMethods.FreeUserInterface.
-            // Contract: after dispose, this wrapper and the native pointer must never be used again.
-            throw new NotImplementedException();
+            disposed = true;
+
+            if (disposing)
+                NativeMethods.FreeUserInterface(this);
         }
 
-        ExceptionTools.ThrowForMissedDispose(this);
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     The finalizer.
-    /// </summary>
-    ~Renderer()
-    {
-        Dispose(disposing: false);
+        base.Dispose(disposing);
     }
 
     #endregion DISPOSABLE

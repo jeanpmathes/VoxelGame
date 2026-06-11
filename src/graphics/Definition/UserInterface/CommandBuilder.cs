@@ -18,7 +18,9 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.GUI.Graphics;
 using VoxelGame.GUI.Utilities;
@@ -31,21 +33,19 @@ namespace VoxelGame.Graphics.Definition.UserInterface;
 /// </summary>
 public sealed class CommandBuilder
 {
+    private readonly List<Command> commands = []; // todo: pooled list and IDisposable ?
+
     /// <summary>
     ///     Get the current commands built with this command builder.
     /// </summary>
-    public ReadOnlySpan<Command> Commands => throw
-        // todo: Expose the recorded native UI command span.
-        // Contract: callers must not assign union fields directly; commands are created only through helper methods.
-        new NotImplementedException();
+    public ReadOnlySpan<Command> Commands => CollectionsMarshal.AsSpan(commands);
 
     /// <summary>
     ///     Clear all current commands.
     /// </summary>
     public void Clear()
     {
-        // todo: Clear the recorded command list.
-        // Contract: the builder only records calls and does not optimize opacity or stack operations.
+        commands.Clear();
     }
 
     /// <summary>
@@ -58,8 +58,11 @@ public sealed class CommandBuilder
     /// <param name="offset">The offset to push.</param>
     public void PushOffset(PointF offset)
     {
-        // todo: Record a PushOffset command.
-        _ = offset;
+        commands.Add(new Command
+        {
+            Kind = CommandKind.PushOffset,
+            PushOffset = new PushOffsetCommand(ToNative(offset))
+        });
     }
 
     /// <summary>
@@ -71,7 +74,10 @@ public sealed class CommandBuilder
     /// <seealso cref="CommandKind.PopOffset" />
     public void PopOffset()
     {
-        // todo: Record a PopOffset command.
+        commands.Add(new Command
+        {
+            Kind = CommandKind.PopOffset
+        });
     }
 
     /// <summary>
@@ -84,8 +90,11 @@ public sealed class CommandBuilder
     /// <param name="rectangle">The clipping rectangle to push.</param>
     public void PushClip(RectangleF rectangle)
     {
-        // todo: Record a PushClip command.
-        _ = rectangle;
+        commands.Add(new Command
+        {
+            Kind = CommandKind.PushClip,
+            PushClip = new PushClipCommand(ToNative(rectangle))
+        });
     }
 
     /// <summary>
@@ -97,7 +106,10 @@ public sealed class CommandBuilder
     /// <seealso cref="CommandKind.PopClip" />
     public void PopClip()
     {
-        // todo: Record a PopClip command.
+        commands.Add(new Command
+        {
+            Kind = CommandKind.PopClip
+        });
     }
 
     /// <summary>
@@ -110,8 +122,11 @@ public sealed class CommandBuilder
     /// <param name="opacity">The opacity value to push.</param>
     public void PushOpacity(Single opacity)
     {
-        // todo: Record a PushOpacity command.
-        _ = opacity;
+        commands.Add(new Command
+        {
+            Kind = CommandKind.PushOpacity,
+            PushOpacity = new PushOpacityCommand(opacity)
+        });
     }
 
     /// <summary>
@@ -123,7 +138,10 @@ public sealed class CommandBuilder
     /// <seealso cref="CommandKind.PopOpacity" />
     public void PopOpacity()
     {
-        // todo: Record a PopOpacity command.
+        commands.Add(new Command
+        {
+            Kind = CommandKind.PopOpacity
+        });
     }
 
     /// <summary>
@@ -134,11 +152,17 @@ public sealed class CommandBuilder
     /// <param name="color">The color to use.</param>
     public void DrawFilledRectangle(RectangleF rectangle, RadiusF radius, Color color)
     {
-        // todo: Record a filled rectangle color command.
-        // Contract: color commands are emitted for solid color brushes when possible.
-        _ = rectangle;
-        _ = radius;
-        _ = color;
+        commands.Add(radius == RadiusF.Zero
+            ? new Command
+            {
+                Kind = CommandKind.DrawRectangleFilledColor,
+                DrawRectangleFilledColor = new DrawRectangleFilledColorCommand(ToNative(rectangle), ToNative(color))
+            }
+            : new Command
+            {
+                Kind = CommandKind.DrawRectangleFilledRoundedColor,
+                DrawRectangleFilledRoundedColor = new DrawRectangleFilledRoundedColorCommand(ToNative(rectangle), ToNative(radius), ToNative(color))
+            });
     }
 
     /// <summary>
@@ -149,11 +173,17 @@ public sealed class CommandBuilder
     /// <param name="brush">The native brush to use.</param>
     public void DrawFilledRectangle(RectangleF rectangle, RadiusF radius, Brush brush)
     {
-        // todo: Record a filled rectangle brush command.
-        // Contract: brush commands are emitted only when a brush cannot be represented as a direct color command.
-        _ = rectangle;
-        _ = radius;
-        _ = brush;
+        commands.Add(radius == RadiusF.Zero
+            ? new Command
+            {
+                Kind = CommandKind.DrawRectangleFilledBrush,
+                DrawRectangleFilledBrush = new DrawRectangleFilledBrushCommand(ToNative(rectangle), brush.Self)
+            }
+            : new Command
+            {
+                Kind = CommandKind.DrawRectangleFilledRoundedBrush,
+                DrawRectangleFilledRoundedBrush = new DrawRectangleFilledRoundedBrushCommand(ToNative(rectangle), ToNative(radius), brush.Self)
+            });
     }
 
     /// <summary>
@@ -166,12 +196,17 @@ public sealed class CommandBuilder
     /// <param name="color">The color to use.</param>
     public void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF radius, StrokeStyle stroke, Color color)
     {
-        // todo: Record a lined rectangle color command.
-        _ = rectangle;
-        _ = width;
-        _ = radius;
-        _ = stroke;
-        _ = color;
+        commands.Add(radius == RadiusF.Zero
+            ? new Command
+            {
+                Kind = CommandKind.DrawRectangleLinedColor,
+                DrawRectangleLinedColor = new DrawRectangleLinedColorCommand(ToNative(rectangle), ToNative(color), width.Value, stroke)
+            }
+            : new Command
+            {
+                Kind = CommandKind.DrawRectangleLinedRoundedColor,
+                DrawRectangleLinedRoundedColor = new DrawRectangleLinedRoundedColorCommand(ToNative(rectangle), ToNative(radius), ToNative(color), width.Value, stroke)
+            });
     }
 
     /// <summary>
@@ -184,12 +219,17 @@ public sealed class CommandBuilder
     /// <param name="brush">The native brush to use.</param>
     public void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF radius, StrokeStyle stroke, Brush brush)
     {
-        // todo: Record a lined rectangle brush command.
-        _ = rectangle;
-        _ = width;
-        _ = radius;
-        _ = stroke;
-        _ = brush;
+        commands.Add(radius == RadiusF.Zero
+            ? new Command
+            {
+                Kind = CommandKind.DrawRectangleLinedBrush,
+                DrawRectangleLinedBrush = new DrawRectangleLinedBrushCommand(ToNative(rectangle), brush.Self, width.Value, stroke)
+            }
+            : new Command
+            {
+                Kind = CommandKind.DrawRectangleLinedRoundedBrush,
+                DrawRectangleLinedRoundedBrush = new DrawRectangleLinedRoundedBrushCommand(ToNative(rectangle), ToNative(radius), brush.Self, width.Value, stroke)
+            });
     }
 
     /// <summary>
@@ -200,11 +240,11 @@ public sealed class CommandBuilder
     /// <param name="color">The color to use.</param>
     public void DrawText(Text text, PointF position, Color color)
     {
-        // todo: Record a text color command.
-        // Contract: the presentation renderer applies GUI scale before calling the builder.
-        _ = text;
-        _ = position;
-        _ = color;
+        commands.Add(new Command
+        {
+            Kind = CommandKind.DrawTextColor,
+            DrawTextColor = new DrawTextColorCommand(text.Self, ToNative(position), ToNative(color))
+        });
     }
 
     /// <summary>
@@ -215,9 +255,32 @@ public sealed class CommandBuilder
     /// <param name="brush">The native brush to use.</param>
     public void DrawText(Text text, PointF position, Brush brush)
     {
-        // todo: Record a text brush command.
-        _ = text;
-        _ = position;
-        _ = brush;
+        commands.Add(new Command
+        {
+            Kind = CommandKind.DrawTextBrush,
+            DrawTextBrush = new DrawTextBrushCommand(text.Self, ToNative(position), brush.Self)
+        });
+    }
+
+    private static NativePointF ToNative(PointF point)
+    {
+        return new NativePointF(point.X, point.Y);
+    }
+
+    private static NativeRectangleF ToNative(RectangleF rectangle)
+    {
+        return new NativeRectangleF(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
+    }
+
+    private static NativeRadiusF ToNative(RadiusF radius)
+    {
+        return new NativeRadiusF(radius.X, radius.Y);
+    }
+
+    private static NativeColorF ToNative(Color color)
+    {
+        const Single scale = 1.0f / Byte.MaxValue;
+
+        return new NativeColorF(color.R * scale, color.G * scale, color.B * scale, color.A * scale);
     }
 }

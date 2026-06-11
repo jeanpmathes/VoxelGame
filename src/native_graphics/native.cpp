@@ -5,6 +5,7 @@
 //  <author>jeanpmathes</author>
 
 #include "stdafx.h"
+
 #include "UserInterface/Objects/Brush.hpp"
 #include "UserInterface/Objects/Renderer.hpp"
 #include "UserInterface/Objects/Text.hpp"
@@ -34,7 +35,7 @@ NATIVE void NativeFinalize(NativeClient const* client)
     {
         delete client;
 
-#if defined(NATIVE_DEBUG)
+#ifdef NATIVE_DEBUG
         IDXGIDebug1* debug = nullptr;
         if (SUCCEEDED(DXGIGetDebugInterface1(0, IID_PPV_ARGS(&debug))))
         {
@@ -392,16 +393,13 @@ NATIVE void NativeFreeTexture(Texture const* texture)
     } CATCH();
 }
 
-NATIVE ui::Renderer* NativeCreateUserInterface(NativeClient* client, INT priority)
+NATIVE ui::Renderer* NativeCreateUserInterface(NativeClient* client, INT const priority)
 {
     TRY
     {
-        // todo: Create a ui::Renderer through NativeClient::CreateUserInterface.
-        // Contract: creating a UI renderer is allowed outside render and logic cycles; lower priority renders first,
-        // higher priority appears on top, and equal priority preserves insertion order.
-        (void)client;
-        (void)priority;
-        throw NativeException("TODO: create UI renderer.");
+        Require(CALL_IN_INITIALIZATION_OR_DESTROY(client));
+
+        return client->CreateUserInterface(priority);
     } CATCH();
 }
 
@@ -409,99 +407,88 @@ NATIVE void NativeFreeUserInterface(ui::Renderer* renderer)
 {
     TRY
     {
-        // todo: Call ui::Renderer::Free, which delegates to NativeClient::FreeUserInterface.
-        // Contract: validate that no active UI resources still belong to the renderer; the pointer is invalid after this call.
-        (void)renderer;
+        Require(CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
+
+        renderer->Free();
     } CATCH();
 }
 
-NATIVE void NativeSubmitUserInterfaceCommands(ui::Renderer* renderer, ui::Command const* commands, UINT commandCount)
+NATIVE void NativeSubmitUserInterfaceCommands(ui::Renderer* renderer, ui::Command const* commands, UINT const commandCount)
 {
     TRY
     {
-        // todo: Submit commands to the UI renderer.
-        // Contract: allowed outside UI render execution and from the main thread; renderer copies the command span.
-        (void)renderer;
-        (void)commands;
-        (void)commandCount;
+        Require(CALL_IN_LOGIC(&renderer->GetClient()) || CALL_IN_RENDER(&renderer->GetClient()));
+
+        renderer->SubmitCommands(commands, commandCount);
     } CATCH();
 }
 
-NATIVE ui::Brush* NativeCreateUserInterfaceSolidColorBrush(ui::Renderer* renderer, ui::ColorF color)
+NATIVE ui::Brush* NativeCreateUserInterfaceSolidColorBrush(ui::Renderer* renderer, ui::ColorF const color)
 {
     TRY
     {
-        // todo: Create a solid-color UI brush through renderer->GetContext().GetBrushSupport().
-        // Contract: creating/freeing UI resources is allowed outside UI render execution and from the main thread.
-        (void)renderer;
-        (void)color;
-        throw NativeException("TODO: create UI solid-color brush.");
+        Require(CALL_IN_LOGIC(&renderer->GetClient()) || CALL_IN_RENDER(&renderer->GetClient()));
+
+        return &renderer->GetBrushSupport().GetSolidColorBrush(color);
     } CATCH();
 }
 
-NATIVE void NativeFreeUserInterfaceBrush(ui::Brush* brush)
+NATIVE void NativeReturnUserInterfaceBrush(ui::Brush* brush)
 {
     TRY
     {
-        // todo: Return the brush through ui::Brush::Return.
-        // Contract: the disposed C# wrapper must never be used again even if UI storage is reused.
-        (void)brush;
+        Require(CALL_IN_LOGIC(&brush->GetClient()) || CALL_IN_RENDER(&brush->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&brush->GetClient()));
+
+        brush->Return();
     } CATCH();
 }
 
-NATIVE ui::TextFormat* NativeCreateUserInterfaceTextFormat(ui::Renderer* renderer, ui::TextFormatDescription description)
+NATIVE ui::TextFormat* NativeCreateUserInterfaceTextFormat(ui::Renderer* renderer, ui::TextFormatDescription const description)
 {
     TRY
     {
-        // todo: Create a UI text format through renderer->GetContext().GetTextFormatSupport().
-        // Contract: the UI text-format object must not retain the local-only fontFamily pointer from description.
-        (void)renderer;
-        (void)description;
-        throw NativeException("TODO: create UI text format.");
+        Require(CALL_IN_LOGIC(&renderer->GetClient()) || CALL_IN_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
+
+        return &renderer->GetTextFormatSupport().GetTextFormat(description);
     } CATCH();
 }
 
-NATIVE void NativeFreeUserInterfaceTextFormat(ui::TextFormat* format)
+NATIVE void NativeReturnUserInterfaceTextFormat(ui::TextFormat* format)
 {
     TRY
     {
-        // todo: Return the text format through ui::TextFormat::Return.
-        // Contract: reusable UI storage does not make a disposed C# wrapper usable again.
-        (void)format;
+        Require(CALL_IN_LOGIC(&format->GetClient()) || CALL_IN_RENDER(&format->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&format->GetClient()));
+
+        format->Return();
     } CATCH();
 }
 
-NATIVE ui::Text* NativeCreateUserInterfaceText(ui::Renderer* renderer, LPCWSTR text, ui::TextFormat* format)
+NATIVE ui::Text* NativeCreateUserInterfaceText(ui::Renderer* renderer, LPCWSTR const text, UINT const textLength, ui::TextFormat* format)
 {
     TRY
     {
-        // todo: Create a UI text layout through renderer->GetContext().GetTextSupport().
-        // Contract: text objects are not pooled and use the supplied text format.
-        (void)renderer;
-        (void)text;
-        (void)format;
-        throw NativeException("TODO: create UI text.");
+        Require(CALL_IN_LOGIC(&renderer->GetClient()) || CALL_IN_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
+
+        return &renderer->GetTextSupport().GetText(text, textLength, *format);
     } CATCH();
 }
 
-NATIVE void NativeFreeUserInterfaceText(ui::Text* text)
+NATIVE void NativeReturnUserInterfaceText(ui::Text* text)
 {
     TRY
     {
-        // todo: Return the text through ui::Text::Return.
-        // Contract: TextSupport removes and destroys text layouts instead of pooling them.
-        (void)text;
+        Require(CALL_IN_LOGIC(&text->GetClient()) || CALL_IN_RENDER(&text->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&text->GetClient()));
+
+        text->Return();
     } CATCH();
 }
 
-NATIVE ui::SizeF NativeMeasureUserInterfaceText(ui::Text* text, ui::SizeF availableSize)
+NATIVE ui::SizeF NativeMeasureUserInterfaceText(ui::Text* text, ui::SizeF const availableSize)
 {
     TRY
     {
-        // todo: Measure text through ui::Text::Measure.
-        // Contract: measuring is allowed from the C# GUI layout path and must not require an active Direct2D draw pass.
-        (void)text;
-        (void)availableSize;
-        throw NativeException("TODO: measure UI text.");
+        Require(CALL_IN_LOGIC(&text->GetClient()) || CALL_IN_RENDER(&text->GetClient()));
+
+        return text->Measure(availableSize);
     } CATCH();
 }

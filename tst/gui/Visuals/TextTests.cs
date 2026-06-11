@@ -27,7 +27,6 @@ using VoxelGame.GUI.Visuals;
 using Xunit;
 using Brush = VoxelGame.GUI.Graphics.Brush;
 using Canvas = VoxelGame.GUI.Controls.Canvas;
-using Font = VoxelGame.GUI.Texts.Font;
 
 namespace VoxelGame.GUI.Tests.Visuals;
 
@@ -99,7 +98,7 @@ public class TextTests : VisualTestBase<Text>
     {
         public TrackableFormattedText? LastCreatedText { get; private set; }
 
-        public override IFormattedText CreateFormattedText(String text, Font font, TextOptions options)
+        public override IFormattedText CreateFormattedText(String text, TextOptions options)
         {
             LastCreatedText = new TrackableFormattedText();
 

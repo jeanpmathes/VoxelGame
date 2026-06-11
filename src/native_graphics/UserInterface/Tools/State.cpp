@@ -1,64 +1,86 @@
 #include "stdafx.h"
 
-void ui::State::PushOffset(PointF offset)
+namespace
 {
-    // todo: Push offset and update the Direct2D transform.
-    // Contract: offsets are additive and reflected by GetCurrentTransform.
-    (void)offset;
+    constexpr D2D1_ANTIALIAS_MODE AntialiasMode = D2D1_ANTIALIAS_MODE_PER_PRIMITIVE;
+}
+
+ui::State::State(Renderer& renderer)
+    : renderer(renderer)
+{
+}
+
+void ui::State::PushOffset(PointF const offset)
+{
+    PointF previousOffset = {.x = 0, .y = 0};
+
+    if (!offsetStack.empty()) previousOffset = offsetStack.back();
+
+    offsetStack.push_back({previousOffset.x + offset.x, previousOffset.y + offset.y});
+
+    renderer.GetContext().GetDirect2DDeviceContext()->SetTransform(GetCurrentTransform());
 }
 
 void ui::State::PopOffset()
 {
-    // todo: Pop offset and update the Direct2D transform.
-    // Contract: report underflow through the DirectX info queue in NATIVE_DEBUG.
+    if (offsetStack.empty()) renderer.GetClient().GetContext().GetDebugLayer().AddWarning("PopOffset called on empty offset stack");
+    else offsetStack.pop_back();
+
+    renderer.GetContext().GetDirect2DDeviceContext()->SetTransform(GetCurrentTransform());
 }
 
-void ui::State::PushClip(RectangleF rectangle)
+void ui::State::PushClip(RectangleF const rectangle)
 {
-    // todo: Intersect with the current clip and call PushAxisAlignedClip immediately.
-    // Contract: clipping is active whenever clipStack is non-empty; there is no begin/end clip state.
-    (void)rectangle;
+    clipStackCounter += 1;
+
+    renderer.GetContext().GetDirect2DDeviceContext()->PushAxisAlignedClip(rectangle.ToD2D1(), AntialiasMode);
 }
 
 void ui::State::PopClip()
 {
-    // todo: Call PopAxisAlignedClip and remove the current clip.
-    // Contract: report underflow through the DirectX info queue in NATIVE_DEBUG.
+    if (clipStackCounter == 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning("PopClip called on empty clip stack");
+    else
+    {
+        clipStackCounter -= 1;
+
+        renderer.GetContext().GetDirect2DDeviceContext()->PopAxisAlignedClip();
+    }
 }
 
-void ui::State::PushOpacity(FLOAT opacity)
+void ui::State::PushOpacity(FLOAT const opacity)
 {
-    // todo: Multiply with current opacity and push a Direct2D layer.
-    // Contract: opacity must be in [0, 1], and validation reports out-of-range values in NATIVE_DEBUG.
-    (void)opacity;
+    opacityStackCounter += 1;
+
+    D2D1_LAYER_PARAMETERS1 options = D2D1::LayerParameters1();
+    options.opacity                = opacity;
+    options.maskAntialiasMode      = AntialiasMode;
+
+    renderer.GetContext().GetDirect2DDeviceContext()->PushLayer(options, nullptr);
 }
 
 void ui::State::PopOpacity()
 {
-    // todo: Pop the Direct2D layer and restore the previous opacity.
-    // Contract: report underflow through the DirectX info queue in NATIVE_DEBUG.
+    if (opacityStackCounter == 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning("PopOpacity called on empty opacity stack");
+    else
+    {
+        opacityStackCounter -= 1;
+
+        renderer.GetContext().GetDirect2DDeviceContext()->PopLayer();
+    }
 }
 
-bool ui::State::IsCurrentClipEmpty() const
+void ui::State::Validate() const
 {
-    // todo: Return whether the currently intersected clip rejects all drawing.
-    return false;
+    if (!offsetStack.empty()) renderer.GetClient().GetContext().GetDebugLayer().AddWarning("Offset stack is not empty");
+
+    if (clipStackCounter > 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning("Clip stack is not empty");
+
+    if (opacityStackCounter > 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning("Opacity stack is not empty");
 }
 
 D2D1_MATRIX_3X2_F ui::State::GetCurrentTransform() const
 {
-    // todo: Return the transform for the current accumulated offset.
-    return D2D1::Matrix3x2F::Translation(currentOffset.x, currentOffset.y);
-}
+    auto const& [x, y] = offsetStack.empty() ? PointF{0, 0} : offsetStack.back();
 
-ui::RectangleF ui::State::GetCurrentClip() const
-{
-    return currentClip;
-}
-
-FLOAT ui::State::GetCurrentOpacity() const { return currentOpacity; }
-
-void ui::State::Validate() const
-{
-    // todo: Report non-empty offset, clip, and opacity stacks through the DirectX info queue in NATIVE_DEBUG.
+    return D2D1::Matrix3x2F::Translation(x, y);
 }

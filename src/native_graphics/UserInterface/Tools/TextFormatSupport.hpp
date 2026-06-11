@@ -32,24 +32,33 @@ namespace ui
     class TextFormatSupport final
     {
     public:
-        static constexpr size_t MAX_FREE_TEXT_FORMATS = 32;
-
         explicit TextFormatSupport(Renderer& renderer);
 
         /**
-         * \brief Create or reuse a wrapped DirectWrite text format.
-         * \param description The description used to create the DirectWrite text format.
-         * \returns The active text format inserted into format storage.
+         * \brief Get a wrapped text format.
+         * \param description The description used to create the text format.
+         * \returns The text format. Needs to be returned.
          */
-        TextFormat& Get(TextFormatDescription description);
+        TextFormat& GetTextFormat(TextFormatDescription const& description);
 
-        void Return(TextFormat& format);
+        /**
+         * \brief Return a text format.
+         * Do not use this method, instead use \c TextFormat::Return() .
+         * \param index The index of the text format to return.
+         */
+        void ReturnTextFormat(TextFormat::Index index);
+
+        /**
+         * \brief Validate that all wrapped resources have been returned to this support class.
+         * 
+         * This uses the debug layer to create messages if resources have not been returned.
+         * It is invalid to use wrapped resources managed by this support class after the class has been freed.
+         */
+        void ValidateAllWrappedResourcesAreReturned() const;
 
     private:
         Renderer& renderer;
 
-        Bag<std::unique_ptr<TextFormat>, TextFormat::Index> formats;
-
-        std::vector<std::unique_ptr<TextFormat>> freeFormats;
+        Bag<std::unique_ptr<TextFormat>, TextFormat::Index> textFormats;
     };
 }

@@ -19,7 +19,6 @@
 
 using System;
 using System.Runtime.InteropServices.Marshalling;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Objects.UserInterface;
 
@@ -27,10 +26,8 @@ namespace VoxelGame.Graphics.Objects.UserInterface;
 ///     Native user-interface text-format wrapper.
 /// </summary>
 [NativeMarshalling(typeof(TextFormatMarshaller))]
-public sealed class TextFormat : NativeObject, IDisposable
+public sealed class TextFormat : DisposableNativeObject<TextFormat>
 {
-    private Boolean disposed;
-
     internal TextFormat(IntPtr nativePointer, Renderer renderer) : base(nativePointer, renderer.NativeClient)
     {
         Renderer = renderer;
@@ -40,35 +37,20 @@ public sealed class TextFormat : NativeObject, IDisposable
 
     #region DISPOSABLE
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
+    private Boolean disposed;
 
-    private void Dispose(Boolean disposing)
+    /// <inheritdoc/>
+    protected override void Dispose(Boolean disposing)
     {
-        if (disposed) return;
-
-        if (disposing)
+        if (!disposed)
         {
-            // todo: Deregister and call NativeMethods.FreeUserInterfaceTextFormat.
-            // Contract: native text formats are reusable, but disposed managed wrappers must never be used again.
-            throw new NotImplementedException();
+            disposed = true;
+
+            if (disposing)
+                NativeMethods.ReturnUserInterfaceTextFormat(this);
         }
 
-        ExceptionTools.ThrowForMissedDispose(this);
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     The finalizer.
-    /// </summary>
-    ~TextFormat()
-    {
-        Dispose(disposing: false);
+        base.Dispose(disposing);
     }
 
     #endregion DISPOSABLE

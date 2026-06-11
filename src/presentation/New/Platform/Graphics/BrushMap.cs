@@ -18,31 +18,91 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
+using System.Drawing;
+using VoxelGame.GUI.Graphics;
+using VoxelGame.Toolkit.Utilities;
 using Brush = VoxelGame.GUI.Graphics.Brush;
 
 namespace VoxelGame.Presentation.New.Platform.Graphics;
 
 /// <summary>
-///     Maps GUI brushes to native user-interface brushes.
+///     Maps GUI brushes to native brush wrappers.
 /// </summary>
-internal sealed class BrushMap : IDisposable
+internal sealed class BrushMap(Renderer renderer) : IDisposable
 {
-    public BrushMap(Renderer renderer)
+    private readonly Dictionary<Brush, VoxelGame.Graphics.Objects.UserInterface.Brush> map = [];
+
+    public VoxelGame.Graphics.Objects.UserInterface.Brush? Get(Brush brush, out Color? color)
     {
-        // todo: Store the native UI renderer and subscribe to scale invalidation if needed.
-        // Contract: maps are owned by the presentation renderer and dispose all cached native wrappers.
-        _ = renderer;
+        color = null;
+
+        switch (brush)
+        {
+            case TransparentBrush:
+                return null;
+
+            case SolidColorBrush solidColorBrush:
+                color = solidColorBrush.Color;
+                return null;
+
+            default:
+                return GetOrCreateBrush(brush);
+        }
     }
 
+    private VoxelGame.Graphics.Objects.UserInterface.Brush GetOrCreateBrush(Brush brush)
+    {
+        if (map.TryGetValue(brush, out VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush))
+            return uiBrush;
+
+        uiBrush = brush switch
+        {
+            SolidColorBrush solidColorBrush => renderer.CreateSolidColorBrush(solidColorBrush.Color),
+            _ => throw Exceptions.UnsupportedValue(brush)
+        };
+
+        map.Add(brush, uiBrush);
+
+        return uiBrush;
+    }
+
+    #region DISPOSABLE
+
+    private Boolean disposed;
+
+    /// <inheritdoc />
     public void Dispose()
     {
-        // todo: Dispose all cached native brush wrappers.
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
-    public Brush Get(Brush brush)
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~BrushMap()
     {
-        // todo: Resolve a GUI brush to a native user-interface brush.
-        _ = brush;
-        throw new NotImplementedException();
+        Dispose(disposing: false);
     }
+
+    private void Dispose(Boolean disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+        {
+            foreach (VoxelGame.Graphics.Objects.UserInterface.Brush brush in map.Values)
+            {
+                brush.Dispose();
+            }
+
+            map.Clear();
+        }
+        else ExceptionTools.ThrowForMissedDispose<BrushMap>();
+
+        disposed = true;
+    }
+
+    #endregion DISPOSABLE
 }

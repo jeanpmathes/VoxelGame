@@ -19,35 +19,28 @@
 
 using System;
 using System.Drawing;
+using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.GUI.Texts;
 using Brush = VoxelGame.GUI.Graphics.Brush;
-using Font = VoxelGame.GUI.Texts.Font;
 
 namespace VoxelGame.Presentation.New.Platform.Graphics;
 
 /// <summary>
 ///     Combines all information related to a formatted text for drawing.
 /// </summary>
-/// <param name="renderer">The renderer used to create and draw this text.</param>
-/// <param name="text">The text content.</param>
-/// <param name="font">The font used to draw this text.</param>
-/// <param name="options">Further options to draw this text.</param>
-public sealed class FormattedText(Renderer renderer, String text, Font font, TextOptions options) : IFormattedText
+public sealed class FormattedText : IFormattedText
 {
-    /// <summary>
-    ///     The text content.
-    /// </summary>
-    public String Text { get; } = text;
+    private readonly Renderer renderer;
+    private readonly Text text;
 
-    /// <summary>
-    ///     The font used to draw this text.
-    /// </summary>
-    public Font Font { get; } = font;
+    private SizeF? lastAvailableSize;
 
-    /// <summary>
-    ///     The string format created from the passed options.
-    /// </summary>
-    public StringFormat StringFormat { get; } = CreateStringFormat(options);
+    internal FormattedText(Renderer renderer, String content, TextOptions options)
+    {
+        this.renderer = renderer;
+
+        text = renderer.CreateText(content, options);
+    }
 
     /// <summary>
     ///     Measure the size this formatted text requires.
@@ -56,55 +49,27 @@ public sealed class FormattedText(Renderer renderer, String text, Font font, Tex
     /// <returns>The measured and required size.</returns>
     public SizeF Measure(SizeF availableSize)
     {
-        return renderer.MeasureText(this, availableSize);
+        lastAvailableSize = availableSize;
+
+        return text.Measure(availableSize);
     }
 
     /// <summary>
     ///     Draw this formatted text.
     /// </summary>
     /// <param name="rectangle">The rectangle in which the text will be drawn, used for positioning and clipping.</param>
-    /// <param name="brush">The brush to draw the text with.</param>
+    /// <param name="brush">The brush with which to draw the text.</param>
     public void Draw(RectangleF rectangle, Brush brush)
     {
-        renderer.DrawText(this, rectangle, brush);
+        if (lastAvailableSize == null || lastAvailableSize.Value != rectangle.Size)
+            Measure(rectangle.Size);
+
+        renderer.DrawText(text, rectangle.Location, brush);
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        StringFormat.Dispose();
-    }
-
-    private static StringFormat CreateStringFormat(TextOptions options)
-    {
-        StringFormat format = (StringFormat) StringFormat.GenericTypographic.Clone();
-
-        if (options.Wrapping == TextWrapping.NoWrap)
-            format.FormatFlags |= StringFormatFlags.NoWrap;
-
-        format.FormatFlags |= StringFormatFlags.MeasureTrailingSpaces;
-
-        format.Alignment = options.Alignment switch
-        {
-            TextAlignment.Leading => StringAlignment.Near,
-            TextAlignment.Center => StringAlignment.Center,
-            TextAlignment.Trailing => StringAlignment.Far,
-            _ => StringAlignment.Near
-        };
-
-        format.LineAlignment = StringAlignment.Near;
-
-        format.Trimming = options.Trimming switch
-        {
-            TextTrimming.None => StringTrimming.None,
-            TextTrimming.Character => StringTrimming.Character,
-            TextTrimming.Word => StringTrimming.Word,
-            TextTrimming.CharacterEllipsis => StringTrimming.EllipsisCharacter,
-            TextTrimming.WordEllipsis => StringTrimming.EllipsisWord,
-            TextTrimming.PathEllipsis => StringTrimming.EllipsisPath,
-            _ => StringTrimming.None
-        };
-
-        return format;
+        text.Dispose();
     }
 }

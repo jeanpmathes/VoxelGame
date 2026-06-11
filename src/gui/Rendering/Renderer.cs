@@ -23,7 +23,6 @@ using VoxelGame.GUI.Graphics;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Utilities;
 using Brush = VoxelGame.GUI.Graphics.Brush;
-using Font = VoxelGame.GUI.Texts.Font;
 
 namespace VoxelGame.GUI.Rendering;
 
@@ -35,10 +34,10 @@ public abstract class Renderer : IRenderer
     private Single scale = 1.0f;
 
     /// <inheritdoc />
-    public abstract void Begin();
+    public abstract void Reset();
 
     /// <inheritdoc />
-    public abstract void End();
+    public abstract void Submit();
 
     /// <inheritdoc />
     public abstract void PushOffset(PointF offset);
@@ -53,22 +52,13 @@ public abstract class Renderer : IRenderer
     public abstract void PopClip();
 
     /// <inheritdoc />
-    public abstract void BeginClip();
-
-    /// <inheritdoc />
-    public abstract void EndClip();
-
-    /// <inheritdoc />
-    public abstract Boolean IsClipEmpty();
-
-    /// <inheritdoc />
     public abstract void PushOpacity(Single opacity);
 
     /// <inheritdoc />
     public abstract void PopOpacity();
 
     /// <inheritdoc />
-    public abstract IFormattedText CreateFormattedText(String text, Font font, TextOptions options);
+    public abstract IFormattedText CreateFormattedText(String text, TextOptions options);
 
     /// <inheritdoc />
     public abstract void DrawFilledRectangle(RectangleF rectangle, RadiusF corners, Brush brush);
@@ -77,10 +67,7 @@ public abstract class Renderer : IRenderer
     public abstract void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF corners, StrokeStyle stroke, Brush brush);
 
     /// <inheritdoc />
-    public abstract void Resize(Size size);
-
-    /// <inheritdoc />
-    public virtual void Scale(Single newScale)
+    public virtual void OnScale(Single newScale)
     {
         scale = newScale;
     }

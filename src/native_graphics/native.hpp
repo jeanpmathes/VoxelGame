@@ -59,6 +59,7 @@ struct Configuration
 
     LPWSTR applicationName;
     LPWSTR applicationVersion;
+    LPWSTR applicationLocale;
 
     INT64 baseLogicUpdatesPerSecond;
 

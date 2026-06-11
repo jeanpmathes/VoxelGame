@@ -19,7 +19,6 @@
 
 using System;
 using System.Runtime.InteropServices.Marshalling;
-using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Objects.UserInterface;
 
@@ -27,10 +26,8 @@ namespace VoxelGame.Graphics.Objects.UserInterface;
 ///     Native user-interface brush wrapper.
 /// </summary>
 [NativeMarshalling(typeof(BrushMarshaller))]
-public sealed class Brush : NativeObject, IDisposable
+public sealed class Brush : DisposableNativeObject<Brush>
 {
-    private Boolean disposed;
-
     internal Brush(IntPtr nativePointer, Renderer renderer) : base(nativePointer, renderer.NativeClient)
     {
         Renderer = renderer;
@@ -40,35 +37,20 @@ public sealed class Brush : NativeObject, IDisposable
 
     #region DISPOSABLE
 
-    /// <inheritdoc />
-    public void Dispose()
-    {
-        Dispose(disposing: true);
-        GC.SuppressFinalize(this);
-    }
+    private Boolean disposed;
 
-    private void Dispose(Boolean disposing)
+    /// <inheritdoc/>
+    protected override void Dispose(Boolean disposing)
     {
-        if (disposed) return;
-
-        if (disposing)
+        if (!disposed)
         {
-            // todo: Deregister and call NativeMethods.FreeUserInterfaceBrush.
-            // Contract: freeing returns the native brush to BrushSupport, and the wrapper must throw on later use.
-            throw new NotImplementedException();
+            disposed = true;
+
+            if (disposing)
+                NativeMethods.ReturnUserInterfaceBrush(this);
         }
 
-        ExceptionTools.ThrowForMissedDispose(this);
-
-        disposed = true;
-    }
-
-    /// <summary>
-    ///     The finalizer.
-    /// </summary>
-    ~Brush()
-    {
-        Dispose(disposing: false);
+        base.Dispose(disposing);
     }
 
     #endregion DISPOSABLE

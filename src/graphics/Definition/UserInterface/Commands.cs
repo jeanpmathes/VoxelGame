@@ -46,6 +46,9 @@ internal enum CommandKind : UInt32
     ///     The <c>PUSH_CLIP</c> command.
     ///     Pushes a clipping rectangle to the clip stack.
     /// </summary>
+    /// <remarks>
+    /// Note that clipping and opacity cannot be interleaved.
+    /// </remarks>
     /// <seealso cref="PushClipCommand" />
     PushClip = 2,
 
@@ -53,12 +56,18 @@ internal enum CommandKind : UInt32
     ///     The <c>POP_CLIP</c> command.
     ///     Pops the most recent clipping rectangle from the clip stack.
     /// </summary>
+    /// <remarks>
+    /// Note that clipping and opacity cannot be interleaved.
+    /// </remarks>
     PopClip = 3,
 
     /// <summary>
     ///     The <c>PUSH_OPACITY</c> command.
     ///     Pushes an opacity value to the opacity stack.
     /// </summary>
+    /// <remarks>
+    /// Note that clipping and opacity cannot be interleaved.
+    /// </remarks>
     /// <seealso cref="PushOpacityCommand" />
     PushOpacity = 4,
 
@@ -66,6 +75,9 @@ internal enum CommandKind : UInt32
     ///     The <c>POP_OPACITY</c> command.
     ///     Pops the most recent opacity value from the opacity stack.
     /// </summary>
+    /// <remarks>
+    /// Note that clipping and opacity cannot be interleaved.
+    /// </remarks>
     PopOpacity = 5,
 
     /// <summary>

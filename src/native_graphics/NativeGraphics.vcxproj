@@ -149,6 +149,7 @@
         <ClInclude Include="Objects\Spatial.hpp"/>
         <ClInclude Include="Objects\Texture.hpp"/>
         <ClInclude Include="Space.hpp"/>
+        <ClInclude Include="Tools\PriorityList.hpp"/>
         <ClInclude Include="UserInterface\Commands.hpp"/>
         <ClInclude Include="UserInterface\Context.hpp"/>
         <ClInclude Include="UserInterface\Definitions.hpp"/>
@@ -238,6 +239,7 @@
         <ClCompile Include="Objects\Spatial.cpp"/>
         <ClCompile Include="Objects\Texture.cpp"/>
         <ClCompile Include="Space.cpp"/>
+        <ClCompile Include="Tools\PriorityList.cpp"/>
         <ClCompile Include="UserInterface\Context.cpp">
             <ObjectFileName>$(IntDir)UserInterface\Context.obj</ObjectFileName>
         </ClCompile>

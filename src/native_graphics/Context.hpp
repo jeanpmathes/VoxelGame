@@ -16,7 +16,7 @@ namespace ui
 class Context final
 {
 public:
-    Context(NativeClient& client, Configuration const& configuration, UINT width, UINT height);
+    Context(NativeClient& client, WCHAR const* applicationName, WCHAR const* applicationVersion, D3D12MessageFunc onDebug, UINT width, UINT height);
     ~Context();
 
     Context(Context const&)            = delete;
@@ -87,7 +87,7 @@ public:
 private:
 #endif
 
-    void CreateDevice(Configuration const& configuration);
+    void CreateDevice();
     void CreateSwapChain(UINT width, UINT height);
     void CreateSizeDependentResources();
     void CreateFences();

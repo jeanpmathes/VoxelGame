@@ -41,19 +41,22 @@ namespace ui
         {
         };
 
-        TextFormat(Renderer& renderer, Index index, TextFormatDescription description, ComPtr<IDWriteTextFormat> format);
+        explicit TextFormat(Renderer& renderer);
 
-        void Reset(Index newIndex, TextFormatDescription description, ComPtr<IDWriteTextFormat> format);
+        /**
+         * Return this text to the renderer. Do not use after returning.
+         */
         void Return();
-        void SetIndex(std::optional<Index> newIndex);
 
-        [[nodiscard]] Renderer&            GetRenderer() const;
-        [[nodiscard]] std::optional<Index> GetIndex() const;
-        [[nodiscard]] IDWriteTextFormat*   GetWrapped() const;
+        void Reset(Index newIndex, TextFormatDescription const& newDescription);
+
+        [[nodiscard]] Renderer&          GetRenderer() const;
+        [[nodiscard]] IDWriteTextFormat* GetWrapped() const;
 
     private:
-        Renderer*                 renderer;
-        std::optional<Index>      index;
+        Renderer*            renderer;
+        std::optional<Index> index;
+
         ComPtr<IDWriteTextFormat> wrapped;
     };
 }

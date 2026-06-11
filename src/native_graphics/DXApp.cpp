@@ -66,10 +66,34 @@ namespace
     }
 }
 
-DXApp::DXApp(Configuration const& configuration)
-    : title(configuration.title)
+DXApp::DXApp(::Configuration const& configuration)
+    : hooks(
+            {
+                .onRenderUpdate = configuration.onRenderUpdate,
+                .onLogicUpdate  = configuration.onLogicUpdate,
+
+                .onInit    = configuration.onInit,
+                .onDestroy = configuration.onDestroy,
+
+                .canClose = configuration.canClose,
+
+                .onKeyDown     = configuration.onKeyDown,
+                .onKeyUp       = configuration.onKeyUp,
+                .onChar        = configuration.onChar,
+                .onMouseMove   = configuration.onMouseMove,
+                .onMouseScroll = configuration.onMouseScroll,
+
+                .onResize            = configuration.onResize,
+                .onActiveStateChange = configuration.onActiveStateChange
+            })
+  , configurationOptions(configuration.options)
+  , title(configuration.title)
   , icon(configuration.icon)
-  , configuration(configuration)
+  , applicationName(configuration.applicationName)
+  , applicationVersion(configuration.applicationVersion)
+  , applicationLocale(configuration.applicationLocale)
+  , baseLogicUpdatesPerSecond(configuration.baseLogicUpdatesPerSecond)
+  , renderScale(configuration.renderScale)
   , width(std::max(configuration.width, Win32Application::MINIMUM_WINDOW_WIDTH))
   , height(std::max(configuration.height, Win32Application::MINIMUM_WINDOW_HEIGHT))
 {
@@ -107,11 +131,11 @@ void DXApp::Init()
 
     OnPreInitialization();
 
-    configuration.onInit();
+    hooks.onInit();
 
     OnPostInitialization();
 
-    baseLogicUpdateTarget = 1.0 / static_cast<double>(std::max(configuration.baseLogicUpdatesPerSecond, 1LL));
+    baseLogicUpdateTarget = 1.0 / static_cast<double>(std::max(baseLogicUpdatesPerSecond, 1LL));
 
     logicTimer.SetFixedTimeStep(true);
     logicTimer.SetTargetElapsedSeconds(baseLogicUpdateTarget);
@@ -130,7 +154,7 @@ void DXApp::Update(StepTimer const& timer)
 
     cycle = Cycle::LOGIC_UPDATE;
 
-    configuration.onLogicUpdate(delta, scaledDelta);
+    hooks.onLogicUpdate(delta, scaledDelta);
     OnLogicUpdate();
 
     cycle = std::nullopt;
@@ -149,7 +173,7 @@ void DXApp::RenderUpdate(StepTimer const& timer)
     cycle = Cycle::RENDER_UPDATE;
 
     OnPreRenderUpdate();
-    configuration.onRenderUpdate(delta, scaledDelta);
+    hooks.onRenderUpdate(delta, scaledDelta);
     OnRenderUpdate();
 
     cycle = std::nullopt;
@@ -160,17 +184,17 @@ void DXApp::Destroy()
     cycle = Cycle::DESTROY;
 
     OnDestroy();
-    configuration.onDestroy();
+    hooks.onDestroy();
 
     cycle = std::nullopt;
 }
 
-bool DXApp::CanClose() const { return configuration.canClose(); }
+bool DXApp::CanClose() const { return hooks.canClose(); }
 
 void DXApp::HandleSizeChanged(UINT const newWidth, UINT const newHeight, bool const minimized)
 {
     OnSizeChanged(newWidth, newHeight, minimized);
-    configuration.onResize(newWidth, newHeight);
+    hooks.onResize(newWidth, newHeight);
 
     if (mouseLocked) SetMouseLock(true);
 }
@@ -186,7 +210,7 @@ void DXApp::HandleActiveStateChange(bool const active)
 {
     isActive = active;
 
-    configuration.onActiveStateChange(active);
+    hooks.onActiveStateChange(active);
 }
 
 void DXApp::OnSizeMove(bool const enter)
@@ -205,21 +229,21 @@ void DXApp::OnSizeMove(bool const enter)
 
 void DXApp::OnTimer(UINT_PTR const id) { if (id == IDT_UPDATE) Update(CycleFlags::ALLOW_LOGIC_UPDATE, true); }
 
-void DXApp::OnKeyDown(UINT8 const param) const { configuration.onKeyDown(param); }
+void DXApp::OnKeyDown(UINT8 const param) const { hooks.onKeyDown(param); }
 
-void DXApp::OnKeyUp(UINT8 const param) const { configuration.onKeyUp(param); }
+void DXApp::OnKeyUp(UINT8 const param) const { hooks.onKeyUp(param); }
 
-void DXApp::OnChar(UINT16 const c) const { configuration.onChar(c); }
+void DXApp::OnChar(UINT16 const c) const { hooks.onChar(c); }
 
 void DXApp::OnMouseMove(int const x, int const y)
 {
     xMousePosition = x;
     yMousePosition = y;
 
-    configuration.onMouseMove(x, y);
+    hooks.onMouseMove(x, y);
 }
 
-void DXApp::OnMouseWheel(double const delta) const { configuration.onMouseScroll(delta); }
+void DXApp::OnMouseWheel(double const delta) const { hooks.onMouseScroll(delta); }
 
 void DXApp::DoCursorSet() const { SetCursor(mouseCursors.at(mouseCursor)); }
 
@@ -304,6 +328,6 @@ void DXApp::CheckTearingSupport()
     bool allowTearing = false;
     if (SUCCEEDED(hr)) hr = factory->CheckFeatureSupport(DXGI_FEATURE_PRESENT_ALLOW_TEARING, &allowTearing, sizeof(allowTearing));
 
-    auto const isTearingConfigured = static_cast<bool>(configuration.options & ConfigurationOptions::ALLOW_TEARING);
+    auto const isTearingConfigured = static_cast<bool>(configurationOptions & ConfigurationOptions::ALLOW_TEARING);
     tearingSupport                 = SUCCEEDED(hr) && allowTearing && isTearingConfigured;
 }

@@ -44,7 +44,9 @@ namespace ui
         void BeginFrame(UINT frameIndex) const;
         void EndFrame(UINT frameIndex) const;
 
-        [[nodiscard]] IDWriteFactory* GetDirectWriteFactory() const;
+        [[nodiscard]] IDWriteFactory*     GetDirectWriteFactory() const;
+        [[nodiscard]] ID2D1Factory3*      GetDirect2DFactory() const;
+        [[nodiscard]] ID2D1DeviceContext* GetDirect2DDeviceContext() const;
 
     private:
         std::vector<ID3D11Resource*> GetWrappedResources(UINT frameIndex) const;

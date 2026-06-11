@@ -31,33 +31,45 @@ namespace ui
     class BrushSupport final
     {
     public:
-        static constexpr size_t MAX_FREE_BRUSHES = 32;
+        static constexpr size_t MAX_FREE_BRUSHES = 32; // todo: profile
 
         explicit BrushSupport(Renderer& renderer);
 
         /**
          * \brief Get a solid-color brush.
          * \param color The brush color.
-         * \returns The brush. Needs to be freed.
+         * \returns The brush. Needs to be returned.
          */
         Brush& GetSolidColorBrush(ColorF color);
 
-        void ReturnSolidColorBrush(Brush& brush, ComPtr<ID2D1SolidColorBrush> wrapped);
+        /**
+         * \brief Return a solid color brush.
+         * Do not use this method, instead use \c Brush::Return() .
+         * \param index The index of the brush to return.
+         */
+        void ReturnSolidColorBrush(Brush::Index index);
 
         /**
-         * \brief Get a scratch solid-color brush for direct color drawing commands.
+         * \brief Access a raw (unwrapped) solid-color brush for direct color drawing commands.
          * \param color The color of the requested brush.
-         * \returns The brush, owned by the support.
+         * \returns The raw Direct2D brush, owned by the support.
          */
-        ID2D1Brush* GetScratchSolidColorBrush(ColorF color);
+        ID2D1Brush* UseRawSolidColorBrush(ColorF color);
+
+        /**
+         * \brief Validate that all wrapped resources have been returned to this support class.
+         * 
+         * This uses the debug layer to create messages if resources have not been returned.
+         * It is invalid to use wrapped resources managed by this support class after the class has been freed.
+         */
+        void ValidateAllWrappedResourcesAreReturned() const;
 
     private:
         Renderer& renderer;
 
         Bag<std::unique_ptr<Brush>, Brush::Index> brushes;
 
-        std::vector<std::unique_ptr<Brush>>       freeWrapper;
-        std::vector<ComPtr<ID2D1SolidColorBrush>> freeSolidColorBrushes;
+        std::vector<std::unique_ptr<Brush>> freeSolidColorBrushes;
 
         ComPtr<ID2D1SolidColorBrush> scratchSolidColorBrush;
     };

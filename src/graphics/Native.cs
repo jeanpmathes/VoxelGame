@@ -20,17 +20,21 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Definition.UserInterface;
 using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.Toolkit.Utilities;
+using Brush = VoxelGame.Graphics.Objects.UserInterface.Brush;
+using Image = VoxelGame.Core.Visuals.Image;
 using Mesh = VoxelGame.Graphics.Objects.Mesh;
 
 namespace VoxelGame.Graphics;
@@ -318,6 +322,62 @@ internal static class Native
             NativeMethods.RemoveDraw2DPipeline(client, id);
             draw2DCallbacks.Remove(id);
         });
+    }
+
+    /// <summary>
+    ///     Create a user interface renderer.
+    /// </summary>
+    /// <param name="client">The client to create the renderer from.</param>
+    /// <param name="priority">The priority, a higher priority means it is executed later and thus on top of other renderers.</param>
+    /// <returns>The created user interface renderer.</returns>
+    internal static Renderer CreateUserInterface(Client client, Int32 priority)
+    {
+        IntPtr pointer = NativeMethods.CreateUserInterface(client, priority);
+
+        return new Renderer(pointer, client);
+    }
+
+    /// <summary>
+    ///     Create a solid color brush.
+    /// </summary>
+    /// <param name="renderer">The user interface renderer that will use the brush.</param>
+    /// <param name="color">The color of the brush to create.</param>
+    /// <returns>The created brush.</returns>
+    internal static Brush CreateSolidColorBrush(Renderer renderer, Color color)
+    {
+        const Single scale = 1.0f / Byte.MaxValue;
+        NativeColorF nativeColor = new(color.R * scale, color.G * scale, color.B * scale, color.A * scale);
+
+        IntPtr pointer = NativeMethods.CreateUserInterfaceSolidColorBrush(renderer, nativeColor);
+
+        return new Brush(pointer, renderer);
+    }
+
+    /// <summary>
+    /// Creates a new text format instance using the specified renderer and text format description.
+    /// </summary>
+    /// <param name="renderer">The user interface renderer that will use the text format.</param>
+    /// <param name="description">The description of the text format to create.</param>
+    /// <returns>The created text format.</returns>
+    internal static TextFormat CreateTextFormat(Renderer renderer, TextFormatDescription description)
+    {
+        IntPtr pointer = NativeMethods.CreateUserInterfaceTextFormat(renderer, description);
+
+        return new TextFormat(pointer, renderer);
+    }
+
+    /// <summary>
+    /// Creates a new text instance using the specified renderer and text format.
+    /// </summary>
+    /// <param name="renderer">The user interface renderer that will use the text.</param>
+    /// <param name="text">The text to create.</param>
+    /// <param name="format">The text format to use.</param>
+    /// <returns>The created text.</returns>
+    internal static Text CreateText(Renderer renderer, String text, TextFormat format)
+    {
+        IntPtr pointer = NativeMethods.CreateUserInterfaceText(renderer, text, (UInt32) text.Length, format);
+
+        return new Text(pointer, format, renderer);
     }
 
     /// <summary>

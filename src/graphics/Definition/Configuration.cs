@@ -235,6 +235,11 @@ internal static partial class Native
         internal String applicationVersion;
 
         /// <summary>
+        ///     The locale of the application.
+        /// </summary>
+        internal String applicationLocale;
+
+        /// <summary>
         ///     A handle to the icon to use for the window.
         /// </summary>
         internal IntPtr icon;
@@ -281,6 +286,7 @@ internal static partial class Native
                 icon = managed.icon,
                 applicationName = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationName),
                 applicationVersion = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationVersion),
+                applicationLocale = UnicodeStringMarshaller.ConvertToUnmanaged(managed.applicationLocale),
                 baseLogicUpdatesPerSecond = managed.baseLogicUpdatesPerSecond,
                 renderScale = managed.renderScale,
                 options = managed.options
@@ -290,6 +296,10 @@ internal static partial class Native
         internal static void Free(Unmanaged unmanaged)
         {
             UnicodeStringMarshaller.Free(unmanaged.title);
+
+            UnicodeStringMarshaller.Free(unmanaged.applicationName);
+            UnicodeStringMarshaller.Free(unmanaged.applicationVersion);
+            UnicodeStringMarshaller.Free(unmanaged.applicationLocale);
         }
 
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
@@ -314,6 +324,7 @@ internal static partial class Native
             internal IntPtr icon;
             internal IntPtr applicationName;
             internal IntPtr applicationVersion;
+            internal IntPtr applicationLocale;
             internal Int64 baseLogicUpdatesPerSecond;
             internal Single renderScale;
             internal ConfigurationOptions options;

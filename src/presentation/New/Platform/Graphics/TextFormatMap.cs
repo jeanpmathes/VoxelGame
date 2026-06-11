@@ -18,34 +18,107 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
+using VoxelGame.Core.Collections;
 using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.GUI.Texts;
-using Font = VoxelGame.GUI.Texts.Font;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Presentation.New.Platform.Graphics;
 
 /// <summary>
-///     Maps GUI text-format descriptions to native user-interface text formats.
+///     Maps text-format descriptions to text formats, while also managing lifetimes.
 /// </summary>
-internal sealed class TextFormatMap : IDisposable
+internal sealed class TextFormatMap(Renderer renderer) : IDisposable
 {
-    public TextFormatMap(Renderer renderer)
+    private readonly Dictionary<TextOptions, Entry> activeFormats = [];
+    private readonly Dictionary<TextFormat, Entry> formatMap = [];
+
+    private readonly Cache<TextOptions, TextFormat> cache = new DisposableCache<TextOptions, TextFormat>(100); // todo: profile and optimize
+
+    public TextFormat Request(TextOptions options)
     {
-        // todo: Store the native UI renderer and subscribe to renderer scale changes.
-        // Contract: there is no mutating API for native text formats.
-        _ = renderer;
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        if (activeFormats.TryGetValue(options, out Entry? entry))
+        {
+            entry.usage += 1;
+
+            return entry.format;
+        }
+
+        if (!cache.TryGet(options, out TextFormat? format, remove: true))
+            format = renderer.CreateTextFormat(options);
+
+        entry = new Entry {format = format, options = options, usage = 1};
+        activeFormats.Add(options, entry);
+        formatMap.Add(format, entry);
+
+        return format;
     }
 
+    public void Return(TextFormat format)
+    {
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        Entry entry = formatMap[format];
+
+        entry.usage -= 1;
+
+        if (entry.usage != 0) return;
+
+        activeFormats.Remove(entry.options);
+        formatMap.Remove(format);
+
+        cache.Add(entry.options, format);
+    }
+
+    private class Entry
+    {
+        public Int32 usage;
+        public TextOptions options;
+        public required TextFormat format;
+    }
+
+    #region DISPOSABLE
+
+    private Boolean disposed;
+
+    /// <inheritdoc />
     public void Dispose()
     {
-        // todo: Dispose all cached native text-format wrappers.
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
     }
 
-    public TextFormat Get(Font font, TextOptions options)
+    /// <summary>
+    ///     Finalizer.
+    /// </summary>
+    ~TextFormatMap()
     {
-        // todo: Resolve font and text options to a native user-interface text format.
-        _ = font;
-        _ = options;
-        throw new NotImplementedException();
+        Dispose(disposing: false);
     }
+
+    private void Dispose(Boolean disposing)
+    {
+        if (disposed) return;
+
+        if (disposing)
+        {
+            cache.Flush();
+
+            foreach (Entry entry in activeFormats.Values)
+            {
+                entry.format.Dispose();
+            }
+
+            activeFormats.Clear();
+            formatMap.Clear();
+        }
+        else ExceptionTools.ThrowForMissedDispose<TextFormatMap>();
+
+        disposed = true;
+    }
+
+    #endregion DISPOSABLE
 }

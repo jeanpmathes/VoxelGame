@@ -101,7 +101,7 @@ public sealed class Canvas : SingleChildControl<Canvas>, IDisposable
 
         Scale = newScale;
 
-        onlyRenderer.Scale(newScale);
+        onlyRenderer.OnScale(newScale);
 
         UpdateSize();
 
@@ -115,8 +115,6 @@ public sealed class Canvas : SingleChildControl<Canvas>, IDisposable
     public void SetRenderingSize(Size newSize)
     {
         viewportSize = newSize;
-
-        onlyRenderer.Resize(newSize);
 
         UpdateSize();
     }

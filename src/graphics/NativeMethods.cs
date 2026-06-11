@@ -166,23 +166,24 @@ internal static partial class NativeMethods
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceSolidColorBrush")]
     internal static partial IntPtr CreateUserInterfaceSolidColorBrush(Renderer renderer, NativeColorF color);
 
-    [LibraryImport(DllFilePath, EntryPoint = "NativeFreeUserInterfaceBrush")]
-    internal static partial void FreeUserInterfaceBrush(Brush brush);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeReturnUserInterfaceBrush")]
+    internal static partial void ReturnUserInterfaceBrush(Brush brush);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceTextFormat")]
     internal static partial IntPtr CreateUserInterfaceTextFormat(Renderer renderer, TextFormatDescription description);
 
-    [LibraryImport(DllFilePath, EntryPoint = "NativeFreeUserInterfaceTextFormat")]
-    internal static partial void FreeUserInterfaceTextFormat(TextFormat format);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeReturnUserInterfaceTextFormat")]
+    internal static partial void ReturnUserInterfaceTextFormat(TextFormat format);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceText")]
     internal static partial IntPtr CreateUserInterfaceText(
         Renderer renderer,
         [MarshalAs(UnmanagedType.LPWStr)] String text,
+        UInt32 textLength,
         TextFormat format);
 
-    [LibraryImport(DllFilePath, EntryPoint = "NativeFreeUserInterfaceText")]
-    internal static partial void FreeUserInterfaceText(Text text);
+    [LibraryImport(DllFilePath, EntryPoint = "NativeReturnUserInterfaceText")]
+    internal static partial void ReturnUserInterfaceText(Text text);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeMeasureUserInterfaceText")]
     internal static partial NativeSizeF MeasureUserInterfaceText(Text text, NativeSizeF availableSize);

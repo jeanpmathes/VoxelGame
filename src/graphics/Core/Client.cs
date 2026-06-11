@@ -34,6 +34,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
+using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Interop;
 using VoxelGame.Toolkit.Utilities;
@@ -141,6 +142,7 @@ public partial class Client : Application
             icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty)?.Handle ?? IntPtr.Zero,
             applicationName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown Application",
             applicationVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version",
+            applicationLocale = GetLocale(),
             baseLogicUpdatesPerSecond = windowSettings.BaseUpdatesPerSecond,
             renderScale = windowSettings.RenderScale,
             options = Definition.Native.BuildOptions(
@@ -153,6 +155,16 @@ public partial class Client : Application
 
         Native = NativeMethods.Configure(config.Configuration, config.ErrorFunc);
         Space = new Space(this);
+
+        String GetLocale()
+        {
+            CultureInfo culture = CultureInfo.CurrentCulture;
+
+            if (culture.IsNeutralCulture)
+                culture = CultureInfo.CreateSpecificCulture(culture.Name);
+
+            return culture.Name;
+        }
     }
 
     /// <inheritdoc />
@@ -343,6 +355,18 @@ public partial class Client : Application
         ExceptionTools.ThrowIfDisposed(disposed);
 
         return Graphics.Native.AddDraw2DPipeline(this, pipeline, priority, callback);
+    }
+
+    /// <summary>
+    /// Create and add a user interface renderer to the client.
+    /// </summary>
+    /// <param name="priority"></param>
+    /// <returns></returns>
+    public Renderer CreateUserInterface(Int32 priority)
+    {
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        return Graphics.Native.CreateUserInterface(this, priority);
     }
 
     /// <summary>

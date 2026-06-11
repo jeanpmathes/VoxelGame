@@ -139,7 +139,7 @@ public:
         using value_type      = I;
 
         const_iterator() = default;
-        const_iterator(std::vector<BinaryData>::const_iterator dataIterator, std::vector<BinaryData>::const_iterator dataEnd);
+        const_iterator(decltype(Data::data)::const_iterator dataIterator, decltype(Data::data)::const_iterator dataEnd);
         const_iterator& operator++();
         const_iterator& operator++(int);
         bool            operator==(const_iterator const& other) const;
@@ -148,8 +148,8 @@ public:
     private:
         void Advance();
 
-        std::vector<BinaryData>::const_iterator dataIterator;
-        std::vector<BinaryData>::const_iterator dataEnd;
+        decltype(Data::data)::const_iterator dataIterator;
+        decltype(Data::data)::const_iterator dataEnd;
 
         size_t inDataIndex = 0;
         size_t totalIndex  = 0;

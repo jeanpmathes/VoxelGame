@@ -109,15 +109,15 @@ namespace ui
      */
     enum class FontStretch : UINT8
     {
-        ULTRA_CONDENSED = 0,
-        EXTRA_CONDENSED = 1,
-        CONDENSED       = 2,
-        SEMI_CONDENSED  = 3,
-        NORMAL          = 4,
-        SEMI_EXPANDED   = 5,
-        EXPANDED        = 6,
-        EXTRA_EXPANDED  = 7,
-        ULTRA_EXPANDED  = 8,
+        ULTRA_CONDENSED = 1,
+        EXTRA_CONDENSED = 2,
+        CONDENSED       = 3,
+        SEMI_CONDENSED  = 4,
+        NORMAL          = 5,
+        SEMI_EXPANDED   = 6,
+        EXPANDED        = 7,
+        EXTRA_EXPANDED  = 8,
+        ULTRA_EXPANDED  = 9,
     };
 
     /**
@@ -154,7 +154,7 @@ namespace ui
     };
 
     /**
-     * \brief Text format description used across the native managed boundary.
+     * \brief Text format description.
      */
     struct TextFormatDescription
     {

@@ -36,14 +36,28 @@ namespace ui
         explicit TextSupport(Renderer& renderer);
 
         /**
-         * \brief Create a text object.
-         * \param text The text content used to create the object.
+         * \brief Get a text object.
+         * \param textContent The text content used to create the object.
+         * \param textLength The length of the text content.
          * \param format The text format used to create the object.
-         * \returns The active text object.
+         * \returns The text object. Needs to be returned.
          */
-        Text& Get(WCHAR const* text, TextFormat& format);
+        Text& GetText(WCHAR const* textContent, UINT textLength, TextFormat& format);
 
-        void Return(Text& text);
+        /**
+         * \brief Return a text.
+         * Do not use this method, instead use \c Text::Return() .
+         * \param index The index of the text to return.
+         */
+        void ReturnText(Text::Index index);
+
+        /**
+         * \brief Validate that all wrapped resources have been returned to this support class.
+         * 
+         * This uses the debug layer to create messages if resources have not been returned.
+         * It is invalid to use wrapped resources managed by this support class after the class has been freed.
+         */
+        void ValidateAllWrappedResourcesAreReturned() const;
 
     private:
         Renderer& renderer;

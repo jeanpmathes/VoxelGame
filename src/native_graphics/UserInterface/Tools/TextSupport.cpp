@@ -5,18 +5,27 @@ ui::TextSupport::TextSupport(Renderer& renderer)
 {
 }
 
-ui::Text& ui::TextSupport::Get(WCHAR const* text, TextFormat& format)
+ui::Text& ui::TextSupport::GetText(WCHAR const* textContent, UINT textLength, TextFormat& format)
 {
-    // todo: Create a new UI text object.
-    // Contract: create a new ui::Text, insert it into texts, and assign its active index; text layouts are not pooled.
-    (void)text;
-    (void)format;
-    throw NativeException("TODO: create UI text.");
+    auto  text   = std::make_unique<Text>(renderer);
+    Text& result = *text;
+
+    Text::Index const index = texts.Push(std::move(text));
+
+    result.Reset(index, textContent, textLength, format);
+
+    return result;
 }
 
-void ui::TextSupport::Return(Text& text)
+void ui::TextSupport::ReturnText(Text::Index const index)
 {
-    // todo: Return and destroy a UI text object.
-    // Contract: remove it from texts and destroy it; Text objects are never stored in a free list.
-    (void)text;
+    texts.Pop(index);
+}
+
+void ui::TextSupport::ValidateAllWrappedResourcesAreReturned() const
+{
+    if (texts.GetCount() > 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning(
+                                                                                           std::format(
+                                                                                                       "A total of {} wrapped texts have not been returned",
+                                                                                                       texts.GetCount()).c_str());
 }

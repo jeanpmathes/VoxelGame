@@ -23,26 +23,28 @@ using VoxelGame.GUI.Graphics;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Utilities;
 using Brush = VoxelGame.GUI.Graphics.Brush;
-using Font = VoxelGame.GUI.Texts.Font;
 
 namespace VoxelGame.GUI.Rendering;
 
 /// <summary>
 ///     The interface expected from a renderer for the GUI.
+///     Rendering operations are recorded by the renderer and used in each frame.
+///     This means that if the user interface has not changed, it may not perform any calls to the renderer but expect the user interface to still be rendered.
+///     All methods except <see cref="OnScale" /> are such rendering operations which are recorded.
 /// </summary>
 public interface IRenderer
 {
     /// <summary>
-    ///     Begin a rendering pass. All rendering operations must be performed between <see cref="Begin" /> and
-    ///     <see cref="End" />.
+    ///     Reset the renderer and its current content, allowing to record new content.
+    ///     Rendering operations must be performed between <see cref="Reset" /> and <see cref="Submit" />.
     /// </summary>
-    public void Begin();
+    public void Reset();
 
     /// <summary>
-    ///     End a rendering pass. All rendering operations must be performed between <see cref="Begin" /> and
-    ///     <see cref="End" />.
+    ///     End the recording of content.
+    ///     Rendering operations must be performed between <see cref="Reset" /> and <see cref="Submit" />.
     /// </summary>
-    public void End();
+    public void Submit();
 
     /// <summary>
     ///     Push an offset that will be applied to all operations.
@@ -59,7 +61,6 @@ public interface IRenderer
     /// <summary>
     ///     Push a clipping rectangle that will be applied to all operations.
     ///     The clipping rectangle is intersected with the previous clipping rectangle.
-    ///     Note that clipping must be enabled via <see cref="BeginClip" /> for the clipping rectangle to take effect.
     /// </summary>
     /// <param name="rectangle">The clipping rectangle to push.</param>
     public void PushClip(RectangleF rectangle);
@@ -68,23 +69,6 @@ public interface IRenderer
     ///     Pop the last pushed clipping rectangle. Performs no operation if no clipping rectangle was previously pushed.
     /// </summary>
     public void PopClip();
-
-    /// <summary>
-    ///     Begin clipping. All rendering operations after this call will be clipped to the current clipping rectangle if
-    ///     clipping is enabled.
-    /// </summary>
-    public void BeginClip();
-
-    /// <summary>
-    ///     End clipping. All rendering operations after this call will not be clipped.
-    /// </summary>
-    public void EndClip();
-
-    /// <summary>
-    ///     Check if the current clipping rectangle is empty, meaning nothing would pass.
-    /// </summary>
-    /// <returns>True if the clipping rectangle is empty, false otherwise.</returns>
-    public Boolean IsClipEmpty();
 
     /// <summary>
     ///     Push an opacity to the renderer, multiplying it with the current opacity.
@@ -102,10 +86,9 @@ public interface IRenderer
     ///     Create a formatted text object for the given text, font, and layout options.
     /// </summary>
     /// <param name="text">The text to format.</param>
-    /// <param name="font">The font to use for formatting the text.</param>
     /// <param name="options">The layout options such as wrapping, alignment, trimming, and line height.</param>
     /// <returns>The formatted text object.</returns>
-    IFormattedText CreateFormattedText(String text, Font font, TextOptions options);
+    IFormattedText CreateFormattedText(String text, TextOptions options);
 
     /// <summary>
     ///     Draw a filled rectangle.
@@ -146,15 +129,10 @@ public interface IRenderer
     }
 
     /// <summary>
-    ///     Resize the renderer's internal buffers to the specified size.
-    /// </summary>
-    /// <param name="size">The new size.</param>
-    public void Resize(Size size);
-
-    /// <summary>
     ///     Scale the rendered results by the specified factor.
-    ///     This affects all subsequent rendering operations and text measurements.
+    ///     This affects all further rendering operations and text measurements.
+    ///     This is not a rendering operation and will not be recorded.
     /// </summary>
     /// <param name="newScale">The new scale factor.</param>
-    public void Scale(Single newScale);
+    public void OnScale(Single newScale);
 }

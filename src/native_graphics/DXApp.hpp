@@ -37,7 +37,7 @@ enum class MouseCursor : BYTE
 class DXApp
 {
 public:
-    explicit DXApp(Configuration const& configuration);
+    explicit DXApp(::Configuration const& configuration);
     virtual  ~DXApp();
 
     DXApp(DXApp const& other)            = delete;
@@ -87,12 +87,15 @@ public:
     [[nodiscard]] UINT         GetHeight() const { return height; }
     [[nodiscard]] WCHAR const* GetTitle() const { return title.c_str(); }
     [[nodiscard]] HICON        GetIcon() const { return icon; }
+    [[nodiscard]] WCHAR const* GetApplicationName() const { return applicationName.c_str(); }
+    [[nodiscard]] WCHAR const* GetApplicationVersion() const { return applicationVersion.c_str(); }
+    [[nodiscard]] WCHAR const* GetApplicationLocale() const { return applicationLocale.c_str(); }
 
     [[nodiscard]] bool IsTearingSupportEnabled() const { return tearingSupport; }
 
-    [[nodiscard]] bool SupportPIX() const { return static_cast<bool>(configuration.options & ConfigurationOptions::SUPPORT_PIX); }
+    [[nodiscard]] bool SupportPIX() const { return static_cast<bool>(configurationOptions & ConfigurationOptions::SUPPORT_PIX); }
 
-    [[nodiscard]] bool UseGBV() const { return static_cast<bool>(configuration.options & ConfigurationOptions::USE_GBV); }
+    [[nodiscard]] bool UseGBV() const { return static_cast<bool>(configurationOptions & ConfigurationOptions::USE_GBV); }
 
     void SetWindowBounds(int left, int top, int right, int bottom);
     void UpdateForSizeChange(UINT clientWidth, UINT clientHeight);
@@ -163,13 +166,42 @@ protected:
     void SetCustomWindowText(LPCWSTR text) const;
     void CheckTearingSupport();
 
-    [[nodiscard]] FLOAT GetRenderScale() const { return configuration.renderScale; }
+    [[nodiscard]] FLOAT GetRenderScale() const { return renderScale; }
 
 private:
+    struct Hooks
+    {
+        NativeRenderUpdateFunction onRenderUpdate;
+        NativeLogicUpdateFunction  onLogicUpdate;
+
+        NativeCallbackFunction onInit;
+        NativeCallbackFunction onDestroy;
+
+        NativeCheckFunction canClose;
+
+        NativeInputFunction       onKeyDown;
+        NativeInputFunction       onKeyUp;
+        NativeCharFunction        onChar;
+        NativeMouseMoveFunction   onMouseMove;
+        NativeMouseScrollFunction onMouseScroll;
+
+        NativeResizeFunction onResize;
+        NativeBoolFunction   onActiveStateChange;
+    };
+
+    Hooks                hooks;
+    ConfigurationOptions configurationOptions;
+
     std::wstring title;
     HICON        icon;
 
-    Configuration configuration;
+    std::wstring applicationName;
+    std::wstring applicationVersion;
+    std::wstring applicationLocale;
+
+    INT64 baseLogicUpdatesPerSecond;
+
+    FLOAT renderScale;
 
     StepTimer logicTimer{};
     StepTimer renderTimer{};

@@ -23,6 +23,7 @@
 #include "UserInterface/Commands.hpp"
 
 #include "UserInterface/Tools/BrushSupport.hpp"
+#include "UserInterface/Tools/State.hpp"
 #include "UserInterface/Tools/StrokeSupport.hpp"
 #include "UserInterface/Tools/TextFormatSupport.hpp"
 #include "UserInterface/Tools/TextSupport.hpp"
@@ -39,9 +40,9 @@ namespace ui
         DECLARE_OBJECT_SUBCLASS(Renderer)
 
     public:
-        Renderer(NativeClient& client, INT priority);
+        explicit Renderer(NativeClient& client);
 
-        [[nodiscard]] INT GetPriority() const;
+        [[nodiscard]] Context& GetContext() const;
 
         [[nodiscard]] BrushSupport&      GetBrushSupport();
         [[nodiscard]] TextFormatSupport& GetTextFormatSupport();
@@ -61,19 +62,36 @@ namespace ui
 
         /**
          * \brief Execute the latest submitted commands.
-         * \param frameIndex The frame to render into.
          */
-        void Render(UINT frameIndex);
+        void Render();
 
         void Free();
 
     private:
-        INT                  priority;
         std::vector<Command> commands;
+
+        State state;
 
         BrushSupport      brushSupport;
         TextFormatSupport textFormatSupport;
         TextSupport       textSupport;
         StrokeSupport     strokeSupport;
+
+        void PushOffset(PushOffsetCommand const& command);
+        void PopOffset();
+        void PushClip(PushClipCommand const& command);
+        void PopClip();
+        void PushOpacity(PushOpacityCommand const& command);
+        void PopOpacity();
+        void DrawRectangleLinedColor(DrawRectangleLinedColorCommand const& command);
+        void DrawRectangleLinedBrush(DrawRectangleLinedBrushCommand const& command);
+        void DrawRectangleLinedRoundedColor(DrawRectangleLinedRoundedColorCommand const& command);
+        void DrawRectangleLinedRoundedBrush(DrawRectangleLinedRoundedBrushCommand const& command);
+        void DrawRectangleFilledColor(DrawRectangleFilledColorCommand const& command);
+        void DrawRectangleFilledBrush(DrawRectangleFilledBrushCommand const& command);
+        void DrawRectangleFilledRoundedColor(DrawRectangleFilledRoundedColorCommand const& command);
+        void DrawRectangleFilledRoundedBrush(DrawRectangleFilledRoundedBrushCommand const& command);
+        void DrawTextColor(DrawTextColorCommand const& command);
+        void DrawTextBrush(DrawTextBrushCommand const& command);
     };
 }

@@ -1,31 +1,27 @@
 #include "stdafx.h"
 
-ui::Brush::Brush(Renderer& renderer, Index index, ComPtr<ID2D1SolidColorBrush> brush)
+ui::Brush::Brush(Renderer& renderer)
     : Object(renderer.GetClient())
   , renderer(&renderer)
-  , index(index)
-  , wrapped(std::move(brush))
 {
-}
-
-void ui::Brush::Reset(Index newIndex, ComPtr<ID2D1SolidColorBrush> newBrush)
-{
-    // todo: Reset a reusable solid-color brush.
-    // Contract: assign the new active index and wrapped brush supplied by BrushSupport.
-    index   = newIndex;
-    wrapped = std::move(newBrush);
 }
 
 void ui::Brush::Return()
 {
-    // todo: Return this brush through BrushSupport::ReturnSolidColorBrush.
-    // Contract: remove it from the active bag, clear its active index, and pool only while the free list has space.
+    Index const oldIndex = index.value();
+    index                = std::nullopt;
+
+    renderer->GetBrushSupport().ReturnSolidColorBrush(oldIndex);
 }
 
-void ui::Brush::SetIndex(std::optional<Index> newIndex) { index = newIndex; }
+void ui::Brush::Reset(Index newIndex, ColorF const newColor)
+{
+    index = newIndex;
+
+    if (wrapped == nullptr) TryDo(renderer->GetContext().GetDirect2DDeviceContext()->CreateSolidColorBrush(newColor.ToD2D1(), &wrapped));
+    else wrapped->SetColor(newColor.ToD2D1());
+}
 
 ui::Renderer& ui::Brush::GetRenderer() const { return *renderer; }
-
-std::optional<ui::Brush::Index> ui::Brush::GetIndex() const { return index; }
 
 ID2D1Brush* ui::Brush::GetWrapped() const { return wrapped.Get(); }

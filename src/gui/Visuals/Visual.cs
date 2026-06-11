@@ -19,7 +19,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using VoxelGame.Core.Utilities;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Input;
@@ -807,11 +809,6 @@ public abstract class Visual
     private Boolean isRenderValid;
 
     /// <summary>
-    ///     Determines whether the visual should be clipped to its bounds while rendering.
-    /// </summary>
-    protected virtual Boolean ShouldClip => true;
-
-    /// <summary>
     ///     Render this visual using the specified renderer.
     ///     For custom rendering, generally override <see cref="OnRender()" /> instead of this method, as this method handles
     ///     important setup and teardown logic.
@@ -825,45 +822,17 @@ public abstract class Visual
         if (!Visibility.GetValue().IsVisible)
             return;
 
-        // todo: unify all push/pop operations into a single Push(offset, clip?, opacity) with nullable clip
-
-        renderer.PushOffset(Bounds.Location);
-        renderer.PushOpacity(Opacity.GetValue());
-
-        DoRender();
-
-        if (ShouldClip)
-            renderer.PopClip();
-
-        renderer.PopOpacity();
-        renderer.PopOffset();
-
-        isRenderValid = true;
-
-        if (drawDebugOutlinesEffective)
+        if (!RenderBounds.IsEmpty)
         {
-            ThicknessF margin = Margin.GetValue();
-            ThicknessF padding = Padding.GetValue();
+            Boolean hasOpacity = MathTools.NearlyEqual(Opacity.GetValue(), b: 1.0f);
 
-            if (margin != ThicknessF.Zero)
-                renderer.DrawLinedRectangle(Bounds + margin, Brushes.DebugMargin);
+            // todo: unify all push/pop operations into a single Push(offset, clip, opacity?)
 
-            renderer.DrawLinedRectangle(Bounds, Brushes.DebugBounds);
+            renderer.PushOffset(Bounds.Location);
+            renderer.PushClip(RenderBounds);
 
-            if (padding != ThicknessF.Zero)
-                renderer.DrawLinedRectangle(Bounds - padding, Brushes.DebugPadding);
-        }
-
-        void DoRender()
-        {
-            if (ShouldClip)
-            {
-                renderer.PushClip(RenderBounds);
-
-                if (renderer.IsClipEmpty()) return;
-
-                renderer.BeginClip();
-            }
+            if (hasOpacity)
+                renderer.PushOpacity(Opacity.GetValue());
 
             OnRender();
 
@@ -871,7 +840,18 @@ public abstract class Visual
             {
                 child.Render();
             }
+
+            if (hasOpacity)
+                renderer.PopOpacity();
+
+            renderer.PopClip();
+            renderer.PopOffset();
         }
+
+        isRenderValid = true;
+
+        if (drawDebugOutlinesEffective)
+            DoDrawDebugOutlines();
     }
 
     /// <summary>
@@ -889,6 +869,22 @@ public abstract class Visual
 
         if (!isArrangeValid)
             Arrange(Bounds);
+    }
+
+    private void DoDrawDebugOutlines()
+    {
+        Debug.Assert(renderer != null);
+
+        ThicknessF margin = Margin.GetValue();
+        ThicknessF padding = Padding.GetValue();
+
+        if (margin != ThicknessF.Zero)
+            renderer.DrawLinedRectangle(Bounds + margin, Brushes.DebugMargin);
+
+        renderer.DrawLinedRectangle(Bounds, Brushes.DebugBounds);
+
+        if (padding != ThicknessF.Zero)
+            renderer.DrawLinedRectangle(Bounds - padding, Brushes.DebugPadding);
     }
 
     /// <summary>

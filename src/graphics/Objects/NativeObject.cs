@@ -26,7 +26,7 @@ namespace VoxelGame.Graphics.Objects;
 
 /// <summary>
 ///     Base class for all native objects, which are objects that are created by the native API and used over a pointer.
-///     The lifetime of the native object is bound to the native client.
+///     The lifetime of the native object is bound to the native client by default.
 /// </summary>
 [NativeMarshalling(typeof(NativeObjectMarshaller))]
 public class NativeObject

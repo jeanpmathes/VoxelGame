@@ -24,11 +24,13 @@
 namespace ui
 {
     /**
-     * \brief Tracks the drawing state and associated stacks.
+     * \brief Tracks the drawing state and associated stacks for a renderer and applies them to the drawing context.
      */
     class State final
     {
     public:
+        explicit State(Renderer& renderer);
+
         /**
          * \brief Add an offset to the current transform.
          * \param offset The offset to add to all later draw positions.
@@ -62,23 +64,18 @@ namespace ui
          */
         void PopOpacity();
 
-        [[nodiscard]] D2D1_MATRIX_3X2_F GetCurrentTransform() const;
-        [[nodiscard]] RectangleF        GetCurrentClip() const;
-        [[nodiscard]] bool              IsCurrentClipEmpty() const;
-        [[nodiscard]] FLOAT             GetCurrentOpacity() const;
-
         /**
          * \brief Validate that the state is ready for rendering.
          */
         void Validate() const;
 
     private:
-        std::vector<PointF>     offsetStack;
-        std::vector<RectangleF> clipStack;
-        std::vector<FLOAT>      opacityStack;
+        Renderer& renderer;
 
-        PointF     currentOffset  = {0.0f, 0.0f};
-        RectangleF currentClip    = {0.0f, 0.0f, 0.0f, 0.0f};
-        FLOAT      currentOpacity = 1.0f;
+        std::vector<PointF> offsetStack;
+        size_t              clipStackCounter    = 0;
+        size_t              opacityStackCounter = 0;
+
+        [[nodiscard]] D2D1_MATRIX_3X2_F GetCurrentTransform() const;
     };
 }

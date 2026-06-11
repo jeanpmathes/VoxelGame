@@ -12,7 +12,7 @@ constexpr std::array<float, 4> NativeClient::LETTERBOX_COLOR = {0.0f, 0.0f, 0.0f
 
 NativeClient::NativeClient(Configuration const& configuration)
     : DXApp(configuration)
-  , configuration(configuration)
+  , onDebug(configuration.onDebug)
   , resolution(Resolution{.width = configuration.width, .height = configuration.height} * configuration.renderScale)
   , space(std::make_unique<Space>(*this))
 {
@@ -23,7 +23,7 @@ Context& NativeClient::GetContext() const { return *context; }
 
 void NativeClient::OnPreInitialization()
 {
-    context = std::make_unique<Context>(*this, configuration, GetWidth(), GetHeight());
+    context = std::make_unique<Context>(*this, GetApplicationName(), GetApplicationVersion(), onDebug, GetWidth(), GetHeight());
 
     space->PerformInitialSetupStepOne(context->GetCommandQueue());
 
@@ -99,10 +99,11 @@ void NativeClient::CreateFinalDepthBuffers()
     dsvDesc.ViewDimension                 = D3D12_DSV_DIMENSION_TEXTURE2D;
     dsvDesc.Flags                         = D3D12_DSV_FLAG_NONE;
 
-    for (UINT frame = 0; frame < FRAME_COUNT; frame++) context->GetD3D12Device()->CreateDepthStencilView(
-                                                                                                         finalDepthStencilBuffers[frame].Get(),
-                                                                                                         &dsvDesc,
-                                                                                                         dsvHeap.GetDescriptorHandleCPU(frame));
+    for (UINT frame = 0; frame < FRAME_COUNT; frame++)
+        context->GetD3D12Device()->CreateDepthStencilView(
+                                                          finalDepthStencilBuffers[frame].Get(),
+                                                          &dsvDesc,
+                                                          dsvHeap.GetDescriptorHandleCPU(frame));
 }
 
 void NativeClient::EnsureValidDepthBuffers(ComPtr<ID3D12GraphicsCommandList4> const commandList)
@@ -251,7 +252,7 @@ void NativeClient::OnRenderUpdate()
         context->GetCommandQueue()->ExecuteCommandLists(static_cast<UINT>(commandLists.size()), commandLists.data());
     }
 
-    if (!userInterfaces.empty())
+    if (!userInterfaces.IsEmpty())
     {
         PIXScopedEvent(context->GetCommandQueue().Get(), PIX_COLOR_DEFAULT, L"UI");
 
@@ -392,61 +393,40 @@ void NativeClient::SetPostProcessingPipeline(RasterPipeline* pipeline)
 
 UINT NativeClient::AddDraw2DPipeline(RasterPipeline* pipeline, INT const priority, draw2d::Callback const callback)
 {
-    // INT_MIN and INT_MAX should always place the pipeline at the front and back of the list, respectively.
-    // Thus, all entries in the list should be in the range (INT_MIN, INT_MAX) - both exclusive.
-    auto clampedPriority = static_cast<UINT>(std::clamp(priority, INT_MIN + 1, INT_MAX - 1));
+    UINT id = nextDraw2DPipelineID;;
 
-    decltype(draw2dPipelines)::iterator iterator;
+    auto              draw2DPipeline    = std::make_unique<draw2d::Pipeline>(*this, pipeline, id, callback);
+    draw2d::Pipeline* draw2DPipelinePtr = draw2DPipeline.get();
 
-    UINT const id = nextDraw2dPipelineID;
+    draw2DPipelines.Add(std::move(draw2DPipeline), priority);
 
-    if (draw2dPipelines.empty() || priority < draw2dPipelines.front().priority)
-    {
-        draw2dPipelines.emplace_front(draw2d::Pipeline{*this, pipeline, id, callback}, clampedPriority);
-        iterator = draw2dPipelines.begin();
-    }
-    else if (priority > draw2dPipelines.back().priority)
-    {
-        draw2dPipelines.emplace_back(draw2d::Pipeline{*this, pipeline, id, callback}, clampedPriority);
-        iterator = std::prev(draw2dPipelines.end());
-    }
-    else
-        for (auto it = draw2dPipelines.begin(); it != draw2dPipelines.end(); ++it)
-            // Goal: insert after the first element with priority lower than the new one.
-            if (priority > it->priority)
-            {
-                iterator = draw2dPipelines.emplace(--it, draw2d::Pipeline(*this, pipeline, id, callback), clampedPriority);
-                break;
-            }
-
-    draw2dPipelineIDs[nextDraw2dPipelineID] = iterator;
-    nextDraw2dPipelineID++;
+    draw2DPipelineIDs[nextDraw2DPipelineID] = draw2DPipelinePtr;
+    nextDraw2DPipelineID                    += 1;
 
     return id;
 }
 
 void NativeClient::RemoveDraw2DPipeline(UINT const id)
 {
-    auto const iterator = draw2dPipelineIDs[id];
+    draw2d::Pipeline* draw2DPipelinePtr = draw2DPipelineIDs[id];
 
-    draw2dPipelines.erase(iterator);
-    draw2dPipelineIDs.erase(id);
+    draw2DPipelines.Remove(draw2DPipelinePtr);
+    draw2DPipelineIDs.erase(id);
 }
 
-ui::Renderer* NativeClient::CreateUserInterface(INT priority)
+ui::Renderer* NativeClient::CreateUserInterface(INT const priority)
 {
-    // todo: Create a ui::Renderer, insert it into userInterfaces sorted by priority, and return its pointer.
-    // Contract: lower priority renders first; higher priority renders later and appears on top; equal priority preserves
-    // insertion order.
-    (void)priority;
-    throw NativeException("TODO: create UI renderer.");
+    auto          renderer    = std::make_unique<ui::Renderer>(*this);
+    ui::Renderer* rendererPtr = renderer.get();
+
+    userInterfaces.Add(std::move(renderer), priority);
+
+    return rendererPtr;
 }
 
 void NativeClient::FreeUserInterface(ui::Renderer* renderer)
 {
-    // todo: Validate active UI resources, remove the matching renderer from userInterfaces, and destroy it.
-    // Contract: the passed pointer is invalid after this call.
-    (void)renderer;
+    userInterfaces.Remove(renderer);
 }
 
 void NativeClient::CreatePostProcessingShaderResourceViews() const
@@ -567,7 +547,7 @@ void NativeClient::PopulateRenderingCommandLists()
 
     draw2dViewport.Set(draw2DGroup.commandList);
 
-    for (auto& [pipeline, priority] : draw2dPipelines)
+    for (auto& pipeline : draw2DPipelines)
     {
         PIXScopedEvent(draw2DGroup.commandList.Get(), PIX_COLOR_DEFAULT, pipeline.GetName());
         pipeline.PopulateCommandList(draw2DGroup.commandList);
@@ -584,7 +564,7 @@ void NativeClient::PopulateRenderingCommandLists()
 
     UINT numberOfBarriers = static_cast<UINT>(barriers.size());
 
-    if (!userInterfaces.empty())
+    if (!userInterfaces.IsEmpty())
         // The UI rendering expects the final render target to remain in D3D12_RESOURCE_STATE_RENDER_TARGET.
         // It will also handle the transition to D3D12_RESOURCE_STATE_PRESENT.
 
@@ -621,8 +601,11 @@ void NativeClient::UpdatePostViewAndScissor()
 
 void NativeClient::RenderUserInterfaces()
 {
-    // todo: Render all UI renderers after Draw2D and before screenshot copying or final present transitions.
-    // Contract: call ui::Renderer::Render(frameIndex) for each renderer in ordered userInterfaces.
+    for (auto& renderer : userInterfaces)
+    {
+        PIXScopedEvent(context->GetCommandQueue().Get(), PIX_COLOR_DEFAULT, L"UserInterface");
+        renderer.Render();
+    }
 }
 
 void NativeClient::HandleScreenshot()

@@ -34,11 +34,19 @@ namespace ui
         explicit StrokeSupport(Renderer& renderer);
 
         /**
-         * \brief Resolve a UI stroke-style value to a Direct2D stroke style.
+         * \brief Use a raw Direct2D stroke style  corresponding to a UI stroke-style preset.
          * \param style The UI stroke-style preset.
-         * \returns The Direct2D stroke style.
+         * \returns The raw Direct2D stroke style, owned by the stroke support class.
          */
-        ID2D1StrokeStyle* Get(StrokeStyle style);
+        ID2D1StrokeStyle* UseRawStrokeStyle(StrokeStyle style) const;
+
+        /**
+         * \brief Validate that all wrapped resources have been returned to this support class.
+         * 
+         * This uses the debug layer to create messages if resources have not been returned.
+         * It is invalid to use wrapped resources managed by this support class after the class has been freed.
+         */
+        void ValidateAllWrappedResourcesAreReturned() const;
 
     private:
         Renderer& renderer;

@@ -33,52 +33,52 @@ namespace VoxelGame.Graphics.Definition.UserInterface;
 [NativeMarshalling(typeof(TextFormatDescriptionMarshaller))]
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal partial struct TextFormatDescription
+public partial struct TextFormatDescription
 {
     /// <summary>
     ///     The font family.
     /// </summary>
-    internal String FontFamily;
+    public String FontFamily;
 
     /// <summary>
     ///     The font weight.
     /// </summary>
-    internal Int16 Weight;
+    public Int16 Weight;
 
     /// <summary>
     ///     The font style.
     /// </summary>
-    internal Style Style;
+    public Style Style;
 
     /// <summary>
     ///     The font stretch.
     /// </summary>
-    internal Stretch Stretch;
+    public Stretch Stretch;
 
     /// <summary>
     ///     The font size.
     /// </summary>
-    internal Single Size;
+    public Single Size;
 
     /// <summary>
     ///     The text wrapping mode.
     /// </summary>
-    internal TextWrapping Wrapping;
+    public TextWrapping Wrapping;
 
     /// <summary>
     ///     The text alignment.
     /// </summary>
-    internal TextAlignment Alignment;
+    public TextAlignment Alignment;
 
     /// <summary>
     ///     The text trimming mode.
     /// </summary>
-    internal TextTrimming Trimming;
+    public TextTrimming Trimming;
 
     /// <summary>
     ///     The line height.
     /// </summary>
-    internal Single LineHeight;
+    public Single LineHeight;
 }
 
 [CustomMarshaller(typeof(TextFormatDescription), MarshalMode.ManagedToUnmanagedIn, typeof(TextFormatDescriptionMarshaller))]

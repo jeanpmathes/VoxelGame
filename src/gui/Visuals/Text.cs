@@ -149,16 +149,16 @@ public class Text : Visual
     private void CreateFormattedText()
     {
         formattedText = Renderer.CreateFormattedText(Content.GetValue(),
-            new Font
-            {
-                Family = FontFamily.GetValue(),
-                Size = FontSize.GetValue(),
-                Style = FontStyle.GetValue(),
-                Weight = FontWeight.GetValue(),
-                Stretch = FontStretch.GetValue()
-            },
             new TextOptions
             {
+                Font = new Font
+                {
+                    Family = FontFamily.GetValue(),
+                    Size = FontSize.GetValue(),
+                    Style = FontStyle.GetValue(),
+                    Weight = FontWeight.GetValue(),
+                    Stretch = FontStretch.GetValue()
+                },
                 Wrapping = Wrapping.GetValue(),
                 Alignment = Alignment.GetValue(),
                 Trimming = Trimming.GetValue(),

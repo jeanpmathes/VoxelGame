@@ -47,14 +47,17 @@ namespace
 UINT const   Context::AGILITY_SDK_VERSION = 619;
 LPCSTR const Context::AGILITY_SDK_PATH    = ".\\D3D12\\";
 
-Context::Context(NativeClient& client, Configuration const& configuration, UINT const width, UINT const height)
+Context::Context(NativeClient& client, WCHAR const* applicationName, WCHAR const* applicationVersion, D3D12MessageFunc const onDebug, UINT const width, UINT const height)
     : client(&client)
-  , debugLayer(configuration.onDebug)
+  , debugLayer(onDebug)
 #ifdef USE_NSIGHT_AFTERMATH
-  , gpuCrashTracker(markerMap, shaderDatabase, GpuCrashTracker::Description::Create(configuration.applicationName, configuration.applicationVersion))
+, gpuCrashTracker(markerMap, shaderDatabase, GpuCrashTracker::Description::Create(applicationName, applicationVersion))
 #endif
 {
-    CreateDevice(configuration);
+    (void)applicationName;
+    (void)applicationVersion;
+
+    CreateDevice();
     CreateSwapChain(width, height);
     CreateFences();
 
@@ -197,7 +200,7 @@ void Context::SetUpShaderForAftermath(ComPtr<IDxcResult> const& result)
 }
 #endif
 
-void Context::CreateDevice(Configuration const&)
+void Context::CreateDevice()
 {
     UINT const dxgiFactoryFlags = debugLayer.GetDXGIFactoryFlags();
 

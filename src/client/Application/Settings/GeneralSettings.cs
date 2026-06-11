@@ -202,6 +202,7 @@ public sealed partial class GeneralSettings : SettingsBase, ISettingsProvider, I
     {
         CultureInfo selectedCulture = clientSettings.Language.ToCultureInfo();
 
+        // We do not set CurrentCulture because that is concerned more with number formatting and such, less with UI language.
         CultureInfo.CurrentUICulture = selectedCulture;
         Core.Resources.Language.Language.Culture = selectedCulture;
 

@@ -36,7 +36,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_Scale_PointF_ShouldMultiplyAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         PointF point = new(x: 5.0f, y: 10.0f);
         PointF result = renderer.ApplyScale(point);
@@ -50,7 +50,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_InverseScale_PointF_ShouldDivideAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         PointF point = new(x: 5.0f, y: 10.0f);
         PointF result = renderer.ApplyInverseScale(point);
@@ -64,7 +64,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_Scale_SizeF_ShouldMultiplyAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         SizeF size = new(width: 3.0f, height: 5.0f);
         SizeF result = renderer.ApplyScale(size);
@@ -78,7 +78,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_InverseScale_SizeF_ShouldDivideAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         SizeF size = new(width: 6.0f, height: 10.0f);
         SizeF result = renderer.ApplyInverseScale(size);
@@ -92,7 +92,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_Scale_RectangleF_ShouldMultiplyAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         RectangleF rectangle = new(x: 3.0f, y: 5.0f, width: 10.0f, height: 20.0f);
         RectangleF result = renderer.ApplyScale(rectangle);
@@ -108,7 +108,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_InverseScale_RectangleF_ShouldDivideAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         RectangleF rectangle = new(x: 6.0f, y: 10.0f, width: 20.0f, height: 40.0f);
         RectangleF result = renderer.ApplyInverseScale(rectangle);
@@ -124,7 +124,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_Scale_ThicknessF_ShouldMultiplyAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         ThicknessF thickness = new(left: 1.0f, top: 2.0f, right: 3.0f, bottom: 4.0f);
         ThicknessF result = renderer.ApplyScale(thickness);
@@ -140,7 +140,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_InverseScale_ThicknessF_ShouldDivideAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         ThicknessF thickness = new(left: 2.0f, top: 4.0f, right: 6.0f, bottom: 8.0f);
         ThicknessF result = renderer.ApplyInverseScale(thickness);
@@ -156,7 +156,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_Scale_RadiusF_ShouldMultiplyAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         RadiusF radius = new(x: 3.0f, y: 5.0f);
         RadiusF result = renderer.ApplyScale(radius);
@@ -170,7 +170,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_InverseScale_RadiusF_ShouldDivideAllComponents(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         RadiusF radius = new(x: 6.0f, y: 10.0f);
         RadiusF result = renderer.ApplyInverseScale(radius);
@@ -184,7 +184,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_Scale_WidthF_ShouldMultiplyValue(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         WidthF width = new(value: 3.0f);
         WidthF result = renderer.ApplyScale(width);
@@ -197,7 +197,7 @@ public class RendererTests
     [InlineData(0.5f)]
     public void Renderer_InverseScale_WidthF_ShouldDivideValue(Single scale)
     {
-        renderer.Scale(scale);
+        renderer.OnScale(scale);
 
         WidthF width = new(value: 6.0f);
         WidthF result = renderer.ApplyInverseScale(width);

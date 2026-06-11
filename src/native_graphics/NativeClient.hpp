@@ -12,10 +12,7 @@
 #include "Space.hpp"
 
 #include "Interfaces/Draw2D.hpp"
-
-#if defined(USE_NSIGHT_AFTERMATH)
-#include "nv_aftermath/NsightAftermathGpuCrashTracker.hpp"
-#endif
+#include "Tools/PriorityList.hpp"
 
 struct TextureDescription;
 using Microsoft::WRL::ComPtr;
@@ -131,11 +128,10 @@ private:
         DirectX::XMFLOAT2 uv;
     };
 
-    Configuration            configuration;
+    D3D12MessageFunc onDebug;
+
     std::unique_ptr<Context> context;
     Resolution               resolution;
-
-    std::list<std::unique_ptr<ui::Renderer>> userInterfaces;
 
     std::unique_ptr<Uploader>    uploader = nullptr;
     Bag<std::unique_ptr<Object>> objects  = {};
@@ -150,17 +146,14 @@ private:
     Allocation<ID3D12Resource> postVertexBuffer;
     D3D12_VERTEX_BUFFER_VIEW   postVertexBufferView{};
 
-    struct Draw2dPipeline
-    {
-        draw2d::Pipeline pipeline;
-        INT              priority;
-    };
+    std::vector<std::unique_ptr<RasterPipeline>> rasterPipelines        = {};
+    RasterPipeline*                              postProcessingPipeline = nullptr;
 
-    std::vector<std::unique_ptr<RasterPipeline>>        rasterPipelines        = {};
-    RasterPipeline*                                     postProcessingPipeline = nullptr;
-    std::list<Draw2dPipeline>                           draw2dPipelines        = {};
-    std::map<UINT, decltype(draw2dPipelines)::iterator> draw2dPipelineIDs      = {};
-    UINT                                                nextDraw2dPipelineID   = 0;
+    PriorityList<draw2d::Pipeline>    draw2DPipelines;
+    std::map<UINT, draw2d::Pipeline*> draw2DPipelineIDs    = {};
+    UINT                              nextDraw2DPipelineID = 0;
+
+    PriorityList<ui::Renderer> userInterfaces;
 
     CommandAllocatorGroup uploadGroup;
     CommandAllocatorGroup draw2DGroup;

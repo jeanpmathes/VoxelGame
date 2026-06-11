@@ -24,4 +24,4 @@ namespace VoxelGame.GUI.Texts;
 /// <summary>
 ///     Combines text layout options that are provided at formatted-text creation time.
 /// </summary>
-public record struct TextOptions(TextWrapping Wrapping, TextAlignment Alignment, TextTrimming Trimming, Single LineHeight);
+public record struct TextOptions(Font Font, TextWrapping Wrapping, TextAlignment Alignment, TextTrimming Trimming, Single LineHeight); // todo: use this options, currently they are ignored

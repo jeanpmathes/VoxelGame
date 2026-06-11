@@ -1,35 +1,103 @@
 #include "stdafx.h"
 
-ui::TextFormat::TextFormat(Renderer& renderer, Index index, TextFormatDescription description, ComPtr<IDWriteTextFormat> format)
-    : Object(renderer.GetClient())
-  , renderer(&renderer)
-  , index(index)
-  , wrapped(std::move(format))
+namespace
 {
-    // todo: Create text-format state from description.
-    // Contract: do not store TextFormatDescription because its fontFamily pointer is local-only.
-    (void)description;
+    DWRITE_FONT_WEIGHT GetFontWeight(INT16 const weight)
+    {
+        return static_cast<DWRITE_FONT_WEIGHT>(weight);
+    }
+
+    DWRITE_FONT_STYLE GetFontStyle(ui::FontStyle const style)
+    {
+        switch (style)
+        {
+        case ui::FontStyle::NORMAL:
+            return DWRITE_FONT_STYLE_NORMAL;
+        case ui::FontStyle::ITALIC:
+            return DWRITE_FONT_STYLE_ITALIC;
+        case ui::FontStyle::OBLIQUE:
+            return DWRITE_FONT_STYLE_OBLIQUE;
+
+        default:
+            throw NativeException("FontStyle not implemented.");
+        }
+    }
+
+    DWRITE_FONT_STRETCH GetFontStretch(ui::FontStretch const stretch)
+    {
+        return static_cast<DWRITE_FONT_STRETCH>(stretch);
+    }
+
+    DWRITE_WORD_WRAPPING GetTextWrapping(ui::TextWrapping const wrapping)
+    {
+        switch (wrapping)
+        {
+        case ui::TextWrapping::NO_WRAP:
+            return DWRITE_WORD_WRAPPING_NO_WRAP;
+        case ui::TextWrapping::WRAP:
+            return DWRITE_WORD_WRAPPING_WRAP;
+
+        default:
+            throw NativeException("TextWrapping not implemented.");
+        }
+    }
+
+    DWRITE_TEXT_ALIGNMENT GetTextAlignment(ui::TextAlignment const alignment)
+    {
+        switch (alignment)
+        {
+        case ui::TextAlignment::LEADING:
+            return DWRITE_TEXT_ALIGNMENT_LEADING;
+        case ui::TextAlignment::CENTER:
+            return DWRITE_TEXT_ALIGNMENT_CENTER;
+        case ui::TextAlignment::TRAILING:
+            return DWRITE_TEXT_ALIGNMENT_TRAILING;
+        case ui::TextAlignment::JUSTIFY:
+            return DWRITE_TEXT_ALIGNMENT_JUSTIFIED;
+
+        default:
+            throw NativeException("TextAlignment not implemented.");
+        }
+    }
 }
 
-void ui::TextFormat::Reset(Index newIndex, TextFormatDescription description, ComPtr<IDWriteTextFormat> format)
+ui::TextFormat::TextFormat(Renderer& renderer)
+    : Object(renderer.GetClient())
+  , renderer(&renderer)
 {
-    // todo: Reset a reusable text format.
-    // Contract: assign the new active index and wrapped format; do not store the local-only description.
-    index   = newIndex;
-    wrapped = std::move(format);
-    (void)description;
 }
 
 void ui::TextFormat::Return()
 {
-    // todo: Return this text format through TextFormatSupport::Return.
-    // Contract: remove it from the active bag, clear its index, and pool only while reusable and under the free-list cap.
+    Index const oldIndex = index.value();
+    index                = std::nullopt;
+
+    renderer->GetTextFormatSupport().ReturnTextFormat(oldIndex);
 }
 
-void ui::TextFormat::SetIndex(std::optional<Index> newIndex) { index = newIndex; }
+void ui::TextFormat::Reset(Index newIndex, TextFormatDescription const& newDescription)
+{
+    index = newIndex;
+
+    TryDo(
+          renderer->GetContext().GetDirectWriteFactory()->CreateTextFormat(
+                                                                           newDescription.fontFamily,
+                                                                           nullptr,
+                                                                           GetFontWeight(newDescription.weight),
+                                                                           GetFontStyle(newDescription.style),
+                                                                           GetFontStretch(newDescription.stretch),
+                                                                           newDescription.size,
+                                                                           GetRenderer().GetClient().GetApplicationLocale(),
+                                                                           &wrapped));
+
+    TryDo(wrapped->SetWordWrapping(GetTextWrapping(newDescription.wrapping)));
+    TryDo(wrapped->SetTextAlignment(GetTextAlignment(newDescription.alignment)));
+
+    // TryDo(wrapped->SetTrimming()); // todo: implement correct trimming
+
+    // TryDo(wrapped->SetLineSpacing()) // todo: implement line spacing
+}
 
 ui::Renderer& ui::TextFormat::GetRenderer() const { return *renderer; }
-
-std::optional<ui::TextFormat::Index> ui::TextFormat::GetIndex() const { return index; }
 
 IDWriteTextFormat* ui::TextFormat::GetWrapped() const { return wrapped.Get(); }

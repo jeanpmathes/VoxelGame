@@ -74,6 +74,8 @@ void ui::Context::BeginFrame(UINT const frameIndex) const
 {
     std::vector<ID3D11Resource*> const wrappedResources = GetWrappedResources(frameIndex);
     context.GetD3D11On12Device()->AcquireWrappedResources(wrappedResources.data(), static_cast<UINT>(wrappedResources.size()));
+
+    direct2DDeviceContext->SetTarget(renderTargets[frameIndex].bitmap.Get());
 }
 
 void ui::Context::EndFrame(UINT const frameIndex) const
@@ -85,6 +87,16 @@ void ui::Context::EndFrame(UINT const frameIndex) const
 }
 
 IDWriteFactory* ui::Context::GetDirectWriteFactory() const { return directWriteFactory.Get(); }
+
+ID2D1Factory3* ui::Context::GetDirect2DFactory() const
+{
+    return direct2DFactory.Get();
+}
+
+ID2D1DeviceContext* ui::Context::GetDirect2DDeviceContext() const
+{
+    return direct2DDeviceContext.Get();
+}
 
 std::vector<ID3D11Resource*> ui::Context::GetWrappedResources(UINT const frameIndex) const
 {

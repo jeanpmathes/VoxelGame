@@ -81,18 +81,16 @@ public class Canvas : Visual
     /// <inheritdoc />
     public override void Render()
     {
-        Renderer.Begin();
+        Renderer.Reset();
 
         Renderer.PushOffset(Point.Empty);
         Renderer.PushClip(Bounds);
 
         base.Render();
 
-        Renderer.EndClip();
-
         Renderer.PopClip();
         Renderer.PopOffset();
 
-        Renderer.End();
+        Renderer.Submit();
     }
 }

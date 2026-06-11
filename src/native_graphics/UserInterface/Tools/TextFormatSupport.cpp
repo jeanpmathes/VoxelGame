@@ -5,17 +5,27 @@ ui::TextFormatSupport::TextFormatSupport(Renderer& renderer)
 {
 }
 
-ui::TextFormat& ui::TextFormatSupport::Get(TextFormatDescription description)
+ui::TextFormat& ui::TextFormatSupport::GetTextFormat(TextFormatDescription const& description)
 {
-    // todo: Create or reuse a UI text format.
-    // Contract: first reuse freeFormats, otherwise allocate; insert into formats and set the active index.
-    (void)description;
-    throw NativeException("TODO: create UI text format.");
+    auto        textFormat = std::make_unique<TextFormat>(renderer);
+    TextFormat& result     = *textFormat;
+
+    TextFormat::Index const index = textFormats.Push(std::move(textFormat));
+
+    result.Reset(index, description);
+
+    return result;
 }
 
-void ui::TextFormatSupport::Return(TextFormat& format)
+void ui::TextFormatSupport::ReturnTextFormat(TextFormat::Index const index)
 {
-    // todo: Return a UI text format to the free list.
-    // Contract: remove it from formats, clear its active index, and pool it when reusable and below MAX_FREE_TEXT_FORMATS.
-    (void)format;
+    textFormats.Pop(index);
+}
+
+void ui::TextFormatSupport::ValidateAllWrappedResourcesAreReturned() const
+{
+    if (textFormats.GetCount() > 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning(
+                                                                                                 std::format(
+                                                                                                             "A total of {} wrapped text formats have not been returned",
+                                                                                                             textFormats.GetCount()).c_str());
 }

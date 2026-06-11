@@ -20,6 +20,8 @@
 // THE SOFTWARE.
 //
 
+// Resharper disable all
+
 #include "D3D12MemAlloc.hpp"
 
 #include <combaseapi.h>

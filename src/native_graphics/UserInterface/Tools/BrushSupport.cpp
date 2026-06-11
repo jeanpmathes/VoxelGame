@@ -3,29 +3,51 @@
 ui::BrushSupport::BrushSupport(Renderer& renderer)
     : renderer(renderer)
 {
+    D2D1_COLOR_F const black = D2D1::ColorF(0.0f, 0.0f, 0.0f, 1.0f);
+    TryDo(renderer.GetContext().GetDirect2DDeviceContext()->CreateSolidColorBrush(black, &scratchSolidColorBrush));
 }
 
-ui::Brush& ui::BrushSupport::GetSolidColorBrush(ColorF color)
+ui::Brush& ui::BrushSupport::GetSolidColorBrush(ColorF const color)
 {
-    // todo: Create or reuse a solid-color ui::Brush.
-    // Contract: first reuse freeSolidColorBrushes, otherwise allocate; insert into brushes, set the active index,
-    // and return the active brush by reference.
-    (void)color;
-    throw NativeException("TODO: create UI solid-color brush.");
+    std::unique_ptr<Brush> brush;
+
+    if (freeSolidColorBrushes.empty())
+    {
+        brush = std::make_unique<Brush>(renderer);
+    }
+    else
+    {
+        brush = std::move(freeSolidColorBrushes.back());
+        freeSolidColorBrushes.pop_back();
+    }
+
+    Brush& result = *brush;
+
+    auto const index = brushes.Push(std::move(brush));
+    result.Reset(index, color);
+
+    return result;
 }
 
-void ui::BrushSupport::ReturnSolidColorBrush(Brush& brush, ComPtr<ID2D1SolidColorBrush> wrapped)
+void ui::BrushSupport::ReturnSolidColorBrush(Brush::Index const index)
 {
-    // todo: Return a solid-color brush to the free list.
-    // Contract: remove it from brushes, clear its active index, and store it only while below MAX_FREE_SOLID_COLOR_BRUSHES.
-    (void)brush;
-    (void)wrapped;
+    std::unique_ptr<Brush> ptr = std::move(brushes.Pop(index));
+
+    if (freeSolidColorBrushes.size() < MAX_FREE_BRUSHES) freeSolidColorBrushes.push_back(std::move(ptr));
 }
 
-ID2D1Brush* ui::BrushSupport::GetScratchSolidColorBrush(ColorF color)
+// ReSharper disable once CppMemberFunctionMayBeConst
+ID2D1Brush* ui::BrushSupport::UseRawSolidColorBrush(ColorF const color)
 {
-    // todo: Update and return the reusable scratch solid-color brush used by direct color commands.
-    // Contract: do not allocate a new brush per draw call and do not create a ui::Brush object.
-    (void)color;
+    scratchSolidColorBrush->SetColor(color.ToD2D1());
+
     return scratchSolidColorBrush.Get();
+}
+
+void ui::BrushSupport::ValidateAllWrappedResourcesAreReturned() const
+{
+    if (brushes.GetCount() > 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning(
+                                                                                             std::format(
+                                                                                                         "A total of {} wrapped brushes have not been returned",
+                                                                                                         brushes.GetCount()).c_str());
 }

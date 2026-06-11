@@ -40,15 +40,17 @@ namespace ui
         {
         };
 
-        Brush(Renderer& renderer, Index index, ComPtr<ID2D1SolidColorBrush> brush);
+        explicit Brush(Renderer& renderer);
 
-        void Reset(Index newIndex, ComPtr<ID2D1SolidColorBrush> newBrush);
+        /**
+         * Return this brush to the renderer. Do not use after returning.
+         */
         void Return();
-        void SetIndex(std::optional<Index> newIndex);
 
-        [[nodiscard]] Renderer&            GetRenderer() const;
-        [[nodiscard]] std::optional<Index> GetIndex() const;
-        [[nodiscard]] ID2D1Brush*          GetWrapped() const;
+        void Reset(Index newIndex, ColorF newColor);
+
+        [[nodiscard]] Renderer&   GetRenderer() const;
+        [[nodiscard]] ID2D1Brush* GetWrapped() const;
 
     private:
         Renderer*            renderer;

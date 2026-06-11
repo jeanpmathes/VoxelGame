@@ -24,15 +24,14 @@ using VoxelGame.GUI.Rendering;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Utilities;
 using Brush = VoxelGame.GUI.Graphics.Brush;
-using Font = VoxelGame.GUI.Texts.Font;
 
 namespace VoxelGame.GUI.Tests.Rendering;
 
 public class MockRenderer : Renderer
 {
-    public override void Begin() {}
+    public override void Reset() {}
 
-    public override void End() {}
+    public override void Submit() {}
 
     public override void PushOffset(PointF offset) {}
 
@@ -42,20 +41,11 @@ public class MockRenderer : Renderer
 
     public override void PopClip() {}
 
-    public override void BeginClip() {}
-
-    public override void EndClip() {}
-
-    public override Boolean IsClipEmpty()
-    {
-        return false;
-    }
-
     public override void PushOpacity(Single opacity) {}
 
     public override void PopOpacity() {}
 
-    public override IFormattedText CreateFormattedText(String text, Font font, TextOptions options)
+    public override IFormattedText CreateFormattedText(String text, TextOptions options)
     {
         return new MockFormattedText();
     }
@@ -63,8 +53,6 @@ public class MockRenderer : Renderer
     public override void DrawFilledRectangle(RectangleF rectangle, RadiusF corners, Brush brush) {}
 
     public override void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF corners, StrokeStyle stroke, Brush brush) {}
-
-    public override void Resize(Size size) {}
 
     public new PointF ApplyScale(PointF point)
     {

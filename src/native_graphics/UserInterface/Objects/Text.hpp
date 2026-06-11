@@ -45,31 +45,37 @@ namespace ui
         {
         };
 
-        Text(Renderer& renderer, Index index, WCHAR const* text, TextFormat& format);
+        Text(Renderer& renderer);
 
+        /**
+         * Return this text to the renderer. Do not use after returning.
+         */
         void Return();
-        void SetIndex(std::optional<Index> newIndex);
+
+        void Reset(Index newIndex, WCHAR const* newText, UINT newTextLength, TextFormat& newFormat);
 
         [[nodiscard]] Renderer&            GetRenderer() const;
         [[nodiscard]] std::optional<Index> GetIndex() const;
         [[nodiscard]] TextFormat&          GetFormat() const;
-        [[nodiscard]] IDWriteTextLayout*   GetLayout();
+        [[nodiscard]] IDWriteTextLayout*   GetWrapped() const;
 
         /**
          * \brief Measure this text for the available size and prepare the layout for drawing.
          *
          * The available size is stored and used when drawn later as the maximum size.
          *
-         * \param availableSize The available size in UI coordinates.
+         * \param newAvailableSize The available size in UI coordinates.
          * \returns The measured size in UI coordinates.
          */
-        [[nodiscard]] SizeF Measure(SizeF availableSize);
+        [[nodiscard]] SizeF Measure(SizeF newAvailableSize);
 
     private:
-        Renderer*                 renderer;
-        std::optional<Index>      index;
+        Renderer*            renderer;
+        std::optional<Index> index;
+
         ComPtr<IDWriteTextLayout> layout;
-        SizeF                     availableSize = {0.0f, 0.0f};
-        TextFormat*               format;
+
+        TextFormat* format        = nullptr;
+        SizeF       availableSize = {0.0f, 0.0f};
     };
 }
