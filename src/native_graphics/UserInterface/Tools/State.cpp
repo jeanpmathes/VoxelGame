@@ -49,6 +49,10 @@ void ui::State::PopClip()
 
 void ui::State::PushOpacity(FLOAT const opacity)
 {
+    Require(std::isfinite(opacity));
+    Require(opacity >= 0.0f);
+    Require(opacity <= 1.0f);
+
     opacityStackCounter += 1;
 
     D2D1_LAYER_PARAMETERS1 options = D2D1::LayerParameters1();

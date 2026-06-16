@@ -148,6 +148,9 @@ void ui::Renderer::PopOpacity()
 
 void ui::Renderer::DrawRectangleLinedColor(DrawRectangleLinedColorCommand const& command)
 {
+    Require(std::isfinite(command.strokeWidth));
+    Require(command.strokeWidth >= 0.0f);
+
     GetContext().GetDirect2DDeviceContext()->DrawRectangle(
                                                            command.rectangle.ToD2D1(),
                                                            brushSupport.UseRawSolidColorBrush(command.color),
@@ -156,8 +159,13 @@ void ui::Renderer::DrawRectangleLinedColor(DrawRectangleLinedColorCommand const&
                                                           );
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void ui::Renderer::DrawRectangleLinedBrush(DrawRectangleLinedBrushCommand const& command)
 {
+    Require(std::isfinite(command.strokeWidth));
+    Require(command.strokeWidth >= 0.0f);
+    Require(command.brush != nullptr);
+
     GetContext().GetDirect2DDeviceContext()->DrawRectangle(
                                                            command.rectangle.ToD2D1(),
                                                            command.brush->GetWrapped(),
@@ -168,6 +176,9 @@ void ui::Renderer::DrawRectangleLinedBrush(DrawRectangleLinedBrushCommand const&
 
 void ui::Renderer::DrawRectangleLinedRoundedColor(DrawRectangleLinedRoundedColorCommand const& command)
 {
+    Require(std::isfinite(command.strokeWidth));
+    Require(command.strokeWidth >= 0.0f);
+
     GetContext().GetDirect2DDeviceContext()->DrawRoundedRectangle(
                                                                   command.rectangle.ToD2D1(command.radius),
                                                                   brushSupport.UseRawSolidColorBrush(command.color),
@@ -176,8 +187,13 @@ void ui::Renderer::DrawRectangleLinedRoundedColor(DrawRectangleLinedRoundedColor
                                                                  );
 }
 
+// ReSharper disable once CppMemberFunctionMayBeConst
 void ui::Renderer::DrawRectangleLinedRoundedBrush(DrawRectangleLinedRoundedBrushCommand const& command)
 {
+    Require(std::isfinite(command.strokeWidth));
+    Require(command.strokeWidth >= 0.0f);
+    Require(command.brush != nullptr);
+
     GetContext().GetDirect2DDeviceContext()->DrawRoundedRectangle(
                                                                   command.rectangle.ToD2D1(command.radius),
                                                                   command.brush->GetWrapped(),
@@ -197,6 +213,8 @@ void ui::Renderer::DrawRectangleFilledColor(DrawRectangleFilledColorCommand cons
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ui::Renderer::DrawRectangleFilledBrush(DrawRectangleFilledBrushCommand const& command)
 {
+    Require(command.brush != nullptr);
+
     GetContext().GetDirect2DDeviceContext()->FillRectangle(
                                                            command.rectangle.ToD2D1(),
                                                            command.brush->GetWrapped()
@@ -214,6 +232,8 @@ void ui::Renderer::DrawRectangleFilledRoundedColor(DrawRectangleFilledRoundedCol
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ui::Renderer::DrawRectangleFilledRoundedBrush(DrawRectangleFilledRoundedBrushCommand const& command)
 {
+    Require(command.brush != nullptr);
+
     GetContext().GetDirect2DDeviceContext()->FillRoundedRectangle(
                                                                   command.rectangle.ToD2D1(command.radius),
                                                                   command.brush->GetWrapped()
@@ -227,6 +247,8 @@ namespace
 
 void ui::Renderer::DrawTextColor(DrawTextColorCommand const& command)
 {
+    Require(command.text != nullptr);
+
     GetContext().GetDirect2DDeviceContext()->DrawTextLayout(
                                                             command.position.ToD2D1(),
                                                             command.text->GetWrapped(),
@@ -238,6 +260,9 @@ void ui::Renderer::DrawTextColor(DrawTextColorCommand const& command)
 // ReSharper disable once CppMemberFunctionMayBeConst
 void ui::Renderer::DrawTextBrush(DrawTextBrushCommand const& command)
 {
+    Require(command.text != nullptr);
+    Require(command.brush != nullptr);
+
     GetContext().GetDirect2DDeviceContext()->DrawTextLayout(
                                                             command.position.ToD2D1(),
                                                             command.text->GetWrapped(),

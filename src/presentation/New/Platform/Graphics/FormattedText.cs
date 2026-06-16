@@ -49,6 +49,8 @@ public sealed class FormattedText : IFormattedText
     /// <returns>The measured and required size.</returns>
     public SizeF Measure(SizeF availableSize)
     {
+        availableSize = renderer.Sanitize(availableSize);
+
         lastAvailableSize = availableSize;
 
         return text.Measure(availableSize);
@@ -61,6 +63,8 @@ public sealed class FormattedText : IFormattedText
     /// <param name="brush">The brush with which to draw the text.</param>
     public void Draw(RectangleF rectangle, Brush brush)
     {
+        rectangle = renderer.Sanitize(rectangle);
+
         if (lastAvailableSize == null || lastAvailableSize.Value != rectangle.Size)
             Measure(rectangle.Size);
 

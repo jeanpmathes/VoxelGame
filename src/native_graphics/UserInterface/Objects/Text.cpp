@@ -38,6 +38,11 @@ IDWriteTextLayout* ui::Text::GetWrapped() const { return layout.Get(); }
 
 ui::SizeF ui::Text::Measure(SizeF const newAvailableSize)
 {
+    Require(std::isfinite(newAvailableSize.width));
+    Require(std::isfinite(newAvailableSize.height));
+    Require(newAvailableSize.width >= 0.0f);
+    Require(newAvailableSize.height >= 0.0f);
+
     availableSize = newAvailableSize;
 
     TryDo(layout->SetMaxWidth(newAvailableSize.width));

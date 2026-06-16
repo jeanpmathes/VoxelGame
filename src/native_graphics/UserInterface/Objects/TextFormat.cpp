@@ -77,6 +77,12 @@ void ui::TextFormat::Return()
 
 void ui::TextFormat::Reset(Index newIndex, TextFormatDescription const& newDescription)
 {
+    Require(newDescription.fontFamily != nullptr);
+    Require(std::isfinite(newDescription.size));
+    Require(newDescription.size > 0.0f);
+    Require(std::isfinite(newDescription.lineHeight));
+    Require(newDescription.lineHeight >= 0.0f);
+
     index = newIndex;
 
     TryDo(
