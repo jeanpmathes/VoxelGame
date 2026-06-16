@@ -49,11 +49,11 @@ public sealed class FormattedText : IFormattedText
     /// <returns>The measured and required size.</returns>
     public SizeF Measure(SizeF availableSize)
     {
-        availableSize = renderer.Sanitize(availableSize);
+        availableSize = renderer.Sanitize(renderer.ApplyScale(availableSize));
 
         lastAvailableSize = availableSize;
 
-        return text.Measure(availableSize);
+        return renderer.ApplyInverseScale(text.Measure(availableSize));
     }
 
     /// <summary>

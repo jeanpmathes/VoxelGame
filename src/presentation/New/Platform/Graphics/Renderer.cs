@@ -305,4 +305,14 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     {
         return Single.IsFinite(value) ? value : 0.0f;
     }
+
+    internal new SizeF ApplyScale(SizeF size)
+    {
+        return base.ApplyScale(size);
+    }
+
+    internal new SizeF ApplyInverseScale(SizeF size)
+    {
+        return base.ApplyInverseScale(size);
+    }
 }
