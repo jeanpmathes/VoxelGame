@@ -824,7 +824,7 @@ public abstract class Visual
 
         if (!RenderBounds.IsEmpty)
         {
-            Boolean hasOpacity = MathTools.NearlyEqual(Opacity.GetValue(), b: 1.0f);
+            Boolean hasOpacity = !MathTools.NearlyEqual(Opacity.GetValue(), b: 1.0f);
 
             // todo: unify all push/pop operations into a single Push(offset, clip, opacity?)
 

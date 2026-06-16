@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition.UserInterface;
@@ -43,6 +44,8 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     private readonly BrushMap brushes;
     private readonly TextFormatMap textFormats;
 
+    private Int32 skippedClipDepth;
+
     /// <summary>
     ///     Create a new instance of the <see cref="Renderer" /> class.
     /// </summary>
@@ -58,6 +61,8 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         textFormats = new TextFormatMap(this);
     }
 
+    private Boolean IsCommandRecordingSuppressed => skippedClipDepth > 0;
+
     /// <inheritdoc />
     public void Dispose()
     {
@@ -71,47 +76,86 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     public override void Reset()
     {
         commands.Clear();
+
+        skippedClipDepth = 0;
     }
 
     /// <inheritdoc />
     public override void Submit()
     {
+        Debug.Assert(skippedClipDepth == 0);
+
         renderer.Submit(commands.Commands);
     }
 
     /// <inheritdoc />
     public override void PushOffset(PointF offset)
     {
-        commands.PushOffset(Sanitize(offset));
+        if (IsCommandRecordingSuppressed)
+            return;
+
+        commands.PushOffset(Sanitize(ApplyScale(offset)));
     }
 
     /// <inheritdoc />
     public override void PopOffset()
     {
+        if (IsCommandRecordingSuppressed)
+            return;
+
         commands.PopOffset();
     }
 
     /// <inheritdoc />
     public override void PushClip(RectangleF rectangle)
     {
-        commands.PushClip(Sanitize(rectangle));
+        if (IsCommandRecordingSuppressed)
+        {
+            skippedClipDepth += 1;
+
+            return;
+        }
+
+        rectangle = Sanitize(ApplyScale(rectangle));
+
+        if (rectangle.Width <= 0.0f || rectangle.Height <= 0.0f)
+        {
+            skippedClipDepth = 1;
+
+            return;
+        }
+
+        commands.PushClip(rectangle);
     }
 
     /// <inheritdoc />
     public override void PopClip()
     {
+        if (skippedClipDepth > 0)
+        {
+            skippedClipDepth -= 1;
+
+            return;
+        }
+
         commands.PopClip();
     }
 
     /// <inheritdoc />
     public override void PushOpacity(Single opacity)
     {
+        if (IsCommandRecordingSuppressed)
+            return;
+
         commands.PushOpacity(Math.Clamp(Single.IsFinite(opacity) ? opacity : 1.0f, min: 0.0f, max: 1.0f));
     }
 
     /// <inheritdoc />
     public override void PopOpacity()
     {
+        if (IsCommandRecordingSuppressed)
+            return;
+
         commands.PopOpacity();
     }
 
@@ -124,7 +168,14 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     /// <inheritdoc />
     public override void DrawFilledRectangle(RectangleF rectangle, RadiusF corners, Brush brush)
     {
-        rectangle = ApplyScale(Sanitize(rectangle));
+        if (IsCommandRecordingSuppressed)
+            return;
+
+        rectangle = Sanitize(ApplyScale(rectangle));
+
+        if (rectangle.Width <= 0.0f || rectangle.Height <= 0.0f)
+            return;
+
         corners = ApplyScale(corners);
 
         VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out Color? color);
@@ -138,7 +189,14 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     /// <inheritdoc />
     public override void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF corners, StrokeStyle stroke, Brush brush)
     {
-        rectangle = ApplyScale(Sanitize(rectangle));
+        if (IsCommandRecordingSuppressed)
+            return;
+
+        rectangle = Sanitize(ApplyScale(rectangle));
+
+        if (rectangle.Width <= 0.0f || rectangle.Height <= 0.0f)
+            return;
+
         width = ApplyScale(width);
         corners = ApplyScale(corners);
 
@@ -173,7 +231,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
 
     internal Text CreateText(String content, TextOptions options)
     {
-        TextFormat textFormat = textFormats.Request(Sanitize(options));
+        TextFormat textFormat = textFormats.Request(options);
 
         Text text = renderer.CreateText(content, textFormat);
         text.SetDisposeHandler(OnTextDisposed);
@@ -188,7 +246,10 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
 
     internal void DrawText(Text text, PointF position, Brush brush)
     {
-        position = Sanitize(position);
+        if (IsCommandRecordingSuppressed)
+            return;
+
+        position = Sanitize(ApplyScale(position));
 
         VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out Color? color);
 
@@ -243,14 +304,5 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     private static Single Sanitize(Single value)
     {
         return Single.IsFinite(value) ? value : 0.0f;
-    }
-
-    private static TextOptions Sanitize(TextOptions options)
-    {
-        return options with
-        {
-            Font = options.Font with {Size = Sanitize(options.Font.Size)},
-            LineHeight = Sanitize(options.LineHeight)
-        };
     }
 }
