@@ -533,13 +533,16 @@ public abstract class Visual
 
     /// <summary>
     ///     The bounds of this visual, excluding margins, relative to the parent visual.
+    ///     This means that the bounds are in the coordinate system of the parent.
     /// </summary>
     public RectangleF Bounds { get; private set; }
 
     /// <summary>
     ///     The bounds with negative offset applied, zeroing them to (0,0).
+    ///     This means that these bounds are in the local coordinate system.
+    ///     Use these for rendering.
     /// </summary>
-    protected RectangleF RenderBounds => new(PointF.Empty, Bounds.Size);
+    protected internal RectangleF LocalBounds => new(PointF.Empty, Bounds.Size);
 
     private RectangleF lastFinalRectangle = RectangleF.Empty;
 
@@ -787,7 +790,7 @@ public abstract class Visual
     /// <returns>The point transformed to the coordinate space of the root visual.</returns>
     public PointF LocalPointToRoot(PointF localPoint)
     {
-        return new PointF(localPoint.X + offsetToRoot.X - Bounds.X, localPoint.Y + offsetToRoot.Y - Bounds.Y);
+        return new PointF(localPoint.X + offsetToRoot.X, localPoint.Y + offsetToRoot.Y);
     }
 
     /// <summary>
@@ -797,7 +800,7 @@ public abstract class Visual
     /// <returns>The point transformed to the local coordinate space of this visual.</returns>
     public PointF RootPointToLocal(PointF rootPoint)
     {
-        return new PointF(rootPoint.X - offsetToRoot.X + Bounds.X, rootPoint.Y - offsetToRoot.Y + Bounds.Y);
+        return new PointF(rootPoint.X - offsetToRoot.X, rootPoint.Y - offsetToRoot.Y);
     }
 
     #endregion LAYOUTING
@@ -813,7 +816,8 @@ public abstract class Visual
     ///     For custom rendering, generally override <see cref="OnRender()" /> instead of this method, as this method handles
     ///     important setup and teardown logic.
     /// </summary>
-    public virtual void Render()
+    /// <param name="clip">The intersected rendering clip in root coordinate space.</param>
+    public virtual void Render(RectangleF clip)
     {
         if (renderer == null) return;
 
@@ -822,14 +826,19 @@ public abstract class Visual
         if (!Visibility.GetValue().IsVisible)
             return;
 
-        if (!RenderBounds.IsEmpty)
+        clip.Intersect(new RectangleF(LocalPointToRoot(PointF.Empty), Bounds.Size));
+
+        if (!clip.IsEmpty)
         {
+            Boolean hasOffset = Bounds.Location != PointF.Empty;
             Boolean hasOpacity = !MathTools.NearlyEqual(Opacity.GetValue(), b: 1.0f);
 
             // todo: unify all push/pop operations into a single Push(offset, clip, opacity?)
 
-            renderer.PushOffset(Bounds.Location);
-            renderer.PushClip(RenderBounds);
+            if (hasOffset)
+                renderer.PushOffset(Bounds.Location);
+
+            renderer.PushClip(LocalBounds);
 
             if (hasOpacity)
                 renderer.PushOpacity(Opacity.GetValue());
@@ -837,15 +846,15 @@ public abstract class Visual
             OnRender();
 
             foreach (Visual child in children)
-            {
-                child.Render();
-            }
+                child.Render(clip);
 
             if (hasOpacity)
                 renderer.PopOpacity();
 
             renderer.PopClip();
-            renderer.PopOffset();
+
+            if (hasOffset)
+                renderer.PopOffset();
         }
 
         isRenderValid = true;
@@ -899,7 +908,7 @@ public abstract class Visual
     /// </summary>
     protected virtual void OnRender()
     {
-        Renderer.DrawFilledRectangle(RenderBounds, Background.GetValue());
+        Renderer.DrawFilledRectangle(LocalBounds, Background.GetValue());
     }
 
     /// <summary>

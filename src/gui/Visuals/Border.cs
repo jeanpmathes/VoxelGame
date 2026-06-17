@@ -81,8 +81,8 @@ public class Border : Visual
     /// <inheritdoc />
     protected override void OnRender()
     {
-        Renderer.DrawFilledRectangle(RenderBounds, BorderRadius.GetValue(), Background.GetValue());
-        Renderer.DrawLinedRectangle(RenderBounds, BorderWidth.GetValue(), BorderRadius.GetValue(), BorderStrokeStyle.GetValue(), BorderBrush.GetValue());
+        Renderer.DrawFilledRectangle(LocalBounds, BorderRadius.GetValue(), Background.GetValue());
+        Renderer.DrawLinedRectangle(LocalBounds, BorderWidth.GetValue(), BorderRadius.GetValue(), BorderStrokeStyle.GetValue(), BorderBrush.GetValue());
     }
 
     #region PROPERTIES

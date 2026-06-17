@@ -77,7 +77,7 @@ internal sealed class D3D12Debug
         String? message = Utf8StringMarshaller.ConvertToManaged(messagePointer);
 
         if (logger.IsEnabled(level))
-            // Logging intentionally not trough source generator to allow easily setting level and event id.
+            // Logging intentionally not through source generator to allow easily setting level and event id.
 #pragma warning disable CA1848
             logger.Log(
                 level,

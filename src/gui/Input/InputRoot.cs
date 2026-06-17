@@ -103,7 +103,8 @@ public sealed class InputRoot : IInputReceiver, IDisposable
                 if (!CanReceiveInput(child))
                     continue;
 
-                if (!child.Bounds.Contains(child.RootPointToLocal(point)))
+                // As the bounds are in the parent coordinate system, we use the parent (current) for the transformation.
+                if (!child.Bounds.Contains(current.RootPointToLocal(point)))
                     continue;
 
                 current = child;

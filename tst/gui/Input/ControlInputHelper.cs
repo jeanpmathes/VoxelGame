@@ -38,11 +38,7 @@ public static class ControlInputHelper
 
         Assert.NotNull(visual);
 
-        PointF localCenter = new(
-            visual.Bounds.X + visual.Bounds.Width / 2,
-            visual.Bounds.Y + visual.Bounds.Height / 2);
-
-        return visual.LocalPointToRoot(localCenter);
+        return visual.LocalPointToRoot(new PointF(visual.Bounds.Width / 2, visual.Bounds.Height / 2));
     }
 
     extension(Canvas canvas)

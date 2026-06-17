@@ -54,7 +54,7 @@ public abstract class PointerEvent : InputEvent
     /// <returns>>True if the pointer event hits the visual; otherwise, false.</returns>
     public Boolean Hits(Visual visual)
     {
-        return visual.Bounds.Contains(visual.RootPointToLocal(RootPosition));
+        return visual.LocalBounds.Contains(visual.RootPointToLocal(RootPosition));
     }
 
     /// <summary>

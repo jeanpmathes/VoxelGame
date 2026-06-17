@@ -37,7 +37,6 @@ namespace VoxelGame.Presentation.New.Platform.Graphics;
 /// </summary>
 public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
 {
-    private readonly Client client;
     private readonly VoxelGame.Graphics.Objects.UserInterface.Renderer renderer;
     private readonly CommandBuilder commands;
 
@@ -52,8 +51,6 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     /// <param name="client">The client providing access to the graphics API.</param>
     public Renderer(Client client)
     {
-        this.client = client;
-
         renderer = client.CreateUserInterface(0);
         commands = new CommandBuilder();
 
@@ -94,7 +91,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         if (IsCommandRecordingSuppressed)
             return;
 
-        commands.PushOffset(Sanitize(ApplyScale(offset)));
+        commands.PushOffset(ApplyScale(offset));
     }
 
     /// <inheritdoc />
@@ -116,7 +113,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
             return;
         }
 
-        rectangle = Sanitize(ApplyScale(rectangle));
+        rectangle = ApplyScale(rectangle);
 
         if (rectangle.Width <= 0.0f || rectangle.Height <= 0.0f)
         {
@@ -171,7 +168,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         if (IsCommandRecordingSuppressed)
             return;
 
-        rectangle = Sanitize(ApplyScale(rectangle));
+        rectangle = ApplyScale(rectangle);
 
         if (rectangle.Width <= 0.0f || rectangle.Height <= 0.0f)
             return;
@@ -192,7 +189,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         if (IsCommandRecordingSuppressed)
             return;
 
-        rectangle = Sanitize(ApplyScale(rectangle));
+        rectangle = ApplyScale(rectangle);
 
         if (rectangle.Width <= 0.0f || rectangle.Height <= 0.0f)
             return;
@@ -249,7 +246,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         if (IsCommandRecordingSuppressed)
             return;
 
-        position = Sanitize(ApplyScale(position));
+        position = ApplyScale(position);
 
         VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out Color? color);
 
@@ -257,53 +254,6 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
             commands.DrawText(text, position, color.Value);
         else if (uiBrush != null)
             commands.DrawText(text, position, uiBrush);
-    }
-
-    /// <summary>
-    ///     Sanitize a size value, ensuring that the values are safe for the native rendering implementation.
-    ///     This removes negative values and infinite values.
-    /// </summary>
-    /// <param name="size">The size to sanitize.</param>
-    /// <returns>The sanitized size.</returns>
-    internal SizeF Sanitize(SizeF size)
-    {
-        return new SizeF(
-            SanitizeDimension(size.Width, client.Size.X),
-            SanitizeDimension(size.Height, client.Size.Y));
-    }
-
-    private static Single SanitizeDimension(Single value, Int32 maximumRealDimensionValue)
-    {
-        if (Single.IsNaN(value) || value <= 0.0f) return 0.0f;
-
-        return Single.IsInfinity(value)
-            ? Math.Max(val1: 0.0f, maximumRealDimensionValue)
-            : value;
-    }
-
-    /// <summary>
-    ///     Sanitize a rectangle value, ensuring that the values are safe for the native rendering implementation.
-    ///     This removes negative values and infinite values.
-    /// </summary>
-    /// <param name="rectangle">The rectangle to sanitize.</param>
-    /// <returns>The sanitized rectangle.</returns>
-    internal RectangleF Sanitize(RectangleF rectangle)
-    {
-        return new RectangleF(
-            Sanitize(rectangle.X),
-            Sanitize(rectangle.Y),
-            SanitizeDimension(rectangle.Width, client.Size.X),
-            SanitizeDimension(rectangle.Height, client.Size.Y));
-    }
-
-    private static PointF Sanitize(PointF point)
-    {
-        return new PointF(Sanitize(point.X), Sanitize(point.Y));
-    }
-
-    private static Single Sanitize(Single value)
-    {
-        return Single.IsFinite(value) ? value : 0.0f;
     }
 
     internal new SizeF ApplyScale(SizeF size)

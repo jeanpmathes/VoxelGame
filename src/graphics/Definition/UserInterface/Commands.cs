@@ -163,6 +163,12 @@ internal readonly partial struct PushOffsetCommand(NativePointF offset)
     ///     The offset to push.
     /// </summary>
     internal readonly NativePointF Offset = offset;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(PushOffsetCommand)} {{ {nameof(Offset)} = ({Offset.X}, {Offset.Y}) }}");
+    }
 }
 
 /// <summary>
@@ -177,6 +183,12 @@ internal readonly partial struct PushClipCommand(NativeRectangleF clip)
     ///     The clipping rectangle to push.
     /// </summary>
     internal readonly NativeRectangleF Clip = clip;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(PushClipCommand)} {{ {nameof(Clip)} = ({Clip.X}, {Clip.Y}, {Clip.Width}, {Clip.Height}) }}");
+    }
 }
 
 /// <summary>
@@ -191,6 +203,12 @@ internal readonly partial struct PushOpacityCommand(Single opacity)
     ///     The opacity value to push.
     /// </summary>
     internal readonly Single Opacity = opacity;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(PushOpacityCommand)} {{ {nameof(Opacity)} = {Opacity} }}");
+    }
 }
 
 /// <summary>
@@ -223,6 +241,12 @@ internal readonly partial struct DrawRectangleLinedColorCommand(NativeRectangleF
     ///     The stroke style.
     /// </summary>
     internal readonly StrokeStyle StrokeStyle = strokeStyle;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(DrawRectangleLinedColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}), {nameof(StrokeWidth)} = {StrokeWidth}, {nameof(StrokeStyle)} = {StrokeStyle.ToStringFast()} }}");
+    }
 }
 
 /// <summary>
@@ -255,6 +279,12 @@ internal readonly partial struct DrawRectangleLinedBrushCommand(NativeRectangleF
     ///     The stroke style.
     /// </summary>
     internal readonly StrokeStyle StrokeStyle = strokeStyle;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(DrawRectangleLinedBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Brush)} = 0x{Brush.ToInt64():X}, {nameof(StrokeWidth)} = {StrokeWidth}, {nameof(StrokeStyle)} = {StrokeStyle.ToStringFast()} }}");
+    }
 }
 
 /// <summary>
@@ -293,6 +323,13 @@ internal readonly partial struct DrawRectangleLinedRoundedColorCommand(NativeRec
     ///     The stroke style.
     /// </summary>
     internal readonly StrokeStyle StrokeStyle = strokeStyle;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant(
+            $"{nameof(DrawRectangleLinedRoundedColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}), {nameof(StrokeWidth)} = {StrokeWidth}, {nameof(StrokeStyle)} = {StrokeStyle.ToStringFast()} }}");
+    }
 }
 
 /// <summary>
@@ -331,6 +368,13 @@ internal readonly partial struct DrawRectangleLinedRoundedBrushCommand(NativeRec
     ///     The stroke style.
     /// </summary>
     internal readonly StrokeStyle StrokeStyle = strokeStyle;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant(
+            $"{nameof(DrawRectangleLinedRoundedBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Brush)} = 0x{Brush.ToInt64():X}, {nameof(StrokeWidth)} = {StrokeWidth}, {nameof(StrokeStyle)} = {StrokeStyle.ToStringFast()} }}");
+    }
 }
 
 /// <summary>
@@ -351,6 +395,12 @@ internal readonly partial struct DrawRectangleFilledColorCommand(NativeRectangle
     ///     The color to use.
     /// </summary>
     internal readonly NativeColorF Color = color;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(DrawRectangleFilledColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
+    }
 }
 
 /// <summary>
@@ -371,6 +421,12 @@ internal readonly partial struct DrawRectangleFilledBrushCommand(NativeRectangle
     ///     The native brush to use.
     /// </summary>
     internal readonly IntPtr Brush = brush;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(DrawRectangleFilledBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
+    }
 }
 
 /// <summary>
@@ -397,6 +453,12 @@ internal readonly partial struct DrawRectangleFilledRoundedColorCommand(NativeRe
     ///     The color to use.
     /// </summary>
     internal readonly NativeColorF Color = color;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(DrawRectangleFilledRoundedColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
+    }
 }
 
 /// <summary>
@@ -423,6 +485,12 @@ internal readonly partial struct DrawRectangleFilledRoundedBrushCommand(NativeRe
     ///     The native brush to use.
     /// </summary>
     internal readonly IntPtr Brush = brush;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(DrawRectangleFilledRoundedBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
+    }
 }
 
 /// <summary>
@@ -449,6 +517,12 @@ internal readonly partial struct DrawTextColorCommand(IntPtr text, NativePointF 
     ///     The color to use.
     /// </summary>
     internal readonly NativeColorF Color = color;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(DrawTextColorCommand)} {{ {nameof(Text)} = 0x{Text.ToInt64():X}, {nameof(Position)} = ({Position.X}, {Position.Y}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
+    }
 }
 
 /// <summary>
@@ -475,6 +549,12 @@ internal readonly partial struct DrawTextBrushCommand(IntPtr text, NativePointF 
     ///     The native brush to use.
     /// </summary>
     internal readonly IntPtr Brush = brush;
+
+    /// <inheritdoc />
+    public override String ToString()
+    {
+        return FormattableString.Invariant($"{nameof(DrawTextBrushCommand)} {{ {nameof(Text)} = 0x{Text.ToInt64():X}, {nameof(Position)} = ({Position.X}, {Position.Y}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
+    }
 }
 
 /// <summary>
@@ -552,4 +632,29 @@ public struct Command
     ///     Payload for the <see cref="CommandKind.DrawTextBrush" /> command.
     /// </summary>
     [FieldOffset(8)] internal DrawTextBrushCommand DrawTextBrush;
+
+    /// <inheritdoc />
+    public override readonly String ToString()
+    {
+        return Kind switch
+        {
+            CommandKind.PushOffset => PushOffset.ToString(),
+            CommandKind.PopOffset => nameof(CommandKind.PopOffset),
+            CommandKind.PushClip => PushClip.ToString(),
+            CommandKind.PopClip => nameof(CommandKind.PopClip),
+            CommandKind.PushOpacity => PushOpacity.ToString(),
+            CommandKind.PopOpacity => nameof(CommandKind.PopOpacity),
+            CommandKind.DrawRectangleLinedColor => DrawRectangleLinedColor.ToString(),
+            CommandKind.DrawRectangleLinedBrush => DrawRectangleLinedBrush.ToString(),
+            CommandKind.DrawRectangleLinedRoundedColor => DrawRectangleLinedRoundedColor.ToString(),
+            CommandKind.DrawRectangleLinedRoundedBrush => DrawRectangleLinedRoundedBrush.ToString(),
+            CommandKind.DrawRectangleFilledColor => DrawRectangleFilledColor.ToString(),
+            CommandKind.DrawRectangleFilledBrush => DrawRectangleFilledBrush.ToString(),
+            CommandKind.DrawRectangleFilledRoundedColor => DrawRectangleFilledRoundedColor.ToString(),
+            CommandKind.DrawRectangleFilledRoundedBrush => DrawRectangleFilledRoundedBrush.ToString(),
+            CommandKind.DrawTextColor => DrawTextColor.ToString(),
+            CommandKind.DrawTextBrush => DrawTextBrush.ToString(),
+            _ => Kind.ToStringFast()
+        };
+    }
 }

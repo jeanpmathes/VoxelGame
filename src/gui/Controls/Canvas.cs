@@ -138,7 +138,8 @@ public sealed class Canvas : SingleChildControl<Canvas>, IDisposable
     /// </summary>
     public void Render()
     {
-        Visualization.GetValue()?.Render();
+        Visual? visual = Visualization.GetValue();
+        visual?.Render(visual.Bounds);
     }
 
     /// <inheritdoc />

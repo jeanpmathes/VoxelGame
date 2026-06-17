@@ -281,31 +281,31 @@ public class VisualTests
     }
 
     [Fact]
-    public void Visual_LocalPointToRoot_ShouldAddParentOffset()
+    public void Visual_LocalPointToRoot_ShouldAddOffset()
     {
-        MockVisual child = new();
+        MockVisual child = new() {Margin = {Value = new ThicknessF(uniform: 5f)}};
         visual.SetChildVisual(child);
 
         visual.Arrange(new RectangleF(x: 10f, y: 20f, width: 200f, height: 200f));
 
-        PointF rootPoint = child.LocalPointToRoot(new PointF(x: 5f, y: 5f));
+        PointF rootPoint = child.LocalPointToRoot(new PointF(x: 0f, y: 0f));
 
         Assert.Equal(expected: 15f, rootPoint.X);
         Assert.Equal(expected: 25f, rootPoint.Y);
     }
 
     [Fact]
-    public void Visual_RootPointToLocal_ShouldSubtractParentOffset()
+    public void Visual_RootPointToLocal_ShouldSubtractOffset()
     {
-        MockVisual child = new();
+        MockVisual child = new() {Margin = {Value = new ThicknessF(uniform: 5f)}};
         visual.SetChildVisual(child);
 
         visual.Arrange(new RectangleF(x: 10f, y: 20f, width: 200f, height: 200f));
 
         PointF localPoint = child.RootPointToLocal(new PointF(x: 15f, y: 25f));
 
-        Assert.Equal(expected: 5f, localPoint.X);
-        Assert.Equal(expected: 5f, localPoint.Y);
+        Assert.Equal(expected: 0f, localPoint.X);
+        Assert.Equal(expected: 0f, localPoint.Y);
     }
 
     [Fact]

@@ -78,15 +78,16 @@ public class Canvas : Visual
         InvalidateMeasure();
     }
 
+    /// <param name="clip"></param>
     /// <inheritdoc />
-    public override void Render()
+    public override void Render(RectangleF clip)
     {
         Renderer.Reset();
 
         Renderer.PushOffset(Point.Empty);
         Renderer.PushClip(Bounds);
 
-        base.Render();
+        base.Render(clip);
 
         Renderer.PopClip();
         Renderer.PopOffset();

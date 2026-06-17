@@ -125,6 +125,7 @@ void DXApp::Update(CycleFlags const flags, bool const timer)
 
 void DXApp::Init()
 {
+    Require(!cycle.has_value());
     cycle = Cycle::INITIALIZATION;
 
     mouseCursors = LoadAllCursors();
@@ -152,6 +153,7 @@ void DXApp::Update(StepTimer const& timer)
     double const delta       = timer.GetElapsedSeconds();
     double const scaledDelta = delta * timeScale;
 
+    Require(!cycle.has_value());
     cycle = Cycle::LOGIC_UPDATE;
 
     hooks.onLogicUpdate(delta, scaledDelta);
@@ -170,6 +172,7 @@ void DXApp::RenderUpdate(StepTimer const& timer)
     totalRealRenderUpdateTime   += delta;
     totalScaledRenderUpdateTime += scaledDelta;
 
+    Require(!cycle.has_value());
     cycle = Cycle::RENDER_UPDATE;
 
     OnPreRenderUpdate();
@@ -181,12 +184,14 @@ void DXApp::RenderUpdate(StepTimer const& timer)
 
 void DXApp::Destroy()
 {
+    OnDestroy();
+
+    Require(!cycle.has_value());
     cycle = Cycle::DESTROY;
 
-    OnDestroy();
     hooks.onDestroy();
 
-    cycle = std::nullopt;
+    // After this call, we remain in the destroy phase.
 }
 
 bool DXApp::CanClose() const { return hooks.canClose(); }
