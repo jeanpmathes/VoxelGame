@@ -6,6 +6,20 @@
 
 #include "stdafx.h"
 
+namespace
+{
+    ModifierKeys GetCurrentModifierKeys()
+    {
+        auto modifiers = ModifierKeys::NONE;
+
+        if (GetKeyState(VK_CONTROL) < 0) modifiers |= ModifierKeys::CONTROL;
+        if (GetKeyState(VK_MENU) < 0) modifiers |= ModifierKeys::ALT;
+        if (GetKeyState(VK_SHIFT) < 0) modifiers |= ModifierKeys::SHIFT;
+
+        return modifiers;
+    }
+}
+
 HWND               Win32Application::hwnd           = nullptr;
 bool               Win32Application::fullscreenMode = false;
 RECT               Win32Application::windowRectangle;
@@ -234,76 +248,130 @@ LRESULT Win32Application::WindowProcImplementation(HWND hWnd, UINT const message
             if (vkCode == VK_LWIN || vkCode == VK_RWIN) return 0;
 
             WORD const scanCode = LOBYTE(keyFlags);
-            bool const extended = (keyFlags & KF_EXTENDED) == KF_EXTENDED;
 
-            bool const up  = (keyFlags & KF_UP) == KF_UP;
-            bool const alt = (keyFlags & KF_ALTDOWN) == KF_ALTDOWN;
+            bool const up     = (keyFlags & KF_UP) == KF_UP;
+            bool const repeat = (keyFlags & KF_REPEAT) == KF_REPEAT;
+            bool const alt    = (keyFlags & KF_ALTDOWN) == KF_ALTDOWN;
 
             switch (vkCode)
             {
             case VK_SHIFT:
-                vkCode = LOWORD(MapVirtualKeyW(scanCode, MAPVK_VSC_TO_VK_EX));
-                break;
             case VK_CONTROL:
-                vkCode = extended ? VK_RCONTROL : VK_LCONTROL;
-                break;
             case VK_MENU:
-                vkCode = extended ? VK_RMENU : VK_LMENU;
+                vkCode = LOWORD(MapVirtualKeyW(scanCode, MAPVK_VSC_TO_VK_EX));
                 break;
             default:
                 break;
             }
 
-            auto const vk = static_cast<UINT8>(vkCode);
+            auto const         vk        = static_cast<UINT8>(vkCode);
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
 
-            if (up) app->OnKeyUp(vk);
-            else if (!alt) app->OnKeyDown(vk);
+            // todo: filtering out ALT is a bit ugly, but I think there was a reason for it, find it out, rethink, document
+            if (!alt) app->OnKey(vk, !up, repeat, modifiers);
         }
         return 0;
 
     case WM_LBUTTONDOWN:
-        if (app) app->OnKeyDown(VK_LBUTTON);
+    {
+        INT32 const x = GET_X_LPARAM(lParam);
+        INT32 const y = GET_Y_LPARAM(lParam);
+
+        ModifierKeys const modifiers = GetCurrentModifierKeys();
+
+        app->OnMouseButton(VK_LBUTTON, true, x, y, modifiers);
+    }
         return 0;
 
     case WM_LBUTTONUP:
-        if (app) app->OnKeyUp(VK_LBUTTON);
+        if (app)
+        {
+            INT32 const x = GET_X_LPARAM(lParam);
+            INT32 const y = GET_Y_LPARAM(lParam);
+
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
+
+            app->OnMouseButton(VK_LBUTTON, false, x, y, modifiers);
+        }
         return 0;
 
     case WM_RBUTTONDOWN:
-        if (app) app->OnKeyDown(VK_RBUTTON);
+        if (app)
+        {
+            INT32 const x = GET_X_LPARAM(lParam);
+            INT32 const y = GET_Y_LPARAM(lParam);
+
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
+
+            app->OnMouseButton(VK_RBUTTON, true, x, y, modifiers);
+        }
         return 0;
 
     case WM_RBUTTONUP:
-        if (app) app->OnKeyUp(VK_RBUTTON);
+        if (app)
+        {
+            INT32 const x = GET_X_LPARAM(lParam);
+            INT32 const y = GET_Y_LPARAM(lParam);
+
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
+
+            app->OnMouseButton(VK_RBUTTON, false, x, y, modifiers);
+        }
         return 0;
 
     case WM_MBUTTONDOWN:
-        if (app) app->OnKeyDown(VK_MBUTTON);
+        if (app)
+        {
+            INT32 const x = GET_X_LPARAM(lParam);
+            INT32 const y = GET_Y_LPARAM(lParam);
+
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
+
+            app->OnMouseButton(VK_MBUTTON, true, x, y, modifiers);
+        }
         return 0;
 
     case WM_MBUTTONUP:
-        if (app) app->OnKeyUp(VK_MBUTTON);
+        if (app)
+        {
+            INT32 const x = GET_X_LPARAM(lParam);
+            INT32 const y = GET_Y_LPARAM(lParam);
+
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
+
+            app->OnMouseButton(VK_MBUTTON, false, x, y, modifiers);
+        }
         return 0;
 
     case WM_XBUTTONDOWN:
         if (app)
         {
+            INT32 const x = GET_X_LPARAM(lParam);
+            INT32 const y = GET_Y_LPARAM(lParam);
+
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
+
             UINT const button = GET_XBUTTON_WPARAM(wParam);
 
-            if (button == XBUTTON1) app->OnKeyDown(VK_XBUTTON1);
-            else if (button == XBUTTON2) app->OnKeyDown(VK_XBUTTON2);
+            if (button == XBUTTON1) app->OnMouseButton(VK_XBUTTON1, true, x, y, modifiers);
+            else if (button == XBUTTON2) app->OnMouseButton(VK_XBUTTON2, true, x, y, modifiers);
         }
-        return TRUE; // see https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-xbuttondown#return-value
+        return TRUE; // See https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-xbuttondown#return-value
 
     case WM_XBUTTONUP:
         if (app)
         {
-            if (UINT const button = GET_XBUTTON_WPARAM(wParam);
-                button == XBUTTON1)
-                app->OnKeyUp(VK_XBUTTON1);
-            else if (button == XBUTTON2) app->OnKeyUp(VK_XBUTTON2);
+            INT32 const x = GET_X_LPARAM(lParam);
+            INT32 const y = GET_Y_LPARAM(lParam);
+
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
+
+            UINT const button = GET_XBUTTON_WPARAM(wParam);
+
+            if (button == XBUTTON1) app->OnMouseButton(VK_XBUTTON1, false, x, y, modifiers);
+            else if (button == XBUTTON2) app->OnMouseButton(VK_XBUTTON2, false, x, y, modifiers);
         }
-        return TRUE; // see https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-xbuttonup#return-value
+        return TRUE; // See https://learn.microsoft.com/en-us/windows/win32/inputdev/wm-xbuttonup#return-value
 
     case WM_CHAR:
         if (app) app->OnChar(static_cast<UINT16>(wParam));
@@ -312,9 +380,13 @@ LRESULT Win32Application::WindowProcImplementation(HWND hWnd, UINT const message
     case WM_MOUSEWHEEL:
         if (app)
         {
-            double const delta  = GET_WHEEL_DELTA_WPARAM(wParam);
-            double const zDelta = delta / WHEEL_DELTA;
-            app->OnMouseWheel(zDelta);
+            double const zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+            double const delta  = zDelta / WHEEL_DELTA;
+
+            auto const xPos = GET_X_LPARAM(lParam);
+            auto const yPos = GET_Y_LPARAM(lParam);
+
+            app->OnMouseWheel(xPos, yPos, 0.0, delta);
         }
         return 0;
 

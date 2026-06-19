@@ -106,8 +106,8 @@ public class InputTranslator
     /// </summary>
     public void ProcessMouseWheel(MouseWheelEventArgs args)
     {
-        Double delta = args.Delta * 60;
-        canvas.Input_MouseWheel((Int32) delta);
+        Vector2d delta = args.Delta * 60;
+        canvas.Input_MouseWheel((Int32) delta.Y);
     }
 
     /// <summary>

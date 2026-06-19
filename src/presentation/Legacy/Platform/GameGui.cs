@@ -133,8 +133,7 @@ internal sealed class GameGui : IGwenGui
 
     private void AttachToWindowEvents()
     {
-        Parent.Input.KeyUp += OnKeyUp;
-        Parent.Input.KeyDown += OnKeyDown;
+        Parent.Input.Key += OnKey;
         Parent.Input.TextInput += OnTextInput;
         Parent.Input.MouseButton += OnMouseButton;
         Parent.Input.MouseMove += OnMouseMove;
@@ -143,22 +142,19 @@ internal sealed class GameGui : IGwenGui
 
     private void DetachWindowEvents()
     {
-        Parent.Input.KeyUp -= OnKeyUp;
-        Parent.Input.KeyDown -= OnKeyDown;
+        Parent.Input.Key -= OnKey;
         Parent.Input.TextInput -= OnTextInput;
         Parent.Input.MouseButton -= OnMouseButton;
         Parent.Input.MouseMove -= OnMouseMove;
         Parent.Input.MouseWheel -= OnMouseWheel;
     }
 
-    private void OnKeyUp(Object? sender, KeyboardKeyEventArgs obj)
+    private void OnKey(Object? sender, KeyboardKeyEventArgs obj)
     {
-        inputEvents.Add(() => input.ProcessKeyUp(obj));
-    }
-
-    private void OnKeyDown(Object? sender, KeyboardKeyEventArgs obj)
-    {
-        inputEvents.Add(() => input.ProcessKeyDown(obj));
+        if (obj.IsPressed)
+            inputEvents.Add(() => input.ProcessKeyDown(obj));
+        else
+            inputEvents.Add(() => input.ProcessKeyUp(obj));
     }
 
     private void OnTextInput(Object? sender, TextInputEventArgs obj)

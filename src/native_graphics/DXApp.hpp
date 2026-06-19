@@ -75,11 +75,11 @@ public:
     void OnSizeMove(bool enter);
     void OnTimer(UINT_PTR id);
 
-    void OnKeyDown(UINT8) const;
-    void OnKeyUp(UINT8) const;
-    void OnChar(UINT16) const;
-    void OnMouseMove(int, int);
-    void OnMouseWheel(double) const;
+    void OnKey(UINT8 key, BOOL isDown, BOOL isRepeat, ModifierKeys modifiers) const;
+    void OnChar(UINT16 c) const;
+    void OnMouseButton(UINT8 button, BOOL isDown, INT32 x, INT32 y, ModifierKeys modifiers) const;
+    void OnMouseMove(INT32 x, INT32 y);
+    void OnMouseWheel(INT32 x, INT32 y, double sx, double sy) const;
 
     void DoCursorSet() const;
 
@@ -179,9 +179,9 @@ private:
 
         NativeCheckFunction canClose;
 
-        NativeInputFunction       onKeyDown;
-        NativeInputFunction       onKeyUp;
+        NativeKeyFunction         onKey;
         NativeCharFunction        onChar;
+        NativeMouseButtonFunction onMouseButton;
         NativeMouseMoveFunction   onMouseMove;
         NativeMouseScrollFunction onMouseScroll;
 
@@ -219,9 +219,9 @@ private:
 
     bool tearingSupport = false;
 
-    int  xMousePosition = 0;
-    int  yMousePosition = 0;
-    bool mouseLocked    = false;
+    INT32 xMousePosition = 0;
+    INT32 yMousePosition = 0;
+    bool  mouseLocked    = false;
 
     MouseCursor                    mouseCursor = MouseCursor::ARROW;
     std::map<MouseCursor, HCURSOR> mouseCursors;

@@ -20,8 +20,6 @@ public sealed class ClientInputSource : InputSource, IDisposable
 {
     private readonly VoxelGame.Graphics.Input.Input input;
 
-    private PointF lastMousePosition;
-
     /// <summary>
     ///     Wrap a client to create an input source.
     /// </summary>
@@ -30,8 +28,7 @@ public sealed class ClientInputSource : InputSource, IDisposable
     {
         input = client.Input;
 
-        input.KeyUp += OnKeyUp;
-        input.KeyDown += OnKeyDown;
+        input.Key += OnKey;
         input.TextInput += OnTextInput;
         input.MouseButton += OnMouseButton;
         input.MouseMove += OnMouseMove;
@@ -41,8 +38,7 @@ public sealed class ClientInputSource : InputSource, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        input.KeyUp -= OnKeyUp;
-        input.KeyDown -= OnKeyDown;
+        input.Key -= OnKey;
         input.TextInput -= OnTextInput;
         input.MouseButton -= OnMouseButton;
         input.MouseMove -= OnMouseMove;
@@ -103,23 +99,6 @@ public sealed class ClientInputSource : InputSource, IDisposable
         };
     }
 
-    // todo: bring back modifiers and this translation
-    /*private static ModifierKeys TranslateModifierKeys(KeyModifiers modifiers)
-    {
-        ModifierKeys modifierKeys = ModifierKeys.None;
-
-        if (modifiers.HasFlag(KeyModifiers.Alt))
-            modifierKeys |= ModifierKeys.Alt;
-
-        if (modifiers.HasFlag(KeyModifiers.Control))
-            modifierKeys |= ModifierKeys.Control;
-
-        if (modifiers.HasFlag(KeyModifiers.Shift))
-            modifierKeys |= ModifierKeys.Shift;
-
-        return modifierKeys;
-    }*/
-
     private static PointerButton TranslateMouseButton(VirtualKeys button)
     {
         return button switch
@@ -131,48 +110,33 @@ public sealed class ClientInputSource : InputSource, IDisposable
         };
     }
 
-    private void OnKeyDown(Object? sender, KeyboardKeyEventArgs args)
+    private void OnKey(Object? sender, KeyboardKeyEventArgs args)
     {
         Key key = TranslateKeyCode(args.Key);
 
         if (key == Key.Invalid)
             return;
 
-        // todo: bring back modifiers and IsRepeat
-        SendKeyEvent(key, isDown: true, /*args.IsRepeat, TranslateModifierKeys(args.Modifiers)*/ isRepeat: false, ModifierKeys.None);
-    }
-
-    private void OnKeyUp(Object? sender, KeyboardKeyEventArgs args)
-    {
-        Key key = TranslateKeyCode(args.Key);
-
-        if (key == Key.Invalid)
-            return;
-
-        // todo: bring back modifiers and IsRepeat
-        SendKeyEvent(key, isDown: false, /*args.IsRepeat, TranslateModifierKeys(args.Modifiers)*/ isRepeat: false, ModifierKeys.None);
+        SendKeyEvent(key, args.IsPressed, args.IsRepeat, args.Modifiers);
     }
 
     private void OnTextInput(Object? sender, TextInputEventArgs args)
     {
-        SendTextEvent(args.Character.ToString()); // todo: maybe the event also has to be a string earlier
+        SendTextEvent(args.Character.ToString());
     }
 
     private void OnMouseButton(Object? sender, MouseButtonEventArgs args)
     {
-        // todo: bring back modifiers
-        SendPointerButtonEvent(lastMousePosition, TranslateMouseButton(args.Button), args.IsPressed, /*TranslateModifierKeys(args.Modifiers)*/ModifierKeys.None);
+        SendPointerButtonEvent(new PointF(args.Position.X, args.Position.Y), TranslateMouseButton(args.Button), args.IsPressed, args.Modifiers);
     }
 
     private void OnMouseMove(Object? sender, MouseMoveEventArgs args)
     {
-        lastMousePosition = new PointF(args.Position.X, args.Position.Y);
-
-        SendPointerMoveEvent(lastMousePosition, /*args.DeltaX, args.DeltaY*/deltaX: 0.0f, deltaY: 0.0f); // todo: bring back delta to event if easy or calculate it here and pass correctly
+        SendPointerMoveEvent(new PointF(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
     }
 
     private void OnMouseWheel(Object? sender, MouseWheelEventArgs args)
     {
-        SendScrollEvent(lastMousePosition, (Single) args.Delta, /*args.OffsetY*/deltaY: 0.0f); // todo: bring back different deltas and correctly pass here
+        SendScrollEvent(new PointF(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
     }
 }

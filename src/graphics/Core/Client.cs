@@ -115,9 +115,9 @@ public partial class Client : Application
 
             },
             canClose = CanClose,
-            onKeyDown = Input.OnKeyDown,
-            onKeyUp = Input.OnKeyUp,
+            onKey = Input.OnKey,
             onChar = Input.OnChar,
+            onMouseButton = Input.OnMouseButton,
             onMouseMove = Input.OnMouseMove,
             onMouseWheel = Input.OnMouseWheel,
             onResize = (width, height) =>

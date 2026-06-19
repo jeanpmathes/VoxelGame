@@ -77,9 +77,9 @@ DXApp::DXApp(::Configuration const& configuration)
 
                 .canClose = configuration.canClose,
 
-                .onKeyDown     = configuration.onKeyDown,
-                .onKeyUp       = configuration.onKeyUp,
+                .onKey         = configuration.onKey,
                 .onChar        = configuration.onChar,
+                .onMouseButton = configuration.onMouseButton,
                 .onMouseMove   = configuration.onMouseMove,
                 .onMouseScroll = configuration.onMouseScroll,
 
@@ -234,21 +234,33 @@ void DXApp::OnSizeMove(bool const enter)
 
 void DXApp::OnTimer(UINT_PTR const id) { if (id == IDT_UPDATE) Update(CycleFlags::ALLOW_LOGIC_UPDATE, true); }
 
-void DXApp::OnKeyDown(UINT8 const param) const { hooks.onKeyDown(param); }
-
-void DXApp::OnKeyUp(UINT8 const param) const { hooks.onKeyUp(param); }
+void DXApp::OnKey(UINT8 const key, BOOL const isDown, BOOL const isRepeat, ModifierKeys const modifiers) const
+{
+    hooks.onKey(key, isDown, isRepeat, modifiers);
+}
 
 void DXApp::OnChar(UINT16 const c) const { hooks.onChar(c); }
 
-void DXApp::OnMouseMove(int const x, int const y)
+void DXApp::OnMouseButton(UINT8 const button, BOOL const isDown, INT32 const x, INT32 const y, ModifierKeys const modifiers) const
 {
+    hooks.onMouseButton(button, isDown, x, y, modifiers);
+}
+
+void DXApp::OnMouseMove(INT32 const x, INT32 const y)
+{
+    INT32 const dx = x - xMousePosition;
+    INT32 const dy = y - yMousePosition;
+
     xMousePosition = x;
     yMousePosition = y;
 
-    hooks.onMouseMove(x, y);
+    hooks.onMouseMove(x, y, dx, dy);
 }
 
-void DXApp::OnMouseWheel(double const delta) const { hooks.onMouseScroll(delta); }
+void DXApp::OnMouseWheel(INT32 x, INT32 y, double sx, double sy) const
+{
+    hooks.onMouseScroll(x, y, sx, sy);
+}
 
 void DXApp::DoCursorSet() const { SetCursor(mouseCursors.at(mouseCursor)); }
 

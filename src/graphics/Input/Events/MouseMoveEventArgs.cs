@@ -31,4 +31,9 @@ public class MouseMoveEventArgs : EventArgs
     ///     The new position of the mouse.
     /// </summary>
     public Vector2 Position { get; init; }
+
+    /// <summary>
+    ///     The delta of the mouse movement.
+    /// </summary>
+    public Vector2d Delta { get; init; }
 }

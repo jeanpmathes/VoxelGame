@@ -23,6 +23,8 @@ using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input.Devices;
 using VoxelGame.Graphics.Input.Events;
+using VoxelGame.GUI.Input;
+using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics.Input;
 
@@ -33,15 +35,6 @@ public class Input
 {
     private readonly List<Action<VirtualKeys>> callbackListForAnyPress = [];
     private readonly HashSet<VirtualKeys> ignoredKeys = [];
-
-    private readonly HashSet<VirtualKeys> mouseButtons =
-    [
-        VirtualKeys.LeftButton,
-        VirtualKeys.RightButton,
-        VirtualKeys.MiddleButton,
-        VirtualKeys.ExtraButton1,
-        VirtualKeys.ExtraButton2
-    ];
 
     internal Input(Client client)
     {
@@ -64,10 +57,10 @@ public class Input
     public KeyState KeyState { get; } = new();
 
     /// <summary>
-    ///     Ignores a key until the physical key is released.
+    ///     Ignores a key or button until the physical key is released.
     /// </summary>
-    /// <param name="key">The key to ignore.</param>
-    public void IgnoreKeyUntilRelease(VirtualKeys key)
+    /// <param name="key">The key or button to ignore.</param>
+    public void IgnoreKeyOrButtonUntilRelease(VirtualKeys key)
     {
         ignoredKeys.Add(key);
         KeyState.SetKeyState(key, down: false);
@@ -115,25 +108,22 @@ public class Input
         KeyState.LogicUpdate();
     }
 
-    internal void OnKeyDown(Byte key)
+    internal void OnKey(Byte key, Bool isDown, Bool isRepeat, ModifierKeys modifiers)
     {
         VirtualKeys virtualKey = (VirtualKeys) key;
 
         if (ignoredKeys.Contains(virtualKey)) return;
 
         KeyState.SetKeyState(virtualKey, down: true);
-        HandleKey(virtualKey, down: true);
-    }
 
-    internal void OnKeyUp(Byte key)
-    {
-        VirtualKeys virtualKey = (VirtualKeys) key;
-
-        if (ignoredKeys.Remove(virtualKey))
-            return;
-
-        KeyState.SetKeyState(virtualKey, down: false);
-        HandleKey(virtualKey, down: false);
+        Key?.Invoke(this,
+            new KeyboardKeyEventArgs
+            {
+                Key = virtualKey,
+                IsPressed = isDown,
+                IsRepeat = isRepeat,
+                Modifiers = modifiers
+            });
     }
 
     internal void OnChar(Char character)
@@ -145,47 +135,45 @@ public class Input
             });
     }
 
-    internal void OnMouseMove(Int32 x, Int32 y)
+    internal void OnMouseButton(Byte button, Bool isDown, Int32 x, Int32 y, ModifierKeys modifiers)
+    {
+        VirtualKeys virtualKey = (VirtualKeys) button;
+
+        if (ignoredKeys.Remove(virtualKey))
+            return;
+
+        KeyState.SetKeyState(virtualKey, isDown);
+
+        MouseButton?.Invoke(this,
+            new MouseButtonEventArgs
+            {
+                Button = virtualKey,
+                IsPressed = isDown,
+                Position = Mouse.Position,
+                Modifiers = modifiers
+            });
+    }
+
+    internal void OnMouseMove(Int32 x, Int32 y, Int32 deltaX, Int32 deltaY)
     {
         Mouse.OnMouseMove((x, y));
 
         MouseMove?.Invoke(this,
             new MouseMoveEventArgs
             {
-                Position = Mouse.Position
+                Position = Mouse.Position,
+                Delta = Mouse.Delta
             });
     }
 
-    internal void OnMouseWheel(Double delta)
+    internal void OnMouseWheel(Int32 x, Int32 y, Double scrollX, Double scrollY)
     {
         MouseWheel?.Invoke(this,
             new MouseWheelEventArgs
             {
-                Delta = delta
+                Position = Mouse.Position,
+                Delta = (scrollX, scrollY)
             });
-    }
-
-    private void HandleKey(VirtualKeys key, Boolean down)
-    {
-        if (mouseButtons.Contains(key))
-        {
-            MouseButton?.Invoke(this,
-                new MouseButtonEventArgs
-                {
-                    Button = key,
-                    IsPressed = down
-                });
-        }
-        else
-        {
-            KeyboardKeyEventArgs args = new()
-            {
-                Key = key
-            };
-
-            if (down) KeyDown?.Invoke(this, args);
-            else KeyUp?.Invoke(this, args);
-        }
     }
 
     /// <summary>
@@ -209,14 +197,9 @@ public class Input
     public event EventHandler<MouseWheelEventArgs>? MouseWheel;
 
     /// <summary>
-    ///     Called when a keyboard key is pressed.
+    ///     Called when a keyboard key is pressed or released.
     /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs>? KeyDown;
-
-    /// <summary>
-    ///     Called when a keyboard key is released.
-    /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs>? KeyUp;
+    public event EventHandler<KeyboardKeyEventArgs>? Key;
 
     /// <summary>
     ///     Called when a text input is received.

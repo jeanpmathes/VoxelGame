@@ -197,7 +197,7 @@ public sealed partial class KeybindManager : ISettingsProvider, IDisposable
         usageMap.RemoveBinding(keybinds[bind].Key);
         keybinds[bind].SetBinding(key);
 
-        Input.IgnoreKeyUntilRelease(key);
+        Input.IgnoreKeyOrButtonUntilRelease(key);
 
         Properties.Settings.Default[PropertyName(bind)] = key.GetSettings(isDefault);
         Properties.Settings.Default.Save();

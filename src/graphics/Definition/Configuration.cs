@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
 using VoxelGame.Graphics.Interop;
+using VoxelGame.GUI.Input;
 using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics.Definition;
@@ -61,11 +62,6 @@ internal static partial class Native
     internal delegate void NativeCallbackFunction();
 
     /// <summary>
-    ///     A callback that receives a char value describing an input event.
-    /// </summary>
-    internal delegate void NativeCharFunction(Char arg);
-
-    /// <summary>
     ///     Checks if a condition is true.
     /// </summary>
     internal delegate Bool NativeCheckFunction();
@@ -76,19 +72,29 @@ internal static partial class Native
     internal unsafe delegate void NativeErrorFunction(Int32 hresult, Byte* message);
 
     /// <summary>
-    ///     A callback that receives a byte value describing an input event.
+    ///     A callback that receives key events.
     /// </summary>
-    internal delegate void NativeInputFunction(Byte arg);
+    internal delegate void NativeKeyFunction(Byte key, Bool isDown, Bool isRepeat, ModifierKeys modifiers);
+
+    /// <summary>
+    ///     A callback that receives a char value describing an input event.
+    /// </summary>
+    internal delegate void NativeCharFunction(Char arg);
+
+    /// <summary>
+    ///     A callback that receives mouse button events.
+    /// </summary>
+    internal delegate void NativeMouseButtonFunction(Byte button, Bool isDown, Int32 x, Int32 y, ModifierKeys modifiers);
 
     /// <summary>
     ///     A callback that receives the new mouse position on a mouse move event.
     /// </summary>
-    internal delegate void NativeMouseMoveFunction(Int32 x, Int32 y);
+    internal delegate void NativeMouseMoveFunction(Int32 x, Int32 y, Int32 deltaX, Int32 deltaY);
 
     /// <summary>
     ///     A callback that receives the mouse wheel delta on a mouse wheel event.
     /// </summary>
-    internal delegate void NativeMouseWheelFunction(Double delta);
+    internal delegate void NativeMouseWheelFunction(Int32 x, Int32 y, Double scrollX, Double scrollY);
 
     /// <summary>
     ///     A callback that receives the new window size on a resize event.
@@ -170,19 +176,19 @@ internal static partial class Native
         internal NativeCheckFunction canClose;
 
         /// <summary>
-        ///     Called on a key down event.
+        ///     Called on a key event.
         /// </summary>
-        internal NativeInputFunction onKeyDown;
-
-        /// <summary>
-        ///     Called on a key up event.
-        /// </summary>
-        internal NativeInputFunction onKeyUp;
+        internal NativeKeyFunction onKey;
 
         /// <summary>
         ///     Called on a char event.
         /// </summary>
         internal NativeCharFunction onChar;
+
+        /// <summary>
+        ///     Called on a mouse button event.
+        /// </summary>
+        internal NativeMouseButtonFunction onMouseButton;
 
         /// <summary>
         ///     Called on a mouse move event.
@@ -272,9 +278,9 @@ internal static partial class Native
                 onInit = Marshal.GetFunctionPointerForDelegate(managed.onInitialization),
                 onDestroy = Marshal.GetFunctionPointerForDelegate(managed.onDestroy),
                 canClose = Marshal.GetFunctionPointerForDelegate(managed.canClose),
-                onKeyDown = Marshal.GetFunctionPointerForDelegate(managed.onKeyDown),
-                onKeyUp = Marshal.GetFunctionPointerForDelegate(managed.onKeyUp),
+                onKey = Marshal.GetFunctionPointerForDelegate(managed.onKey),
                 onChar = Marshal.GetFunctionPointerForDelegate(managed.onChar),
+                onMouseButton = Marshal.GetFunctionPointerForDelegate(managed.onMouseButton),
                 onMouseMove = Marshal.GetFunctionPointerForDelegate(managed.onMouseMove),
                 onMouseWheel = Marshal.GetFunctionPointerForDelegate(managed.onMouseWheel),
                 onResize = Marshal.GetFunctionPointerForDelegate(managed.onResize),
@@ -310,9 +316,9 @@ internal static partial class Native
             internal IntPtr onInit;
             internal IntPtr onDestroy;
             internal IntPtr canClose;
-            internal IntPtr onKeyDown;
-            internal IntPtr onKeyUp;
+            internal IntPtr onKey;
             internal IntPtr onChar;
+            internal IntPtr onMouseButton;
             internal IntPtr onMouseMove;
             internal IntPtr onMouseWheel;
             internal IntPtr onResize;

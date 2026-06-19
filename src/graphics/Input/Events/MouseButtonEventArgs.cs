@@ -18,7 +18,9 @@
 // <author>jeanpmathes</author>
 
 using System;
+using OpenTK.Mathematics;
 using VoxelGame.Graphics.Definition;
+using VoxelGame.GUI.Input;
 
 namespace VoxelGame.Graphics.Input.Events;
 
@@ -36,4 +38,14 @@ public class MouseButtonEventArgs : EventArgs
     ///     Whether the button was pressed or released.
     /// </summary>
     public Boolean IsPressed { get; init; }
+
+    /// <summary>
+    ///     The position of the mouse when the event was triggered.
+    /// </summary>
+    public Vector2 Position { get; init; }
+
+    /// <summary>
+    ///     The active modifiers.
+    /// </summary>
+    public ModifierKeys Modifiers { get; init; }
 }

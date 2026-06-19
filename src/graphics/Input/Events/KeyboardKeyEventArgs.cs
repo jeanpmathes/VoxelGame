@@ -17,7 +17,9 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Graphics.Definition;
+using VoxelGame.GUI.Input;
 
 namespace VoxelGame.Graphics.Input.Events;
 
@@ -30,4 +32,19 @@ public class KeyboardKeyEventArgs
     ///     The key.
     /// </summary>
     public VirtualKeys Key { get; init; }
+
+    /// <summary>
+    ///     Whether the key is pressed or released.
+    /// </summary>
+    public Boolean IsPressed { get; init; }
+
+    /// <summary>
+    ///     Whether the key is being held down.
+    /// </summary>
+    public Boolean IsRepeat { get; init; }
+
+    /// <summary>
+    ///     The active modifiers.
+    /// </summary>
+    public ModifierKeys Modifiers { get; init; }
 }

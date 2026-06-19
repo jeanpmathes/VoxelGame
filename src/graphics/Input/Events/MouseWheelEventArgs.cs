@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using OpenTK.Mathematics;
 
 namespace VoxelGame.Graphics.Input.Events;
 
@@ -27,7 +28,12 @@ namespace VoxelGame.Graphics.Input.Events;
 public class MouseWheelEventArgs : EventArgs
 {
     /// <summary>
+    ///     The position of the mouse when the event was triggered.
+    /// </summary>
+    public Vector2 Position { get; init; }
+
+    /// <summary>
     ///     The mouse wheel delta.
     /// </summary>
-    public Double Delta { get; init; }
+    public Vector2d Delta { get; init; }
 }
