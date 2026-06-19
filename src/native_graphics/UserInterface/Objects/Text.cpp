@@ -46,8 +46,8 @@ ui::SizeF ui::Text::Measure(SizeF const newAvailableSize)
     TryDo(layout->SetMaxWidth(newAvailableSize.width));
     TryDo(layout->SetMaxHeight(newAvailableSize.height));
 
-    DWRITE_TEXT_METRICS1 metrics;
+    DWRITE_TEXT_METRICS metrics;
     TryDo(layout->GetMetrics(&metrics));
 
-    return SizeF{.width = metrics.widthIncludingTrailingWhitespace, .height = metrics.heightIncludingTrailingWhitespace};
+    return SizeF{.width = metrics.width, .height = metrics.height};
 }
