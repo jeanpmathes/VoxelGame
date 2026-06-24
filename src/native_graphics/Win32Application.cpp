@@ -77,7 +77,7 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
 
     app->Destroy();
 
-    return static_cast<char>(message.wParam);
+    return static_cast<int>(message.wParam);
 }
 
 void Win32Application::ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain)
@@ -247,7 +247,9 @@ LRESULT Win32Application::WindowProcImplementation(HWND hWnd, UINT const message
 
             if (vkCode == VK_LWIN || vkCode == VK_RWIN) return 0;
 
-            WORD const scanCode = LOBYTE(keyFlags);
+            WORD scanCode = LOBYTE(keyFlags);
+
+            if ((keyFlags & KF_EXTENDED) == KF_EXTENDED) scanCode = MAKEWORD(scanCode, 0xE0);
 
             bool const up     = (keyFlags & KF_UP) == KF_UP;
             bool const repeat = (keyFlags & KF_REPEAT) == KF_REPEAT;
@@ -273,14 +275,15 @@ LRESULT Win32Application::WindowProcImplementation(HWND hWnd, UINT const message
         return 0;
 
     case WM_LBUTTONDOWN:
-    {
-        INT32 const x = GET_X_LPARAM(lParam);
-        INT32 const y = GET_Y_LPARAM(lParam);
+        if (app)
+        {
+            INT32 const x = GET_X_LPARAM(lParam);
+            INT32 const y = GET_Y_LPARAM(lParam);
 
-        ModifierKeys const modifiers = GetCurrentModifierKeys();
+            ModifierKeys const modifiers = GetCurrentModifierKeys();
 
-        app->OnMouseButton(VK_LBUTTON, true, x, y, modifiers);
-    }
+            app->OnMouseButton(VK_LBUTTON, true, x, y, modifiers);
+        }
         return 0;
 
     case WM_LBUTTONUP:
@@ -383,10 +386,33 @@ LRESULT Win32Application::WindowProcImplementation(HWND hWnd, UINT const message
             double const zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
             double const delta  = zDelta / WHEEL_DELTA;
 
-            auto const xPos = GET_X_LPARAM(lParam);
-            auto const yPos = GET_Y_LPARAM(lParam);
+            POINT point
+            {
+                .x = GET_X_LPARAM(lParam),
+                .y = GET_Y_LPARAM(lParam)
+            };
 
-            app->OnMouseWheel(xPos, yPos, 0.0, delta);
+            ScreenToClient(hWnd, &point);
+
+            app->OnMouseWheel(point.x, point.y, 0.0, delta);
+        }
+        return 0;
+
+    case WM_MOUSEHWHEEL:
+        if (app)
+        {
+            double const zDelta = GET_WHEEL_DELTA_WPARAM(wParam);
+            double const delta  = zDelta / WHEEL_DELTA;
+
+            POINT point
+            {
+                .x = GET_X_LPARAM(lParam),
+                .y = GET_Y_LPARAM(lParam)
+            };
+
+            ScreenToClient(hWnd, &point);
+
+            app->OnMouseWheel(point.x, point.y, delta, 0.0);
         }
         return 0;
 
