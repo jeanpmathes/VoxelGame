@@ -43,6 +43,7 @@ public interface IRenderer
     /// <summary>
     ///     End the recording of content.
     ///     Rendering operations must be performed between <see cref="Reset" /> and <see cref="Submit" />.
+    ///     Call reset before recording further content.
     /// </summary>
     public void Submit();
 

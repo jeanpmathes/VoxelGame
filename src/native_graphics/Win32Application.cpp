@@ -268,7 +268,7 @@ LRESULT Win32Application::WindowProcImplementation(HWND hWnd, UINT const message
             ModifierKeys const modifiers = GetCurrentModifierKeys();
 
             // todo: filtering out ALT is a bit ugly, but I think there was a reason for it, find it out, rethink, document
-            if (!alt) app->OnKey(vk, !up, repeat, modifiers);
+            if (!alt || up) app->OnKey(vk, !up, repeat, modifiers);
         }
         return 0;
 

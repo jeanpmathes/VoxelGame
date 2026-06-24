@@ -83,6 +83,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         Debug.Assert(skippedClipDepth == 0);
 
         renderer.Submit(commands.Commands);
+        commands.Clear();
     }
 
     /// <inheritdoc />

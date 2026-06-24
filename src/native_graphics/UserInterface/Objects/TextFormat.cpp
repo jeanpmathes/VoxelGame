@@ -25,7 +25,8 @@ namespace
 
     DWRITE_FONT_STRETCH GetFontStretch(ui::FontStretch const stretch)
     {
-        return static_cast<DWRITE_FONT_STRETCH>(stretch);
+        // ui::FontStretch is zero-based, while DWRITE_FONT_STRETCH is one-based.
+        return static_cast<DWRITE_FONT_STRETCH>(static_cast<int>(stretch) + 1);
     }
 
     DWRITE_WORD_WRAPPING GetTextWrapping(ui::TextWrapping const wrapping)

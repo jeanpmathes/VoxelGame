@@ -114,7 +114,7 @@ public class Input
 
         if (ignoredKeys.Contains(virtualKey)) return;
 
-        KeyState.SetKeyState(virtualKey, down: true);
+        KeyState.SetKeyState(virtualKey, isDown);
 
         Key?.Invoke(this,
             new KeyboardKeyEventArgs
@@ -149,7 +149,7 @@ public class Input
             {
                 Button = virtualKey,
                 IsPressed = isDown,
-                Position = Mouse.Position,
+                Position = (x, y),
                 Modifiers = modifiers
             });
     }
@@ -161,8 +161,8 @@ public class Input
         MouseMove?.Invoke(this,
             new MouseMoveEventArgs
             {
-                Position = Mouse.Position,
-                Delta = Mouse.Delta
+                Position = (x, y),
+                Delta = (deltaX, deltaY)
             });
     }
 
@@ -171,7 +171,7 @@ public class Input
         MouseWheel?.Invoke(this,
             new MouseWheelEventArgs
             {
-                Position = Mouse.Position,
+                Position = (x, y),
                 Delta = (scrollX, scrollY)
             });
     }
