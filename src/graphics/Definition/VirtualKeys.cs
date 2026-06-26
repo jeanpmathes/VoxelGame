@@ -26,7 +26,7 @@ namespace VoxelGame.Graphics.Definition;
 ///     Enumeration for virtual keys.
 /// </summary>
 /// <remarks>
-///     Adapted from https://www.pinvoke.net/default.aspx/Enums/VirtualKeys.html
+///     See https://learn.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
 /// </remarks>
 [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Must match original definitions.")]
 [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Must match original definitions.")]
@@ -54,10 +54,12 @@ public enum VirtualKeys : Byte
     Kana = 0x15,
     Hangeul = 0x15,
     Hangul = 0x15,
+    IMEOn = 0x16,
     Junja = 0x17,
     Final = 0x18,
     Hanja = 0x19,
     Kanji = 0x19,
+    IMEOff = 0x1A,
     Escape = 0x1B,
     Convert = 0x1C,
     NonConvert = 0x1D,
@@ -198,6 +200,30 @@ public enum VirtualKeys : Byte
     OEMPeriod = 0xBE,
     OEM2 = 0xBF,
     OEM3 = 0xC0,
+    GamepadA = 0xC3,
+    GamepadB = 0xC4,
+    GamepadX = 0xC5,
+    GamepadY = 0xC6,
+    GamepadRightShoulder = 0xC7,
+    GamepadLeftShoulder = 0xC8,
+    GamepadLeftTrigger = 0xC9,
+    GamepadRightTrigger = 0xCA,
+    GamepadDPadUp = 0xCB,
+    GamepadDPadDown = 0xCC,
+    GamepadDPadLeft = 0xCD,
+    GamepadDPadRight = 0xCE,
+    GamepadMenu = 0xCF,
+    GamepadView = 0xD0,
+    GamepadLeftThumbstickButton = 0xD1,
+    GamepadRightThumbstickButton = 0xD2,
+    GamepadLeftThumbstickUp = 0xD3,
+    GamepadLeftThumbstickDown = 0xD4,
+    GamepadLeftThumbstickRight = 0xD5,
+    GamepadLeftThumbstickLeft = 0xD6,
+    GamepadRightThumbstickUp = 0xD7,
+    GamepadRightThumbstickDown = 0xD8,
+    GamepadRightThumbstickRight = 0xD9,
+    GamepadRightThumbstickLeft = 0xDA,
     OEM4 = 0xDB,
     OEM5 = 0xDC,
     OEM6 = 0xDD,
