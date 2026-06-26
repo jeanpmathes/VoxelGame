@@ -67,6 +67,21 @@ DebugLayer::DebugLayer(D3D12MessageFunc const callback)
 {
 }
 
+DebugLayer::~DebugLayer()
+{
+    UnregisterCallback();
+}
+
+void DebugLayer::UnregisterCallback()
+{
+    if (infoQueue == nullptr || callbackCookie == 0) return;
+
+    // Do not use TryDo as we do not want the destructor to throw.
+    (void)infoQueue->UnregisterMessageCallback(callbackCookie);
+
+    callbackCookie = 0;
+}
+
 void DebugLayer::ConfigureDeviceFactoryImplementation(ComPtr<ID3D12DeviceFactory> const& deviceFactory, NativeClient const& client) const
 {
     (void)this;

@@ -37,7 +37,8 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
     windowClass.hIcon         = app->GetIcon();
     windowClass.hCursor       = nullptr;
     windowClass.lpszClassName = L"DXApp";
-    RegisterClassEx(&windowClass);
+
+    TryDo(RegisterClassEx(&windowClass) != 0);
 
     RECT initialWindowRectangle = {0, 0, static_cast<LONG>(app->GetWidth()), static_cast<LONG>(app->GetHeight())};
     TryDo(AdjustWindowRect(&initialWindowRectangle, WS_OVERLAPPEDWINDOW, FALSE));
@@ -76,6 +77,10 @@ int Win32Application::Run(DXApp* app, HINSTANCE instance, int const cmdShow)
         else app->Update(DXApp::CycleFlags::ALLOW_BOTH);
 
     app->Destroy();
+
+    TryDo(UnregisterClass(windowClass.lpszClassName, instance));
+
+    hwnd = nullptr;
 
     return static_cast<int>(message.wParam);
 }

@@ -28,6 +28,15 @@ namespace ui
 
 using ScreenshotFunc = void(*)(std::byte*, UINT, UINT);
 
+/**
+ * Main and root class of the native graphics system.
+ * It allows creation of different objects, which have a lifetime tied to this client.
+ * The rendering steps are as follows:
+ *  1. The space with raytraced meshes and then rasterized effects.
+ *  2. The single post processing pipeline.
+ *  3. An arbitrary number of Draw2D pipelines.
+ *  4. An arbitrary number of user interfaces.
+ */
 class NativeClient final : public DXApp
 {
 public:

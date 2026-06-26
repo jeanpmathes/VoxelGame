@@ -51,6 +51,7 @@ public:
     };
 
     explicit DebugLayer(D3D12MessageFunc callback);
+    ~DebugLayer();
 
     [[nodiscard]] UINT GetDXGIFactoryFlags() const
     {
@@ -130,6 +131,8 @@ public:
     }
 
 private:
+    void UnregisterCallback();
+
     void ConfigureDeviceFactoryImplementation(ComPtr<ID3D12DeviceFactory> const& deviceFactory, NativeClient const& client) const;
     void ConfigureDeviceImplementation(ComPtr<ID3D12Device5> const& device, NativeClient const& client, bool pixAttached);
     void AddMessageImplementation(D3D12_MESSAGE_SEVERITY severity, char const* message) const;

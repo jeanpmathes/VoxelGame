@@ -49,6 +49,7 @@ namespace VoxelGame.Graphics.Core;
 [NativeMarshalling(typeof(ClientMarshaller))]
 public partial class Client : Application
 {
+    private readonly Icon? icon;
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
 #pragma warning restore S1450 // Keep the callback functions alive.
@@ -66,6 +67,7 @@ public partial class Client : Application
         Size = windowSettings.Size;
 
         Input = new Input.Input(this);
+        icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty);
 
         Definition.Native.NativeConfiguration configuration = new()
         {
@@ -139,7 +141,7 @@ public partial class Client : Application
             width = (UInt32) windowSettings.Size.X,
             height = (UInt32) windowSettings.Size.Y,
             title = windowSettings.Title,
-            icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty)?.Handle ?? IntPtr.Zero,
+            icon = icon?.Handle ?? IntPtr.Zero,
             applicationName = Assembly.GetEntryAssembly()?.GetName().Name ?? "Unknown Application",
             applicationVersion = Assembly.GetEntryAssembly()?.GetName().Version?.ToString() ?? "Unknown Version",
             applicationLocale = GetLocale(),
@@ -500,6 +502,8 @@ public partial class Client : Application
             LogDisposingClient(logger);
 
             NativeMethods.Finalize(this);
+
+            icon?.Dispose();
 
             config = new Config();
         }
