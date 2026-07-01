@@ -54,7 +54,6 @@ internal static class DemoHarnessView
 
                                 Margin = {Value = new ThicknessF(30)},
 
-                                // todo: fix that click currently does not work - check input stuff
                                 Command = {Value = Command.FromAction(() => harness.Write("Button clicked!"))}
                             },
                             new Button<String>

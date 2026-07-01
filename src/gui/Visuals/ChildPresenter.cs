@@ -36,10 +36,7 @@ public class ChildPresenter : Visual
     /// <summary>
     ///     Constructs a new instance of the <see cref="ChildPresenter" /> class.
     /// </summary>
-    public ChildPresenter()
-    {
-        Visibility.Set(GUI.Visibility.Collapsed);
-    }
+    public ChildPresenter() {}
 
     /// <inheritdoc />
     public override void OnAttach()
@@ -110,8 +107,6 @@ public class ChildPresenter : Visual
 
     private void AddVisualization(Control child)
     {
-        Visibility.Clear();
-
         visualizedChild = child;
         childVisualization = child.Visualize();
 
@@ -122,13 +117,6 @@ public class ChildPresenter : Visual
 
     private void RemoveVisualization()
     {
-        Visibility.Set(GUI.Visibility.Collapsed);
-
-        // todo: these set / clear methods are only used here and in ChildrenPresenter
-        // todo: maybe that system can be completely removed from visual properties??
-        // todo: this would make VisualProperty simpler, at the cost of having children presenters be visible when empty
-        // todo: and the only problem with that would be that they render their boundaries in debug mode
-
         if (visualizedChild != null)
             visualizedChild.Visualization.ValueChanged -= OnVisualizedChildVisualizationChanged;
 

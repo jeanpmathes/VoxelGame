@@ -39,10 +39,7 @@ public abstract class ChildrenPresenter : Visual
     /// <summary>
     ///     Initializes a new instance of the <see cref="ChildrenPresenter" /> class.
     /// </summary>
-    protected ChildrenPresenter()
-    {
-        UpdateVisibility();
-    }
+    protected ChildrenPresenter() {}
 
     /// <inheritdoc />
     public override void OnAttach()
@@ -79,8 +76,6 @@ public abstract class ChildrenPresenter : Visual
         }
 
         visualizedChildren.Clear();
-
-        UpdateVisibility();
     }
 
     private void OnTemplateOwnerChildAdded(Object? sender, ChildAddedEventArgs e)
@@ -102,8 +97,6 @@ public abstract class ChildrenPresenter : Visual
         AddChild(childVisualization);
 
         child.Visualization.ValueChanged += OnVisualizedChildVisualizationChanged;
-
-        UpdateVisibility();
     }
 
     private void RemoveVisualization(Control child)
@@ -112,8 +105,6 @@ public abstract class ChildrenPresenter : Visual
         {
             RemoveChild(childVisualization);
         }
-
-        UpdateVisibility();
     }
 
     private void OnVisualizedChildVisualizationChanged(Object? sender, EventArgs e)
@@ -130,17 +121,5 @@ public abstract class ChildrenPresenter : Visual
 
         visualizedChildren[visualizedChild] = childVisualization;
         AddChild(childVisualization);
-    }
-
-    private void UpdateVisibility()
-    {
-        if (visualizedChildren.Count > 0)
-        {
-            Visibility.Clear();
-        }
-        else
-        {
-            Visibility.Set(GUI.Visibility.Collapsed);
-        }
     }
 }

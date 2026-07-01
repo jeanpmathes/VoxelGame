@@ -31,7 +31,7 @@ namespace ui
     class BrushSupport final
     {
     public:
-        static constexpr size_t MAX_FREE_BRUSHES = 32; // todo: profile
+        static constexpr size_t MAX_FREE_BRUSHES = 32;
 
         explicit BrushSupport(Renderer& renderer);
 

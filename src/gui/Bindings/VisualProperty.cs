@@ -145,7 +145,6 @@ public sealed class VisualProperty<T> : VisualProperty, IValueSource<T>
 {
     private readonly Binding<T> defaultBinding;
 
-    private Binding<T>? internalBinding;
     private Binding<T>? localBinding;
 
     private Binding<T> targetBinding;
@@ -207,7 +206,7 @@ public sealed class VisualProperty<T> : VisualProperty, IValueSource<T>
 
     private void RecomputeTargetBinding()
     {
-        Binding<T> binding = localBinding ?? internalBinding ?? defaultBinding;
+        Binding<T> binding = localBinding ?? defaultBinding;
 
         if (ReferenceEquals(binding, targetBinding))
             return;
@@ -262,38 +261,6 @@ public sealed class VisualProperty<T> : VisualProperty, IValueSource<T>
     {
         return $"{{{GetValue()?.ToString()}}}";
     }
-
-    #region INTERNAL
-
-    /// <summary>
-    ///     Bind the property internally.
-    /// </summary>
-    /// <param name="newInternalBinding">The new internal binding for the property.</param>
-    public void Set(Binding<T> newInternalBinding)
-    {
-        internalBinding = newInternalBinding;
-        RecomputeTargetBinding();
-    }
-
-    /// <summary>
-    ///     Bind the property to a constant value internally.
-    /// </summary>
-    /// <param name="newValue">The new constant value for the property.</param>
-    public void Set(T newValue)
-    {
-        Set(Bindings.Binding.Constant(newValue));
-    }
-
-    /// <summary>
-    ///     Clears the internal binding of the property, causing it to fall back to the local binding or default value.
-    /// </summary>
-    public void Clear()
-    {
-        internalBinding = null;
-        RecomputeTargetBinding();
-    }
-
-    #endregion INTERNAL
 
     #region LOCAL
 

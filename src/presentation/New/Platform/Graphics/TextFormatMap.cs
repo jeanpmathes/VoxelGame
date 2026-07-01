@@ -34,7 +34,7 @@ internal sealed class TextFormatMap(Renderer renderer) : IDisposable
     private readonly Dictionary<TextOptions, Entry> activeFormats = [];
     private readonly Dictionary<TextFormat, Entry> formatMap = [];
 
-    private readonly Cache<TextOptions, TextFormat> cache = new DisposableCache<TextOptions, TextFormat>(100); // todo: profile and optimize
+    private readonly Cache<TextOptions, TextFormat> cache = new DisposableCache<TextOptions, TextFormat>(100);
 
     public TextFormat Request(TextOptions options)
     {
