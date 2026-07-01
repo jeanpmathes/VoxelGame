@@ -33,7 +33,7 @@ namespace VoxelGame.Graphics.Definition.UserInterface;
 /// </summary>
 public sealed class CommandBuilder
 {
-    private readonly List<Command> commands = []; // todo: pooled list and IDisposable ?
+    private readonly List<Command> commands = [];
 
     /// <summary>
     ///     Get the current commands built with this command builder.
