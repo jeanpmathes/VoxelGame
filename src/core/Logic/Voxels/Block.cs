@@ -309,7 +309,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             if (meshable == null)
                 meshable = m;
             else
-                otherMeshables.Add(meshable);
+                otherMeshables.Add(m);
         }
 
         if (otherMeshables.Count > 0)

@@ -21,6 +21,13 @@ git clone --recursive https://github.com/jeanpmathes/VoxelGame.git
 Then build by opening the `VoxelGame.sln` solution file in Visual Studio and building the solution in `Release` mode for
 `x64`.
 
+If you wish to build the game without an IDE, you can use msbuild.
+Using dotnet is not possible due to the C++ dependencies.
+
+```bash
+msbuild -t:Build -p:RestorePackages=false -p:Configuration=Release
+```
+
 ## License
 
 VoxelGame is distributed under the [GPL License](LICENSE).
