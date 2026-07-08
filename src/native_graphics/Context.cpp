@@ -16,7 +16,7 @@ namespace
         ComPtr<IDXGIAdapter1> adapter;
 
         ComPtr<IDXGIFactory6> factory;
-        if (SUCCEEDED(dxgiFactory->QueryInterface(IID_PPV_ARGS(&factory))))
+        if (SUCCEEDED(dxgiFactory.As(&factory)))
             for (UINT adapterIndex = 0; SUCCEEDED(
                                                   factory->EnumAdapterByGpuPreference( adapterIndex, requestHighPerformanceAdapter == true ? DXGI_GPU_PREFERENCE_HIGH_PERFORMANCE :
                                                       DXGI_GPU_PREFERENCE_UNSPECIFIED, IID_PPV_ARGS(&adapter))); ++adapterIndex)

@@ -66,37 +66,39 @@ Effect& Space::CreateEffect(RasterPipeline* pipeline) { return effects.Create([&
 void Space::MarkDrawableModified(Drawable* drawable)
 {
     drawable->Accept(
-        Drawable::Visitor::Empty().OnMesh(
-            [this](Mesh& mesh)
-            {
-                meshes.MarkModified(mesh);
+                     Drawable::Visitor::Empty().OnMesh(
+                                                       [this](Mesh& mesh)
+                                                       {
+                                                           meshes.MarkModified(mesh);
 
-                if (mesh.GetMaterial().IsAnimated() && mesh.GetActiveIndex().has_value()) animations[mesh.GetMaterial().animationID.value()].UpdateMesh(mesh);
-            }).OnEffect([this](Effect& effect) { effects.MarkModified(effect); }).OnElseFail());
+                                                           if (mesh.GetMaterial().IsAnimated() && mesh.GetActiveIndex().has_value())
+                                                               animations[mesh.GetMaterial().animationID.
+                                                                               value()].UpdateMesh(mesh);
+                                                       }).OnEffect([this](Effect& effect) { effects.MarkModified(effect); }).OnElseFail());
 }
 
 void Space::ActivateDrawable(Drawable* drawable)
 {
     drawable->Accept(
-        Drawable::Visitor::Empty().OnMesh(
-            [this](Mesh& mesh)
-            {
-                meshes.Activate(mesh);
+                     Drawable::Visitor::Empty().OnMesh(
+                                                       [this](Mesh& mesh)
+                                                       {
+                                                           meshes.Activate(mesh);
 
-                if (mesh.GetMaterial().IsAnimated()) animations[mesh.GetMaterial().animationID.value()].AddMesh(mesh);
-            }).OnEffect([this](Effect& effect) { effects.Activate(effect); }).OnElseFail());
+                                                           if (mesh.GetMaterial().IsAnimated()) animations[mesh.GetMaterial().animationID.value()].AddMesh(mesh);
+                                                       }).OnEffect([this](Effect& effect) { effects.Activate(effect); }).OnElseFail());
 }
 
 void Space::DeactivateDrawable(Drawable* drawable)
 {
     drawable->Accept(
-        Drawable::Visitor::Empty().OnMesh(
-            [this](Mesh& mesh)
-            {
-                meshes.Deactivate(mesh);
+                     Drawable::Visitor::Empty().OnMesh(
+                                                       [this](Mesh& mesh)
+                                                       {
+                                                           meshes.Deactivate(mesh);
 
-                if (mesh.GetMaterial().IsAnimated()) animations[mesh.GetMaterial().animationID.value()].RemoveMesh(mesh);
-            }).OnEffect([this](Effect& effect) { effects.Deactivate(effect); }).OnElseFail());
+                                                           if (mesh.GetMaterial().IsAnimated()) animations[mesh.GetMaterial().animationID.value()].RemoveMesh(mesh);
+                                                       }).OnEffect([this](Effect& effect) { effects.Deactivate(effect); }).OnElseFail());
 }
 
 void Space::ReturnDrawable(Drawable* drawable)
@@ -193,13 +195,13 @@ void Space::CreateGlobalConstBuffer()
     TryDo(globalConstantBuffer.Map(&globalConstantBufferMapping, 1));
 
     globalConstantBufferMapping.Write(
-        {
-            .time = 0.0f,
-            .textureSize = DirectX::XMUINT3{1, 1, 1},
-            .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
-            .lightIntensity = 1.0f,
-            .lightColor = DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}
-        });
+                                      {
+                                          .time           = 0.0f,
+                                          .textureSize    = DirectX::XMUINT3{1, 1, 1},
+                                          .lightDirection = DirectX::XMFLOAT3{0.0f, -1.0f, 0.0f},
+                                          .lightIntensity = 1.0f,
+                                          .lightColor     = DirectX::XMFLOAT3{1.0f, 1.0f, 1.0f}
+                                      });
 }
 
 void Space::InitializePipelineResourceViews(SpacePipelineDescription const& pipeline)
@@ -276,29 +278,29 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
 
     globalShaderResources = std::make_shared<ShaderResources>();
     globalShaderResources->Initialize(
-        [&pipelineDescription, this](ShaderResources::Description& graphics)
-        {
-            graphics.AddHeapDescriptorTable(
-                [&](auto& table)
-                {
-                    rtColorDataForRasterEntry = table.AddShaderResourceView({.reg = 0});
-                    rtDepthDataForRasterEntry = table.AddShaderResourceView({.reg = 1});
-                });
+                                      [&pipelineDescription, this](ShaderResources::Description& graphics)
+                                      {
+                                          graphics.AddHeapDescriptorTable(
+                                                                          [&](auto& table)
+                                                                          {
+                                                                              rtColorDataForRasterEntry = table.AddShaderResourceView({.reg = 0});
+                                                                              rtDepthDataForRasterEntry = table.AddShaderResourceView({.reg = 1});
+                                                                          });
 
-            effectBindings = RasterPipeline::SetUpEffectBindings(*client, graphics);
+                                          effectBindings = RasterPipeline::SetUpEffectBindings(*client, graphics);
 
-            graphics.AddStaticSampler({.reg = 0}, filter, mode, pipelineDescription.anisotropy);
-        },
-        [&pipelineDescription, this](ShaderResources::Description& compute)
-        {
-            SetUpStaticResourceLayout(&compute);
-            SetUpDynamicResourceLayout(&compute);
+                                          graphics.AddStaticSampler({.reg = 0}, filter, mode, pipelineDescription.anisotropy);
+                                      },
+                                      [&pipelineDescription, this](ShaderResources::Description& compute)
+                                      {
+                                          SetUpStaticResourceLayout(&compute);
+                                          SetUpDynamicResourceLayout(&compute);
 
-            for (auto& animation : animations) animation.SetUpResourceLayout(&compute);
+                                          for (auto& animation : animations) animation.SetUpResourceLayout(&compute);
 
-            compute.AddStaticSampler({.reg = 0}, filter, mode, pipelineDescription.anisotropy);
-        },
-        GetDevice());
+                                          compute.AddStaticSampler({.reg = 0}, filter, mode, pipelineDescription.anisotropy);
+                                      },
+                                      GetDevice());
 
     NAME_DIRECT_OBJECT(globalShaderResources->GetComputeRootSignature());
     NAME_DIRECT_OBJECT(globalShaderResources->GetGraphicsRootSignature());
@@ -312,7 +314,7 @@ bool Space::CreateRaytracingPipeline(SpacePipelineDescription const& pipelineDes
     rtStateObject = pipeline.Generate(globalShaderResources->GetComputeRootSignature());
     NAME_DIRECT_OBJECT(rtStateObject);
 
-    TryDo(rtStateObject->QueryInterface(IID_PPV_ARGS(&rtStateObjectProperties)));
+    TryDo(rtStateObject.As(&rtStateObjectProperties));
 
     return true;
 }
@@ -392,16 +394,16 @@ std::unique_ptr<Material> Space::SetUpMaterial(MaterialDescription const& descri
     };
 
     std::tie(material->normalHitGroup, material->normalRootSignature) = addHitGroup(
-        L"N",
-        description.normalClosestHitSymbol,
-        description.normalAnyHitSymbol,
-        description.normalIntersectionSymbol);
+                                                                                    L"N",
+                                                                                    description.normalClosestHitSymbol,
+                                                                                    description.normalAnyHitSymbol,
+                                                                                    description.normalIntersectionSymbol);
 
     std::tie(material->shadowHitGroup, material->shadowRootSignature) = addHitGroup(
-        L"S",
-        description.shadowClosestHitSymbol,
-        description.shadowAnyHitSymbol,
-        description.shadowIntersectionSymbol);
+                                                                                    L"S",
+                                                                                    description.shadowClosestHitSymbol,
+                                                                                    description.shadowAnyHitSymbol,
+                                                                                    description.shadowIntersectionSymbol);
 
     std::wstring const normalIntersectionSymbol = description.normalIntersectionSymbol;
     std::wstring const shadowIntersectionSymbol = description.shadowIntersectionSymbol;
@@ -463,19 +465,19 @@ void Space::SetUpStaticResourceLayout(ShaderResources::Description* description)
     description->AddConstantBufferView(globalConstantBuffer.GetGPUVirtualAddress(), {.reg = 2});
 
     unchangedCommonResourceHandle = description->AddHeapDescriptorTable(
-        [this](ShaderResources::Table& table)
-        {
-            textureSlot1.entry = table.AddShaderResourceView({.reg = 0, .space = 1}, textureSlot1.size);
-            textureSlot2.entry = table.AddShaderResourceView({.reg = 0, .space = 2}, textureSlot2.size);
-        });
+                                                                        [this](ShaderResources::Table& table)
+                                                                        {
+                                                                            textureSlot1.entry = table.AddShaderResourceView({.reg = 0, .space = 1}, textureSlot1.size);
+                                                                            textureSlot2.entry = table.AddShaderResourceView({.reg = 0, .space = 2}, textureSlot2.size);
+                                                                        });
 
     changedCommonResourceHandle = description->AddHeapDescriptorTable(
-        [this](ShaderResources::Table& table)
-        {
-            bvhEntry         = table.AddShaderResourceView({.reg = 0});
-            colorOutputEntry = table.AddUnorderedAccessView({.reg = 0});
-            depthOutputEntry = table.AddUnorderedAccessView({.reg = 1});
-        });
+                                                                      [this](ShaderResources::Table& table)
+                                                                      {
+                                                                          bvhEntry         = table.AddShaderResourceView({.reg = 0});
+                                                                          colorOutputEntry = table.AddUnorderedAccessView({.reg = 0});
+                                                                          depthOutputEntry = table.AddUnorderedAccessView({.reg = 1});
+                                                                      });
 }
 
 void Space::SetUpDynamicResourceLayout(ShaderResources::Description* description)
@@ -489,16 +491,24 @@ void Space::SetUpDynamicResourceLayout(ShaderResources::Description* description
     };
 
     meshInstanceDataList = description->AddConstantBufferViewDescriptorList(
-        {.reg = 4, .space = 0},
-        CreateSizeGetter(&meshes.GetActive()),
-        [this](UINT const index) { return meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->GetInstanceDataViewDescriptor(); },
-        CreateBagBuilder(&meshes.GetActive(), getIndexOfMesh));
+                                                                            {.reg = 4, .space = 0},
+                                                                            CreateSizeGetter(&meshes.GetActive()),
+                                                                            [this](UINT const index)
+                                                                            {
+                                                                                return meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->
+                                                                                GetInstanceDataViewDescriptor();
+                                                                            },
+                                                                            CreateBagBuilder(&meshes.GetActive(), getIndexOfMesh));
 
     meshGeometryBufferList = description->AddShaderResourceViewDescriptorList(
-        {.reg = 1, .space = 0},
-        CreateSizeGetter(&meshes.GetActive()),
-        [this](UINT const index) { return meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->GetGeometryBufferViewDescriptor(); },
-        CreateBagBuilder(&meshes.GetActive(), getIndexOfMesh));
+                                                                              {.reg = 1, .space = 0},
+                                                                              CreateSizeGetter(&meshes.GetActive()),
+                                                                              [this](UINT const index)
+                                                                              {
+                                                                                  return meshes.GetActive()[static_cast<Drawable::ActiveIndex>(index)]->
+                                                                                  GetGeometryBufferViewDescriptor();
+                                                                              },
+                                                                              CreateBagBuilder(&meshes.GetActive(), getIndexOfMesh));
 }
 
 void Space::SetUpAnimationResourceLayout(ShaderResources::Description* description) { for (auto& animation : animations) animation.SetUpResourceLayout(description); }
@@ -610,21 +620,21 @@ void Space::CreateTLAS()
     tlasGenerator.Clear();
 
     meshes.GetActive().ForEach(
-        [this](Mesh* mesh)
-        {
-            Require(mesh->GetActiveIndex().has_value());
-            auto const instanceID = static_cast<UINT>(mesh->GetActiveIndex().value());
+                               [this](Mesh* mesh)
+                               {
+                                   Require(mesh->GetActiveIndex().has_value());
+                                   auto const instanceID = static_cast<UINT>(mesh->GetActiveIndex().value());
 
-            // The CCW flag is used because DirectX uses left-handed coordinates.
+                                   // The CCW flag is used because DirectX uses left-handed coordinates.
 
-            tlasGenerator.AddInstance(
-                mesh->GetBLAS().result.GetAddress(),
-                mesh->GetTransform(),
-                instanceID,
-                mesh->GetMaterial().index,
-                static_cast<BYTE>(mesh->GetMaterial().flags),
-                D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
-        });
+                                   tlasGenerator.AddInstance(
+                                                             mesh->GetBLAS().result.GetAddress(),
+                                                             mesh->GetTransform(),
+                                                             instanceID,
+                                                             mesh->GetMaterial().index,
+                                                             static_cast<BYTE>(mesh->GetMaterial().flags),
+                                                             D3D12_RAYTRACING_INSTANCE_FLAG_TRIANGLE_FRONT_COUNTERCLOCKWISE);
+                               });
 
     UINT64 scratchSize;
     UINT64 resultSize;
@@ -635,29 +645,29 @@ void Space::CreateTLAS()
     bool const committed = client->SupportPIX();
 
     util::ReAllocateBuffer(
-        &topLevelASBuffers.scratch,
-        *client,
-        scratchSize,
-        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-        D3D12_RESOURCE_STATE_COMMON,
-        D3D12_HEAP_TYPE_DEFAULT,
-        committed);
+                           &topLevelASBuffers.scratch,
+                           *client,
+                           scratchSize,
+                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                           D3D12_RESOURCE_STATE_COMMON,
+                           D3D12_HEAP_TYPE_DEFAULT,
+                           committed);
     util::ReAllocateBuffer(
-        &topLevelASBuffers.result,
-        *client,
-        resultSize,
-        D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
-        D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
-        D3D12_HEAP_TYPE_DEFAULT,
-        committed);
+                           &topLevelASBuffers.result,
+                           *client,
+                           resultSize,
+                           D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS,
+                           D3D12_RESOURCE_STATE_RAYTRACING_ACCELERATION_STRUCTURE,
+                           D3D12_HEAP_TYPE_DEFAULT,
+                           committed);
     util::ReAllocateBuffer(
-        &topLevelASBuffers.instanceDescription,
-        *client,
-        instanceDescriptionSize,
-        D3D12_RESOURCE_FLAG_NONE,
-        D3D12_RESOURCE_STATE_GENERIC_READ,
-        D3D12_HEAP_TYPE_UPLOAD,
-        committed);
+                           &topLevelASBuffers.instanceDescription,
+                           *client,
+                           instanceDescriptionSize,
+                           D3D12_RESOURCE_FLAG_NONE,
+                           D3D12_RESOURCE_STATE_GENERIC_READ,
+                           D3D12_HEAP_TYPE_UPLOAD,
+                           committed);
 
     NAME_DIRECT_OBJECT(topLevelASBuffers.scratch);
     NAME_DIRECT_OBJECT(topLevelASBuffers.result);

@@ -213,13 +213,13 @@ namespace
         if (vertexShader == nullptr) return std::nullopt;
 
         ComPtr<ID3DBlob> vertexShaderBlob;
-        TryDo(vertexShader->QueryInterface(IID_PPV_ARGS(&vertexShaderBlob)));
+        TryDo(vertexShader.As(&vertexShaderBlob));
 
         ComPtr<IDxcBlob> const pixelShader = CompileShader(description.pixelShaderPath, L"PSMain", L"ps_6_0", VG_SHADER_REGISTRY(client), callback);
         if (pixelShader == nullptr) return std::nullopt;
 
         ComPtr<ID3DBlob> pixelShaderBlob;
-        TryDo(pixelShader->QueryInterface(IID_PPV_ARGS(&pixelShaderBlob)));
+        TryDo(pixelShader.As(&pixelShaderBlob));
 
         return std::make_pair(vertexShaderBlob, pixelShaderBlob);
     }
@@ -267,28 +267,28 @@ std::unique_ptr<RasterPipeline> RasterPipeline::Create(NativeClient& client, Ras
 
     auto [resources, bindings, inputLayout] = GetShaderPreset(description, shaderBuffer.get(), client);
 
-    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-    psoDesc.pRootSignature                     = resources->GetGraphicsRootSignature().Get();
-    psoDesc.InputLayout                        = {inputLayout.data(), static_cast<UINT>(inputLayout.size())};
-    psoDesc.VS                                 = CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get());
-    psoDesc.PS                                 = CD3DX12_SHADER_BYTECODE(pixelShaderBlob.Get());
-    psoDesc.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-    psoDesc.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-    psoDesc.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-    psoDesc.DSVFormat                          = DXGI_FORMAT_D32_FLOAT;
-    psoDesc.DepthStencilState.DepthEnable      = FALSE;
-    psoDesc.DepthStencilState.StencilEnable    = FALSE;
-    psoDesc.SampleMask                         = UINT_MAX;
-    psoDesc.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-    psoDesc.NumRenderTargets                   = 1;
-    psoDesc.RTVFormats[0]                      = DXGI_FORMAT_B8G8R8A8_UNORM;
-    psoDesc.SampleDesc.Count                   = 1;
+    D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDescription = {};
+    psoDescription.pRootSignature                     = resources->GetGraphicsRootSignature().Get();
+    psoDescription.InputLayout                        = {inputLayout.data(), static_cast<UINT>(inputLayout.size())};
+    psoDescription.VS                                 = CD3DX12_SHADER_BYTECODE(vertexShaderBlob.Get());
+    psoDescription.PS                                 = CD3DX12_SHADER_BYTECODE(pixelShaderBlob.Get());
+    psoDescription.RasterizerState                    = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+    psoDescription.BlendState                         = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+    psoDescription.DepthStencilState                  = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+    psoDescription.DSVFormat                          = DXGI_FORMAT_D32_FLOAT;
+    psoDescription.DepthStencilState.DepthEnable      = FALSE;
+    psoDescription.DepthStencilState.StencilEnable    = FALSE;
+    psoDescription.SampleMask                         = UINT_MAX;
+    psoDescription.PrimitiveTopologyType              = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+    psoDescription.NumRenderTargets                   = 1;
+    psoDescription.RTVFormats[0]                      = DXGI_FORMAT_B8G8R8A8_UNORM;
+    psoDescription.SampleDesc.Count                   = 1;
 
     D3D12_PRIMITIVE_TOPOLOGY topology = {};
-    ApplyDescriptionToPipeline(description, &psoDesc, &topology);
+    ApplyDescriptionToPipeline(description, &psoDescription, &topology);
 
     ComPtr<ID3D12PipelineState> pipelineState;
-    TryDo(client.GetContext().GetD3D12Device()->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&pipelineState)));
+    TryDo(client.GetContext().GetD3D12Device()->CreateGraphicsPipelineState(&psoDescription, IID_PPV_ARGS(&pipelineState)));
 
     PipelineConfiguration configuration = {description.shaderPreset, topology, CreateName(description)};
     PipelineObjects       objects       = {std::move(shaderBuffer), std::move(resources), std::move(bindings), pipelineState};

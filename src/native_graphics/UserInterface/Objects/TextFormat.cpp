@@ -102,7 +102,16 @@ void ui::TextFormat::Reset(Index newIndex, TextFormatDescription const& newDescr
 
     // TryDo(wrapped->SetTrimming()); // todo: implement correct trimming
 
-    // TryDo(wrapped->SetLineSpacing()) // todo: implement line spacing
+    ComPtr<IDWriteTextFormat2> textFormat2;
+    TryDo(wrapped.As(&textFormat2));
+
+    DWRITE_LINE_SPACING lineSpacing;
+    lineSpacing.method           = DWRITE_LINE_SPACING_METHOD_PROPORTIONAL;
+    lineSpacing.height           = newDescription.lineHeight;
+    lineSpacing.baseline         = 1.0f;
+    lineSpacing.leadingBefore    = 0.0f;
+    lineSpacing.fontLineGapUsage = DWRITE_FONT_LINE_GAP_USAGE_DEFAULT;
+    TryDo(textFormat2->SetLineSpacing(&lineSpacing));
 }
 
 ui::Renderer& ui::TextFormat::GetRenderer() const { return *renderer; }

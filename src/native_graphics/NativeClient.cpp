@@ -451,7 +451,7 @@ void NativeClient::DeleteObject(ObjectHandle const handle) { objects.Pop(handle)
 std::wstring NativeClient::GetDRED() const
 {
     ComPtr<ID3D12DeviceRemovedExtendedData2> dred;
-    TryDo(context->GetD3D12Device()->QueryInterface(IID_PPV_ARGS(&dred)));
+    TryDo(context->GetD3D12Device().As(&dred));
 
     D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dredAutoBreadcrumbsOutput = {};
     TryDo(dred->GetAutoBreadcrumbsOutput1(&dredAutoBreadcrumbsOutput));

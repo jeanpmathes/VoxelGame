@@ -21,6 +21,7 @@ using System;
 using System.Drawing;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Texts;
+using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
 using Brush = VoxelGame.GUI.Graphics.Brush;
 using Font = VoxelGame.GUI.Texts.Font;
@@ -41,7 +42,7 @@ public class Text : Visual
     public Text()
     {
         FontFamily = VisualProperty.Create(this, "", _ => InvalidateText());
-        FontSize = VisualProperty.Create(this, defaultValue: 12f, _ => InvalidateText());
+        FontSize = VisualProperty.Create(this, Defaults.Text.Size, _ => InvalidateText());
         FontStyle = VisualProperty.Create(this, Style.Normal, _ => InvalidateText());
         FontWeight = VisualProperty.Create(this, Weight.Normal, _ => InvalidateText());
         FontStretch = VisualProperty.Create(this, Stretch.Normal, _ => InvalidateText());
@@ -49,7 +50,7 @@ public class Text : Visual
         Wrapping = VisualProperty.Create(this, TextWrapping.Wrap, _ => InvalidateText());
         Alignment = VisualProperty.Create(this, TextAlignment.Leading, _ => InvalidateText());
         Trimming = VisualProperty.Create(this, TextTrimming.None, _ => InvalidateText());
-        LineHeight = VisualProperty.Create(this, defaultValue: 0f, _ => InvalidateText());
+        LineHeight = VisualProperty.Create(this, Defaults.Text.LineHeight, _ => InvalidateText());
 
         Content = VisualProperty.Create(this, "", _ => InvalidateText());
 

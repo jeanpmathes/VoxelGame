@@ -120,7 +120,7 @@ void DebugLayer::ConfigureDeviceImplementation(ComPtr<ID3D12Device5> const& devi
         Win32Application::ExitErrorMode();
     };
 
-    HRESULT const infoQueueResult = device->QueryInterface(IID_PPV_ARGS(&infoQueue));
+    HRESULT const infoQueueResult = device.As(&infoQueue);
     if (SUCCEEDED(infoQueueResult))
     {
         {

@@ -31,7 +31,7 @@
 #include <d2d1_3.h>
 #include <d3d11.h>
 #include <d3d11on12.h>
-#include <dwrite_2.h>
+#include <dwrite_3.h>
 #include <dxgi1_6.h>
 
 #ifdef NATIVE_DEBUG

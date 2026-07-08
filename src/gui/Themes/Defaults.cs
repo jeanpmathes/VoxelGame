@@ -107,4 +107,20 @@ public static class Defaults
         /// </summary>
         public static readonly Brush FocusedBorderBrush = new SolidColorBrush(Color.FromArgb(red: 0, green: 0, blue: 0));
     }
+
+    /// <summary>
+    ///     Default values specific to <c>Text</c>s.
+    /// </summary>
+    public static class Text
+    {
+        /// <summary>
+        ///     The default font size of a text.
+        /// </summary>
+        public static readonly Single Size = 12.0f;
+
+        /// <summary>
+        ///     The default line height of a text.
+        /// </summary>
+        public static readonly Single LineHeight = 1.2f;
+    }
 }

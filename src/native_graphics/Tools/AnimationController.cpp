@@ -5,7 +5,7 @@ AnimationController::AnimationController(ComPtr<IDxcBlob> const& shaderBlob, UIN
   , inputGeometryListLocation({.reg = 0, .space = space})  // SRV
   , outputGeometryListLocation({.reg = 0, .space = space}) // UAV
 {
-    TryDo(shaderBlob->QueryInterface<ID3DBlob>(&shader));
+    TryDo(shaderBlob.As(&shader));
 }
 
 void AnimationController::SetUpResourceLayout(ShaderResources::Description* description)

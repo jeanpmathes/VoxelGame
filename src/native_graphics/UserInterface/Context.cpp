@@ -26,7 +26,7 @@ ui::Context::Context(::Context& context)
     }
     TryDo(direct2DDevice->CreateDeviceContext(D2D1_DEVICE_CONTEXT_OPTIONS_NONE, &direct2DDeviceContext));
 
-    TryDo(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory), &directWriteFactory));
+    TryDo(DWriteCreateFactory(DWRITE_FACTORY_TYPE_SHARED, __uuidof(IDWriteFactory8), &directWriteFactory));
 }
 
 void ui::Context::ReleaseRenderTargets()
@@ -86,7 +86,7 @@ void ui::Context::EndFrame(UINT const frameIndex) const
     context.GetD3D11DeviceContext()->Flush();
 }
 
-IDWriteFactory* ui::Context::GetDirectWriteFactory() const { return directWriteFactory.Get(); }
+IDWriteFactory8* ui::Context::GetDirectWriteFactory() const { return directWriteFactory.Get(); }
 
 ID2D1Factory3* ui::Context::GetDirect2DFactory() const
 {

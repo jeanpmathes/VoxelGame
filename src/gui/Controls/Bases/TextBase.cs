@@ -21,6 +21,7 @@ using System;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls.Internals;
 using VoxelGame.GUI.Texts;
+using VoxelGame.GUI.Themes;
 
 namespace VoxelGame.GUI.Controls.Bases;
 
@@ -39,7 +40,7 @@ public abstract class TextBase<TControl> : SingleChildControl<TControl> where TC
     protected TextBase()
     {
         FontFamily = Property.Create(this, "");
-        FontSize = Property.Create(this, defaultValue: 12f);
+        FontSize = Property.Create(this, Defaults.Text.Size);
         FontStyle = Property.Create(this, Texts.Style.Normal);
         FontWeight = Property.Create(this, Weight.Normal);
         FontStretch = Property.Create(this, Stretch.Normal);
@@ -47,7 +48,7 @@ public abstract class TextBase<TControl> : SingleChildControl<TControl> where TC
         TextWrapping = Property.Create(this, Texts.TextWrapping.Wrap);
         TextAlignment = Property.Create(this, Texts.TextAlignment.Leading);
         TextTrimming = Property.Create(this, Texts.TextTrimming.None);
-        LineHeight = Property.Create(this, defaultValue: 0f);
+        LineHeight = Property.Create(this, Defaults.Text.LineHeight);
 
         Content = Property.Create(this, "");
     }

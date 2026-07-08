@@ -44,7 +44,7 @@ namespace ui
         void BeginFrame(UINT frameIndex) const;
         void EndFrame(UINT frameIndex) const;
 
-        [[nodiscard]] IDWriteFactory*     GetDirectWriteFactory() const;
+        [[nodiscard]] IDWriteFactory8*    GetDirectWriteFactory() const;
         [[nodiscard]] ID2D1Factory3*      GetDirect2DFactory() const;
         [[nodiscard]] ID2D1DeviceContext* GetDirect2DDeviceContext() const;
 
@@ -56,7 +56,7 @@ namespace ui
         ComPtr<ID2D1Factory3>      direct2DFactory;
         ComPtr<ID2D1Device2>       direct2DDevice;
         ComPtr<ID2D1DeviceContext> direct2DDeviceContext;
-        ComPtr<IDWriteFactory>     directWriteFactory;
+        ComPtr<IDWriteFactory8>    directWriteFactory;
 
         struct RenderTarget
         {
