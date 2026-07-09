@@ -100,8 +100,8 @@ public class Text : Visual
     public VisualProperty<TextTrimming> Trimming { get; }
 
     /// <summary>
-    ///     The line height in the same units as the font size.
-    ///     A value of <c>0</c> means the renderer uses the font's natural line height.
+    ///     The line height as a relative measurement of the natural line height.
+    ///     Use <c>1.0</c> for a line height as decided by the used font.
     /// </summary>
     public VisualProperty<Single> LineHeight { get; }
 
