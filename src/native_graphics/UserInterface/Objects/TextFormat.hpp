@@ -57,6 +57,7 @@ namespace ui
         Renderer*            renderer;
         std::optional<Index> index;
 
-        ComPtr<IDWriteTextFormat> wrapped;
+        ComPtr<IDWriteTextFormat>   wrapped;
+        ComPtr<IDWriteInlineObject> trimmingSign;
     };
 }

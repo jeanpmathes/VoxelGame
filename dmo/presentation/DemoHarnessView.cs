@@ -79,7 +79,7 @@ internal static class DemoHarnessView
                     new Text
                     {
                         MaximumWidth = {Value = 100f},
-                        TextTrimming = {Value = TextTrimming.CharacterEllipsis},
+                        TextTrimming = {Value = TextTrimming.WordEllipsis},
 
                         Content =
                         {

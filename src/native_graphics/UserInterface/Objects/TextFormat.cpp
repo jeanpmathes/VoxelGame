@@ -60,6 +60,35 @@ namespace
             throw NativeException("TextAlignment not implemented.");
         }
     }
+
+    void ConfigureTrimming(DWRITE_TRIMMING* trimming, ui::TextTrimming const trimmingType)
+    {
+        trimming->delimiter      = 0;
+        trimming->delimiterCount = 0;
+
+        switch (trimmingType)
+        {
+        case ui::TextTrimming::NONE:
+            trimming->granularity = DWRITE_TRIMMING_GRANULARITY_NONE;
+            break;
+        case ui::TextTrimming::CHARACTER:
+        case ui::TextTrimming::CHARACTER_ELLIPSIS:
+            trimming->granularity = DWRITE_TRIMMING_GRANULARITY_CHARACTER;
+            break;
+        case ui::TextTrimming::WORD:
+        case ui::TextTrimming::WORD_ELLIPSIS:
+            trimming->granularity = DWRITE_TRIMMING_GRANULARITY_WORD;
+            break;
+        case ui::TextTrimming::PATH_ELLIPSIS:
+            trimming->granularity = DWRITE_TRIMMING_GRANULARITY_CHARACTER;
+            trimming->delimiter      = '\\';
+            trimming->delimiterCount = 2;
+            break;
+
+        default:
+            throw NativeException("Trimming not implemented.");
+        }
+    }
 }
 
 ui::TextFormat::TextFormat(Renderer& renderer)
@@ -100,8 +129,6 @@ void ui::TextFormat::Reset(Index newIndex, TextFormatDescription const& newDescr
     TryDo(wrapped->SetWordWrapping(GetTextWrapping(newDescription.wrapping)));
     TryDo(wrapped->SetTextAlignment(GetTextAlignment(newDescription.alignment)));
 
-    // TryDo(wrapped->SetTrimming()); // todo: implement correct trimming
-
     ComPtr<IDWriteTextFormat2> textFormat2;
     TryDo(wrapped.As(&textFormat2));
 
@@ -112,6 +139,15 @@ void ui::TextFormat::Reset(Index newIndex, TextFormatDescription const& newDescr
     lineSpacing.leadingBefore    = 0.0f;
     lineSpacing.fontLineGapUsage = DWRITE_FONT_LINE_GAP_USAGE_DEFAULT;
     TryDo(textFormat2->SetLineSpacing(&lineSpacing));
+
+    DWRITE_TRIMMING trimming;
+    ConfigureTrimming(&trimming, newDescription.trimming);
+
+    if (newDescription.trimming == TextTrimming::CHARACTER_ELLIPSIS || newDescription.trimming == TextTrimming::WORD_ELLIPSIS || newDescription.trimming ==
+        TextTrimming::PATH_ELLIPSIS)
+        TryDo(GetRenderer().GetContext().GetDirectWriteFactory()->CreateEllipsisTrimmingSign(wrapped.Get(), &trimmingSign));
+
+    TryDo(wrapped->SetTrimming(&trimming, trimmingSign.Get()));
 }
 
 ui::Renderer& ui::TextFormat::GetRenderer() const { return *renderer; }
