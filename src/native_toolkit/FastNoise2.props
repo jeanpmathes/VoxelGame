@@ -2,25 +2,30 @@
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup Label="UserMacros">
         <FastNoise2Dir>$(ProjectDir)FastNoise2</FastNoise2Dir>
+        <FastNoise2BuildDir>$(FastNoise2Dir)\build</FastNoise2BuildDir>
         <FastNoise2IncludeDir>$(FastNoise2Dir)\include</FastNoise2IncludeDir>
-        <FastNoise2LibDir>$(FastNoise2Dir)\build\src\Release</FastNoise2LibDir>
+        <FastNoise2FastSIMDIncludeDir>$(FastNoise2BuildDir)\_deps\fastsimd-src\include</FastNoise2FastSIMDIncludeDir>
+        <FastNoise2GeneratedIncludeDir>$(FastNoise2BuildDir)\src\fastsimd\FastSIMD_FastNoise\include</FastNoise2GeneratedIncludeDir>
+        <FastNoise2LibDir>$(FastNoise2BuildDir)\Release\lib</FastNoise2LibDir>
+        <FastNoise2FastSIMDLibDir>$(FastNoise2BuildDir)\_deps\fastsimd-build\FastSIMD.dir\Release</FastNoise2FastSIMDLibDir>
+        <FastNoise2DispatchLibDir>$(FastNoise2BuildDir)\src\FastSIMD_FastNoise.dir\Release</FastNoise2DispatchLibDir>
     </PropertyGroup>
     <Target Name="BuildFastNoise2" BeforeTargets="ClCompile">
-        <MakeDir Directories="$(FastNoise2Dir)\build"/>
+        <MakeDir Directories="$(FastNoise2BuildDir)"/>
         <Exec StandardOutputImportance="low" StandardErrorImportance="low"
-              Command="cmake -S $(FastNoise2Dir) -B $(FastNoise2Dir)\build -D FASTNOISE2_NOISETOOL=OFF -D FASTNOISE2_TESTS=OFF"/>
+              Command="cmake -S $(FastNoise2Dir) -B $(FastNoise2BuildDir) -D FASTNOISE2_TOOLS=OFF -D FASTNOISE2_TESTS=OFF -D FASTNOISE2_UTILITY=OFF -D FASTNOISE2_STRICT_FP=ON"/>
         <Exec StandardOutputImportance="low" StandardErrorImportance="low"
-              Command="cmake --build $(FastNoise2Dir)\build --config Release"/>
+              Command="cmake --build $(FastNoise2BuildDir) --config Release"/>
         <Message Importance="high" Text="FastNoise2 build complete"/>
     </Target>
     <ItemDefinitionGroup>
         <ClCompile>
-            <AdditionalIncludeDirectories>$(FastNoise2IncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+            <AdditionalIncludeDirectories>$(FastNoise2IncludeDir);$(FastNoise2FastSIMDIncludeDir);$(FastNoise2GeneratedIncludeDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
             <PreprocessorDefinitions>FASTNOISE_STATIC_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
         </ClCompile>
         <Link>
-            <AdditionalLibraryDirectories>$(FastNoise2LibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-            <AdditionalDependencies>FastNoise.lib;%(AdditionalDependencies)</AdditionalDependencies>
+            <AdditionalLibraryDirectories>$(FastNoise2LibDir);$(FastNoise2FastSIMDLibDir);$(FastNoise2DispatchLibDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+            <AdditionalDependencies>FastNoise.lib;FastSIMD_FastNoise.lib;FastSIMD.lib;%(AdditionalDependencies)</AdditionalDependencies>
         </Link>
     </ItemDefinitionGroup>
 </Project>

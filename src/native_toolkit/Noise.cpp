@@ -3,13 +3,13 @@
 Noise::Noise(NoiseDefinition const& definition)
     : m_seed(definition.seed)
 {
-    if (definition.type == NoiseType::GRADIENT) m_generator = FastNoise::New<FastNoise::OpenSimplex2>();
+    if (definition.type == NoiseType::GRADIENT) m_generator = FastNoise::New<FastNoise::Simplex>();
     else if (definition.type == NoiseType::CELLULAR) m_generator = FastNoise::New<FastNoise::CellularValue>();
     else m_generator                                             = FastNoise::New<FastNoise::Constant>();
 
     if (definition.useFractal)
     {
-        auto const fbm = FastNoise::New<FastNoise::FractalFBm>();
+        auto fbm = FastNoise::New<FastNoise::FractalFBm>();
         fbm->SetSource(m_generator);
         m_generator = fbm;
 
@@ -21,11 +21,11 @@ Noise::Noise(NoiseDefinition const& definition)
 
     if (definition.frequency != 1.0f)
     {
-        auto const frequency = FastNoise::New<FastNoise::DomainScale>();
+        auto frequency = FastNoise::New<FastNoise::DomainScale>();
         frequency->SetSource(m_generator);
         m_generator = frequency;
 
-        frequency->SetScale(definition.frequency);
+        frequency->SetScaling(definition.frequency);
     }
 }
 
@@ -38,10 +38,10 @@ float Noise::GetNoise(float const x, float const y, float const z) const
 
 void Noise::GetGrid(int const x, int const y, int const width, int const height, float* out) const
 {
-    m_generator->GenUniformGrid2D(out, x, y, width, height, 1.0f, m_seed);
+    m_generator->GenUniformGrid2D(out, static_cast<float>(x), static_cast<float>(y), width, height, 1.0f, 1.0f, m_seed);
 }
 
 void Noise::GetGrid(int const x, int const y, int const z, int const width, int const height, int const depth, float* out) const
 {
-    m_generator->GenUniformGrid3D(out, x, y, z, width, height, depth, 1.0f, m_seed);
+    m_generator->GenUniformGrid3D(out, static_cast<float>(x), static_cast<float>(y), static_cast<float>(z), width, height, depth, 1.0f, 1.0f, 1.0f, m_seed);
 }
