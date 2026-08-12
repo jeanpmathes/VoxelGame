@@ -31,28 +31,33 @@ public interface IInputReceiver
     ///     Receive a key event, corresponding to a keyboard button.
     /// </summary>
     /// <param name="key">Which key the event corresponds to.</param>
-    /// <param name="isDown">Whether the key is being pressed down (<c>true</c>) or up (<c>false</c>).</param>
+    /// <param name="isDown">Whether the key is being pressed down (<see langword="true"/>) or up (<see langword="false"/>).</param>
     /// <param name="isRepeat">
     ///     Whether the event is a repeat event, i.e., the key is being held down, and this event is firing
     ///     repeatedly.
     /// </param>
-    /// <param name="modifiers">The modifier keys which are currently active.</param>
-    public void ReceiveKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers);
+    /// <param name="modifiers">The modifier keys that are currently active.</param>
+    /// <param name="isSynthetic">Whether the event was created by parts of the input system instead of being a physical event.</param>
+    /// <returns>Whether the event was handled.</returns>
+    public Boolean ReceiveKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers, Boolean isSynthetic = false);
 
     /// <summary>
     ///     Receive a text input event, corresponding to a character being typed.
     /// </summary>
     /// <param name="text">The text that was input.</param>
-    public void ReceiveTextEvent(String text);
+    /// <returns>Whether the event was handled.</returns>
+    public Boolean ReceiveTextEvent(String text);
 
     /// <summary>
     ///     Receive a pointer button event, corresponding to a mouse button event.
     /// </summary>
     /// <param name="position">The position of the pointer event, in the coordinate space of the canvas.</param>
     /// <param name="button">The button that the event corresponds to.</param>
-    /// <param name="isDown">Whether the button is being pressed down (<c>true</c>) or up (<c>false</c>).</param>
+    /// <param name="isDown">Whether the button is being pressed down (<see langword="true"/>) or up (<see langword="false"/>).</param>
     /// <param name="modifiers">The modifier keys which are currently active.</param>
-    public void ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers);
+    /// <param name="isSynthetic">Whether the event was created by parts of the input system instead of being a physical event.</param>
+    /// <returns>Whether the event was handled.</returns>
+    public Boolean ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false);
 
     /// <summary>
     ///     Receive a pointer move event, corresponding to the mouse moving across the screen.
@@ -60,7 +65,8 @@ public interface IInputReceiver
     /// <param name="position">The position of the pointer event, in the coordinate space of the canvas.</param>
     /// <param name="deltaX">The change in the X coordinate since the last pointer move event.</param>
     /// <param name="deltaY">The change in the Y coordinate since the last pointer move event.</param>
-    public void ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY);
+    /// <returns>Whether the event was handled.</returns>
+    public Boolean ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY);
 
     /// <summary>
     ///     Receive a scroll event, corresponding to the mouse wheel being scrolled.
@@ -68,5 +74,6 @@ public interface IInputReceiver
     /// <param name="position">The position of the pointer event, in the coordinate space of the canvas.</param>
     /// <param name="deltaX">The amount of horizontal scroll.</param>
     /// <param name="deltaY">The amount of vertical scroll.</param>
-    public void ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY);
+    /// <returns>Whether the event was handled.</returns>
+    public Boolean ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY);
 }

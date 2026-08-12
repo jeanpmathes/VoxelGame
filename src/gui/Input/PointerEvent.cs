@@ -32,7 +32,7 @@ public abstract class PointerEvent : InputEvent
     /// <summary>
     ///     Creates a new <seealso cref="PointerEvent" />.
     /// </summary>
-    protected PointerEvent(Visual source, PointF position) : base(source)
+    protected PointerEvent(Visual source, PointF position, Boolean isSynthetic) : base(source, isSynthetic)
     {
         RootPosition = position;
     }

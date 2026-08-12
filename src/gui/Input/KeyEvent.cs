@@ -30,7 +30,7 @@ public sealed class KeyEvent : InputEvent
     /// <summary>
     ///     Creates a new <seealso cref="KeyEvent" />.
     /// </summary>
-    public KeyEvent(Visual source, Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers) : base(source)
+    public KeyEvent(Visual source, Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers, Boolean isSynthetic) : base(source, isSynthetic)
     {
         Key = key;
         IsDown = isDown;

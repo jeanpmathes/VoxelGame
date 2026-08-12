@@ -17,11 +17,13 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Annotations.Attributes;
+using VoxelGame.Client.Inputs;
+using VoxelGame.Client.Inputs.Actions;
 using VoxelGame.Core.App;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Input.Actions;
 
 namespace VoxelGame.Client.Application.Components;
 
@@ -38,12 +40,22 @@ public partial class FullscreenToggle : ApplicationComponent
     {
         this.client = client;
 
-        button = client.Keybinds.GetToggle(client.Keybinds.Fullscreen);
+        button = client.Keybinds.Use(Keybinds.Fullscreen);
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Delta delta, Timer? timer)
+    public override void OnInputUpdate(Delta delta, Timer? timer)
     {
-        if (client.IsFocused && button.Changed) client.ToggleFullscreen();
+        if (button.Changed) client.ToggleFullscreen();
     }
+
+    #region DISPOSABLE
+
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        if (disposing) button.Dispose();
+    }
+
+    #endregion DISPOSABLE
 }

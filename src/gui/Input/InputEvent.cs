@@ -32,10 +32,12 @@ public abstract class InputEvent
     ///     visual.
     /// </summary>
     /// <param name="source">The visual that is the source of this event.</param>
-    public InputEvent(Visual source)
+    /// <param name="isSynthetic">Whether the event was created by parts of the input system instead of being a physical event.</param>
+    protected InputEvent(Visual source, Boolean isSynthetic)
     {
         Source = source;
         Target = source;
+        IsSynthetic = isSynthetic;
     }
 
     /// <summary>
@@ -52,6 +54,11 @@ public abstract class InputEvent
     ///     Whether this event has been handled. If true, the event will not be propagated to other visuals.
     /// </summary>
     public Boolean Handled { get; set; }
+
+    /// <summary>
+    ///     Whether the event was created by parts of the input system instead of being a physical event.
+    /// </summary>
+    public Boolean IsSynthetic { get; }
 
     internal void SetTarget(Visual target)
     {

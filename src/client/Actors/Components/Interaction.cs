@@ -57,9 +57,6 @@ public partial class Interaction : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Delta delta)
     {
-        if (!player.Input.CanHandleGameInput)
-            return;
-
         if (!targeting.HasTarget) return;
 
         PlaceInteract(targeting.Block!.Value, targeting.Position!.Value);

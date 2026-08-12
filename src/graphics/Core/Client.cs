@@ -32,6 +32,7 @@ using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Input.Devices;
 using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Objects.UserInterface;
@@ -66,7 +67,7 @@ public partial class Client : Application
 
         Size = windowSettings.Size;
 
-        Input = new Input.Input(this);
+        Input = new Input.Input(new Mouse(this));
         icon = Icon.ExtractAssociatedIcon(Process.GetCurrentProcess().MainModule?.FileName ?? String.Empty);
 
         Definition.Native.NativeConfiguration configuration = new()
@@ -79,22 +80,29 @@ public partial class Client : Application
 
                 DoInitialization(timer);
             },
+            onInputUpdate = (realDelta, scaledDelta) =>
+            {
+                using Timer? timer = logger.BeginTimedScoped("Client Input Update");
+
+                cycle = Cycle.Input;
+
+                Input.Update();
+
+                DoInputUpdate(new Delta(realDelta, scaledDelta), timer);
+
+                cycle = null;
+            },
             onLogicUpdate = (realDelta, scaledDelta) =>
             {
                 using Timer? timer = logger.BeginTimedScoped("Client Logic Update");
 
-                cycle = Cycle.Update;
-
-                Input.PreLogicUpdate();
+                cycle = Cycle.Logic;
 
                 DoLogicUpdate(new Delta(realDelta, scaledDelta), timer);
 
                 Sync.LogicUpdate();
 
-                Input.PostLogicUpdate();
-
                 cycle = null;
-
             },
             onRenderUpdate = (realDelta, scaledDelta) =>
             {
@@ -134,8 +142,23 @@ public partial class Client : Application
                 Boolean oldState = IsFocused;
                 IsFocused = newState;
 
+                if (!IsFocused)
+                    Input.ResetState();
+
                 if (oldState != newState)
                     FocusChanged?.Invoke(this, new FocusChangeEventArgs(oldState, IsFocused));
+            },
+            onSizeMoveMenu = enter =>
+            {
+                if (enter) Input.ResetState();
+            },
+            onKeyboardFocusChange = focused =>
+            {
+                if (focused) return;
+
+                Input.ResetState();
+
+                KeyboardFocusLost?.Invoke(this, EventArgs.Empty);
             },
             onDebug = D3D12Debug.Enable(this),
             width = (UInt32) windowSettings.Size.X,
@@ -178,9 +201,14 @@ public partial class Client : Application
     public Input.Input Input { get; }
 
     /// <summary>
+    ///     Whether the client is currently in the input update cycle.
+    /// </summary>
+    internal Boolean IsInInputUpdate => cycle == Cycle.Input && IsOnMainThread;
+
+    /// <summary>
     ///     Whether the client is currently in the logic update cycle.
     /// </summary>
-    internal Boolean IsInLogicUpdate => cycle == Cycle.Update && IsOnMainThread;
+    internal Boolean IsInLogicUpdate => cycle == Cycle.Logic && IsOnMainThread;
 
     /// <summary>
     ///     Whether the client is currently in the render update cycle.
@@ -231,9 +259,14 @@ public partial class Client : Application
     public Boolean IsFocused { get; private set; }
 
     /// <summary>
-    ///     Called when the focus / active state of the window changes.
+    ///     Raised when the active state of the client window changes.
     /// </summary>
     public event EventHandler<FocusChangeEventArgs>? FocusChanged;
+
+    /// <summary>
+    ///     Raised after the input state has been reset because the client window stopped receiving keyboard input.
+    /// </summary>
+    public event EventHandler? KeyboardFocusLost;
 
     /// <summary>
     ///     Called when the window is resized.

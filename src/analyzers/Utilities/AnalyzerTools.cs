@@ -33,7 +33,7 @@ public static class AnalyzerTools
     /// </summary>
     /// <param name="typeSymbol">The type symbol to check.</param>
     /// <param name="interfaceDisplayName">The name of the interface to check against.</param>
-    /// <returns><c>true</c> if it matches, <c>false</c> if not</returns>
+    /// <returns><see langword="true"/> if it matches, <see langword="false"/> if not</returns>
     public static Boolean IsOrImplementsInterface(ITypeSymbol typeSymbol, String interfaceDisplayName)
     {
         return typeSymbol.OriginalDefinition.ToDisplayString() == interfaceDisplayName

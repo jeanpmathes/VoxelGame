@@ -74,27 +74,27 @@ internal static partial class Native
     /// <summary>
     ///     A callback that receives key events.
     /// </summary>
-    internal delegate void NativeKeyFunction(Byte key, Bool isDown, Bool isRepeat, ModifierKeys modifiers);
+    internal delegate Bool NativeKeyFunction(Byte key, Bool isDown, Bool isRepeat, ModifierKeys modifiers);
 
     /// <summary>
     ///     A callback that receives a char value describing an input event.
     /// </summary>
-    internal delegate void NativeCharFunction(Char arg);
+    internal delegate Bool NativeCharFunction(Char arg);
 
     /// <summary>
     ///     A callback that receives mouse button events.
     /// </summary>
-    internal delegate void NativeMouseButtonFunction(Byte button, Bool isDown, Int32 x, Int32 y, ModifierKeys modifiers);
+    internal delegate Bool NativeMouseButtonFunction(Byte button, Bool isDown, Int32 x, Int32 y, ModifierKeys modifiers);
 
     /// <summary>
     ///     A callback that receives the new mouse position on a mouse move event.
     /// </summary>
-    internal delegate void NativeMouseMoveFunction(Int32 x, Int32 y, Int32 deltaX, Int32 deltaY);
+    internal delegate Bool NativeMouseMoveFunction(Int32 x, Int32 y, Int32 deltaX, Int32 deltaY);
 
     /// <summary>
     ///     A callback that receives the mouse wheel delta on a mouse wheel event.
     /// </summary>
-    internal delegate void NativeMouseWheelFunction(Int32 x, Int32 y, Double scrollX, Double scrollY);
+    internal delegate Bool NativeMouseWheelFunction(Int32 x, Int32 y, Double scrollX, Double scrollY);
 
     /// <summary>
     ///     A callback that receives the new window size on a resize event.
@@ -105,6 +105,11 @@ internal static partial class Native
     ///     A callback that is called each frame, with the real and scaled delta time since the last call.
     /// </summary>
     internal delegate void NativeRenderUpdateFunction(Double realDeltaTime, Double scaledDeltaTime);
+
+    /// <summary>
+    ///     A callback that is called once per outer input update, with the real and scaled delta time since the last call.
+    /// </summary>
+    internal delegate void NativeInputUpdateFunction(Double realDeltaTime, Double scaledDeltaTime);
 
     /// <summary>
     ///     A callback that is called each update, with the real and scaled delta time since the last call.
@@ -150,6 +155,11 @@ internal static partial class Native
     [NativeMarshalling(typeof(NativeConfigurationMarshaller))]
     internal struct NativeConfiguration
     {
+        /// <summary>
+        ///     Called for each variable-rate input update.
+        /// </summary>
+        internal NativeInputUpdateFunction onInputUpdate;
+
         /// <summary>
         ///     Called for each rendering step.
         /// </summary>
@@ -209,6 +219,16 @@ internal static partial class Native
         ///     Called when the window active state changes.
         /// </summary>
         internal NativeBoolFunction onActiveStateChange;
+
+        /// <summary>
+        ///     Called when the window enters or exits a modal loop, such as its move/resize loop or a menu loop.
+        /// </summary>
+        internal NativeBoolFunction onSizeMoveMenu;
+
+        /// <summary>
+        ///     Called when the window gains or loses keyboard focus.
+        /// </summary>
+        internal NativeBoolFunction onKeyboardFocusChange;
 
         /// <summary>
         ///     Called when debug messages of D3D12 are received.
@@ -273,8 +293,9 @@ internal static partial class Native
         {
             return new Unmanaged
             {
+                onInput = Marshal.GetFunctionPointerForDelegate(managed.onInputUpdate),
                 onRender = Marshal.GetFunctionPointerForDelegate(managed.onRenderUpdate),
-                onUpdate = Marshal.GetFunctionPointerForDelegate(managed.onLogicUpdate),
+                onLogic = Marshal.GetFunctionPointerForDelegate(managed.onLogicUpdate),
                 onInit = Marshal.GetFunctionPointerForDelegate(managed.onInitialization),
                 onDestroy = Marshal.GetFunctionPointerForDelegate(managed.onDestroy),
                 canClose = Marshal.GetFunctionPointerForDelegate(managed.canClose),
@@ -285,6 +306,8 @@ internal static partial class Native
                 onMouseWheel = Marshal.GetFunctionPointerForDelegate(managed.onMouseWheel),
                 onResize = Marshal.GetFunctionPointerForDelegate(managed.onResize),
                 onActiveStateChange = Marshal.GetFunctionPointerForDelegate(managed.onActiveStateChange),
+                onSizeMoveMenu = Marshal.GetFunctionPointerForDelegate(managed.onSizeMoveMenu),
+                onKeyboardFocusChange = Marshal.GetFunctionPointerForDelegate(managed.onKeyboardFocusChange),
                 onDebug = Marshal.GetFunctionPointerForDelegate(managed.onDebug),
                 width = managed.width,
                 height = managed.height,
@@ -311,8 +334,9 @@ internal static partial class Native
         [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
         internal struct Unmanaged
         {
+            internal IntPtr onInput;
             internal IntPtr onRender;
-            internal IntPtr onUpdate;
+            internal IntPtr onLogic;
             internal IntPtr onInit;
             internal IntPtr onDestroy;
             internal IntPtr canClose;
@@ -323,6 +347,8 @@ internal static partial class Native
             internal IntPtr onMouseWheel;
             internal IntPtr onResize;
             internal IntPtr onActiveStateChange;
+            internal IntPtr onSizeMoveMenu;
+            internal IntPtr onKeyboardFocusChange;
             internal IntPtr onDebug;
             internal UInt32 width;
             internal UInt32 height;

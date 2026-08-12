@@ -40,6 +40,11 @@ public class MouseButtonEventArgs : EventArgs
     public Boolean IsPressed { get; init; }
 
     /// <summary>
+    ///     Whether the event was created by parts of the input system instead of being a physical event.
+    /// </summary>
+    public Boolean IsSynthetic { get; init; }
+
+    /// <summary>
     ///     The position of the mouse when the event was triggered.
     /// </summary>
     public Vector2 Position { get; init; }

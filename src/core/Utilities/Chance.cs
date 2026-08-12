@@ -63,7 +63,7 @@ public readonly struct Chance : IEquatable<Chance>, IComparable<Chance>
     ///     Check if a roll of 0-99 passes this chance.
     /// </summary>
     /// <param name="roll">The roll to check.</param>
-    /// <returns>><c>true</c> if the roll passes the chance, <c>false</c> otherwise.</returns>
+    /// <returns>><see langword="true"/> if the roll passes the chance, <see langword="false"/> otherwise.</returns>
     public Boolean Passes(Int32 roll)
     {
         return roll < value;

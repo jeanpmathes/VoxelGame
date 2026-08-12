@@ -53,7 +53,7 @@ public partial class Constraint : BlockBehavior, IBehavior<Constraint, BlockBeha
     ///     behavior.
     /// </summary>
     /// <param name="state">The state to check.</param>
-    /// <returns><c>true</c> if the state is valid, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the state is valid, <see langword="false"/> otherwise.</returns>
     public static Boolean IsStateValid(State state)
     {
         return state.Block.Get<Constraint>()?.IsValid.GetValue(original: true, state) ?? true;

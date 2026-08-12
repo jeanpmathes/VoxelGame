@@ -31,33 +31,33 @@ namespace VoxelGame.GUI.Input;
 public class InputScaleWithCanvasAdapter(Canvas canvas, IInputReceiver receiver) : IInputReceiver
 {
     /// <inheritdoc />
-    public void ReceiveKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers)
+    public Boolean ReceiveKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
-        receiver.ReceiveKeyEvent(key, isDown, isRepeat, modifiers);
+        return receiver.ReceiveKeyEvent(key, isDown, isRepeat, modifiers, isSynthetic);
     }
 
     /// <inheritdoc />
-    public void ReceiveTextEvent(String text)
+    public Boolean ReceiveTextEvent(String text)
     {
-        receiver.ReceiveTextEvent(text);
+        return receiver.ReceiveTextEvent(text);
     }
 
     /// <inheritdoc />
-    public void ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers)
+    public Boolean ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
-        receiver.ReceivePointerButtonEvent(ScalePosition(position), button, isDown, modifiers);
+        return receiver.ReceivePointerButtonEvent(ScalePosition(position), button, isDown, modifiers, isSynthetic);
     }
 
     /// <inheritdoc />
-    public void ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
     {
-        receiver.ReceivePointerMoveEvent(ScalePosition(position), deltaX / canvas.Scale, deltaY / canvas.Scale);
+        return receiver.ReceivePointerMoveEvent(ScalePosition(position), deltaX / canvas.Scale, deltaY / canvas.Scale);
     }
 
     /// <inheritdoc />
-    public void ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
     {
-        receiver.ReceiveScrollEvent(ScalePosition(position), deltaX, deltaY);
+        return receiver.ReceiveScrollEvent(ScalePosition(position), deltaX, deltaY);
     }
 
     private PointF ScalePosition(PointF position)

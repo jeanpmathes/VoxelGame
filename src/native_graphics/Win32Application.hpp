@@ -20,7 +20,7 @@ public:
     static void ToggleFullscreenWindow(ComPtr<IDXGISwapChain> swapChain);
     static void SetWindowOrderToTopMost(bool setToTopMost);
 
-    static HWND GetWindowHandle() { return hwnd; }
+    static HWND GetWindowHandle() { return hWindow; }
     static bool IsFullscreen() { return fullscreenMode; }
 
     static void ShowErrorMessage(LPCWSTR message, LPCWSTR title);
@@ -39,7 +39,7 @@ private:
     static LRESULT WindowProcImplementation(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
     static void    RethrowPendingWindowProcException();
 
-    static HWND hwnd;
+    static HWND hWindow;
     static bool fullscreenMode;
 
     static constexpr UINT WINDOW_STYLE            = WS_OVERLAPPEDWINDOW;

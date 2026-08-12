@@ -35,12 +35,13 @@ public interface IUpdateableProcess
 
     /// <summary>
     ///     Is called by <see cref="UpdateDispatch" /> to update the process.
+    ///     Guaranteed to be called both on the main thread and in the logic update cycle.
     /// </summary>
     void Update();
 
     /// <summary>
     ///     Attempt to cancel the process.
-    ///     A canceled process can either ignore the cancellation, or stop and enter a failed state.
+    ///     A canceled process can either ignore the cancellation or stop and enter a failed state.
     /// </summary>
     void Cancel();
 }

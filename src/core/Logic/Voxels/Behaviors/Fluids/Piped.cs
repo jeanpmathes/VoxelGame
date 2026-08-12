@@ -92,7 +92,7 @@ public partial class Piped : BlockBehavior, IBehavior<Piped, BlockBehavior, Bloc
     /// <param name="state">The state of the block.</param>
     /// <param name="side">The side from which the pipe is trying to connect.</param>
     /// <param name="tier">The tier of the pipe trying to connect.</param>
-    /// <returns><c>true</c> if the pipe can connect, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the pipe can connect, <see langword="false"/> otherwise.</returns>
     public Boolean CanConnect(State state, Side side, PipeTier tier)
     {
         return tier == Tier.Get() && IsConnectionAllowed.GetValue(original: true, (state, side));

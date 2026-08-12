@@ -400,7 +400,7 @@ public partial class Fire : BlockBehavior, IBehavior<Fire, BlockBehavior, Block>
     /// <param name="position">The position at which to place the fire.</param>
     /// <param name="orientation">The orientation to use.</param>
     /// <param name="fire">The fire block to place.</param>
-    /// <returns><c>true</c> if the fire was placed, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the fire was placed, <see langword="false"/> otherwise.</returns>
     public static Boolean PlaceOriented(World world, Vector3i position, Orientation orientation, Block fire)
     {
         if (fire.Get<Fire>() is not {} behavior)

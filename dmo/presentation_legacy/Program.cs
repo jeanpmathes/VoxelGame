@@ -65,14 +65,17 @@ internal sealed class Program : Client
         unitTestHarnessControls = new UnitTestHarnessControls(gui.Root);
     }
 
+    protected override void OnInputUpdate(Delta delta, Timer? timer)
+    {
+        gui.Update();
+    }
+
     protected override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         updateFrameTimes.Write(delta.RealTime);
 
         if (unitTestHarnessControls != null)
             unitTestHarnessControls.UpdateFps = 1 / updateFrameTimes.Average;
-
-        gui.Update();
     }
 
     protected override void OnRenderUpdate(Delta delta, Timer? timer)

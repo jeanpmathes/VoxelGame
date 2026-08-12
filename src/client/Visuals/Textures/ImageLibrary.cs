@@ -50,7 +50,7 @@ public class ImageLibrary
     ///     Whether the images are parts to use or full textures on their own.
     ///     Parts will not be available when the texture loading process is done.
     /// </param>
-    /// <returns><c>true</c> if the sheet was added, <c>false</c> if it already exists.</returns>
+    /// <returns><see langword="true"/> if the sheet was added, <see langword="false"/> if it already exists.</returns>
     public Boolean AddSheet(FileInfo file, Sheet sheet, Boolean part)
     {
         Dictionary<String, Image> splitTarget = part ? splitParts : splitTextures;
@@ -72,7 +72,7 @@ public class ImageLibrary
     ///     Check if a sheet can be found in the library.
     /// </summary>
     /// <param name="key">The key of the sheet to check for. See <see cref="Bundler" /> for more information.</param>
-    /// <returns><c>true</c> if the sheet is available, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the sheet is available, <see langword="false"/> otherwise.</returns>
     public Boolean HasSheet(String key)
     {
         return Access(key, out _, out _);

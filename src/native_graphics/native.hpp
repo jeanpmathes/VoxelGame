@@ -36,14 +36,15 @@ enum class ModifierKeys : BYTE
 DEFINE_ENUM_FLAG_OPERATORS(ModifierKeys)
 
 using NativeCallbackFunction     = void(*)();
+using NativeInputUpdateFunction  = void(*)(double, double);
 using NativeRenderUpdateFunction = void(*)(double, double);
 using NativeLogicUpdateFunction  = void(*)(double, double);
 using NativeCheckFunction        = BOOL(*)();
-using NativeKeyFunction          = void(*)(UINT8 key, BOOL isDown, BOOL isRepeat, ModifierKeys modifiers);
-using NativeCharFunction         = void(*)(UINT16 c);
-using NativeMouseButtonFunction  = void(*)(UINT8 button, BOOL isDown, INT32 x, INT32 y, ModifierKeys modifiers);
-using NativeMouseMoveFunction    = void(*)(INT32 x, INT32 y, INT32 dx, INT32 dy);
-using NativeMouseScrollFunction  = void(*)(INT32 x, INT32 y, double sx, double sy);
+using NativeKeyFunction          = BOOL(*)(UINT8 key, BOOL isDown, BOOL isRepeat, ModifierKeys modifiers);
+using NativeCharFunction         = BOOL(*)(UINT16 c);
+using NativeMouseButtonFunction  = BOOL(*)(UINT8 button, BOOL isDown, INT32 x, INT32 y, ModifierKeys modifiers);
+using NativeMouseMoveFunction    = BOOL(*)(INT32 x, INT32 y, INT32 dx, INT32 dy);
+using NativeMouseScrollFunction  = BOOL(*)(INT32 x, INT32 y, double sx, double sy);
 using NativeResizeFunction       = void(*)(UINT, UINT);
 using NativeBoolFunction         = void(*)(BOOL);
 using NativeWStringFunction      = void(*)(LPCWSTR);
@@ -61,6 +62,7 @@ DEFINE_ENUM_FLAG_OPERATORS(ConfigurationOptions)
 
 struct Configuration
 {
+    NativeInputUpdateFunction  onInputUpdate;
     NativeRenderUpdateFunction onRenderUpdate;
     NativeLogicUpdateFunction  onLogicUpdate;
 
@@ -77,6 +79,8 @@ struct Configuration
 
     NativeResizeFunction onResize;
     NativeBoolFunction   onActiveStateChange;
+    NativeBoolFunction   onSizeMoveMenu;
+    NativeBoolFunction   onKeyboardFocusChange;
 
     D3D12MessageFunc onDebug;
 

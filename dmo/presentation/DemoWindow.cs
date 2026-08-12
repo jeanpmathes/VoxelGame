@@ -75,8 +75,6 @@ internal class DemoWindow : Client
     {
         updateTimes.Write(delta.RealTime);
         harness?.UpdateFrequency.SetValue(1 / updateTimes.Average);
-
-        gui.Update();
     }
 
     protected override void OnRenderUpdate(Delta delta, Timer? timer)

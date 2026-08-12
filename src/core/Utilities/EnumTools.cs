@@ -34,7 +34,7 @@ public static class EnumTools
     ///     Check whether the given enum type is a flags enum.
     /// </summary>
     /// <typeparam name="TEnum">The enum type to check.</typeparam>
-    /// <returns><c>true</c> if the enum type is a flags enum; otherwise, <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the enum type is a flags enum; otherwise, <see langword="false"/>.</returns>
     public static Boolean IsFlagsEnum<TEnum>() where TEnum : struct, Enum
     {
         return typeof(TEnum).IsDefined(typeof(FlagsAttribute), inherit: false);

@@ -21,7 +21,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Client.Actors.Components;
-using VoxelGame.Client.Scenes;
+using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Collections.Properties;
@@ -48,11 +48,13 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     /// <param name="camera">The camera to use for this player.</param>
     /// <param name="ui">The user interface used for the game.</param>
     /// <param name="engine">The graphics engine to use for rendering.</param>
-    /// <param name="input">The input control to use for this player.</param>
-    public Player(Double mass, BoundingVolume boundingVolume, Camera camera, InGameUserInterface ui, Engine engine, IInputControl input) : base(mass, boundingVolume)
+    /// <param name="input">The input action provider to use for this player.</param>
+    /// <param name="lookInput">The look input to use for this player.</param>
+    public Player(Double mass, BoundingVolume boundingVolume, Camera camera, InGameUserInterface ui, Engine engine, IInputActionProvider input, LookInput lookInput) : base(mass, boundingVolume)
     {
         Camera = camera;
-        Input = input;
+        InputActionProvider = input;
+        LookInput = lookInput;
 
         AddComponent<PlayerInput, Player>();
         AddComponent<PlayerMovement, Player>(); // Also updates the targeter.
@@ -76,9 +78,14 @@ public sealed partial class Player : Core.Actors.Player, IPlayerDataProvider
     internal Camera Camera { get; }
 
     /// <summary>
-    ///     Get the input control used by this player.
+    ///     The input action provider used by this player.
     /// </summary>
-    public IInputControl Input { get; }
+    internal IInputActionProvider InputActionProvider { get; }
+
+    /// <summary>
+    ///     The look input used by this player.
+    /// </summary>
+    internal LookInput LookInput { get; }
 
     /// <inheritdoc />
     public Property DebugData => new PlayerDebugProperties(this);

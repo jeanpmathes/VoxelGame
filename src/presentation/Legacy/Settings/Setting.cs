@@ -1,4 +1,4 @@
-﻿// <copyright file="Setting.cs" company="VoxelGame">
+// <copyright file="Setting.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -22,7 +22,7 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
-using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Input;
 using VoxelGame.Presentation.Legacy.Providers;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 using VoxelGame.Presentation.Legacy.Utilities;
@@ -77,14 +77,15 @@ public abstract class Setting
     /// <param name="name">The name of the setting.</param>
     /// <param name="get">Function that gets the current setting value.</param>
     /// <param name="set">Function that sets the current setting value.</param>
+    /// <param name="beginCapture">Function that starts receiving the next combination selected by the user.</param>
     /// <param name="validate">Function that validates the current setting value.</param>
     /// <param name="reset">Function that resets the current setting value.</param>
     /// <returns>The created setting.</returns>
     public static Setting CreateKeyOrButtonSetting(ISettingsValidator validator, String name,
-        Func<VirtualKeys> get, Action<VirtualKeys> set,
+        Func<KeyOrButtonCombination> get, Action<KeyOrButtonCombination> set, Func<Action<KeyOrButtonCombination>, IDisposable> beginCapture,
         Func<Boolean> validate, Action reset)
     {
-        return new KeyOrButtonSetting(name, get, set, validate, reset)
+        return new KeyOrButtonSetting(name, get, set, beginCapture, validate, reset)
         {
             Validator = validator
         };

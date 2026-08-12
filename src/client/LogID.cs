@@ -47,15 +47,15 @@ internal static class LogID
 
     internal const UInt16 GameConsole = Events.Increment + CommandInvoker;
 
-    internal const UInt16 KeybindManager = Events.Increment + GameConsole;
+    internal const UInt16 Bindings = Events.Increment + GameConsole;
 
-    internal const UInt16 Chunk = Events.Increment + KeybindManager;
+    internal const UInt16 InputSettings = Events.Increment + Bindings;
+
+    internal const UInt16 Chunk = Events.Increment + InputSettings;
 
     internal const UInt16 ChunkStates = Events.Increment + Chunk;
 
-    internal const UInt16 SessionScene = Events.Increment + ChunkStates;
-
-    internal const UInt16 StartScene = Events.Increment + SessionScene;
+    internal const UInt16 StartScene = Events.Increment + ChunkStates;
 
     internal const UInt16 SceneFactory = Events.Increment + StartScene;
 

@@ -21,11 +21,11 @@ using System;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Client.Inputs;
+using VoxelGame.Client.Inputs.Actions;
+using VoxelGame.Client.Inputs.Composite;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Input.Actions;
-using VoxelGame.Graphics.Input.Composite;
 using VoxelGame.Toolkit;
 
 namespace VoxelGame.Client.Actors.Components;
@@ -47,7 +47,8 @@ public sealed partial class PlayerInput : ActorComponent
 
     private readonly ToggleButton placementModeToggle;
 
-    private readonly InputAxis selectionAxis;
+    private readonly PushButton nextSelectionButton;
+    private readonly PushButton previousSelectionButton;
     private readonly PushButton selectTargetedButton;
     private readonly Button sprintButton;
 
@@ -56,50 +57,48 @@ public sealed partial class PlayerInput : ActorComponent
     [Constructible]
     private PlayerInput(Player player) : base(player)
     {
-        KeybindManager keybinds = player.Input.Keybinds;
+        IInputActionProvider provider = player.InputActionProvider;
 
-        Button forwardsButton = keybinds.GetButton(keybinds.Forwards);
-        Button backwardsButton = keybinds.GetButton(keybinds.Backwards);
-        Button strafeRightButton = keybinds.GetButton(keybinds.StrafeRight);
-        Button strafeLeftButton = keybinds.GetButton(keybinds.StrafeLeft);
+        Button forwardsButton = provider.Use(Keybinds.Forwards);
+        Button backwardsButton = provider.Use(Keybinds.Backwards);
+        Button strafeRightButton = provider.Use(Keybinds.StrafeRight);
+        Button strafeLeftButton = provider.Use(Keybinds.StrafeLeft);
 
         movementInput = new InputAxis2(
             new InputAxis(forwardsButton, backwardsButton),
             new InputAxis(strafeRightButton, strafeLeftButton));
 
-        sprintButton = keybinds.GetButton(keybinds.Sprint);
-        jumpButton = keybinds.GetButton(keybinds.Jump);
-        crouchButton = keybinds.GetButton(keybinds.Crouch);
+        sprintButton = provider.Use(Keybinds.Sprint);
+        jumpButton = provider.Use(Keybinds.Jump);
+        crouchButton = provider.Use(Keybinds.Crouch);
 
-        interactOrPlaceButton = keybinds.GetButton(keybinds.InteractOrPlace);
-        destroyButton = keybinds.GetButton(keybinds.Destroy);
-        blockInteractButton = keybinds.GetButton(keybinds.BlockInteract);
+        interactOrPlaceButton = provider.Use(Keybinds.InteractOrPlace);
+        destroyButton = provider.Use(Keybinds.Destroy);
+        blockInteractButton = provider.Use(Keybinds.BlockInteract);
 
-        placementModeToggle = keybinds.GetToggle(keybinds.PlacementMode);
-        placementModeToggle.Clear();
+        placementModeToggle = provider.Use(Keybinds.PlacementMode);
 
-        selectTargetedButton = keybinds.GetPushButton(keybinds.SelectTargeted);
+        selectTargetedButton = provider.Use(Keybinds.SelectTargeted);
 
-        Button nextButton = keybinds.GetPushButton(keybinds.NextPlacement);
-        Button previousButton = keybinds.GetPushButton(keybinds.PreviousPlacement);
-        selectionAxis = new InputAxis(nextButton, previousButton);
+        nextSelectionButton = provider.Use(Keybinds.NextPlacement);
+        previousSelectionButton = provider.Use(Keybinds.PreviousPlacement);
     }
 
-    internal Boolean ShouldJump => jumpButton.IsDown;
+    internal Boolean ShouldJump => jumpButton.IsActive;
 
-    internal Boolean ShouldCrouch => crouchButton.IsDown;
+    internal Boolean ShouldCrouch => crouchButton.IsActive;
 
     private Boolean IsCooldownOver => timer >= InteractionCooldown;
 
-    internal Boolean ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsDown;
+    internal Boolean ShouldInteract => IsCooldownOver && interactOrPlaceButton.IsActive;
 
-    internal Boolean ShouldDestroy => IsCooldownOver && destroyButton.IsDown;
+    internal Boolean ShouldDestroy => IsCooldownOver && destroyButton.IsActive;
 
     internal Boolean ShouldChangePlacementMode => placementModeToggle.Changed;
 
-    internal Boolean ShouldSelectTargeted => selectTargetedButton.IsDown;
+    internal Boolean ShouldSelectTargeted => selectTargetedButton.Pushed;
 
-    internal Boolean IsInteractionBlocked => blockInteractButton.IsDown;
+    internal Boolean IsInteractionBlocked => blockInteractButton.IsActive;
 
     /// <summary>
     ///     Get the movement decided by the user input for a given transform.
@@ -117,7 +116,7 @@ public sealed partial class PlayerInput : ActorComponent
         Vector3d movement = x * transform.Forward + z * transform.Right + y * Vector3d.UnitY;
 
         if (movement != Vector3d.Zero)
-            movement = sprintButton.IsDown
+            movement = sprintButton.IsActive
                 ? movement.Normalized() * sprintSpeed
                 : movement.Normalized() * normalSpeed;
 
@@ -137,6 +136,32 @@ public sealed partial class PlayerInput : ActorComponent
 
     internal Int32 GetSelectionChange()
     {
-        return Math.Sign(selectionAxis.Value);
+        return nextSelectionButton.PressCount - previousSelectionButton.PressCount;
     }
+
+    #region DISPOSABLE
+
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        if (!disposing) return;
+
+        movementInput.Dispose();
+
+        sprintButton.Dispose();
+        jumpButton.Dispose();
+        crouchButton.Dispose();
+
+        interactOrPlaceButton.Dispose();
+        destroyButton.Dispose();
+        blockInteractButton.Dispose();
+
+        placementModeToggle.Dispose();
+
+        selectTargetedButton.Dispose();
+        nextSelectionButton.Dispose();
+        previousSelectionButton.Dispose();
+    }
+
+    #endregion DISPOSABLE
 }

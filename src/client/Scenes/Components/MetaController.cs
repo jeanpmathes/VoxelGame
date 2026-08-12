@@ -19,15 +19,16 @@
 
 using System;
 using VoxelGame.Annotations.Attributes;
+using VoxelGame.Client.Inputs;
+using VoxelGame.Client.Inputs.Actions;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes.Components;
 
 /// <summary>
-///     Responsible for handling all meta input in a <see cref="SessionScene" />.
+///     Responsible for handling all meta/application input in a <see cref="SessionScene" />.
 /// </summary>
 public partial class MetaController : SceneComponent
 {
@@ -45,9 +46,9 @@ public partial class MetaController : SceneComponent
         this.scene = scene;
         this.ui = ui;
 
-        consoleToggle = scene.Client.Keybinds.GetToggle(scene.Client.Keybinds.Console);
-        escapeButton = scene.Client.Keybinds.GetPushButton(scene.Client.Keybinds.Escape);
-        unlockMouseButton = scene.Client.Keybinds.GetPushButton(scene.Client.Keybinds.UnlockMouse);
+        consoleToggle = scene.Client.Keybinds.Use(Keybinds.Console);
+        escapeButton = scene.Client.Keybinds.Use(Keybinds.Escape);
+        unlockMouseButton = scene.Client.Keybinds.Use(Keybinds.UnlockMouse);
 
         OnSideliningEnd();
 
@@ -64,29 +65,27 @@ public partial class MetaController : SceneComponent
     public Boolean IsSidelined { get; private set; }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Delta delta, Timer? timer)
+    public override void OnInputUpdate(Delta delta, Timer? timer)
     {
-        if (!scene.Client.IsFocused)
-            return;
+        for (Int32 press = 0; press < unlockMouseButton.PressCount; press++) HandleUnlockMousePress();
 
-        if (unlockMouseButton.Pushed)
-        {
-            if (isMouseUnlockedByUserRequest)
-            {
-                OnSideliningEnd();
-            }
-            else if (!IsSidelined)
-            {
-                OnSideliningStart();
-                isMouseUnlockedByUserRequest = true;
-            }
-        }
-
-        if (escapeButton.Pushed)
-            ui.HandleEscape();
+        for (Int32 press = 0; press < escapeButton.PressCount; press++) ui.HandleEscape();
 
         if (consoleToggle.Changed)
             ui.ToggleConsole();
+    }
+
+    private void HandleUnlockMousePress()
+    {
+        if (isMouseUnlockedByUserRequest)
+        {
+            OnSideliningEnd();
+        }
+        else if (!IsSidelined)
+        {
+            OnSideliningStart();
+            isMouseUnlockedByUserRequest = true;
+        }
     }
 
     private void OnSideliningEnd()
@@ -105,4 +104,18 @@ public partial class MetaController : SceneComponent
         // The mouse was unlocked, but the user did not necessarily explicitly request it.
         isMouseUnlockedByUserRequest = false;
     }
+
+    #region DISPOSABLE
+
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        if (!disposing) return;
+
+        consoleToggle.Dispose();
+        escapeButton.Dispose();
+        unlockMouseButton.Dispose();
+    }
+
+    #endregion DISPOSABLE
 }

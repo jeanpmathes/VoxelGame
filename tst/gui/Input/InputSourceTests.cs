@@ -17,6 +17,8 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
+using System.Collections.Generic;
 using System.Drawing;
 using JetBrains.Annotations;
 using NSubstitute;
@@ -72,5 +74,43 @@ public class InputSourceTests
     {
         source.SendScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4);
         receiver.Received().ReceiveScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4);
+    }
+
+    [Fact]
+    public void InputSource_ShouldStopAtFirstHandlingReceiverInRegistrationOrder()
+    {
+        MockInputSource orderedSource = new();
+        List<String> order = [];
+
+        IInputReceiver first = Substitute.For<IInputReceiver>();
+        IInputReceiver second = Substitute.For<IInputReceiver>();
+        IInputReceiver third = Substitute.For<IInputReceiver>();
+
+        first.ReceiveKeyEvent(Key.A, isDown: true, isRepeat: false, ModifierKeys.None).Returns(_ =>
+        {
+            order.Add("first");
+            return false;
+        });
+
+        second.ReceiveKeyEvent(Key.A, isDown: true, isRepeat: false, ModifierKeys.None).Returns(_ =>
+        {
+            order.Add("second");
+            return true;
+        });
+
+        third.ReceiveKeyEvent(Key.A, isDown: true, isRepeat: false, ModifierKeys.None).Returns(_ =>
+        {
+            order.Add("third");
+            return false;
+        });
+
+        orderedSource.AddReceiver(first);
+        orderedSource.AddReceiver(second);
+        orderedSource.AddReceiver(third);
+
+        Boolean handled = orderedSource.SendKeyEvent(Key.A, isDown: true, isRepeat: false, ModifierKeys.None);
+
+        Assert.True(handled);
+        Assert.Equal(["first", "second"], order);
     }
 }

@@ -22,7 +22,6 @@ using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Actors;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 using VoxelGame.Toolkit.Utilities;
 
@@ -33,24 +32,18 @@ namespace VoxelGame.Client.Actors.Components;
 /// </summary>
 public partial class PlayerUI : ActorComponent
 {
-    private readonly Button debugViewButton;
-
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlacementSelection? placement;
 
-    private readonly Player player;
     private readonly InGameUserInterface ui;
 
     [Constructible]
     private PlayerUI(Player player, InGameUserInterface ui) : base(player)
     {
-        this.player = player;
         this.ui = ui;
 
         placement = player.GetComponent<PlacementSelection>();
         placement?.SelectionChanged += UpdatePlayerData;
-
-        debugViewButton = player.Input.Keybinds.GetPushButton(player.Input.Keybinds.DebugView);
     }
 
     /// <inheritdoc />
@@ -74,9 +67,6 @@ public partial class PlayerUI : ActorComponent
     public override void OnLogicUpdate(Delta delta)
     {
         ExceptionTools.ThrowIfDisposed(disposed);
-
-        if (player.Input.CanHandleMetaInput && debugViewButton.IsDown)
-            ui.ToggleDebugDataView();
 
         ui.UpdatePlayerDebugData();
     }

@@ -48,7 +48,7 @@ public enum Visibility
 public static class Visibilities
 {
     /// <summary>
-    ///     Get a visibility value from a boolean. Visible if <c>true</c>, collapsed if <c>false</c>.
+    ///     Get a visibility value from a boolean. Visible if <see langword="true"/>, collapsed if <see langword="false"/>.
     /// </summary>
     /// <param name="visible">Whether the control should be visible.</param>
     /// <returns>A visibility value corresponding to the given boolean.</returns>

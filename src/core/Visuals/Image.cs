@@ -491,7 +491,7 @@ public class Image
         /// <summary>
         ///     Averages colors, with an option to consider transparency.
         /// </summary>
-        /// <param name="transparency">If <c>true</c>, transparent colors are included in the average; otherwise, they are ignored.</param>
+        /// <param name="transparency">If <see langword="true"/>, transparent colors are included in the average; otherwise, they are ignored.</param>
         private sealed class AveragingAlgorithm(Boolean transparency) : MipmapAlgorithm
         {
             private Vector4i DetermineFactors(Color32 c1, Color32 c2, Color32 c3, Color32 c4)

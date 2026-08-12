@@ -1,17 +1,17 @@
-﻿// <copyright file="Keybind.cs" company="VoxelGame">
+// <copyright file="Keybind.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
-//      
+//
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
 //     the Free Software Foundation, either version 3 of the License, or
 //     (at your option) any later version.
-//     
+//
 //     This program is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //     GNU General Public License for more details.
-//     
+//
 //     You should have received a copy of the GNU General Public License
 //     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
@@ -20,183 +20,105 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using VoxelGame.Graphics.Definition;
-using VoxelGame.Graphics.Input.Actions;
+using VoxelGame.Client.Inputs.Internals;
+using VoxelGame.Graphics.Input;
+using VoxelGame.Toolkit.Utilities;
+using Action = VoxelGame.Client.Inputs.Actions.Action;
 
 namespace VoxelGame.Client.Inputs;
 
 /// <summary>
-///     Represents a keybind, that associates a key with a binding.
+///     Represents the definition of a configurable keybind, associating an <see cref="Actions.Action" /> type with a
+///     default input combination and a <see cref="Layer" />.
+///     Keybinds must be defined before the <see cref="KeybindManager" /> is created.
 /// </summary>
-public readonly struct Keybind : IEquatable<Keybind>
+public abstract class Keybind
 {
-    private readonly String id;
-    private readonly Binding type;
+    private static readonly List<Keybind> definitions = [];
+
+    private protected Keybind(String id, String name, KeyOrButtonCombination defaultCombination, Layer layer)
+    {
+        ID = id;
+        Name = name;
+        Default = defaultCombination;
+        Layer = layer;
+    }
+
+    private String ID { get; }
 
     /// <summary>
-    ///     Get the name of the keybind.
+    ///     Get the name shown when the input combination is configured.
     /// </summary>
     public String Name { get; }
 
     /// <summary>
-    ///     Get the key used by the keybind per default.
+    ///     Get the input combination used when no custom setting exists.
     /// </summary>
-    public VirtualKeys Default { get; }
-
-    private enum Binding
-    {
-        PushButton,
-        ToggleButton,
-        SimpleButton
-    }
-
-    private Keybind(String id, String name, Binding type, VirtualKeys defaultKeyOrButton)
-    {
-        this.id = id;
-        Name = name;
-        this.type = type;
-
-        Default = defaultKeyOrButton;
-    }
-
-    /// <inheritdoc />
-    public override Boolean Equals(Object? obj)
-    {
-        if (obj is Keybind other) return this == other;
-
-        return false;
-    }
-
-    /// <inheritdoc />
-    public Boolean Equals(Keybind other)
-    {
-        return id.Equals(other.id, StringComparison.Ordinal);
-    }
-
-    /// <inheritdoc />
-    public override Int32 GetHashCode()
-    {
-        return id.GetHashCode(StringComparison.InvariantCulture);
-    }
+    public KeyOrButtonCombination Default { get; }
 
     /// <summary>
-    ///     Check equality of two keybinds.
+    ///     Get the layer that determines when the action is updated and which input it may receive.
     /// </summary>
-    /// <param name="left">The first keybind.</param>
-    /// <param name="right">The second keybind.</param>
-    /// <returns>True if both keybinds are equal.</returns>
-    public static Boolean operator ==(Keybind left, Keybind right)
-    {
-        return left.Equals(right);
-    }
-
-    /// <summary>
-    ///     Check inequality of two keybinds.
-    /// </summary>
-    /// <param name="left">The first keybind.</param>
-    /// <param name="right">The second keybind.</param>
-    /// <returns>True if both keybinds are not equal.</returns>
-    public static Boolean operator !=(Keybind left, Keybind right)
-    {
-        return !(left == right);
-    }
+    public Layer Layer { get; }
 
     /// <inheritdoc />
     public override String ToString()
     {
-        return id;
+        return ID;
     }
 
     /// <summary>
-    ///     Register a keybind that is bound to a button.
+    ///     Define a configurable keybind for an action type.
     /// </summary>
-    /// <param name="id">The id of the keybind. Must be unique.</param>
-    /// <param name="name">The display name of the keybind. Can be localized.</param>
-    /// <param name="defaultKey">The default key to use initially.</param>
-    /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterButton(String id, String name, VirtualKeys defaultKey)
+    /// <typeparam name="TAction">The type of action created for consumers of the keybind.</typeparam>
+    /// <param name="id">The unique, stable identifier used to store the configured combination.</param>
+    /// <param name="name">The name shown when the combination is configured.</param>
+    /// <param name="defaultCombination">The combination used when no custom setting exists.</param>
+    /// <param name="layer">The layer that determines when the action is updated and which input it may receive.</param>
+    /// <returns>The keybind definition for <typeparamref name="TAction" />.</returns>
+    /// <exception cref="ArgumentException">
+    ///     Thrown when <paramref name="defaultCombination" /> may not be assigned in <paramref name="layer" />.
+    /// </exception>
+    public static Keybind<TAction> Define<TAction>(String id, String name, KeyOrButtonCombination defaultCombination, Layer layer)
+        where TAction : Action, IConstructible<Binding, TAction>
     {
-        return Register(
-            id,
-            name,
-            Binding.SimpleButton,
-            defaultKey);
-    }
+        if (!layer.Allows(defaultCombination))
+            throw Exceptions.ArgumentNotAllowed(nameof(defaultCombination), defaultCombination);
 
-    /// <summary>
-    ///     Register a keybind that is bound to a toggle.
-    /// </summary>
-    /// <param name="id">The id of the keybind. Must be unique.</param>
-    /// <param name="name">The display name of the keybind. Can be localized.</param>
-    /// <param name="defaultKey">The default key to use initially.</param>
-    /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterToggle(String id, String name, VirtualKeys defaultKey)
-    {
-        return Register(
-            id,
-            name,
-            Binding.ToggleButton,
-            defaultKey);
-    }
+        Keybind<TAction> bind = new(id, name, defaultCombination, layer);
 
-    /// <summary>
-    ///     Register a keybind that is bound to a push button.
-    /// </summary>
-    /// <param name="id">The id of the keybind. Must be unique.</param>
-    /// <param name="name">The display name of the keybind. Can be localized.</param>
-    /// <param name="defaultKey">The default key to use initially.</param>
-    /// <returns>The registered keybind.</returns>
-    public static Keybind RegisterPushButton(String id, String name, VirtualKeys defaultKey)
-    {
-        return Register(
-            id,
-            name,
-            Binding.PushButton,
-            defaultKey);
-    }
-
-    private static Keybind Register(String id, String name, Binding type, VirtualKeys defaultKey)
-    {
-        Keybind bind = new(id, name, type, defaultKey);
-
-        Debug.Assert(!bindings.Contains(bind), $"The binding '{bind.id}' is already defined.");
-        bindings.Add(bind);
+        Debug.Assert(!definitions.Exists(definition => definition.ID == id), $"The binding '{id}' is already defined.");
+        definitions.Add(bind);
 
         return bind;
     }
 
-    private static readonly HashSet<Keybind> bindings = new();
-
-    internal static void RegisterWithManager(KeybindManager manager)
+    /// <summary>
+    ///     Remove all pending keybind definitions and return them in definition order.
+    /// </summary>
+    /// <returns>The pending definitions in the order in which they were defined.</returns>
+    internal static IReadOnlyList<Keybind> TakeDefinitions()
     {
-        foreach (Keybind bind in bindings) bind.AddToManager(manager);
+        Keybind[] result = definitions.ToArray();
+        definitions.Clear();
 
-        bindings.Clear();
+        return result;
     }
+}
 
-    private void AddToManager(KeybindManager manager)
-    {
-        switch (type)
-        {
-            case Binding.PushButton:
-                manager.Add(this, new PushButton(Default, manager.Input));
-
-                break;
-
-            case Binding.ToggleButton:
-                manager.Add(this, new ToggleButton(Default, manager.Input));
-
-                break;
-
-            case Binding.SimpleButton:
-                manager.Add(this, new SimpleButton(Default, manager.Input));
-
-                break;
-
-            default:
-                Debug.Fail("Add missing cases.");
-
-                break;
-        }
-    }
+/// <summary>
+///     Represents a keybind associated with a <typeparamref name="TAction" />.
+/// </summary>
+/// <typeparam name="TAction">The type of action associated with the keybind.</typeparam>
+public sealed class Keybind<TAction> : Keybind where TAction : Action, IConstructible<Binding, TAction>
+{
+    /// <summary>
+    ///     Create a keybind for an action type and its default input combination.
+    /// </summary>
+    /// <param name="id">The unique, stable identifier used to store the configured combination.</param>
+    /// <param name="name">The name shown when the combination is configured.</param>
+    /// <param name="defaultCombination">The combination used when no custom setting exists.</param>
+    /// <param name="layer">The layer that determines when the action is updated and which input it may receive.</param>
+    internal Keybind(String id, String name, KeyOrButtonCombination defaultCombination, Layer layer)
+        : base(id, name, defaultCombination, layer) {}
 }

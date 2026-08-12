@@ -211,7 +211,7 @@ public abstract class ChunkState
     ///     Try to set the next state according to the world chunk activation rules.
     ///     Either <see cref="TryStrongActivation" /> or <see cref="TryWeakActivation" /> will be used.
     /// </summary>
-    /// <returns><c>true</c> if this results in a transition to a different state, otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if this results in a transition to a different state, otherwise <see langword="false"/>.</returns>
     protected Boolean TryActivation()
     {
         return Chunk.HasBeenActive ? TryWeakActivation() : TryStrongActivation();
@@ -220,7 +220,7 @@ public abstract class ChunkState
     /// <summary>
     ///     Try to set the next state according to the world chunk activation rules.
     ///     If the rules determine that the chunk should enter a different state, that state is set as the next state.
-    ///     In that case, the method returns <c>true</c>, otherwise <c>false</c>.
+    ///     In that case, the method returns <see langword="true"/>, otherwise <see langword="false"/>.
     ///     The strong activation rule will be used, which is meant for chunks that have not been activated yet.
     ///     If the current state is not the hidden state, this method will always result in a transition to a different state.
     /// </summary>
@@ -241,7 +241,7 @@ public abstract class ChunkState
     /// <summary>
     ///     Try to set the next state according to the world chunk activation rules.
     ///     If the rules determine that the chunk should enter a different state, that state is set as the next state.
-    ///     In that case, the method returns <c>true</c>, otherwise <c>false</c>.
+    ///     In that case, the method returns <see langword="true"/>, otherwise <see langword="false"/>.
     ///     The weak activation rule will be used, which is meant for chunks that have already been activated before.
     ///     If the current state is not the hidden state, this method will always result in a transition to a different state.
     /// </summary>

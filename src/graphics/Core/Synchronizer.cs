@@ -44,7 +44,7 @@ public class Synchronizer
     {
         get
         {
-            List<NativeObject?> result = new();
+            List<NativeObject?> result = [];
 
             foreach (Entry? nativeObject in objects.AsSpan())
                 if (nativeObject != null)

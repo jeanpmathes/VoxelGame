@@ -51,10 +51,10 @@ public enum Enablement
 public static class Enablements
 {
     /// <summary>
-    ///     Get an enablement value from a boolean. Enabled if <c>true</c>, disabled if <c>false</c>.
+    ///     Get an enablement value from a boolean. Enabled if <see langword="true"/>, disabled if <see langword="false"/>.
     /// </summary>
     /// <param name="enabled">Whether the control should be enabled.</param>
-    /// <returns>>An enablement value corresponding to the given boolean.</returns>
+    /// <returns>An enablement value corresponding to the given boolean.</returns>
     public static Enablement FromBoolean(Boolean enabled)
     {
         return enabled ? Enablement.Enabled : Enablement.Disabled;

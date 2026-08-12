@@ -25,7 +25,6 @@ using OpenTK.Mathematics;
 using VoxelGame.Client.Actors;
 using VoxelGame.Client.Application.Components;
 using VoxelGame.Client.Console;
-using VoxelGame.Client.Inputs;
 using VoxelGame.Client.Logic;
 using VoxelGame.Client.Scenes.Components;
 using VoxelGame.Client.Sessions;
@@ -65,6 +64,7 @@ public sealed class SessionScene : Scene, IInputControl
         AddComponent<SessionHook, Session>(session);
         AddComponent<UpdateInGamePerformanceData, InGameUserInterface>(ui);
         AddComponent<UserInterfaceHook, UserInterface>(ui);
+        AddComponent<DebugViewController, InGameUserInterface, SessionScene>(ui);
 
         AddComponent<ScreenshotController, SessionScene>();
         AddComponent<UserInterfaceHide, InGameUserInterface, SessionScene>(ui);
@@ -79,18 +79,18 @@ public sealed class SessionScene : Scene, IInputControl
         };
     }
 
+    /// <inheritdoc />
+    internal override IInputControl InputControl => this;
+
     /// <summary>
     ///     Whether it is OK to handle game input currently.
     /// </summary>
     public Boolean CanHandleGameInput => !meta.IsSidelined && Client.IsFocused;
 
     /// <summary>
-    ///     Whether it is OK to handle meta input currently.
+    ///     Whether it is OK to handle application input currently.
     /// </summary>
-    public Boolean CanHandleMetaInput => Client.IsFocused;
-
-    /// <inheritdoc />
-    public KeybindManager Keybinds => Client.Keybinds;
+    public Boolean CanHandleApplicationInput => Client.IsFocused;
 
     /// <inheritdoc />
     protected override void OnLoad()
@@ -136,7 +136,8 @@ public sealed class SessionScene : Scene, IInputControl
             camera,
             ui,
             engine,
-            this);
+            Client.Keybinds,
+            Client.Keybinds.LookBind);
 
         world.AddComponent<LocalPlayerHook, Player>(player);
 

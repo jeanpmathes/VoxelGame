@@ -46,6 +46,11 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
     internal Application.Client Client { get; } = client;
 
     /// <summary>
+    ///     Get the input permission source used while this scene is active.
+    /// </summary>
+    internal virtual IInputControl? InputControl => null;
+
+    /// <summary>
     ///     Load the scene.
     /// </summary>
     public void Load()
@@ -64,9 +69,33 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
     protected virtual void OnLoad() {}
 
     /// <summary>
-    ///     Perform an update cycle.
+    ///     Perform an input update cycle.
     /// </summary>
-    /// <param name="delta">The time since the last update.</param>
+    /// <param name="delta">The time since the last input update.</param>
+    /// <param name="timer">A timer for profiling.</param>
+    public void InputUpdate(Delta delta, Timer? timer)
+    {
+        using Timer? subTimer = logger.BeginTimedSubScoped("Scene InputUpdate", timer);
+
+        OnInputUpdate(delta, subTimer);
+        OnInputUpdateComponents(delta, subTimer);
+    }
+
+    /// <inheritdoc cref="Scene.OnInputUpdate" />
+    [ComponentEvent(nameof(SceneComponent.OnInputUpdate))]
+    private partial void OnInputUpdateComponents(Delta delta, Timer? timer);
+
+    /// <summary>
+    ///     Called each input update cycle.
+    /// </summary>
+    /// <param name="delta">The time since the last input update.</param>
+    /// <param name="timer">A timer for profiling.</param>
+    protected virtual void OnInputUpdate(Delta delta, Timer? timer) {}
+
+    /// <summary>
+    ///     Perform a fixed logic update cycle.
+    /// </summary>
+    /// <param name="delta">The time since the last logic update.</param>
     /// <param name="timer">A timer for profiling.</param>
     public void LogicUpdate(Delta delta, Timer? timer)
     {
@@ -83,7 +112,7 @@ public abstract partial class Scene(Application.Client client) : Composed<Scene,
     /// <summary>
     ///     Called each logic update cycle.
     /// </summary>
-    /// <param name="delta">The time since the last update.</param>
+    /// <param name="delta">The time since the last logic update.</param>
     /// <param name="timer">A timer for profiling.</param>
     protected virtual void OnLogicUpdate(Delta delta, Timer? timer) {}
 

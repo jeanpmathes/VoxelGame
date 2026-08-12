@@ -48,6 +48,7 @@ protected:
     void OnPreInitialization() override;
     void OnPostInitialization() override;
     void OnInitializationComplete() override;
+    void OnInputUpdate() override;
     void OnLogicUpdate() override;
     void OnPreRenderUpdate() override;
     void OnRenderUpdate() override;

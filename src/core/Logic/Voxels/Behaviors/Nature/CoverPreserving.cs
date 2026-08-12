@@ -46,7 +46,7 @@ public partial class CoverPreserving : BlockBehavior, IBehavior<CoverPreserving,
     ///     Check whether the block preserves cover for the supplied state.
     /// </summary>
     /// <param name="state">The state to evaluate.</param>
-    /// <returns><c>true</c> if the cover should remain, otherwise <c>false</c>.</returns>
+    /// <returns><see langword="true"/> if the cover should remain, otherwise <see langword="false"/>.</returns>
     public Boolean IsPreserving(State state)
     {
         return Preservation.GetValue(original: true, state);

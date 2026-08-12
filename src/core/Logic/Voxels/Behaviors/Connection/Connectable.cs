@@ -99,7 +99,7 @@ public partial class Connectable : BlockBehavior, IBehavior<Connectable, BlockBe
     /// <param name="state">The state of this block.</param>
     /// <param name="other">The other connectable to check connection against.</param>
     /// <param name="side">The side of this block to check connection on.</param>
-    /// <returns><c>true</c> if the blocks can connect, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the blocks can connect, <see langword="false"/> otherwise.</returns>
     public Boolean CanConnect(State state, Side side, Connectable other)
     {
         if (!IsConnectionAllowed.GetValue(original: true, (side, state))) return false;

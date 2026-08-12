@@ -102,6 +102,7 @@ public class UpdateDispatch : ApplicationComponent
     ///     Wait for all operations to complete.
     ///     Must be called from the main thread.
     ///     This will block the current thread.
+    ///     Make sure to call this only in the logic update cycle.
     /// </summary>
     public void CompleteAll()
     {

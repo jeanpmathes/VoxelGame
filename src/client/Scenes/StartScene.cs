@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using VoxelGame.Client.Application.Worlds;
 using VoxelGame.Client.Scenes.Components;
+using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Presentation.Legacy;
 using VoxelGame.Presentation.Legacy.Providers;
@@ -33,12 +34,15 @@ namespace VoxelGame.Client.Scenes;
 /// </summary>
 public sealed class StartScene : Scene
 {
+    private readonly ApplicationOnlyInputControl inputControl;
     private readonly Func<Boolean> isSafeToClose;
 
     internal StartScene(Application.Client client, UserInterfaceResources uiResources, ResourceLoadingIssueReport? resourceLoadingIssueReport, Int32? loadWorldDirectly) : base(client)
     {
+        inputControl = new ApplicationOnlyInputControl(client);
+
         WorldProvider worldProvider = new(client, Program.WorldsDirectory);
-        worldProvider.WorldActivation += (_, world) => client.StartSession(world);
+        worldProvider.WorldActivation += (_, world) => Operations.Defer(() => client.StartSession(world));
 
         List<SettingsProvider> settingsProviders =
         [
@@ -66,6 +70,9 @@ public sealed class StartScene : Scene
 
         if (loadWorldDirectly.HasValue) AddComponent<DirectWorldLoad, (IWorldProvider, Int32)>((worldProvider, loadWorldDirectly.Value));
     }
+
+    /// <inheritdoc />
+    internal override IInputControl InputControl => inputControl;
 
     /// <inheritdoc />
     protected override void OnLoad()

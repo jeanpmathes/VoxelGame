@@ -56,9 +56,25 @@ public sealed partial class Session : Composed<Session, SessionComponent>
     private World World { get; }
 
     /// <summary>
+    ///     Perform one input update cycle.
+    /// </summary>
+    /// <param name="delta">The time since the last input update.</param>
+    /// <param name="timer">A timer to use for profiling.</param>
+    public void InputUpdate(Delta delta, Timer? timer)
+    {
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        OnInputUpdate(delta, timer);
+    }
+
+    /// <inheritdoc cref="Session.InputUpdate" />
+    [ComponentEvent(nameof(SessionComponent.OnInputUpdate))]
+    private partial void OnInputUpdate(Delta delta, Timer? timer);
+
+    /// <summary>
     ///     Perform one logic update cycle.
     /// </summary>
-    /// <param name="delta">The time since the last update.</param>
+    /// <param name="delta">The time since the last logic update.</param>
     /// <param name="timer">A timer to use for profiling.</param>
     public void LogicUpdate(Delta delta, Timer? timer)
     {
@@ -76,7 +92,7 @@ public sealed partial class Session : Composed<Session, SessionComponent>
     /// <summary>
     ///     Perform one render update cycle.
     /// </summary>
-    /// <param name="delta">The time since the last update.</param>
+    /// <param name="delta">The time since the last render update.</param>
     /// <param name="timer">A timer to use for profiling.</param>
     public void RenderUpdate(Delta delta, Timer? timer)
     {

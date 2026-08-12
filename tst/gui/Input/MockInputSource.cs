@@ -25,28 +25,28 @@ namespace VoxelGame.GUI.Tests.Input;
 
 public class MockInputSource : InputSource
 {
-    public new void SendKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers)
+    public new Boolean SendKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
-        base.SendKeyEvent(key, isDown, isRepeat, modifiers);
+        return base.SendKeyEvent(key, isDown, isRepeat, modifiers, isSynthetic);
     }
 
-    public new void SendTextEvent(String text)
+    public new Boolean SendTextEvent(String text)
     {
-        base.SendTextEvent(text);
+        return base.SendTextEvent(text);
     }
 
-    public new void SendPointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers)
+    public new Boolean SendPointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
-        base.SendPointerButtonEvent(position, button, isDown, modifiers);
+        return base.SendPointerButtonEvent(position, button, isDown, modifiers, isSynthetic);
     }
 
-    public new void SendPointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    public new Boolean SendPointerMoveEvent(PointF position, Single deltaX, Single deltaY)
     {
-        base.SendPointerMoveEvent(position, deltaX, deltaY);
+        return base.SendPointerMoveEvent(position, deltaX, deltaY);
     }
 
-    public new void SendScrollEvent(PointF position, Single deltaX, Single deltaY)
+    public new Boolean SendScrollEvent(PointF position, Single deltaX, Single deltaY)
     {
-        base.SendScrollEvent(position, deltaX, deltaY);
+        return base.SendScrollEvent(position, deltaX, deltaY);
     }
 }

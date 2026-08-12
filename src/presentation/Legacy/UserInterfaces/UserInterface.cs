@@ -103,7 +103,7 @@ public abstract class UserInterface : IDisposable
     /// <summary>
     ///     Update the user interface. This handles the input.
     /// </summary>
-    public void LogicUpdate()
+    public void InputUpdate()
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 

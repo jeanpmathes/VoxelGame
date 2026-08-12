@@ -17,10 +17,12 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Annotations.Attributes;
+using VoxelGame.Client.Inputs;
+using VoxelGame.Client.Inputs.Actions;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Input.Actions;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Scenes.Components;
@@ -31,21 +33,29 @@ namespace VoxelGame.Client.Scenes.Components;
 public partial class UserInterfaceHide : SceneComponent
 {
     private readonly ToggleButton button;
-    private readonly SessionScene scene;
     private readonly InGameUserInterface ui;
 
     [Constructible]
     private UserInterfaceHide(SessionScene scene, InGameUserInterface ui) : base(scene)
     {
-        this.scene = scene;
         this.ui = ui;
 
-        button = scene.Client.Keybinds.GetToggle(scene.Client.Keybinds.UI);
+        button = scene.Client.Keybinds.Use(Keybinds.UI);
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Delta delta, Timer? timer)
+    public override void OnInputUpdate(Delta delta, Timer? timer)
     {
-        if (scene.CanHandleGameInput && button.Changed) ui.ToggleHidden();
+        if (button.Changed) ui.ToggleHidden();
     }
+
+    #region DISPOSABLE
+
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        if (disposing) button.Dispose();
+    }
+
+    #endregion DISPOSABLE
 }

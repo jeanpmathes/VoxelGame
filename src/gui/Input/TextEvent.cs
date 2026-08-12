@@ -30,7 +30,7 @@ public sealed class TextEvent : InputEvent
     /// <summary>
     ///     Creates a new <seealso cref="TextEvent" />.
     /// </summary>
-    public TextEvent(Visual source, String text) : base(source)
+    public TextEvent(Visual source, String text) : base(source, isSynthetic: false)
     {
         Text = text;
     }

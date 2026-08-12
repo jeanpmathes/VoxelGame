@@ -47,22 +47,25 @@ public:
 
     enum class CycleFlags : uint8_t
     {
-        ALLOW_LOGIC_UPDATE  = 1 << 0,
-        ALLOW_RENDER_UPDATE = 1 << 1,
-        ALLOW_BOTH          = ALLOW_LOGIC_UPDATE | ALLOW_RENDER_UPDATE,
+        ALLOW_INPUT_UPDATE            = 1 << 0,
+        ALLOW_LOGIC_UPDATE            = 1 << 1,
+        ALLOW_RENDER_UPDATE           = 1 << 2,
+        ALLOW_INPUT_AND_RENDER_UPDATE = ALLOW_INPUT_UPDATE | ALLOW_RENDER_UPDATE,
+        ALLOW_ALL_UPDATES             = ALLOW_INPUT_UPDATE | ALLOW_LOGIC_UPDATE | ALLOW_RENDER_UPDATE,
     };
 
     static bool HasFlag(CycleFlags value, CycleFlags flag);
 
     /**
-     * Perform an update, which can be a logic or render update.
+     * Perform an outer update with the requested input, logic, and render phases.
      * \param flags The flags to control which cycles are allowed.
      * \param timer Whether the update is being called from a timer.
      */
     void Update(CycleFlags flags, bool timer = false);
 
     void Init();
-    void Update(StepTimer const& timer);
+    void InputUpdate(StepTimer const& timer);
+    void LogicUpdate(StepTimer const& timer);
     void RenderUpdate(StepTimer const& timer);
     void Destroy();
 
@@ -71,15 +74,16 @@ public:
     void HandleSizeChanged(UINT newWidth, UINT newHeight, bool minimized);
     void HandleWindowMoved(int xPos, int yPos);
     void HandleActiveStateChange(bool active);
+    void HandleKeyboardFocusChange(bool focused) const;
 
-    void OnSizeMove(bool enter);
+    void OnSizeMoveMenu(bool enter);
     void OnTimer(UINT_PTR id);
 
-    void OnKey(UINT8 key, BOOL isDown, BOOL isRepeat, ModifierKeys modifiers) const;
-    void OnChar(UINT16 c) const;
-    void OnMouseButton(UINT8 button, BOOL isDown, INT32 x, INT32 y, ModifierKeys modifiers) const;
-    void OnMouseMove(INT32 x, INT32 y);
-    void OnMouseWheel(INT32 x, INT32 y, double sx, double sy) const;
+    [[nodiscard]] bool OnKey(UINT8 key, BOOL isDown, BOOL isRepeat, ModifierKeys modifiers) const;
+    [[nodiscard]] bool OnChar(UINT16 c) const;
+    [[nodiscard]] bool OnMouseButton(UINT8 button, BOOL isDown, INT32 x, INT32 y, ModifierKeys modifiers) const;
+    [[nodiscard]] bool OnMouseMove(INT32 x, INT32 y);
+    [[nodiscard]] bool OnMouseWheel(INT32 x, INT32 y, double sx, double sy) const;
 
     void DoCursorSet() const;
 
@@ -131,7 +135,12 @@ public:
         DESTROY,
 
         /**
-         * The thread is in the logic update cycle.
+         * The thread is in the variable-rate input update cycle.
+         */
+        INPUT_UPDATE,
+
+        /**
+         * The thread is in the fixed-rate logic update cycle.
          */
         LOGIC_UPDATE,
 
@@ -155,6 +164,7 @@ protected:
     virtual void OnPreInitialization() = 0;
     virtual void OnPostInitialization() = 0;
     virtual void OnInitializationComplete() = 0;
+    virtual void OnInputUpdate() = 0;
     virtual void OnLogicUpdate() = 0;
     virtual void OnPreRenderUpdate() = 0;
     virtual void OnRenderUpdate() = 0;
@@ -171,6 +181,7 @@ protected:
 private:
     struct Hooks
     {
+        NativeInputUpdateFunction  onInputUpdate;
         NativeRenderUpdateFunction onRenderUpdate;
         NativeLogicUpdateFunction  onLogicUpdate;
 
@@ -187,6 +198,8 @@ private:
 
         NativeResizeFunction onResize;
         NativeBoolFunction   onActiveStateChange;
+        NativeBoolFunction   onSizeMoveMenu;
+        NativeBoolFunction   onKeyboardFocusChange;
     };
 
     Hooks                hooks;
@@ -203,6 +216,7 @@ private:
 
     FLOAT renderScale;
 
+    StepTimer inputTimer{};
     StepTimer logicTimer{};
     StepTimer renderTimer{};
 
@@ -242,10 +256,13 @@ private:
 
 #define CALL_IN_INITIALIZATION(client) ((client)->GetCycle() == DXApp::Cycle::INITIALIZATION)
 #define CALL_IN_DESTROY(client) ((client)->GetCycle() == DXApp::Cycle::DESTROY)
+#define CALL_IN_INPUT(client) ((client)->GetCycle() == DXApp::Cycle::INPUT_UPDATE)
 #define CALL_IN_LOGIC(client) ((client)->GetCycle() == DXApp::Cycle::LOGIC_UPDATE)
 #define CALL_IN_RENDER(client) ((client)->GetCycle() == DXApp::Cycle::RENDER_UPDATE)
 #define CALL_IN_WORKER(client) ((client)->GetCycle() == DXApp::Cycle::WORKER)
 #define CALL_IN_EVENT_OR_OTHER(client) (!(client)->GetCycle().has_value())
-#define CALL_IN_LOGIC_OR_EVENT(client) (CALL_IN_LOGIC(client) || CALL_IN_EVENT_OR_OTHER(client))
+#define CALL_IN_INPUT_OR_LOGIC(client) (CALL_IN_INPUT(client) || CALL_IN_LOGIC(client))
+#define CALL_IN_INPUT_LOGIC_OR_RENDER(client) (CALL_IN_INPUT_OR_LOGIC(client) || CALL_IN_RENDER(client))
 #define CALL_IN_INITIALIZATION_OR_DESTROY(client) (CALL_IN_INITIALIZATION(client) || CALL_IN_DESTROY(client))
+#define CALL_IN_INPUT_LOGIC_OR_EVENT(client) (CALL_IN_INPUT(client) || CALL_IN_LOGIC(client) || CALL_IN_EVENT_OR_OTHER(client))
 #define CALL_ON_MAIN_THREAD(client) (!(client)->GetCycle().has_value() || (client)->GetCycle().value() != DXApp::Cycle::WORKER)

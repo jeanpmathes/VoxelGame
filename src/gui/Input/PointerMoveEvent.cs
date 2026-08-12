@@ -32,7 +32,7 @@ public sealed class PointerMoveEvent : PointerEvent
     ///     Creates a new <seealso cref="PointerMoveEvent" /> with the specified source visual, pointer position, and change in
     ///     pointer coordinates since the last pointer move event.
     /// </summary>
-    public PointerMoveEvent(Visual source, PointF position, Single deltaX, Single deltaY) : base(source, position)
+    public PointerMoveEvent(Visual source, PointF position, Single deltaX, Single deltaY) : base(source, position, isSynthetic: false)
     {
         DeltaX = deltaX;
         DeltaY = deltaY;

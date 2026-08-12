@@ -29,13 +29,18 @@ using VoxelGame.Toolkit.Utilities;
 namespace VoxelGame.Core.Updates;
 
 /// <summary>
-///     An operation is similar to a task, but runs at least partially on the main thread.
+///     An operation is similar to a task but runs at least partially on the main thread.
 ///     This means that it is only considered completed after both the actual work has completed and the main thread has
 ///     detected this.
 ///     The work itself might run on a background thread.
 /// </summary>
-public abstract class Operation : IUpdateableProcess
+public abstract class Operation(UpdateDispatch dispatch) : IUpdateableProcess
 {
+    /// <summary>
+    ///     The update dispatch for which this operation is created.
+    /// </summary>
+    protected readonly UpdateDispatch dispatch = dispatch;
+
     /// <summary>
     ///     Get the current status of the operation.
     /// </summary>
@@ -52,7 +57,7 @@ public abstract class Operation : IUpdateableProcess
     public Boolean IsOk => Status == Status.Ok;
 
     /// <summary>
-    ///     Whether the operation failed or was cancelled.
+    ///     Whether the operation failed or was canceled.
     /// </summary>
     public Boolean IsFailedOrCancelled => Status == Status.ErrorOrCancel;
 
@@ -91,6 +96,10 @@ public abstract class Operation : IUpdateableProcess
     /// </summary>
     protected event EventHandler? Completion;
 
+    /// <summary>
+    ///     Start the operation.
+    ///     Note that this will run on the main thread, but not necessarily in the logic update cycle.
+    /// </summary>
     internal void Start()
     {
         Application.ThrowIfNotOnMainThread(this);
@@ -136,6 +145,9 @@ public abstract class Operation : IUpdateableProcess
     [MustUseReturnValue]
     public Result Wait()
     {
+        if (Status is Status.Ok or Status.ErrorOrCancel)
+            return Result!;
+
         Result = DoWait();
 
         Complete(Result);
@@ -236,7 +248,7 @@ public abstract class Operation : IUpdateableProcess
 ///     A variant of <see cref="Operation" /> that returns a result.
 /// </summary>
 /// <typeparam name="T">The type of the result.</typeparam>
-public abstract class Operation<T> : Operation
+public abstract class Operation<T>(UpdateDispatch dispatch) : Operation(dispatch)
 {
     /// <summary>
     ///     Get the result of the operation, or <c>null</c> if the operation is still running.

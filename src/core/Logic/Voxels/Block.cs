@@ -372,7 +372,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     This means that it is equivalent to a 1x1x1 collider.
     /// </summary>
     /// <param name="state">The state of the block.</param>
-    /// <returns><c>true</c> if the block is solid and full in the given state, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the block is solid and full in the given state, <see langword="false"/> otherwise.</returns>
     public Boolean IsFullySolid(State state)
     {
         return IsSolid && IsFull(state);
@@ -383,7 +383,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     This means no light can pass through any part of the voxel space the block is in.
     /// </summary>
     /// <param name="state">The state of the block.</param>
-    /// <returns><c>true</c> if the block is opaque and full in the given state, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the block is opaque and full in the given state, <see langword="false"/> otherwise.</returns>
     public Boolean IsFullyOpaque(State state)
     {
         return IsOpaque && IsFull(state);
@@ -393,7 +393,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     Get whether the block fully occupies the voxel space it is in the given state.
     /// </summary>
     /// <param name="state">The state of the block.</param>
-    /// <returns><c>true</c> if the block is full in the given state, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the block is full in the given state, <see langword="false"/> otherwise.</returns>
     public Boolean IsFull(State state)
     {
         if (IsAlwaysFull) return true;
@@ -409,7 +409,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// </summary>
     /// <param name="side">The side to check.</param>
     /// <param name="state">The state of the block.</param>
-    /// <returns><c>true</c> if the side is full in the given state, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the side is full in the given state, <see langword="false"/> otherwise.</returns>
     public Boolean IsSideFull(Side side, State state)
     {
         if (IsAlwaysFull) return true;
@@ -425,7 +425,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     ///     A replaceable block can be overwritten without having to destroy it first.
     /// </summary>
     /// <param name="state">The state of the block.</param>
-    /// <returns><c>true</c> if the block can be replaced, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the block can be replaced, <see langword="false"/> otherwise.</returns>
     public Boolean IsReplaceable(State state)
     {
         return IsEmpty || Replaceability.GetValue(original: false, state);
@@ -463,7 +463,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
 
     /// <summary>
     ///     Called when a block and an actor interact.
-    ///     If <see cref="IsInteractable" /> is <c>false</c>, this method does nothing.
+    ///     If <see cref="IsInteractable" /> is <see langword="false"/>, this method does nothing.
     /// </summary>
     /// <param name="actor">The actor that interacts with the block.</param>
     /// <param name="position">The block position.</param>
@@ -492,7 +492,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <param name="world">The world in which to check placement.</param>
     /// <param name="position">The position at which to check placement.</param>
     /// <param name="actor">The actor that is attempting to place the block, if any.</param>
-    /// <returns><c>true</c> if the block can be placed at the given position, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the block can be placed at the given position, <see langword="false"/> otherwise.</returns>
     public Boolean CanPlace(World world, Vector3i position, Actor? actor = null)
     {
         State? block = world.GetBlock(position);
@@ -565,7 +565,7 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     /// <param name="world">The world in which to check destruction.</param>
     /// <param name="position">The position at which to check destruction.</param>
     /// <param name="actor">The actor that is attempting to destroy the block, if any.</param>
-    /// <returns><c>true</c> if the block can be destroyed at the given position, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the block can be destroyed at the given position, <see langword="false"/> otherwise.</returns>
     public Boolean CanDestroy(World world, Vector3i position, Actor? actor = null)
     {
         State? potentialBlock = world.GetBlock(position);

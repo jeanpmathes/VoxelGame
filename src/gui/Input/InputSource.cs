@@ -28,7 +28,7 @@ namespace VoxelGame.GUI.Input;
 /// </summary>
 public class InputSource
 {
-    private readonly HashSet<IInputReceiver> receivers = [];
+    private readonly List<IInputReceiver> receivers = [];
 
     /// <summary>
     ///     Add an input receiver to this input source, which will receive all input events.
@@ -37,33 +37,43 @@ public class InputSource
     /// <param name="receiver">The receiver to add.</param>
     public void AddReceiver(IInputReceiver receiver)
     {
-        receivers.Add(receiver);
+        if (!receivers.Contains(receiver))
+            receivers.Add(receiver);
     }
 
     /// <summary>
     ///     Send a key event, corresponding to a keyboard button.
     /// </summary>
     /// <param name="key">Which key the event corresponds to.</param>
-    /// <param name="isDown">Whether the key is being pressed down (<c>true</c>) or up (<c>false</c>).</param>
+    /// <param name="isDown">Whether the key is being pressed down (<see langword="true"/>) or up (<see langword="false"/>).</param>
     /// <param name="isRepeat">
     ///     Whether the event is a repeat event, i.e., the key is being held down, and this event is firing
     ///     repeatedly.
     /// </param>
-    /// <param name="modifiers">The modifier keys which are currently active.</param>
-    protected void SendKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers)
+    /// <param name="modifiers">The modifier keys that are currently active.</param>
+    /// <param name="isSynthetic">Whether the event was created by parts of the input system instead of being a physical event.</param>
+    /// <returns>Whether a receiver handled the event.</returns>
+    protected Boolean SendKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         foreach (IInputReceiver receiver in receivers)
-            receiver.ReceiveKeyEvent(key, isDown, isRepeat, modifiers);
+            if (receiver.ReceiveKeyEvent(key, isDown, isRepeat, modifiers, isSynthetic))
+                return true;
+
+        return false;
     }
 
     /// <summary>
     ///     Send a text input event, corresponding to a character being typed.
     /// </summary>
     /// <param name="text">The text that was input.</param>
-    protected void SendTextEvent(String text)
+    /// <returns>Whether a receiver handled the event.</returns>
+    protected Boolean SendTextEvent(String text)
     {
         foreach (IInputReceiver receiver in receivers)
-            receiver.ReceiveTextEvent(text);
+            if (receiver.ReceiveTextEvent(text))
+                return true;
+
+        return false;
     }
 
     /// <summary>
@@ -71,12 +81,17 @@ public class InputSource
     /// </summary>
     /// <param name="position">The position of the pointer event, in the coordinate space of the canvas.</param>
     /// <param name="button">The button that the event corresponds to.</param>
-    /// <param name="isDown">Whether the button is being pressed down (<c>true</c>) or up (<c>false</c>).</param>
+    /// <param name="isDown">Whether the button is being pressed down (<see langword="true"/>) or up (<see langword="false"/>).</param>
     /// <param name="modifiers">The modifier keys which are currently active.</param>
-    protected void SendPointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers)
+    /// <param name="isSynthetic">Whether the event was created by parts of the input system instead of being a physical event.</param>
+    /// <returns>Whether a receiver handled the event.</returns>
+    protected Boolean SendPointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         foreach (IInputReceiver receiver in receivers)
-            receiver.ReceivePointerButtonEvent(position, button, isDown, modifiers);
+            if (receiver.ReceivePointerButtonEvent(position, button, isDown, modifiers, isSynthetic))
+                return true;
+
+        return false;
     }
 
     /// <summary>
@@ -85,10 +100,14 @@ public class InputSource
     /// <param name="position">The position of the pointer event, in the coordinate space of the canvas.</param>
     /// <param name="deltaX">The change in the X coordinate since the last pointer move event.</param>
     /// <param name="deltaY">The change in the Y coordinate since the last pointer move event.</param>
-    protected void SendPointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    /// <returns>Whether a receiver handled the event.</returns>
+    protected Boolean SendPointerMoveEvent(PointF position, Single deltaX, Single deltaY)
     {
         foreach (IInputReceiver receiver in receivers)
-            receiver.ReceivePointerMoveEvent(position, deltaX, deltaY);
+            if (receiver.ReceivePointerMoveEvent(position, deltaX, deltaY))
+                return true;
+
+        return false;
     }
 
     /// <summary>
@@ -97,9 +116,13 @@ public class InputSource
     /// <param name="position">The position of the pointer event, in the coordinate space of the canvas.</param>
     /// <param name="deltaX">The amount of horizontal scroll.</param>
     /// <param name="deltaY">The amount of vertical scroll.</param>
-    protected void SendScrollEvent(PointF position, Single deltaX, Single deltaY)
+    /// <returns>Whether a receiver handled the event.</returns>
+    protected Boolean SendScrollEvent(PointF position, Single deltaX, Single deltaY)
     {
         foreach (IInputReceiver receiver in receivers)
-            receiver.ReceiveScrollEvent(position, deltaX, deltaY);
+            if (receiver.ReceiveScrollEvent(position, deltaX, deltaY))
+                return true;
+
+        return false;
     }
 }

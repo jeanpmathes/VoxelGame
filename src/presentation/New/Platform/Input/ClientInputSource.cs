@@ -8,6 +8,7 @@ using System;
 using System.Drawing;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Input;
 using VoxelGame.Graphics.Input.Events;
 using VoxelGame.GUI.Input;
 
@@ -16,9 +17,9 @@ namespace VoxelGame.Presentation.New.Platform.Input;
 /// <summary>
 ///     Wraps a <see cref="Client" /> as an <see cref="InputSource" />.
 /// </summary>
-public sealed class ClientInputSource : InputSource, IDisposable
+public sealed class ClientInputSource : InputSource, IInputHandler, IDisposable
 {
-    private readonly VoxelGame.Graphics.Input.Input input;
+    private readonly IDisposable registration;
 
     /// <summary>
     ///     Wrap a client to create an input source.
@@ -26,23 +27,47 @@ public sealed class ClientInputSource : InputSource, IDisposable
     /// <param name="client">The client to wrap.</param>
     public ClientInputSource(Client client)
     {
-        input = client.Input;
-
-        input.Key += OnKey;
-        input.TextInput += OnTextInput;
-        input.MouseButton += OnMouseButton;
-        input.MouseMove += OnMouseMove;
-        input.MouseWheel += OnMouseWheel;
+        registration = client.Input.RegisterHandler(this, InputHandlerLayer.UserInterface);
     }
 
     /// <inheritdoc />
     public void Dispose()
     {
-        input.Key -= OnKey;
-        input.TextInput -= OnTextInput;
-        input.MouseButton -= OnMouseButton;
-        input.MouseMove -= OnMouseMove;
-        input.MouseWheel -= OnMouseWheel;
+        registration.Dispose();
+    }
+
+    /// <inheritdoc />
+    public Boolean HandleKeyboardKey(KeyboardKeyEventArgs args)
+    {
+        Key key = TranslateKeyCode(args.Key);
+
+        return key != Key.Invalid && SendKeyEvent(key, args.IsPressed, args.IsRepeat, args.Modifiers, args.IsSynthetic);
+    }
+
+    /// <inheritdoc />
+    public Boolean HandleText(TextInputEventArgs args)
+    {
+        return SendTextEvent(args.Character.ToString());
+    }
+
+    /// <inheritdoc />
+    public Boolean HandleMouseButton(MouseButtonEventArgs args)
+    {
+        PointerButton button = TranslateMouseButton(args.Button);
+
+        return button != PointerButton.Invalid && SendPointerButtonEvent(new PointF(args.Position.X, args.Position.Y), button, args.IsPressed, args.Modifiers, args.IsSynthetic);
+    }
+
+    /// <inheritdoc />
+    public Boolean HandleMouseMove(MouseMoveEventArgs args)
+    {
+        return SendPointerMoveEvent(new PointF(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
+    }
+
+    /// <inheritdoc />
+    public Boolean HandleMouseWheel(MouseWheelEventArgs args)
+    {
+        return SendScrollEvent(new PointF(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
     }
 
     private static Key TranslateKeyCode(VirtualKeys key)
@@ -64,9 +89,9 @@ public sealed class ClientInputSource : InputSource, IDisposable
             VirtualKeys.End => Key.End,
             VirtualKeys.Delete => Key.Delete,
             VirtualKeys.Insert => Key.Insert,
-            VirtualKeys.LeftControl or VirtualKeys.RightControl => Key.Control,
-            VirtualKeys.LeftMenu or VirtualKeys.RightMenu => Key.Alt,
-            VirtualKeys.LeftShift or VirtualKeys.RightShift => Key.Shift,
+            VirtualKeys.LeftControl or VirtualKeys.RightControl or VirtualKeys.Control => Key.Control,
+            VirtualKeys.LeftMenu or VirtualKeys.RightMenu or VirtualKeys.Menu => Key.Alt,
+            VirtualKeys.LeftShift or VirtualKeys.RightShift or VirtualKeys.Shift => Key.Shift,
 
             VirtualKeys.A => Key.A,
             VirtualKeys.B => Key.B,
@@ -108,35 +133,5 @@ public sealed class ClientInputSource : InputSource, IDisposable
             VirtualKeys.MiddleButton => PointerButton.Middle,
             _ => PointerButton.Invalid
         };
-    }
-
-    private void OnKey(Object? sender, KeyboardKeyEventArgs args)
-    {
-        Key key = TranslateKeyCode(args.Key);
-
-        if (key == Key.Invalid)
-            return;
-
-        SendKeyEvent(key, args.IsPressed, args.IsRepeat, args.Modifiers);
-    }
-
-    private void OnTextInput(Object? sender, TextInputEventArgs args)
-    {
-        SendTextEvent(args.Character.ToString());
-    }
-
-    private void OnMouseButton(Object? sender, MouseButtonEventArgs args)
-    {
-        SendPointerButtonEvent(new PointF(args.Position.X, args.Position.Y), TranslateMouseButton(args.Button), args.IsPressed, args.Modifiers);
-    }
-
-    private void OnMouseMove(Object? sender, MouseMoveEventArgs args)
-    {
-        SendPointerMoveEvent(new PointF(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
-    }
-
-    private void OnMouseWheel(Object? sender, MouseWheelEventArgs args)
-    {
-        SendScrollEvent(new PointF(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
     }
 }

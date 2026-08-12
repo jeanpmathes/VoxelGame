@@ -17,6 +17,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Drawing;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Resources;
@@ -39,14 +40,13 @@ public sealed class GraphicalUserInterface : IResource
     private readonly Theme theme;
     private readonly ClientInputSource inputSource;
 
-    private InputBufferAdapter? inputBuffer;
-
     private GraphicalUserInterface(Client client, Theme theme)
     {
         this.client = client;
         this.theme = theme;
 
         inputSource = new ClientInputSource(client);
+        client.FocusChanged += OnClientFocusChanged;
     }
 
     private Renderer? Renderer { get; set; }
@@ -65,10 +65,11 @@ public sealed class GraphicalUserInterface : IResource
     /// <inheritdoc />
     public void Dispose()
     {
+        inputSource.Dispose();
+        client.FocusChanged -= OnClientFocusChanged;
+
         Root?.Dispose();
         Renderer?.Dispose();
-
-        inputSource.Dispose();
     }
 
     /// <summary>
@@ -91,8 +92,7 @@ public sealed class GraphicalUserInterface : IResource
         Renderer = new Renderer(client);
         Root = Canvas.Create(Renderer, theme);
 
-        inputBuffer = new InputBufferAdapter(new InputScaleWithCanvasAdapter(Root, new InputForwardToBindingAdapter(Root.Input)));
-        inputSource.AddReceiver(inputBuffer);
+        inputSource.AddReceiver(new InputScaleWithCanvasAdapter(Root, new InputForwardToBindingAdapter(Root.Input)));
 
         Root.SetRenderingSize(new Size(size.X, size.Y));
     }
@@ -106,19 +106,17 @@ public sealed class GraphicalUserInterface : IResource
     }
 
     /// <summary>
-    ///     Update the GUI, performing input processing.
-    /// </summary>
-    public void Update()
-    {
-        inputBuffer?.Send();
-    }
-
-    /// <summary>
     ///     Inform the GUI that the screen has been resized.
     /// </summary>
     /// <param name="size">The new size of the screen.</param>
     public void Resize(Vector2i size)
     {
         Root?.SetRenderingSize(new Size(size.X, size.Y));
+    }
+
+    private void OnClientFocusChanged(Object? sender, FocusChangeEventArgs args)
+    {
+        if (!args.NewFocus)
+            Root?.Input.GetValue()?.HandlePointerFocusLost();
     }
 }

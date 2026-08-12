@@ -146,27 +146,6 @@ public sealed class PooledList<T> : IList<T>, IDisposable
     }
 
     /// <summary>
-    ///     Returns an enumerator that iterates through the <see cref="PooledList{T}" />.
-    /// </summary>
-    public IEnumerator<T> GetEnumerator()
-    {
-        ExceptionTools.ThrowIfDisposed(disposed);
-
-        Debug.Assert(items != null);
-
-        for (Int32 i = 0; i < Count; i++) yield return items[i];
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-        ExceptionTools.ThrowIfDisposed(disposed);
-
-        Debug.Assert(items != null);
-
-        return GetEnumerator();
-    }
-
-    /// <summary>
     ///     Adds an object to the end of the <see cref="PooledList{T}" />.
     /// </summary>
     /// <param name="item">
@@ -401,6 +380,105 @@ public sealed class PooledList<T> : IList<T>, IDisposable
 
         Count = 0;
     }
+
+    #region ENUMERABLE
+
+    /// <summary>
+    ///     The internally used enumerator.
+    /// </summary>
+    public struct Enumerator : IEnumerator<T>, IEquatable<Enumerator>
+    {
+        private readonly PooledList<T> self;
+        private Int32 index;
+
+        /// <summary>
+        ///     Create a new enumerator.
+        /// </summary>
+        public Enumerator(PooledList<T> self)
+        {
+            this.self = self;
+            index = -1;
+        }
+
+        /// <inheritdoc />
+        public T Current => self.items![index];
+
+        Object? IEnumerator.Current => Current;
+
+        /// <inheritdoc />
+        public Boolean MoveNext()
+        {
+            index += 1;
+            return index < self.Count;
+        }
+
+        /// <inheritdoc />
+        public void Reset()
+        {
+            index = -1;
+        }
+
+        /// <inheritdoc />
+        public void Dispose() {}
+
+        #region EQUALITY
+
+        /// <inheritdoc />
+        public Boolean Equals(Enumerator other)
+        {
+            return ReferenceEquals(self, other.self) && index == other.index;
+        }
+
+        /// <inheritdoc />
+        public override Boolean Equals(Object? obj)
+        {
+            return obj is Enumerator other && Equals(other);
+        }
+
+        /// <inheritdoc />
+        public override Int32 GetHashCode()
+        {
+            return HashCode.Combine(self, index);
+        }
+
+        /// <summary>
+        ///     Test for equality.
+        /// </summary>
+        public static Boolean operator ==(Enumerator left, Enumerator right)
+        {
+            return left.Equals(right);
+        }
+
+        /// <summary>
+        ///     Test for inequality.
+        /// </summary>
+        public static Boolean operator !=(Enumerator left, Enumerator right)
+        {
+            return !left.Equals(right);
+        }
+
+        #endregion EQUALITY
+    }
+
+    /// <summary>
+    ///     Get an enumerator for the list.
+    /// </summary>
+    public Enumerator GetEnumerator()
+    {
+        return new Enumerator(this);
+    }
+
+    IEnumerator<T> IEnumerable<T>.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    IEnumerator IEnumerable.GetEnumerator()
+    {
+        return GetEnumerator();
+    }
+
+    #endregion ENUMERABLE
 
     #region DISPOSABLE
 

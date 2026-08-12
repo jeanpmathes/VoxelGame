@@ -56,7 +56,7 @@ public class DisposableNativeObject<T>(IntPtr nativePointer, Client client) : Na
     /// <summary>
     /// Override this method to do any cleanup.
     /// </summary>
-    /// <param name="disposing"><c>true</c> if called from <see cref="Dispose()"/>, <c>false</c> if called from the finalizer.</param>
+    /// <param name="disposing"><see langword="true"/> if called from <see cref="Dispose()"/>, <see langword="false"/> if called from the finalizer.</param>
     protected virtual void Dispose(Boolean disposing)
     {
         if (disposed) return;

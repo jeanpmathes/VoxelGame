@@ -69,7 +69,7 @@ public partial class Barrier : BlockBehavior, IBehavior<Barrier, BlockBehavior, 
     ///     Get whether the barrier is open or closed. Only open barriers allow fluids to pass through.
     /// </summary>
     /// <param name="state">The state of the block.</param>
-    /// <returns><c>true</c> if the barrier is open, <c>false</c> if it is closed.</returns>
+    /// <returns><see langword="true"/> if the barrier is open, <see langword="false"/> if it is closed.</returns>
     public Boolean IsBarrierOpen(State state)
     {
         return state.Get(IsOpen);

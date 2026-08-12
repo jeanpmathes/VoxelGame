@@ -31,7 +31,7 @@ public sealed class PointerButtonEvent : PointerEvent
     /// <summary>
     ///     Creates a new <seealso cref="PointerButtonEvent" />.
     /// </summary>
-    public PointerButtonEvent(Visual source, PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers) : base(source, position)
+    public PointerButtonEvent(Visual source, PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false) : base(source, position, isSynthetic)
     {
         Button = button;
         IsDown = isDown;

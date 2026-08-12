@@ -46,6 +46,15 @@ public partial class SessionHook : SceneComponent
     }
 
     /// <inheritdoc />
+    public override void OnInputUpdate(Delta delta, Timer? timer)
+    {
+        using (logger.BeginTimedSubScoped("SessionHook InputUpdate", timer))
+        {
+            session.InputUpdate(delta, timer);
+        }
+    }
+
+    /// <inheritdoc />
     public override void OnLogicUpdate(Delta delta, Timer? timer)
     {
         using (logger.BeginTimedSubScoped("SessionHook LogicUpdate", timer))

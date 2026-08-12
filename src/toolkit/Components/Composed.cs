@@ -42,7 +42,7 @@ public abstract class Composed : IDisposable
     /// <summary>
     ///     Called by the finalizer or Dispose method.
     /// </summary>
-    /// <param name="disposing"><c>true</c> if called from Dispose, <c>false</c> if called from the finalizer.</param>
+    /// <param name="disposing"><see langword="true"/> if called from Dispose, <see langword="false"/> if called from the finalizer.</param>
     protected virtual void Dispose(Boolean disposing) {}
 
     /// <inheritdoc />

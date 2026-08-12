@@ -75,7 +75,7 @@ public partial class CoveredSoil : BlockBehavior, IBehavior<CoveredSoil, BlockBe
     /// </summary>
     /// <param name="world">The world in which the position is located.</param>
     /// <param name="position">The position to check.</param>
-    /// <returns><c>true</c> if the position can have cover, <c>false</c> if it cannot, and <c>null</c> if it is unknown.</returns>
+    /// <returns><see langword="true"/> if the position can have cover, <see langword="false"/> if it cannot, and <c>null</c> if it is unknown.</returns>
     public static Boolean? CanHaveCover(World world, Vector3i position)
     {
         State? top = world.GetBlock(position.Above());

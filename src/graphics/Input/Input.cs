@@ -18,8 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Collections.Generic;
-using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input.Devices;
 using VoxelGame.Graphics.Input.Events;
@@ -29,21 +27,15 @@ using VoxelGame.Toolkit.Interop;
 namespace VoxelGame.Graphics.Input;
 
 /// <summary>
-///     Responsible for handling input events of the client.
+///     Receives raw input from the client, controls the mouse and keyboard, and is the entry point for input routing.
 /// </summary>
 public class Input
 {
-    private readonly List<Action<VirtualKeys>> callbackListForAnyPress = [];
-    private readonly HashSet<VirtualKeys> ignoredKeys = [];
+    private readonly InputRouter router = new();
 
-    internal Input(Client client)
+    internal Input(Mouse mouse)
     {
-        Mouse = new Mouse(client);
-
-        client.FocusChanged += (_, _) =>
-        {
-            if (!client.IsFocused) KeyState.Wipe();
-        };
+        Mouse = mouse;
     }
 
     /// <summary>
@@ -52,157 +44,112 @@ public class Input
     public Mouse Mouse { get; }
 
     /// <summary>
-    ///     Get the current key state.
+    ///     Raised before the input system resets, which means that outstanding key and button releases will be issued.
     /// </summary>
-    public KeyState KeyState { get; } = new();
+    public event EventHandler? Reset;
 
     /// <summary>
-    ///     Ignores a key or button until the physical key is released.
+    ///     Register a handler that receives input in its layer until the registration is disposed of.
     /// </summary>
-    /// <param name="key">The key or button to ignore.</param>
-    public void IgnoreKeyOrButtonUntilRelease(VirtualKeys key)
+    /// <param name="handler">The handler to register.</param>
+    /// <param name="layer">The layer in which to register the handler.</param>
+    /// <returns>A registration that removes and unregisters the handler when disposed.</returns>
+    public IDisposable RegisterHandler(IInputHandler handler, InputHandlerLayer layer)
     {
-        ignoredKeys.Add(key);
-        KeyState.SetKeyState(key, down: false);
-    }
-
-    /// <summary>
-    ///     Listen for any key or button press and notify the callback.
-    /// </summary>
-    /// <param name="callback">The callback to call.</param>
-    public void ListenForAnyKeyOrButton(Action<VirtualKeys> callback)
-    {
-        callbackListForAnyPress.Add(callback);
+        return router.RegisterHandler(handler, layer);
     }
 
     /// <summary>
-    ///     Called before the core game update.
+    ///     Refresh input devices before application input-update consumers run.
     /// </summary>
-    internal void PreLogicUpdate()
+    internal void Update()
     {
-        Mouse.LogicUpdate();
-
-        InputUpdated?.Invoke(this, EventArgs.Empty);
-
-        HandleAnyKeyCallbacks();
-    }
-
-    private void HandleAnyKeyCallbacks()
-    {
-        if (!KeyState.IsAnyKeyDown || callbackListForAnyPress.Count <= 0) return;
-
-        VirtualKeys? any = KeyState.Any;
-
-        if (any == null) return;
-
-        foreach (Action<VirtualKeys> callback in callbackListForAnyPress) callback(any.Value);
-
-        callbackListForAnyPress.Clear();
+        Mouse.Update();
     }
 
     /// <summary>
-    ///     Called after the core game update.
+    ///     Reset the current state.
+    ///     Call this when the client may no longer receive input messages for some time, meaning physical release events might be missed.
+    ///     This will cause synthetic key and button releases to be issued.
     /// </summary>
-    internal void PostLogicUpdate()
+    internal void ResetState()
     {
-        KeyState.LogicUpdate();
+        Reset?.Invoke(this, EventArgs.Empty);
+
+        router.Reset();
     }
 
-    internal void OnKey(Byte key, Bool isDown, Bool isRepeat, ModifierKeys modifiers)
+    /// <summary>
+    ///     Receive a keyboard message from the native client and return whether a handler accepted it.
+    /// </summary>
+    internal Bool OnKey(Byte key, Bool isDown, Bool isRepeat, ModifierKeys modifiers)
     {
         VirtualKeys virtualKey = (VirtualKeys) key;
+        Boolean pressed = isDown;
 
-        if (ignoredKeys.Contains(virtualKey)) return;
-
-        KeyState.SetKeyState(virtualKey, isDown);
-
-        Key?.Invoke(this,
-            new KeyboardKeyEventArgs
-            {
-                Key = virtualKey,
-                IsPressed = isDown,
-                IsRepeat = isRepeat,
-                Modifiers = modifiers
-            });
+        return router.RouteKeyboardKey(new KeyboardKeyEventArgs
+        {
+            Key = virtualKey,
+            IsPressed = pressed,
+            IsRepeat = isRepeat,
+            Modifiers = modifiers
+        });
     }
 
-    internal void OnChar(Char character)
+    /// <summary>
+    ///     Receive a text message from the native client and return whether a handler accepted it.
+    /// </summary>
+    internal Bool OnChar(Char character)
     {
-        TextInput?.Invoke(this,
-            new TextInputEventArgs
-            {
-                Character = character
-            });
+        TextInputEventArgs args = new() {Character = character};
+
+        return router.RouteText(args);
     }
 
-    internal void OnMouseButton(Byte button, Bool isDown, Int32 x, Int32 y, ModifierKeys modifiers)
+    /// <summary>
+    ///     Receive a mouse-button message from the native client and return whether a handler accepted it.
+    /// </summary>
+    internal Bool OnMouseButton(Byte button, Bool isDown, Int32 x, Int32 y, ModifierKeys modifiers)
     {
         VirtualKeys virtualKey = (VirtualKeys) button;
+        Boolean pressed = isDown;
 
-        if (ignoredKeys.Remove(virtualKey))
-            return;
-
-        KeyState.SetKeyState(virtualKey, isDown);
-
-        MouseButton?.Invoke(this,
-            new MouseButtonEventArgs
-            {
-                Button = virtualKey,
-                IsPressed = isDown,
-                Position = (x, y),
-                Modifiers = modifiers
-            });
+        return router.RouteMouseButton(new MouseButtonEventArgs
+        {
+            Button = virtualKey,
+            IsPressed = pressed,
+            Position = (x, y),
+            Modifiers = modifiers
+        });
     }
 
-    internal void OnMouseMove(Int32 x, Int32 y, Int32 deltaX, Int32 deltaY)
+    /// <summary>
+    ///     Receive a mouse-move message from the native client and return whether a handler accepted it.
+    /// </summary>
+    internal Bool OnMouseMove(Int32 x, Int32 y, Int32 deltaX, Int32 deltaY)
     {
         Mouse.OnMouseMove((x, y));
 
-        MouseMove?.Invoke(this,
-            new MouseMoveEventArgs
-            {
-                Position = (x, y),
-                Delta = (deltaX, deltaY)
-            });
+        MouseMoveEventArgs args = new()
+        {
+            Position = (x, y),
+            Delta = (deltaX, deltaY)
+        };
+
+        return router.RouteMouseMove(args);
     }
 
-    internal void OnMouseWheel(Int32 x, Int32 y, Double scrollX, Double scrollY)
+    /// <summary>
+    ///     Receive a mouse-wheel message from the native client and return whether a handler accepted it.
+    /// </summary>
+    internal Bool OnMouseWheel(Int32 x, Int32 y, Double scrollX, Double scrollY)
     {
-        MouseWheel?.Invoke(this,
-            new MouseWheelEventArgs
-            {
-                Position = (x, y),
-                Delta = (scrollX, scrollY)
-            });
+        MouseWheelEventArgs args = new()
+        {
+            Position = (x, y),
+            Delta = (scrollX, scrollY)
+        };
+
+        return router.RouteMouseWheel(args);
     }
-
-    /// <summary>
-    ///     Called once per frame, when the input system should update itself.
-    /// </summary>
-    internal event EventHandler? InputUpdated;
-
-    /// <summary>
-    ///     Called when a mouse button is pressed or released.
-    /// </summary>
-    public event EventHandler<MouseButtonEventArgs>? MouseButton;
-
-    /// <summary>
-    ///     Called when the mouse moves.
-    /// </summary>
-    public event EventHandler<MouseMoveEventArgs>? MouseMove;
-
-    /// <summary>
-    ///     Called when the mouse wheel is scrolled.
-    /// </summary>
-    public event EventHandler<MouseWheelEventArgs>? MouseWheel;
-
-    /// <summary>
-    ///     Called when a keyboard key is pressed or released.
-    /// </summary>
-    public event EventHandler<KeyboardKeyEventArgs>? Key;
-
-    /// <summary>
-    ///     Called when a text input is received.
-    /// </summary>
-    public event EventHandler<TextInputEventArgs>? TextInput;
 }

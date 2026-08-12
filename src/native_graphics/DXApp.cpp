@@ -69,6 +69,7 @@ namespace
 DXApp::DXApp(::Configuration const& configuration)
     : hooks(
             {
+                .onInputUpdate  = configuration.onInputUpdate,
                 .onRenderUpdate = configuration.onRenderUpdate,
                 .onLogicUpdate  = configuration.onLogicUpdate,
 
@@ -83,8 +84,10 @@ DXApp::DXApp(::Configuration const& configuration)
                 .onMouseMove   = configuration.onMouseMove,
                 .onMouseScroll = configuration.onMouseScroll,
 
-                .onResize            = configuration.onResize,
-                .onActiveStateChange = configuration.onActiveStateChange
+                .onResize              = configuration.onResize,
+                .onActiveStateChange   = configuration.onActiveStateChange,
+                .onSizeMoveMenu        = configuration.onSizeMoveMenu,
+                .onKeyboardFocusChange = configuration.onKeyboardFocusChange
             })
   , configurationOptions(configuration.options)
   , title(configuration.title)
@@ -116,7 +119,9 @@ void DXApp::Update(CycleFlags const flags, bool const timer)
         isUpdateTimerRunning = false;
     }
 
-    if (HasFlag(flags, CycleFlags::ALLOW_LOGIC_UPDATE)) logicTimer.Tick([this] { Update(logicTimer); });
+    if (HasFlag(flags, CycleFlags::ALLOW_INPUT_UPDATE)) inputTimer.Tick([this] { InputUpdate(inputTimer); });
+
+    if (HasFlag(flags, CycleFlags::ALLOW_LOGIC_UPDATE)) logicTimer.Tick([this] { LogicUpdate(logicTimer); });
 
     if (HasFlag(flags, CycleFlags::ALLOW_RENDER_UPDATE)) renderTimer.Tick([this] { RenderUpdate(renderTimer); });
 
@@ -141,6 +146,7 @@ void DXApp::Init()
     logicTimer.SetFixedTimeStep(true);
     logicTimer.SetTargetElapsedSeconds(baseLogicUpdateTarget);
 
+    inputTimer.SetFixedTimeStep(false);
     renderTimer.SetFixedTimeStep(false);
 
     OnInitializationComplete();
@@ -148,7 +154,21 @@ void DXApp::Init()
     cycle = std::nullopt;
 }
 
-void DXApp::Update(StepTimer const& timer)
+void DXApp::InputUpdate(StepTimer const& timer)
+{
+    double const delta       = timer.GetElapsedSeconds();
+    double const scaledDelta = delta * timeScale;
+
+    Require(!cycle.has_value());
+    cycle = Cycle::INPUT_UPDATE;
+
+    hooks.onInputUpdate(delta, scaledDelta);
+    OnInputUpdate();
+
+    cycle = std::nullopt;
+}
+
+void DXApp::LogicUpdate(StepTimer const& timer)
 {
     double const delta       = timer.GetElapsedSeconds();
     double const scaledDelta = delta * timeScale;
@@ -218,7 +238,9 @@ void DXApp::HandleActiveStateChange(bool const active)
     hooks.onActiveStateChange(active);
 }
 
-void DXApp::OnSizeMove(bool const enter)
+void DXApp::HandleKeyboardFocusChange(bool const focused) const { hooks.onKeyboardFocusChange(focused); }
+
+void DXApp::OnSizeMoveMenu(bool const enter)
 {
     if (enter)
     {
@@ -230,23 +252,25 @@ void DXApp::OnSizeMove(bool const enter)
         CheckReturn(KillTimer(Win32Application::GetWindowHandle(), IDT_UPDATE));
         isUpdateTimerRunning = false;
     }
+
+    hooks.onSizeMoveMenu(enter);
 }
 
 void DXApp::OnTimer(UINT_PTR const id) { if (id == IDT_UPDATE) Update(CycleFlags::ALLOW_LOGIC_UPDATE, true); }
 
-void DXApp::OnKey(UINT8 const key, BOOL const isDown, BOOL const isRepeat, ModifierKeys const modifiers) const
+bool DXApp::OnKey(UINT8 const key, BOOL const isDown, BOOL const isRepeat, ModifierKeys const modifiers) const
 {
-    hooks.onKey(key, isDown, isRepeat, modifiers);
+    return hooks.onKey(key, isDown, isRepeat, modifiers);
 }
 
-void DXApp::OnChar(UINT16 const c) const { hooks.onChar(c); }
+bool DXApp::OnChar(UINT16 const c) const { return hooks.onChar(c); }
 
-void DXApp::OnMouseButton(UINT8 const button, BOOL const isDown, INT32 const x, INT32 const y, ModifierKeys const modifiers) const
+bool DXApp::OnMouseButton(UINT8 const button, BOOL const isDown, INT32 const x, INT32 const y, ModifierKeys const modifiers) const
 {
-    hooks.onMouseButton(button, isDown, x, y, modifiers);
+    return hooks.onMouseButton(button, isDown, x, y, modifiers);
 }
 
-void DXApp::OnMouseMove(INT32 const x, INT32 const y)
+bool DXApp::OnMouseMove(INT32 const x, INT32 const y)
 {
     INT32 const dx = x - xMousePosition;
     INT32 const dy = y - yMousePosition;
@@ -254,12 +278,12 @@ void DXApp::OnMouseMove(INT32 const x, INT32 const y)
     xMousePosition = x;
     yMousePosition = y;
 
-    hooks.onMouseMove(x, y, dx, dy);
+    return hooks.onMouseMove(x, y, dx, dy);
 }
 
-void DXApp::OnMouseWheel(INT32 x, INT32 y, double sx, double sy) const
+bool DXApp::OnMouseWheel(INT32 x, INT32 y, double sx, double sy) const
 {
-    hooks.onMouseScroll(x, y, sx, sy);
+    return hooks.onMouseScroll(x, y, sx, sy);
 }
 
 void DXApp::DoCursorSet() const { SetCursor(mouseCursors.at(mouseCursor)); }

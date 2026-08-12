@@ -33,12 +33,18 @@ namespace VoxelGame.Client.Application.Components;
 public sealed partial class CycleTracker : ApplicationComponent, IPerformanceProvider
 {
     private const Int32 DeltaBufferCapacity = 50;
-    private readonly CircularTimeBuffer logicDeltaBuffer = new(DeltaBufferCapacity);
 
     private readonly CircularTimeBuffer renderDeltaBuffer = new(DeltaBufferCapacity);
+    private readonly CircularTimeBuffer inputDeltaBuffer = new(DeltaBufferCapacity);
+    private readonly CircularTimeBuffer logicDeltaBuffer = new(DeltaBufferCapacity);
 
     [Constructible]
     private CycleTracker(Core.App.Application application) : base(application) {}
+
+    /// <summary>
+    ///     Get the number of variable-rate input updates per second.
+    /// </summary>
+    public Double InputUpdatesPerSecond => 1.0 / inputDeltaBuffer.Average;
 
     /// <summary>
     ///     Get the FPS of the screen, which are the frames per second.
@@ -54,6 +60,12 @@ public sealed partial class CycleTracker : ApplicationComponent, IPerformancePro
     public override void OnRenderUpdate(Delta delta, Timer? timer)
     {
         renderDeltaBuffer.Write(delta.RealTime);
+    }
+
+    /// <inheritdoc />
+    public override void OnInputUpdate(Delta delta, Timer? timer)
+    {
+        inputDeltaBuffer.Write(delta.RealTime);
     }
 
     /// <inheritdoc />

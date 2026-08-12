@@ -31,32 +31,32 @@ namespace VoxelGame.GUI.Input;
 public class InputForwardToBindingAdapter(IValueSource<IInputReceiver?> receiver) : IInputReceiver
 {
     /// <inheritdoc />
-    public void ReceiveKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers)
+    public Boolean ReceiveKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
-        receiver.GetValue()?.ReceiveKeyEvent(key, isDown, isRepeat, modifiers);
+        return receiver.GetValue()?.ReceiveKeyEvent(key, isDown, isRepeat, modifiers, isSynthetic) ?? false;
     }
 
     /// <inheritdoc />
-    public void ReceiveTextEvent(String text)
+    public Boolean ReceiveTextEvent(String text)
     {
-        receiver.GetValue()?.ReceiveTextEvent(text);
+        return receiver.GetValue()?.ReceiveTextEvent(text) ?? false;
     }
 
     /// <inheritdoc />
-    public void ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers)
+    public Boolean ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
-        receiver.GetValue()?.ReceivePointerButtonEvent(position, button, isDown, modifiers);
+        return receiver.GetValue()?.ReceivePointerButtonEvent(position, button, isDown, modifiers, isSynthetic) ?? false;
     }
 
     /// <inheritdoc />
-    public void ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
     {
-        receiver.GetValue()?.ReceivePointerMoveEvent(position, deltaX, deltaY);
+        return receiver.GetValue()?.ReceivePointerMoveEvent(position, deltaX, deltaY) ?? false;
     }
 
     /// <inheritdoc />
-    public void ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
     {
-        receiver.GetValue()?.ReceiveScrollEvent(position, deltaX, deltaY);
+        return receiver.GetValue()?.ReceiveScrollEvent(position, deltaX, deltaY) ?? false;
     }
 }

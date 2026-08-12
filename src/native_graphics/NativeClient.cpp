@@ -221,6 +221,10 @@ void NativeClient::EnsureValidIntermediateRenderTarget(ComPtr<ID3D12GraphicsComm
     commandList->DiscardResource(intermediateRenderTarget.Get(), nullptr);
 }
 
+void NativeClient::OnInputUpdate()
+{
+}
+
 void NativeClient::OnLogicUpdate() { if (space) space->Update(); }
 
 void NativeClient::OnPreRenderUpdate()

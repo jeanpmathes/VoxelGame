@@ -16,6 +16,7 @@ using Gwen.Net.Skin;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
+using VoxelGame.Graphics.Input;
 using VoxelGame.Graphics.Input.Events;
 using VoxelGame.Presentation.Legacy.Platform.Input;
 using VoxelGame.Presentation.Legacy.Platform.Renderer;
@@ -23,13 +24,14 @@ using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Presentation.Legacy.Platform;
 
-internal sealed class GameGui : IGwenGui
+internal sealed class GameGui : IGwenGui, IInputHandler
 {
     private readonly List<SkinBase> skins = [];
 
     private Canvas canvas = null!;
 
     private InputTranslator input = null!;
+    private IDisposable? inputRegistration;
 
     private List<Action> inputEvents = [];
     private DirectXRenderer renderer = null!;
@@ -54,7 +56,6 @@ internal sealed class GameGui : IGwenGui
         ExceptionTools.ThrowIfDisposed(disposed);
 
         GwenPlatform.Init(new VoxelGamePlatform(Parent.Input.Mouse.SetCursorType));
-        AttachToWindowEvents();
 
         try
         {
@@ -89,6 +90,7 @@ internal sealed class GameGui : IGwenGui
 
         canvas = new Canvas(skins[index: 0]);
         input = new InputTranslator(canvas);
+        inputRegistration = Parent.Input.RegisterHandler(this, InputHandlerLayer.UserInterface);
 
         renderer.Resize(Parent.Size);
 
@@ -131,50 +133,47 @@ internal sealed class GameGui : IGwenGui
         canvas.SetSize(newSize.X, newSize.Y);
     }
 
-    private void AttachToWindowEvents()
+    /// <inheritdoc />
+    public Boolean HandleKeyboardKey(KeyboardKeyEventArgs args)
     {
-        Parent.Input.Key += OnKey;
-        Parent.Input.TextInput += OnTextInput;
-        Parent.Input.MouseButton += OnMouseButton;
-        Parent.Input.MouseMove += OnMouseMove;
-        Parent.Input.MouseWheel += OnMouseWheel;
-    }
-
-    private void DetachWindowEvents()
-    {
-        Parent.Input.Key -= OnKey;
-        Parent.Input.TextInput -= OnTextInput;
-        Parent.Input.MouseButton -= OnMouseButton;
-        Parent.Input.MouseMove -= OnMouseMove;
-        Parent.Input.MouseWheel -= OnMouseWheel;
-    }
-
-    private void OnKey(Object? sender, KeyboardKeyEventArgs obj)
-    {
-        if (obj.IsPressed)
-            inputEvents.Add(() => input.ProcessKeyDown(obj));
+        if (args.IsPressed)
+            inputEvents.Add(() => input.ProcessKeyDown(args));
         else
-            inputEvents.Add(() => input.ProcessKeyUp(obj));
+            inputEvents.Add(() => input.ProcessKeyUp(args));
+
+        return false;
     }
 
-    private void OnTextInput(Object? sender, TextInputEventArgs obj)
+    /// <inheritdoc />
+    public Boolean HandleText(TextInputEventArgs args)
     {
-        inputEvents.Add(() => input.ProcessTextInput(obj));
+        inputEvents.Add(() => input.ProcessTextInput(args));
+
+        return false;
     }
 
-    private void OnMouseButton(Object? sender, MouseButtonEventArgs obj)
+    /// <inheritdoc />
+    public Boolean HandleMouseButton(MouseButtonEventArgs args)
     {
-        inputEvents.Add(() => input.ProcessMouseButton(obj));
+        inputEvents.Add(() => input.ProcessMouseButton(args));
+
+        return false;
     }
 
-    private void OnMouseMove(Object? sender, MouseMoveEventArgs obj)
+    /// <inheritdoc />
+    public Boolean HandleMouseMove(MouseMoveEventArgs args)
     {
-        inputEvents.Add(() => input.ProcessMouseMove(obj));
+        inputEvents.Add(() => input.ProcessMouseMove(args));
+
+        return false;
     }
 
-    private void OnMouseWheel(Object? sender, MouseWheelEventArgs obj)
+    /// <inheritdoc />
+    public Boolean HandleMouseWheel(MouseWheelEventArgs args)
     {
-        inputEvents.Add(() => input.ProcessMouseWheel(obj));
+        inputEvents.Add(() => input.ProcessMouseWheel(args));
+
+        return false;
     }
 
     #region DISPOSABLE
@@ -193,7 +192,8 @@ internal sealed class GameGui : IGwenGui
 
         if (!disposing) return;
 
-        DetachWindowEvents();
+        inputRegistration?.Dispose();
+        inputRegistration = null;
 
         canvas.Dispose();
 

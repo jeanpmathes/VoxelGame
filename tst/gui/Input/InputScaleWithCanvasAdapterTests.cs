@@ -55,35 +55,55 @@ public sealed class InputScaleWithCanvasAdapterTests : IDisposable
     [Fact]
     public void InputScaleWithCanvasAdapter_ShouldForwardReceivedKeyEvents()
     {
-        adapter.ReceiveKeyEvent(Key.A, isDown: true, isRepeat: false, ModifierKeys.None);
+        receiver.ReceiveKeyEvent(Key.A, isDown: true, isRepeat: false, ModifierKeys.None).Returns(true);
+
+        Boolean handled = adapter.ReceiveKeyEvent(Key.A, isDown: true, isRepeat: false, ModifierKeys.None);
+
+        Assert.True(handled);
         receiver.Received().ReceiveKeyEvent(Key.A, isDown: true, isRepeat: false, ModifierKeys.None);
     }
 
     [Fact]
     public void InputScaleWithCanvasAdapter_ShouldForwardReceivedTextEvent()
     {
-        adapter.ReceiveTextEvent(text: "Hello");
+        receiver.ReceiveTextEvent(text: "Hello").Returns(true);
+
+        Boolean handled = adapter.ReceiveTextEvent(text: "Hello");
+
+        Assert.True(handled);
         receiver.Received().ReceiveTextEvent(text: "Hello");
     }
 
     [Fact]
     public void InputScaleWithCanvasAdapter_ShouldForwardReceivedPointerButtonEvent()
     {
-        adapter.ReceivePointerButtonEvent(new PointF(x: 12, y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
+        receiver.ReceivePointerButtonEvent(new PointF(x: 12, y: 13), PointerButton.Left, isDown: true, ModifierKeys.None).Returns(true);
+
+        Boolean handled = adapter.ReceivePointerButtonEvent(new PointF(x: 12, y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
+
+        Assert.True(handled);
         receiver.Received().ReceivePointerButtonEvent(new PointF(12 / Scale, 13 / Scale), PointerButton.Left, isDown: true, ModifierKeys.None);
     }
 
     [Fact]
     public void InputScaleWithCanvasAdapter_ShouldForwardReceivedPointerMoveEvent()
     {
-        adapter.ReceivePointerMoveEvent(new PointF(x: 14, y: 15), deltaX: 1, deltaY: 2);
+        receiver.ReceivePointerMoveEvent(new PointF(x: 14, y: 15), deltaX: 1, deltaY: 2).Returns(true);
+
+        Boolean handled = adapter.ReceivePointerMoveEvent(new PointF(x: 14, y: 15), deltaX: 1, deltaY: 2);
+
+        Assert.True(handled);
         receiver.Received().ReceivePointerMoveEvent(new PointF(14 / Scale, 15 / Scale), 1 / Scale, 2 / Scale);
     }
 
     [Fact]
     public void InputScaleWithCanvasAdapter_ShouldForwardReceivedScrollEvent()
     {
-        adapter.ReceiveScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4);
+        receiver.ReceiveScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4).Returns(true);
+
+        Boolean handled = adapter.ReceiveScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4);
+
+        Assert.True(handled);
         receiver.Received().ReceiveScrollEvent(new PointF(16 / Scale, 17 / Scale), deltaX: 3, deltaY: 4);
     }
 }

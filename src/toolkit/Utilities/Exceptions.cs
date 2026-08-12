@@ -33,7 +33,7 @@ public static class Exceptions
     ///     To be well-formed, a message must not be null or empty and must end with a punctuation mark.
     /// </summary>
     /// <param name="message">The message to check.</param>
-    /// <returns><c>true</c> if the message is well-formed, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the message is well-formed, <see langword="false"/> otherwise.</returns>
     public static Boolean IsMessageWellFormed(String message)
     {
         if (String.IsNullOrWhiteSpace(message))
@@ -65,6 +65,17 @@ public static class Exceptions
     public static Exception ArgumentOfWrongType(String paramName, Type expected, Object actual)
     {
         return new ArgumentException($"Expected {Reflections.GetLongName(expected)} for {paramName}, got {Reflections.GetLongName(actual.GetType())}.", paramName);
+    }
+
+    /// <summary>
+    ///     Create an exception for an argument value that is not allowed for an operation.
+    /// </summary>
+    /// <param name="paramName">The name of the parameter.</param>
+    /// <param name="actual">The actual object.</param>
+    /// <returns>The exception.</returns>
+    public static ArgumentException ArgumentNotAllowed(String paramName, Object actual)
+    {
+        return new ArgumentException($"The value '{actual}' is not allowed for argument {paramName}.", paramName);
     }
 
     /// <summary>

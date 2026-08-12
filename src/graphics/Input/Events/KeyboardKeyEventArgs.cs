@@ -26,7 +26,7 @@ namespace VoxelGame.Graphics.Input.Events;
 /// <summary>
 ///     Keyboard key event arguments.
 /// </summary>
-public class KeyboardKeyEventArgs
+public class KeyboardKeyEventArgs : EventArgs
 {
     /// <summary>
     ///     The key.
@@ -42,6 +42,11 @@ public class KeyboardKeyEventArgs
     ///     Whether the key is being held down.
     /// </summary>
     public Boolean IsRepeat { get; init; }
+
+    /// <summary>
+    ///     Whether the event was created by parts of the input system instead of being a physical event.
+    /// </summary>
+    public Boolean IsSynthetic { get; init; }
 
     /// <summary>
     ///     The active modifiers.

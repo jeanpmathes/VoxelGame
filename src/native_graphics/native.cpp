@@ -72,7 +72,7 @@ NATIVE void NativeSetTimeScale(NativeClient* client, double const timeScale)
 {
     TRY
     {
-        Require(CALL_ON_MAIN_THREAD(client));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(client) || CALL_IN_INITIALIZATION_OR_DESTROY(client));
 
         client->SetTimeScale(timeScale);
     } CATCH();
@@ -108,7 +108,7 @@ NATIVE void NativeTakeScreenshot(NativeClient* client, ScreenshotFunc const func
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(client));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(client));
 
         client->TakeScreenshot(func);
     } CATCH();
@@ -118,7 +118,7 @@ NATIVE void NativeToggleFullscreen(NativeClient const* client)
 {
     TRY
     {
-        Require(CALL_ON_MAIN_THREAD(client));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(client));
 
         client->ToggleFullscreen();
     } CATCH();
@@ -128,7 +128,7 @@ NATIVE void NativeGetMousePosition(NativeClient const* client, PLONG const x, PL
 {
     TRY
     {
-        Require(CALL_ON_MAIN_THREAD(client));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(client));
 
         POINT const position = client->GetMousePosition();
 
@@ -141,7 +141,7 @@ NATIVE void NativeSetMousePosition(NativeClient* client, LONG const x, LONG cons
 {
     TRY
     {
-        Require(CALL_ON_MAIN_THREAD(client));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(client));
 
         POINT const position = {x, y};
 
@@ -192,7 +192,7 @@ NATIVE void NativeSetSpaceIsRendered(NativeClient const* client, bool const isRe
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(client) || CALL_IN_INITIALIZATION_OR_DESTROY(client));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(client) || CALL_IN_INITIALIZATION_OR_DESTROY(client));
 
         client->GetSpace()->SetIsRendered(isRendered);
     } CATCH();
@@ -202,7 +202,7 @@ NATIVE void NativeSetLightConfiguration(Light* light, DirectX::XMFLOAT3 const di
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&light->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(&light->GetClient()));
 
         light->SetDirection(direction);
         light->SetColor(color);
@@ -214,7 +214,7 @@ NATIVE void NativeUpdateBasicCameraData(Camera* camera, BasicCameraData const da
 {
     TRY
     {
-        Require(CALL_IN_LOGIC_OR_EVENT(&camera->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(&camera->GetClient()));
 
         camera->SetPosition(data.position);
         camera->SetOrientation(data.front, data.up);
@@ -225,7 +225,7 @@ NATIVE void NativeUpdateAdvancedCameraData(Camera* camera, AdvancedCameraData co
 {
     TRY
     {
-        Require(CALL_IN_LOGIC_OR_EVENT(&camera->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_EVENT(&camera->GetClient()));
 
         camera->SetFov(data.fov);
         camera->SetPlanes(data.nearDistance, data.farDistance);
@@ -236,7 +236,7 @@ NATIVE void NativeUpdateSpatialData(Spatial* object, SpatialData const data)
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&object->GetClient()));
+        Require(CALL_IN_INPUT_OR_LOGIC(&object->GetClient()));
 
         object->SetPosition(data.position);
         object->SetRotation(data.rotation);
@@ -247,7 +247,7 @@ NATIVE Mesh* NativeCreateMesh(NativeClient const* client, UINT const materialInd
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(client));
+        Require(CALL_IN_INPUT_OR_LOGIC(client));
 
         return &client->GetSpace()->CreateMesh(materialIndex);
     } CATCH();
@@ -257,7 +257,7 @@ NATIVE void NativeSetMeshVertices(Mesh* object, SpatialVertex const* vertexData,
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&object->GetClient()));
+        Require(CALL_IN_INPUT_OR_LOGIC(&object->GetClient()));
 
         object->SetNewVertices(vertexData, vertexCount);
     } CATCH();
@@ -267,7 +267,7 @@ NATIVE void NativeSetMeshBounds(Mesh* object, SpatialBounds const* boundsData, U
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&object->GetClient()));
+        Require(CALL_IN_INPUT_OR_LOGIC(&object->GetClient()));
 
         object->SetNewBounds(boundsData, boundsCount);
     } CATCH();
@@ -277,7 +277,7 @@ NATIVE Effect* NativeCreateEffect(NativeClient const* client, RasterPipeline* pi
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(client));
+        Require(CALL_IN_INPUT_OR_LOGIC(client));
 
         return &client->GetSpace()->CreateEffect(pipeline);
     } CATCH();
@@ -287,7 +287,7 @@ NATIVE void NativeSetEffectVertices(Effect* object, EffectVertex const* vertexDa
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&object->GetClient()));
+        Require(CALL_IN_INPUT_OR_LOGIC(&object->GetClient()));
 
         object->SetNewVertices(vertexData, vertexCount);
     } CATCH();
@@ -297,7 +297,7 @@ NATIVE void NativeReturnDrawable(Drawable* object)
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&object->GetClient()));
+        Require(CALL_IN_INPUT_OR_LOGIC(&object->GetClient()));
 
         object->Return();
     } CATCH();
@@ -307,7 +307,7 @@ NATIVE void NativeSetDrawableEnabledState(Drawable* object, bool const enabled)
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&object->GetClient()) || CALL_IN_RENDER(&object->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&object->GetClient()));
 
         object->SetEnabledState(enabled);
     } CATCH();
@@ -417,7 +417,7 @@ NATIVE void NativeSubmitUserInterfaceCommands(ui::Renderer* renderer, ui::Comman
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&renderer->GetClient()) || CALL_IN_RENDER(&renderer->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&renderer->GetClient()));
 
         renderer->SubmitCommands(commands, commandCount);
     } CATCH();
@@ -427,7 +427,7 @@ NATIVE ui::Brush* NativeCreateUserInterfaceSolidColorBrush(ui::Renderer* rendere
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&renderer->GetClient()) || CALL_IN_RENDER(&renderer->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&renderer->GetClient()));
 
         return &renderer->GetBrushSupport().GetSolidColorBrush(color);
     } CATCH();
@@ -437,7 +437,7 @@ NATIVE void NativeReturnUserInterfaceBrush(ui::Brush* brush)
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&brush->GetClient()) || CALL_IN_RENDER(&brush->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&brush->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&brush->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&brush->GetClient()));
 
         brush->Return();
     } CATCH();
@@ -447,7 +447,7 @@ NATIVE ui::TextFormat* NativeCreateUserInterfaceTextFormat(ui::Renderer* rendere
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&renderer->GetClient()) || CALL_IN_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
 
         return &renderer->GetTextFormatSupport().GetTextFormat(description);
     } CATCH();
@@ -457,7 +457,7 @@ NATIVE void NativeReturnUserInterfaceTextFormat(ui::TextFormat* format)
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&format->GetClient()) || CALL_IN_RENDER(&format->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&format->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&format->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&format->GetClient()));
 
         format->Return();
     } CATCH();
@@ -467,7 +467,7 @@ NATIVE ui::Text* NativeCreateUserInterfaceText(ui::Renderer* renderer, LPCWSTR c
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&renderer->GetClient()) || CALL_IN_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
 
         return &renderer->GetTextSupport().GetText(text, textLength, *format);
     } CATCH();
@@ -477,7 +477,7 @@ NATIVE void NativeReturnUserInterfaceText(ui::Text* text)
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&text->GetClient()) || CALL_IN_RENDER(&text->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&text->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&text->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&text->GetClient()));
 
         text->Return();
     } CATCH();
@@ -487,7 +487,7 @@ NATIVE ui::SizeF NativeMeasureUserInterfaceText(ui::Text* text, ui::SizeF const 
 {
     TRY
     {
-        Require(CALL_IN_LOGIC(&text->GetClient()) || CALL_IN_RENDER(&text->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&text->GetClient()));
 
         return text->Measure(availableSize);
     } CATCH();

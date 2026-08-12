@@ -123,6 +123,26 @@ public abstract partial class Application : Composed<Application, ApplicationCom
     /// <param name="timer">A timer used for profiling.</param>
     protected virtual void OnInitialization(Timer? timer) {}
 
+    /// <inheritdoc cref="OnInputUpdate" />
+    protected void DoInputUpdate(Delta delta, Timer? timer)
+    {
+        OnInputUpdate(delta, timer);
+        OnInputUpdateComponents(delta, timer);
+    }
+
+    /// <inheritdoc cref="OnInputUpdate" />
+    [ComponentEvent(nameof(ApplicationComponent.OnInputUpdate))]
+    private partial void OnInputUpdateComponents(Delta delta, Timer? timer);
+
+    /// <summary>
+    ///     Called for each input update step.
+    ///     Input updates are called using a variable rate, similar to <see cref="OnRenderUpdate" />.
+    ///     Use input updates for handling (application) input.
+    /// </summary>
+    /// <param name="delta">The time since the last input update in seconds.</param>
+    /// <param name="timer">A timer used for profiling.</param>
+    protected virtual void OnInputUpdate(Delta delta, Timer? timer) {}
+
     /// <inheritdoc cref="OnLogicUpdate" />
     protected void DoLogicUpdate(Delta delta, Timer? timer)
     {
@@ -136,6 +156,8 @@ public abstract partial class Application : Composed<Application, ApplicationCom
 
     /// <summary>
     ///     Called for each fixed update step.
+    ///     Logic updates are called using a fixed rate.
+    ///     Use logic updates for game simulation.
     /// </summary>
     /// <param name="delta">The time since the last update in seconds.</param>
     /// <param name="timer">A timer used for profiling.</param>

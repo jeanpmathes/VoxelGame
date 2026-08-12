@@ -64,7 +64,7 @@ public partial class PlayerMovement : ActorComponent
     /// <summary>
     ///     Set whether freecam mode is enabled or not.
     /// </summary>
-    /// <param name="enabled"><c>true</c> to enable freecam mode, <c>false</c> to disable it.</param>
+    /// <param name="enabled"><see langword="true"/> to enable freecam mode, <see langword="false"/> to disable it.</param>
     public void SetFreecamMode(Boolean enabled)
     {
         strategy = enabled
@@ -75,17 +75,14 @@ public partial class PlayerMovement : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Delta delta)
     {
-        if (player.Input.CanHandleGameInput)
-        {
-            (Double yawDelta, Double pitchDelta) = player.Input.Keybinds.LookBind.Value;
+        (Double yawDelta, Double pitchDelta) = player.LookInput.Value;
 
-            yaw += yawDelta;
-            pitch += pitchDelta;
+        yaw += yawDelta;
+        pitch += pitchDelta;
 
-            pitch = MathHelper.Clamp(pitch, min: -89.0, max: 89.0);
+        pitch = MathHelper.Clamp(pitch, min: -89.0, max: 89.0);
 
-            strategy.Move(pitch, yaw, delta);
-        }
+        strategy.Move(pitch, yaw, delta);
 
         // The targeter is acquired here to ensure it is ordered after this component.
         // Targeting is update twice in total, as both camera movement and world manipulation can change the target.

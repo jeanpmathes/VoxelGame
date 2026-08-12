@@ -1,0 +1,57 @@
+// <copyright file="PushButton.cs" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
+
+using System;
+using VoxelGame.Annotations.Attributes;
+using VoxelGame.Client.Inputs.Internals;
+
+namespace VoxelGame.Client.Inputs.Actions;
+
+/// <summary>
+///     Reports how often its input combination was pressed and released since the action was last updated.
+///     Use this when every transition must be observed, including multiple transitions between updates.
+/// </summary>
+public partial class PushButton : Button
+{
+    [Constructible]
+    private PushButton(Binding binding) : base(binding) {}
+
+    /// <summary>
+    ///     Get whether the input combination was pressed at least once since the action was last updated.
+    /// </summary>
+    public Boolean Pushed => PressCount > 0;
+
+    /// <summary>
+    ///     Get how often the input combination was pressed since the action was last updated.
+    /// </summary>
+    public Int32 PressCount { get; private set; }
+
+    /// <summary>
+    ///     Get how often the input combination was released since the action was last updated.
+    /// </summary>
+    public Int32 ReleaseCount { get; private set; }
+
+    /// <inheritdoc />
+    internal override void Apply(ActionStateChange change)
+    {
+        IsActive = change.IsDown;
+        PressCount = change.PressCount;
+        ReleaseCount = change.ReleaseCount;
+    }
+}

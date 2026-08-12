@@ -17,10 +17,12 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.Annotations.Attributes;
+using VoxelGame.Client.Inputs;
+using VoxelGame.Client.Inputs.Actions;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Graphics.Input.Actions;
 
 namespace VoxelGame.Client.Scenes.Components;
 
@@ -29,20 +31,30 @@ namespace VoxelGame.Client.Scenes.Components;
 /// </summary>
 public partial class ScreenshotController : SceneComponent
 {
-    private readonly PushButton button;
     private readonly SessionScene scene;
+    private readonly PushButton button;
 
     [Constructible]
     private ScreenshotController(SessionScene scene) : base(scene)
     {
         this.scene = scene;
 
-        button = scene.Client.Keybinds.GetPushButton(scene.Client.Keybinds.Screenshot);
+        button = scene.Client.Keybinds.Use(Keybinds.Screenshot);
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Delta delta, Timer? timer)
+    public override void OnInputUpdate(Delta delta, Timer? timer)
     {
-        if (scene.CanHandleGameInput && button.Pushed) scene.Client.TakeScreenshot(Program.ScreenshotDirectory);
+        if (button.Pushed) scene.Client.TakeScreenshot(Program.ScreenshotDirectory);
     }
+
+    #region DISPOSABLE
+
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        if (disposing) button.Dispose();
+    }
+
+    #endregion DISPOSABLE
 }

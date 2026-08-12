@@ -1,4 +1,4 @@
-﻿// <copyright file="KeyOrButtonSetting.cs" company="VoxelGame">
+// <copyright file="KeyOrButtonSetting.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -23,7 +23,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Graphics.Definition;
+using VoxelGame.Graphics.Input;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 using VoxelGame.Presentation.Legacy.Utilities;
 
@@ -39,19 +39,21 @@ namespace VoxelGame.Presentation.Legacy.Settings;
 internal sealed class KeyOrButtonSetting : Setting
 #pragma warning restore S2931
 {
-    private readonly Func<VirtualKeys> get;
+    private readonly Func<Action<KeyOrButtonCombination>, IDisposable> beginCapture;
+    private readonly Func<KeyOrButtonCombination> get;
     private readonly Action reset;
-    private readonly Action<VirtualKeys> set;
+    private readonly Action<KeyOrButtonCombination> set;
 
     private readonly Func<Boolean> validate;
 
-    private Button rebind = null!;
+    private CaptureButton rebind = null!;
 
-    internal KeyOrButtonSetting(String name, Func<VirtualKeys> get, Action<VirtualKeys> set, Func<Boolean> validate,
-        Action reset)
+    internal KeyOrButtonSetting(String name, Func<KeyOrButtonCombination> get, Action<KeyOrButtonCombination> set,
+        Func<Action<KeyOrButtonCombination>, IDisposable> beginCapture, Func<Boolean> validate, Action reset)
     {
         this.get = get;
         this.set = set;
+        this.beginCapture = beginCapture;
 
         this.validate = validate;
         this.reset = reset;
@@ -67,9 +69,9 @@ internal sealed class KeyOrButtonSetting : Setting
     {
         DockLayout layout = new(control);
 
-        rebind = new Button(layout)
+        rebind = new CaptureButton(layout)
         {
-            Text = get().ToStringFast(),
+            Text = get().ToString(),
             Dock = Dock.Fill
         };
 
@@ -77,15 +79,18 @@ internal sealed class KeyOrButtonSetting : Setting
         {
             CloseHandel modal = Modals.OpenBlockingModal(rebind, Language.PressAnyKeyOrButton, context);
 
-            context.Input.ListenForAnyKeyOrButton(keyOrButton =>
+            IDisposable capture = beginCapture(combination =>
             {
+                rebind.ReleaseCapture();
                 modal.Close();
 
-                set(keyOrButton);
-                rebind.Text = keyOrButton.ToStringFast();
+                set(combination);
+                rebind.Text = combination.ToString();
 
                 Validator.Validate();
             });
+
+            rebind.OwnCapture(capture);
         };
 
         Button resetBind = new(layout)
@@ -99,7 +104,7 @@ internal sealed class KeyOrButtonSetting : Setting
         resetBind.Released += (_, _) =>
         {
             reset();
-            rebind.Text = get().ToStringFast();
+            rebind.Text = get().ToString();
 
             Validator.Validate();
         };
@@ -109,5 +114,29 @@ internal sealed class KeyOrButtonSetting : Setting
     {
         Boolean valid = validate();
         rebind.TextColorOverride = valid ? Colors.Primary : Colors.Error;
+    }
+
+    private sealed class CaptureButton(ControlBase parent) : Button(parent)
+    {
+        private IDisposable? capture;
+
+        internal void OwnCapture(IDisposable registration)
+        {
+            capture?.Dispose();
+            capture = registration;
+        }
+
+        internal void ReleaseCapture()
+        {
+            capture = null;
+        }
+
+        public override void Dispose()
+        {
+            capture?.Dispose();
+            capture = null;
+
+            base.Dispose();
+        }
     }
 }

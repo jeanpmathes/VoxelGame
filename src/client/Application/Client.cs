@@ -76,7 +76,7 @@ public sealed partial class Client : Graphics.Core.Client
 
         Graphics.CreateSettings(this);
 
-        Keybinds = new KeybindManager(Settings, Input);
+        Keybinds = new KeybindManager(this);
 
         SizeChanged += OnSizeChanged;
     }
@@ -138,8 +138,16 @@ public sealed partial class Client : Graphics.Core.Client
     }
 
     /// <inheritdoc />
+    protected override void OnInputUpdate(Delta delta, Timer? timer)
+    {
+        Keybinds.ProcessApplicationInput();
+    }
+
+    /// <inheritdoc />
     protected override void OnLogicUpdate(Delta delta, Timer? timer)
     {
+        Keybinds.ProcessGameInput();
+
         if (sceneManager.IsActive)
             return;
 
@@ -239,7 +247,12 @@ public sealed partial class Client : Graphics.Core.Client
     {
         if (disposed) return;
 
-        if (disposing) SizeChanged -= OnSizeChanged;
+        if (disposing)
+        {
+            SizeChanged -= OnSizeChanged;
+
+            Keybinds.Dispose();
+        }
 
         base.Dispose(disposing);
 

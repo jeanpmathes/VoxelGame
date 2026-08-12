@@ -25,12 +25,17 @@ namespace VoxelGame.Graphics.Core;
 internal enum Cycle
 {
     /// <summary>
-    ///     The update cycle, in which logic is performed, updating render data.
+    ///     The input cycle, a variable-rate cycle in which input is processed.
     /// </summary>
-    Update,
+    Input,
 
     /// <summary>
-    ///     The render cycle, in which all render data is drawn to the screen.
+    ///     The update cycle, a fixed-rate cycle in which logic and render data is updated.
+    /// </summary>
+    Logic,
+
+    /// <summary>
+    ///     The render cycle, a variable-rate cycle in which render data is processed and displayed.
     /// </summary>
     Render
 }

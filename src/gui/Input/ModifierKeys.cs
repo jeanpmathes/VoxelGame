@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.ObjectModel;
 
 namespace VoxelGame.GUI.Input;
 
@@ -46,4 +47,15 @@ public enum ModifierKeys
     ///     The Shift key is pressed.
     /// </summary>
     Shift = 1 << 2
+}
+
+/// <summary>
+///     Utilities for working with <see cref="ModifierKeys" />.
+/// </summary>
+public static class Modifiers
+{
+    /// <summary>
+    ///     All modifier keys.
+    /// </summary>
+    public static ReadOnlyCollection<ModifierKeys> All { get; } = [ModifierKeys.Control, ModifierKeys.Alt, ModifierKeys.Shift];
 }

@@ -320,7 +320,7 @@ public readonly struct Frustum : IEquatable<Frustum>
     /// </summary>
     /// <param name="box">The box to check.</param>
     /// <param name="tolerance">The tolerance (in world units) to use, which is an extension around the frustum.</param>
-    /// <returns><c>true</c> if the <see cref="Box3" /> is visible; <c>false</c> if not.</returns>
+    /// <returns><see langword="true"/> if the <see cref="Box3" /> is visible; <see langword="false"/> if not.</returns>
     public Boolean IsBoxVisible(Box3d box, Double tolerance = 0.0)
     {
         for (Int32 i = 0; i < 6; i++)

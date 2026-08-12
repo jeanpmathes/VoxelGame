@@ -65,6 +65,9 @@ public sealed class InputRoot : IInputReceiver, IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
+        KeyboardFocus.Clear();
+        PointerFocus.Clear();
+
         hoverRoute.Dispose();
     }
 
@@ -133,7 +136,7 @@ public sealed class InputRoot : IInputReceiver, IDisposable
         return PointerFocus.GetFocused() ?? PerformHitTest(point);
     }
 
-    private static void HandleEvent(InputEvent inputEvent)
+    private static Boolean HandleEvent(InputEvent inputEvent)
     {
         using Route route = Route.Create(inputEvent.Target);
 
@@ -144,7 +147,7 @@ public sealed class InputRoot : IInputReceiver, IDisposable
             inputEvent.SetTarget(visual);
             visual.HandleInputPreview(inputEvent);
 
-            if (inputEvent.Handled) return;
+            if (inputEvent.Handled) return true;
         }
 
         for (Int32 index = 0; index < route.Count; index++)
@@ -154,8 +157,10 @@ public sealed class InputRoot : IInputReceiver, IDisposable
             inputEvent.SetTarget(visual);
             visual.HandleInput(inputEvent);
 
-            if (inputEvent.Handled) return;
+            if (inputEvent.Handled) return true;
         }
+
+        return false;
     }
 
     private void UpdateHoveredVisual(Visual? visual)
@@ -178,21 +183,24 @@ public sealed class InputRoot : IInputReceiver, IDisposable
         hoveredVisual = visual;
     }
 
-    private void MoveKeyboardFocus(Boolean forward)
+    private Boolean MoveKeyboardFocus(Boolean forward)
     {
-        Visual? current = GetKeyboardTarget();
+        Visual? previous = GetKeyboardTarget();
+        Visual? current = previous;
         Visual start = current ?? root;
 
         if (current == null && CanMoveFocusTo(start))
         {
             KeyboardFocus.Set(start);
-            return;
+            return KeyboardFocus.GetFocused() != previous;
         }
 
         if (forward)
             MoveKeyboardFocusForward(start);
         else
             MoveKeyboardFocusBackward(start);
+
+        return KeyboardFocus.GetFocused() != previous;
     }
 
     private void MoveKeyboardFocusForward(Visual start)
@@ -276,69 +284,68 @@ public sealed class InputRoot : IInputReceiver, IDisposable
     #region EVENTS
 
     /// <inheritdoc />
-    public void ReceiveKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers)
+    public Boolean ReceiveKeyEvent(Key key, Boolean isDown, Boolean isRepeat, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         Visual? target = GetKeyboardTarget();
 
         if (target != null)
         {
-            KeyEvent @event = new(target, key, isDown, isRepeat, modifiers);
+            KeyEvent @event = new(target, key, isDown, isRepeat, modifiers, isSynthetic);
 
-            HandleEvent(@event);
-
-            if (@event.Handled) return;
+            if (HandleEvent(@event)) return true;
         }
 
         if (isDown && key == Key.Tab)
-            MoveKeyboardFocus(!modifiers.HasFlag(ModifierKeys.Shift));
+            return MoveKeyboardFocus(!modifiers.HasFlag(ModifierKeys.Shift));
+
+        return false;
     }
 
     /// <inheritdoc />
-    public void ReceiveTextEvent(String text)
+    public Boolean ReceiveTextEvent(String text)
     {
         Visual? target = GetKeyboardTarget();
 
-        if (target == null)
-            return;
-
-        HandleEvent(new TextEvent(target, text));
+        return target != null && HandleEvent(new TextEvent(target, text));
     }
 
     /// <inheritdoc />
-    public void ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers)
+    public Boolean ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         Visual? target = GetPointerTarget(position);
 
-        if (target == null)
-            return;
-
-        HandleEvent(new PointerButtonEvent(target, position, button, isDown, modifiers));
+        return target != null && HandleEvent(new PointerButtonEvent(target, position, button, isDown, modifiers, isSynthetic));
     }
 
     /// <inheritdoc />
-    public void ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
     {
         lastPointerPosition = position;
 
         Visual? target = GetPointerTarget(position);
 
-        if (target != null)
-        {
-            HandleEvent(new PointerMoveEvent(target, position, deltaX, deltaY));
-        }
+        Boolean handled = target != null && HandleEvent(new PointerMoveEvent(target, position, deltaX, deltaY));
 
         UpdateHoveredVisual(PointerFocus.GetFocused() ?? target);
+
+        return handled;
     }
 
     /// <inheritdoc />
-    public void ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
     {
         Visual? target = GetPointerTarget(position);
 
-        if (target == null)
-            return;
+        return target != null && HandleEvent(new ScrollEvent(target, position, deltaX, deltaY));
+    }
 
-        HandleEvent(new ScrollEvent(target, position, deltaX, deltaY));
+    /// <summary>
+    ///     Call when pointer interaction with the visual tree is interrupted by the client losing focus.
+    ///     The captured pointer target is released while keyboard focus is preserved.
+    /// </summary>
+    public void HandlePointerFocusLost()
+    {
+        PointerFocus.Clear();
     }
 
     #endregion EVENTS

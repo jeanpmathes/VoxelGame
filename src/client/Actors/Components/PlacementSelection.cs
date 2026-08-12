@@ -82,9 +82,6 @@ public partial class PlacementSelection : ActorComponent
     /// <inheritdoc />
     public override void OnLogicUpdate(Delta delta)
     {
-        if (!player.Input.CanHandleGameInput)
-            return;
-
         Boolean changed = false;
 
         changed |= SelectMode();

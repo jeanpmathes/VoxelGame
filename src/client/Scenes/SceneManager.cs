@@ -19,7 +19,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime;
 using Microsoft.Extensions.Logging;
 using OpenTK.Mathematics;
@@ -39,17 +38,11 @@ namespace VoxelGame.Client.Scenes;
 /// </summary>
 public partial class SceneManager : ApplicationComponent
 {
-    [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
-    private readonly SceneUpdateDispatch? dispatch;
-
     private Scene? current;
     private (Scene? scene, Action completion)? next;
 
     [Constructible]
-    private SceneManager(Core.App.Application application) : base(application)
-    {
-        dispatch = application.GetComponent<SceneUpdateDispatch>();
-    }
+    private SceneManager(Core.App.Application application) : base(application) {}
 
     /// <summary>
     ///     Whether a scene is currently loaded or is currently being loaded.
@@ -96,6 +89,8 @@ public partial class SceneManager : ApplicationComponent
         current = scene;
         current.Load();
 
+        current.Client.Keybinds.SetInputControl(current.InputControl);
+
         Visuals.Graphics.Instance.SetIsSpaceRendered(current.IsSpaceRendered());
     }
 
@@ -103,7 +98,9 @@ public partial class SceneManager : ApplicationComponent
     {
         if (current == null) return;
 
-        if (dispatch != null)
+        current.Client.Keybinds.SetInputControl(control: null);
+
+        if (Subject.GetComponent<SceneUpdateDispatch>() is {} dispatch)
             CancelOrCompleteDispatch(dispatch);
 
         LogUnloadingScene(logger, current);
@@ -158,6 +155,12 @@ public partial class SceneManager : ApplicationComponent
         GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced, blocking: true, compacting: true);
         #pragma warning restore S1215 // When unloading, many objects have just died.
+    }
+
+    /// <inheritdoc />
+    public override void OnInputUpdate(Delta delta, Timer? timer)
+    {
+        current?.InputUpdate(delta, timer);
     }
 
     /// <inheritdoc />

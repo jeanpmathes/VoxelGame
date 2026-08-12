@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Client.Inputs;
 
 namespace VoxelGame.Client.Scenes;
 
@@ -33,12 +32,7 @@ public interface IInputControl
     Boolean CanHandleGameInput { get; }
 
     /// <summary>
-    ///     Whether it is OK to handle meta input currently.
+    ///     Whether it is OK to handle application input currently.
     /// </summary>
-    Boolean CanHandleMetaInput { get; }
-
-    /// <summary>
-    ///     Get the keybinds to use for input handling.
-    /// </summary>
-    KeybindManager Keybinds { get; }
+    Boolean CanHandleApplicationInput { get; }
 }

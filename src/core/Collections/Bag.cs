@@ -147,7 +147,7 @@ public class Bag<T> : IEnumerable<T>
     #region ENUMERABLE
 
     /// <summary>
-    ///     The internally-used enumerator.
+    ///     The internally used enumerator.
     /// </summary>
     public struct Enumerator : IEnumerator<T>, IEquatable<Enumerator>
     {

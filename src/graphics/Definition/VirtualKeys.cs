@@ -260,3 +260,28 @@ public enum VirtualKeys : Byte
     OEMClear = 0xFE,
     LastKey = OEMClear
 }
+
+/// <summary>
+///     Extension methods for <see cref="VirtualKeys" />.
+/// </summary>
+public static class VirtualKeysExtension
+{
+    /// <summary>
+    ///     Check whether a virtual key is a modifier key.
+    /// </summary>
+    /// <param name="key">The key to check.</param>
+    /// <returns><see langword="true" /> if the key is a modifier key, otherwise <see langword="false" />.</returns>
+    /// "/>
+    public static Boolean IsModifier(this VirtualKeys key)
+    {
+        return key is VirtualKeys.LeftControl
+            or VirtualKeys.RightControl
+            or VirtualKeys.Control
+            or VirtualKeys.LeftMenu
+            or VirtualKeys.RightMenu
+            or VirtualKeys.Menu
+            or VirtualKeys.LeftShift
+            or VirtualKeys.RightShift
+            or VirtualKeys.Shift;
+    }
+}

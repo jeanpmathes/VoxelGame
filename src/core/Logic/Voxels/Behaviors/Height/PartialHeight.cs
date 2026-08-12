@@ -74,7 +74,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     /// </summary>
     /// <param name="side">The side to check.</param>
     /// <param name="state">The state of the block.</param>
-    /// <returns><c>true</c> if the side is full, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the side is full, <see langword="false"/> otherwise.</returns>
     public Boolean IsSideFull(Side side, State state)
     {
         if (side == Side.Bottom) return true;
@@ -86,7 +86,7 @@ public partial class PartialHeight : BlockBehavior, IBehavior<PartialHeight, Blo
     ///     Get whether the block is full in a given state.
     /// </summary>
     /// <param name="state">The state of the block.</param>
-    /// <returns><c>true</c> if the block is full, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the block is full, <see langword="false"/> otherwise.</returns>
     public Boolean IsFull(State state)
     {
         return GetHeight(state).IsFull;

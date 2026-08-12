@@ -39,7 +39,7 @@ public sealed class OperationsTests : IDisposable
     [Fact]
     public void Operations_CreateDone_ShouldBeCompleted()
     {
-        Operation operation = Operations.CreateDone();
+        Operation operation = Operations.CreateDone(dispatch);
 
         Assert.True(operation.IsOk);
     }
@@ -49,7 +49,7 @@ public sealed class OperationsTests : IDisposable
     {
         const Int32 result = 42;
 
-        Operation<Int32> operation = Operations.CreateDone(result);
+        Operation<Int32> operation = Operations.CreateDone(result, dispatch);
 
         Assert.True(operation.IsOk);
         Assert.Equal(result, operation.Result?.UnwrapOrThrow());

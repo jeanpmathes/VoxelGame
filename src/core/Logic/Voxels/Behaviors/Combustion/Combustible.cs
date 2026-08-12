@@ -73,7 +73,7 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
     /// <param name="world">The world this block is in.</param>
     /// <param name="position">The position of the block.</param>
     /// <param name="fire">The fire block that caused the burning.</param>
-    /// <returns><c>true</c> if the block was destroyed, <c>false</c> if not.</returns>
+    /// <returns><see langword="true"/> if the block was destroyed, <see langword="false"/> if not.</returns>
     public Boolean DoBurn(World world, Vector3i position, Block fire)
     {
         State? state = world.GetBlock(position);
@@ -150,7 +150,7 @@ public partial class Combustible : BlockBehavior, IBehavior<Combustible, BlockBe
 
         /// <summary>
         ///     Set that the block has been burned (destroyed or changed).
-        ///     This will set <see cref="Burned" /> to <c>true</c>.
+        ///     This will set <see cref="Burned" /> to <see langword="true"/>.
         /// </summary>
         void Burn();
     }

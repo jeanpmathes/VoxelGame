@@ -203,7 +203,7 @@ public sealed class Focus
     ///     Note that this can change dynamically.
     /// </summary>
     /// <param name="visual">The visual to check.</param>
-    /// <returns><c>true</c> if the visual can receive focus, <c>false</c> otherwise.</returns>
+    /// <returns><see langword="true"/> if the visual can receive focus, <see langword="false"/> otherwise.</returns>
     public static Boolean CanFocus(Visual visual)
     {
         return visual.Enablement.GetValue().IsFocusable && visual.Visibility.GetValue().IsVisible;

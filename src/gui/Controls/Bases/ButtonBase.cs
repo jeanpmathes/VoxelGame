@@ -98,7 +98,7 @@ public abstract class ButtonBase<TContent, TControl> : ContentControlBase<TConte
                 {
                     Boolean executing = false;
 
-                    if (pointerButtonEvent.Hits(this))
+                    if (!pointerButtonEvent.IsSynthetic && pointerButtonEvent.Hits(this))
                     {
                         executing = ExecuteCommand();
                     }

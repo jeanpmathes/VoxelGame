@@ -94,8 +94,12 @@ public sealed class InputRootTests : IDisposable
     {
         visual.OnInputHandler = observer.OnAction;
 
-        canvas.Press(new PointF(x: -10f, y: -10f));
+        Boolean handled = canvas.Input.GetValue()!.ReceivePointerButtonEvent(new PointF(x: -10f, y: -10f),
+            PointerButton.Left,
+            isDown: true,
+            ModifierKeys.None);
 
+        Assert.False(handled);
         Assert.Equal(expected: 0, observer.InvocationCount);
     }
 
@@ -139,8 +143,14 @@ public sealed class InputRootTests : IDisposable
         visual.OnInputPreviewHandler = e => e.Handled = true;
         visual.OnInputHandler = observer.OnAction;
 
-        canvas.Press(new PointF(x: 100f, y: 100f));
+        canvas.Render();
 
+        Boolean handled = canvas.Input.GetValue()!.ReceivePointerButtonEvent(new PointF(x: 100f, y: 100f),
+            PointerButton.Left,
+            isDown: true,
+            ModifierKeys.None);
+
+        Assert.True(handled);
         Assert.Equal(expected: 0, observer.InvocationCount);
     }
 
@@ -185,10 +195,27 @@ public sealed class InputRootTests : IDisposable
     }
 
     [Fact]
+    public void InputRoot_ShouldClearPointerFocusAndPreserveKeyboardFocusOnPointerFocusLoss()
+    {
+        InputRoot input = canvas.Input.GetValue()!;
+
+        input.KeyboardFocus.Set(visual);
+        input.PointerFocus.Set(visual);
+
+        input.HandlePointerFocusLost();
+
+        Assert.Same(visual, input.KeyboardFocus.GetFocused());
+        Assert.Null(input.PointerFocus.GetFocused());
+        Assert.True(visual.IsKeyboardFocused.GetValue());
+        Assert.False(visual.IsPointerFocused.GetValue());
+    }
+
+    [Fact]
     public void InputRoot_ShouldNotThrowOnTabIfNoNavigableVisualsExist()
     {
-        canvas.PressKey(Key.Tab);
+        Boolean handled = canvas.Input.GetValue()!.ReceiveKeyEvent(Key.Tab, isDown: true, isRepeat: false, ModifierKeys.None);
 
+        Assert.False(handled);
         Assert.NotNull(canvas.Input.GetValue());
         Assert.Null(canvas.Input.GetValue()?.KeyboardFocus.GetFocused());
     }
@@ -207,8 +234,9 @@ public sealed class InputRootTests : IDisposable
     {
         visual.IsNavigable.Value = true;
 
-        canvas.PressKey(Key.Tab);
+        Boolean handled = canvas.Input.GetValue()!.ReceiveKeyEvent(Key.Tab, isDown: true, isRepeat: false, ModifierKeys.None);
 
+        Assert.True(handled);
         Assert.Same(visual, canvas.Input.GetValue()?.KeyboardFocus.GetFocused());
     }
 

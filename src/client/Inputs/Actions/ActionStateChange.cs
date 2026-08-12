@@ -1,47 +1,36 @@
-﻿// <copyright file="Axis2.cs" company="VoxelGame">
+// <copyright file="ActionStateChange.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
-//      
+//
 //     This program is free software: you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
 //     the Free Software Foundation, either version 3 of the License, or
 //     (at your option) any later version.
-//     
+//
 //     This program is distributed in the hope that it will be useful,
 //     but WITHOUT ANY WARRANTY; without even the implied warranty of
 //     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 //     GNU General Public License for more details.
-//     
+//
 //     You should have received a copy of the GNU General Public License
 //     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
 
-using OpenTK.Mathematics;
+using System;
 
-namespace VoxelGame.Graphics.Input.Composite;
+namespace VoxelGame.Client.Inputs.Actions;
 
 /// <summary>
-///     A two-dimensional axis.
+///     Describes how the state of an <see cref="Action" /> changed since its previous update.
 /// </summary>
-public class InputAxis2
+/// <param name="IsDown">Whether the input combination is active.</param>
+/// <param name="PressCount">The number of presses received since the previous update.</param>
+/// <param name="ReleaseCount">The number of releases received since the previous update.</param>
+internal readonly record struct ActionStateChange(Boolean IsDown, Int32 PressCount, Int32 ReleaseCount)
 {
-    private readonly InputAxis x;
-    private readonly InputAxis y;
-
     /// <summary>
-    ///     Create a new axis.
+    ///     Get a state change that represents no active input or transitions.
     /// </summary>
-    /// <param name="x">The x axis.</param>
-    /// <param name="y">The y axis.</param>
-    public InputAxis2(InputAxis x, InputAxis y)
-    {
-        this.x = x;
-        this.y = y;
-    }
-
-    /// <summary>
-    ///     The current value of the axis.
-    /// </summary>
-    public Vector2 Value => new(x.Value, y.Value);
+    internal static ActionStateChange Neutral { get; } = new(IsDown: false, PressCount: 0, ReleaseCount: 0);
 }

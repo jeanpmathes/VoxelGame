@@ -119,7 +119,7 @@ public partial class Connecting : BlockBehavior, IBehavior<Connecting, BlockBeha
     ///     Get the connections of the block given its state.
     /// </summary>
     /// <param name="state">The state of the block.</param>
-    /// <returns>The connections, <c>true</c> if connected, <c>false</c> if not for each of the lateral sides.</returns>
+    /// <returns>The connections, <see langword="true"/> if connected, <see langword="false"/> if not for each of the lateral sides.</returns>
     public (Boolean north, Boolean east, Boolean south, Boolean west) GetConnections(State state)
     {
         return (state.Get(North),

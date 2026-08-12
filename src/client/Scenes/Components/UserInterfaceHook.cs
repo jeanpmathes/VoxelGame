@@ -63,11 +63,11 @@ public partial class UserInterfaceHook : SceneComponent
     }
 
     /// <inheritdoc />
-    public override void OnLogicUpdate(Delta delta, Timer? timer)
+    public override void OnInputUpdate(Delta delta, Timer? timer)
     {
-        using (logger.BeginTimedSubScoped("UI-Hook LogicUpdate", timer))
+        using (logger.BeginTimedSubScoped("UI-Hook InputUpdate", timer))
         {
-            ui.LogicUpdate();
+            ui.InputUpdate();
         }
     }
 
