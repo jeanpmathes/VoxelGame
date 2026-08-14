@@ -129,7 +129,7 @@
         </Link>
     </ItemDefinitionGroup>
     <ItemGroup>
-        <ClInclude Include="DXRHelper.hpp"/>
+        <ClInclude Include="Basic.hpp"/>
         <ClInclude Include="Context.hpp"/>
         <ClInclude Include="Interfaces\Draw2D.hpp"/>
         <ClInclude Include="native.hpp"/>
@@ -176,13 +176,13 @@
         <ClInclude Include="Tools\ShaderLocation.hpp"/>
         <ClInclude Include="Tools\ShaderResources.hpp"/>
         <ClInclude Include="Tools\SharedIndexBuffer.hpp"/>
+        <ClInclude Include="Tools\Shaders.hpp"/>
         <ClInclude Include="Tools\StepTimer.hpp"/>
         <ClInclude Include="Tools\Uploader.hpp"/>
         <ClInclude Include="Tools\Utilities.hpp"/>
         <ClInclude Include="Win32Application.hpp"/>
         <ClInclude Include="NativeClient.hpp"/>
         <ClInclude Include="DXApp.hpp"/>
-        <ClInclude Include="DXHelper.hpp"/>
         <ClInclude Include="stdafx.h"/>
     </ItemGroup>
     <ItemGroup>

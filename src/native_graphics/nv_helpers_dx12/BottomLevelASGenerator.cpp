@@ -31,8 +31,6 @@ Contacts for feedback:
 
 #include "BottomLevelASGenerator.hpp"
 
-#include "DXRHelper.hpp"
-
 namespace nv_helpers_dx12
 {
     void BottomLevelASGenerator::AddVertexBuffer(

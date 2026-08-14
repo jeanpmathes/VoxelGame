@@ -1,13 +1,26 @@
-//  <copyright file="stdafx.h" company="Microsoft">
-//      Copyright (c) Microsoft. All rights reserved.
-//      MIT License
-//  </copyright>
-//  <author>Microsoft, jeanpmathes</author>
+// <copyright file="stdafx.hpp" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
 
 #pragma once
 
 #ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headers.
+#define WIN32_LEAN_AND_MEAN             // Exclude rarely used stuff from Windows headers.
 #endif
 
 #include <Windows.h>
@@ -32,6 +45,7 @@
 #include <d3d11.h>
 #include <d3d11on12.h>
 #include <dwrite_3.h>
+#include <dxcapi.h>
 #include <dxgi1_6.h>
 
 #ifdef NATIVE_DEBUG
@@ -78,6 +92,10 @@
 #include "nv_aftermath/NsightAftermathShaderDatabase.hpp"
 #endif
 
+// Basics
+
+#include "Basic.hpp"
+
 // nv_helpers_dx12
 
 #include "nv_helpers_dx12/BottomLevelASGenerator.hpp"
@@ -85,11 +103,6 @@
 #include "nv_helpers_dx12/RootSignatureGenerator.hpp"
 #include "nv_helpers_dx12/ShaderBindingTableGenerator.hpp"
 #include "nv_helpers_dx12/TopLevelASGenerator.hpp"
-
-// Helpers
-
-#include "DXHelper.hpp"
-#include "DXRHelper.hpp"
 
 // D3D12 Memory Allocator
 
@@ -110,6 +123,7 @@
 #include "Tools/PriorityList.hpp"
 #include "Tools/ShaderResources.hpp"
 #include "Tools/ShaderResources.hpp"
+#include "Tools/Shaders.hpp"
 #include "Tools/SharedIndexBuffer.hpp"
 #include "Tools/StepTimer.hpp"
 #include "Tools/Uploader.hpp"

@@ -41,7 +41,7 @@ dispatch rays description.
 #include <stdexcept>
 #include <string>
 
-#include "DXRHelper.hpp"
+#include "Tools/Shaders.hpp"
 
 namespace nv_helpers_dx12
 {

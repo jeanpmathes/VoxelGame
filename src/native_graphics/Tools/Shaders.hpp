@@ -1,7 +1,21 @@
-// <copyright file="DXRHelper.hpp" company="NVIDIA Corp.">
-//     Copyright 1998-2018 NVIDIA Corp. All Rights Reserved.
+﻿// <copyright file="Shaders.hpp" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
-// <author>NVIDIA Corp, jeanpmathes</author>
+// <author>jeanpmathes</author>
 
 #pragma once
 
@@ -11,19 +25,16 @@
 #include <vector>
 
 #include <dxcapi.h>
-#include <iostream>
 
-#include "DXHelper.hpp"
+#include "Basic.hpp"
+
 #include "native.hpp"
 
-/**
- * \brief Round a value up to the nearest multiple of an alignment.
- * \param value The value to round up.
- * \param alignment The alignment to round up to.
- * \return The rounded up value.
- */
-template <typename T, typename V>
-constexpr T RoundUp(T const value, V const alignment) { return (value + alignment - 1) & ~(alignment - 1); }
+template <typename T>
+std::vector<T> ReadBlob(ComPtr<ID3DBlob> const& blob)
+{
+    return std::vector<T>(static_cast<T*>(blob->GetBufferPointer()), static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
+}
 
 /**
  * \brief Compile a shader to a DXIL blob.
@@ -78,15 +89,15 @@ ComPtr<IDxcBlob> CompileShader(LPCWSTR fileName, std::wstring const& entry, std:
 
     ComPtr<IDxcCompilerArgs> compilerArgs;
     TryDo(
-        utils->BuildArguments(
-            fileName,
-            entry.c_str(),
-            target.c_str(),
-            args.data(),
-            static_cast<UINT32>(args.size()),
-            defines.data(),
-            static_cast<UINT32>(defines.size()),
-            &compilerArgs));
+          utils->BuildArguments(
+                                fileName,
+                                entry.c_str(),
+                                target.c_str(),
+                                args.data(),
+                                static_cast<UINT32>(args.size()),
+                                defines.data(),
+                                static_cast<UINT32>(defines.size()),
+                                &compilerArgs));
 
     ComPtr<IDxcResult> result;
     TryDo(compiler->Compile(&sourceBuffer, compilerArgs->GetArguments(), compilerArgs->GetCount(), dxcIncludeHandler.Get(), IID_PPV_ARGS(&result)));

@@ -1,8 +1,21 @@
-//  <copyright file="DXHelper.hpp" company="Microsoft">
-//      Copyright (c) Microsoft. All rights reserved.
-//      MIT License
-//  </copyright>
-//  <author>Microsoft, jeanpmathes</author>
+﻿// <copyright file="Basic.hpp" company="VoxelGame">
+//     VoxelGame - a voxel-based video game.
+//     Copyright (C) 2026 Jean Patrick Mathes
+//      
+//     This program is free software: you can redistribute it and/or modify
+//     it under the terms of the GNU General Public License as published by
+//     the Free Software Foundation, either version 3 of the License, or
+//     (at your option) any later version.
+//     
+//     This program is distributed in the hope that it will be useful,
+//     but WITHOUT ANY WARRANTY; without even the implied warranty of
+//     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//     GNU General Public License for more details.
+//     
+//     You should have received a copy of the GNU General Public License
+//     along with this program.  If not, see <https://www.gnu.org/licenses/>.
+// </copyright>
+// <author>jeanpmathes</author>
 
 #pragma once
 
@@ -10,7 +23,6 @@
 #include <source_location>
 #include <sstream>
 #include <stdexcept>
-#include <vector>
 
 // ReSharper disable once CppUnusedIncludeDirective
 #include <wrl.h>
@@ -46,11 +58,29 @@ public:
     using std::runtime_error::runtime_error;
 };
 
-#if defined(NATIVE_DEBUG)
+#ifdef NATIVE_DEBUG
 constexpr bool IS_DEBUG_BUILD = true;
 #else
 constexpr bool IS_DEBUG_BUILD = false;
 #endif
+
+inline bool TryBreak()
+{
+#ifdef NATIVE_DEBUG
+    __try
+    {
+        DebugBreak();
+    }
+    __except (GetExceptionCode() == EXCEPTION_BREAKPOINT ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH)
+    {
+        return false;
+    }
+
+    return true;
+#else
+    return false;
+#endif
+}
 
 constexpr bool Implies(bool const a, bool const b) { return !a || b; }
 
@@ -65,7 +95,8 @@ constexpr void Require(bool const condition, std::source_location const& locatio
     {
         std::string const message = std::format("failed requirement in function {} at {}:{}:{}", location.function_name(), location.file_name(), location.line(), location.column());
 
-        if (IsDebuggerPresent()) DebugBreak();
+        TryBreak();
+
         throw NativeException(message);
     }
 }
@@ -85,7 +116,7 @@ inline void TryDo(BOOL const b, bool const breakpoint = true, std::source_locati
 
     std::string const message = GetTryDoMessage(location);
 
-    if (breakpoint && IsDebuggerPresent()) DebugBreak();
+    if (breakpoint) TryBreak();
 
     throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
 }
@@ -99,7 +130,7 @@ inline void TryDo(HRESULT const hr, bool const breakpoint = true, std::source_lo
 
     std::string const message = GetTryDoMessage(location);
 
-    if (breakpoint && IsDebuggerPresent()) DebugBreak();
+    if (breakpoint) TryBreak();
 
     throw HResultException(hr, message);
 }
@@ -113,14 +144,14 @@ constexpr T const& CheckReturn(T const& value, bool const breakpoint = true, std
     if (value != NULL) return value;
 
     std::string const message = std::format(
-        "error with value of type '{}' in function {} at {}:{}:{}",
-        typeid(T).name(),
-        location.function_name(),
-        location.file_name(),
-        location.line(),
-        location.column());
+                                            "error with value of type '{}' in function {} at {}:{}:{}",
+                                            typeid(T).name(),
+                                            location.function_name(),
+                                            location.file_name(),
+                                            location.line(),
+                                            location.column());
 
-    if (breakpoint && IsDebuggerPresent()) DebugBreak();
+    if (breakpoint) TryBreak();
 
     throw HResultException(HRESULT_FROM_WIN32(GetLastError()), message);
 }
@@ -182,8 +213,11 @@ void ResetComPtrArray(T* comPtrArray) { for (auto& i : *comPtrArray) i.Reset(); 
 template <class T>
 void ResetUniquePtrArray(T* uniquePtrArray) { for (auto& i : *uniquePtrArray) i.reset(); }
 
-template <typename T>
-std::vector<T> ReadBlob(ComPtr<ID3DBlob> const& blob)
-{
-    return std::vector<T>(static_cast<T*>(blob->GetBufferPointer()), static_cast<T*>(blob->GetBufferPointer()) + blob->GetBufferSize() / sizeof(T));
-}
+/**
+* \brief Round a value up to the nearest multiple of an alignment.
+ * \param value The value to round up.
+ * \param alignment The alignment to round up to.
+ * \return The rounded up value.
+ */
+template <typename T, typename V>
+constexpr T RoundUp(T const value, V const alignment) { return (value + alignment - 1) & ~(alignment - 1); }

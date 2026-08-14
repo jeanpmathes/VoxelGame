@@ -49,8 +49,6 @@ buffer needs to be kept until the command list execution is finished.
 
 #include <stdexcept>
 
-#include "DXRHelper.hpp"
-
 namespace nv_helpers_dx12
 {
     void TopLevelASGenerator::Clear()

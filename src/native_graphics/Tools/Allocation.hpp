@@ -1,4 +1,4 @@
-﻿// <copyright file="Util.hpp" company="VoxelGame">
+﻿// <copyright file="Allocation.hpp" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -21,8 +21,8 @@
 
 #include <optional>
 
+#include "Basic.hpp"
 #include "D3D12MemAlloc.hpp"
-#include "DXHelper.hpp"
 
 template <typename R>
 struct Allocation;
