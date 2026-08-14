@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using VoxelGame.Client.Inputs.Internals;
 using VoxelGame.Graphics.Input;
 using VoxelGame.Toolkit.Utilities;
@@ -99,6 +100,8 @@ public abstract class Keybind
     /// <returns>The pending definitions in the order in which they were defined.</returns>
     internal static IReadOnlyList<Keybind> TakeDefinitions()
     {
+        RuntimeHelpers.RunClassConstructor(typeof(Keybinds).TypeHandle);
+
         Keybind[] result = definitions.ToArray();
         definitions.Clear();
 
