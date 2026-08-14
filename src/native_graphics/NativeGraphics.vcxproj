@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.17\build\native\Microsoft.Direct3D.DXC.props" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.17\build\native\Microsoft.Direct3D.DXC.props')"/>
     <Import Project="..\..\packages\Microsoft.Direct3D.D3D12.1.619.2\build\native\Microsoft.Direct3D.D3D12.props" Condition="Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.2\build\native\Microsoft.Direct3D.D3D12.props')"/>
@@ -57,25 +57,12 @@
         </None>
     </ItemGroup>
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props"/>
-    <ImportGroup Label="ExtensionSettings">
-    </ImportGroup>
-    <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
-        <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform"/>
-    </ImportGroup>
-    <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <ImportGroup Label="PropertySheets">
         <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform"/>
     </ImportGroup>
     <Import Project="NsightAftermath.props"/>
     <PropertyGroup Label="UserMacros"/>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-        <LinkIncremental>false</LinkIncremental>
-        <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
-        <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
-        <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <PropertyGroup>
         <LinkIncremental>false</LinkIncremental>
         <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
         <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
@@ -189,34 +176,24 @@
         <ClCompile Include="Context.cpp"/>
         <ClCompile Include="Interfaces\Draw2D.cpp"/>
         <ClCompile Include="nv_helpers_dx12\BottomLevelASGenerator.cpp">
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
+            <PrecompiledHeader>NotUsing</PrecompiledHeader>
+            <WarningLevel>TurnOffAllWarnings</WarningLevel>
         </ClCompile>
         <ClCompile Include="nv_helpers_dx12\RaytracingPipelineGenerator.cpp">
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
+            <PrecompiledHeader>NotUsing</PrecompiledHeader>
+            <WarningLevel>TurnOffAllWarnings</WarningLevel>
         </ClCompile>
         <ClCompile Include="nv_helpers_dx12\RootSignatureGenerator.cpp">
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
+            <PrecompiledHeader>NotUsing</PrecompiledHeader>
+            <WarningLevel>TurnOffAllWarnings</WarningLevel>
         </ClCompile>
         <ClCompile Include="nv_helpers_dx12\ShaderBindingTableGenerator.cpp">
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
+            <PrecompiledHeader>NotUsing</PrecompiledHeader>
+            <WarningLevel>TurnOffAllWarnings</WarningLevel>
         </ClCompile>
         <ClCompile Include="nv_helpers_dx12\TopLevelASGenerator.cpp">
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
+            <PrecompiledHeader>NotUsing</PrecompiledHeader>
+            <WarningLevel>TurnOffAllWarnings</WarningLevel>
         </ClCompile>
         <ClCompile Include="Objects\Drawable.cpp"/>
         <ClCompile Include="Objects\Effect.cpp"/>
@@ -225,10 +202,8 @@
         <ClCompile Include="Tools\DebugLayer.cpp"/>
         <ClCompile Include="Tools\InBufferAllocator.cpp"/>
         <ClCompile Include="Tools\D3D12MemAlloc.cpp">
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">TurnOffAllWarnings</WarningLevel>
-            <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">TurnOffAllWarnings</WarningLevel>
+            <PrecompiledHeader>NotUsing</PrecompiledHeader>
+            <WarningLevel>TurnOffAllWarnings</WarningLevel>
         </ClCompile>
         <ClCompile Include="Objects\Camera.cpp"/>
         <ClCompile Include="Objects\Light.cpp"/>
@@ -263,8 +238,7 @@
         <ClCompile Include="DXApp.cpp"/>
         <ClCompile Include="native.cpp"/>
         <ClCompile Include="stdafx.cpp">
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-            <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+            <PrecompiledHeader>Create</PrecompiledHeader>
         </ClCompile>
     </ItemGroup>
     <ItemGroup>
@@ -277,13 +251,10 @@
     <ImportGroup Label="ExtensionTargets">
         <Import Project="..\..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.2454\build\native\Microsoft.Windows.SDK.cpp.targets" Condition="Exists('..\..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.2454\build\native\Microsoft.Windows.SDK.cpp.targets')"/>
         <Import Project="..\..\packages\WinPixEventRuntime.1.0.240308001\build\WinPixEventRuntime.targets" Condition="Exists('..\..\packages\WinPixEventRuntime.1.0.240308001\build\WinPixEventRuntime.targets')"/>
-        <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.8.2407.12\build\native\Microsoft.Direct3D.DXC.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.8.2407.12\build\native\Microsoft.Direct3D.DXC.targets')"/>
         <Import Project="..\..\packages\directxmath.2024.10.15.1\build\native\directxmath.targets" Condition="Exists('..\..\packages\directxmath.2024.10.15.1\build\native\directxmath.targets')"/>
-        <Import Project="..\..\packages\Microsoft.Direct3D.D3D12.1.614.1\build\native\Microsoft.Direct3D.D3D12.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.614.1\build\native\Microsoft.Direct3D.D3D12.targets')"/>
         <Import Project="..\..\packages\Microsoft.Direct3D.D3D12.1.619.2\build\native\Microsoft.Direct3D.D3D12.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.2\build\native\Microsoft.Direct3D.D3D12.targets')"/>
         <Import Project="..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.17\build\native\Microsoft.Direct3D.DXC.targets" Condition="Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.17\build\native\Microsoft.Direct3D.DXC.targets')"/>
     </ImportGroup>
-    <Import Project="..\packages\WinPixEventRuntime.1.0.231030001\build\WinPixEventRuntime.targets" Condition="Exists('..\packages\WinPixEventRuntime.1.0.231030001\build\WinPixEventRuntime.targets')"/>
     <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
         <PropertyGroup>
             <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them. For more information, see http://go.microsoft.com/fwlink/?LinkID=322105 . The missing file is {0}.</ErrorText>
@@ -293,9 +264,7 @@
         <Error Condition="!Exists('..\..\packages\WinPixEventRuntime.1.0.240308001\build\WinPixEventRuntime.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\WinPixEventRuntime.1.0.240308001\build\WinPixEventRuntime.targets'))"/>
         <Error Condition="!Exists('..\..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.2454\build\Microsoft.Windows.SDK.cpp.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.2454\build\Microsoft.Windows.SDK.cpp.props'))"/>
         <Error Condition="!Exists('..\..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.2454\build\Microsoft.Windows.SDK.cpp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Windows.SDK.CPP.10.0.26100.2454\build\Microsoft.Windows.SDK.cpp.targets'))"/>
-        <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.DXC.1.8.2407.12\build\native\Microsoft.Direct3D.DXC.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.DXC.1.8.2407.12\build\native\Microsoft.Direct3D.DXC.targets'))"/>
         <Error Condition="!Exists('..\..\packages\directxmath.2024.10.15.1\build\native\directxmath.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\directxmath.2024.10.15.1\build\native\directxmath.targets'))"/>
-        <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.614.1\build\native\Microsoft.Direct3D.D3D12.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.D3D12.1.614.1\build\native\Microsoft.Direct3D.D3D12.targets'))"/>
         <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.2\build\native\Microsoft.Direct3D.D3D12.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.D3D12.1.619.2\build\native\Microsoft.Direct3D.D3D12.props'))"/>
         <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.D3D12.1.619.2\build\native\Microsoft.Direct3D.D3D12.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.D3D12.1.619.2\build\native\Microsoft.Direct3D.D3D12.targets'))"/>
         <Error Condition="!Exists('..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.17\build\native\Microsoft.Direct3D.DXC.props')" Text="$([System.String]::Format('$(ErrorText)', '..\..\packages\Microsoft.Direct3D.DXC.1.9.2602.17\build\native\Microsoft.Direct3D.DXC.props'))"/>
