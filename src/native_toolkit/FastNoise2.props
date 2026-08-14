@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
     <PropertyGroup Label="UserMacros">
         <FastNoise2Dir>$(ProjectDir)FastNoise2</FastNoise2Dir>
@@ -10,13 +10,23 @@
         <FastNoise2FastSIMDLibDir>$(FastNoise2BuildDir)\_deps\fastsimd-build\FastSIMD.dir\Release</FastNoise2FastSIMDLibDir>
         <FastNoise2DispatchLibDir>$(FastNoise2BuildDir)\src\FastSIMD_FastNoise.dir\Release</FastNoise2DispatchLibDir>
     </PropertyGroup>
-    <Target Name="BuildFastNoise2" BeforeTargets="ClCompile">
+    <ItemGroup>
+        <FastNoise2BuildInput Include="$(MSBuildThisFileFullPath)"/>
+        <FastNoise2BuildInput Include="$(FastNoise2Dir)\CMakeLists.txt"/>
+        <FastNoise2BuildInput Include="$(FastNoise2Dir)\cmake\**\*.cmake"/>
+        <FastNoise2BuildInput Include="$(FastNoise2Dir)\include\**\*"/>
+        <FastNoise2BuildInput Include="$(FastNoise2Dir)\src\**\*"/>
+        <FastNoise2BuildInput Include="$(FastNoise2BuildDir)\_deps\fastsimd-src\CMakeLists.txt"/>
+        <FastNoise2BuildInput Include="$(FastNoise2BuildDir)\_deps\fastsimd-src\include\**\*"/>
+        <FastNoise2BuildInput Include="$(FastNoise2BuildDir)\_deps\fastsimd-src\src\**\*"/>
+    </ItemGroup>
+    <Target Name="BuildFastNoise2" BeforeTargets="ClCompile" Inputs="@(FastNoise2BuildInput)" Outputs="$(FastNoise2LibDir)\FastNoise.lib;$(FastNoise2FastSIMDLibDir)\FastSIMD.lib;$(FastNoise2DispatchLibDir)\FastSIMD_FastNoise.lib">
         <MakeDir Directories="$(FastNoise2BuildDir)"/>
         <Exec StandardOutputImportance="low" StandardErrorImportance="low"
               Command="cmake -S $(FastNoise2Dir) -B $(FastNoise2BuildDir) -D FASTNOISE2_TOOLS=OFF -D FASTNOISE2_TESTS=OFF -D FASTNOISE2_UTILITY=OFF -D FASTNOISE2_STRICT_FP=ON"/>
         <Exec StandardOutputImportance="low" StandardErrorImportance="low"
               Command="cmake --build $(FastNoise2BuildDir) --config Release"/>
-        <Message Importance="high" Text="FastNoise2 build complete"/>
+        <Message Importance="normal" Text="FastNoise2 build complete"/>
     </Target>
     <ItemDefinitionGroup>
         <ClCompile>

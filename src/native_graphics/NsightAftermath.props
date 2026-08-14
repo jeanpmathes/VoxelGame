@@ -9,9 +9,9 @@
         <NsightAftermathSdkAvailable Condition="Exists('$(NsightAftermathIncludeDir)\GFSDK_Aftermath.h') and '$(Configuration)|$(Platform)'=='Release|x64'">true</NsightAftermathSdkAvailable>
         <NsightAftermathSdkAvailable Condition="'$(NsightAftermathSdkAvailable)' == ''">false</NsightAftermathSdkAvailable>
     </PropertyGroup>
-    <Target Name="NsightAftermathSdkCheck" BeforeTargets="ClCompile">
-        <Message Importance="high" Condition="'$(NsightAftermathSdkAvailable)' == 'true'" Text="Nsight Aftermath SDK found at '$(NSIGHT_AFTERMATH_SDK)'."/>
-        <Message Importance="high" Condition="'$(NsightAftermathSdkAvailable)' == 'false'" Text="Nsight Aftermath SDK not found or this is not a RELEASE build, it will not be used in build."/>
+    <Target Name="NsightAftermathSdkCheck" BeforeTargets="ClCompile" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+        <Message Importance="normal" Condition="'$(NsightAftermathSdkAvailable)' == 'true'" Text="Nsight Aftermath SDK found at '$(NSIGHT_AFTERMATH_SDK)'."/>
+        <Message Importance="normal" Condition="'$(NsightAftermathSdkAvailable)' == 'false'" Text="Nsight Aftermath SDK not found; it will not be used in this build."/>
     </Target>
     <ItemDefinitionGroup Condition="'$(NsightAftermathSdkAvailable)' == 'true'">
         <ClCompile>

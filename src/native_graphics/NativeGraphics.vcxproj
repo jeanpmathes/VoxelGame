@@ -25,15 +25,7 @@
         <Microsoft_Direct3D_D3D12_SkipDebugLayerCopy>true</Microsoft_Direct3D_D3D12_SkipDebugLayerCopy>
     </PropertyGroup>
     <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props"/>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
-        <ConfigurationType>DynamicLibrary</ConfigurationType>
-        <UseDebugLibraries>false</UseDebugLibraries>
-        <PlatformToolset>v145</PlatformToolset>
-        <WholeProgramOptimization>true</WholeProgramOptimization>
-        <CharacterSet>Unicode</CharacterSet>
-        <PreferredToolArchitecture>x64</PreferredToolArchitecture>
-    </PropertyGroup>
-    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <PropertyGroup Label="Configuration">
         <ConfigurationType>DynamicLibrary</ConfigurationType>
         <UseDebugLibraries>false</UseDebugLibraries>
         <PlatformToolset>v145</PlatformToolset>
@@ -60,57 +52,10 @@
     <ImportGroup Label="PropertySheets">
         <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform"/>
     </ImportGroup>
+    <Import Project="..\Native.Common.props"/>
     <Import Project="NsightAftermath.props"/>
-    <PropertyGroup Label="UserMacros"/>
-    <PropertyGroup>
-        <LinkIncremental>false</LinkIncremental>
-        <OutDir>bin\$(Platform)\$(Configuration)\</OutDir>
-        <IntDir>obj\$(Platform)\$(Configuration)\</IntDir>
-        <CopyCppRuntimeToOutputDir>true</CopyCppRuntimeToOutputDir>
-        <RunCodeAnalysis>false</RunCodeAnalysis>
-        <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
-    </PropertyGroup>
-    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-        <ClCompile>
-            <WarningLevel>Level4</WarningLevel>
-            <PrecompiledHeader>Use</PrecompiledHeader>
-            <Optimization>MaxSpeed</Optimization>
-            <FunctionLevelLinking>true</FunctionLevelLinking>
-            <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-            <SDLCheck>true</SDLCheck>
-            <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-            <CompileAsWinRT>false</CompileAsWinRT>
-            <MultiProcessorCompilation>true</MultiProcessorCompilation>
-            <LanguageStandard>stdcpp20</LanguageStandard>
-            <IntrinsicFunctions>true</IntrinsicFunctions>
-            <TreatWarningAsError>true</TreatWarningAsError>
-        </ClCompile>
+    <ItemDefinitionGroup>
         <Link>
-            <SubSystem>Windows</SubSystem>
-            <EnableCOMDATFolding>true</EnableCOMDATFolding>
-            <OptimizeReferences>true</OptimizeReferences>
-            <AdditionalDependencies>d3d12.lib;d3d11.lib;dxguid.lib;dxgi.lib;d2d1.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
-            <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
-        </Link>
-    </ItemDefinitionGroup>
-    <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-        <ClCompile>
-            <WarningLevel>Level4</WarningLevel>
-            <PrecompiledHeader>Use</PrecompiledHeader>
-            <Optimization>Disabled</Optimization>
-            <FunctionLevelLinking>true</FunctionLevelLinking>
-            <PreprocessorDefinitions>NATIVE_DEBUG;WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-            <SDLCheck>true</SDLCheck>
-            <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-            <CompileAsWinRT>false</CompileAsWinRT>
-            <MultiProcessorCompilation>true</MultiProcessorCompilation>
-            <LanguageStandard>stdcpp20</LanguageStandard>
-            <TreatWarningAsError>true</TreatWarningAsError>
-        </ClCompile>
-        <Link>
-            <SubSystem>Windows</SubSystem>
-            <EnableCOMDATFolding>true</EnableCOMDATFolding>
-            <OptimizeReferences>true</OptimizeReferences>
             <AdditionalDependencies>d3d12.lib;d3d11.lib;dxguid.lib;dxgi.lib;d2d1.lib;dwrite.lib;%(AdditionalDependencies)</AdditionalDependencies>
             <DelayLoadDLLs>d3d12.dll</DelayLoadDLLs>
         </Link>
