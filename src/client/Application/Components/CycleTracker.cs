@@ -28,7 +28,7 @@ using VoxelGame.Presentation.Legacy.Providers;
 namespace VoxelGame.Client.Application.Components;
 
 /// <summary>
-///     Tracks the update and render cycles to calculate FPS and UPS.
+///     Tracks the logic, input, and render cycles to calculate the update rates.
 /// </summary>
 public sealed partial class CycleTracker : ApplicationComponent, IPerformanceProvider
 {
@@ -49,12 +49,12 @@ public sealed partial class CycleTracker : ApplicationComponent, IPerformancePro
     /// <summary>
     ///     Get the FPS of the screen, which are the frames per second.
     /// </summary>
-    public Double FPS => 1.0 / renderDeltaBuffer.Average;
+    public Double RenderUpdatesPerSecond => 1.0 / renderDeltaBuffer.Average;
 
     /// <summary>
     ///     Get the UPS of the screen, which are the updates per second.
     /// </summary>
-    public Double UPS => 1.0 / logicDeltaBuffer.Average;
+    public Double LogicUpdatesPerSecond => 1.0 / logicDeltaBuffer.Average;
 
     /// <inheritdoc />
     public override void OnRenderUpdate(Delta delta, Timer? timer)

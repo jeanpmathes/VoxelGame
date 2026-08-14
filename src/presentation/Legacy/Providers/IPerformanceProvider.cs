@@ -27,12 +27,17 @@ namespace VoxelGame.Presentation.Legacy.Providers;
 public interface IPerformanceProvider
 {
     /// <summary>
-    ///     The current FPS (frames per second).
+    ///     The current number of render updates per second.
     /// </summary>
-    Double FPS { get; }
+    Double RenderUpdatesPerSecond { get; }
 
     /// <summary>
-    ///     The current UPS (updates per second).
+    ///     The current number of input updates per second.
     /// </summary>
-    Double UPS { get; }
+    Double InputUpdatesPerSecond { get; }
+
+    /// <summary>
+    ///     The current number of logic updates per second.
+    /// </summary>
+    Double LogicUpdatesPerSecond { get; }
 }

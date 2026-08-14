@@ -70,7 +70,11 @@ internal sealed class InGameUI : ControlBase
 
     internal void UpdatePerformanceData()
     {
-        hud.SetUpdateRate(performanceProvider.FPS, performanceProvider.UPS);
+        hud.SetUpdateRate(
+            performanceProvider.RenderUpdatesPerSecond,
+            performanceProvider.InputUpdatesPerSecond,
+            performanceProvider.LogicUpdatesPerSecond
+        );
     }
 
     internal void UpdatePlayerData()

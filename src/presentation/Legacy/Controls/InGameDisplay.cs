@@ -105,9 +105,9 @@ internal sealed class InGameDisplay : ControlBase
         };
     }
 
-    internal void SetUpdateRate(Double fps, Double ups)
+    internal void SetUpdateRate(Double render, Double input, Double logic)
     {
-        performance.Text = $"FPS/UPS: {fps:000}/{ups:000}";
+        performance.Text = $"R/I/L: {render:000}/{input:000}/{logic:000}";
     }
 
     internal void SetPlayerData(IPlayerDataProvider playerDataProvider)
