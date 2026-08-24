@@ -35,17 +35,17 @@ public static class Defaults
     /// <summary>
     ///     The default background brush.
     /// </summary>
-    public static readonly Brush BackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 28, green: 28, blue: 28));
+    public static readonly Brush BackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 26, green: 26, blue: 26));
 
     /// <summary>
     ///     The default background brush.
     /// </summary>
-    public static readonly Brush TransparentBackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 28, green: 28, blue: 28, alpha: 204));
+    public static readonly Brush TransparentBackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 26, green: 26, blue: 26, alpha: 204));
 
     /// <summary>
     ///     The default darker / alternative background brush.
     /// </summary>
-    public static readonly Brush BackgroundAlternativeBrush = new SolidColorBrush(Color.FromArgb(red: 23, green: 23, blue: 23));
+    public static readonly Brush BackgroundAlternativeBrush = new SolidColorBrush(Color.FromArgb(red: 13, green: 13, blue: 13));
 
     /// <summary>
     ///     The default foreground brush.
@@ -75,7 +75,7 @@ public static class Defaults
     /// <summary>
     ///     The default radius of borders and similar.
     /// </summary>
-    public static readonly RadiusF Radius = new(10.0f);
+    public static readonly RadiusF Radius = new(5.0f);
 
     /// <summary>
     ///     Create a default style for a <see cref="Canvas" />.
@@ -116,11 +116,11 @@ public static class Defaults
         /// <summary>
         ///     The default font size of a text.
         /// </summary>
-        public static readonly Single Size = 12.0f;
+        public const Single Size = 15.0f;
 
         /// <summary>
         ///     The default line height of a text.
         /// </summary>
-        public static readonly Single LineHeight = 1.2f;
+        public const Single LineHeight = 1.2f;
     }
 }
