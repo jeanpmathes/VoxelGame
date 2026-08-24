@@ -82,6 +82,8 @@ public class Canvas : Visual
     /// <inheritdoc />
     public override void Render(RectangleF clip)
     {
+        if (IsRenderValid) return;
+
         Renderer.Reset();
 
         Renderer.PushOffset(Point.Empty);
