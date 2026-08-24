@@ -44,7 +44,7 @@ public:
         std::string applicationName;
         std::string applicationVersion;
 
-        static Description Create(LPWSTR applicationName, LPWSTR applicationVersion);
+        static Description Create(WCHAR const* applicationName, WCHAR const* applicationVersion);
     };
 
     GpuCrashTracker(MarkerMap const& markerMap, ShaderDatabase const& shaderDatabase, Description description);
