@@ -29,6 +29,9 @@ public:
     void MoveToNextFrame();
     void WaitForGPU();
 
+    /// Get the Device Removal Extended Data (DRED).
+    std::wstring GetDRED() const;
+
     [[nodiscard]] NativeClient& GetClient() const;
     [[nodiscard]] DebugLayer&   GetDebugLayer();
     [[nodiscard]] UINT          GetFrameIndex() const;

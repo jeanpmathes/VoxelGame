@@ -126,8 +126,6 @@ public:
     ObjectHandle StoreObject(std::unique_ptr<Object> object);
     void         DeleteObject(ObjectHandle handle);
 
-    [[nodiscard]] std::wstring GetDRED() const;
-
 private:
     static std::array<float, 4> const CLEAR_COLOR;
     static std::array<float, 4> const LETTERBOX_COLOR;

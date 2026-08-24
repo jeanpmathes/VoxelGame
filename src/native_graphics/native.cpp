@@ -99,7 +99,7 @@ NATIVE void NativePassDRED(NativeClient const* client, NativeWStringFunction con
     {
         Require(CALL_ON_MAIN_THREAD(client));
 
-        std::wstring const dred = client->GetDRED();
+        std::wstring const dred = client->GetContext().GetDRED();
         receiver(dred.c_str());
     } CATCH();
 }

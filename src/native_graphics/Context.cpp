@@ -122,6 +122,20 @@ void Context::WaitForGPU()
     fenceValues[frameIndex]++;
 }
 
+std::wstring Context::GetDRED() const
+{
+    ComPtr<ID3D12DeviceRemovedExtendedData2> dred;
+    TryDo(GetD3D12Device().As(&dred));
+
+    D3D12_DRED_AUTO_BREADCRUMBS_OUTPUT1 dredAutoBreadcrumbsOutput = {};
+    TryDo(dred->GetAutoBreadcrumbsOutput1(&dredAutoBreadcrumbsOutput));
+
+    D3D12_DRED_PAGE_FAULT_OUTPUT2 dredPageFaultOutput = {};
+    TryDo(dred->GetPageFaultAllocationOutput2(&dredPageFaultOutput));
+
+    return util::FormatDRED(dredAutoBreadcrumbsOutput, dredPageFaultOutput, dred->GetDeviceState());
+}
+
 NativeClient& Context::GetClient() const { return *client; }
 
 DebugLayer& Context::GetDebugLayer()
