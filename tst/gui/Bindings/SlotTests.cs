@@ -29,7 +29,6 @@ namespace VoxelGame.GUI.Tests.Bindings;
 public class SlotTests
 {
     private readonly Slot<Int32> slot;
-    private readonly EventObserver observer = new();
 
     public SlotTests()
     {
@@ -39,17 +38,19 @@ public class SlotTests
     [Fact]
     public void Slot_SetValue_ShouldRaiseValueChangedWhenNewValueIsDifferent()
     {
-        slot.ValueChanged += observer.OnEvent;
+        EventObserver observer = EventObserver.Observe(slot);
+
         slot.SetValue(9);
 
         Assert.Equal(expected: 9, slot.GetValue());
-        Assert.Equal(expected: 1, observer.InvocationCount);
+        observer.AssertObservation<EventArgs>(this);
     }
 
     [Fact]
     public void SetValue_WithEqualValue_DoesNotRaiseValueChanged()
     {
-        slot.ValueChanged += observer.OnEvent;
+        EventObserver observer = EventObserver.Observe(slot);
+
         slot.SetValue(10);
 
         Assert.Equal(expected: 10, slot.GetValue());

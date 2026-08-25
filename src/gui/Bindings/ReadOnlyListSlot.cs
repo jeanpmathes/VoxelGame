@@ -78,7 +78,7 @@ public class ReadOnlyListSlot<TItem> : ICollectionSource<TItem>, IReadOnlyList<T
 
             items[index] = value;
 
-            CollectionChanged?.Invoke(this, CollectionChangedEventArgs<TItem>.Replaced([oldItem], [value], index));
+            CollectionChanged?.Invoke(this, CollectionChangedEventArgs<TItem>.Replaced([value], [oldItem], index));
         }
     }
 
@@ -92,7 +92,10 @@ public class ReadOnlyListSlot<TItem> : ICollectionSource<TItem>, IReadOnlyList<T
 
     private protected void Clear()
     {
-        IReadOnlyList<TItem> oldItems = items.ToArray();
+        if (items.Count == 0)
+            return;
+
+        IReadOnlyList<TItem> oldItems = [.. items];
 
         items.Clear();
         count.SetValue(0);

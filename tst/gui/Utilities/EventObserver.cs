@@ -18,6 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
+using VoxelGame.GUI.Bindings;
+using Xunit;
 
 namespace VoxelGame.GUI.Tests.Utilities;
 
@@ -27,6 +29,32 @@ public sealed class EventObserver
 
     public Object? LastSender { get; private set; }
     public Object? LastArgs { get; private set; }
+
+    public static EventObserver Observe(IValueSource source)
+    {
+        EventObserver observer = new();
+
+        source.ValueChanged += observer.OnEvent;
+
+        return observer;
+    }
+
+    public static EventObserver Observe<TItem>(ICollectionSource<TItem> source)
+    {
+        EventObserver observer = new();
+
+        source.CollectionChanged += observer.OnEvent;
+
+        return observer;
+    }
+
+    public TArgs AssertObservation<TArgs>(Object sender)
+    {
+        Assert.Equal(expected: 1, InvocationCount);
+        Assert.Same(sender, LastSender);
+
+        return Assert.IsType<TArgs>(LastArgs);
+    }
 
     public void Reset()
     {
