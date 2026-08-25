@@ -89,6 +89,8 @@ public partial class Map
             UpdateAdjacencies(data, adjacencyHashed, ref current, (x, y));
         }
 
+        Debug.Assert(valueToPiece.Count > 1);
+
         return (Algorithms.BuildAdjacencyList(adjacencyHashed), Algorithms.InvertDictionary(valueToPiece));
     }
 

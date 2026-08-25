@@ -3,9 +3,19 @@
 Noise::Noise(NoiseDefinition const& definition)
     : m_seed(definition.seed)
 {
-    if (definition.type == NoiseType::GRADIENT) m_generator = FastNoise::New<FastNoise::Simplex>();
-    else if (definition.type == NoiseType::CELLULAR) m_generator = FastNoise::New<FastNoise::CellularValue>();
-    else m_generator                                             = FastNoise::New<FastNoise::Constant>();
+    if (definition.type == NoiseType::GRADIENT)
+    {
+        auto generator = FastNoise::New<FastNoise::Simplex>();
+        generator->SetScale(1.0f);
+        m_generator = generator;
+    }
+    else if (definition.type == NoiseType::CELLULAR)
+    {
+        auto generator = FastNoise::New<FastNoise::CellularValue>();
+        generator->SetScale(1.0f);
+        m_generator = generator;
+    }
+    else m_generator = FastNoise::New<FastNoise::Constant>();
 
     if (definition.useFractal)
     {
