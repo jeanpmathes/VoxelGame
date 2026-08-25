@@ -30,6 +30,47 @@ namespace VoxelGame.Toolkit.Tests.Noise;
 [TestSubject(typeof(NoiseGenerator))]
 public class NoiseGeneratorTests
 {
+    private const Int32 Seed = 12345;
+    private const Single Frequency = 0.025f;
+
+    [Fact]
+    public void NoiseGenerator_GradientNoise_ShouldProduceExpectedValues()
+    {
+        using NoiseGenerator generator = NoiseBuilder.Create(Seed)
+            .WithType(NoiseType.GradientNoise)
+            .WithFrequency(Frequency)
+            .Build();
+
+        AssertExpectedValues(generator, expected2D: 0.10147238f, expected3D: -0.049963772f);
+    }
+
+    [Fact]
+    public void NoiseGenerator_CellularNoise_ShouldProduceExpectedValues()
+    {
+        using NoiseGenerator generator = NoiseBuilder.Create(Seed)
+            .WithType(NoiseType.CellularNoise)
+            .WithFrequency(Frequency)
+            .Build();
+
+        AssertExpectedValues(generator, expected2D: -0.63761735f, expected3D: -0.5763204f);
+    }
+
+    [Fact]
+    public void NoiseGenerator_FractalGradientNoise_ShouldProduceExpectedValues()
+    {
+        using NoiseGenerator generator = NoiseBuilder.Create(Seed)
+            .WithType(NoiseType.GradientNoise)
+            .WithFrequency(Frequency)
+            .WithFractals()
+            .WithOctaves(octaves: 5)
+            .WithLacunarity(lacunarity: 2.0f)
+            .WithGain(gain: 0.5f)
+            .WithWeightedStrength(weightedStrength: 0.0f)
+            .Build();
+
+        AssertExpectedValues(generator, expected2D: 0.55294716f, expected3D: -0.1272859f);
+    }
+
     [Fact]
     public void NoiseGenerator_Noise2D_ShouldBeInRangeAndSingleNoiseEqualToGridNoise()
     {
@@ -68,5 +109,11 @@ public class NoiseGeneratorTests
             Single singleValue = generator.GetNoise(from + (x, y, z));
             Assert.Equal(gridValue, singleValue, precision: 5);
         }
+    }
+
+    private static void AssertExpectedValues(NoiseGenerator generator, Single expected2D, Single expected3D)
+    {
+        Assert.Equal(expected2D, generator.GetNoise(new Vector2i(x: 37, y: -19)), precision: 7);
+        Assert.Equal(expected3D, generator.GetNoise(new Vector3i(x: 37, y: -19, z: 11)), precision: 7);
     }
 }
