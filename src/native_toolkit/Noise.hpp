@@ -41,7 +41,7 @@ public:
     void GetGrid(int x, int y, int z, int width, int height, int depth, float* out) const;
 
 private:
-    int m_seed;
+    int seed;
 
-    FastNoise::SmartNode<> m_generator = {};
+    FastNoise::SmartNode<> generator = {};
 };

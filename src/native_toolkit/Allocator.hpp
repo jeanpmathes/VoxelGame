@@ -23,5 +23,5 @@ public:
     ~Allocator();
 
 private:
-    HANDLE m_heap;
+    HANDLE heap;
 };
