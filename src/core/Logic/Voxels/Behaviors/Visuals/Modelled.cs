@@ -29,13 +29,14 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
+using Model = VoxelGame.Core.Visuals.Models.Model;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 
 /// <summary>
-///     A <see cref="Complex" /> block which uses <see cref="VoxelGame.Core.Visuals.Model" />s to define its mesh.
+///     A <see cref="Complex" /> block which uses <see cref="Core.Visuals.Models.Model" />s to define its mesh.
 /// </summary>
 public partial class Modelled : BlockBehavior, IBehavior<Modelled, BlockBehavior, Block>
 {

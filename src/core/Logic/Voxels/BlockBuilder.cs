@@ -24,8 +24,10 @@ using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Logic.Voxels.Conventions;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Core.Visuals.Textures;
+using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Voxels;
 

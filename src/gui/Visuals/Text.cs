@@ -18,13 +18,11 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Bindings;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
-using Brush = VoxelGame.GUI.Graphics.Brush;
-using Font = VoxelGame.GUI.Texts.Font;
 
 namespace VoxelGame.GUI.Visuals;
 
@@ -181,23 +179,23 @@ public class Text : Visual
 
     #region LAYOUT
 
-    private RectangleF finalTextRectangle;
+    private Rectangle finalTextRectangle;
 
     /// <inheritdoc />
-    public override SizeF OnMeasure(SizeF availableSize)
+    public override Size OnMeasure(Size availableSize)
     {
         if (formattedText == null)
-            return SizeF.Empty;
+            return Size.Empty;
 
         availableSize -= Padding.GetValue();
 
-        SizeF textSize = formattedText.Measure(Sizes.Max(SizeF.Empty, availableSize));
+        Size textSize = formattedText.Measure(Size.MaxComponents(Size.Empty, availableSize));
 
         return textSize + Padding.GetValue();
     }
 
     /// <inheritdoc />
-    public override void OnArrange(RectangleF finalRectangle)
+    public override void OnArrange(Rectangle finalRectangle)
     {
         finalTextRectangle = finalRectangle - Padding.GetValue();
     }

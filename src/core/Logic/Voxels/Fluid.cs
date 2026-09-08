@@ -30,7 +30,10 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Core.Visuals.Meshing;
+using VoxelGame.Core.Visuals.Textures;
 using VoxelGame.Toolkit.Utilities;
 using Body = VoxelGame.Core.Actors.Components.Body;
 
@@ -279,21 +282,21 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
 
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
-            Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
-            Meshing.SetTint(ref data, mesh.Tint.Select(context.GetFluidTint(position)));
+            MeshData.SetTextureIndex(ref data, mesh.TextureIndex);
+            MeshData.SetTint(ref data, mesh.Tint.Select(context.GetFluidTint(position)));
 
             if (side is not (Side.Top or Side.Bottom))
             {
                 (Vector2 min, Vector2 max) uvs = info.Level.GetUVs(neighborLevel, Direction);
-                Meshing.SetUVs(ref data, uvs.min, (uvs.min.X, uvs.max.Y), uvs.max, (uvs.max.X, uvs.min.Y));
+                MeshData.SetUVs(ref data, uvs.min, (uvs.min.X, uvs.max.Y), uvs.max, (uvs.max.X, uvs.min.Y));
             }
             else
             {
-                Meshing.SetFullUVs(ref data);
+                MeshData.SetFullUVs(ref data);
             }
 
-            Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, value: true);
-            Meshing.SetFlag(ref data, Meshing.QuadFlag.IsUnshaded, value: false);
+            MeshData.SetFlag(ref data, MeshData.QuadFlag.IsAnimated, value: true);
+            MeshData.SetFlag(ref data, MeshData.QuadFlag.IsUnshaded, value: false);
 
             fluidMeshFaceHolders[side].AddFace(
                 position,

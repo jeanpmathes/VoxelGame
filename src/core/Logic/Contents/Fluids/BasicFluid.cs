@@ -26,6 +26,10 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Meshing;
+using VoxelGame.Core.Visuals.Textures;
+using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
 

@@ -22,7 +22,7 @@ using System.Globalization;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Logging;
 using VoxelGame.Presentation.Legacy.Providers;
 using VoxelGame.Presentation.Legacy.Settings;

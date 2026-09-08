@@ -20,7 +20,7 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using Image = VoxelGame.Core.Visuals.Image;
+using Image = VoxelGame.Core.Visuals.Images.Image;
 
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 

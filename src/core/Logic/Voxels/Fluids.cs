@@ -26,6 +26,7 @@ using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
 using VoxelGame.Logging;
+using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Voxels;
 

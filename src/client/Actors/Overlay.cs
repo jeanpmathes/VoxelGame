@@ -27,7 +27,8 @@ using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Client.Actors;
 

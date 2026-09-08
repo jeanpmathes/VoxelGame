@@ -18,11 +18,11 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using System.Linq;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Tests.Rendering;
 using VoxelGame.GUI.Themes;
+using VoxelGame.GUI.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Controls;
@@ -36,16 +36,16 @@ public abstract class ControlTestBase<TControl>(Func<TControl> factory) where TC
 
         canvas.Child = factory();
 
-        canvas.SetRenderingSize(new Size(width: 1000, height: 1000));
+        canvas.SetRenderingSize(new Size(Width: 1000, Height: 1000));
         canvas.Render();
 
-        canvas.SetRenderingSize(new Size(width: 0, height: 0));
+        canvas.SetRenderingSize(new Size(Width: 0, Height: 0));
         canvas.Render();
 
-        canvas.SetRenderingSize(new Size(width: 1, height: 1));
+        canvas.SetRenderingSize(new Size(Width: 1, Height: 1));
         canvas.Render();
 
-        canvas.SetRenderingSize(new Size(width: 5000, height: 5000));
+        canvas.SetRenderingSize(new Size(Width: 5000, Height: 5000));
         canvas.Render();
 
         canvas.SetScale(0.5f);

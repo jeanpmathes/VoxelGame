@@ -19,10 +19,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.Toolkit.Utilities;
-using Brush = VoxelGame.GUI.Graphics.Brush;
 
 namespace VoxelGame.Presentation.New.Platform.Graphics;
 
@@ -33,7 +32,7 @@ internal sealed class BrushMap(Renderer renderer) : IDisposable
 {
     private readonly Dictionary<Brush, VoxelGame.Graphics.Objects.UserInterface.Brush> map = [];
 
-    public VoxelGame.Graphics.Objects.UserInterface.Brush? Get(Brush brush, out Color? color)
+    public VoxelGame.Graphics.Objects.UserInterface.Brush? Get(Brush brush, out ColorS? color)
     {
         color = null;
 

@@ -19,7 +19,8 @@
 
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Attributes;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Models;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 

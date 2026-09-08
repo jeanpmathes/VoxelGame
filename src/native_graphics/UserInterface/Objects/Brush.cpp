@@ -14,7 +14,7 @@ void ui::Brush::Return()
     renderer->GetBrushSupport().ReturnSolidColorBrush(oldIndex);
 }
 
-void ui::Brush::Reset(Index newIndex, ColorF const newColor)
+void ui::Brush::Reset(Index newIndex, Color const newColor)
 {
     index = newIndex;
 

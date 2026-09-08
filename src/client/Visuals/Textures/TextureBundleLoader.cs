@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using VoxelGame.Core.Utilities.Resources;
-using Image = VoxelGame.Core.Visuals.Image;
+using Image = VoxelGame.Core.Visuals.Images.Image;
 
 namespace VoxelGame.Client.Visuals.Textures;
 

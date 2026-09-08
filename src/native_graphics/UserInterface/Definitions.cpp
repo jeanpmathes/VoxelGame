@@ -1,6 +1,6 @@
 ﻿#include "stdafx.h"
 
-D2D1_POINT_2F ui::PointF::ToD2D1() const
+D2D1_POINT_2F ui::Point::ToD2D1() const
 {
     Require(std::isfinite(x));
     Require(std::isfinite(y));
@@ -8,7 +8,7 @@ D2D1_POINT_2F ui::PointF::ToD2D1() const
     return D2D1::Point2F(x, y);
 }
 
-D2D1_SIZE_F ui::SizeF::ToD2D1() const
+D2D1_SIZE_F ui::Size::ToD2D1() const
 {
     Require(std::isfinite(width));
     Require(width >= 0.0f);
@@ -18,7 +18,7 @@ D2D1_SIZE_F ui::SizeF::ToD2D1() const
     return D2D1::SizeF(width, height);
 }
 
-D2D1_RECT_F ui::RectangleF::ToD2D1() const
+D2D1_RECT_F ui::Rectangle::ToD2D1() const
 {
     Require(std::isfinite(x));
     Require(std::isfinite(y));
@@ -35,7 +35,7 @@ D2D1_RECT_F ui::RectangleF::ToD2D1() const
     return D2D1::RectF(left, top, right, bottom);
 }
 
-D2D1_ROUNDED_RECT ui::RectangleF::ToD2D1(RadiusF const& radius) const
+D2D1_ROUNDED_RECT ui::Rectangle::ToD2D1(Radius const& radius) const
 {
     Require(std::isfinite(radius.x));
     Require(radius.x >= 0.0f);
@@ -45,7 +45,7 @@ D2D1_ROUNDED_RECT ui::RectangleF::ToD2D1(RadiusF const& radius) const
     return D2D1::RoundedRect(ToD2D1(), radius.x, radius.y);
 }
 
-D2D1_COLOR_F ui::ColorF::ToD2D1() const
+D2D1_COLOR_F ui::Color::ToD2D1() const
 {
     Require(std::isfinite(r));
     Require(std::isfinite(g));

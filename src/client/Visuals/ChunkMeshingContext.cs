@@ -28,7 +28,8 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Meshing;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Visuals;

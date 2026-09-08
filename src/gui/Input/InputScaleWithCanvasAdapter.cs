@@ -18,8 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Controls;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.GUI.Input;
 
@@ -43,25 +43,25 @@ public class InputScaleWithCanvasAdapter(Canvas canvas, IInputReceiver receiver)
     }
 
     /// <inheritdoc />
-    public Boolean ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
+    public Boolean ReceivePointerButtonEvent(Point position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         return receiver.ReceivePointerButtonEvent(ScalePosition(position), button, isDown, modifiers, isSynthetic);
     }
 
     /// <inheritdoc />
-    public Boolean ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceivePointerMoveEvent(Point position, Single deltaX, Single deltaY)
     {
         return receiver.ReceivePointerMoveEvent(ScalePosition(position), deltaX / canvas.Scale, deltaY / canvas.Scale);
     }
 
     /// <inheritdoc />
-    public Boolean ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceiveScrollEvent(Point position, Single deltaX, Single deltaY)
     {
         return receiver.ReceiveScrollEvent(ScalePosition(position), deltaX, deltaY);
     }
 
-    private PointF ScalePosition(PointF position)
+    private Point ScalePosition(Point position)
     {
-        return new PointF(position.X / canvas.Scale, position.Y / canvas.Scale);
+        return new Point(position.X / canvas.Scale, position.Y / canvas.Scale);
     }
 }

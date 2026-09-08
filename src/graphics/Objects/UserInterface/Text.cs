@@ -18,9 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using System.Runtime.InteropServices.Marshalling;
-using VoxelGame.Graphics.Definition.UserInterface;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Objects.UserInterface;
@@ -31,8 +30,8 @@ namespace VoxelGame.Graphics.Objects.UserInterface;
 [NativeMarshalling(typeof(TextMarshaller))]
 public sealed class Text : DisposableNativeObject<Text>
 {
-    private SizeF? lastAvailableSize;
-    private SizeF lastMeasuredSize = SizeF.Empty;
+    private Size? lastAvailableSize;
+    private Size lastMeasuredSize = Size.Empty;
 
     internal Text(IntPtr nativePointer, TextFormat format, Renderer renderer) : base(nativePointer, renderer.NativeClient)
     {
@@ -52,7 +51,7 @@ public sealed class Text : DisposableNativeObject<Text>
     /// </summary>
     /// <param name="availableSize">The available size.</param>
     /// <returns>The measured size.</returns>
-    public SizeF Measure(SizeF availableSize)
+    public Size Measure(Size availableSize)
     {
         ExceptionTools.ThrowIfDisposed(disposed);
 
@@ -61,8 +60,7 @@ public sealed class Text : DisposableNativeObject<Text>
 
         lastAvailableSize = availableSize;
 
-        NativeSizeF result = NativeMethods.MeasureUserInterfaceText(this, new NativeSizeF(availableSize.Width, availableSize.Height));
-        lastMeasuredSize = new SizeF(result.Width, result.Height);
+        lastMeasuredSize = NativeMethods.MeasureUserInterfaceText(this, availableSize);
 
         return lastMeasuredSize;
     }

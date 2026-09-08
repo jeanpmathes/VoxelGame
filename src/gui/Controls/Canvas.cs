@@ -18,13 +18,13 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls.Internals;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Rendering;
 using VoxelGame.GUI.Themes;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 using VoxelGame.Toolkit.Utilities;
 
@@ -38,7 +38,7 @@ public sealed class Canvas : SingleChildControl<Canvas>, IDisposable
 {
     private readonly IRenderer onlyRenderer;
 
-    private SizeF viewportSize = SizeF.Empty;
+    private Size viewportSize = Size.Empty;
 
     private Canvas(IRenderer renderer, Theme theme)
     {

@@ -21,9 +21,9 @@ using System;
 using System.Drawing;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using Xunit;
-using Image = VoxelGame.Core.Visuals.Image;
+using Image = VoxelGame.Core.Visuals.Images.Image;
 
 namespace VoxelGame.Core.Tests.Visuals;
 

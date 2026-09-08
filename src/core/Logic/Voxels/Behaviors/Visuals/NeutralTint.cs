@@ -19,7 +19,7 @@
 
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 

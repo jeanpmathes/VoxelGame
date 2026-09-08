@@ -22,8 +22,9 @@ using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Core.Visuals.Textures;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
@@ -151,9 +152,9 @@ public sealed partial class OverlayPipeline : IDisposable
 
         (UInt32, UInt32, UInt32, UInt32) attributes = (0, 0, 0, 0);
 
-        Meshing.SetTextureIndex(ref attributes, textureID);
-        Meshing.SetTint(ref attributes, tint);
-        Meshing.SetFlag(ref attributes, Meshing.QuadFlag.IsAnimated, isAnimated);
+        MeshData.SetTextureIndex(ref attributes, textureID);
+        MeshData.SetTint(ref attributes, tint);
+        MeshData.SetFlag(ref attributes, MeshData.QuadFlag.IsAnimated, isAnimated);
 
         Matrix4d mvp = model * view * projection;
         Matrix4 mvpF = new((Vector4) mvp.Row0, (Vector4) mvp.Row1, (Vector4) mvp.Row2, (Vector4) mvp.Row3);

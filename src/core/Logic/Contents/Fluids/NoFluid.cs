@@ -22,6 +22,7 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Utilities.Units;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
 

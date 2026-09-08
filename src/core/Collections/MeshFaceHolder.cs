@@ -23,8 +23,8 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Height;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Core.Visuals.Meshing;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Collections;
@@ -328,7 +328,7 @@ public class MeshFaceHolder
                 if (side is not Side.Left and not Side.Right)
                     currentFace.isRotated = !currentFace.isRotated;
 
-                Meshing.SetTextureRepetition(ref currentFace.data,
+                MeshData.SetTextureRepetition(ref currentFace.data,
                     currentFace.isRotated,
                     currentFace.height,
                     currentFace.length);
@@ -431,8 +431,8 @@ public class MeshFaceHolder
 
         positions = (positions.d, positions.c, positions.b, positions.a);
 
-        Meshing.MirrorUVs(ref face.data);
-        Meshing.SetFlag(ref face.data, Meshing.QuadFlag.IsNormalInverted, value: true);
+        MeshData.MirrorUVs(ref face.data);
+        MeshData.SetFlag(ref face.data, MeshData.QuadFlag.IsNormalInverted, value: true);
 
         meshing.PushQuad(positions, face.data);
     }

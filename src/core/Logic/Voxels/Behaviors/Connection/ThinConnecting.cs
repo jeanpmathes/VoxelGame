@@ -29,7 +29,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
+using Model = VoxelGame.Core.Visuals.Models.Model;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
@@ -68,11 +69,11 @@ public partial class ThinConnecting : BlockBehavior, IBehavior<ThinConnecting, B
 
         Model post = context.ModelProvider.GetModel(Models.Get().post);
 
-        (Model north, Model east, Model south, Model west) sides = Core.Visuals.Models.CreateModelsForAllOrientations(
+        (Model north, Model east, Model south, Model west) sides = Core.Visuals.Models.Models.CreateModelsForAllOrientations(
             context.ModelProvider.GetModel(Models.Get().side),
             Model.TransformationMode.Reshape);
 
-        (Model north, Model east, Model south, Model west) extensions = Core.Visuals.Models.CreateModelsForAllOrientations(
+        (Model north, Model east, Model south, Model west) extensions = Core.Visuals.Models.Models.CreateModelsForAllOrientations(
             context.ModelProvider.GetModel(Models.Get().extension),
             Model.TransformationMode.Reshape);
 

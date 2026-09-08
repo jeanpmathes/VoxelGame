@@ -22,7 +22,7 @@ using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Objects;
 

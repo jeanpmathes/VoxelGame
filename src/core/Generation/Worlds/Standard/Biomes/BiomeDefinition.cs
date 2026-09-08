@@ -24,7 +24,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using VoxelGame.Core.Generation.Worlds.Standard.SubBiomes;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Core.Generation.Worlds.Standard.Biomes;
 

@@ -20,8 +20,8 @@
 using System;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Visuals;
-using Image = VoxelGame.Core.Visuals.Image;
+using VoxelGame.Core.Visuals.Colors;
+using Image = VoxelGame.Core.Visuals.Images.Image;
 
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 

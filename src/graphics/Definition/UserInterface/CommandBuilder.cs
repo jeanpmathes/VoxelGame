@@ -19,12 +19,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Runtime.InteropServices;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Graphics.Objects.UserInterface;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing;
 using VoxelGame.GUI.Utilities;
-using Brush = VoxelGame.Graphics.Objects.UserInterface.Brush;
 
 namespace VoxelGame.Graphics.Definition.UserInterface;
 
@@ -56,12 +55,12 @@ public sealed class CommandBuilder
     /// </remarks>
     /// <seealso cref="CommandKind.PushOffset" />
     /// <param name="offset">The offset to push.</param>
-    public void PushOffset(PointF offset)
+    public void PushOffset(Point offset)
     {
         commands.Add(new Command
         {
             Kind = CommandKind.PushOffset,
-            PushOffset = new PushOffsetCommand(ToNative(offset))
+            PushOffset = new PushOffsetCommand(offset)
         });
     }
 
@@ -88,12 +87,12 @@ public sealed class CommandBuilder
     /// </remarks>
     /// <seealso cref="CommandKind.PushClip" />
     /// <param name="rectangle">The clipping rectangle to push.</param>
-    public void PushClip(RectangleF rectangle)
+    public void PushClip(Rectangle rectangle)
     {
         commands.Add(new Command
         {
             Kind = CommandKind.PushClip,
-            PushClip = new PushClipCommand(ToNative(rectangle))
+            PushClip = new PushClipCommand(rectangle)
         });
     }
 
@@ -150,18 +149,18 @@ public sealed class CommandBuilder
     /// <param name="rectangle">The rectangle to draw.</param>
     /// <param name="radius">The corner radius.</param>
     /// <param name="color">The color to use.</param>
-    public void DrawFilledRectangle(RectangleF rectangle, RadiusF radius, Color color)
+    public void DrawFilledRectangle(Rectangle rectangle, Radius radius, ColorS color)
     {
-        commands.Add(radius == RadiusF.Zero
+        commands.Add(radius == Radius.Zero
             ? new Command
             {
-                Kind = CommandKind.DrawRectangleFilledColor,
-                DrawRectangleFilledColor = new DrawRectangleFilledColorCommand(ToNative(rectangle), ToNative(color))
+                Kind = CommandKind.DrawRectangleilledColor,
+                DrawRectangleilledColor = new DrawRectangleilledColorCommand(rectangle, color)
             }
             : new Command
             {
-                Kind = CommandKind.DrawRectangleFilledRoundedColor,
-                DrawRectangleFilledRoundedColor = new DrawRectangleFilledRoundedColorCommand(ToNative(rectangle), ToNative(radius), ToNative(color))
+                Kind = CommandKind.DrawRectangleilledRoundedColor,
+                DrawRectangleilledRoundedColor = new DrawRectangleilledRoundedColorCommand(rectangle, radius, color)
             });
     }
 
@@ -171,18 +170,18 @@ public sealed class CommandBuilder
     /// <param name="rectangle">The rectangle to draw.</param>
     /// <param name="radius">The corner radius.</param>
     /// <param name="brush">The native brush to use.</param>
-    public void DrawFilledRectangle(RectangleF rectangle, RadiusF radius, Brush brush)
+    public void DrawFilledRectangle(Rectangle rectangle, Radius radius, Brush brush)
     {
-        commands.Add(radius == RadiusF.Zero
+        commands.Add(radius == Radius.Zero
             ? new Command
             {
-                Kind = CommandKind.DrawRectangleFilledBrush,
-                DrawRectangleFilledBrush = new DrawRectangleFilledBrushCommand(ToNative(rectangle), brush.Self)
+                Kind = CommandKind.DrawRectangleilledBrush,
+                DrawRectangleilledBrush = new DrawRectangleilledBrushCommand(rectangle, brush.Self)
             }
             : new Command
             {
-                Kind = CommandKind.DrawRectangleFilledRoundedBrush,
-                DrawRectangleFilledRoundedBrush = new DrawRectangleFilledRoundedBrushCommand(ToNative(rectangle), ToNative(radius), brush.Self)
+                Kind = CommandKind.DrawRectangleilledRoundedBrush,
+                DrawRectangleilledRoundedBrush = new DrawRectangleilledRoundedBrushCommand(rectangle, radius, brush.Self)
             });
     }
 
@@ -194,18 +193,18 @@ public sealed class CommandBuilder
     /// <param name="radius">The corner radius.</param>
     /// <param name="stroke">The stroke style.</param>
     /// <param name="color">The color to use.</param>
-    public void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF radius, StrokeStyle stroke, Color color)
+    public void DrawLinedRectangle(Rectangle rectangle, Width width, Radius radius, StrokeStyle stroke, ColorS color)
     {
-        commands.Add(radius == RadiusF.Zero
+        commands.Add(radius == Radius.Zero
             ? new Command
             {
                 Kind = CommandKind.DrawRectangleLinedColor,
-                DrawRectangleLinedColor = new DrawRectangleLinedColorCommand(ToNative(rectangle), ToNative(color), width.Value, stroke)
+                DrawRectangleLinedColor = new DrawRectangleLinedColorCommand(rectangle, color, width.Value, stroke)
             }
             : new Command
             {
                 Kind = CommandKind.DrawRectangleLinedRoundedColor,
-                DrawRectangleLinedRoundedColor = new DrawRectangleLinedRoundedColorCommand(ToNative(rectangle), ToNative(radius), ToNative(color), width.Value, stroke)
+                DrawRectangleLinedRoundedColor = new DrawRectangleLinedRoundedColorCommand(rectangle, radius, color, width.Value, stroke)
             });
     }
 
@@ -217,18 +216,18 @@ public sealed class CommandBuilder
     /// <param name="radius">The corner radius.</param>
     /// <param name="stroke">The stroke style.</param>
     /// <param name="brush">The native brush to use.</param>
-    public void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF radius, StrokeStyle stroke, Brush brush)
+    public void DrawLinedRectangle(Rectangle rectangle, Width width, Radius radius, StrokeStyle stroke, Brush brush)
     {
-        commands.Add(radius == RadiusF.Zero
+        commands.Add(radius == Radius.Zero
             ? new Command
             {
                 Kind = CommandKind.DrawRectangleLinedBrush,
-                DrawRectangleLinedBrush = new DrawRectangleLinedBrushCommand(ToNative(rectangle), brush.Self, width.Value, stroke)
+                DrawRectangleLinedBrush = new DrawRectangleLinedBrushCommand(rectangle, brush.Self, width.Value, stroke)
             }
             : new Command
             {
                 Kind = CommandKind.DrawRectangleLinedRoundedBrush,
-                DrawRectangleLinedRoundedBrush = new DrawRectangleLinedRoundedBrushCommand(ToNative(rectangle), ToNative(radius), brush.Self, width.Value, stroke)
+                DrawRectangleLinedRoundedBrush = new DrawRectangleLinedRoundedBrushCommand(rectangle, radius, brush.Self, width.Value, stroke)
             });
     }
 
@@ -238,12 +237,12 @@ public sealed class CommandBuilder
     /// <param name="text">The native text to draw.</param>
     /// <param name="position">The position at which to draw the text.</param>
     /// <param name="color">The color to use.</param>
-    public void DrawText(Text text, PointF position, Color color)
+    public void DrawText(Text text, Point position, ColorS color)
     {
         commands.Add(new Command
         {
             Kind = CommandKind.DrawTextColor,
-            DrawTextColor = new DrawTextColorCommand(text.Self, ToNative(position), ToNative(color))
+            DrawTextColor = new DrawTextColorCommand(text.Self, position, color)
         });
     }
 
@@ -253,34 +252,12 @@ public sealed class CommandBuilder
     /// <param name="text">The native text to draw.</param>
     /// <param name="position">The position at which to draw the text.</param>
     /// <param name="brush">The native brush to use.</param>
-    public void DrawText(Text text, PointF position, Brush brush)
+    public void DrawText(Text text, Point position, Brush brush)
     {
         commands.Add(new Command
         {
             Kind = CommandKind.DrawTextBrush,
-            DrawTextBrush = new DrawTextBrushCommand(text.Self, ToNative(position), brush.Self)
+            DrawTextBrush = new DrawTextBrushCommand(text.Self, position, brush.Self)
         });
-    }
-
-    private static NativePointF ToNative(PointF point)
-    {
-        return new NativePointF(point.X, point.Y);
-    }
-
-    private static NativeRectangleF ToNative(RectangleF rectangle)
-    {
-        return new NativeRectangleF(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height);
-    }
-
-    private static NativeRadiusF ToNative(RadiusF radius)
-    {
-        return new NativeRadiusF(radius.X, radius.Y);
-    }
-
-    private static NativeColorF ToNative(Color color)
-    {
-        const Single scale = 1.0f / Byte.MaxValue;
-
-        return new NativeColorF(color.R * scale, color.G * scale, color.B * scale, color.A * scale);
     }
 }

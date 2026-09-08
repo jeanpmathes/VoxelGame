@@ -19,7 +19,7 @@
 
 using System;
 using System.Runtime.InteropServices;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Images;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Definition;

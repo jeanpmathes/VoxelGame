@@ -20,16 +20,14 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using VoxelGame.Core.Utilities;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Rendering;
 using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
-using Brush = VoxelGame.GUI.Graphics.Brush;
-using Brushes = VoxelGame.GUI.Graphics.Brushes;
 
 namespace VoxelGame.GUI.Visuals;
 
@@ -102,14 +100,14 @@ public abstract class Visual
     /// <summary>
     ///     The margin of this visual, which is space around the visual that the layout system should try to respect.
     /// </summary>
-    public VisualProperty<ThicknessF> Margin { get; }
+    public VisualProperty<Thickness> Margin { get; }
 
     /// <summary>
     ///     The padding of this visual, which is space inside the visual that the layout system should try to respect.
     ///     If a visual defines custom layout logic, it decides if and how to respect the padding.
     ///     As such, padding is less strictly enforced than margin.
     /// </summary>
-    public VisualProperty<ThicknessF> Padding { get; }
+    public VisualProperty<Thickness> Padding { get; }
 
     /// <summary>
     ///     The horizontal alignment of this visual, which is used by layout containers to determine how to position this
@@ -168,7 +166,7 @@ public abstract class Visual
     /// <returns>The created binding.</returns>
     protected Binding<Brush> BindToOwnerBackground()
     {
-        return Binding.To(TemplateOwner).Select(o => o?.Background, Brushes.Transparent);
+        return Binding.To(TemplateOwner).Select(o => o?.Background, Brush.Transparent);
     }
 
     /// <summary>
@@ -516,8 +514,8 @@ public abstract class Visual
 
     #region LAYOUTING
 
-    private SizeF MinimumSize => new(MinimumWidth.GetValue(), MinimumHeight.GetValue());
-    private SizeF MaximumSize => new(MaximumWidth.GetValue(), MaximumHeight.GetValue());
+    private Size MinimumSize => new(MinimumWidth.GetValue(), MinimumHeight.GetValue());
+    private Size MaximumSize => new(MaximumWidth.GetValue(), MaximumHeight.GetValue());
 
     private Boolean isMeasureValid;
     private Boolean isArrangeValid;
@@ -527,38 +525,38 @@ public abstract class Visual
     ///     This represents the total space this visual requires for layout, i.e. the minimum area that
     ///     must be reserved by its parent so it can render itself properly.
     /// </summary>
-    public SizeF MeasuredSize { get; private set; } = SizeF.Empty;
+    public Size MeasuredSize { get; private set; } = Size.Empty;
 
-    private SizeF lastAvailableSize = SizeF.Empty;
+    private Size lastAvailableSize = Size.Empty;
 
     /// <summary>
     ///     The bounds of this visual, excluding margins, relative to the parent visual.
     ///     This means that the bounds are in the coordinate system of the parent.
     /// </summary>
-    public RectangleF Bounds { get; private set; }
+    public Rectangle Bounds { get; private set; }
 
     /// <summary>
     ///     The bounds with negative offset applied, zeroing them to (0,0).
     ///     This means that these bounds are in the local coordinate system.
     ///     Use these for rendering.
     /// </summary>
-    protected internal RectangleF LocalBounds => new(PointF.Empty, Bounds.Size);
+    protected internal Rectangle LocalBounds => new(Point.Empty, Bounds.Size);
 
-    private RectangleF lastFinalRectangle = RectangleF.Empty;
+    private Rectangle lastFinalRectangle = Rectangle.Empty;
 
     /// <summary>
     ///     Offset from this visual to the root visual.
     ///     Applying this to a root position transforms it into the child coordinate space of this visual, not the local
     ///     coordinate space.
     /// </summary>
-    private PointF offsetToRoot = PointF.Empty;
+    private Point offsetToRoot = Point.Empty;
 
     /// <summary>
     ///     Measure the desired size of this visual given the available size.
     /// </summary>
     /// <param name="availableSize">The available size. The visual does not have to use all of this size.</param>
     /// <returns>The desired size required by this visual, might be larger than the available size.</returns>
-    public SizeF Measure(SizeF availableSize)
+    public Size Measure(Size availableSize)
     {
         if (isMeasureValid && lastAvailableSize == availableSize)
             return MeasuredSize;
@@ -567,19 +565,19 @@ public abstract class Visual
 
         if (Visibility.GetValue().IsLayouted)
         {
-            SizeF usableSize = availableSize - Margin.GetValue();
+            Size usableSize = availableSize - Margin.GetValue();
 
-            usableSize = Sizes.Max(SizeF.Empty, usableSize);
+            usableSize = Size.MaxComponents(Size.Empty, usableSize);
 
-            SizeF measuredSize = OnMeasure(usableSize);
+            Size measuredSize = OnMeasure(usableSize);
 
-            measuredSize = Sizes.Clamp(measuredSize, MinimumSize, MaximumSize);
+            measuredSize = Size.ClampComponents(measuredSize, MinimumSize, MaximumSize);
 
             MeasuredSize = measuredSize + Margin.GetValue();
         }
         else
         {
-            MeasuredSize = SizeF.Empty;
+            MeasuredSize = Size.Empty;
         }
 
         isMeasureValid = true;
@@ -589,31 +587,34 @@ public abstract class Visual
     }
 
     /// <summary>
-    ///     Override to define custom measuring logic. See <see cref="Measure(SizeF)" />.
-    ///     If you override this, you will likely need to override <see cref="OnArrange(RectangleF)" /> as well and vice versa.
+    ///     Override to define custom measuring logic. See <see cref="Measure(Size)" />.
+    ///     If you override this, you will likely need to override <see cref="OnArrange(Rectangle)" /> as well and vice versa.
     /// </summary>
     /// <param name="availableSize">The available size. The visual does not have to use all of this size.</param>
     /// <returns>
     ///     The desired size required by this visual, might be larger than the available size.
     ///     Must never return an infinite size.
     /// </returns>
-    public virtual SizeF OnMeasure(SizeF availableSize)
+    public virtual Size OnMeasure(Size availableSize)
     {
         if (children.Count == 0)
-            return SizeF.Empty;
+            return Size.Empty;
 
-        SizeF desiredSize = SizeF.Empty;
-
-        SizeF usableSize = availableSize;
+        Size usableSize = availableSize;
 
         usableSize -= Padding.GetValue();
 
+        Size desiredSize = Size.Empty;
+
         foreach (Visual child in children)
         {
-            SizeF childDesiredSize = child.Measure(usableSize);
+            Size childDesiredSize = child.Measure(usableSize);
 
-            desiredSize.Width = Math.Max(desiredSize.Width, childDesiredSize.Width);
-            desiredSize.Height = Math.Max(desiredSize.Height, childDesiredSize.Height);
+            desiredSize = new Size
+            {
+                Width = Math.Max(desiredSize.Width, childDesiredSize.Width),
+                Height = Math.Max(desiredSize.Height, childDesiredSize.Height)
+            };
         }
 
         desiredSize += Padding.GetValue();
@@ -629,7 +630,7 @@ public abstract class Visual
     ///     The final rectangle to arrange this visual in, in the coordinate space of the parent
     ///     visual.
     /// </param>
-    public void Arrange(RectangleF finalRectangle)
+    public void Arrange(Rectangle finalRectangle)
     {
         if (isArrangeValid && lastFinalRectangle == finalRectangle)
             return;
@@ -651,31 +652,38 @@ public abstract class Visual
         }
         else
         {
-            SizeF size = finalRectangle.Size;
+            Size finalSize = finalRectangle.Size;
 
             if (HorizontalAlignment.GetValue() != GUI.HorizontalAlignment.Stretch)
-                size.Width = Math.Min(finalRectangle.Width, MeasuredSize.Width - Margin.GetValue().Width);
+                finalSize = finalSize with {Width = Math.Min(finalRectangle.Width, MeasuredSize.Width - Margin.GetValue().Width)};
 
             if (VerticalAlignment.GetValue() != GUI.VerticalAlignment.Stretch)
-                size.Height = Math.Min(finalRectangle.Height, MeasuredSize.Height - Margin.GetValue().Height);
+                finalSize = finalSize with {Height = Math.Min(finalRectangle.Height, MeasuredSize.Height - Margin.GetValue().Height)};
 
-            size = Sizes.Clamp(size, MinimumSize, MaximumSize);
+            finalSize = Size.ClampComponents(finalSize, MinimumSize, MaximumSize);
 
-            PointF location = finalRectangle.Location;
+            Single offsetX;
+            Single offsetY;
 
             if (HorizontalAlignment.GetValue() == GUI.HorizontalAlignment.Center)
-                location.X += (finalRectangle.Width - size.Width) / 2;
+                offsetX = (finalRectangle.Width - finalSize.Width) / 2;
             else if (HorizontalAlignment.GetValue() == GUI.HorizontalAlignment.Right)
-                location.X += finalRectangle.Width - size.Width;
+                offsetX = finalRectangle.Width - finalSize.Width;
+            else
+                offsetX = 0;
 
             if (VerticalAlignment.GetValue() == GUI.VerticalAlignment.Center)
-                location.Y += (finalRectangle.Height - size.Height) / 2;
+                offsetY = (finalRectangle.Height - finalSize.Height) / 2;
             else if (VerticalAlignment.GetValue() == GUI.VerticalAlignment.Bottom)
-                location.Y += finalRectangle.Height - size.Height;
+                offsetY = finalRectangle.Height - finalSize.Height;
+            else
+                offsetY = 0;
 
-            SetBounds(new RectangleF(location, size));
+            finalRectangle = finalRectangle.Moved(offsetX, offsetY) with {Size = finalSize};
 
-            OnArrange(new RectangleF(PointF.Empty, size));
+            SetBounds(finalRectangle);
+
+            OnArrange(new Rectangle(Point.Empty, finalSize));
         }
 
         // SetBounds might invalidate something, so we set everything to valid again.
@@ -685,12 +693,12 @@ public abstract class Visual
     }
 
     /// <summary>
-    ///     Override to define custom arranging logic. See <see cref="Arrange(RectangleF)" />.
-    ///     If you have overriden <see cref="OnMeasure(SizeF)" />, you will likely need to override this as well and vice
+    ///     Override to define custom arranging logic. See <see cref="Arrange(Rectangle)" />.
+    ///     If you have overriden <see cref="OnMeasure(Size)" />, you will likely need to override this as well and vice
     ///     versa.
     /// </summary>
     /// <param name="finalRectangle">The final rectangle to arrange this visual in, in the coordinate space of this visual.</param>
-    public virtual void OnArrange(RectangleF finalRectangle)
+    public virtual void OnArrange(Rectangle finalRectangle)
     {
         if (children.Count == 0)
             return;
@@ -735,7 +743,7 @@ public abstract class Visual
     /// <param name="size">New size.</param>
     /// <returns>True if bounds changed.</returns>
     /// <remarks>Bounds are reset after the next layout pass.</remarks>
-    public Boolean SetSize(SizeF size)
+    public Boolean SetSize(Size size)
     {
         return SetBounds(Bounds with {Size = size});
     }
@@ -746,11 +754,11 @@ public abstract class Visual
     /// <param name="newBounds">New bounds.</param>
     /// <returns>True if bounds changed.</returns>
     /// <remarks>Bounds are reset after the next layout pass.</remarks>
-    public virtual Boolean SetBounds(RectangleF newBounds)
+    public virtual Boolean SetBounds(Rectangle newBounds)
     {
         if (Bounds == newBounds) return false;
 
-        RectangleF oldBounds = Bounds;
+        Rectangle oldBounds = Bounds;
         Bounds = newBounds;
 
         UpdateOffsetToRoot();
@@ -767,12 +775,12 @@ public abstract class Visual
     /// </summary>
     /// <param name="oldBounds">The old bounds.</param>
     /// <param name="newBounds">The new bounds.</param>
-    public virtual void OnBoundsChanged(RectangleF oldBounds, RectangleF newBounds) {}
+    public virtual void OnBoundsChanged(Rectangle oldBounds, Rectangle newBounds) {}
 
     private void UpdateOffsetToRoot()
     {
-        PointF newOffset = Parent != null
-            ? new PointF(Parent.offsetToRoot.X + Bounds.X, Parent.offsetToRoot.Y + Bounds.Y)
+        Point newOffset = Parent != null
+            ? new Point(Parent.offsetToRoot.X + Bounds.X, Parent.offsetToRoot.Y + Bounds.Y)
             : Bounds.Location;
 
         if (offsetToRoot == newOffset) return;
@@ -788,9 +796,9 @@ public abstract class Visual
     /// </summary>
     /// <param name="localPoint">The point in the local coordinate space of this visual.</param>
     /// <returns>The point transformed to the coordinate space of the root visual.</returns>
-    public PointF LocalPointToRoot(PointF localPoint)
+    public Point LocalPointToRoot(Point localPoint)
     {
-        return new PointF(localPoint.X + offsetToRoot.X, localPoint.Y + offsetToRoot.Y);
+        return new Point(localPoint.X + offsetToRoot.X, localPoint.Y + offsetToRoot.Y);
     }
 
     /// <summary>
@@ -798,9 +806,9 @@ public abstract class Visual
     /// </summary>
     /// <param name="rootPoint">The point in the coordinate space of the root visual.</param>
     /// <returns>The point transformed to the local coordinate space of this visual.</returns>
-    public PointF RootPointToLocal(PointF rootPoint)
+    public Point RootPointToLocal(Point rootPoint)
     {
-        return new PointF(rootPoint.X - offsetToRoot.X, rootPoint.Y - offsetToRoot.Y);
+        return new Point(rootPoint.X - offsetToRoot.X, rootPoint.Y - offsetToRoot.Y);
     }
 
     #endregion LAYOUTING
@@ -820,7 +828,7 @@ public abstract class Visual
     ///     important setup and teardown logic.
     /// </summary>
     /// <param name="clip">The intersected rendering clip in root coordinate space.</param>
-    public virtual void Render(RectangleF clip)
+    public virtual void Render(Rectangle clip)
     {
         if (renderer == null) return;
 
@@ -829,11 +837,11 @@ public abstract class Visual
         if (!Visibility.GetValue().IsVisible)
             return;
 
-        clip.Intersect(new RectangleF(LocalPointToRoot(PointF.Empty), Bounds.Size));
+        clip = Rectangle.Intersect(clip, new Rectangle(LocalPointToRoot(Point.Empty), Bounds.Size));
 
         if (!clip.IsEmpty)
         {
-            Boolean hasOffset = Bounds.Location != PointF.Empty;
+            Boolean hasOffset = Bounds.Location != Point.Empty;
             Boolean hasOpacity = !MathTools.NearlyEqual(Opacity.GetValue(), b: 1.0f);
 
             // todo: unify all push/pop operations into a single Push(offset, clip, opacity?)
@@ -887,16 +895,16 @@ public abstract class Visual
     {
         Debug.Assert(renderer != null);
 
-        ThicknessF margin = Margin.GetValue();
-        ThicknessF padding = Padding.GetValue();
+        Thickness margin = Margin.GetValue();
+        Thickness padding = Padding.GetValue();
 
-        if (margin != ThicknessF.Zero)
-            renderer.DrawLinedRectangle(Bounds + margin, Brushes.DebugMargin);
+        if (margin != Thickness.Zero)
+            renderer.DrawLinedRectangle(Bounds + margin, Brush.DebugMargin);
 
-        renderer.DrawLinedRectangle(Bounds, Brushes.DebugBounds);
+        renderer.DrawLinedRectangle(Bounds, Brush.DebugBounds);
 
-        if (padding != ThicknessF.Zero)
-            renderer.DrawLinedRectangle(Bounds - padding, Brushes.DebugPadding);
+        if (padding != Thickness.Zero)
+            renderer.DrawLinedRectangle(Bounds - padding, Brush.DebugPadding);
     }
 
     /// <summary>

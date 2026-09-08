@@ -35,7 +35,7 @@ namespace ui
          * \brief Add an offset to the current transform.
          * \param offset The offset to add to all later draw positions.
          */
-        void PushOffset(PointF offset);
+        void PushOffset(Point offset);
 
         /**
          * \brief Remove the most recently pushed offset and restore the previous transform.
@@ -46,7 +46,7 @@ namespace ui
          * \brief Intersect the current clip with another rectangle.
          * \param rectangle The clipping rectangle to intersect with the current clip.
          */
-        void PushClip(RectangleF rectangle);
+        void PushClip(Rectangle rectangle);
 
         /**
          * \brief Pop the current clipping rectangle and restore the previous clip.
@@ -72,9 +72,9 @@ namespace ui
     private:
         Renderer& renderer;
 
-        std::vector<PointF> offsetStack;
-        size_t              clipStackCounter    = 0;
-        size_t              opacityStackCounter = 0;
+        std::vector<Point> offsetStack;
+        size_t             clipStackCounter    = 0;
+        size_t             opacityStackCounter = 0;
 
         [[nodiscard]] D2D1_MATRIX_3X2_F GetCurrentTransform() const;
     };

@@ -29,7 +29,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Siding;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Textures;
+using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Voxels.Contents;
 

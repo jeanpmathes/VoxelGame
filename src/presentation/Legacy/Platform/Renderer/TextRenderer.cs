@@ -13,7 +13,7 @@ using Gwen.Net;
 using VoxelGame.Toolkit.Utilities;
 using Color = System.Drawing.Color;
 using Font = System.Drawing.Font;
-using Image = VoxelGame.Core.Visuals.Image;
+using Image = VoxelGame.Core.Visuals.Images.Image;
 using Point = Gwen.Net.Point;
 
 namespace VoxelGame.Presentation.Legacy.Platform.Renderer;

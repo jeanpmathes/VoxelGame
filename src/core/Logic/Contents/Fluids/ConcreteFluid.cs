@@ -23,7 +23,7 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Utilities.Units;
-using VoxelGame.Core.Visuals;
+using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Contents.Fluids;
 

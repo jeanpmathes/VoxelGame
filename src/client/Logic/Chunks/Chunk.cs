@@ -26,7 +26,7 @@ using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Memory;

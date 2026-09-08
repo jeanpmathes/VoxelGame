@@ -47,7 +47,7 @@ namespace ui
          */
         void Return();
 
-        void Reset(Index newIndex, ColorF newColor);
+        void Reset(Index newIndex, Color newColor);
 
         [[nodiscard]] Renderer&   GetRenderer() const;
         [[nodiscard]] ID2D1Brush* GetWrapped() const;

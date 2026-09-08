@@ -23,7 +23,8 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Nature;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Textures;
+using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Voxels.Conventions;
 

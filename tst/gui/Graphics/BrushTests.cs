@@ -17,11 +17,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Drawing;
 using JetBrains.Annotations;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.GUI.Drawing.Brushes;
 using Xunit;
-using Brush = VoxelGame.GUI.Graphics.Brush;
 
 namespace VoxelGame.GUI.Tests.Graphics;
 
@@ -49,8 +48,8 @@ public class BrushTests
     [Fact]
     public void Brush_SolidColorBrush_ShouldBeEqualIfSameColor()
     {
-        SolidColorBrush first = new(Color.Red);
-        SolidColorBrush second = new(Color.Red);
+        SolidColorBrush first = new(ColorS.Red);
+        SolidColorBrush second = new(ColorS.Red);
 
         Assert.True(first.Equals(second));
     }
@@ -58,8 +57,8 @@ public class BrushTests
     [Fact]
     public void Brush_SolidColorBrush_ShouldHaveSameHashCodeIfEqual()
     {
-        SolidColorBrush first = new(Color.Red);
-        SolidColorBrush second = new(Color.Red);
+        SolidColorBrush first = new(ColorS.Red);
+        SolidColorBrush second = new(ColorS.Red);
 
         Assert.True(first.GetHashCode() == second.GetHashCode());
     }

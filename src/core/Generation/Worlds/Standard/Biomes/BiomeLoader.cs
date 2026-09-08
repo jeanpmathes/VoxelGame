@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using VoxelGame.Core.Generation.Worlds.Standard.SubBiomes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Generation.Worlds.Standard.Biomes;
@@ -90,7 +90,7 @@ public sealed class BiomeLoader : IResourceLoader
 
             #pragma warning restore S103
 
-            return [..registry.Values, distribution];
+            return [.. registry.Values, distribution];
         });
     }
 

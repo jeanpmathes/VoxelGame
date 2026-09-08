@@ -15,7 +15,7 @@ using VoxelGame.Graphics.Core;
 using VoxelGame.Toolkit.Utilities;
 using Color = Gwen.Net.Color;
 using Font = Gwen.Net.Font;
-using Image = VoxelGame.Core.Visuals.Image;
+using Image = VoxelGame.Core.Visuals.Images.Image;
 using Point = Gwen.Net.Point;
 using Rectangle = Gwen.Net.Rectangle;
 using Size = Gwen.Net.Size;

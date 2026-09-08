@@ -7,7 +7,7 @@ ui::BrushSupport::BrushSupport(Renderer& renderer)
     TryDo(renderer.GetContext().GetDirect2DDeviceContext()->CreateSolidColorBrush(black, &scratchSolidColorBrush));
 }
 
-ui::Brush& ui::BrushSupport::GetSolidColorBrush(ColorF const color)
+ui::Brush& ui::BrushSupport::GetSolidColorBrush(Color const color)
 {
     std::unique_ptr<Brush> brush;
 
@@ -37,7 +37,7 @@ void ui::BrushSupport::ReturnSolidColorBrush(Brush::Index const index)
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
-ID2D1Brush* ui::BrushSupport::UseRawSolidColorBrush(ColorF const color)
+ID2D1Brush* ui::BrushSupport::UseRawSolidColorBrush(Color const color)
 {
     scratchSolidColorBrush->SetColor(color.ToD2D1());
 
@@ -46,8 +46,9 @@ ID2D1Brush* ui::BrushSupport::UseRawSolidColorBrush(ColorF const color)
 
 void ui::BrushSupport::ValidateAllWrappedResourcesAreReturned() const
 {
-    if (brushes.GetCount() > 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning(
-                                                                                             std::format(
-                                                                                                         "A total of {} wrapped brushes have not been returned",
-                                                                                                         brushes.GetCount()).c_str());
+    if (brushes.GetCount() > 0)
+        renderer.GetClient().GetContext().GetDebugLayer().AddWarning(
+                                                                     std::format(
+                                                                                 "A total of {} wrapped brushes have not been returned",
+                                                                                 brushes.GetCount()).c_str());
 }

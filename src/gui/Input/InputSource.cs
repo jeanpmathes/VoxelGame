@@ -19,7 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.GUI.Input;
 
@@ -85,7 +85,7 @@ public class InputSource
     /// <param name="modifiers">The modifier keys which are currently active.</param>
     /// <param name="isSynthetic">Whether the event was created by parts of the input system instead of being a physical event.</param>
     /// <returns>Whether a receiver handled the event.</returns>
-    protected Boolean SendPointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
+    protected Boolean SendPointerButtonEvent(Point position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         foreach (IInputReceiver receiver in receivers)
             if (receiver.ReceivePointerButtonEvent(position, button, isDown, modifiers, isSynthetic))
@@ -101,7 +101,7 @@ public class InputSource
     /// <param name="deltaX">The change in the X coordinate since the last pointer move event.</param>
     /// <param name="deltaY">The change in the Y coordinate since the last pointer move event.</param>
     /// <returns>Whether a receiver handled the event.</returns>
-    protected Boolean SendPointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    protected Boolean SendPointerMoveEvent(Point position, Single deltaX, Single deltaY)
     {
         foreach (IInputReceiver receiver in receivers)
             if (receiver.ReceivePointerMoveEvent(position, deltaX, deltaY))
@@ -117,7 +117,7 @@ public class InputSource
     /// <param name="deltaX">The amount of horizontal scroll.</param>
     /// <param name="deltaY">The amount of vertical scroll.</param>
     /// <returns>Whether a receiver handled the event.</returns>
-    protected Boolean SendScrollEvent(PointF position, Single deltaX, Single deltaY)
+    protected Boolean SendScrollEvent(Point position, Single deltaX, Single deltaY)
     {
         foreach (IInputReceiver receiver in receivers)
             if (receiver.ReceiveScrollEvent(position, deltaX, deltaY))

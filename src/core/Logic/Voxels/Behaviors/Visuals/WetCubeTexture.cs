@@ -22,8 +22,9 @@ using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Behaviors.Aspects;
 using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Textures;
 using VoxelGame.Toolkit.Utilities;
+using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 

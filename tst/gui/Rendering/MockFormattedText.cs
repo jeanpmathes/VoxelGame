@@ -17,20 +17,20 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Drawing;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Texts;
-using Brush = VoxelGame.GUI.Graphics.Brush;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.GUI.Tests.Rendering;
 
 public sealed class MockFormattedText : IFormattedText
 {
-    public SizeF Measure(SizeF availableSize)
+    public Size Measure(Size availableSize)
     {
-        return new SizeF(width: 42, height: 24);
+        return new Size(Width: 42, Height: 24);
     }
 
-    public void Draw(RectangleF rectangle, Brush brush) {}
+    public void Draw(Rectangle rectangle, Brush brush) {}
 
     public void Dispose() {}
 }

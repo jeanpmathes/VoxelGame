@@ -19,7 +19,7 @@
 
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Models;
 
 namespace VoxelGame.Core.Tests.Visuals;
 

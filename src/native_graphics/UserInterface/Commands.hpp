@@ -57,7 +57,7 @@ namespace ui
      */
     struct PushOffsetCommand
     {
-        PointF offset;
+        Point offset;
     };
 
     /**
@@ -65,7 +65,7 @@ namespace ui
      */
     struct PushClipCommand
     {
-        RectangleF clip;
+        Rectangle clip;
     };
 
     /**
@@ -81,8 +81,8 @@ namespace ui
      */
     struct DrawRectangleLinedColorCommand
     {
-        RectangleF  rectangle;
-        ColorF      color;
+        Rectangle   rectangle;
+        Color       color;
         FLOAT       strokeWidth;
         StrokeStyle strokeStyle;
     };
@@ -92,7 +92,7 @@ namespace ui
      */
     struct DrawRectangleLinedBrushCommand
     {
-        RectangleF  rectangle;
+        Rectangle   rectangle;
         Brush*      brush;
         FLOAT       strokeWidth;
         StrokeStyle strokeStyle;
@@ -103,9 +103,9 @@ namespace ui
      */
     struct DrawRectangleLinedRoundedColorCommand
     {
-        RectangleF  rectangle;
-        RadiusF     radius;
-        ColorF      color;
+        Rectangle   rectangle;
+        Radius      radius;
+        Color       color;
         FLOAT       strokeWidth;
         StrokeStyle strokeStyle;
     };
@@ -115,8 +115,8 @@ namespace ui
      */
     struct DrawRectangleLinedRoundedBrushCommand
     {
-        RectangleF  rectangle;
-        RadiusF     radius;
+        Rectangle   rectangle;
+        Radius      radius;
         Brush*      brush;
         FLOAT       strokeWidth;
         StrokeStyle strokeStyle;
@@ -127,8 +127,8 @@ namespace ui
      */
     struct DrawRectangleFilledColorCommand
     {
-        RectangleF rectangle;
-        ColorF     color;
+        Rectangle rectangle;
+        Color     color;
     };
 
     /**
@@ -136,8 +136,8 @@ namespace ui
      */
     struct DrawRectangleFilledBrushCommand
     {
-        RectangleF rectangle;
-        Brush*     brush;
+        Rectangle rectangle;
+        Brush*    brush;
     };
 
     /**
@@ -145,9 +145,9 @@ namespace ui
      */
     struct DrawRectangleFilledRoundedColorCommand
     {
-        RectangleF rectangle;
-        RadiusF    radius;
-        ColorF     color;
+        Rectangle rectangle;
+        Radius    radius;
+        Color     color;
     };
 
     /**
@@ -155,9 +155,9 @@ namespace ui
      */
     struct DrawRectangleFilledRoundedBrushCommand
     {
-        RectangleF rectangle;
-        RadiusF    radius;
-        Brush*     brush;
+        Rectangle rectangle;
+        Radius    radius;
+        Brush*    brush;
     };
 
     /**
@@ -165,9 +165,9 @@ namespace ui
      */
     struct DrawTextColorCommand
     {
-        Text*  text;
-        PointF position;
-        ColorF color;
+        Text* text;
+        Point position;
+        Color color;
     };
 
     /**
@@ -176,7 +176,7 @@ namespace ui
     struct DrawTextBrushCommand
     {
         Text*  text;
-        PointF position;
+        Point  position;
         Brush* brush;
     };
 

@@ -36,7 +36,7 @@ ui::TextFormat& ui::Text::GetFormat() const { return *format; }
 
 IDWriteTextLayout* ui::Text::GetWrapped() const { return layout.Get(); }
 
-ui::SizeF ui::Text::Measure(SizeF const newAvailableSize)
+ui::Size ui::Text::Measure(Size const newAvailableSize)
 {
     Require(newAvailableSize.width >= 0.0f);
     Require(newAvailableSize.height >= 0.0f);
@@ -49,5 +49,5 @@ ui::SizeF ui::Text::Measure(SizeF const newAvailableSize)
     DWRITE_TEXT_METRICS metrics;
     TryDo(layout->GetMetrics(&metrics));
 
-    return SizeF{.width = metrics.width, .height = metrics.height};
+    return Size{.width = metrics.width, .height = metrics.height};
 }

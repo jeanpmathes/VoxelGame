@@ -38,7 +38,11 @@ using VoxelGame.Core.Physics;
 using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Core.Visuals.Meshing;
+using VoxelGame.Core.Visuals.Models;
+using VoxelGame.Core.Visuals.Textures;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Logic.Voxels;

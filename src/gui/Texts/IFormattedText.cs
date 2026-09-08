@@ -18,8 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
-using Brush = VoxelGame.GUI.Graphics.Brush;
+using VoxelGame.GUI.Drawing.Brushes;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.GUI.Texts;
 
@@ -33,7 +33,7 @@ public interface IFormattedText : IDisposable
     /// </summary>
     /// <param name="availableSize">The available size for the formatted text.</param>
     /// <returns>The size required to render the formatted text within the given constraints.</returns>
-    public SizeF Measure(SizeF availableSize);
+    public Size Measure(Size availableSize);
 
     /// <summary>
     ///     Draws the formatted text in a given rectangle using the specified brush.
@@ -41,5 +41,5 @@ public interface IFormattedText : IDisposable
     /// </summary>
     /// <param name="rectangle">The rectangle in which to draw the text.</param>
     /// <param name="brush">The brush to use for drawing the text.</param>
-    public void Draw(RectangleF rectangle, Brush brush);
+    public void Draw(Rectangle rectangle, Brush brush);
 }

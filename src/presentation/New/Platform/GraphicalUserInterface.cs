@@ -18,13 +18,13 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Graphics.Core;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Themes;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.Presentation.New.Platform.Graphics;
 using VoxelGame.Presentation.New.Platform.Input;
 

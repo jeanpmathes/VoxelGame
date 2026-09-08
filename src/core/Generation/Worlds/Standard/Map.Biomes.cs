@@ -25,7 +25,8 @@ using OpenTK.Mathematics;
 using VoxelGame.Core.Generation.Worlds.Standard.Biomes;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Images;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Generation.Worlds.Standard;

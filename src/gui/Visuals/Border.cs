@@ -17,11 +17,10 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Drawing;
 using VoxelGame.GUI.Bindings;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing;
 using VoxelGame.GUI.Utilities;
-using Brush = VoxelGame.GUI.Graphics.Brush;
+using Brush = VoxelGame.GUI.Drawing.Brushes.Brush;
 
 namespace VoxelGame.GUI.Visuals;
 
@@ -37,8 +36,8 @@ public class Border : Visual
     public Border()
     {
         BorderBrush = VisualProperty.Create(this, BindToOwnerForeground(), Invalidation.Render);
-        BorderWidth = VisualProperty.Create(this, WidthF.One, Invalidation.Measure);
-        BorderRadius = VisualProperty.Create(this, RadiusF.Zero, Invalidation.Render);
+        BorderWidth = VisualProperty.Create(this, Width.One, Invalidation.Measure);
+        BorderRadius = VisualProperty.Create(this, Radius.Zero, Invalidation.Render);
         BorderStrokeStyle = VisualProperty.Create(this, StrokeStyle.Solid, Invalidation.Render);
     }
 
@@ -52,13 +51,13 @@ public class Border : Visual
     }
 
     /// <inheritdoc />
-    public override SizeF OnMeasure(SizeF availableSize)
+    public override Size OnMeasure(Size availableSize)
     {
-        ThicknessF borderThickness = BorderWidth.GetValue().ToThicknessF();
+        Thickness borderThickness = BorderWidth.GetValue().ToThickness();
 
         availableSize -= borderThickness;
 
-        SizeF desiredSize = base.OnMeasure(availableSize);
+        Size desiredSize = base.OnMeasure(availableSize);
 
         desiredSize += borderThickness;
 
@@ -66,9 +65,9 @@ public class Border : Visual
     }
 
     /// <inheritdoc />
-    public override void OnArrange(RectangleF finalRectangle)
+    public override void OnArrange(Rectangle finalRectangle)
     {
-        finalRectangle -= BorderWidth.GetValue().ToThicknessF();
+        finalRectangle -= BorderWidth.GetValue().ToThickness();
         finalRectangle -= Padding.GetValue();
 
         if (finalRectangle.IsEmpty)
@@ -95,12 +94,12 @@ public class Border : Visual
     /// <summary>
     ///     The thickness of the border.
     /// </summary>
-    public VisualProperty<WidthF> BorderWidth { get; }
+    public VisualProperty<Width> BorderWidth { get; }
 
     /// <summary>
     ///     The radius of the corners. This affects both the background and the border.
     /// </summary>
-    public VisualProperty<RadiusF> BorderRadius { get; }
+    public VisualProperty<Radius> BorderRadius { get; }
 
     /// <summary>
     ///     The style of the border stroke.

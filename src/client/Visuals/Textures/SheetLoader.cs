@@ -20,7 +20,7 @@
 using System;
 using System.IO;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Images;
 
 namespace VoxelGame.Client.Visuals.Textures;
 

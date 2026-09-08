@@ -18,11 +18,11 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using JetBrains.Annotations;
 using NSubstitute;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Input;
+using VoxelGame.GUI.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Input;
@@ -64,33 +64,33 @@ public class InputForwardToBindingAdapterTests
     [Fact]
     public void InputForwardToBindingAdapter_ShouldForwardReceivedPointerButtonEvent()
     {
-        receiver.GetValue()!.ReceivePointerButtonEvent(new PointF(x: 12, y: 13), PointerButton.Left, isDown: true, ModifierKeys.None).Returns(true);
+        receiver.GetValue()!.ReceivePointerButtonEvent(new Point(X: 12, Y: 13), PointerButton.Left, isDown: true, ModifierKeys.None).Returns(true);
 
-        Boolean handled = adapter.ReceivePointerButtonEvent(new PointF(x: 12, y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
+        Boolean handled = adapter.ReceivePointerButtonEvent(new Point(X: 12, Y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
 
         Assert.True(handled);
-        receiver.GetValue()?.Received().ReceivePointerButtonEvent(new PointF(x: 12, y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
+        receiver.GetValue()?.Received().ReceivePointerButtonEvent(new Point(X: 12, Y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
     }
 
     [Fact]
     public void InputForwardToBindingAdapter_ShouldForwardReceivedPointerMoveEvent()
     {
-        receiver.GetValue()!.ReceivePointerMoveEvent(new PointF(x: 14, y: 15), deltaX: 1, deltaY: 2).Returns(true);
+        receiver.GetValue()!.ReceivePointerMoveEvent(new Point(X: 14, Y: 15), deltaX: 1, deltaY: 2).Returns(true);
 
-        Boolean handled = adapter.ReceivePointerMoveEvent(new PointF(x: 14, y: 15), deltaX: 1, deltaY: 2);
+        Boolean handled = adapter.ReceivePointerMoveEvent(new Point(X: 14, Y: 15), deltaX: 1, deltaY: 2);
 
         Assert.True(handled);
-        receiver.GetValue()?.Received().ReceivePointerMoveEvent(new PointF(x: 14, y: 15), deltaX: 1, deltaY: 2);
+        receiver.GetValue()?.Received().ReceivePointerMoveEvent(new Point(X: 14, Y: 15), deltaX: 1, deltaY: 2);
     }
 
     [Fact]
     public void InputForwardToBindingAdapter_ShouldForwardReceivedScrollEvent()
     {
-        receiver.GetValue()!.ReceiveScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4).Returns(true);
+        receiver.GetValue()!.ReceiveScrollEvent(new Point(X: 16, Y: 17), deltaX: 3, deltaY: 4).Returns(true);
 
-        Boolean handled = adapter.ReceiveScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4);
+        Boolean handled = adapter.ReceiveScrollEvent(new Point(X: 16, Y: 17), deltaX: 3, deltaY: 4);
 
         Assert.True(handled);
-        receiver.GetValue()?.Received().ReceiveScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4);
+        receiver.GetValue()?.Received().ReceiveScrollEvent(new Point(X: 16, Y: 17), deltaX: 3, deltaY: 4);
     }
 }

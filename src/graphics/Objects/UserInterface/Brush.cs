@@ -23,7 +23,7 @@ using System.Runtime.InteropServices.Marshalling;
 namespace VoxelGame.Graphics.Objects.UserInterface;
 
 /// <summary>
-///     Native user-interface brush wrapper.
+///     User-interface brush wrapper.
 /// </summary>
 [NativeMarshalling(typeof(BrushMarshaller))]
 public sealed class Brush : DisposableNativeObject<Brush>

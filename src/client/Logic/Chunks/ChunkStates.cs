@@ -26,7 +26,7 @@ using VoxelGame.Client.Visuals;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
 
 namespace VoxelGame.Client.Logic.Chunks;
 

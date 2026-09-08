@@ -29,6 +29,10 @@ using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Meshing;
+using VoxelGame.Core.Visuals.Models;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -150,19 +154,19 @@ public class PartialHeightBlock : Block, IOverlayTextureProvider
 
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
-        Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
+        MeshData.SetTextureIndex(ref data, mesh.TextureIndex);
 
-        Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
-        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
+        MeshData.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
+        MeshData.SetFlag(ref data, MeshData.QuadFlag.IsAnimated, mesh.IsAnimated);
 
         if (side is not (Side.Top or Side.Bottom))
         {
             (Vector2 min, Vector2 max) bounds = PartialHeight.GetBounds(height);
-            Meshing.SetUVs(ref data, bounds.min, (bounds.min.X, bounds.max.Y), bounds.max, (bounds.max.X, bounds.min.Y));
+            MeshData.SetUVs(ref data, bounds.min, (bounds.min.X, bounds.max.Y), bounds.max, (bounds.max.X, bounds.min.Y));
         }
         else
         {
-            Meshing.SetFullUVs(ref data);
+            MeshData.SetFullUVs(ref data);
         }
 
         context.GetVaryingHeightBlockMeshFaceHolder(side, IsOpaque).AddFace(

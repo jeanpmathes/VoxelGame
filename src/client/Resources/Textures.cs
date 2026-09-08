@@ -20,7 +20,7 @@
 using VoxelGame.Client.Visuals.Textures;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Images;
 using VoxelGame.Core.Visuals.Meshables;
 
 namespace VoxelGame.Client.Resources;
@@ -47,7 +47,7 @@ public class Textures : ResourceCatalog
 
     private static TextureBundleLoader CreateBlockTextureLoader()
     {
-        TextureBundleLoader loader = new(BlockID, resolution: 32, Meshing.MaxTextureCount, Image.MipmapAlgorithm.AveragingWithoutTransparency);
+        TextureBundleLoader loader = new(BlockID, resolution: 32, MeshData.MaxTextureCount, Image.MipmapAlgorithm.AveragingWithoutTransparency);
 
         loader.AddSource(FileSystem.GetResourceDirectory("Textures", "Blocks"));
 
@@ -56,7 +56,7 @@ public class Textures : ResourceCatalog
 
     private static TextureBundleLoader CreateFluidTextureLoader()
     {
-        TextureBundleLoader loader = new(FluidID, resolution: 32, Meshing.MaxFluidTextureCount, Image.MipmapAlgorithm.AveragingWithTransparency);
+        TextureBundleLoader loader = new(FluidID, resolution: 32, MeshData.MaxFluidTextureCount, Image.MipmapAlgorithm.AveragingWithTransparency);
 
         loader.AddSource(FileSystem.GetResourceDirectory("Textures", "Fluids"));
 

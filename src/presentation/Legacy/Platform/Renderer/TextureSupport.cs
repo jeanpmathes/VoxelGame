@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using Gwen.Net;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Images;
 
 namespace VoxelGame.Presentation.Legacy.Platform.Renderer;
 

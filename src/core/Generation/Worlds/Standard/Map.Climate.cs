@@ -25,7 +25,8 @@ using System.Threading.Tasks;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Images;
 using VoxelGame.Toolkit.Collections;
 
 namespace VoxelGame.Core.Generation.Worlds.Standard;

@@ -20,7 +20,9 @@
 using System;
 using System.Runtime.InteropServices;
 using VoxelGame.Annotations.Attributes;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.GUI.Drawing;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.Graphics.Definition.UserInterface;
 
@@ -112,29 +114,29 @@ internal enum CommandKind : UInt32
     ///     The <c>DRAW_RECTANGLE_FILLED_COLOR</c> command.
     ///     Draws a non-rounded filled rectangle with a direct color.
     /// </summary>
-    /// <seealso cref="DrawRectangleFilledColorCommand" />
-    DrawRectangleFilledColor = 10,
+    /// <seealso cref="DrawRectangleilledColorCommand" />
+    DrawRectangleilledColor = 10,
 
     /// <summary>
     ///     The <c>DRAW_RECTANGLE_FILLED_BRUSH</c> command.
     ///     Draws a non-rounded filled rectangle with a native brush.
     /// </summary>
-    /// <seealso cref="DrawRectangleFilledBrushCommand" />
-    DrawRectangleFilledBrush = 11,
+    /// <seealso cref="DrawRectangleilledBrushCommand" />
+    DrawRectangleilledBrush = 11,
 
     /// <summary>
     ///     The <c>DRAW_RECTANGLE_FILLED_ROUNDED_COLOR</c> command.
     ///     Draws a rounded filled rectangle with a direct color.
     /// </summary>
-    /// <seealso cref="DrawRectangleFilledRoundedColorCommand" />
-    DrawRectangleFilledRoundedColor = 12,
+    /// <seealso cref="DrawRectangleilledRoundedColorCommand" />
+    DrawRectangleilledRoundedColor = 12,
 
     /// <summary>
     ///     The <c>DRAW_RECTANGLE_FILLED_ROUNDED_BRUSH</c> command.
     ///     Draws a rounded filled rectangle with a native brush.
     /// </summary>
-    /// <seealso cref="DrawRectangleFilledRoundedBrushCommand" />
-    DrawRectangleFilledRoundedBrush = 13,
+    /// <seealso cref="DrawRectangleilledRoundedBrushCommand" />
+    DrawRectangleilledRoundedBrush = 13,
 
     /// <summary>
     ///     The <c>DRAW_TEXT_COLOR</c> command.
@@ -157,12 +159,12 @@ internal enum CommandKind : UInt32
 /// <param name="offset">The offset to push.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct PushOffsetCommand(NativePointF offset)
+internal readonly partial struct PushOffsetCommand(Point offset)
 {
     /// <summary>
     ///     The offset to push.
     /// </summary>
-    internal readonly NativePointF Offset = offset;
+    internal readonly Point Offset = offset;
 
     /// <inheritdoc />
     public override String ToString()
@@ -177,12 +179,12 @@ internal readonly partial struct PushOffsetCommand(NativePointF offset)
 /// <param name="clip">The clipping rectangle to push.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct PushClipCommand(NativeRectangleF clip)
+internal readonly partial struct PushClipCommand(Rectangle clip)
 {
     /// <summary>
     ///     The clipping rectangle to push.
     /// </summary>
-    internal readonly NativeRectangleF Clip = clip;
+    internal readonly Rectangle Clip = clip;
 
     /// <inheritdoc />
     public override String ToString()
@@ -220,17 +222,17 @@ internal readonly partial struct PushOpacityCommand(Single opacity)
 /// <param name="strokeStyle">The stroke style.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleLinedColorCommand(NativeRectangleF rectangle, NativeColorF color, Single strokeWidth, StrokeStyle strokeStyle)
+internal readonly partial struct DrawRectangleLinedColorCommand(Rectangle rectangle, ColorS color, Single strokeWidth, StrokeStyle strokeStyle)
 {
     /// <summary>
     ///     The rectangle to draw.
     /// </summary>
-    internal readonly NativeRectangleF Rectangle = rectangle;
+    internal readonly Rectangle Rectangle = rectangle;
 
     /// <summary>
     ///     The color to use.
     /// </summary>
-    internal readonly NativeColorF Color = color;
+    internal readonly ColorS Color = color;
 
     /// <summary>
     ///     The stroke width.
@@ -258,12 +260,12 @@ internal readonly partial struct DrawRectangleLinedColorCommand(NativeRectangleF
 /// <param name="strokeStyle">The stroke style.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleLinedBrushCommand(NativeRectangleF rectangle, IntPtr brush, Single strokeWidth, StrokeStyle strokeStyle)
+internal readonly partial struct DrawRectangleLinedBrushCommand(Rectangle rectangle, IntPtr brush, Single strokeWidth, StrokeStyle strokeStyle)
 {
     /// <summary>
     ///     The rectangle to draw.
     /// </summary>
-    internal readonly NativeRectangleF Rectangle = rectangle;
+    internal readonly Rectangle Rectangle = rectangle;
 
     /// <summary>
     ///     The native brush to use.
@@ -297,22 +299,22 @@ internal readonly partial struct DrawRectangleLinedBrushCommand(NativeRectangleF
 /// <param name="strokeStyle">The stroke style.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleLinedRoundedColorCommand(NativeRectangleF rectangle, NativeRadiusF radius, NativeColorF color, Single strokeWidth, StrokeStyle strokeStyle)
+internal readonly partial struct DrawRectangleLinedRoundedColorCommand(Rectangle rectangle, Radius radius, ColorS color, Single strokeWidth, StrokeStyle strokeStyle)
 {
     /// <summary>
     ///     The rectangle to draw.
     /// </summary>
-    internal readonly NativeRectangleF Rectangle = rectangle;
+    internal readonly Rectangle Rectangle = rectangle;
 
     /// <summary>
     ///     The corner radius.
     /// </summary>
-    internal readonly NativeRadiusF Radius = radius;
+    internal readonly Radius Radius = radius;
 
     /// <summary>
     ///     The color to use.
     /// </summary>
-    internal readonly NativeColorF Color = color;
+    internal readonly ColorS Color = color;
 
     /// <summary>
     ///     The stroke width.
@@ -342,17 +344,17 @@ internal readonly partial struct DrawRectangleLinedRoundedColorCommand(NativeRec
 /// <param name="strokeStyle">The stroke style.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleLinedRoundedBrushCommand(NativeRectangleF rectangle, NativeRadiusF radius, IntPtr brush, Single strokeWidth, StrokeStyle strokeStyle)
+internal readonly partial struct DrawRectangleLinedRoundedBrushCommand(Rectangle rectangle, Radius radius, IntPtr brush, Single strokeWidth, StrokeStyle strokeStyle)
 {
     /// <summary>
     ///     The rectangle to draw.
     /// </summary>
-    internal readonly NativeRectangleF Rectangle = rectangle;
+    internal readonly Rectangle Rectangle = rectangle;
 
     /// <summary>
     ///     The corner radius.
     /// </summary>
-    internal readonly NativeRadiusF Radius = radius;
+    internal readonly Radius Radius = radius;
 
     /// <summary>
     ///     The native brush to use.
@@ -378,44 +380,44 @@ internal readonly partial struct DrawRectangleLinedRoundedBrushCommand(NativeRec
 }
 
 /// <summary>
-///     Payload for the <see cref="CommandKind.DrawRectangleFilledColor" /> command.
+///     Payload for the <see cref="CommandKind.DrawRectangleilledColor" /> command.
 /// </summary>
 /// <param name="rectangle">The rectangle to draw.</param>
 /// <param name="color">The color to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleFilledColorCommand(NativeRectangleF rectangle, NativeColorF color)
+internal readonly partial struct DrawRectangleilledColorCommand(Rectangle rectangle, ColorS color)
 {
     /// <summary>
     ///     The rectangle to draw.
     /// </summary>
-    internal readonly NativeRectangleF Rectangle = rectangle;
+    internal readonly Rectangle Rectangle = rectangle;
 
     /// <summary>
     ///     The color to use.
     /// </summary>
-    internal readonly NativeColorF Color = color;
+    internal readonly ColorS Color = color;
 
     /// <inheritdoc />
     public override String ToString()
     {
-        return FormattableString.Invariant($"{nameof(DrawRectangleFilledColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
+        return FormattableString.Invariant($"{nameof(DrawRectangleilledColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
     }
 }
 
 /// <summary>
-///     Payload for the <see cref="CommandKind.DrawRectangleFilledBrush" /> command.
+///     Payload for the <see cref="CommandKind.DrawRectangleilledBrush" /> command.
 /// </summary>
 /// <param name="rectangle">The rectangle to draw.</param>
 /// <param name="brush">The native brush to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleFilledBrushCommand(NativeRectangleF rectangle, IntPtr brush)
+internal readonly partial struct DrawRectangleilledBrushCommand(Rectangle rectangle, IntPtr brush)
 {
     /// <summary>
     ///     The rectangle to draw.
     /// </summary>
-    internal readonly NativeRectangleF Rectangle = rectangle;
+    internal readonly Rectangle Rectangle = rectangle;
 
     /// <summary>
     ///     The native brush to use.
@@ -425,61 +427,61 @@ internal readonly partial struct DrawRectangleFilledBrushCommand(NativeRectangle
     /// <inheritdoc />
     public override String ToString()
     {
-        return FormattableString.Invariant($"{nameof(DrawRectangleFilledBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
+        return FormattableString.Invariant($"{nameof(DrawRectangleilledBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
     }
 }
 
 /// <summary>
-///     Payload for the <see cref="CommandKind.DrawRectangleFilledRoundedColor" /> command.
+///     Payload for the <see cref="CommandKind.DrawRectangleilledRoundedColor" /> command.
 /// </summary>
 /// <param name="rectangle">The rectangle to draw.</param>
 /// <param name="radius">The corner radius.</param>
 /// <param name="color">The color to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleFilledRoundedColorCommand(NativeRectangleF rectangle, NativeRadiusF radius, NativeColorF color)
+internal readonly partial struct DrawRectangleilledRoundedColorCommand(Rectangle rectangle, Radius radius, ColorS color)
 {
     /// <summary>
     ///     The rectangle to draw.
     /// </summary>
-    internal readonly NativeRectangleF Rectangle = rectangle;
+    internal readonly Rectangle Rectangle = rectangle;
 
     /// <summary>
     ///     The corner radius.
     /// </summary>
-    internal readonly NativeRadiusF Radius = radius;
+    internal readonly Radius Radius = radius;
 
     /// <summary>
     ///     The color to use.
     /// </summary>
-    internal readonly NativeColorF Color = color;
+    internal readonly ColorS Color = color;
 
     /// <inheritdoc />
     public override String ToString()
     {
-        return FormattableString.Invariant($"{nameof(DrawRectangleFilledRoundedColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
+        return FormattableString.Invariant($"{nameof(DrawRectangleilledRoundedColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
     }
 }
 
 /// <summary>
-///     Payload for the <see cref="CommandKind.DrawRectangleFilledRoundedBrush" /> command.
+///     Payload for the <see cref="CommandKind.DrawRectangleilledRoundedBrush" /> command.
 /// </summary>
 /// <param name="rectangle">The rectangle to draw.</param>
 /// <param name="radius">The corner radius.</param>
 /// <param name="brush">The native brush to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleFilledRoundedBrushCommand(NativeRectangleF rectangle, NativeRadiusF radius, IntPtr brush)
+internal readonly partial struct DrawRectangleilledRoundedBrushCommand(Rectangle rectangle, Radius radius, IntPtr brush)
 {
     /// <summary>
     ///     The rectangle to draw.
     /// </summary>
-    internal readonly NativeRectangleF Rectangle = rectangle;
+    internal readonly Rectangle Rectangle = rectangle;
 
     /// <summary>
     ///     The corner radius.
     /// </summary>
-    internal readonly NativeRadiusF Radius = radius;
+    internal readonly Radius Radius = radius;
 
     /// <summary>
     ///     The native brush to use.
@@ -489,7 +491,7 @@ internal readonly partial struct DrawRectangleFilledRoundedBrushCommand(NativeRe
     /// <inheritdoc />
     public override String ToString()
     {
-        return FormattableString.Invariant($"{nameof(DrawRectangleFilledRoundedBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
+        return FormattableString.Invariant($"{nameof(DrawRectangleilledRoundedBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
     }
 }
 
@@ -501,7 +503,7 @@ internal readonly partial struct DrawRectangleFilledRoundedBrushCommand(NativeRe
 /// <param name="color">The color to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawTextColorCommand(IntPtr text, NativePointF position, NativeColorF color)
+internal readonly partial struct DrawTextColorCommand(IntPtr text, Point position, ColorS color)
 {
     /// <summary>
     ///     The native text to draw.
@@ -511,12 +513,12 @@ internal readonly partial struct DrawTextColorCommand(IntPtr text, NativePointF 
     /// <summary>
     ///     The position at which to draw the text.
     /// </summary>
-    internal readonly NativePointF Position = position;
+    internal readonly Point Position = position;
 
     /// <summary>
     ///     The color to use.
     /// </summary>
-    internal readonly NativeColorF Color = color;
+    internal readonly ColorS Color = color;
 
     /// <inheritdoc />
     public override String ToString()
@@ -533,7 +535,7 @@ internal readonly partial struct DrawTextColorCommand(IntPtr text, NativePointF 
 /// <param name="brush">The native brush to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawTextBrushCommand(IntPtr text, NativePointF position, IntPtr brush)
+internal readonly partial struct DrawTextBrushCommand(IntPtr text, Point position, IntPtr brush)
 {
     /// <summary>
     ///     The native text to draw.
@@ -543,7 +545,7 @@ internal readonly partial struct DrawTextBrushCommand(IntPtr text, NativePointF 
     /// <summary>
     ///     The position at which to draw the text.
     /// </summary>
-    internal readonly NativePointF Position = position;
+    internal readonly Point Position = position;
 
     /// <summary>
     ///     The native brush to use.
@@ -558,7 +560,7 @@ internal readonly partial struct DrawTextBrushCommand(IntPtr text, NativePointF 
 }
 
 /// <summary>
-///     Native UI command union mapping to <c>ui::Command</c>.
+///     UI command union mapping to <c>ui::Command</c>.
 /// </summary>
 [StructLayout(LayoutKind.Explicit)]
 public struct Command
@@ -604,24 +606,24 @@ public struct Command
     [FieldOffset(8)] internal DrawRectangleLinedRoundedBrushCommand DrawRectangleLinedRoundedBrush;
 
     /// <summary>
-    ///     Payload for the <see cref="CommandKind.DrawRectangleFilledColor" /> command.
+    ///     Payload for the <see cref="CommandKind.DrawRectangleilledColor" /> command.
     /// </summary>
-    [FieldOffset(8)] internal DrawRectangleFilledColorCommand DrawRectangleFilledColor;
+    [FieldOffset(8)] internal DrawRectangleilledColorCommand DrawRectangleilledColor;
 
     /// <summary>
-    ///     Payload for the <see cref="CommandKind.DrawRectangleFilledBrush" /> command.
+    ///     Payload for the <see cref="CommandKind.DrawRectangleilledBrush" /> command.
     /// </summary>
-    [FieldOffset(8)] internal DrawRectangleFilledBrushCommand DrawRectangleFilledBrush;
+    [FieldOffset(8)] internal DrawRectangleilledBrushCommand DrawRectangleilledBrush;
 
     /// <summary>
-    ///     Payload for the <see cref="CommandKind.DrawRectangleFilledRoundedColor" /> command.
+    ///     Payload for the <see cref="CommandKind.DrawRectangleilledRoundedColor" /> command.
     /// </summary>
-    [FieldOffset(8)] internal DrawRectangleFilledRoundedColorCommand DrawRectangleFilledRoundedColor;
+    [FieldOffset(8)] internal DrawRectangleilledRoundedColorCommand DrawRectangleilledRoundedColor;
 
     /// <summary>
-    ///     Payload for the <see cref="CommandKind.DrawRectangleFilledRoundedBrush" /> command.
+    ///     Payload for the <see cref="CommandKind.DrawRectangleilledRoundedBrush" /> command.
     /// </summary>
-    [FieldOffset(8)] internal DrawRectangleFilledRoundedBrushCommand DrawRectangleFilledRoundedBrush;
+    [FieldOffset(8)] internal DrawRectangleilledRoundedBrushCommand DrawRectangleilledRoundedBrush;
 
     /// <summary>
     ///     Payload for the <see cref="CommandKind.DrawTextColor" /> command.
@@ -648,10 +650,10 @@ public struct Command
             CommandKind.DrawRectangleLinedBrush => DrawRectangleLinedBrush.ToString(),
             CommandKind.DrawRectangleLinedRoundedColor => DrawRectangleLinedRoundedColor.ToString(),
             CommandKind.DrawRectangleLinedRoundedBrush => DrawRectangleLinedRoundedBrush.ToString(),
-            CommandKind.DrawRectangleFilledColor => DrawRectangleFilledColor.ToString(),
-            CommandKind.DrawRectangleFilledBrush => DrawRectangleFilledBrush.ToString(),
-            CommandKind.DrawRectangleFilledRoundedColor => DrawRectangleFilledRoundedColor.ToString(),
-            CommandKind.DrawRectangleFilledRoundedBrush => DrawRectangleFilledRoundedBrush.ToString(),
+            CommandKind.DrawRectangleilledColor => DrawRectangleilledColor.ToString(),
+            CommandKind.DrawRectangleilledBrush => DrawRectangleilledBrush.ToString(),
+            CommandKind.DrawRectangleilledRoundedColor => DrawRectangleilledRoundedColor.ToString(),
+            CommandKind.DrawRectangleilledRoundedBrush => DrawRectangleilledRoundedBrush.ToString(),
             CommandKind.DrawTextColor => DrawTextColor.ToString(),
             CommandKind.DrawTextBrush => DrawTextBrush.ToString(),
             _ => Kind.ToStringFast()

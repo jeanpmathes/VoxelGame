@@ -10,9 +10,9 @@ ui::State::State(Renderer& renderer)
 {
 }
 
-void ui::State::PushOffset(PointF const offset)
+void ui::State::PushOffset(Point const offset)
 {
-    PointF previousOffset = {.x = 0, .y = 0};
+    Point previousOffset = {.x = 0, .y = 0};
 
     if (!offsetStack.empty()) previousOffset = offsetStack.back();
 
@@ -29,7 +29,7 @@ void ui::State::PopOffset()
     renderer.GetContext().GetDirect2DDeviceContext()->SetTransform(GetCurrentTransform());
 }
 
-void ui::State::PushClip(RectangleF const rectangle)
+void ui::State::PushClip(Rectangle const rectangle)
 {
     clipStackCounter += 1;
 
@@ -84,7 +84,7 @@ void ui::State::Validate() const
 
 D2D1_MATRIX_3X2_F ui::State::GetCurrentTransform() const
 {
-    auto const& [x, y] = offsetStack.empty() ? PointF{0, 0} : offsetStack.back();
+    auto const& [x, y] = offsetStack.empty() ? Point{0, 0} : offsetStack.back();
 
     return D2D1::Matrix3x2F::Translation(x, y);
 }

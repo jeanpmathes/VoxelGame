@@ -18,11 +18,11 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using JetBrains.Annotations;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Tests.Utilities;
 using VoxelGame.GUI.Tests.Visuals;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 using Xunit;
 
@@ -47,11 +47,11 @@ public class VisualPropertyTests
         VisualProperty<Single> property = VisualProperty.Create(visual, defaultValue: 1f, Invalidation.Measure);
 
         property.Activate();
-        visual.Measure(new SizeF(width: 100, height: 100));
+        visual.Measure(new Size(Width: 100, Height: 100));
         Int32 firstCount = visual.MeasureCalls;
 
         property.Value = 2f;
-        visual.Measure(new SizeF(width: 100, height: 100));
+        visual.Measure(new Size(Width: 100, Height: 100));
 
         Assert.Equal(firstCount + 1, visual.MeasureCalls);
     }
@@ -62,12 +62,12 @@ public class VisualPropertyTests
         VisualProperty<Single> property = VisualProperty.Create(visual, defaultValue: 1f, Invalidation.Arrange);
 
         property.Activate();
-        visual.Measure(new SizeF(width: 100, height: 100));
-        visual.Arrange(new RectangleF(x: 0, y: 0, width: 100, height: 100));
+        visual.Measure(new Size(Width: 100, Height: 100));
+        visual.Arrange(new Rectangle(X: 0, Y: 0, Width: 100, Height: 100));
         Int32 firstCount = visual.ArrangeCalls;
 
         property.Value = 2f;
-        visual.Arrange(new RectangleF(x: 0, y: 0, width: 100, height: 100));
+        visual.Arrange(new Rectangle(X: 0, Y: 0, Width: 100, Height: 100));
 
         Assert.Equal(firstCount + 1, visual.ArrangeCalls);
     }

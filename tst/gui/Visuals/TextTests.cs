@@ -18,14 +18,14 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using JetBrains.Annotations;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Tests.Rendering;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Themes;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 using Xunit;
-using Brush = VoxelGame.GUI.Graphics.Brush;
 using Canvas = VoxelGame.GUI.Controls.Canvas;
 
 namespace VoxelGame.GUI.Tests.Visuals;
@@ -81,12 +81,12 @@ public class TextTests : VisualTestBase<Text>
     {
         public Boolean IsDisposed { get; private set; }
 
-        public SizeF Measure(SizeF availableSize)
+        public Size Measure(Size availableSize)
         {
             return availableSize;
         }
 
-        public void Draw(RectangleF rectangle, Brush brush) {}
+        public void Draw(Rectangle rectangle, Brush brush) {}
 
         public void Dispose()
         {

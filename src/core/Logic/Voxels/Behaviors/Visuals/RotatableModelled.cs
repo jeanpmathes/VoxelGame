@@ -24,7 +24,7 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Orienting;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using Model = VoxelGame.Core.Visuals.Models.Model;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 

@@ -18,7 +18,7 @@
 // <author>jeanpmathes</author>
 
 using JetBrains.Annotations;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using Xunit;
 
 namespace VoxelGame.Core.Tests.Visuals;

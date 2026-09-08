@@ -18,10 +18,10 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.GUI.Texts;
-using Brush = VoxelGame.GUI.Graphics.Brush;
+using VoxelGame.GUI.Utilities;
+using Brush = VoxelGame.GUI.Drawing.Brushes.Brush;
 
 namespace VoxelGame.Presentation.New.Platform.Graphics;
 
@@ -33,7 +33,7 @@ public sealed class FormattedText : IFormattedText
     private readonly Renderer renderer;
     private readonly Text text;
 
-    private SizeF? lastAvailableSize;
+    private Size? lastAvailableSize;
 
     internal FormattedText(Renderer renderer, String content, TextOptions options)
     {
@@ -47,7 +47,7 @@ public sealed class FormattedText : IFormattedText
     /// </summary>
     /// <param name="availableSize">The available size.</param>
     /// <returns>The measured and required size.</returns>
-    public SizeF Measure(SizeF availableSize)
+    public Size Measure(Size availableSize)
     {
         availableSize = renderer.ApplyScale(availableSize);
 
@@ -61,7 +61,7 @@ public sealed class FormattedText : IFormattedText
     /// </summary>
     /// <param name="rectangle">The rectangle in which the text will be drawn, used for positioning and clipping.</param>
     /// <param name="brush">The brush with which to draw the text.</param>
-    public void Draw(RectangleF rectangle, Brush brush)
+    public void Draw(Rectangle rectangle, Brush brush)
     {
         if (lastAvailableSize == null || lastAvailableSize.Value != rectangle.Size)
             Measure(rectangle.Size);

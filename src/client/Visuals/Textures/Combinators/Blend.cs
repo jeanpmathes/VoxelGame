@@ -19,7 +19,8 @@
 
 using System;
 using JetBrains.Annotations;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Images;
 
 namespace VoxelGame.Client.Visuals.Textures.Combinators;
 

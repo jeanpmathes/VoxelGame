@@ -18,8 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Controls;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 
 namespace VoxelGame.GUI.Input;
@@ -32,7 +32,7 @@ public abstract class PointerEvent : InputEvent
     /// <summary>
     ///     Creates a new <seealso cref="PointerEvent" />.
     /// </summary>
-    protected PointerEvent(Visual source, PointF position, Boolean isSynthetic) : base(source, isSynthetic)
+    protected PointerEvent(Visual source, Point position, Boolean isSynthetic) : base(source, isSynthetic)
     {
         RootPosition = position;
     }
@@ -40,12 +40,12 @@ public abstract class PointerEvent : InputEvent
     /// <summary>
     ///     The position in root canvas coordinates where the pointer event occurred.
     /// </summary>
-    public PointF RootPosition { get; }
+    public Point RootPosition { get; }
 
     /// <summary>
     ///     The position in the local coordinate space of the current target visual.
     /// </summary>
-    public PointF LocalPosition => Target.RootPointToLocal(RootPosition);
+    public Point LocalPosition => Target.RootPointToLocal(RootPosition);
 
     /// <summary>
     ///     Whether the pointer event hits the specified visual.

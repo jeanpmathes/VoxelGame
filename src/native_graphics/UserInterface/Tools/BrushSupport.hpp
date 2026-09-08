@@ -40,7 +40,7 @@ namespace ui
          * \param color The brush color.
          * \returns The brush. Needs to be returned.
          */
-        Brush& GetSolidColorBrush(ColorF color);
+        Brush& GetSolidColorBrush(Color color);
 
         /**
          * \brief Return a solid color brush.
@@ -54,7 +54,7 @@ namespace ui
          * \param color The color of the requested brush.
          * \returns The raw Direct2D brush, owned by the support.
          */
-        ID2D1Brush* UseRawSolidColorBrush(ColorF color);
+        ID2D1Brush* UseRawSolidColorBrush(Color color);
 
         /**
          * \brief Validate that all wrapped resources have been returned to this support class.

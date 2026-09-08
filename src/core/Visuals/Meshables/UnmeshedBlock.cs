@@ -25,6 +25,10 @@ using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Meshing;
+using VoxelGame.Core.Visuals.Models;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 

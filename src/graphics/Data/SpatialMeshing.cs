@@ -20,7 +20,7 @@
 using System;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Data;

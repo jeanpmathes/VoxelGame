@@ -28,6 +28,10 @@ using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Meshing;
+using VoxelGame.Core.Visuals.Models;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -122,13 +126,13 @@ public class SimpleBlock : Block, IOverlayTextureProvider
     {
         (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = (0, 0, 0, 0);
 
-        Meshing.SetTextureIndex(ref data, mesh.TextureIndex);
-        Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
-        Meshing.SetFullUVs(ref data);
+        MeshData.SetTextureIndex(ref data, mesh.TextureIndex);
+        MeshData.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
+        MeshData.SetFullUVs(ref data);
 
-        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
-        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsTextureRotated, mesh.IsTextureRotated);
-        Meshing.SetFlag(ref data, Meshing.QuadFlag.IsUnshaded, isUnshaded);
+        MeshData.SetFlag(ref data, MeshData.QuadFlag.IsAnimated, mesh.IsAnimated);
+        MeshData.SetFlag(ref data, MeshData.QuadFlag.IsTextureRotated, mesh.IsTextureRotated);
+        MeshData.SetFlag(ref data, MeshData.QuadFlag.IsUnshaded, isUnshaded);
 
         context.GetFullBlockMeshFaceHolder(side, isOpaque).AddFace(
             position,

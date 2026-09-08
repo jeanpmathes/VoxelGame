@@ -19,7 +19,7 @@
 
 using VoxelGame.Core.Logic.Contents.Fluids;
 using VoxelGame.Core.Utilities.Units;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Tests.Logic.Elements;
 

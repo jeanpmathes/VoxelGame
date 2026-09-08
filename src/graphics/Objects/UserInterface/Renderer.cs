@@ -18,8 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using System.Runtime.InteropServices.Marshalling;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition.UserInterface;
 using VoxelGame.Toolkit.Utilities;
@@ -61,7 +61,7 @@ public sealed class Renderer : DisposableNativeObject<Renderer>
     /// </summary>
     /// <param name="color">The color of the brush to create.</param>
     /// <returns>The created brush.</returns>
-    public Brush CreateSolidColorBrush(Color color)
+    public Brush CreateSolidColorBrush(ColorS color)
     {
         return Native.CreateSolidColorBrush(this, color);
     }

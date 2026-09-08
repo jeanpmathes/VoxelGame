@@ -39,7 +39,7 @@ using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Interop;
 using VoxelGame.Toolkit.Utilities;
-using Image = VoxelGame.Core.Visuals.Image;
+using Image = VoxelGame.Core.Visuals.Images.Image;
 using Timer = VoxelGame.Core.Profiling.Timer;
 
 namespace VoxelGame.Graphics.Core;

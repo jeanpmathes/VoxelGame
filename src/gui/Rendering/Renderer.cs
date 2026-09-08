@@ -18,11 +18,10 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Utilities;
-using Brush = VoxelGame.GUI.Graphics.Brush;
 
 namespace VoxelGame.GUI.Rendering;
 
@@ -40,13 +39,13 @@ public abstract class Renderer : IRenderer
     public abstract void Submit();
 
     /// <inheritdoc />
-    public abstract void PushOffset(PointF offset);
+    public abstract void PushOffset(Point offset);
 
     /// <inheritdoc />
     public abstract void PopOffset();
 
     /// <inheritdoc />
-    public abstract void PushClip(RectangleF rectangle);
+    public abstract void PushClip(Rectangle rectangle);
 
     /// <inheritdoc />
     public abstract void PopClip();
@@ -61,10 +60,10 @@ public abstract class Renderer : IRenderer
     public abstract IFormattedText CreateFormattedText(String text, TextOptions options);
 
     /// <inheritdoc />
-    public abstract void DrawFilledRectangle(RectangleF rectangle, RadiusF corners, Brush brush);
+    public abstract void DrawFilledRectangle(Rectangle rectangle, Radius corners, Brush brush);
 
     /// <inheritdoc />
-    public abstract void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF corners, StrokeStyle stroke, Brush brush);
+    public abstract void DrawLinedRectangle(Rectangle rectangle, Width width, Radius corners, StrokeStyle stroke, Brush brush);
 
     /// <inheritdoc />
     public virtual void OnScale(Single newScale)
@@ -77,12 +76,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="point">The point to scale.</param>
     /// <returns>>The scaled point.</returns>
-    protected PointF ApplyScale(PointF point)
+    protected Point ApplyScale(Point point)
     {
-        point.X *= scale;
-        point.Y *= scale;
-
-        return point;
+        return new Point(point.X * scale, point.Y * scale);
     }
 
     /// <summary>
@@ -90,12 +86,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="size">The size to scale.</param>
     /// <returns>The scaled size.</returns>
-    protected SizeF ApplyScale(SizeF size)
+    protected Size ApplyScale(Size size)
     {
-        size.Width *= scale;
-        size.Height *= scale;
-
-        return size;
+        return new Size(size.Width * scale, size.Height * scale);
     }
 
     /// <summary>
@@ -103,14 +96,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="rectangle">The rectangle to scale.</param>
     /// <returns>The scaled rectangle.</returns>
-    protected RectangleF ApplyScale(RectangleF rectangle)
+    protected Rectangle ApplyScale(Rectangle rectangle)
     {
-        rectangle.X *= scale;
-        rectangle.Y *= scale;
-        rectangle.Width *= scale;
-        rectangle.Height *= scale;
-
-        return rectangle;
+        return new Rectangle(rectangle.X * scale, rectangle.Y * scale, rectangle.Width * scale, rectangle.Height * scale);
     }
 
     /// <summary>
@@ -118,9 +106,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="thickness">The thickness to scale.</param>
     /// <returns>The scaled thickness.</returns>
-    protected ThicknessF ApplyScale(ThicknessF thickness)
+    protected Thickness ApplyScale(Thickness thickness)
     {
-        return new ThicknessF(
+        return new Thickness(
             thickness.Left * scale,
             thickness.Top * scale,
             thickness.Right * scale,
@@ -132,9 +120,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="radius">The radius to scale.</param>
     /// <returns>The scaled radius.</returns>
-    protected RadiusF ApplyScale(RadiusF radius)
+    protected Radius ApplyScale(Radius radius)
     {
-        return new RadiusF(radius.X * scale, radius.Y * scale);
+        return new Radius(radius.X * scale, radius.Y * scale);
     }
 
     /// <summary>
@@ -142,9 +130,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="width">The width to scale.</param>
     /// <returns>The scaled width.</returns>
-    protected WidthF ApplyScale(WidthF width)
+    protected Width ApplyScale(Width width)
     {
-        return new WidthF(width.Value * scale);
+        return new Width(width.Value * scale);
     }
 
     /// <summary>
@@ -152,12 +140,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="point">The point to unscale.</param>
     /// <returns>The unscaled point.</returns>
-    protected PointF ApplyInverseScale(PointF point)
+    protected Point ApplyInverseScale(Point point)
     {
-        point.X /= scale;
-        point.Y /= scale;
-
-        return point;
+        return new Point(point.X / scale, point.Y / scale);
     }
 
     /// <summary>
@@ -165,12 +150,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="size">The size to unscale.</param>
     /// <returns>The unscaled size.</returns>
-    protected SizeF ApplyInverseScale(SizeF size)
+    protected Size ApplyInverseScale(Size size)
     {
-        size.Width /= scale;
-        size.Height /= scale;
-
-        return size;
+        return new Size(size.Width / scale, size.Height / scale);
     }
 
     /// <summary>
@@ -178,14 +160,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="rectangle">The rectangle to unscale.</param>
     /// <returns>The unscaled rectangle.</returns>
-    protected RectangleF ApplyInverseScale(RectangleF rectangle)
+    protected Rectangle ApplyInverseScale(Rectangle rectangle)
     {
-        rectangle.X /= scale;
-        rectangle.Y /= scale;
-        rectangle.Width /= scale;
-        rectangle.Height /= scale;
-
-        return rectangle;
+        return new Rectangle(rectangle.X / scale, rectangle.Y / scale, rectangle.Width / scale, rectangle.Height / scale);
     }
 
     /// <summary>
@@ -193,9 +170,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="thickness">The thickness to unscale.</param>
     /// <returns>The unscaled thickness.</returns>
-    protected ThicknessF ApplyInverseScale(ThicknessF thickness)
+    protected Thickness ApplyInverseScale(Thickness thickness)
     {
-        return new ThicknessF(
+        return new Thickness(
             thickness.Left / scale,
             thickness.Top / scale,
             thickness.Right / scale,
@@ -207,9 +184,9 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="radius">The radius to unscale.</param>
     /// <returns>The unscaled radius.</returns>
-    protected RadiusF ApplyInverseScale(RadiusF radius)
+    protected Radius ApplyInverseScale(Radius radius)
     {
-        return new RadiusF(radius.X / scale, radius.Y / scale);
+        return new Radius(radius.X / scale, radius.Y / scale);
     }
 
     /// <summary>
@@ -217,8 +194,8 @@ public abstract class Renderer : IRenderer
     /// </summary>
     /// <param name="width">The width to unscale.</param>
     /// <returns>The unscaled width.</returns>
-    protected WidthF ApplyInverseScale(WidthF width)
+    protected Width ApplyInverseScale(Width width)
     {
-        return new WidthF(width.Value / scale);
+        return new Width(width.Value / scale);
     }
 }

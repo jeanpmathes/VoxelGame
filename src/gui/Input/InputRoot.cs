@@ -18,7 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 
 namespace VoxelGame.GUI.Input;
@@ -35,7 +35,7 @@ public sealed class InputRoot : IInputReceiver, IDisposable
     private Visual? hoveredVisual;
     private Route hoverRoute = Route.Empty;
 
-    private PointF lastPointerPosition;
+    private Point lastPointerPosition;
 
     /// <summary>
     ///     Creates a new <seealso cref="InputRoot" /> with the specified root visual.
@@ -85,7 +85,7 @@ public sealed class InputRoot : IInputReceiver, IDisposable
         UpdateHoveredVisual(PointerFocus.GetFocused() ?? PerformHitTest(lastPointerPosition));
     }
 
-    private Visual? PerformHitTest(PointF point)
+    private Visual? PerformHitTest(Point point)
     {
         Visual current = root;
 
@@ -131,7 +131,7 @@ public sealed class InputRoot : IInputReceiver, IDisposable
         return KeyboardFocus.GetFocused();
     }
 
-    private Visual? GetPointerTarget(PointF point)
+    private Visual? GetPointerTarget(Point point)
     {
         return PointerFocus.GetFocused() ?? PerformHitTest(point);
     }
@@ -310,7 +310,7 @@ public sealed class InputRoot : IInputReceiver, IDisposable
     }
 
     /// <inheritdoc />
-    public Boolean ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
+    public Boolean ReceivePointerButtonEvent(Point position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         Visual? target = GetPointerTarget(position);
 
@@ -318,7 +318,7 @@ public sealed class InputRoot : IInputReceiver, IDisposable
     }
 
     /// <inheritdoc />
-    public Boolean ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceivePointerMoveEvent(Point position, Single deltaX, Single deltaY)
     {
         lastPointerPosition = position;
 
@@ -332,7 +332,7 @@ public sealed class InputRoot : IInputReceiver, IDisposable
     }
 
     /// <inheritdoc />
-    public Boolean ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceiveScrollEvent(Point position, Single deltaX, Single deltaY)
     {
         Visual? target = GetPointerTarget(position);
 

@@ -21,6 +21,7 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
 

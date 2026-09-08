@@ -24,9 +24,9 @@
 namespace ui
 {
     /**
-     * \brief A two-dimensional point, corresponding to the type on the managed side.
+     * \brief A two-dimensional point, corresponding to the type on the C# side.
      */
-    struct PointF
+    struct Point
     {
         FLOAT x;
         FLOAT y;
@@ -35,9 +35,9 @@ namespace ui
     };
 
     /**
-     * \brief A two-dimensional size, corresponding to the type on the managed side.
+     * \brief A two-dimensional size, corresponding to the type on the C# side.
      */
-    struct SizeF
+    struct Size
     {
         FLOAT width;
         FLOAT height;
@@ -45,12 +45,12 @@ namespace ui
         D2D1_SIZE_F ToD2D1() const;
     };
 
-    struct RadiusF;
+    struct Radius;
 
     /**
-     * \brief A rectangle in UI coordinates, corresponding to the type on the managed side.
+     * \brief A rectangle in UI coordinates, corresponding to the type on the C# side.
      */
-    struct RectangleF
+    struct Rectangle
     {
         FLOAT x;
         FLOAT y;
@@ -58,22 +58,22 @@ namespace ui
         FLOAT height;
 
         D2D1_RECT_F       ToD2D1() const;
-        D2D1_ROUNDED_RECT ToD2D1(RadiusF const& radius) const;
+        D2D1_ROUNDED_RECT ToD2D1(Radius const& radius) const;
     };
 
     /**
-     * \brief Horizontal and vertical radii used for rounded rectangles, corresponding to the type on the managed side.
+     * \brief Horizontal and vertical radii used for rounded rectangles, corresponding to the type on the C# side.
      */
-    struct RadiusF
+    struct Radius
     {
         FLOAT x;
         FLOAT y;
     };
 
     /**
-     * \brief Linear color data, corresponding to the type on the managed side.
+     * \brief Linear color data, corresponding to the ColorS type on the C# side.
      */
-    struct ColorF
+    struct Color
     {
         FLOAT r;
         FLOAT g;

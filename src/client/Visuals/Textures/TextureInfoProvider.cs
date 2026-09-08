@@ -20,7 +20,8 @@
 using System;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Textures;
 using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Visuals.Textures;
@@ -100,7 +101,7 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
     [LoggerMessage(EventId = LogID.TextureIndexProvider + 0, Level = LogLevel.Warning, Message = "Loading of textures is currently disabled, fallback will be used instead")]
     private static partial void LogLoadingDisabled(ILogger logger);
 
-    [LoggerMessage(EventId = LogID.TextureIndexProvider + 1, Level = LogLevel.Warning, Message = "Texture index '{index}' out of bounds, using fallback instead")]
+    [LoggerMessage(EventId = LogID.TextureIndexProvider + 1, Level = LogLevel.Warning, Message = "Texture index '{Index}' out of bounds, using fallback instead")]
     private static partial void LogTextureIndexOutOfBounds(ILogger logger, Int32 index);
 
     #endregion LOGGING

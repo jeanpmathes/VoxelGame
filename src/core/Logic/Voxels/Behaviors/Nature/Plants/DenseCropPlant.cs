@@ -24,8 +24,8 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Visuals;
 using VoxelGame.Toolkit.Utilities;
+using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Nature.Plants;
 

@@ -18,7 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Core.Behaviors.Aspects.Strategies;
 

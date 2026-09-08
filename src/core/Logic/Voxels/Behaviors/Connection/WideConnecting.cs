@@ -26,7 +26,8 @@ using VoxelGame.Core.Behaviors.Aspects.Strategies;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
+using Model = VoxelGame.Core.Visuals.Models.Model;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Connection;
@@ -67,7 +68,7 @@ public partial class WideConnecting : BlockBehavior, IBehavior<WideConnecting, B
         Model post = context.ModelProvider.GetModel(Models.Get().post);
         Model extension = context.ModelProvider.GetModel(Models.Get().extension);
 
-        (Model north, Model east, Model south, Model west) extensions = Core.Visuals.Models.CreateModelsForAllOrientations(extension, Model.TransformationMode.Reshape);
+        (Model north, Model east, Model south, Model west) extensions = Core.Visuals.Models.Models.CreateModelsForAllOrientations(extension, Model.TransformationMode.Reshape);
 
         List<Model> models = new(capacity: 5);
 

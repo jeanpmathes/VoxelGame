@@ -67,7 +67,7 @@ namespace ui
          * \param newAvailableSize The available size in UI coordinates.
          * \returns The measured size in UI coordinates.
          */
-        [[nodiscard]] SizeF Measure(SizeF newAvailableSize);
+        [[nodiscard]] Size Measure(Size newAvailableSize);
 
     private:
         Renderer*            renderer;
@@ -76,6 +76,6 @@ namespace ui
         ComPtr<IDWriteTextLayout> layout;
 
         TextFormat* format        = nullptr;
-        SizeF       availableSize = {0.0f, 0.0f};
+        Size        availableSize = {0.0f, 0.0f};
     };
 }

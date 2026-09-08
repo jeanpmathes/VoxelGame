@@ -34,7 +34,7 @@ using VoxelGame.Core.Serialization;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Units;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Collections;
 using VoxelGame.Toolkit.Utilities;

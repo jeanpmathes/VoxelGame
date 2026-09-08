@@ -19,10 +19,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using JetBrains.Annotations;
 using NSubstitute;
 using VoxelGame.GUI.Input;
+using VoxelGame.GUI.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Input;
@@ -58,22 +58,22 @@ public class InputSourceTests
     [Fact]
     public void InputSource_ShouldForwardSentPointerButtonEvent()
     {
-        source.SendPointerButtonEvent(new PointF(x: 12, y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
-        receiver.Received().ReceivePointerButtonEvent(new PointF(x: 12, y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
+        source.SendPointerButtonEvent(new Point(X: 12, Y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
+        receiver.Received().ReceivePointerButtonEvent(new Point(X: 12, Y: 13), PointerButton.Left, isDown: true, ModifierKeys.None);
     }
 
     [Fact]
     public void InputSource_ShouldForwardSentPointerMoveEvent()
     {
-        source.SendPointerMoveEvent(new PointF(x: 14, y: 15), deltaX: 1, deltaY: 2);
-        receiver.Received().ReceivePointerMoveEvent(new PointF(x: 14, y: 15), deltaX: 1, deltaY: 2);
+        source.SendPointerMoveEvent(new Point(X: 14, Y: 15), deltaX: 1, deltaY: 2);
+        receiver.Received().ReceivePointerMoveEvent(new Point(X: 14, Y: 15), deltaX: 1, deltaY: 2);
     }
 
     [Fact]
     public void InputSource_ShouldForwardSentScrollEvent()
     {
-        source.SendScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4);
-        receiver.Received().ReceiveScrollEvent(new PointF(x: 16, y: 17), deltaX: 3, deltaY: 4);
+        source.SendScrollEvent(new Point(X: 16, Y: 17), deltaX: 3, deltaY: 4);
+        receiver.Received().ReceiveScrollEvent(new Point(X: 16, Y: 17), deltaX: 3, deltaY: 4);
     }
 
     [Fact]

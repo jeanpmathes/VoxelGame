@@ -19,7 +19,7 @@
 
 using System;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Core.Tests.Visuals;
 

@@ -423,7 +423,7 @@ NATIVE void NativeSubmitUserInterfaceCommands(ui::Renderer* renderer, ui::Comman
     } CATCH();
 }
 
-NATIVE ui::Brush* NativeCreateUserInterfaceSolidColorBrush(ui::Renderer* renderer, ui::ColorF const color)
+NATIVE ui::Brush* NativeCreateUserInterfaceSolidColorBrush(ui::Renderer* renderer, ui::Color const color)
 {
     TRY
     {
@@ -483,7 +483,7 @@ NATIVE void NativeReturnUserInterfaceText(ui::Text* text)
     } CATCH();
 }
 
-NATIVE ui::SizeF NativeMeasureUserInterfaceText(ui::Text* text, ui::SizeF const availableSize)
+NATIVE ui::Size NativeMeasureUserInterfaceText(ui::Text* text, ui::Size const availableSize)
 {
     TRY
     {

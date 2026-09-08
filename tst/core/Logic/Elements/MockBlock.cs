@@ -25,7 +25,11 @@ using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Meshables;
+using VoxelGame.Core.Visuals.Meshing;
+using VoxelGame.Core.Visuals.Models;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Tests.Logic.Elements;
 

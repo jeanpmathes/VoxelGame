@@ -19,7 +19,7 @@
 
 using System;
 using System.Diagnostics;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Images;
 
 namespace VoxelGame.Client.Visuals.Textures;
 

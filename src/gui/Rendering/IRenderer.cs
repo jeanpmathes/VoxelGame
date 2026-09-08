@@ -18,11 +18,10 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Utilities;
-using Brush = VoxelGame.GUI.Graphics.Brush;
 
 namespace VoxelGame.GUI.Rendering;
 
@@ -52,7 +51,7 @@ public interface IRenderer
     ///     The offset is additive, meaning the previous offset will be considered.
     /// </summary>
     /// <param name="offset">The offset to push.</param>
-    public void PushOffset(PointF offset);
+    public void PushOffset(Point offset);
 
     /// <summary>
     ///     Pop the last pushed offset. Performs no operation if no offset was previously pushed.
@@ -64,7 +63,7 @@ public interface IRenderer
     ///     The clipping rectangle is intersected with the previous clipping rectangle.
     /// </summary>
     /// <param name="rectangle">The clipping rectangle to push.</param>
-    public void PushClip(RectangleF rectangle);
+    public void PushClip(Rectangle rectangle);
 
     /// <summary>
     ///     Pop the last pushed clipping rectangle. Performs no operation if no clipping rectangle was previously pushed.
@@ -97,16 +96,16 @@ public interface IRenderer
     /// <param name="rectangle">The rectangle to draw.</param>
     /// <param name="corners">The radius of the corners to draw.</param>
     /// <param name="brush">The brush to use.</param>
-    public void DrawFilledRectangle(RectangleF rectangle, RadiusF corners, Brush brush);
+    public void DrawFilledRectangle(Rectangle rectangle, Radius corners, Brush brush);
 
     /// <summary>
     ///     Draw a rectangle with non-rounded corners.
     /// </summary>
     /// <param name="rectangle">The rectangle to draw.</param>
     /// <param name="brush">The brush to use.</param>
-    public void DrawFilledRectangle(RectangleF rectangle, Brush brush)
+    public void DrawFilledRectangle(Rectangle rectangle, Brush brush)
     {
-        DrawFilledRectangle(rectangle, RadiusF.Zero, brush);
+        DrawFilledRectangle(rectangle, Radius.Zero, brush);
     }
 
     /// <summary>
@@ -117,16 +116,16 @@ public interface IRenderer
     /// <param name="corners">The radius of the corners to draw.</param>
     /// <param name="stroke">The style of the line.</param>
     /// <param name="brush">The brush to use.</param>
-    public void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF corners, StrokeStyle stroke, Brush brush);
+    public void DrawLinedRectangle(Rectangle rectangle, Width width, Radius corners, StrokeStyle stroke, Brush brush);
 
     /// <summary>
     ///     Draw a solid rectangle line with a default border thickness of 1 unit and non-rounded corners.
     /// </summary>
     /// <param name="rectangle">The rectangle to draw.</param>
     /// <param name="brush">The brush to use.</param>
-    public void DrawLinedRectangle(RectangleF rectangle, Brush brush)
+    public void DrawLinedRectangle(Rectangle rectangle, Brush brush)
     {
-        DrawLinedRectangle(rectangle, WidthF.One, RadiusF.Zero, StrokeStyle.Solid, brush);
+        DrawLinedRectangle(rectangle, Width.One, Radius.Zero, StrokeStyle.Solid, brush);
     }
 
     /// <summary>

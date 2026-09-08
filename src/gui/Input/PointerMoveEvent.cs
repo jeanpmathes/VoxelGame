@@ -18,7 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 
 namespace VoxelGame.GUI.Input;
@@ -32,7 +32,7 @@ public sealed class PointerMoveEvent : PointerEvent
     ///     Creates a new <seealso cref="PointerMoveEvent" /> with the specified source visual, pointer position, and change in
     ///     pointer coordinates since the last pointer move event.
     /// </summary>
-    public PointerMoveEvent(Visual source, PointF position, Single deltaX, Single deltaY) : base(source, position, isSynthetic: false)
+    public PointerMoveEvent(Visual source, Point position, Single deltaX, Single deltaY) : base(source, position, isSynthetic: false)
     {
         DeltaX = deltaX;
         DeltaY = deltaY;

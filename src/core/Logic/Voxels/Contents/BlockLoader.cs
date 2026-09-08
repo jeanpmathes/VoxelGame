@@ -21,6 +21,9 @@ using System;
 using System.Collections.Generic;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Models;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Logic.Voxels.Contents;
 

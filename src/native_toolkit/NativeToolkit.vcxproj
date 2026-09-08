@@ -38,7 +38,6 @@
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
         <None Include="$(OutDir)*140*.dll" Visible="false">
-            <!-- This adds all runtime DLLs as content to the project -->
             <Link>%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>

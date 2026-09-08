@@ -23,7 +23,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Images;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Logging;
 

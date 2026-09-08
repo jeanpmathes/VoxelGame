@@ -18,8 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Bindings;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.GUI.Input;
 
@@ -43,19 +43,19 @@ public class InputForwardToBindingAdapter(IValueSource<IInputReceiver?> receiver
     }
 
     /// <inheritdoc />
-    public Boolean ReceivePointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
+    public Boolean ReceivePointerButtonEvent(Point position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         return receiver.GetValue()?.ReceivePointerButtonEvent(position, button, isDown, modifiers, isSynthetic) ?? false;
     }
 
     /// <inheritdoc />
-    public Boolean ReceivePointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceivePointerMoveEvent(Point position, Single deltaX, Single deltaY)
     {
         return receiver.GetValue()?.ReceivePointerMoveEvent(position, deltaX, deltaY) ?? false;
     }
 
     /// <inheritdoc />
-    public Boolean ReceiveScrollEvent(PointF position, Single deltaX, Single deltaY)
+    public Boolean ReceiveScrollEvent(Point position, Single deltaX, Single deltaY)
     {
         return receiver.GetValue()?.ReceiveScrollEvent(position, deltaX, deltaY) ?? false;
     }

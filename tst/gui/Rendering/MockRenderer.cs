@@ -18,12 +18,11 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Rendering;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Utilities;
-using Brush = VoxelGame.GUI.Graphics.Brush;
 
 namespace VoxelGame.GUI.Tests.Rendering;
 
@@ -33,11 +32,11 @@ public class MockRenderer : Renderer
 
     public override void Submit() {}
 
-    public override void PushOffset(PointF offset) {}
+    public override void PushOffset(Point offset) {}
 
     public override void PopOffset() {}
 
-    public override void PushClip(RectangleF rectangle) {}
+    public override void PushClip(Rectangle rectangle) {}
 
     public override void PopClip() {}
 
@@ -50,66 +49,66 @@ public class MockRenderer : Renderer
         return new MockFormattedText();
     }
 
-    public override void DrawFilledRectangle(RectangleF rectangle, RadiusF corners, Brush brush) {}
+    public override void DrawFilledRectangle(Rectangle rectangle, Radius corners, Brush brush) {}
 
-    public override void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF corners, StrokeStyle stroke, Brush brush) {}
+    public override void DrawLinedRectangle(Rectangle rectangle, Width width, Radius corners, StrokeStyle stroke, Brush brush) {}
 
-    public new PointF ApplyScale(PointF point)
+    public new Point ApplyScale(Point point)
     {
         return base.ApplyScale(point);
     }
 
-    public new SizeF ApplyScale(SizeF size)
+    public new Size ApplyScale(Size size)
     {
         return base.ApplyScale(size);
     }
 
-    public new RectangleF ApplyScale(RectangleF rectangle)
+    public new Rectangle ApplyScale(Rectangle rectangle)
     {
         return base.ApplyScale(rectangle);
     }
 
-    public new ThicknessF ApplyScale(ThicknessF thickness)
+    public new Thickness ApplyScale(Thickness thickness)
     {
         return base.ApplyScale(thickness);
     }
 
-    public new RadiusF ApplyScale(RadiusF radius)
+    public new Radius ApplyScale(Radius radius)
     {
         return base.ApplyScale(radius);
     }
 
-    public new WidthF ApplyScale(WidthF width)
+    public new Width ApplyScale(Width width)
     {
         return base.ApplyScale(width);
     }
 
-    public new PointF ApplyInverseScale(PointF point)
+    public new Point ApplyInverseScale(Point point)
     {
         return base.ApplyInverseScale(point);
     }
 
-    public new SizeF ApplyInverseScale(SizeF size)
+    public new Size ApplyInverseScale(Size size)
     {
         return base.ApplyInverseScale(size);
     }
 
-    public new RectangleF ApplyInverseScale(RectangleF rectangle)
+    public new Rectangle ApplyInverseScale(Rectangle rectangle)
     {
         return base.ApplyInverseScale(rectangle);
     }
 
-    public new ThicknessF ApplyInverseScale(ThicknessF thickness)
+    public new Thickness ApplyInverseScale(Thickness thickness)
     {
         return base.ApplyInverseScale(thickness);
     }
 
-    public new RadiusF ApplyInverseScale(RadiusF radius)
+    public new Radius ApplyInverseScale(Radius radius)
     {
         return base.ApplyInverseScale(radius);
     }
 
-    public new WidthF ApplyInverseScale(WidthF width)
+    public new Width ApplyInverseScale(Width width)
     {
         return base.ApplyInverseScale(width);
     }

@@ -21,11 +21,11 @@ using System;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls.Bases;
 using VoxelGame.GUI.Controls.Templates;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing;
 using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
-using Brush = VoxelGame.GUI.Graphics.Brush;
+using Brush = VoxelGame.GUI.Drawing.Brushes.Brush;
 
 namespace VoxelGame.GUI.Controls;
 
@@ -38,10 +38,10 @@ public interface IButton : IContentControl
     public Property<Brush> BorderBrush { get; }
 
     /// <inheritdoc cref="Button{TContent}.BorderWidth" />
-    public Property<WidthF> BorderWidth { get; }
+    public Property<Width> BorderWidth { get; }
 
     /// <inheritdoc cref="Button{TContent}.BorderRadius" />
-    public Property<RadiusF> BorderRadius { get; }
+    public Property<Radius> BorderRadius { get; }
 
     /// <inheritdoc cref="Button{TContent}.BorderStrokeStyle" />
     public Property<StrokeStyle> BorderStrokeStyle { get; }
@@ -61,7 +61,7 @@ public class Button<TContent> : ButtonBase<TContent, Button<TContent>>, IButton 
     public Button()
     {
         BorderBrush = Property.Create(this, Binding.To(Background).Combine(IsKeyboardFocused).Compute((background, isFocused) => isFocused ? Defaults.Button.FocusedBorderBrush : background));
-        BorderWidth = Property.Create(this, new WidthF(1.0f));
+        BorderWidth = Property.Create(this, new Width(1.0f));
         BorderRadius = Property.Create(this, Defaults.Radius);
         BorderStrokeStyle = Property.Create(this, Binding.To(IsKeyboardFocused).Compute(isFocused => isFocused ? StrokeStyle.Squared : StrokeStyle.Solid));
 
@@ -75,7 +75,7 @@ public class Button<TContent> : ButtonBase<TContent, Button<TContent>>, IButton 
 
         IsNavigable.OverrideDefault(defaultValue: true);
 
-        Padding.OverrideDefault(new ThicknessF(3.0f));
+        Padding.OverrideDefault(new Thickness(3.0f));
     }
 
     private static Brush ComputeForegroundBrush(Brush foreground, Enablement enablement)
@@ -118,12 +118,12 @@ public class Button<TContent> : ButtonBase<TContent, Button<TContent>>, IButton 
     /// <summary>
     ///     The width of the button's border.
     /// </summary>
-    public Property<WidthF> BorderWidth { get; }
+    public Property<Width> BorderWidth { get; }
 
     /// <summary>
     ///     The radius of the corners of the button's border.
     /// </summary>
-    public Property<RadiusF> BorderRadius { get; }
+    public Property<Radius> BorderRadius { get; }
 
     /// <summary>
     ///     The stroke style of the button's border.

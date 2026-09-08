@@ -18,8 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Input;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.GUI.Tests.Input;
 
@@ -35,17 +35,17 @@ public class MockInputSource : InputSource
         return base.SendTextEvent(text);
     }
 
-    public new Boolean SendPointerButtonEvent(PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
+    public new Boolean SendPointerButtonEvent(Point position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false)
     {
         return base.SendPointerButtonEvent(position, button, isDown, modifiers, isSynthetic);
     }
 
-    public new Boolean SendPointerMoveEvent(PointF position, Single deltaX, Single deltaY)
+    public new Boolean SendPointerMoveEvent(Point position, Single deltaX, Single deltaY)
     {
         return base.SendPointerMoveEvent(position, deltaX, deltaY);
     }
 
-    public new Boolean SendScrollEvent(PointF position, Single deltaX, Single deltaY)
+    public new Boolean SendScrollEvent(Point position, Single deltaX, Single deltaY)
     {
         return base.SendScrollEvent(position, deltaX, deltaY);
     }

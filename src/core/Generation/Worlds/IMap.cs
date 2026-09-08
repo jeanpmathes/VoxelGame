@@ -20,7 +20,7 @@
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections.Properties;
 using VoxelGame.Core.Utilities.Units;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Core.Generation.Worlds;
 

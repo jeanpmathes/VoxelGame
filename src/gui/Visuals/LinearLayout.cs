@@ -18,8 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Bindings;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.GUI.Visuals;
 
@@ -49,42 +49,39 @@ public class LinearLayout : Layout
     private Boolean IsHorizontal => Orientation.GetValue() == GUI.Orientation.Horizontal;
 
     /// <inheritdoc />
-    public override SizeF OnMeasure(SizeF availableSize)
+    public override Size OnMeasure(Size availableSize)
     {
-        SizeF desiredSize = SizeF.Empty;
+        Single desiredWidth = 0;
+        Single desiredHeight = 0;
 
-        SizeF usableSize = availableSize - Padding.GetValue();
+        Size usableSize = availableSize - Padding.GetValue();
 
         if (IsHorizontal)
         {
-            usableSize.Width = Single.PositiveInfinity;
-
             foreach (Visual child in Children)
             {
-                SizeF childDesiredSize = child.Measure(usableSize);
+                Size childDesiredSize = child.Measure(usableSize with {Width = Single.PositiveInfinity});
 
-                desiredSize.Width += childDesiredSize.Width;
-                desiredSize.Height = Math.Max(desiredSize.Height, childDesiredSize.Height);
+                desiredWidth += childDesiredSize.Width;
+                desiredHeight = Math.Max(desiredHeight, childDesiredSize.Height);
             }
         }
         else // Vertical.
         {
-            usableSize.Height = Single.PositiveInfinity;
-
             foreach (Visual child in Children)
             {
-                SizeF childDesiredSize = child.Measure(usableSize);
+                Size childDesiredSize = child.Measure(usableSize with {Height = Single.PositiveInfinity});
 
-                desiredSize.Width = Math.Max(desiredSize.Width, childDesiredSize.Width);
-                desiredSize.Height += childDesiredSize.Height;
+                desiredWidth = Math.Max(desiredWidth, childDesiredSize.Width);
+                desiredHeight += childDesiredSize.Height;
             }
         }
 
-        return desiredSize + Padding.GetValue();
+        return new Size(desiredWidth, desiredHeight) + Padding.GetValue();
     }
 
     /// <inheritdoc />
-    public override void OnArrange(RectangleF finalRectangle)
+    public override void OnArrange(Rectangle finalRectangle)
     {
         finalRectangle -= Padding.GetValue();
 
@@ -94,9 +91,9 @@ public class LinearLayout : Layout
 
             foreach (Visual child in Children)
             {
-                SizeF childDesiredSize = child.MeasuredSize;
+                Size childDesiredSize = child.MeasuredSize;
 
-                child.Arrange(new RectangleF(new PointF(x, finalRectangle.Y), childDesiredSize with {Height = finalRectangle.Height}));
+                child.Arrange(new Rectangle(new Point(x, finalRectangle.Y), childDesiredSize with {Height = finalRectangle.Height}));
 
                 x += childDesiredSize.Width;
             }
@@ -107,9 +104,9 @@ public class LinearLayout : Layout
 
             foreach (Visual child in Children)
             {
-                SizeF childDesiredSize = child.MeasuredSize;
+                Size childDesiredSize = child.MeasuredSize;
 
-                child.Arrange(new RectangleF(new PointF(finalRectangle.X, y), childDesiredSize with {Width = finalRectangle.Width}));
+                child.Arrange(new Rectangle(new Point(finalRectangle.X, y), childDesiredSize with {Width = finalRectangle.Width}));
 
                 y += childDesiredSize.Height;
             }

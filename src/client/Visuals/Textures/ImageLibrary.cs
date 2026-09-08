@@ -23,7 +23,8 @@ using System.IO;
 using System.Text;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Images;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Client.Visuals.Textures;
 

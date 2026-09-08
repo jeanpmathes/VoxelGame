@@ -17,7 +17,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Drawing;
 using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Controls.Templates;
@@ -27,6 +26,7 @@ using VoxelGame.GUI.Tests.Rendering;
 using VoxelGame.GUI.Tests.Utilities;
 using VoxelGame.GUI.Tests.Visuals;
 using VoxelGame.GUI.Themes;
+using VoxelGame.GUI.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Controls;
@@ -117,13 +117,13 @@ public class ControlTests
 
         MockControl control = new();
         canvas.Child = control;
-        canvas.SetRenderingSize(new Size(width: 500, height: 500));
+        canvas.SetRenderingSize(new Size(Width: 500, Height: 500));
 
         canvas.MovePointerTo(control);
 
         Assert.True(control.IsHovered.GetValue());
 
-        canvas.MovePointerTo(new PointF(x: -10f, y: -10f));
+        canvas.MovePointerTo(new Point(X: -10f, Y: -10f));
 
         Assert.False(control.IsHovered.GetValue());
     }

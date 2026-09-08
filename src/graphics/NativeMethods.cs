@@ -21,6 +21,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
@@ -29,7 +30,9 @@ using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Interop;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Objects.UserInterface;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.Toolkit.Interop;
+using Mesh = VoxelGame.Graphics.Objects.Mesh;
 
 namespace VoxelGame.Graphics;
 
@@ -164,7 +167,7 @@ internal static partial class NativeMethods
     internal static unsafe partial void SubmitUserInterfaceCommands(Renderer renderer, Command* commands, UInt32 commandCount);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceSolidColorBrush")]
-    internal static partial IntPtr CreateUserInterfaceSolidColorBrush(Renderer renderer, NativeColorF color);
+    internal static partial IntPtr CreateUserInterfaceSolidColorBrush(Renderer renderer, ColorS color);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeReturnUserInterfaceBrush")]
     internal static partial void ReturnUserInterfaceBrush(Brush brush);
@@ -186,5 +189,5 @@ internal static partial class NativeMethods
     internal static partial void ReturnUserInterfaceText(Text text);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeMeasureUserInterfaceText")]
-    internal static partial NativeSizeF MeasureUserInterfaceText(Text text, NativeSizeF availableSize);
+    internal static partial Size MeasureUserInterfaceText(Text text, Size availableSize);
 }

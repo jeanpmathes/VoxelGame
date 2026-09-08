@@ -5,12 +5,12 @@
 // <author>Gwen.Net, jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Input;
 using VoxelGame.Graphics.Input.Events;
 using VoxelGame.GUI.Input;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.Presentation.New.Platform.Input;
 
@@ -55,19 +55,19 @@ public sealed class ClientInputSource : InputSource, IInputHandler, IDisposable
     {
         PointerButton button = TranslateMouseButton(args.Button);
 
-        return button != PointerButton.Invalid && SendPointerButtonEvent(new PointF(args.Position.X, args.Position.Y), button, args.IsPressed, args.Modifiers, args.IsSynthetic);
+        return button != PointerButton.Invalid && SendPointerButtonEvent(new Point(args.Position.X, args.Position.Y), button, args.IsPressed, args.Modifiers, args.IsSynthetic);
     }
 
     /// <inheritdoc />
     public Boolean HandleMouseMove(MouseMoveEventArgs args)
     {
-        return SendPointerMoveEvent(new PointF(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
+        return SendPointerMoveEvent(new Point(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
     }
 
     /// <inheritdoc />
     public Boolean HandleMouseWheel(MouseWheelEventArgs args)
     {
-        return SendScrollEvent(new PointF(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
+        return SendScrollEvent(new Point(args.Position.X, args.Position.Y), (Single) args.Delta.X, (Single) args.Delta.Y);
     }
 
     private static Key TranslateKeyCode(VirtualKeys key)

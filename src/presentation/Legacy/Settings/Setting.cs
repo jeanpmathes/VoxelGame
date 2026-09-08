@@ -22,6 +22,7 @@ using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Graphics.Input;
 using VoxelGame.Presentation.Legacy.Providers;
 using VoxelGame.Presentation.Legacy.UserInterfaces;

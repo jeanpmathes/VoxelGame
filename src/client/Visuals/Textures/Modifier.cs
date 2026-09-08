@@ -22,7 +22,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Images;
 
 namespace VoxelGame.Client.Visuals.Textures;
 

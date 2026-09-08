@@ -18,9 +18,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Input;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 using Xunit;
 using Canvas = VoxelGame.GUI.Controls.Canvas;
@@ -32,13 +32,13 @@ namespace VoxelGame.GUI.Tests.Input;
 /// </summary>
 public static class ControlInputHelper
 {
-    private static PointF GetHitPoint(Control control)
+    private static Point GetHitPoint(Control control)
     {
         Visual? visual = control.Visualization.GetValue();
 
         Assert.NotNull(visual);
 
-        return visual.LocalPointToRoot(new PointF(visual.Bounds.Width / 2, visual.Bounds.Height / 2));
+        return visual.LocalPointToRoot(new Point(visual.Bounds.Width / 2, visual.Bounds.Height / 2));
     }
 
     extension(Canvas canvas)
@@ -51,7 +51,7 @@ public static class ControlInputHelper
         {
             canvas.Render();
 
-            PointF point = GetHitPoint(control);
+            Point point = GetHitPoint(control);
 
             canvas.Input.GetValue()?.ReceivePointerButtonEvent(point, PointerButton.Left, isDown: true, ModifierKeys.None);
             canvas.Input.GetValue()?.ReceivePointerButtonEvent(point, PointerButton.Left, isDown: false, ModifierKeys.None);
@@ -72,7 +72,7 @@ public static class ControlInputHelper
         ///     Simulates a pointer button-down event at the specified point.
         /// </summary>
         /// <param name="point">The point to press.</param>
-        public void Press(PointF point)
+        public void Press(Point point)
         {
             canvas.Render();
 
@@ -94,7 +94,7 @@ public static class ControlInputHelper
         ///     Simulates a pointer button-up event at the specified point.
         /// </summary>
         /// <param name="point">The point to release.</param>
-        public void Release(PointF point)
+        public void Release(Point point)
         {
             canvas.Render();
 
@@ -116,7 +116,7 @@ public static class ControlInputHelper
         ///     Simulates a pointer move event to the specified point.
         /// </summary>
         /// <param name="point">The point to move the pointer to.</param>
-        public void MovePointerTo(PointF point)
+        public void MovePointerTo(Point point)
         {
             canvas.Render();
 
@@ -129,7 +129,7 @@ public static class ControlInputHelper
         /// <param name="point">The point to scroll.</param>
         /// <param name="deltaX">The amount to scroll horizontally.</param>
         /// <param name="deltaY">The amount to scroll vertically.</param>
-        public void Scroll(PointF point, Single deltaX, Single deltaY)
+        public void Scroll(Point point, Single deltaX, Single deltaY)
         {
             canvas.Render();
 

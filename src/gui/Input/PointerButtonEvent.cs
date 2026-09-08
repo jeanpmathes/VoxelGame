@@ -18,7 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 
 namespace VoxelGame.GUI.Input;
@@ -31,7 +31,7 @@ public sealed class PointerButtonEvent : PointerEvent
     /// <summary>
     ///     Creates a new <seealso cref="PointerButtonEvent" />.
     /// </summary>
-    public PointerButtonEvent(Visual source, PointF position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false) : base(source, position, isSynthetic)
+    public PointerButtonEvent(Visual source, Point position, PointerButton button, Boolean isDown, ModifierKeys modifiers, Boolean isSynthetic = false) : base(source, position, isSynthetic)
     {
         Button = button;
         IsDown = isDown;

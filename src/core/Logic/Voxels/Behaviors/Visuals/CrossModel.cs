@@ -22,7 +22,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Physics;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 

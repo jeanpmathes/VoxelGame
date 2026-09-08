@@ -15,8 +15,8 @@ internal static class DemoHarnessView
         {
             HorizontalAlignment = {Value = HorizontalAlignment.Stretch},
             VerticalAlignment = {Value = VerticalAlignment.Stretch},
-            Margin = {Value = new ThicknessF(5)},
-            Padding = {Value = new ThicknessF(5)},
+            Margin = {Value = new Thickness(5)},
+            Padding = {Value = new Thickness(5)},
 
             Child = new LinearLayout
             {
@@ -52,7 +52,7 @@ internal static class DemoHarnessView
                             {
                                 Content = {Value = "Click Me"},
 
-                                Margin = {Value = new ThicknessF(30)},
+                                Margin = {Value = new Thickness(30)},
 
                                 Command = {Value = Command.FromAction(() => harness.Write("Button clicked!"))}
                             },
@@ -60,13 +60,13 @@ internal static class DemoHarnessView
                             {
                                 Content = {Value = "Click Me"},
 
-                                Margin = {Value = new ThicknessF(30)}
+                                Margin = {Value = new Thickness(30)}
                             },
                             new Button<String>
                             {
                                 Content = {Value = "Click Me"},
 
-                                Margin = {Value = new ThicknessF(30)},
+                                Margin = {Value = new Thickness(30)},
 
                                 Command = {Value = Command.FromAction(() => harness.Write("Button clicked!"))}
                             }

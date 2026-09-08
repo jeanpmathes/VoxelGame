@@ -26,6 +26,10 @@ using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Logic.Voxels.Behaviors;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Meshables;
 using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Meshing;
+using VoxelGame.Core.Visuals.Models;
+using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Visuals.Meshables;
 
@@ -81,8 +85,8 @@ public class ComplexBlock : Block
         {
             ref Mesh.Quad quad = ref quads[index];
 
-            Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsAnimated, mesh.IsAnimated);
-            Meshing.SetFlag(ref quad.data, Meshing.QuadFlag.IsUnshaded, IsUnshaded);
+            MeshData.SetFlag(ref quad.data, MeshData.QuadFlag.IsAnimated, mesh.IsAnimated);
+            MeshData.SetFlag(ref quad.data, MeshData.QuadFlag.IsUnshaded, IsUnshaded);
         }
     }
 
@@ -100,7 +104,7 @@ public class ComplexBlock : Block
             ref readonly Mesh.Quad quad = ref quads[index];
             (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data = quad.data;
 
-            Meshing.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
+            MeshData.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
 
             meshing.PushQuadWithOffset(quad.Positions, data, offset);
         }
@@ -114,7 +118,7 @@ public class ComplexBlock : Block
         if (mesh.QuadCount == 0)
             return ColorS.Black;
 
-        Int32 textureIndex = Meshing.GetTextureIndex(ref mesh.Quads[0].data);
+        Int32 textureIndex = MeshData.GetTextureIndex(ref mesh.Quads[0].data);
         ColorS color = DominantColorProvider.GetDominantColor(textureIndex, isBlock: true);
 
         return color * mesh.Tint.Select(positionTint);

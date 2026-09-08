@@ -22,11 +22,11 @@ using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Graphics.Definition;
 using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
-using Image = VoxelGame.Core.Visuals.Image;
+using Image = VoxelGame.Core.Visuals.Images.Image;
 
 namespace VoxelGame.Client.Visuals;
 

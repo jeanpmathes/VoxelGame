@@ -21,7 +21,7 @@ using System;
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Graphics.Core;
 
 namespace VoxelGame.Graphics.Objects;

@@ -19,7 +19,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
 
 namespace VoxelGame.Graphics.Data;
 

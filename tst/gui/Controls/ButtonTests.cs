@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Input;
@@ -26,8 +25,8 @@ using VoxelGame.GUI.Tests.Commands;
 using VoxelGame.GUI.Tests.Input;
 using VoxelGame.GUI.Tests.Rendering;
 using VoxelGame.GUI.Themes;
+using VoxelGame.GUI.Utilities;
 using Xunit;
-using Canvas = VoxelGame.GUI.Controls.Canvas;
 
 namespace VoxelGame.GUI.Tests.Controls;
 
@@ -52,7 +51,7 @@ public sealed class ButtonTests : ControlTestBase<Button<String>>, IDisposable
 
         canvas.Child = button;
 
-        canvas.SetRenderingSize(new Size(width: 500, height: 500));
+        canvas.SetRenderingSize(new Size(Width: 500, Height: 500));
     }
 
     public void Dispose()
@@ -82,7 +81,7 @@ public sealed class ButtonTests : ControlTestBase<Button<String>>, IDisposable
     public void Button_ShouldNotExecuteCommandIfReleasingOutsideOfButton()
     {
         canvas.Press(button);
-        canvas.Release(new PointF(x: -10f, y: -10f));
+        canvas.Release(new Point(X: -10f, Y: -10f));
 
         Assert.Equal(expected: 0, command.ExecutionCount);
     }

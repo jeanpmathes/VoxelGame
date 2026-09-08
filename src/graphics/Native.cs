@@ -20,11 +20,12 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Images;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Data;
 using VoxelGame.Graphics.Definition;
@@ -33,9 +34,6 @@ using VoxelGame.Graphics.Interfaces;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Graphics.Objects.UserInterface;
 using VoxelGame.Toolkit.Utilities;
-using Brush = VoxelGame.Graphics.Objects.UserInterface.Brush;
-using Image = VoxelGame.Core.Visuals.Image;
-using Mesh = VoxelGame.Graphics.Objects.Mesh;
 
 namespace VoxelGame.Graphics;
 
@@ -343,12 +341,9 @@ internal static class Native
     /// <param name="renderer">The user interface renderer that will use the brush.</param>
     /// <param name="color">The color of the brush to create.</param>
     /// <returns>The created brush.</returns>
-    internal static Brush CreateSolidColorBrush(Renderer renderer, Color color)
+    internal static Brush CreateSolidColorBrush(Renderer renderer, ColorS color)
     {
-        const Single scale = 1.0f / Byte.MaxValue;
-        NativeColorF nativeColor = new(color.R * scale, color.G * scale, color.B * scale, color.A * scale);
-
-        IntPtr pointer = NativeMethods.CreateUserInterfaceSolidColorBrush(renderer, nativeColor);
+        IntPtr pointer = NativeMethods.CreateUserInterfaceSolidColorBrush(renderer, color);
 
         return new Brush(pointer, renderer);
     }

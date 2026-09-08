@@ -20,7 +20,7 @@
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls.Bases;
 using VoxelGame.GUI.Controls.Templates;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing;
 using VoxelGame.GUI.Themes;
 using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
@@ -38,7 +38,7 @@ public class Border : BorderBase<Border>
     /// </summary>
     public Border()
     {
-        BorderWidth = Property.Create(this, WidthF.One);
+        BorderWidth = Property.Create(this, Width.One);
         BorderRadius = Property.Create(this, Defaults.Radius);
         BorderStrokeStyle = Property.Create(this, StrokeStyle.Solid);
     }
@@ -61,12 +61,12 @@ public class Border : BorderBase<Border>
     /// <summary>
     ///     The width of the border drawn around the child control.
     /// </summary>
-    public Property<WidthF> BorderWidth { get; }
+    public Property<Width> BorderWidth { get; }
 
     /// <summary>
     ///     The radius of the corners of the drawn border.
     /// </summary>
-    public Property<RadiusF> BorderRadius { get; }
+    public Property<Radius> BorderRadius { get; }
 
     /// <summary>
     ///     The stroke style of the border drawn around the child control.

@@ -28,7 +28,7 @@ using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Core.Logic.Sections;
 using VoxelGame.Core.Logic.Voxels;
 using VoxelGame.Core.Profiling;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
 using VoxelGame.Logging;
 using VoxelGame.Toolkit.Memory;
 using VoxelGame.Toolkit.Utilities;

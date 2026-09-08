@@ -18,8 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Input;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 
 namespace VoxelGame.GUI.Tests.Visuals;
@@ -103,13 +103,13 @@ public class MockVisual(String tag = "") : Visual
     public Int32 MeasureCalls { get; private set; }
     public Int32 ArrangeCalls { get; private set; }
 
-    public override SizeF OnMeasure(SizeF availableSize)
+    public override Size OnMeasure(Size availableSize)
     {
         MeasureCalls++;
         return base.OnMeasure(availableSize);
     }
 
-    public override void OnArrange(RectangleF finalRectangle)
+    public override void OnArrange(Rectangle finalRectangle)
     {
         ArrangeCalls++;
         base.OnArrange(finalRectangle);

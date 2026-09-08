@@ -18,12 +18,12 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.GUI.Controls;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Styles;
 using VoxelGame.GUI.Utilities;
-using Brush = VoxelGame.GUI.Graphics.Brush;
+using Brush = VoxelGame.GUI.Drawing.Brushes.Brush;
 
 namespace VoxelGame.GUI.Themes;
 
@@ -35,22 +35,22 @@ public static class Defaults
     /// <summary>
     ///     The default background brush.
     /// </summary>
-    public static readonly Brush BackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 26, green: 26, blue: 26));
+    public static readonly Brush BackgroundBrush = new SolidColorBrush(ColorS.FromRGB32(red: 26, green: 26, blue: 26));
 
     /// <summary>
     ///     The default background brush.
     /// </summary>
-    public static readonly Brush TransparentBackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 26, green: 26, blue: 26, alpha: 204));
+    public static readonly Brush TransparentBackgroundBrush = new SolidColorBrush(ColorS.FromRGBA32(red: 26, green: 26, blue: 26, alpha: 204));
 
     /// <summary>
     ///     The default darker / alternative background brush.
     /// </summary>
-    public static readonly Brush BackgroundAlternativeBrush = new SolidColorBrush(Color.FromArgb(red: 13, green: 13, blue: 13));
+    public static readonly Brush BackgroundAlternativeBrush = new SolidColorBrush(ColorS.FromRGB32(red: 13, green: 13, blue: 13));
 
     /// <summary>
     ///     The default foreground brush.
     /// </summary>
-    public static readonly Brush ForegroundBrush = new SolidColorBrush(Color.FromArgb(red: 211, green: 211, blue: 211));
+    public static readonly Brush ForegroundBrush = new SolidColorBrush(ColorS.FromRGB32(red: 211, green: 211, blue: 211));
 
     /// <summary>
     ///     The default interactive background brush.
@@ -65,17 +65,17 @@ public static class Defaults
     /// <summary>
     ///     The default disabled background brush.
     /// </summary>
-    public static readonly Brush DisabledBackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 193, green: 193, blue: 193));
+    public static readonly Brush DisabledBackgroundBrush = new SolidColorBrush(ColorS.FromRGB32(red: 193, green: 193, blue: 193));
 
     /// <summary>
     ///     The default disabled foreground brush.
     /// </summary>
-    public static readonly Brush DisabledForegroundBrush = new SolidColorBrush(Color.FromArgb(red: 112, green: 112, blue: 112));
+    public static readonly Brush DisabledForegroundBrush = new SolidColorBrush(ColorS.FromRGB32(red: 112, green: 112, blue: 112));
 
     /// <summary>
     ///     The default radius of borders and similar.
     /// </summary>
-    public static readonly RadiusF Radius = new(5.0f);
+    public static readonly Radius Radius = new(5.0f);
 
     /// <summary>
     ///     Create a default style for a <see cref="Canvas" />.
@@ -95,17 +95,17 @@ public static class Defaults
         /// <summary>
         ///     The background brush of a button when hovered.
         /// </summary>
-        public static readonly Brush HoveredBackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 241, green: 241, blue: 241));
+        public static readonly Brush HoveredBackgroundBrush = new SolidColorBrush(ColorS.FromRGB32(red: 241, green: 241, blue: 241));
 
         /// <summary>
         ///     The background brush of a button when pressed.
         /// </summary>
-        public static readonly Brush PressedBackgroundBrush = new SolidColorBrush(Color.FromArgb(red: 187, green: 187, blue: 187));
+        public static readonly Brush PressedBackgroundBrush = new SolidColorBrush(ColorS.FromRGB32(red: 187, green: 187, blue: 187));
 
         /// <summary>
         ///     The border brush of a button when focused.
         /// </summary>
-        public static readonly Brush FocusedBorderBrush = new SolidColorBrush(Color.FromArgb(red: 0, green: 0, blue: 0));
+        public static readonly Brush FocusedBorderBrush = new SolidColorBrush(ColorS.FromRGB32(red: 0, green: 0, blue: 0));
     }
 
     /// <summary>

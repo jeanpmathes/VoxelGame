@@ -23,7 +23,7 @@ using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Profiling;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Client.Logic;
 

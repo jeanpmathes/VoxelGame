@@ -18,12 +18,12 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Tests.Controls;
 using VoxelGame.GUI.Tests.Rendering;
 using VoxelGame.GUI.Themes;
+using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
 using Xunit;
 using Canvas = VoxelGame.GUI.Controls.Canvas;
@@ -40,7 +40,7 @@ public abstract class VisualTestBase<TVisual> where TVisual : Visual
     {
         this.factory = factory;
 
-        canvas.SetRenderingSize(new Size(width: 200, height: 200));
+        canvas.SetRenderingSize(new Size(Width: 200, Height: 200));
     }
 
     protected MockVisual? FindVisual(String tag)
@@ -85,16 +85,16 @@ public abstract class VisualTestBase<TVisual> where TVisual : Visual
             return factory();
         });
 
-        canvas.SetRenderingSize(new Size(width: 1000, height: 1000));
+        canvas.SetRenderingSize(new Size(Width: 1000, Height: 1000));
         canvas.Render();
 
-        canvas.SetRenderingSize(new Size(width: 0, height: 0));
+        canvas.SetRenderingSize(new Size(Width: 0, Height: 0));
         canvas.Render();
 
-        canvas.SetRenderingSize(new Size(width: 1, height: 1));
+        canvas.SetRenderingSize(new Size(Width: 1, Height: 1));
         canvas.Render();
 
-        canvas.SetRenderingSize(new Size(width: 5000, height: 5000));
+        canvas.SetRenderingSize(new Size(Width: 5000, Height: 5000));
         canvas.Render();
 
         canvas.SetScale(0.5f);

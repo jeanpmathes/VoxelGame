@@ -22,7 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Controls.Templates;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Input;
 using VoxelGame.GUI.Rendering;
 using VoxelGame.GUI.Styles;
@@ -59,10 +59,10 @@ public interface IControl
     public Property<Single> MaximumHeight { get; }
 
     /// <inheritdoc cref="Control.Margin" />
-    public Property<ThicknessF> Margin { get; }
+    public Property<Thickness> Margin { get; }
 
     /// <inheritdoc cref="Control.Padding" />
-    public Property<ThicknessF> Padding { get; }
+    public Property<Thickness> Padding { get; }
 
     /// <inheritdoc cref="Control.HorizontalAlignment" />
     public Property<HorizontalAlignment> HorizontalAlignment { get; }
@@ -114,7 +114,7 @@ public abstract class Control : IControl
         parent = new Slot<Control?>(value: null, this);
 
         Foreground = Property.Create(this, BindToParent(p => p.Foreground, Defaults.ForegroundBrush));
-        Background = Property.Create(this, Brushes.Transparent);
+        Background = Property.Create(this, Brush.Transparent);
 
         Opacity = Property.Create(this, defaultValue: 1f);
 
@@ -124,8 +124,8 @@ public abstract class Control : IControl
         MaximumWidth = Property.Create(this, Single.PositiveInfinity);
         MaximumHeight = Property.Create(this, Single.PositiveInfinity);
 
-        Margin = Property.Create(this, ThicknessF.Zero);
-        Padding = Property.Create(this, ThicknessF.Zero);
+        Margin = Property.Create(this, Thickness.Zero);
+        Padding = Property.Create(this, Thickness.Zero);
 
         HorizontalAlignment = Property.Create(this, GUI.HorizontalAlignment.Stretch);
         VerticalAlignment = Property.Create(this, GUI.VerticalAlignment.Stretch);
@@ -195,14 +195,14 @@ public abstract class Control : IControl
     /// <summary>
     ///     The margin of this control, which is space around the control that the layout system should try to respect.
     /// </summary>
-    public Property<ThicknessF> Margin { get; }
+    public Property<Thickness> Margin { get; }
 
     /// <summary>
     ///     The padding of this control, which is space inside the control that the layout system should try to respect.
     ///     If a control defines custom layout logic, it decides if and how to respect the padding.
     ///     As such, padding is less strictly enforced than margin.
     /// </summary>
-    public Property<ThicknessF> Padding { get; }
+    public Property<Thickness> Padding { get; }
 
     /// <summary>
     ///     The horizontal alignment of this control within its parent. Might not be respected by all layout containers.

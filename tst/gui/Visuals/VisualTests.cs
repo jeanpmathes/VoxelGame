@@ -17,7 +17,6 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System.Drawing;
 using JetBrains.Annotations;
 using VoxelGame.GUI.Utilities;
 using VoxelGame.GUI.Visuals;
@@ -33,8 +32,8 @@ public class VisualTests
     [Fact]
     public void Visual_Arrange_ShouldUpdateBoundsWhenAvailableSizeChanges()
     {
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 100f, height: 100f));
-        visual.Arrange(new RectangleF(x: 20f, y: 30f, width: 40f, height: 50f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 100f, Height: 100f));
+        visual.Arrange(new Rectangle(X: 20f, Y: 30f, Width: 40f, Height: 50f));
 
         Assert.Equal(expected: 20f, visual.Bounds.X);
         Assert.Equal(expected: 30f, visual.Bounds.Y);
@@ -46,7 +45,7 @@ public class VisualTests
         visual.MinimumWidth.Value = 50f;
         visual.MinimumHeight.Value = 30f;
 
-        visual.Measure(new SizeF(width: 200f, height: 200f));
+        visual.Measure(new Size(Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 50f, visual.MeasuredSize.Width);
         Assert.Equal(expected: 30f, visual.MeasuredSize.Height);
@@ -62,7 +61,7 @@ public class VisualTests
 
         visual.SetChildVisual(child);
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 50f, visual.Bounds.Width);
         Assert.Equal(expected: 40f, visual.Bounds.Height);
@@ -71,9 +70,9 @@ public class VisualTests
     [Fact]
     public void Visual_Measure_ShouldIncludeMargin()
     {
-        visual.Margin.Value = new ThicknessF(left: 5f, top: 10f, right: 15f, bottom: 20f);
+        visual.Margin.Value = new Thickness(left: 5f, top: 10f, right: 15f, bottom: 20f);
 
-        visual.Measure(new SizeF(width: 200f, height: 200f));
+        visual.Measure(new Size(Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 21f, visual.MeasuredSize.Width);
         Assert.Equal(expected: 31f, visual.MeasuredSize.Height);
@@ -82,9 +81,9 @@ public class VisualTests
     [Fact]
     public void Visual_Arrange_ShouldOffsetBoundsByMargin()
     {
-        visual.Margin.Value = new ThicknessF(left: 5f, top: 10f, right: 15f, bottom: 20f);
+        visual.Margin.Value = new Thickness(left: 5f, top: 10f, right: 15f, bottom: 20f);
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 5f, visual.Bounds.X);
         Assert.Equal(expected: 10f, visual.Bounds.Y);
@@ -93,10 +92,10 @@ public class VisualTests
     [Fact]
     public void Visual_Arrange_ShouldNotIncludeSizeOfMargin()
     {
-        visual.Margin.Value = new ThicknessF(left: 5f, top: 10f, right: 15f, bottom: 20f);
+        visual.Margin.Value = new Thickness(left: 5f, top: 10f, right: 15f, bottom: 20f);
 
-        visual.Measure(new SizeF(width: 200f, height: 200f));
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Measure(new Size(Width: 200f, Height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 180f, visual.Bounds.Width);
         Assert.Equal(expected: 170f, visual.Bounds.Height);
@@ -105,10 +104,10 @@ public class VisualTests
     [Fact]
     public void Visual_Measure_ShouldIncludePadding()
     {
-        visual.Margin.Value = new ThicknessF(left: 5f, top: 10f, right: 15f, bottom: 20f);
+        visual.Margin.Value = new Thickness(left: 5f, top: 10f, right: 15f, bottom: 20f);
         visual.SetChildVisual(new MockVisual());
 
-        visual.Measure(new SizeF(width: 200f, height: 200f));
+        visual.Measure(new Size(Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 21f, visual.MeasuredSize.Width);
         Assert.Equal(expected: 31f, visual.MeasuredSize.Height);
@@ -119,7 +118,7 @@ public class VisualTests
     {
         visual.Visibility.Value = Visibility.Hidden;
 
-        visual.Measure(new SizeF(width: 200f, height: 200f));
+        visual.Measure(new Size(Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 1f, visual.MeasuredSize.Width);
         Assert.Equal(expected: 1f, visual.MeasuredSize.Height);
@@ -130,7 +129,7 @@ public class VisualTests
     {
         visual.Visibility.Value = Visibility.Collapsed;
 
-        visual.Measure(new SizeF(width: 200f, height: 200f));
+        visual.Measure(new Size(Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 0f, visual.MeasuredSize.Width);
         Assert.Equal(expected: 0f, visual.MeasuredSize.Height);
@@ -141,7 +140,7 @@ public class VisualTests
     {
         visual.Visibility.Value = Visibility.Collapsed;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 0f, visual.Bounds.Width);
         Assert.Equal(expected: 0f, visual.Bounds.Height);
@@ -152,7 +151,7 @@ public class VisualTests
     {
         visual.HorizontalAlignment.Value = HorizontalAlignment.Stretch;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 0f, visual.Bounds.X);
         Assert.Equal(expected: 200f, visual.Bounds.Width);
@@ -163,7 +162,7 @@ public class VisualTests
     {
         visual.HorizontalAlignment.Value = HorizontalAlignment.Left;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 0f, visual.Bounds.X);
         Assert.Equal(expected: 1f, visual.Bounds.Width);
@@ -174,7 +173,7 @@ public class VisualTests
     {
         visual.HorizontalAlignment.Value = HorizontalAlignment.Center;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 99.5f, visual.Bounds.X);
         Assert.Equal(expected: 1f, visual.Bounds.Width);
@@ -185,7 +184,7 @@ public class VisualTests
     {
         visual.HorizontalAlignment.Value = HorizontalAlignment.Right;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 199f, visual.Bounds.X);
         Assert.Equal(expected: 1f, visual.Bounds.Width);
@@ -195,9 +194,9 @@ public class VisualTests
     public void Visual_Arrange_ShouldCenterWithinMargins()
     {
         visual.HorizontalAlignment.Value = HorizontalAlignment.Center;
-        visual.Margin.Value = new ThicknessF(left: 10f, top: 0f, right: 20f, bottom: 0f);
+        visual.Margin.Value = new Thickness(left: 10f, top: 0f, right: 20f, bottom: 0f);
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 94.5f, visual.Bounds.X);
         Assert.Equal(expected: 1f, visual.Bounds.Width);
@@ -208,7 +207,7 @@ public class VisualTests
     {
         visual.VerticalAlignment.Value = VerticalAlignment.Stretch;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 0f, visual.Bounds.Y);
         Assert.Equal(expected: 200f, visual.Bounds.Height);
@@ -219,7 +218,7 @@ public class VisualTests
     {
         visual.VerticalAlignment.Value = VerticalAlignment.Top;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 0f, visual.Bounds.Y);
         Assert.Equal(expected: 1f, visual.Bounds.Height);
@@ -230,7 +229,7 @@ public class VisualTests
     {
         visual.VerticalAlignment.Value = VerticalAlignment.Center;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 99.5f, visual.Bounds.Y);
         Assert.Equal(expected: 1f, visual.Bounds.Height);
@@ -241,7 +240,7 @@ public class VisualTests
     {
         visual.VerticalAlignment.Value = VerticalAlignment.Bottom;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 200f));
 
         Assert.Equal(expected: 199f, visual.Bounds.Y);
         Assert.Equal(expected: 1f, visual.Bounds.Height);
@@ -255,7 +254,7 @@ public class VisualTests
         visual.MinimumWidth.Value = 40f;
         visual.MinimumHeight.Value = 20f;
 
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 100f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 100f));
 
         Assert.Equal(expected: 80f, visual.Bounds.X);
         Assert.Equal(expected: 40f, visual.Bounds.Y);
@@ -271,8 +270,8 @@ public class VisualTests
         visual.MinimumWidth.Value = 40f;
         visual.MinimumHeight.Value = 20f;
 
-        visual.Measure(new SizeF(width: 200f, height: 100f));
-        visual.Arrange(new RectangleF(x: 0f, y: 0f, width: 200f, height: 100f));
+        visual.Measure(new Size(Width: 200f, Height: 100f));
+        visual.Arrange(new Rectangle(X: 0f, Y: 0f, Width: 200f, Height: 100f));
 
         Assert.Equal(expected: 160f, visual.Bounds.X);
         Assert.Equal(expected: 80f, visual.Bounds.Y);
@@ -283,12 +282,12 @@ public class VisualTests
     [Fact]
     public void Visual_LocalPointToRoot_ShouldAddOffset()
     {
-        MockVisual child = new() {Margin = {Value = new ThicknessF(uniform: 5f)}};
+        MockVisual child = new() {Margin = {Value = new Thickness(uniform: 5f)}};
         visual.SetChildVisual(child);
 
-        visual.Arrange(new RectangleF(x: 10f, y: 20f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 10f, Y: 20f, Width: 200f, Height: 200f));
 
-        PointF rootPoint = child.LocalPointToRoot(new PointF(x: 0f, y: 0f));
+        Point rootPoint = child.LocalPointToRoot(new Point(X: 0f, Y: 0f));
 
         Assert.Equal(expected: 15f, rootPoint.X);
         Assert.Equal(expected: 25f, rootPoint.Y);
@@ -297,12 +296,12 @@ public class VisualTests
     [Fact]
     public void Visual_RootPointToLocal_ShouldSubtractOffset()
     {
-        MockVisual child = new() {Margin = {Value = new ThicknessF(uniform: 5f)}};
+        MockVisual child = new() {Margin = {Value = new Thickness(uniform: 5f)}};
         visual.SetChildVisual(child);
 
-        visual.Arrange(new RectangleF(x: 10f, y: 20f, width: 200f, height: 200f));
+        visual.Arrange(new Rectangle(X: 10f, Y: 20f, Width: 200f, Height: 200f));
 
-        PointF localPoint = child.RootPointToLocal(new PointF(x: 15f, y: 25f));
+        Point localPoint = child.RootPointToLocal(new Point(X: 15f, Y: 25f));
 
         Assert.Equal(expected: 0f, localPoint.X);
         Assert.Equal(expected: 0f, localPoint.Y);

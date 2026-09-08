@@ -24,7 +24,8 @@ using System.Diagnostics;
 using System.Linq;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
+using VoxelGame.Core.Visuals.Images;
 using VoxelGame.Graphics.Core;
 
 namespace VoxelGame.Graphics.Objects;

@@ -18,9 +18,9 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Drawing;
 using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Input;
+using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.GUI.Visuals;
 
@@ -73,14 +73,14 @@ public class Canvas : Visual
     }
 
     /// <inheritdoc />
-    public override void OnBoundsChanged(RectangleF oldBounds, RectangleF newBounds)
+    public override void OnBoundsChanged(Rectangle oldBounds, Rectangle newBounds)
     {
         InvalidateMeasure();
     }
 
     /// <param name="clip"></param>
     /// <inheritdoc />
-    public override void Render(RectangleF clip)
+    public override void Render(Rectangle clip)
     {
         if (IsRenderValid) return;
 

@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using JetBrains.Annotations;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Input;
@@ -28,6 +27,7 @@ using VoxelGame.GUI.Tests.Rendering;
 using VoxelGame.GUI.Tests.Utilities;
 using VoxelGame.GUI.Tests.Visuals;
 using VoxelGame.GUI.Themes;
+using VoxelGame.GUI.Utilities;
 using Xunit;
 
 namespace VoxelGame.GUI.Tests.Input;
@@ -47,7 +47,7 @@ public sealed class InputRootTests : IDisposable
         MockControl control = new();
         canvas.Child = control;
 
-        canvas.SetRenderingSize(new Size(width: 500, height: 500));
+        canvas.SetRenderingSize(new Size(Width: 500, Height: 500));
 
         visual = (control.Visualization.GetValue() as MockVisual)!;
     }
@@ -62,7 +62,7 @@ public sealed class InputRootTests : IDisposable
     {
         visual.OnInputHandler = observer.OnAction;
 
-        canvas.Press(new PointF(x: 100f, y: 100f));
+        canvas.Press(new Point(X: 100f, Y: 100f));
 
         Assert.IsType<PointerButtonEvent>(observer.LastArgs);
     }
@@ -73,7 +73,7 @@ public sealed class InputRootTests : IDisposable
         visual.OnInputHandler = observer.OnAction;
         visual.Visibility.Value = Visibility.Hidden;
 
-        canvas.Press(new PointF(x: 100f, y: 100f));
+        canvas.Press(new Point(X: 100f, Y: 100f));
 
         Assert.Equal(expected: 0, observer.InvocationCount);
     }
@@ -84,7 +84,7 @@ public sealed class InputRootTests : IDisposable
         visual.OnInputHandler = observer.OnAction;
         visual.Enablement.Value = Enablement.Disabled;
 
-        canvas.Press(new PointF(x: 100f, y: 100f));
+        canvas.Press(new Point(X: 100f, Y: 100f));
 
         Assert.Equal(expected: 0, observer.InvocationCount);
     }
@@ -94,7 +94,7 @@ public sealed class InputRootTests : IDisposable
     {
         visual.OnInputHandler = observer.OnAction;
 
-        Boolean handled = canvas.Input.GetValue()!.ReceivePointerButtonEvent(new PointF(x: -10f, y: -10f),
+        Boolean handled = canvas.Input.GetValue()!.ReceivePointerButtonEvent(new Point(X: -10f, Y: -10f),
             PointerButton.Left,
             isDown: true,
             ModifierKeys.None);
@@ -132,7 +132,7 @@ public sealed class InputRootTests : IDisposable
                 child.OnInputHandler = _ => order.Add($"bubble{depth + 1}");
             });
 
-        canvas.Press(new PointF(x: 100f, y: 100f));
+        canvas.Press(new Point(X: 100f, Y: 100f));
 
         Assert.Equal(["tunnel0", "tunnel1", "tunnel2", "tunnel3", "bubble3", "bubble2", "bubble1", "bubble0"], order);
     }
@@ -145,7 +145,7 @@ public sealed class InputRootTests : IDisposable
 
         canvas.Render();
 
-        Boolean handled = canvas.Input.GetValue()!.ReceivePointerButtonEvent(new PointF(x: 100f, y: 100f),
+        Boolean handled = canvas.Input.GetValue()!.ReceivePointerButtonEvent(new Point(X: 100f, Y: 100f),
             PointerButton.Left,
             isDown: true,
             ModifierKeys.None);
@@ -159,7 +159,7 @@ public sealed class InputRootTests : IDisposable
     {
         visual.OnInputHandler = observer.OnAction;
 
-        canvas.MovePointerTo(new PointF(x: 100f, y: 100f));
+        canvas.MovePointerTo(new Point(X: 100f, Y: 100f));
 
         Assert.IsType<PointerMoveEvent>(observer.LastArgs);
     }
@@ -169,7 +169,7 @@ public sealed class InputRootTests : IDisposable
     {
         visual.OnInputHandler = observer.OnAction;
 
-        canvas.Scroll(new PointF(x: 100f, y: 100f), deltaX: 0f, deltaY: 120f);
+        canvas.Scroll(new Point(X: 100f, Y: 100f), deltaX: 0f, deltaY: 120f);
 
         Assert.IsType<ScrollEvent>(observer.LastArgs);
     }

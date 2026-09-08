@@ -23,7 +23,7 @@ using Gwen.Net;
 using Gwen.Net.Control;
 using Gwen.Net.Control.Layout;
 using VoxelGame.Core.Resources.Language;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Presentation.Legacy.Settings;

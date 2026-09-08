@@ -28,7 +28,7 @@ using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Attributes;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Client.Actors.Components;
 

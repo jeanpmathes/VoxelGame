@@ -18,7 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Images;
 
 namespace VoxelGame.Client.Visuals.Textures.Combinators;
 

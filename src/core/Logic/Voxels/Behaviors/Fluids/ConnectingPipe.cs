@@ -33,8 +33,9 @@ using VoxelGame.Core.Logic.Voxels.Behaviors.Visuals;
 using VoxelGame.Core.Physics;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
-using VoxelGame.Core.Visuals;
+using VoxelGame.Core.Visuals.Meshing;
 using VoxelGame.Toolkit.Utilities;
+using Model = VoxelGame.Core.Visuals.Models.Model;
 using Void = VoxelGame.Toolkit.Utilities.Void;
 
 namespace VoxelGame.Core.Logic.Voxels.Behaviors.Fluids;
@@ -92,10 +93,10 @@ public partial class ConnectingPipe : BlockBehavior, IBehavior<ConnectingPipe, B
         Model frontSurface = context.ModelProvider.GetModel(Models.Get().surface);
 
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
-            connectors = Core.Visuals.Models.CreateModelsForAllSides(frontConnector, Model.TransformationMode.Reshape);
+            connectors = Core.Visuals.Models.Models.CreateModelsForAllSides(frontConnector, Model.TransformationMode.Reshape);
 
         (Model front, Model back, Model left, Model right, Model bottom, Model top)
-            surfaces = Core.Visuals.Models.CreateModelsForAllSides(frontSurface, Model.TransformationMode.Reshape);
+            surfaces = Core.Visuals.Models.Models.CreateModelsForAllSides(frontSurface, Model.TransformationMode.Reshape);
 
         Sides sides = siding.GetSides(context.State);
 

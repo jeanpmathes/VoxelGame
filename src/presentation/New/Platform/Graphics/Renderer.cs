@@ -19,16 +19,14 @@
 
 using System;
 using System.Diagnostics;
-using System.Drawing;
+using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Graphics.Core;
 using VoxelGame.Graphics.Definition.UserInterface;
 using VoxelGame.Graphics.Objects.UserInterface;
-using VoxelGame.GUI.Graphics;
+using VoxelGame.GUI.Drawing;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Utilities;
-using PointF = System.Drawing.PointF;
-using RectangleF = System.Drawing.RectangleF;
-using Brush = VoxelGame.GUI.Graphics.Brush;
+using Brush = VoxelGame.GUI.Drawing.Brushes.Brush;
 
 namespace VoxelGame.Presentation.New.Platform.Graphics;
 
@@ -87,7 +85,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     }
 
     /// <inheritdoc />
-    public override void PushOffset(PointF offset)
+    public override void PushOffset(Point offset)
     {
         if (IsCommandRecordingSuppressed)
             return;
@@ -105,7 +103,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     }
 
     /// <inheritdoc />
-    public override void PushClip(RectangleF rectangle)
+    public override void PushClip(Rectangle rectangle)
     {
         if (IsCommandRecordingSuppressed)
         {
@@ -164,7 +162,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     }
 
     /// <inheritdoc />
-    public override void DrawFilledRectangle(RectangleF rectangle, RadiusF corners, Brush brush)
+    public override void DrawFilledRectangle(Rectangle rectangle, Radius corners, Brush brush)
     {
         if (IsCommandRecordingSuppressed)
             return;
@@ -176,7 +174,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
 
         corners = ApplyScale(corners);
 
-        VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out Color? color);
+        VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out ColorS? color);
 
         if (color != null)
             commands.DrawFilledRectangle(rectangle, corners, color.Value);
@@ -185,7 +183,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     }
 
     /// <inheritdoc />
-    public override void DrawLinedRectangle(RectangleF rectangle, WidthF width, RadiusF corners, StrokeStyle stroke, Brush brush)
+    public override void DrawLinedRectangle(Rectangle rectangle, Width width, Radius corners, StrokeStyle stroke, Brush brush)
     {
         if (IsCommandRecordingSuppressed)
             return;
@@ -198,7 +196,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         width = ApplyScale(width);
         corners = ApplyScale(corners);
 
-        VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out Color? color);
+        VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out ColorS? color);
 
         if (color != null)
             commands.DrawLinedRectangle(rectangle, width, corners, stroke, color.Value);
@@ -206,7 +204,7 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
             commands.DrawLinedRectangle(rectangle, width, corners, stroke, uiBrush);
     }
 
-    internal VoxelGame.Graphics.Objects.UserInterface.Brush CreateSolidColorBrush(Color color)
+    internal VoxelGame.Graphics.Objects.UserInterface.Brush CreateSolidColorBrush(ColorS color)
     {
         return renderer.CreateSolidColorBrush(color);
     }
@@ -242,14 +240,14 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         textFormats.Return(text.Format);
     }
 
-    internal void DrawText(Text text, PointF position, Brush brush)
+    internal void DrawText(Text text, Point position, Brush brush)
     {
         if (IsCommandRecordingSuppressed)
             return;
 
         position = ApplyScale(position);
 
-        VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out Color? color);
+        VoxelGame.Graphics.Objects.UserInterface.Brush? uiBrush = brushes.Get(brush, out ColorS? color);
 
         if (color != null)
             commands.DrawText(text, position, color.Value);
@@ -257,12 +255,12 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
             commands.DrawText(text, position, uiBrush);
     }
 
-    internal new SizeF ApplyScale(SizeF size)
+    internal new Size ApplyScale(Size size)
     {
         return base.ApplyScale(size);
     }
 
-    internal new SizeF ApplyInverseScale(SizeF size)
+    internal new Size ApplyInverseScale(Size size)
     {
         return base.ApplyInverseScale(size);
     }
