@@ -35,8 +35,8 @@ public class SetWorldSize : Command
     public override String HelpText => "Sets the size of the current world.";
 
     /// <exclude />
-    public void Invoke(UInt32 size)
+    public void Invoke(UInt32 size, Context context)
     {
-        Context.Player.World.SizeInBlocks = size;
+        context.Player.World.SizeInBlocks = size;
     }
 }

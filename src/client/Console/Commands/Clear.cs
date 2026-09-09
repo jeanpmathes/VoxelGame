@@ -35,8 +35,8 @@ public class Clear : Command
     public override String HelpText => "Clear the console.";
 
     /// <exclude />
-    public void Invoke()
+    public void Invoke(Context context)
     {
-        Context.Output.Clear();
+        context.Output.Clear();
     }
 }

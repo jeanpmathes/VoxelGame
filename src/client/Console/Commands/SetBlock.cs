@@ -39,29 +39,29 @@ public class SetBlock : Command
     public override String HelpText => "Sets the block at the target position. Can cause invalid block state.";
 
     /// <exclude />
-    public void Invoke(String contentID, Int32 x, Int32 y, Int32 z)
+    public void Invoke(String contentID, Int32 x, Int32 y, Int32 z, Context context)
     {
-        Set(new CID(contentID), (x, y, z));
+        Set(new CID(contentID), (x, y, z), context);
     }
 
     /// <exclude />
-    public void Invoke(String contentID)
+    public void Invoke(String contentID, Context context)
     {
-        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(new CID(contentID), targetPosition);
-        else Context.Output.WriteError("No position targeted.");
+        if (context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(new CID(contentID), targetPosition, context);
+        else context.Output.WriteError("No position targeted.");
     }
 
-    private void Set(CID contentID, Vector3i position)
+    private static void Set(CID contentID, Vector3i position, Context context)
     {
         Block? block = Blocks.Instance.TranslateContentID(contentID);
 
         if (block == null)
         {
-            Context.Output.WriteError("Cannot find block.");
+            context.Output.WriteError("Cannot find block.");
 
             return;
         }
 
-        Context.Player.World.SetBlock(block.States.Default, position);
+        context.Player.World.SetBlock(block.States.Default, position);
     }
 }

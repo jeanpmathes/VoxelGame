@@ -35,9 +35,9 @@ public class GetSeed : Command
     public override String HelpText => "Gets the world seed.";
 
     /// <exclude />
-    public void Invoke()
+    public void Invoke(Context context)
     {
-        (Int32 upper, Int32 lower) = Context.Player.World.Seed;
-        Context.Output.WriteResponse($"({upper}, {lower})");
+        (Int32 upper, Int32 lower) = context.Player.World.Seed;
+        context.Output.WriteResponse($"({upper}, {lower})");
     }
 }

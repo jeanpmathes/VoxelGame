@@ -36,19 +36,19 @@ public class SetSpawnPoint : Command
     public override String HelpText => "Sets the spawn position for the current world.";
 
     /// <exclude />
-    public void Invoke(Double x, Double y, Double z)
+    public void Invoke(Double x, Double y, Double z, Context context)
     {
-        SetSpawnPosition((x, y, z));
+        SetSpawnPosition((x, y, z), context);
     }
 
     /// <exclude />
-    public void Invoke()
+    public void Invoke(Context context)
     {
-        SetSpawnPosition(Context.Player.Body.Transform.Position);
+        SetSpawnPosition(context.Player.Body.Transform.Position, context);
     }
 
-    private void SetSpawnPosition(Vector3d newSpawnPoint)
+    private static void SetSpawnPosition(Vector3d newSpawnPoint, Context context)
     {
-        Context.Player.World.SpawnPosition = newSpawnPoint;
+        context.Player.World.SpawnPosition = newSpawnPoint;
     }
 }

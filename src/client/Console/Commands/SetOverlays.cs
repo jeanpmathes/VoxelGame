@@ -36,9 +36,9 @@ public class SetOverlays : Command
     public override String HelpText => "Set whether the fluid/block overlays are enabled.";
 
     /// <exclude />
-    public void Invoke(Boolean enabled)
+    public void Invoke(Boolean enabled, Context context)
     {
-        Do(Context, enabled);
+        Do(context, enabled);
     }
 
     /// <summary>

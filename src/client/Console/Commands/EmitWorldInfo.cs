@@ -38,13 +38,13 @@ public class EmitWorldInfo : Command
     public override String HelpText => "Emit information about the generated world for debugging.";
 
     /// <exclude />
-    public void Invoke()
+    public void Invoke(Context context)
     {
-        DirectoryInfo path = Context.Player.World.Data.DebugDirectory;
+        DirectoryInfo path = context.Player.World.Data.DebugDirectory;
 
-        Context.Player.World.EmitWorldInfo(path).OnSuccessfulSync(() =>
+        context.Player.World.EmitWorldInfo(path).OnSuccessfulSync(() =>
         {
-            Context.Output.WriteResponse($"Emitted world info to: {path}",
+            context.Output.WriteResponse($"Emitted world info to: {path}",
                 [new FollowUp("Open folder", () => OS.Start(path))]);
         });
     }

@@ -46,28 +46,28 @@ public class ArgumentResolver
     /// <param name="overloads">The possible overloads to choose from.</param>
     /// <param name="args">The arguments to resolve the overload for.</param>
     /// <returns>The resolution result.</returns>
-    public OverloadResolutionResult ResolveOverload(IEnumerable<MethodInfo> overloads, IReadOnlyList<String> args)
+    public OverloadResolutionResult ResolveOverload(IEnumerable<CommandOverload> overloads, IReadOnlyList<String> args)
     {
         List<String> diagnostics = [];
 
         Int32 overloadCount = 0;
 
-        foreach (MethodInfo method in overloads)
+        foreach (CommandOverload overload in overloads)
         {
             overloadCount += 1;
 
-            ParameterInfo[] parameters = method.GetParameters();
+            IReadOnlyList<ParameterInfo> parameters = overload.CallableParameters;
 
-            if (parameters.Length != args.Count)
+            if (parameters.Count != args.Count)
             {
-                diagnostics.Add($"- Overload #{overloadCount} expects {parameters.Length} argument(s), got {args.Count}.");
+                diagnostics.Add($"- Overload #{overloadCount} expects {parameters.Count} argument(s), got {args.Count}.");
 
                 continue;
             }
 
             Boolean isValid = true;
 
-            for (Int32 i = 0; i < parameters.Length; i++)
+            for (Int32 i = 0; i < parameters.Count; i++)
             {
                 if (!parsers.TryGetValue(parameters[i].ParameterType, out Parser? parser))
                 {
@@ -90,21 +90,21 @@ public class ArgumentResolver
                 }
             }
 
-            if (isValid) return new OverloadResolutionResult(method, []);
+            if (isValid) return new OverloadResolutionResult(overload, []);
         }
 
-        return new OverloadResolutionResult(Method: null, diagnostics);
+        return new OverloadResolutionResult(Overload: null, diagnostics);
     }
 
     /// <summary>
     ///     Parse the arguments for a method.
     /// </summary>
-    /// <param name="method">The method to parse the arguments for.</param>
+    /// <param name="overload">The overload to parse the arguments for.</param>
     /// <param name="args">The arguments to parse.</param>
     /// <returns>The parsed arguments.</returns>
-    public Object[] ParseArguments(MethodBase method, IReadOnlyList<String> args)
+    public Object[] ParseArguments(CommandOverload overload, IReadOnlyList<String> args)
     {
-        ParameterInfo[] parameters = method.GetParameters();
+        IReadOnlyList<ParameterInfo> parameters = overload.CallableParameters;
 
         Object[] parsedArgs = new Object[args.Count];
 
@@ -117,13 +117,13 @@ public class ArgumentResolver
     /// <summary>
     ///     The result of trying to resolve a command overload.
     /// </summary>
-    /// <param name="Method">The resolved method, if successful.</param>
+    /// <param name="Overload">The resolved overload, if successful.</param>
     /// <param name="Diagnostics">Details about why no overload could be selected.</param>
-    public sealed record OverloadResolutionResult(MethodInfo? Method, IReadOnlyList<String> Diagnostics)
+    public sealed record OverloadResolutionResult(CommandOverload? Overload, IReadOnlyList<String> Diagnostics)
     {
         /// <summary>
         ///     Whether the resolution was successful.
         /// </summary>
-        public Boolean IsSuccess => Method != null;
+        public Boolean IsSuccess => Overload != null;
     }
 }

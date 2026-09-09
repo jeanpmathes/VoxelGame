@@ -36,22 +36,22 @@ public class SetSpeed : Command
     public override String HelpText => "Sets the player flying speed.";
 
     /// <exclude />
-    public void Invoke(Double speed)
+    public void Invoke(Double speed, Context context)
     {
         switch (speed)
         {
             case < 0.25:
-                Context.Output.WriteError("Speed must be at least 0.25");
+                context.Output.WriteError("Speed must be at least 0.25");
 
                 return;
 
             case > 25.0:
-                Context.Output.WriteError("Speed must be at most 25.0");
+                context.Output.WriteError("Speed must be at most 25.0");
 
                 return;
 
             default:
-                if (Context.Player.GetComponent<PlayerMovement>() is {} movement)
+                if (context.Player.GetComponent<PlayerMovement>() is {} movement)
                     movement.SetFlyingSpeed(speed);
 
                 break;

@@ -39,22 +39,22 @@ public class CheckChunks : Command
     public override String HelpText => "Finds stale or missing chunks.";
 
     /// <exclude />
-    public void Invoke()
+    public void Invoke(Context context)
     {
         Boolean found = false;
 
-        foreach (ChunkPosition position in RequestAlgorithm.GetPositionsInManhattanRange(Context.Player.GetComponentOrThrow<ChunkLoader>().Chunk, RequestLevel.Range))
+        foreach (ChunkPosition position in RequestAlgorithm.GetPositionsInManhattanRange(context.Player.GetComponentOrThrow<ChunkLoader>().Chunk, RequestLevel.Range))
         {
-            Chunk? chunk = Context.Player.World.Chunks.GetAny(position);
+            Chunk? chunk = context.Player.World.Chunks.GetAny(position);
 
             if (chunk is not null) continue;
 
-            Context.Output.WriteError($"Chunk at {position} in range of player is missing.");
+            context.Output.WriteError($"Chunk at {position} in range of player is missing.");
 
             found = true;
         }
 
-        foreach (Chunk chunk in Context.Player.World.Chunks.All)
+        foreach (Chunk chunk in context.Player.World.Chunks.All)
         {
             if (chunk is {IsRequestedToActivate: true, IsActive: false})
             {
@@ -70,11 +70,11 @@ public class CheckChunks : Command
         }
 
         if (!found)
-            Context.Output.WriteResponse("Chunks seem OK.");
+            context.Output.WriteResponse("Chunks seem OK.");
 
         void ReportFoundChunk(Chunk chunk, String message)
         {
-            Context.Output.WriteError(message,
+            context.Output.WriteError(message,
             [
                 new FollowUp("Break",
                     () =>

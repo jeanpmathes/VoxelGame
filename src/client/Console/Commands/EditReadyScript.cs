@@ -35,8 +35,8 @@ public class EditReadyScript : Command
     public override String HelpText => "Edit the ready script that is executed on world start.";
 
     /// <exclude />
-    public void Invoke()
+    public void Invoke(Context context)
     {
-        EditScript.Do(Context, SessionConsole.WorldReadyScript);
+        EditScript.Do(context, SessionConsole.WorldReadyScript);
     }
 }

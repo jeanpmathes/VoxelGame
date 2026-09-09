@@ -73,7 +73,7 @@ public class Help : Command
             if (commandPages[^1].Count >= PageSize) commandPages.Add([]);
 
             commandPages[^1].Add(new Entry(description,
-                [new FollowUp("Show details", () => { Invoke(command); })]));
+                context => [new FollowUp("Show details", () => { Invoke(command, context); })]));
         }
     }
 
@@ -83,50 +83,50 @@ public class Help : Command
 
         foreach (String command in commandInvoker.CommandNames)
         {
-            List<Entry> description = [new($"{command} # {commandInvoker.GetCommandHelpText(command)}", [])];
+            List<Entry> description = [new($"{command} # {commandInvoker.GetCommandHelpText(command)}", _ => [])];
 
             description.AddRange(commandInvoker
                 .GetCommandSignatures(command)
-                .Select(signature => new Entry(signature, [])));
+                .Select(signature => new Entry(signature, _ => [])));
 
             commandDescriptions.Add(command, description);
         }
     }
 
     /// <exclude />
-    public void Invoke()
+    public void Invoke(Context context)
     {
-        Context.Output.WriteResponse("Use 'help' to get information on available commands.");
-        Context.Output.WriteResponse("Use 'help <page : Int32>' to get a specific command list page.");
-        Context.Output.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
+        context.Output.WriteResponse("Use 'help' to get information on available commands.");
+        context.Output.WriteResponse("Use 'help <page : Int32>' to get a specific command list page.");
+        context.Output.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
     }
 
     /// <exclude />
-    public void Invoke(Int32 page)
+    public void Invoke(Int32 page, Context context)
     {
         if (page > commandPages.Count || page <= 0)
         {
-            Context.Output.WriteError($"There are only {commandPages.Count} pages of commands.");
+            context.Output.WriteError($"There are only {commandPages.Count} pages of commands.");
         }
         else
         {
-            Context.Output.WriteResponse($"Page {page} of {commandPages.Count}:",
+            context.Output.WriteResponse($"Page {page} of {commandPages.Count}:",
             [
-                new FollowUp("Show next page", () => { Invoke(page + 1); }),
-                new FollowUp("Show previous page", () => { Invoke(page - 1); })
+                new FollowUp("Show next page", () => { Invoke(page + 1, context); }),
+                new FollowUp("Show previous page", () => { Invoke(page - 1, context); })
             ]);
 
-            commandPages[page - 1].ForEach(entry => Context.Output.WriteResponse(entry.Text, entry.FollowUp));
+            commandPages[page - 1].ForEach(entry => context.Output.WriteResponse(entry.Text, entry.GetFollowUp(context)));
         }
     }
 
     /// <exclude />
-    public void Invoke(String command)
+    public void Invoke(String command, Context context)
     {
         if (commandDescriptions.TryGetValue(command, out List<Entry>? description))
-            description.ForEach(entry => Context.Output.WriteResponse(entry.Text, entry.FollowUp));
-        else Context.Output.WriteError($"Command '{command}' not found.");
+            description.ForEach(entry => context.Output.WriteResponse(entry.Text, entry.GetFollowUp(context)));
+        else context.Output.WriteError($"Command '{command}' not found.");
     }
 
-    private sealed record Entry(String Text, FollowUp[] FollowUp);
+    private sealed record Entry(String Text, Func<Context, FollowUp[]> GetFollowUp);
 }

@@ -38,36 +38,36 @@ public class SetFluid : Command
     public override String HelpText => "Sets the fluid at the target position. Can cause invalid fluid state.";
 
     /// <exclude />
-    public void Invoke(String namedID, Int32 level, Int32 x, Int32 y, Int32 z)
+    public void Invoke(String namedID, Int32 level, Int32 x, Int32 y, Int32 z, Context context)
     {
-        Set(namedID, level, (x, y, z));
+        Set(namedID, level, (x, y, z), context);
     }
 
     /// <exclude />
-    public void Invoke(String namedID, Int32 level)
+    public void Invoke(String namedID, Int32 level, Context context)
     {
-        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(namedID, level, targetPosition);
-        else Context.Output.WriteError("No position targeted.");
+        if (context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Set(namedID, level, targetPosition, context);
+        else context.Output.WriteError("No position targeted.");
     }
 
-    private void Set(String namedID, Int32 levelData, Vector3i position)
+    private static void Set(String namedID, Int32 levelData, Vector3i position, Context context)
     {
         Fluid? fluid = Fluids.Instance.TranslateNamedID(namedID);
 
         if (fluid == null)
         {
-            Context.Output.WriteError("Cannot find fluid.");
+            context.Output.WriteError("Cannot find fluid.");
 
             return;
         }
 
         if (!FluidLevel.TryFromInt32(levelData, out FluidLevel level))
         {
-            Context.Output.WriteError("Invalid level.");
+            context.Output.WriteError("Invalid level.");
 
             return;
         }
 
-        Context.Player.World.SetFluid(fluid.AsInstance(level), position);
+        context.Player.World.SetFluid(fluid.AsInstance(level), position);
     }
 }

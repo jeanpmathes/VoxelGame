@@ -35,9 +35,9 @@ public class SetDevmode : Command
     public override String HelpText => "Enable or disable the devmode.";
 
     /// <exclude />
-    public void Invoke(Boolean enabled)
+    public void Invoke(Boolean enabled, Context context)
     {
-        SetPhysics.Do(Context, !enabled);
-        SetOverlays.Do(Context, !enabled);
+        SetPhysics.Do(context, !enabled);
+        SetOverlays.Do(context, !enabled);
     }
 }

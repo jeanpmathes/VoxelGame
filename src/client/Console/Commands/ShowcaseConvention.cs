@@ -43,16 +43,16 @@ public class ShowcaseConvention : Command
     public override String HelpText => "Place all content of a convention in the world at the player.";
 
     /// <exclude />
-    public void Invoke(String convention)
+    public void Invoke(String convention, Context context)
     {
         IEnumerable? coroutine = convention switch
         {
-            nameof(Coal) => ShowcaseCoal(),
-            nameof(Crop) => ShowcaseCrops(),
-            nameof(Flower) => ShowcaseFlowers(),
-            nameof(Metal) => ShowcaseMetals(),
-            nameof(Stone) => ShowcaseStones(),
-            nameof(Wood) => ShowcaseWoods(),
+            nameof(Coal) => ShowcaseCoal(context),
+            nameof(Crop) => ShowcaseCrops(context),
+            nameof(Flower) => ShowcaseFlowers(context),
+            nameof(Metal) => ShowcaseMetals(context),
+            nameof(Stone) => ShowcaseStones(context),
+            nameof(Wood) => ShowcaseWoods(context),
             _ => null
         };
 
@@ -62,13 +62,13 @@ public class ShowcaseConvention : Command
         }
         else
         {
-            Context.Output.WriteError($"No known convention '{convention}'.");
+            context.Output.WriteError($"No known convention '{convention}'.");
         }
     }
 
-    private IEnumerable ShowcaseCoal()
+    private static IEnumerable ShowcaseCoal(Context context)
     {
-        Vector3i position = Context.Player.Body.Transform.Position.Floor();
+        Vector3i position = context.Player.Body.Transform.Position.Floor();
 
         foreach (IContent content in Blocks.Instance.Coals.Contents)
         {
@@ -78,14 +78,14 @@ public class ShowcaseConvention : Command
 
             position += Vector3i.UnitX;
 
-            coal.Block.Place(Context.Player.World, position);
+            coal.Block.Place(context.Player.World, position);
         }
     }
 
-    private IEnumerable ShowcaseCrops()
+    private static IEnumerable ShowcaseCrops(Context context)
     {
-        Vector3i position = Context.Player.Body.Transform.Position.Floor();
-        World world = Context.Player.World;
+        Vector3i position = context.Player.Body.Transform.Position.Floor();
+        World world = context.Player.World;
 
         foreach (IContent content in Blocks.Instance.Crops.Contents)
         {
@@ -119,10 +119,10 @@ public class ShowcaseConvention : Command
         }
     }
 
-    private IEnumerable ShowcaseFlowers()
+    private static IEnumerable ShowcaseFlowers(Context context)
     {
-        Vector3i position = Context.Player.Body.Transform.Position.Floor();
-        World world = Context.Player.World;
+        Vector3i position = context.Player.Body.Transform.Position.Floor();
+        World world = context.Player.World;
 
         foreach (IContent content in Blocks.Instance.Flowers.Contents)
         {
@@ -140,10 +140,10 @@ public class ShowcaseConvention : Command
         }
     }
 
-    private IEnumerable ShowcaseMetals()
+    private static IEnumerable ShowcaseMetals(Context context)
     {
-        Vector3i position = Context.Player.Body.Transform.Position.Floor();
-        World world = Context.Player.World;
+        Vector3i position = context.Player.Body.Transform.Position.Floor();
+        World world = context.Player.World;
 
         foreach (IContent content in Blocks.Instance.Metals.Contents)
         {
@@ -170,10 +170,10 @@ public class ShowcaseConvention : Command
         }
     }
 
-    private IEnumerable ShowcaseStones()
+    private static IEnumerable ShowcaseStones(Context context)
     {
-        Vector3i position = Context.Player.Body.Transform.Position.Floor();
-        World world = Context.Player.World;
+        Vector3i position = context.Player.Body.Transform.Position.Floor();
+        World world = context.Player.World;
 
         foreach (IContent content in Blocks.Instance.Stones.Contents)
         {
@@ -195,10 +195,10 @@ public class ShowcaseConvention : Command
         }
     }
 
-    private IEnumerable ShowcaseWoods()
+    private static IEnumerable ShowcaseWoods(Context context)
     {
-        Vector3i position = Context.Player.Body.Transform.Position.Floor();
-        World world = Context.Player.World;
+        Vector3i position = context.Player.Body.Transform.Position.Floor();
+        World world = context.Player.World;
 
         foreach (IContent content in Blocks.Instance.Woods.Contents)
         {

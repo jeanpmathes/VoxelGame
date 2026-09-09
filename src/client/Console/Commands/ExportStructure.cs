@@ -43,29 +43,29 @@ public class ExportStructure : Command
     public override String HelpText => "Exports a structure to a file. Default content (Air, None) is ignored.";
 
     /// <exclude />
-    public void Invoke(Int32 x, Int32 y, Int32 z, Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name)
+    public void Invoke(Int32 x, Int32 y, Int32 z, Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name, Context context)
     {
-        Export((x, y, z), (extentsX, extentsY, extentsZ), name);
+        Export((x, y, z), (extentsX, extentsY, extentsZ), name, context);
     }
 
     /// <exclude />
-    public void Invoke(Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name)
+    public void Invoke(Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name, Context context)
     {
-        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name);
-        else Context.Output.WriteError("No position targeted.");
+        if (context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name, context);
+        else context.Output.WriteError("No position targeted.");
     }
 
-    private void Export(Vector3i position, Vector3i extents, String name)
+    private static void Export(Vector3i position, Vector3i extents, String name, Context context)
     {
-        StaticStructure? structure = StaticStructure.Read(Context.Player.World, position, extents);
+        StaticStructure? structure = StaticStructure.Read(context.Player.World, position, extents);
 
         Operations.Launch(async token =>
         {
-            await ExportAsync(structure, name, token).InAnyContext();
+            await ExportAsync(structure, name, context, token).InAnyContext();
         });
     }
 
-    private async Task ExportAsync(StaticStructure? structure, String name, CancellationToken token = default)
+    private static async Task ExportAsync(StaticStructure? structure, String name, Context context, CancellationToken token = default)
     {
         Boolean success = false;
 
@@ -79,9 +79,9 @@ public class ExportStructure : Command
         }
 
         if (success)
-            await Context.Output.WriteResponseAsync($"Structure exported to: {Program.StructureDirectory}",
+            await context.Output.WriteResponseAsync($"Structure exported to: {Program.StructureDirectory}",
                 [new FollowUp("Open directory", () => { OS.Start(Program.StructureDirectory); })],
                 token).InAnyContext();
-        else await Context.Output.WriteErrorAsync("Failed to export structure.", [], token).InAnyContext();
+        else await context.Output.WriteErrorAsync("Failed to export structure.", [], token).InAnyContext();
     }
 }

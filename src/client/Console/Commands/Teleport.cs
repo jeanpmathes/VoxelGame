@@ -36,27 +36,26 @@ public class Teleport : Command
     public override String HelpText => "Teleport to a specified position or target.";
 
     /// <exclude />
-    public void Invoke(Double x, Double y, Double z)
+    public void Invoke(Double x, Double y, Double z, Context context)
     {
-        Do(Context, this, (x, y, z));
+        Do(context, (x, y, z));
     }
 
     /// <exclude />
-    public void Invoke(String target)
+    public void Invoke(String target, Context context)
     {
-        if (GetNamedPosition(target) is {} position) Do(Context, this, position);
-        else Context.Output.WriteError($"Unknown target: {target}");
+        if (GetNamedPosition(target, context) is {} position) Do(context, position);
+        else context.Output.WriteError($"Unknown target: {target}");
     }
 
     /// <summary>
     ///     Externally simulate command invocation, teleporting the player.
     /// </summary>
     /// <param name="context">The context in which the command is executed.</param>
-    /// <param name="command">The command being invoked.</param>
     /// <param name="position">The position to teleport to.</param>
-    public static void Do(Context context, Command command, Vector3d position)
+    public static void Do(Context context, Vector3d position)
     {
-        command.SetPreviousPlayerPosition(context.Player.Body.Transform.Position);
+        SetPreviousPlayerPosition(context.Player.Body.Transform.Position, context);
         context.Player.Body.Transform.Position = position;
     }
 }

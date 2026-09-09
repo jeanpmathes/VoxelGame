@@ -35,11 +35,11 @@ public class SetTimeScale : Command
     public override String HelpText => "Sets how fast time progresses in the game.";
 
     /// <exclude />
-    public void Invoke(Double timeScale)
+    public void Invoke(Double timeScale, Context context)
     {
         if (timeScale <= 0)
         {
-            Context.Output.WriteError("Time scale must be greater than zero.");
+            context.Output.WriteError("Time scale must be greater than zero.");
 
             return;
         }

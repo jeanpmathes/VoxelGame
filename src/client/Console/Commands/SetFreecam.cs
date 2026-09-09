@@ -37,9 +37,9 @@ public class SetFreecam : Command
     public override String HelpText => "Sets whether the player uses freecam.";
 
     /// <exclude />
-    public void Invoke(Boolean freecam)
+    public void Invoke(Boolean freecam, Context context)
     {
-        if (Context.Player.GetComponent<PlayerMovement>() is {} movement)
+        if (context.Player.GetComponent<PlayerMovement>() is {} movement)
             movement.SetFreecamMode(freecam);
     }
 }

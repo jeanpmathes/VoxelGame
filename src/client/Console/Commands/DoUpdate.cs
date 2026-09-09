@@ -37,21 +37,21 @@ public class DoUpdate : Command
     public override String HelpText => "Cause a 'random' update to occur for a targeted position.";
 
     /// <exclude />
-    public void Invoke()
+    public void Invoke(Context context)
     {
-        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Update(targetPosition);
-        else Context.Output.WriteError("No position targeted.");
+        if (context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Update(targetPosition, context);
+        else context.Output.WriteError("No position targeted.");
     }
 
     /// <exclude />
-    public void Invoke(Int32 x, Int32 y, Int32 z)
+    public void Invoke(Int32 x, Int32 y, Int32 z, Context context)
     {
-        Update((x, y, z));
+        Update((x, y, z), context);
     }
 
-    private void Update(Vector3i position)
+    private static void Update(Vector3i position, Context context)
     {
-        Boolean success = Context.Player.World.DoRandomUpdate(position);
-        if (!success) Context.Output.WriteError("Cannot update at this position.");
+        Boolean success = context.Player.World.DoRandomUpdate(position);
+        if (!success) context.Output.WriteError("Cannot update at this position.");
     }
 }

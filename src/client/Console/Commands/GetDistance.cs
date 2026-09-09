@@ -37,25 +37,25 @@ public class GetDistance : Command
     public override String HelpText => "Get the distance to a specified point or target.";
 
     /// <exclude />
-    public void Invoke(Double x, Double y, Double z)
+    public void Invoke(Double x, Double y, Double z, Context context)
     {
-        DetermineDistance((x, y, z));
+        DetermineDistance((x, y, z), context);
     }
 
     /// <exclude />
-    public void Invoke(String target)
+    public void Invoke(String target, Context context)
     {
-        if (GetNamedPosition(target) is {} position) DetermineDistance(position);
-        else Context.Output.WriteError($"Unknown target: {target}");
+        if (GetNamedPosition(target, context) is {} position) DetermineDistance(position, context);
+        else context.Output.WriteError($"Unknown target: {target}");
     }
 
-    private void DetermineDistance(Vector3d position)
+    private static void DetermineDistance(Vector3d position, Context context)
     {
         Length distance = new()
         {
-            Meters = (position - Context.Player.Body.Transform.Position).Length
+            Meters = (position - context.Player.Body.Transform.Position).Length
         };
 
-        Context.Output.WriteResponse($"Distance: {distance}");
+        context.Output.WriteResponse($"Distance: {distance}");
     }
 }

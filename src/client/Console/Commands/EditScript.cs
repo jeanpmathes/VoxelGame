@@ -37,9 +37,9 @@ public class EditScript : Command
     public override String HelpText => "Edit a ready script by opening it.";
 
     /// <exclude />
-    public void Invoke(String name)
+    public void Invoke(String name, Context context)
     {
-        Do(Context, name);
+        Do(context, name);
     }
 
     /// <summary>

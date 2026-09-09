@@ -40,41 +40,41 @@ public class ImportStructure : Command
     public override String HelpText => "Imports a structure from a file.";
 
     /// <exclude />
-    public void Invoke(Int32 x, Int32 y, Int32 z, String name)
+    public void Invoke(Int32 x, Int32 y, Int32 z, String name, Context context)
     {
-        Import((x, y, z), name, Orientation.North);
+        Import((x, y, z), name, Orientation.North, context);
     }
 
     /// <exclude />
-    public void Invoke(Int32 x, Int32 y, Int32 z, String name, Orientation orientation)
+    public void Invoke(Int32 x, Int32 y, Int32 z, String name, Orientation orientation, Context context)
     {
-        Import((x, y, z), name, orientation);
+        Import((x, y, z), name, orientation, context);
     }
 
     /// <exclude />
-    public void Invoke(String name)
+    public void Invoke(String name, Context context)
     {
-        ImportAtTarget(name, Orientation.North);
+        ImportAtTarget(name, Orientation.North, context);
     }
 
     /// <exclude />
-    public void Invoke(String name, Orientation orientation)
+    public void Invoke(String name, Orientation orientation, Context context)
     {
-        ImportAtTarget(name, orientation);
+        ImportAtTarget(name, orientation, context);
     }
 
-    private void ImportAtTarget(String name, Orientation orientation)
+    private void ImportAtTarget(String name, Orientation orientation, Context context)
     {
-        if (Context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Import(targetPosition, name, orientation);
-        else Context.Output.WriteError("No position targeted.");
+        if (context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Import(targetPosition, name, orientation, context);
+        else context.Output.WriteError("No position targeted.");
     }
 
-    private void Import(Vector3i position, String name, Orientation orientation)
+    private static void Import(Vector3i position, String name, Orientation orientation, Context context)
     {
         Operations.Launch(async token => await StaticStructure.LoadSafelyAsync(Program.StructureDirectory, name, token).InAnyContext())
             .OnSuccessfulSync(result =>
             {
-                result.Place(seed: 0, Context.Player.World, position, orientation);
+                result.Place(seed: 0, context.Player.World, position, orientation);
             });
     }
 }

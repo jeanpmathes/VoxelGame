@@ -22,7 +22,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
+using VoxelGame.Logging;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Client.Console;
@@ -30,7 +32,7 @@ namespace VoxelGame.Client.Console;
 /// <summary>
 ///     Contains all commands that can be executed, and provides access operations.
 /// </summary>
-public class CommandLibrary
+public sealed partial class CommandLibrary
 {
     private const String MethodName = "Invoke";
 
@@ -88,12 +90,12 @@ public class CommandLibrary
 
     private static IEnumerable<String> GetCommandSignatures(String commandName, CommandGroup commandGroup)
     {
-        foreach (MethodInfo commandOverload in commandGroup.Overloads)
+        foreach (CommandOverload overload in commandGroup.Overloads)
         {
             StringBuilder signature = new();
             signature.Append(commandName);
 
-            foreach (ParameterInfo parameter in commandOverload.GetParameters())
+            foreach (ParameterInfo parameter in overload.CallableParameters)
             {
                 signature.Append(value: ' ');
 
@@ -109,13 +111,54 @@ public class CommandLibrary
     }
 
     /// <summary>
-    ///     Add a command to the library.
+    ///     Try to add a command to the library.
+    ///     If the command has any invalid overloads, or the combination of overloads is invalid, it is not added.
     /// </summary>
     /// <param name="command">The command to add.</param>
-    public void AddCommand(ICommand command)
+    /// <returns>Whether the command was added.</returns>
+    public Boolean TryAddCommand(ICommand command)
     {
-        List<MethodInfo> overloads = Reflections.GetMethodOverloads(command.GetType(), MethodName).ToList();
+        List<CommandOverload> overloads = [];
+
+        foreach (MethodInfo method in Reflections.GetMethodOverloads(command.GetType(), MethodName))
+        {
+            if (CommandOverload.TryCreate(method, out CommandOverload? overload))
+            {
+                overloads.Add(overload);
+
+                continue;
+            }
+
+            LogMalformedOverload(logger, command.Name, method.Name);
+
+            return false;
+        }
+
+        if (FindAmbiguity(overloads) is {} ambiguity)
+        {
+            LogAmbiguousOverloads(logger, command.Name, ambiguity.first, ambiguity.second);
+
+            return false;
+        }
+
         groups[command.Name] = new CommandGroup(command, overloads);
+
+        return true;
+    }
+
+    private static (CommandOverload first, CommandOverload second)? FindAmbiguity(
+        List<CommandOverload> overloads)
+    {
+        for (Int32 first = 0; first < overloads.Count; first++)
+        {
+            for (Int32 second = first + 1; second < overloads.Count; second++)
+            {
+                if (overloads[first].HasSameCallableSignature(overloads[second]))
+                    return (overloads[first], overloads[second]);
+            }
+        }
+
+        return null;
     }
 
     /// <summary>
@@ -123,12 +166,32 @@ public class CommandLibrary
     /// </summary>
     /// <param name="name">The name of the command.</param>
     /// <returns>The command, or <c>null</c> if the command does not exist.</returns>
-    public (ICommand command, IReadOnlyList<MethodInfo> overloads)? GetCommand(String name)
+    public (ICommand command, IReadOnlyList<CommandOverload> overloads)? GetCommand(String name)
     {
         return groups.TryGetValue(name, out CommandGroup? commandGroup)
             ? (commandGroup.Command, commandGroup.Overloads)
             : null;
     }
 
-    private sealed record CommandGroup(ICommand Command, List<MethodInfo> Overloads);
+    private sealed record CommandGroup(ICommand Command, List<CommandOverload> Overloads);
+
+    #region LOGGING
+
+    private static readonly ILogger logger = LoggingHelper.CreateLogger<CommandLibrary>();
+
+    [LoggerMessage(EventId = LogID.CommandLibrary + 0,
+        Level = LogLevel.Warning,
+        Message = "Command '{Command}' contains malformed overload '{Overload}': a context parameter must be the final parameter")]
+    private static partial void LogMalformedOverload(ILogger logger, String command, String overload);
+
+    [LoggerMessage(EventId = LogID.CommandLibrary + 1,
+        Level = LogLevel.Warning,
+        Message = "Command '{Command}' contains ambiguous overloads '{FirstOverload}' and '{SecondOverload}': their callable signatures are identical")]
+    private static partial void LogAmbiguousOverloads(
+        ILogger logger,
+        String command,
+        CommandOverload firstOverload,
+        CommandOverload secondOverload);
+
+    #endregion LOGGING
 }

@@ -35,9 +35,9 @@ public class SetPhysics : Command
     public override String HelpText => "Set whether to enable physics for the player.";
 
     /// <exclude />
-    public void Invoke(Boolean enabled)
+    public void Invoke(Boolean enabled, Context context)
     {
-        Do(Context, enabled);
+        Do(context, enabled);
     }
 
     /// <summary>

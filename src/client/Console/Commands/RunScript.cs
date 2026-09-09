@@ -37,10 +37,10 @@ public class RunScript : Command
     public override String HelpText => "Runs a script.";
 
     /// <exclude />
-    public void Invoke(String name)
+    public void Invoke(String name, Context context)
     {
-        if (!Context.IsScript) Do(Context, name);
-        else Context.Output.WriteError("Cannot run scripts from scripts.");
+        if (!context.IsScript) Do(context, name);
+        else context.Output.WriteError("Cannot run scripts from scripts.");
     }
 
     /// <summary>

@@ -98,16 +98,27 @@ public sealed partial class CommandInvoker : IResource
 
         foreach (Command command in Reflections.GetSubclassInstances<Command>())
         {
-            library.AddCommand(command);
+            RID identifier = RID.Named<Command>(command.Name);
 
-            context.ReportDiscovery(ResourceTypes.Command, RID.Named<Command>(command.Name));
+            if (!library.TryAddCommand(command))
+            {
+                context.ReportDiscovery(ResourceTypes.Command,
+                    identifier,
+                    errorMessage: "Malformed command definition.");
+
+                continue;
+            }
+
+            context.ReportDiscovery(ResourceTypes.Command, identifier);
 
             LogFoundCommand(logger, command.Name);
             count++;
         }
 
         LogFoundCommandsCount(logger, count);
-        CommandsUpdated?.Invoke(this, EventArgs.Empty);
+
+        if (count > 0)
+            CommandsUpdated?.Invoke(this, EventArgs.Empty);
     }
 
     /// <summary>
@@ -116,7 +127,8 @@ public sealed partial class CommandInvoker : IResource
     /// <param name="command">The command to add.</param>
     public void AddCommand(ICommand command)
     {
-        library.AddCommand(command);
+        if (!library.TryAddCommand(command))
+            throw Exceptions.InvalidOperation("Cannot add malformed command definition. See log for details.");
 
         LogAddedCommand(logger, command.Name);
         CommandsUpdated?.Invoke(this, EventArgs.Empty);
@@ -144,7 +156,7 @@ public sealed partial class CommandInvoker : IResource
 
             if (resolution.IsSuccess)
             {
-                Invoke(command, resolution.Method!, args, context);
+                Invoke(command, resolution.Overload!, args, context);
             }
             else
             {
@@ -265,20 +277,19 @@ public sealed partial class CommandInvoker : IResource
             [new FollowUp("Show command help", () => { context.Invoker.InvokeCommand($"help {commandName}", context); })]);
     }
 
-    private void Invoke(ICommand command, MethodBase method, IReadOnlyList<String> args, Context context)
+    private void Invoke(ICommand command, CommandOverload overload, IReadOnlyList<String> args, Context context)
     {
         try
         {
-            Object[] parsedArgs = resolver.ParseArguments(method, args);
+            Object[] parsedArgs = resolver.ParseArguments(overload, args);
 
-            command.SetContext(context);
-            method.Invoke(command, parsedArgs);
+            overload.Invoke(command, parsedArgs, context);
 
             LogInvokedCommand(logger, command.Name);
         }
         catch (TargetInvocationException e)
         {
-            LogErrorInvokingCommand(logger, e.InnerException, method.Name);
+            LogErrorInvokingCommand(logger, e.InnerException, command.Name);
 
             context.Output.WriteError($"Error while invoking command '{command.Name}', see log for details");
         }

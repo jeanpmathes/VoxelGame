@@ -35,7 +35,7 @@ public class SetRenderDebugMode : Command
     public override String HelpText => "Sets render debug modes to visualize internal aspects of the rendering process.";
 
     /// <exclude />
-    public void Invoke(String what, Boolean enable)
+    public void Invoke(String what, Boolean enable, Context context)
     {
         switch (what)
         {
@@ -50,7 +50,7 @@ public class SetRenderDebugMode : Command
                 break;
 
             default:
-                Context.Output.WriteError($"Unknown render debug mode '{what}'.");
+                context.Output.WriteError($"Unknown render debug mode '{what}'.");
 
                 break;
         }

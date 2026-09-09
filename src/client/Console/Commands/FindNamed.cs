@@ -42,52 +42,52 @@ public class FindNamed : Command
     public override String HelpText => "Search and find any named generated entity in the world.";
 
     /// <exclude />
-    public void Invoke(String name)
+    public void Invoke(String name, Context context)
     {
-        Search(name);
+        Search(name, count: 1, World.BlockLimit * 2, context);
     }
 
     /// <exclude />
-    public void Invoke(String name, Int32 count)
+    public void Invoke(String name, Int32 count, Context context)
     {
-        Search(name, count);
+        Search(name, count, World.BlockLimit * 2, context);
     }
 
     /// <exclude />
-    public void Invoke(String name, Int32 count, UInt32 maxDistance)
+    public void Invoke(String name, Int32 count, UInt32 maxDistance, Context context)
     {
-        Search(name, count, maxDistance);
+        Search(name, count, maxDistance, context);
     }
 
-    private void Search(String name, Int32 count = 1, UInt32 maxDistance = World.BlockLimit * 2)
+    private void Search(String name, Int32 count, UInt32 maxDistance, Context context)
     {
         if (count < 1)
         {
-            Context.Output.WriteError("Count must be greater than 0.");
+            context.Output.WriteError("Count must be greater than 0.");
 
             return;
         }
 
-        IEnumerable<Vector3i>? positions = Context.Player.World
-            .SearchNamedGeneratedElements(Context.Player.Body.Transform.Position.Floor(), name, maxDistance);
+        IEnumerable<Vector3i>? positions = context.Player.World
+            .SearchNamedGeneratedElements(context.Player.Body.Transform.Position.Floor(), name, maxDistance);
 
         if (positions == null)
         {
-            Context.Output.WriteError($"Search failed, name {name} not valid.");
+            context.Output.WriteError($"Search failed, name {name} not valid.");
 
             return;
         }
 
-        Context.Output.WriteResponse($"Beginning search for {count} {name} elements...");
+        context.Output.WriteResponse($"Beginning search for {count} {name} elements...");
 
         Operations.Launch(async token =>
         {
             foreach (Vector3i position in positions.Take(count))
-                await Context.Output.WriteResponseAsync($"Found {name} at {position}.",
-                    [new FollowUp($"Teleport to {name}", () => Teleport.Do(Context, this, position))],
+                await context.Output.WriteResponseAsync($"Found {name} at {position}.",
+                    [new FollowUp($"Teleport to {name}", () => Teleport.Do(context, position))],
                     token).InAnyContext();
 
-            await Context.Output.WriteResponseAsync($"Search for {name} finished.", [], token).InAnyContext();
+            await context.Output.WriteResponseAsync($"Search for {name} finished.", [], token).InAnyContext();
         });
     }
 }
