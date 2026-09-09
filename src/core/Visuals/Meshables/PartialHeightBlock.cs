@@ -39,7 +39,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// <summary>
 ///     Blocks that are generally full blocks but can have partial heights too, even varying depending on block state.
 /// </summary>
-public class PartialHeightBlock : Block, IOverlayTextureProvider
+public sealed class PartialHeightBlock : Block, IOverlayTextureProvider
 {
     private readonly SideArray<PartialHeight.MeshData[]> meshData = new();
     private readonly Logic.Voxels.Behaviors.Height.PartialHeight partialHeightBehavior;

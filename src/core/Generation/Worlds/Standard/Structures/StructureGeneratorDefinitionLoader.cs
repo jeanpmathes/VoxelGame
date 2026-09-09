@@ -27,7 +27,7 @@ namespace VoxelGame.Core.Generation.Worlds.Standard.Structures;
 /// <summary>
 ///     Loads all structures for this world generator.
 /// </summary>
-public class StructureGeneratorDefinitionLoader : IResourceLoader
+public sealed class StructureGeneratorDefinitionLoader : IResourceLoader
 {
     String? ICatalogEntry.Instance => null;
 

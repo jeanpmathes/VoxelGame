@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using OpenTK.Mathematics;
 using VoxelGame.Annotations.Attributes;
@@ -217,12 +218,15 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     public ResourceType Type => ResourceTypes.Block;
 
     /// <inheritdoc />
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Is accessible by other name, but this name would cause overlap.")]
     CID IContent.ID => ContentID;
 
     /// <inheritdoc />
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Is accessible by other name, but this name would cause overlap.")]
     CID IIdentifiable<CID>.ID => ContentID;
 
     /// <inheritdoc />
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Is accessible by other name, but this name would cause overlap.")]
     UInt32 IIdentifiable<UInt32>.ID => BlockID;
 
     /// <summary>

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities.Resources;
@@ -47,6 +48,7 @@ public interface ICatalogEntry : IIssueSource
     protected String? Instance { get; }
 
     /// <inheritdoc />
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     String? IIssueSource.InstanceName => Instance;
 
     /// <summary>

@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Utilities.Resources;
 
@@ -27,6 +28,7 @@ namespace VoxelGame.Core.Utilities.Resources;
 /// </summary>
 public interface IResourceLinker : ICatalogEntry
 {
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     void ICatalogEntry.Enter(IResourceContext context, out IEnumerable<IResource> resources, out IEnumerable<ICatalogEntry> entries)
     {
         Link(context);
@@ -35,8 +37,10 @@ public interface IResourceLinker : ICatalogEntry
         entries = [];
     }
 
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     String ICatalogEntry.Prefix => "Linker";
 
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     String? ICatalogEntry.Instance => null;
 
     /// <summary>

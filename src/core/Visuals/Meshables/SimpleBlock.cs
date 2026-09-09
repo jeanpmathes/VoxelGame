@@ -38,7 +38,7 @@ namespace VoxelGame.Core.Visuals.Meshables;
 /// <summary>
 ///     Blocks which use simple meshing which only supports full blocks.
 /// </summary>
-public class SimpleBlock : Block, IOverlayTextureProvider
+public sealed class SimpleBlock : Block, IOverlayTextureProvider
 {
     private readonly SideArray<Simple.MeshData[]> meshData = new();
     private readonly Simple simple;

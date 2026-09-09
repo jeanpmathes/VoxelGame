@@ -18,11 +18,8 @@
 // <author>jeanpmathes</author>
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Toolkit.Noise;
-
-#pragma warning disable CA1033 // Used to create builder.
 
 /// <summary>
 ///     Some common methods of all builder parts.
@@ -64,8 +61,7 @@ public interface IFractalNoiseBuilder : INoiseBuilder
 /// <summary>
 ///     Use this to build instances of <see cref="NoiseGenerator" />.
 /// </summary>
-[SuppressMessage("Design", "CA1033:Interface methods should be callable by child types")]
-public class NoiseBuilder : IFractalNoiseBuilder
+public sealed class NoiseBuilder : IFractalNoiseBuilder
 {
     private NoiseDefinition definition;
 

@@ -19,7 +19,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Utilities.Resources;
 
@@ -36,9 +36,10 @@ public class ResourceCatalog : ICatalogEntry
     /// <param name="entries">The entries in the catalog.</param>
     protected ResourceCatalog(IEnumerable<ICatalogEntry> entries)
     {
-        catalogEntries = entries.ToList();
+        catalogEntries = [.. entries];
     }
 
+    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     void ICatalogEntry.Enter(IResourceContext context, out IEnumerable<IResource> resources, out IEnumerable<ICatalogEntry> entries)
     {
         resources = [];
