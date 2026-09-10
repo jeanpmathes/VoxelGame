@@ -18,14 +18,12 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
 ///     Set varying debug modes to visualize internal aspects of the rendering process.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SetRenderDebugMode : Command
 {
     /// <inheritdoc />

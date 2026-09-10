@@ -20,7 +20,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Contents.Structures;
@@ -33,7 +32,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Export a structure to a file.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class ExportStructure : Command
 {
     /// <inheritdoc />

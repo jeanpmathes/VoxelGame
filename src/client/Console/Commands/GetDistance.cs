@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Utilities.Units;
 
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Get the distance to a specified point or target.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class GetDistance : Command
 {
     /// <inheritdoc />

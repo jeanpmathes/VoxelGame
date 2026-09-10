@@ -153,14 +153,12 @@ public class StateBuilderTests
         Assert.Equal(2U * 3U * 2U, set.Count);
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     private enum SmallState
     {
         A,
         B
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     private enum LargeState
     {
         A,
@@ -169,7 +167,6 @@ public class StateBuilderTests
     }
 
     [Flags]
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     private enum SmallStates
     {
         None = 0,
@@ -178,7 +175,6 @@ public class StateBuilderTests
     }
 
     [Flags]
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     private enum LargeStates
     {
         None = 0,

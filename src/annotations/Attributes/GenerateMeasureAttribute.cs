@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 using VoxelGame.Annotations.Definitions;
 
 namespace VoxelGame.Annotations.Attributes;
@@ -25,6 +26,7 @@ namespace VoxelGame.Annotations.Attributes;
 /// <summary>
 ///     Specifies that a measure type should be generated for a unit property.
 /// </summary>
+[MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class GenerateMeasureAttribute : Attribute
 {
@@ -44,25 +46,25 @@ public sealed class GenerateMeasureAttribute : Attribute
     /// <summary>
     ///     Gets the name of the generated measure type.
     /// </summary>
-    public String MeasureName { get; }
+    [UsedImplicitly] public String MeasureName { get; }
 
     /// <summary>
     ///     Gets the name of the property exposing the value in base units.
     /// </summary>
-    public String ValuePropertyName { get; }
+    [UsedImplicitly] public String ValuePropertyName { get; }
 
     /// <summary>
     ///     Gets the prefixes that are supported by the measure.
     /// </summary>
-    public AllowedPrefixes Prefixes { get; }
+    [UsedImplicitly] public AllowedPrefixes Prefixes { get; }
 
     /// <summary>
     ///     Gets or sets the summary text for the generated measure type.
     /// </summary>
-    public String? MeasureSummary { get; set; }
+    [UsedImplicitly] public String? MeasureSummary { get; set; }
 
     /// <summary>
     ///     Gets or sets the summary text for the generated value property.
     /// </summary>
-    public String? ValueSummary { get; set; }
+    [UsedImplicitly] public String? ValueSummary { get; set; }
 }

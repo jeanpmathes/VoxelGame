@@ -18,14 +18,12 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
 ///     Gets the world seed.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class GetSeed : Command
 {
     /// <inheritdoc />

@@ -58,7 +58,6 @@ public class EnumToolsTests
         Assert.Contains((nameof(Values.Option3), Values.Option3), positions);
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     [Flags]
     private enum Values : Byte
     {

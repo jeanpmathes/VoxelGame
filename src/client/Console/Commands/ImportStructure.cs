@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Contents.Structures;
@@ -30,7 +29,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Import a structure from a file.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class ImportStructure : Command
 {
     /// <inheritdoc />

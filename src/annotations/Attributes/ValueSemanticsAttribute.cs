@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 
 namespace VoxelGame.Annotations.Attributes;
 
@@ -25,5 +26,6 @@ namespace VoxelGame.Annotations.Attributes;
 ///     Marks a struct as having value semantics, which will generate interface implementations for equality and default
 ///     values.
 /// </summary>
+[MeansImplicitUse(ImplicitUseTargetFlags.WithMembers)]
 [AttributeUsage(AttributeTargets.Struct)]
 public sealed class ValueSemanticsAttribute : Attribute;

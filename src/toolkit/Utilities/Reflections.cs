@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using JetBrains.Annotations;
 
 namespace VoxelGame.Toolkit.Utilities;
 
@@ -173,7 +174,9 @@ public static class Reflections
     /// </summary>
     /// <typeparam name="T">The type to get the subclasses of.</typeparam>
     /// <returns>All instances of the subclasses.</returns>
-    public static IEnumerable<T> GetSubclassInstances<T>()
+    public static IEnumerable<T> GetSubclassInstances<
+        [MeansImplicitUse(ImplicitUseTargetFlags.WithInheritors | ImplicitUseTargetFlags.WithMembers)]
+        T>()
     {
         List<T> instances = [];
 

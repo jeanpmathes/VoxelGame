@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -26,7 +25,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Sets the spawn position for the current world.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SetSpawnPoint : Command
 {
     /// <inheritdoc />

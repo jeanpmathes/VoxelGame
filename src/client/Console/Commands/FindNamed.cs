@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Updates;
@@ -32,7 +31,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Search and find any named generated entity in the world.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class FindNamed : Command
 {
     /// <inheritdoc />

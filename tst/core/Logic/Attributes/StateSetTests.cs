@@ -55,7 +55,6 @@ public class StateSetTests
         Assert.Equal(TestState.C, generationDefault.Get(enumAttributeData));
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     private enum TestState
     {
         A,

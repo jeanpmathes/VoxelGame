@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Images;
 
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 /// <summary>
 ///     Applies a color tint to the layer.
 /// </summary>
-[UsedImplicitly]
 public class Colorize() : Modifier("colorize", [colorParameter])
 {
     private static readonly Parameter<ColorS> colorParameter = CreateColorParameter("color");

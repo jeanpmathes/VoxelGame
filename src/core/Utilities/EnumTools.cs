@@ -21,6 +21,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using JetBrains.Annotations;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities;
@@ -46,7 +47,7 @@ public static class EnumTools
     /// </summary>
     /// <typeparam name="TEnum">The flags enum type.</typeparam>
     /// <returns>The number of distinct values in the flags enum.</returns>
-    public static Int32 CountFlags<TEnum>() where TEnum : struct, Enum
+    public static Int32 CountFlags<[MeansImplicitUse(ImplicitUseTargetFlags.Members)] TEnum>() where TEnum : struct, Enum
     {
         Debug.Assert(IsFlagsEnum<TEnum>());
 
@@ -67,7 +68,7 @@ public static class EnumTools
     /// </summary>
     /// <typeparam name="TEnum">The flags enum type.</typeparam>
     /// <returns>The list of named positions in the flags enum.</returns>
-    public static IEnumerable<(String name, TEnum value)> GetPositions<TEnum>() where TEnum : struct, Enum
+    public static IEnumerable<(String name, TEnum value)> GetPositions<[MeansImplicitUse(ImplicitUseTargetFlags.Members)] TEnum>() where TEnum : struct, Enum
     {
         Debug.Assert(IsFlagsEnum<TEnum>());
 

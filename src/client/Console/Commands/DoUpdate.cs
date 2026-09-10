@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
 
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Cause a random update to occur for a targeted position.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class DoUpdate : Command
 {
     /// <inheritdoc />

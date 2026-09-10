@@ -19,7 +19,6 @@
 
 using System;
 using System.Diagnostics;
-using JetBrains.Annotations;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Chunks;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
@@ -29,7 +28,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Checks for stale or missing chunks.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class CheckChunks : Command
 {
     /// <inheritdoc />

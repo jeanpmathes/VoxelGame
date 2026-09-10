@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Voxels;
@@ -28,7 +27,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Sets the fluid at the target position. Can cause invalid fluid state.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SetFluid : Command
 {
     /// <inheritdoc />

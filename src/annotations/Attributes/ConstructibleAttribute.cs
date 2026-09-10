@@ -18,11 +18,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 
 namespace VoxelGame.Annotations.Attributes;
 
 /// <summary>
 ///     Marks a constructor so a constructible implementation is generated.
 /// </summary>
+[MeansImplicitUse(ImplicitUseKindFlags.InstantiatedWithFixedConstructorSignature)]
 [AttributeUsage(AttributeTargets.Constructor)]
 public sealed class ConstructibleAttribute : Attribute;

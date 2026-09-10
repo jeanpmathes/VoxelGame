@@ -19,7 +19,6 @@
 
 using System;
 using System.IO;
-using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Open a script for editing.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class EditScript : Command
 {
     /// <inheritdoc />

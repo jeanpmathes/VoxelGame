@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Images;
 
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 /// <summary>
 ///     Transforms the layer into the no-tint variant, changing the alpha channel to a fitting value.
 /// </summary>
-[UsedImplicitly]
 public class NoTint() : Modifier("no-tint")
 {
     private const Byte Alpha = Byte.MaxValue / 4;

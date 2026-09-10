@@ -36,7 +36,6 @@ namespace VoxelGame.Core.Logic;
 /// <summary>
 ///     Basic information about a world.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public partial class WorldInformation
 {
     /// <summary>

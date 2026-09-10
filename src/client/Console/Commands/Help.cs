@@ -20,7 +20,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using JetBrains.Annotations;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -28,7 +27,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Provides help with using the commands.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class Help : Command
 {
     private const Int32 PageSize = 5;

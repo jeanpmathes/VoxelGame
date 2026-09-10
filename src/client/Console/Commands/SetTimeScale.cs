@@ -18,14 +18,12 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
 ///     Set the speed of time progression.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SetTimeScale : Command
 {
     /// <inheritdoc />

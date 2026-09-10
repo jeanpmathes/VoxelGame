@@ -19,7 +19,6 @@
 
 using System;
 using System.IO;
-using JetBrains.Annotations;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 
@@ -28,7 +27,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Emit information about the generated world for debugging.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class EmitWorldInfo : Command
 {
     /// <inheritdoc />

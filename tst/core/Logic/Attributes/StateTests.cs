@@ -247,7 +247,6 @@ public class StateTests
         Assert.Equal(TestState.C, state.Get(enumAttributeData));
     }
 
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     private enum TestState
     {
         A,
@@ -256,7 +255,6 @@ public class StateTests
     }
 
     [Flags]
-    [UsedImplicitly(ImplicitUseTargetFlags.Members)]
     private enum TestStates
     {
         None = 0,

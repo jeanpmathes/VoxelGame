@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using VoxelGame.Client.Actors.Components;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -26,7 +25,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Set whether to draw the block/fluid-in-head overlays.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SetOverlays : Command
 {
     /// <inheritdoc />

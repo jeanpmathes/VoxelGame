@@ -24,7 +24,6 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.Marshalling;
 using System.Text;
-using JetBrains.Annotations;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
@@ -89,7 +88,7 @@ public partial class PipelineBuilder
     /// <param name="names">The ungrouped symbols in the file.</param>
     public void AddShaderFile(FileInfo file, HitGroup[]? groups = null, String[]? names = null)
     {
-        List<String> exports = [..names ?? []];
+        List<String> exports = [.. names ?? []];
 
         void AddIfNotEmpty(String? name)
         {
@@ -304,7 +303,7 @@ public partial class PipelineBuilder
     private partial struct Empty
     {
         #pragma warning disable CS0169, CS0649
-        [UsedImplicitly] private Byte _;
+        private Byte _;
         #pragma warning restore CS0169, CS0649
     }
 

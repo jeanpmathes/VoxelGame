@@ -233,7 +233,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         ///     Define the attribute as an enum attribute.
         /// </summary>
         /// <typeparam name="TEnum">The type of the enum.</typeparam>
-        public AttributeDefinition<TEnum> Enum<TEnum>()
+        public AttributeDefinition<TEnum> Enum<[MeansImplicitUse(ImplicitUseTargetFlags.Members)] TEnum>()
             where TEnum : struct, Enum
         {
             Debug.Assert(!EnumTools.IsFlagsEnum<TEnum>());
@@ -245,7 +245,7 @@ public partial class StateBuilder(IValidator validator) : IStateBuilder
         ///     Define the attribute as a flags enum attribute.
         /// </summary>
         /// <typeparam name="TEnum">The type of the flags enum.</typeparam>
-        public AttributeDefinition<TEnum> Flags<TEnum>()
+        public AttributeDefinition<TEnum> Flags<[MeansImplicitUse(ImplicitUseTargetFlags.Members)] TEnum>()
             where TEnum : struct, Enum
         {
             Debug.Assert(EnumTools.IsFlagsEnum<TEnum>());

@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using VoxelGame.Core.Visuals.Images;
 
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 ///     Repeats each image of a sheet the specified amount of times.
 ///     Makes more sense to be applied to single images.
 /// </summary>
-[UsedImplicitly]
 public class Repeat() : Modifier("repeat", [xParameter, yParameter])
 {
     private static readonly Parameter<Int32> xParameter = CreateIntegerParameter("x", fallback: 1);

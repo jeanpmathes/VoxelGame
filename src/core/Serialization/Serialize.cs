@@ -23,6 +23,7 @@ using System.IO.Compression;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using JetBrains.Annotations;
 using VoxelGame.Core.Updates;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Toolkit.Memory;
@@ -48,7 +49,12 @@ public static class Serialize
     /// <param name="token">The cancellation token.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>The result of the operation.</returns>
-    public static async Task<Result> SaveJsonAsync<T>(T obj, FileInfo file, CancellationToken token = default)
+    public static async Task<Result> SaveJsonAsync<
+        [MeansImplicitUse(ImplicitUseKindFlags.Access, ImplicitUseTargetFlags.Members)]
+        T>(
+        T obj,
+        FileInfo file,
+        CancellationToken token = default)
     {
         try
         {
@@ -71,7 +77,11 @@ public static class Serialize
     /// <param name="token">The cancellation token.</param>
     /// <typeparam name="T">The type of the object.</typeparam>
     /// <returns>The result of the operation.</returns>
-    public static async Task<Result<T>> LoadJsonAsync<T>(FileInfo file, CancellationToken token = default)
+    public static async Task<Result<T>> LoadJsonAsync<
+        [MeansImplicitUse(ImplicitUseKindFlags.Assign, ImplicitUseTargetFlags.Members)]
+        T>(
+        FileInfo file,
+        CancellationToken token = default)
     {
         try
         {

@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Actors.Components;
 using VoxelGame.Core.Logic.Contents;
@@ -29,7 +28,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Sets the block at the target position. Can cause invalid block state.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SetBlock : Command
 {
     /// <inheritdoc />

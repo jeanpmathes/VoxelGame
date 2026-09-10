@@ -18,14 +18,12 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
 ///     Clears the console.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class Clear : Command
 {
     /// <inheritdoc />

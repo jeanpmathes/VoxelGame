@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using VoxelGame.Core.Visuals.Images;
 
 namespace VoxelGame.Client.Visuals.Textures.Modifiers;
@@ -26,7 +25,6 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 /// <summary>
 ///     Sets the alpha value of the image to the given value.
 /// </summary>
-[UsedImplicitly]
 public class Alpha() : Modifier("alpha", [valueParameter])
 {
     private static readonly Parameter<Double> valueParameter = CreateDoubleParameter("value");

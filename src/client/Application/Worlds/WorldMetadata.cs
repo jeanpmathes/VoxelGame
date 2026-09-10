@@ -54,7 +54,6 @@ public class WorldFileMetadata
 /// <summary>
 ///     Metadata for all worlds in the worlds directory.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.Members)]
 public partial class WorldDirectoryMetadata
 {
     /// <summary>

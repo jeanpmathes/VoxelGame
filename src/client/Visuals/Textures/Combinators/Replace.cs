@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Images;
 
@@ -28,7 +27,6 @@ namespace VoxelGame.Client.Visuals.Textures.Combinators;
 ///     Replaces the pixels of the lower sheet with those of the upper sheet.
 ///     If the upper pixel transparency is <c>0</c>, the lower pixel is kept.
 /// </summary>
-[UsedImplicitly]
 public class Replace() : BasicCombinator("replace")
 {
     /// <inheritdoc />

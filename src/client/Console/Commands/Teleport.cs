@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -26,7 +25,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Teleport to a specified position or target.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class Teleport : Command
 {
     /// <inheritdoc />

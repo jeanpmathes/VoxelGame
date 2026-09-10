@@ -18,14 +18,12 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
 ///     Enable or disable the devmode, which allows flying.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class SetDevmode : Command
 {
     /// <inheritdoc />

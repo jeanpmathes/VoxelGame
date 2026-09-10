@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 
 namespace VoxelGame.Annotations.Attributes;
 
@@ -27,6 +28,7 @@ namespace VoxelGame.Annotations.Attributes;
 ///     the generated record type will be substituted as the type argument.
 ///     If the type is non-generic, it is implemented as-is. The parameter may be omitted.
 /// </summary>
+[MeansImplicitUse(ImplicitUseTargetFlags.WithMembers)]
 [AttributeUsage(AttributeTargets.Interface)]
 public sealed class GenerateRecordAttribute : Attribute
 {
@@ -43,5 +45,5 @@ public sealed class GenerateRecordAttribute : Attribute
     ///     Optional base type to implement in addition to the marked interface.
     ///     Can be a non-generic type or a generic type with exactly one type parameter.
     /// </summary>
-    public Type? BaseType { get; }
+    [UsedImplicitly] public Type? BaseType { get; }
 }

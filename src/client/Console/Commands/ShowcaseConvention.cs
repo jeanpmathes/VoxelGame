@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Logic;
 using VoxelGame.Core.Logic.Contents;
@@ -33,7 +32,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Showcases all content of a convention by placing it in the world around the player.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class ShowcaseConvention : Command
 {
     /// <inheritdoc />

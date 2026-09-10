@@ -19,7 +19,6 @@
 
 using System;
 using System.IO;
-using JetBrains.Annotations;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
 
 namespace VoxelGame.Client.Console.Commands;
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Console.Commands;
 /// <summary>
 ///     Runs a script.
 /// </summary>
-[UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
 public class RunScript : Command
 {
     /// <inheritdoc />

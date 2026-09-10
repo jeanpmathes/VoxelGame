@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using JetBrains.Annotations;
 
 namespace VoxelGame.Annotations.Attributes;
 
@@ -26,5 +27,6 @@ namespace VoxelGame.Annotations.Attributes;
 ///     This will generate a safe(ish) getter for the property that throws an exception if the field is accessed before
 ///     being initialized.
 /// </summary>
+[MeansImplicitUse]
 [AttributeUsage(AttributeTargets.Property)]
 public sealed class LateInitializationAttribute : Attribute;

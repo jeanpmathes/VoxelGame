@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using VoxelGame.Core.Visuals.Colors;
 using VoxelGame.Core.Visuals.Images;
 
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Visuals.Textures.Combinators;
 /// <summary>
 ///     Blends two sheets together using alpha blending.
 /// </summary>
-[UsedImplicitly]
 public class Blend() : BasicCombinator("blend")
 {
     /// <inheritdoc />

@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using Image = VoxelGame.Core.Visuals.Images.Image;
 
@@ -27,7 +26,6 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 /// <summary>
 ///     Animates an image for use as a fluid texture.
 /// </summary>
-[UsedImplicitly]
 public class FluidAnimation() : Modifier("fluid-animation", [invertedParameter])
 {
     private const Int32 Moving = 3;

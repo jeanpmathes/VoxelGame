@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System;
-using JetBrains.Annotations;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Visuals.Colors;
 using Image = VoxelGame.Core.Visuals.Images.Image;
@@ -28,7 +27,6 @@ namespace VoxelGame.Client.Visuals.Textures.Modifiers;
 /// <summary>
 ///     Blurs images.
 /// </summary>
-[UsedImplicitly]
 public class Blur() : Modifier("blur")
 {
     /// <inheritdoc />
