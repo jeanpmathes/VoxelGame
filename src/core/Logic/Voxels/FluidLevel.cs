@@ -95,11 +95,10 @@ public readonly struct FluidLevel : IEquatable<FluidLevel>, IComparable<FluidLev
     public Boolean IsFull => value == MaxValue;
 
     /// <summary>
-    ///     Create a <see cref="FluidLevel" /> from an integer value.
+    ///     Create a <see cref="FluidLevel" /> from an integer value, clamping if out of range.
     /// </summary>
     /// <param name="value">The integer representation of the level.</param>
     /// <returns>The created level.</returns>
-    /// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="value" /> is outside the valid range.</exception>
     public static FluidLevel FromInt32(Int32 value)
     {
         return new FluidLevel(Math.Clamp(value, MinValue, MaxValue));
