@@ -26,34 +26,45 @@ namespace VoxelGame.Toolkit;
 internal static partial class NativeMethods
 {
     private const String DllFilePath = @".\NativeToolkit.dll";
+    private const DllImportSearchPath SearchPath = DllImportSearchPath.AssemblyDirectory;
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateAllocator")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial IntPtr CreateAllocator();
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeAllocate")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial IntPtr Allocate(IntPtr allocator, UInt64 size);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeDeallocate")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial Int32 Deallocate(IntPtr allocator, IntPtr ptr);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeDeleteAllocator")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial void DeleteAllocator(IntPtr allocator);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateNoise")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial IntPtr CreateNoise(NoiseDefinition definition);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeGetNoise2D")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial Single GetNoise2D(IntPtr noise, Single x, Single y);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeGetNoise3D")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial Single GetNoise3D(IntPtr noise, Single x, Single y, Single z);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeGetNoiseGrid2D")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static unsafe partial void GetNoiseGrid2D(IntPtr noise, Int32 x, Int32 y, Int32 width, Int32 height, Single* data);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeGetNoiseGrid3D")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static unsafe partial void GetNoiseGrid3D(IntPtr noise, Int32 x, Int32 y, Int32 z, Int32 width, Int32 height, Int32 depth, Single* data);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeDeleteNoise")]
+    [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial void DeleteNoise(IntPtr noise);
 }

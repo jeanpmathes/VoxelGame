@@ -19,14 +19,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using VoxelGame.Core.Behaviors.Events;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Behaviors;
-
-#pragma warning disable S2743 // Intentionally used.
 
 /// <summary>
 ///     The behavior system coordinates baking of behaviors for subjects.
@@ -35,7 +32,6 @@ namespace VoxelGame.Core.Behaviors;
 /// </summary>
 /// <typeparam name="TSubject">The subject type managed by this system.</typeparam>
 /// <typeparam name="TBehavior">The behavior base type managed by this system.</typeparam>
-[SuppressMessage("ReSharper", "StaticMemberInGenericType", Justification = "Intentionally used.")]
 public static class BehaviorSystem<TSubject, TBehavior>
     where TSubject : class, IHasBehaviors<TSubject, TBehavior>
     where TBehavior : class, IBehavior<TSubject>

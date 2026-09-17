@@ -27,21 +27,51 @@ using VoxelGame.Core.Serialization;
 
 namespace VoxelGame.Core.Logic.Contents.Structures;
 
-#pragma warning disable CS1591 // Public for JSON serialization.
-
+/// <summary>
+///     A JSON-compatible definition of a 3D vector.
+/// </summary>
 public class Vector
 {
-    public Int32[] Values { get; set; } = [0, 0, 0];
+    /// <summary>
+    ///     The three components of the vector, [X, Y, Z].
+    /// </summary>
+    public Int32[] Values { get; init; } = [0, 0, 0];
 }
 
+/// <summary>
+///     A placement of a block/fluid in a structure.
+/// </summary>
 public class Placement
 {
-    public Vector Position { get; set; } = new();
-    public String Block { get; set; } = nameof(Blocks.Instance.Core.Air);
-    public JsonNode State { get; set; } = new JsonObject();
-    public String Fluid { get; set; } = nameof(Voxels.Fluids.Instance.None);
-    public Int32 Level { get; set; } = FluidLevel.Eight.ToInt32();
-    public Boolean IsStatic { get; set; } = true;
+    /// <summary>
+    ///     The position of the placement in the structure.
+    /// </summary>
+    public Vector Position { get; init; } = new();
+
+    /// <summary>
+    ///     The block of the placement.
+    /// </summary>
+    public String Block { get; init; } = nameof(Blocks.Instance.Core.Air);
+
+    /// <summary>
+    ///     The state of the block.
+    /// </summary>
+    public JsonNode State { get; init; } = new JsonObject();
+
+    /// <summary>
+    ///     The fluid of the placement.
+    /// </summary>
+    public String Fluid { get; init; } = nameof(Voxels.Fluids.Instance.None);
+
+    /// <summary>
+    ///     The level of the fluid.
+    /// </summary>
+    public Int32 Level { get; init; } = FluidLevel.Eight.ToInt32();
+
+    /// <summary>
+    ///     Whether the fluid is static.
+    /// </summary>
+    public Boolean IsStatic { get; init; } = true;
 }
 
 /// <summary>
@@ -49,8 +79,15 @@ public class Placement
 /// </summary>
 public class StaticStructureDefinition
 {
-    public Vector Extents { get; set; } = new();
-    public Placement[] Placements { get; set; } = [];
+    /// <summary>
+    ///     The extents of the structure.
+    /// </summary>
+    public Vector Extents { get; init; } = new();
+
+    /// <summary>
+    ///     All placements of the structure.
+    /// </summary>
+    public Placement[] Placements { get; init; } = [];
 }
 
 #pragma warning restore CS1591

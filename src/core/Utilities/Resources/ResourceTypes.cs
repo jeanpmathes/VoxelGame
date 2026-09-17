@@ -17,13 +17,14 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-namespace VoxelGame.Core.Utilities.Resources;
+using System.Diagnostics.CodeAnalysis;
 
-#pragma warning disable S1192 // Same strings do not necessarily refer to the same thing here.
+namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
 ///     Predefined resource types.
 /// </summary>
+[SuppressMessage("Sonar", "S1192", Justification = "Same strings do not necessarily refer to the same thing here.")]
 public static class ResourceTypes
 {
     /// <summary>

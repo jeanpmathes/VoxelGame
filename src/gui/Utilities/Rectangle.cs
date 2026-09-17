@@ -138,7 +138,7 @@ public readonly record struct Rectangle(Single X, Single Y, Single Width, Single
     /// </summary>
     /// <param name="first">The first operand.</param>
     /// <param name="second">The second operand.</param>
-    /// <returns>The intersecting rectangle or <see cref="Empty" /> if there is no overlap.</returns>
+    /// <returns>The intersecting rectangle or an empty rectangle if there is no overlap.</returns>
     public static Rectangle Intersect(Rectangle first, Rectangle second)
     {
         Single left = Math.Max(first.Left, second.Left);

@@ -21,48 +21,58 @@ using System;
 using System.IO;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Graphics.Interop;
 
 namespace VoxelGame.Graphics.Definition;
-
-#pragma warning disable S3898 // No equality comparison used.
 
 /// <summary>
 ///     Describes a pipeline for raster-based rendering.
 /// </summary>
 [NativeMarshalling(typeof(RasterPipelineDescriptionMarshaller))]
-public struct RasterPipelineDescription
+[ValueSemantics]
+public partial struct RasterPipelineDescription
 {
     /// <summary>
     ///     Path to the vertex shader.
     /// </summary>
-    internal String VertexShaderPath { get; private init; }
+    internal readonly String vertexShaderPath;
 
     /// <summary>
     ///     Path to the pixel shader.
     /// </summary>
-    internal String PixelShaderPath { get; private init; }
+    internal readonly String pixelShaderPath;
 
     /// <summary>
     ///     The shader preset.
     /// </summary>
-    internal ShaderPresets.ShaderPreset ShaderPreset { get; private init; }
+    internal readonly ShaderPresets.ShaderPreset shaderPreset;
 
     /// <summary>
     ///     The size of the shader constant buffer, or 0 if no constant buffer is used.
     /// </summary>
-    internal UInt32 BufferSize { get; set; }
+    internal UInt32 bufferSize;
 
     /// <summary>
     ///     The topology of the mesh. Only used for <see cref="ShaderPresets.ShaderPreset.SpatialEffect" />.
     /// </summary>
-    internal Topology Topology { get; private init; }
+    internal readonly Topology topology;
 
     /// <summary>
     ///     The filter set on the texture sampler. Only used for <see cref="ShaderPresets.ShaderPreset.PostProcessing" /> and
     ///     <see cref="ShaderPresets.ShaderPreset.Draw2D" />.
     /// </summary>
-    internal Filter Filter { get; private init; }
+    internal readonly Filter filter;
+
+    private RasterPipelineDescription(FileInfo shader, ShaderPresets.IPreset preset)
+    {
+        vertexShaderPath = shader.FullName;
+        pixelShaderPath = shader.FullName;
+        shaderPreset = preset.Preset;
+        bufferSize = 0;
+        topology = preset.Topology;
+        filter = preset.Filter;
+    }
 
     /// <summary>
     ///     Creates a new pipeline description.
@@ -72,15 +82,7 @@ public struct RasterPipelineDescription
     /// <returns>The pipeline description.</returns>
     public static RasterPipelineDescription Create(FileInfo shader, ShaderPresets.IPreset preset)
     {
-        return new RasterPipelineDescription
-        {
-            VertexShaderPath = shader.FullName,
-            PixelShaderPath = shader.FullName,
-            ShaderPreset = preset.Preset,
-            BufferSize = 0,
-            Topology = preset.Topology,
-            Filter = preset.Filter
-        };
+        return new RasterPipelineDescription(shader, preset);
     }
 }
 
@@ -91,12 +93,12 @@ internal static class RasterPipelineDescriptionMarshaller
     {
         return new Unmanaged
         {
-            vertexShaderPath = UnicodeStringMarshaller.ConvertToUnmanaged(managed.VertexShaderPath),
-            pixelShaderPath = UnicodeStringMarshaller.ConvertToUnmanaged(managed.PixelShaderPath),
-            shaderPreset = managed.ShaderPreset,
-            bufferSize = managed.BufferSize,
-            topology = managed.Topology,
-            filter = managed.Filter
+            vertexShaderPath = UnicodeStringMarshaller.ConvertToUnmanaged(managed.vertexShaderPath),
+            pixelShaderPath = UnicodeStringMarshaller.ConvertToUnmanaged(managed.pixelShaderPath),
+            shaderPreset = managed.shaderPreset,
+            bufferSize = managed.bufferSize,
+            topology = managed.topology,
+            filter = managed.filter
         };
     }
 

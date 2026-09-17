@@ -1,0 +1,8 @@
+is_global = true
+global_level = 110
+
+# Underscores are part of the test method naming convention.
+dotnet_diagnostic.CA1707.severity = none
+
+# Collection is an established name for the test collections.
+dotnet_code_quality.ca1711.allowed_suffixes = Collection

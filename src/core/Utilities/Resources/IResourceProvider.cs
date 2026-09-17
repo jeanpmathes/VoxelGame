@@ -19,13 +19,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Utilities.Resources;
 
 /// <summary>
 ///     Provides previously loaded resources in an easily accessible and usable way.
-///     These can for example index and cache a set of resources.
+///     These can, for example, index and cache a set of resources.
 /// </summary>
 public interface IResourceProvider : ICatalogEntry
 {
@@ -34,7 +33,6 @@ public interface IResourceProvider : ICatalogEntry
     /// </summary>
     public IResourceContext? Context { get; protected set; }
 
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     void ICatalogEntry.Enter(IResourceContext context, out IEnumerable<IResource> resources, out IEnumerable<ICatalogEntry> entries)
     {
         Context = context;
@@ -54,10 +52,8 @@ public interface IResourceProvider : ICatalogEntry
         }
     }
 
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     String ICatalogEntry.Prefix => "Provider";
 
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     String? ICatalogEntry.Instance => null;
 
     /// <summary>

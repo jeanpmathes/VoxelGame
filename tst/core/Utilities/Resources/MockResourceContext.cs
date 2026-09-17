@@ -25,8 +25,6 @@ using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.Core.Tests.Utilities.Resources;
 
-#pragma warning disable CS0067 // Is for mock purposes only, so unused events do not matter.
-
 [UsedImplicitly(ImplicitUseTargetFlags.Members)]
 internal sealed class MockResourceContext : IResourceContext
 {
@@ -53,6 +51,15 @@ internal sealed class MockResourceContext : IResourceContext
     public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null) {}
     public void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null) {}
     public void ReportDiscovery(ResourceType type, RID identifier, Exception? error = null, String? errorMessage = null) {}
-    public event EventHandler? Completed;
-    public void Dispose() {}
+
+    public event EventHandler? Completed
+    {
+        add {}
+        remove {}
+    }
+
+    public void Dispose()
+    {
+        // Nothing to dispose of.   
+    }
 }

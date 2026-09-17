@@ -31,8 +31,6 @@ using VoxelGame.Logging;
 
 namespace VoxelGame.Client.Application.Worlds;
 
-#pragma warning disable S4004 // Unused getters required for JSON serialization.
-
 /// <summary>
 ///     Metadata associated with a world, but not stored as part of the world.
 ///     The data is in relation to the world in the context of this client.
@@ -59,7 +57,7 @@ public partial class WorldDirectoryMetadata
     /// <summary>
     ///     A dictionary from world directory name to the metadata of the world.
     /// </summary>
-    public Dictionary<String, WorldFileMetadata> Entries { get; set; } = new();
+    public Dictionary<String, WorldFileMetadata> Entries { get; init; } = new();
 
     /// <summary>
     ///     Save the metadata to a file.

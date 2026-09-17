@@ -51,6 +51,12 @@ public sealed class EngineLoader : IResourceLoader
                                 Load(context, blocks, fluids, client, visuals)))));
     }
 
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
+
     [SuppressMessage("Performance", "CA1859:Use concrete types when possible for improved performance", Justification = "False positive.")]
     private IEnumerable<IResource> Load(IResourceContext context, TextureBundle blocks, TextureBundle fluids, Application.Client client, VisualConfiguration visuals)
     {

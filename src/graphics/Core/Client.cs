@@ -51,6 +51,7 @@ namespace VoxelGame.Graphics.Core;
 public partial class Client : Application
 {
     private readonly Icon? icon;
+
 #pragma warning disable S1450 // Keep the callback functions alive.
     private Config config;
 #pragma warning restore S1450 // Keep the callback functions alive.

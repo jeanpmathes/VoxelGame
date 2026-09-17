@@ -130,9 +130,9 @@ public sealed class SimpleBlock : Block, IOverlayTextureProvider
         MeshData.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
         MeshData.SetFullUVs(ref data);
 
-        MeshData.SetFlag(ref data, MeshData.QuadFlag.IsAnimated, mesh.IsAnimated);
-        MeshData.SetFlag(ref data, MeshData.QuadFlag.IsTextureRotated, mesh.IsTextureRotated);
-        MeshData.SetFlag(ref data, MeshData.QuadFlag.IsUnshaded, isUnshaded);
+        MeshData.SetOption(ref data, MeshData.QuadOption.IsAnimated, mesh.IsAnimated);
+        MeshData.SetOption(ref data, MeshData.QuadOption.IsTextureRotated, mesh.IsTextureRotated);
+        MeshData.SetOption(ref data, MeshData.QuadOption.IsUnshaded, isUnshaded);
 
         context.GetFullBlockMeshFaceHolder(side, isOpaque).AddFace(
             position,

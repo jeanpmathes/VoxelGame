@@ -84,7 +84,7 @@ public static partial class OS
 
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(OS));
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(typeof(OS));
 
     [LoggerMessage(EventId = LogID.OS + 0, Level = LogLevel.Error, Message = "Failed to fill {File} with: {Text}")]
     private static partial void LogFailedToFillFile(ILogger logger, IOException e, String file, String text);

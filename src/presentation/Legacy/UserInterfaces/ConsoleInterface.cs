@@ -37,7 +37,6 @@ namespace VoxelGame.Presentation.Legacy.UserInterfaces;
 /// </summary>
 [SuppressMessage("ReSharper", "CA1001", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-#pragma warning disable S2931 // Controls are disposed by their parent.
 public class ConsoleInterface
 {
     private const Int32 MaxConsoleLogLength = 200;

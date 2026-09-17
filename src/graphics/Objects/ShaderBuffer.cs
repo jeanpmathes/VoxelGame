@@ -62,9 +62,9 @@ public class ShaderBuffer<T> : ShaderBuffer where T : unmanaged, IEquatable<T>, 
     /// <summary>
     ///     Delegate for modifying the data of the buffer.
     /// </summary>
-    public delegate void ModifyDelegate(ref T data);
+    public delegate void Modifier(ref T data);
 
-    private T data = T.Default;
+    private T data = T.DefaultValue;
     private Boolean dirty = true;
 
     /// <summary>
@@ -93,7 +93,7 @@ public class ShaderBuffer<T> : ShaderBuffer where T : unmanaged, IEquatable<T>, 
     ///     Modifies the data of the buffer.
     /// </summary>
     /// <param name="modifier">The modifier.</param>
-    public void Modify(ModifyDelegate modifier)
+    public void Modify(Modifier modifier)
     {
         T copy = data;
         modifier(ref copy);
@@ -121,7 +121,6 @@ public class ShaderBuffer<T> : ShaderBuffer where T : unmanaged, IEquatable<T>, 
     }
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(ShaderBuffer), MarshalMode.ManagedToUnmanagedIn, typeof(ShaderBufferMarshaller))]
 internal static class ShaderBufferMarshaller
 {

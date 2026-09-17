@@ -19,7 +19,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Nodes;
 using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Collections.Properties;
@@ -42,7 +41,6 @@ public interface IAttributeData : IScoped
     /// </summary>
     internal Int32 Multiplicity { get; }
 
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     Property IScoped.GetRepresentation(State state)
     {
         Debug.Assert(Divisor != 0);

@@ -80,11 +80,9 @@ public class DecorationContextTests : ContextTestBase
             }
         }
 
- #pragma warning disable CA1822
         public void Dispose()
- #pragma warning restore CA1822
         {
-            // Nothing to dispose.
+            // Nothing to dispose of.
         }
     }
 }

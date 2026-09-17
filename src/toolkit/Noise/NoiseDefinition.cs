@@ -23,8 +23,6 @@ using JetBrains.Annotations;
 
 namespace VoxelGame.Toolkit.Noise;
 
-#pragma warning disable S3898 // No equality comparison used.
-
 /// <summary>
 ///     Defines the available types of noise generators.
 /// </summary>
@@ -45,7 +43,7 @@ public enum NoiseType
 ///     The definition of a noise generator.
 /// </summary>
 [NativeMarshalling(typeof(NoiseDefinitionMarshaller))]
-public struct NoiseDefinition
+public record struct NoiseDefinition
 {
     /// <summary>
     ///     Creates a new noise definition.

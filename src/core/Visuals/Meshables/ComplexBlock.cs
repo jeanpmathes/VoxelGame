@@ -85,8 +85,8 @@ public class ComplexBlock : Block
         {
             ref Mesh.Quad quad = ref quads[index];
 
-            MeshData.SetFlag(ref quad.data, MeshData.QuadFlag.IsAnimated, mesh.IsAnimated);
-            MeshData.SetFlag(ref quad.data, MeshData.QuadFlag.IsUnshaded, IsUnshaded);
+            MeshData.SetOption(ref quad.data, MeshData.QuadOption.IsAnimated, mesh.IsAnimated);
+            MeshData.SetOption(ref quad.data, MeshData.QuadOption.IsUnshaded, IsUnshaded);
         }
     }
 

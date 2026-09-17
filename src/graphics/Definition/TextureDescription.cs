@@ -19,18 +19,18 @@
 
 using System;
 using System.Runtime.InteropServices;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Core.Visuals.Images;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Graphics.Definition;
 
-#pragma warning disable S3898 // No equality comparison used.
-
 /// <summary>
 ///     Describes a texture.
 /// </summary>
 [StructLayout(LayoutKind.Sequential)]
-public struct TextureDescription
+[ValueSemantics]
+public partial struct TextureDescription
 {
     /// <summary>
     ///     The width of the texture.

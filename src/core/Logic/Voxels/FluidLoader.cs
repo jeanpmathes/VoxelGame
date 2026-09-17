@@ -57,4 +57,10 @@ public sealed class FluidLoader : IResourceLoader
                 return Fluids.Instance.Content.Take(FluidLimit);
             }));
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

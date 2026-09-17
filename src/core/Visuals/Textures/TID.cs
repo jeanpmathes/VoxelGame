@@ -19,15 +19,15 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace VoxelGame.Core.Visuals.Textures;
 
-#pragma warning disable S101 // Full name would be to long for this commonly used type.
-
 /// <summary>
 ///     A texture identifier.
 /// </summary>
+[SuppressMessage("Sonar", "S101", Justification = "Full name would be to long for this commonly used type.")]
 public readonly partial struct TID : IEquatable<TID>
 {
     /// <summary>

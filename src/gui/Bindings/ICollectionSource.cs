@@ -19,12 +19,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.GUI.Bindings;
 
 /// <summary>
 ///     Interface for a collection-valued value source which allows to observe changes to the collection.
 /// </summary>
+[SuppressMessage("Naming", "CA1710:Identifiers should have correct suffix", Justification = "This is a collection which acts as a source, not a collection of sources.")]
 public interface ICollectionSource<TItem> : IReadOnlyCollection<TItem>
 {
     /// <summary>

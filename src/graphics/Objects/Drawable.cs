@@ -98,7 +98,6 @@ public class Drawable : Spatial, IDisposable
     #endregion DISPOSABLE
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(Drawable), MarshalMode.ManagedToUnmanagedIn, typeof(DrawableMarshaller))]
 internal static class DrawableMarshaller
 {

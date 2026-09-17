@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities.Resources;
@@ -30,7 +29,7 @@ namespace VoxelGame.Core.Utilities.Resources;
 ///     When entered, they can load resources, provide further catalog entries or do other things.
 ///     As soon as all resources and entries of a catalog are processed, the catalog is exited.
 /// </summary>
-public interface ICatalogEntry : IIssueSource
+public interface ICatalogEntry : IIssueSource, IDisposable
 {
     /// <summary>
     ///     Get the name of the catalog entry.
@@ -48,7 +47,6 @@ public interface ICatalogEntry : IIssueSource
     protected String? Instance { get; }
 
     /// <inheritdoc />
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     String? IIssueSource.InstanceName => Instance;
 
     /// <summary>

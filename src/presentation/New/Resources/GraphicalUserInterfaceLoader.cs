@@ -48,4 +48,10 @@ public sealed class GraphicalUserInterfaceLoader : IResourceLoader
             return [gui];
         });
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

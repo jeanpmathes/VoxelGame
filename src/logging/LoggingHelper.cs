@@ -40,7 +40,7 @@ public static partial class LoggingHelper
     /// <summary>
     ///     Create a logger.
     /// </summary>
-    /// <typeparam name="T">The class that will log to the logger.</typeparam>
+    /// <typeparam name="T">The type that will log to the logger.</typeparam>
     /// <returns>The logger.</returns>
     public static ILogger CreateLogger<T>()
     {
@@ -50,11 +50,11 @@ public static partial class LoggingHelper
     /// <summary>
     ///     Create a logger.
     /// </summary>
-    /// <param name="category">The category of the logging.</param>
+    /// <param name="type">The type that will log to the logger.</param>
     /// <returns>The logger.</returns>
-    public static ILogger CreateLogger(String category)
+    public static ILogger CreateLogger(Type type)
     {
-        return LoggerFactory.CreateLogger(category);
+        return LoggerFactory.CreateLogger(type);
     }
 
     /// <summary>

@@ -19,7 +19,6 @@
 
 using System;
 using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Logging;
 
@@ -28,15 +27,8 @@ namespace VoxelGame.Toolkit.Utilities;
 /// <summary>
 ///     Utility for throwing exceptions.
 /// </summary>
-public partial class ExceptionTools
+public static partial class ExceptionTools
 {
-    #pragma warning disable
-    [SuppressMessage("ReSharper", "UnusedMember.Local")]
-    private static ExceptionTools instance = new();
-    #pragma warning restore
-
-    private ExceptionTools() {}
-
     /// <summary>
     ///     Handle an incorrectly disposed object, meaning an object that was disposed by the GC.
     /// </summary>
@@ -68,7 +60,7 @@ public partial class ExceptionTools
 
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger<ExceptionTools>();
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(typeof(ExceptionTools));
 
     [LoggerMessage(EventId = LogID.Throw + 0, Level = LogLevel.Warning, Message = "Object of type '{Type}' ({Object}) was incorrectly disposed, it was created at: {Source}")]
     private static partial void LogMissedDispose(ILogger logger, String type, String? @object, String source);

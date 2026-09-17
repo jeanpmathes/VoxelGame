@@ -94,7 +94,7 @@ public static class Reflections
         if (type.IsGenericType)
         {
             String name = type.Name;
-            Int32 index = name.IndexOf(value: '`');
+            Int32 index = name.IndexOf(value: '`', StringComparison.Ordinal);
 
             name = index != -1 ? name[..index] : name;
 

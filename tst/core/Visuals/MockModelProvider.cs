@@ -23,7 +23,7 @@ using VoxelGame.Core.Visuals.Models;
 
 namespace VoxelGame.Core.Tests.Visuals;
 
-public class MockModelProvider : IModelProvider
+public sealed class MockModelProvider : IModelProvider
 {
     public IResourceContext? Context { get; set; }
 
@@ -32,5 +32,10 @@ public class MockModelProvider : IModelProvider
     public Model GetModel(RID identifier, Vector3i? part = null)
     {
         return Model.CreateFallback();
+    }
+
+    public void Dispose()
+    {
+        // Nothing to dispose of.
     }
 }

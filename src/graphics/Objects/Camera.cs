@@ -184,7 +184,6 @@ public class Camera : NativeObject
     }
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(Camera), MarshalMode.ManagedToUnmanagedIn, typeof(CameraMarshaller))]
 internal static class CameraMarshaller
 {

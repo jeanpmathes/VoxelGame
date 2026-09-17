@@ -25,18 +25,56 @@ namespace VoxelGame.Graphics.Definition;
 /// <summary>
 ///     Mouse cursor types.
 /// </summary>
-#pragma warning disable CS1591
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 public enum MouseCursor : Byte
 {
+    /// <summary>
+    ///     The standard arrow cursor.
+    /// </summary>
     Arrow,
+
+    /// <summary>
+    ///     An I-like cursor, which shows where the text cursor will appear when clicking.
+    /// </summary>
     IBeam,
+
+    /// <summary>
+    ///     A cursor for sizing along the north-south direction.
+    /// </summary>
     SizeNS,
+
+    /// <summary>
+    ///     A cursor for sizing along the east-west direction.
+    /// </summary>
     SizeWE,
+
+    /// <summary>
+    ///     A cursor for sizing along the diagonal direction, from the north-west corner to the south-east corner.
+    /// </summary>
     SizeNWSE,
+
+    /// <summary>
+    ///     A cursor for sizing along the diagonal direction, from the south-east corner to the north-west corner.
+    /// </summary>
     SizeNESW,
+
+    /// <summary>
+    ///     A cursor for sizing along all directions.
+    /// </summary>
     SizeAll,
+
+    /// <summary>
+    ///     A cursor to show above an invalid area.
+    /// </summary>
     No,
+
+    /// <summary>
+    ///     A cursor to show when waiting for something.
+    /// </summary>
     Wait,
+
+    /// <summary>
+    ///     A cursor that looks like a hand.
+    /// </summary>
     Hand
 }

@@ -19,6 +19,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using VoxelGame.Core.App;
@@ -28,11 +29,11 @@ namespace VoxelGame.Core.Updates;
 
 public static partial class Operations
 {
-    #pragma warning disable S2931 // Dispose is called in Cleanup, which runs on completion. Implementing IDisposable would harm the Operation interface.
     private sealed class FutureOperationInternal
-    #pragma warning restore S2931
     {
+        [SuppressMessage("Sonar", "S2931", Justification = "Dispose is called in Cleanup, which runs on completion. Implementing IDisposable would harm the Operation interface.")]
         private CancellationTokenSource? cancellation;
+
         private Boolean cancelled;
         private Future? future;
 

@@ -36,16 +36,12 @@ public partial class PlacementSelection : ActorComponent
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly PlayerInput input;
 
-    private readonly Player player;
-
     [SuppressMessage("Usage", "CA2213:Disposable fields should be disposed", Justification = "Is only borrowed by this class.")]
     private readonly Targeting targeting;
 
     [Constructible]
     private PlacementSelection(Player player) : base(player)
     {
-        this.player = player;
-
         targeting = player.GetRequiredComponent<Targeting>();
         input = player.GetRequiredComponent<PlayerInput, Player>();
 

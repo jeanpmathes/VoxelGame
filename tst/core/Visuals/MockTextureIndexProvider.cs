@@ -23,7 +23,7 @@ using VoxelGame.Core.Visuals.Textures;
 
 namespace VoxelGame.Core.Tests.Visuals;
 
-public class MockTextureIndexProvider : ITextureIndexProvider
+public sealed class MockTextureIndexProvider : ITextureIndexProvider
 {
     public IResourceContext? Context { get; set; }
 
@@ -32,5 +32,10 @@ public class MockTextureIndexProvider : ITextureIndexProvider
     public Int32 GetTextureIndex(TID identifier)
     {
         return ITextureIndexProvider.MissingTextureIndex;
+    }
+
+    public void Dispose()
+    {
+        // Nothing to dispose of.
     }
 }

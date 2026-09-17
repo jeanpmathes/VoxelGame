@@ -35,4 +35,10 @@ public sealed class PaletteLoader : IResourceLoader
     {
         return [new Palette()];
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

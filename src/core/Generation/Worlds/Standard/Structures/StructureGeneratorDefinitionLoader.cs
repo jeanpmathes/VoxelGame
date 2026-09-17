@@ -58,4 +58,10 @@ public sealed class StructureGeneratorDefinitionLoader : IResourceLoader
                 (0, -2, 0))
         ]);
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

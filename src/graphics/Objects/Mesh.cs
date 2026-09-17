@@ -56,7 +56,6 @@ public class Mesh : Drawable
     }
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(Mesh), MarshalMode.ManagedToUnmanagedIn, typeof(MeshMarshaller))]
 internal static class MeshMarshaller
 {
@@ -70,4 +69,3 @@ internal static class MeshMarshaller
         // Nothing to do here.
     }
 }
-#pragma warning restore S3242

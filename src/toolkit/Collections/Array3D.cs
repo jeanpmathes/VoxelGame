@@ -21,6 +21,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
 
@@ -75,9 +76,8 @@ public class Array3D<T> : IEnumerable<T>, IArray<T>
     ///     Access the element at the given position.
     /// </summary>
     /// <param name="position">The position. All components must be between 0 and <see cref="Length" /> - 1.</param>
-    #pragma warning disable S3876 // Vector3i is a fitting near-primitive type.
+    [SuppressMessage("Sonar", "S3876", Justification = "Vector3i is a fitting near-primitive type.")]
     public T this[Vector3i position]
-    #pragma warning restore S3876
     {
         get => GetRef(position.X, position.Y, position.Z);
         set => GetRef(position.X, position.Y, position.Z) = value;

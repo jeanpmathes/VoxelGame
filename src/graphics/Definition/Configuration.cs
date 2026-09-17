@@ -27,8 +27,6 @@ using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics.Definition;
 
-#pragma warning disable S3898 // No equality comparison used.
-
 /// <summary>
 ///     Contains static methods that map to the respective functions on the native side.
 /// </summary>

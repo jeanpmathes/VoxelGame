@@ -18,17 +18,17 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Core.Utilities.Resources;
 
-#pragma warning disable S101 // Full name would be to long for this commonly used type.
-
 /// <summary>
 ///     Identifies a resource.
 ///     <c>RID</c> stands for <c>Resource ID</c>.
 /// </summary>
+[SuppressMessage("Sonar", "S101", Justification = "Full name would be to long for this commonly used type.")]
 public readonly struct RID : IEquatable<RID>
 {
     private static readonly String pathPrefix = $"res:{System.IO.Path.DirectorySeparatorChar}{System.IO.Path.DirectorySeparatorChar}";

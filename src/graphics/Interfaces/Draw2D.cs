@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit.Interop;
 
@@ -30,9 +31,8 @@ namespace VoxelGame.Graphics.Interfaces;
 /// <summary>
 ///     Wraps the draw 2D functionality.
 /// </summary>
-#pragma warning disable S3898 // No equality comparison used.
-public readonly unsafe struct Draw2D
-#pragma warning restore S3898 // No equality comparison used.
+[ValueSemantics]
+public readonly unsafe partial struct Draw2D
 {
     /// <summary>
     ///     Use this as a priority to add a pipeline that will be rendered before all other pipelines, thus in the background.
@@ -49,9 +49,8 @@ public readonly unsafe struct Draw2D
     ///     A single vertex.
     /// </summary>
     [StructLayout(LayoutKind.Sequential, Pack = 1)]
-    #pragma warning disable S3898 // No equality comparison used.
-    public struct Vertex
-    #pragma warning restore S3898 // No equality comparison used.
+    [ValueSemantics]
+    public partial struct Vertex
     {
         /// <summary>
         ///     The position of the vertex.
@@ -75,11 +74,9 @@ public readonly unsafe struct Draw2D
 
     internal delegate void DrawBufferDelegate(UInt32 firstVertex, UInt32 vertexCount, UInt32 textureIndex, Bool useTexture, IntPtr ctx);
 
-    #pragma warning disable S3898 // No equality comparison used.
     [NativeMarshalling(typeof(InternalMarshaller))]
     [StructLayout(LayoutKind.Sequential)]
     internal struct Internal
-    #pragma warning restore S3898 // No equality comparison used.
     {
         internal InitializeTexturesDelegate initializeTextures;
         internal UploadBufferDelegate uploadBuffer;

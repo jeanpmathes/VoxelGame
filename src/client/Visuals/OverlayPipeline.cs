@@ -154,7 +154,7 @@ public sealed partial class OverlayPipeline : IDisposable
 
         MeshData.SetTextureIndex(ref attributes, textureID);
         MeshData.SetTint(ref attributes, tint);
-        MeshData.SetFlag(ref attributes, MeshData.QuadFlag.IsAnimated, isAnimated);
+        MeshData.SetOption(ref attributes, MeshData.QuadOption.IsAnimated, isAnimated);
 
         Matrix4d mvp = model * view * projection;
         Matrix4 mvpF = new((Vector4) mvp.Row0, (Vector4) mvp.Row1, (Vector4) mvp.Row2, (Vector4) mvp.Row3);

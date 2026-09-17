@@ -62,7 +62,7 @@ public class ValueSemanticsGeneratorTests
                                public partial struct TestStruct : global::System.IEquatable<TestStruct>, global::VoxelGame.Toolkit.Utilities.IDefault<TestStruct>
                                {
                                    /// <inheritdoc />
-                                   public static TestStruct Default => new();
+                                   public static TestStruct DefaultValue => new();
 
                                    private (global::System.Int32, global::System.String) Pack => (X, Text);
 
@@ -130,7 +130,7 @@ public class ValueSemanticsGeneratorTests
                                public partial struct TestStruct : global::System.IEquatable<TestStruct>, global::VoxelGame.Toolkit.Utilities.IDefault<TestStruct>
                                {
                                    /// <inheritdoc />
-                                   public static TestStruct Default => new();
+                                   public static TestStruct DefaultValue => new();
 
                                    private global::System.ValueTuple Pack => global::System.ValueTuple.Create();
 
@@ -198,7 +198,7 @@ public class ValueSemanticsGeneratorTests
                                public partial struct TestStruct : global::System.IEquatable<TestStruct>, global::VoxelGame.Toolkit.Utilities.IDefault<TestStruct>
                                {
                                    /// <inheritdoc />
-                                   public static TestStruct Default => new();
+                                   public static TestStruct DefaultValue => new();
 
                                    private global::System.ValueTuple<global::System.Int32> Pack => global::System.ValueTuple.Create(X);
 
@@ -268,7 +268,7 @@ public class ValueSemanticsGeneratorTests
                                public partial struct TestStruct : global::System.IEquatable<TestStruct>, global::VoxelGame.Toolkit.Utilities.IDefault<TestStruct>
                                {
                                    /// <inheritdoc />
-                                   public static TestStruct Default => new();
+                                   public static TestStruct DefaultValue => new();
 
                                    private global::System.ValueTuple<global::System.Int32> Pack => global::System.ValueTuple.Create(X);
 

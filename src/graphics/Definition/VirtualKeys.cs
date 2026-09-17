@@ -32,7 +32,7 @@ namespace VoxelGame.Graphics.Definition;
 [SuppressMessage("ReSharper", "IdentifierTypo", Justification = "Must match original definitions.")]
 [SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "Must match original definitions.")]
 [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Must match original definitions.")]
-#pragma warning disable CS1591
+#pragma warning disable CS1591 // Laziness.
 public enum VirtualKeys : Byte
 {
     Undefined = 0x00,

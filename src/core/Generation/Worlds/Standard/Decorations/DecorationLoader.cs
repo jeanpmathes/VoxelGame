@@ -53,6 +53,12 @@ public sealed class DecorationLoader : IResourceLoader
         ]);
     }
 
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
+
     private static IEnumerable<Decoration> CreatePlants(IStructureProvider structures)
     {
         return

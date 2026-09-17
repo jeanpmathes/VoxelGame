@@ -42,7 +42,7 @@ public class Visitor
     }
 
     /// <exclude />
-    public virtual void Visit(Error error)
+    public virtual void Visit(Issue issue)
     {
         // Nothing to do here.
     }

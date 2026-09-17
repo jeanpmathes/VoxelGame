@@ -116,12 +116,12 @@ public class PropertyBasedTreeControl : TreeControl
             index = previousIndex;
         }
 
-        public override void Visit(Error error)
+        public override void Visit(Issue issue)
         {
-            TreeNode node = FindOrCreateNode(error.Name, $"{error.Name}: {error.Message}");
+            TreeNode node = FindOrCreateNode(issue.Name, $"{issue.Name}: {issue.Message}");
 
-            String icon = error.IsCritical ? Icons.Instance.Error : Icons.Instance.Warning;
-            Gwen.Net.Color color = error.IsCritical ? Colors.Error : Colors.Warning;
+            String icon = issue.IsCritical ? Icons.Instance.Error : Icons.Instance.Warning;
+            Gwen.Net.Color color = issue.IsCritical ? Colors.Error : Colors.Warning;
 
             node.SetImage(icon, Context.SmallIconSize, color);
         }

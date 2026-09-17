@@ -25,13 +25,27 @@ namespace VoxelGame.Graphics.Core;
 /// <summary>
 ///     Event arguments for window size change.
 /// </summary>
-/// <param name="OldSize">The old size.</param>
-/// <param name="NewSize">The new size.</param>
-public record SizeChangeEventArgs(Vector2i OldSize, Vector2i NewSize);
+/// <param name="oldSize">The old size.</param>
+/// <param name="newSize">The new size.</param>
+public class SizeChangeEventArgs(Vector2i oldSize, Vector2i newSize) : EventArgs
+{
+    /// <summary>The old size.</summary>
+    public Vector2i OldSize { get; init; } = oldSize;
+
+    /// <summary>The new size.</summary>
+    public Vector2i NewSize { get; init; } = newSize;
+}
 
 /// <summary>
 ///     Event arguments for focus change.
 /// </summary>
-/// <param name="OldFocus">Whether the window was focused before.</param>
-/// <param name="NewFocus">Whether the window is focused now.</param>
-public record FocusChangeEventArgs(Boolean OldFocus, Boolean NewFocus);
+/// <param name="oldFocus">Whether the window was focused before.</param>
+/// <param name="newFocus">Whether the window is focused now.</param>
+public class FocusChangeEventArgs(Boolean oldFocus, Boolean newFocus) : EventArgs
+{
+    /// <summary>Whether the window was focused before.</summary>
+    public Boolean OldFocus { get; init; } = oldFocus;
+
+    /// <summary>Whether the window is focused now.</summary>
+    public Boolean NewFocus { get; init; } = newFocus;
+}

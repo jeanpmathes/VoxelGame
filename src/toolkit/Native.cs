@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using OpenTK.Mathematics;
 using VoxelGame.Toolkit.Noise;
@@ -27,8 +28,8 @@ namespace VoxelGame.Toolkit;
 /// <summary>
 ///     Utility methods for calling some of the native methods easily.
 /// </summary>
-#pragma warning disable S3242 // The specific types are matched on the native side.
-#pragma warning disable S1200 // This class intentionally contains all native functions.
+[SuppressMessage("Sonar", "S3242", Justification = "The specific types are matched on the native side.")]
+[SuppressMessage("Sonar", "S1200", Justification = "This class intentionally contains all native functions.")]
 internal static class Native
 {
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

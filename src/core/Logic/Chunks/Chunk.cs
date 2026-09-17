@@ -859,9 +859,7 @@ public partial class Chunk : IDisposable, IEntity
     // ReSharper disable once ClassNeverInstantiated.Local
     private sealed class MaxScheduledUpdatesPerLogicUpdateAndChunk : IConstantInt32
     {
-        #pragma warning disable S1144 // Value is not unused.
         static Int32 IConstantInt32.Value => 1024;
-        #pragma warning restore S1144
     }
 
     #region LOGGING

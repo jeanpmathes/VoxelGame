@@ -38,9 +38,7 @@ public partial class ScheduledUpdateManager<T, TMaxScheduledUpdatesPerLogicUpdat
     where T : IUpdateable, new()
     where TMaxScheduledUpdatesPerLogicUpdate : IConstantInt32
 {
-    #pragma warning disable S2743 // Intentional and known.
     private static readonly ObjectPool<UpdateHolder> holderPool = new(CreateUpdateHolder);
-    #pragma warning restore S2743
 
     private readonly UpdateCounter updateCounter;
 

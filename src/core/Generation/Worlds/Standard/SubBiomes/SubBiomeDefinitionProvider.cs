@@ -17,6 +17,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Generation.Worlds.Standard.Palettes;
 using VoxelGame.Core.Utilities.Resources;
@@ -26,8 +27,6 @@ namespace VoxelGame.Core.Generation.Worlds.Standard.SubBiomes;
 /// <summary>
 ///     Implementation of the <see cref="ISubBiomeDefinitionProvider" /> interface.
 /// </summary>
-#pragma warning disable CA1001 // SubBiomeDefinitionProvider is safe to not dispose.
-#pragma warning disable S2931 // SubBiomeDefinition is safe to not dispose.
 public class SubBiomeDefinitionProvider : ResourceProvider<SubBiomeDefinition>, ISubBiomeDefinitionProvider
 {
     private SubBiomeDefinition? fallback;
@@ -67,13 +66,18 @@ public class SubBiomeDefinitionProvider : ResourceProvider<SubBiomeDefinition>, 
     /// <inheritdoc />
     protected override SubBiomeDefinition CreateFallback()
     {
-        if (fallback == null)
-        {
-            Context?.ReportWarning(this, "Fallback sub-biome definition creation failed, using alternative palette");
+        if (fallback != null) return fallback;
 
-            CreateFallback(new Palette());
-        }
+        Context?.ReportWarning(this, "Fallback sub-biome definition creation failed, using alternative palette");
+
+        CreateFallback(new Palette());
 
         return fallback;
+    }
+
+    /// <inheritdoc />
+    protected override void Dispose(Boolean disposing)
+    {
+        fallback?.Dispose();
     }
 }

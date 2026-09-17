@@ -78,9 +78,7 @@ public static class CollectionExtensions
     /// <param name="enumerable">The enumerable to filter.</param>
     /// <typeparam name="T">The type of the enumerable.</typeparam>
     /// <returns>The filtered enumerable.</returns>
-    #pragma warning disable S3242
     public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T?> enumerable) where T : class
-    #pragma warning restore S3242
     {
         return enumerable.OfType<T>();
     }

@@ -20,6 +20,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using OpenTK.Mathematics;
@@ -40,8 +41,8 @@ namespace VoxelGame.Graphics;
 /// <summary>
 ///     Utility methods for calling some of the native methods easily.
 /// </summary>
-#pragma warning disable S3242 // The specific types are matched on the native side.
-#pragma warning disable S1200 // This class intentionally contains all native functions.
+[SuppressMessage("Sonar", "S3242", Justification = "The specific types are matched on the native side.")]
+[SuppressMessage("Sonar", "S1200", Justification = "This class intentionally contains all native functions.")]
 internal static class Native
 {
     private static readonly Dictionary<IntPtr, Camera> cameras = new();
@@ -256,7 +257,7 @@ internal static class Native
         RasterPipelineDescription description,
         Definition.Native.NativeErrorFunction callback)
     {
-        Debug.Assert(description.BufferSize == 0);
+        Debug.Assert(description.bufferSize == 0);
 
         IntPtr pipelinePointer = NativeMethods.CreateRasterPipeline(client, description, callback);
 
@@ -283,7 +284,7 @@ internal static class Native
         RasterPipelineDescription description,
         Definition.Native.NativeErrorFunction callback) where T : unmanaged, IEquatable<T>, IDefault<T>
     {
-        description.BufferSize = (UInt32) sizeof(T);
+        description.bufferSize = (UInt32) sizeof(T);
 
         IntPtr pipelinePointer = NativeMethods.CreateRasterPipeline(client, description, callback);
 

@@ -85,11 +85,11 @@ public class FoliageBlock : Block
         {
             ref Mesh.Quad quad = ref quads[index];
 
-            MeshData.SetFlag(ref quad.data, MeshData.QuadFlag.IsAnimated, mesh.IsAnimated);
-            MeshData.SetFlag(ref quad.data, MeshData.QuadFlag.IsUnshaded, IsUnshaded);
+            MeshData.SetOption(ref quad.data, MeshData.QuadOption.IsAnimated, mesh.IsAnimated);
+            MeshData.SetOption(ref quad.data, MeshData.QuadOption.IsUnshaded, IsUnshaded);
 
-            MeshData.SetFoliageFlag(ref quad.data, MeshData.FoliageQuadFlag.IsDoublePlant, mesh.Part is Foliage.PartType.DoubleLower or Foliage.PartType.DoubleUpper);
-            MeshData.SetFoliageFlag(ref quad.data, MeshData.FoliageQuadFlag.IsUpperPart, mesh.Part is Foliage.PartType.DoubleUpper);
+            MeshData.SetFoliageOption(ref quad.data, MeshData.FoliageQuadOption.IsDoublePlant, mesh.Part is Foliage.PartType.DoubleLower or Foliage.PartType.DoubleUpper);
+            MeshData.SetFoliageOption(ref quad.data, MeshData.FoliageQuadOption.IsUpperPart, mesh.Part is Foliage.PartType.DoubleUpper);
         }
     }
 

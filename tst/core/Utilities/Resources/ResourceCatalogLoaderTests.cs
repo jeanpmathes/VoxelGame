@@ -82,6 +82,11 @@ public class ResourceCatalogLoaderTests
                 return [new MockResource()];
             });
         }
+
+        public void Dispose()
+        {
+            // Nothing to dispose of.
+        }
     }
 
     private sealed class MockLinker : IResourceLinker
@@ -97,11 +102,17 @@ public class ResourceCatalogLoaderTests
                 return [];
             });
         }
+
+        public void Dispose()
+        {
+            // Nothing to dispose of.
+        }
     }
 
     private sealed class MockProvider : IResourceProvider
     {
         public IResourceContext? Context { get; set; }
+
         public String Instance => "";
 
         public void SetUp()
@@ -113,6 +124,11 @@ public class ResourceCatalogLoaderTests
                 return [];
             });
         }
+
+        public void Dispose()
+        {
+            // Nothing to dispose of.
+        }
     }
 
     private sealed class MockResource : IResource
@@ -123,7 +139,7 @@ public class ResourceCatalogLoaderTests
 
         public void Dispose()
         {
-            // Nothing to dispose.
+            // Nothing to dispose of.
         }
     }
 }

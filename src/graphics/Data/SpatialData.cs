@@ -18,19 +18,20 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 
 namespace VoxelGame.Graphics.Data;
-
-#pragma warning disable S3898 // No equality comparison used.
 
 /// <summary>
 ///     The vertex layout used by all basic meshes.
 ///     A mesh is simply a sequence of quads with their vertices in CW order.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct SpatialVertex
+[ValueSemantics]
+public partial struct SpatialVertex
 {
     /// <summary>
     ///     The position of the vertex.
@@ -47,9 +48,9 @@ public struct SpatialVertex
 ///     An axis-aligned bounding box.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-#pragma warning disable S101
-public readonly struct AABB
-#pragma warning restore S101
+[ValueSemantics]
+[SuppressMessage("Sonar", "S101", Justification = "Established abbreviation.")]
+public readonly partial struct AABB
 {
     /// <summary>
     ///     Creates a new AABB from the given min and max values.
@@ -121,7 +122,8 @@ public readonly struct AABB
 ///     See the wiki for more information.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public readonly struct BoundsData
+[ValueSemantics]
+public readonly partial struct BoundsData
 {
     /// <summary>
     ///     Initializes a new instance of the <see cref="BoundsData" /> struct, given a tuple of data.
@@ -169,7 +171,8 @@ public readonly struct BoundsData
 ///     This is used by meshes that use custom ray intersections.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct SpatialBounds
+[ValueSemantics]
+public partial struct SpatialBounds
 {
     /// <summary>
     ///     The AABB.

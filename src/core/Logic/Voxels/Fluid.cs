@@ -295,8 +295,8 @@ public abstract partial class Fluid : IIdentifiable<UInt32>, IIdentifiable<Strin
                 MeshData.SetFullUVs(ref data);
             }
 
-            MeshData.SetFlag(ref data, MeshData.QuadFlag.IsAnimated, value: true);
-            MeshData.SetFlag(ref data, MeshData.QuadFlag.IsUnshaded, value: false);
+            MeshData.SetOption(ref data, MeshData.QuadOption.IsAnimated, value: true);
+            MeshData.SetOption(ref data, MeshData.QuadOption.IsUnshaded, value: false);
 
             fluidMeshFaceHolders[side].AddFace(
                 position,

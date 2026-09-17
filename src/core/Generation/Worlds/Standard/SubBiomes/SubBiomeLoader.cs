@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using JetBrains.Annotations;
 using VoxelGame.Core.Generation.Worlds.Standard.Decorations;
 using VoxelGame.Core.Generation.Worlds.Standard.Palettes;
@@ -49,6 +50,12 @@ public sealed class SubBiomeLoader : IResourceLoader
 
                     return [.. subBiomes.Registry.Values];
                 })));
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
     }
 
     [UsedImplicitly(ImplicitUseTargetFlags.Members)]
@@ -105,12 +112,11 @@ public sealed class SubBiomeLoader : IResourceLoader
             Layer.CreateStone(width: 21)
         ];
 
-        #pragma warning disable S3242 // Types have meaning.
+        [SuppressMessage("Sonar", "S3242", Justification = "Types have meaning.")]
         private static RID Get(Wood wood)
         {
             return RID.Named<Decoration>(wood.ID.Identifier);
         }
-        #pragma warning restore S3242
 
         #region Ocean
 

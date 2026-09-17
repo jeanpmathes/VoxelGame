@@ -1,4 +1,4 @@
-﻿// <copyright file="TypeKeyDictionary.cs" company="VoxelGame">
+﻿// <copyright file="TypeKeyMap.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Collections;
 ///     This is a reflection-based container.
 /// </summary>
 /// <typeparam name="TKey">The type of the secondary key.</typeparam>
-public class TypeKeyDictionary<TKey> where TKey : struct
+public class TypeKeyMap<TKey> where TKey : struct
 {
     private readonly Dictionary<Type, Entry> storage = [];
 
@@ -132,10 +132,10 @@ public class TypeKeyDictionary<TKey> where TKey : struct
     }
 
     /// <summary>
-    ///     Add all objects from another <see cref="TypeKeyDictionary{TKey}" /> to this one.
+    ///     Add all objects from another <see cref="TypeKeyMap{TKey}" /> to this one.
     /// </summary>
     /// <param name="source">The source dictionary to add objects from.</param>
-    public void AddAll(TypeKeyDictionary<TKey> source)
+    public void AddAll(TypeKeyMap<TKey> source)
     {
         if (!source.storage.TryGetValue(typeof(Object), out Entry? root))
             return;

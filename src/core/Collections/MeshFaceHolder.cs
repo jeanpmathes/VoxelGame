@@ -432,7 +432,7 @@ public class MeshFaceHolder
         positions = (positions.d, positions.c, positions.b, positions.a);
 
         MeshData.MirrorUVs(ref face.data);
-        MeshData.SetFlag(ref face.data, MeshData.QuadFlag.IsNormalInverted, value: true);
+        MeshData.SetOption(ref face.data, MeshData.QuadOption.IsNormalInverted, value: true);
 
         meshing.PushQuad(positions, face.data);
     }
@@ -447,27 +447,11 @@ public class MeshFaceHolder
         ArrayPool<MeshFace[]>.Shared.Return(lastFaces!);
     }
 
-#pragma warning disable CA1812
-
     private sealed class MeshFace
     {
         public (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data;
 
-        /// <summary>
-        ///     The direction of the face, either up (true) or down (false).
-        ///     A face that goes up starts at the bottom of the block and goes up according to the size.
-        ///     A face that goes down starts at the top of the block and goes down according to the size.
-        /// </summary>
-        public Boolean direction;
-
-        public UInt32 height;
-        public Boolean isRotated;
-
-        public Boolean isSingleSided;
-        public UInt32 length;
         public Int32 position;
-
-        public MeshFace? previous;
 
         /// <summary>
         ///     The size of the face, in the units used by <see cref="PartialHeight" />.
@@ -481,31 +465,46 @@ public class MeshFaceHolder
         /// </summary>
         public Int32 skip;
 
-        #pragma warning disable S1067
+        /// <summary>
+        ///     The direction of the face, either up (true) or down (false).
+        ///     A face that goes up starts at the bottom of the block and goes up according to the size.
+        ///     A face that goes down starts at the top of the block and goes down according to the size.
+        /// </summary>
+        public Boolean direction;
+
+        public UInt32 height;
+        public UInt32 length;
+
+        public Boolean isSingleSided;
+        public Boolean isRotated;
+
+        public MeshFace? previous;
+
+        private (Boolean, Boolean, Boolean) Configuration => (direction, isSingleSided, isRotated);
+        private (Int32, Int32) Dimensions => (size, skip);
+
         public Boolean IsExtendable(MeshFace extension)
         {
-            return position + length + 1 == extension.position &&
-                   height == extension.height &&
-                   size == extension.size &&
-                   skip == extension.skip &&
-                   direction == extension.direction &&
-                   data == extension.data &&
-                   isSingleSided == extension.isSingleSided &&
-                   isRotated == extension.isRotated;
+            if (position + length + 1 != extension.position)
+                return false;
+
+            if (height != extension.height)
+                return false;
+
+            return data == extension.data
+                   && Configuration == extension.Configuration
+                   && Dimensions == extension.Dimensions;
         }
 
         public Boolean IsCombinable(MeshFace addition)
         {
-            return position == addition.position &&
-                   length == addition.length &&
-                   size == addition.size &&
-                   skip == addition.skip &&
-                   direction == addition.direction &&
-                   data == addition.data &&
-                   isSingleSided == addition.isSingleSided &&
-                   isRotated == addition.isRotated;
+            if (position != addition.position || length != addition.length)
+                return false;
+
+            return data == addition.data
+                   && Configuration == addition.Configuration
+                   && Dimensions == addition.Dimensions;
         }
-        #pragma warning restore S1067
 
         #region POOLING
 
@@ -538,6 +537,4 @@ public class MeshFaceHolder
 
         #endregion POOLING
     }
-
-#pragma warning restore CA1812
 }

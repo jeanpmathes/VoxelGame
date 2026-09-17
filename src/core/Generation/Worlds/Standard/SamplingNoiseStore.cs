@@ -149,13 +149,8 @@ public class SamplingNoiseStore
         return slotValue;
     }
 
-    #pragma warning disable S3898 // Private struct does not need equality operations.
-    private struct SlotCache<T> where T : unmanaged
-    #pragma warning restore S3898
+    private record struct SlotCache<T> where T : unmanaged
     {
-        [UsedImplicitly]
-        public SlotCache() {}
-
         public Vector2i key1 = (Int32.MaxValue, Int32.MaxValue);
         public T value1 = default;
 
@@ -167,5 +162,8 @@ public class SamplingNoiseStore
 
         public Vector2i key4 = (Int32.MaxValue, Int32.MaxValue);
         public T value4 = default;
+
+        [UsedImplicitly]
+        public SlotCache() {}
     }
 }

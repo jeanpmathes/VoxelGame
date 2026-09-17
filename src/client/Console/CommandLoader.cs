@@ -66,4 +66,10 @@ public sealed class CommandLoader : IResourceLoader
 
         return [invoker];
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

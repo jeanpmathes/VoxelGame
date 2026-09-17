@@ -53,5 +53,10 @@ public sealed class PlayerContent : ResourceCatalog
                         return [];
                     }));
         }
+
+        public void Dispose()
+        {
+            // Nothing to dispose of.
+        }
     }
 }

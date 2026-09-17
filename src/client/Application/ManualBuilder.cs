@@ -243,7 +243,7 @@ public static partial class ManualBuilder
 
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(ManualBuilder));
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(typeof(ManualBuilder));
 
     [LoggerMessage(EventId = LogID.ManualBuilder + 0, Level = LogLevel.Information, Message = "Generating game manual")]
     private static partial void LogGeneratingManual(ILogger logger);

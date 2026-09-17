@@ -29,8 +29,6 @@ using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Core.Visuals.Meshing;
 
-#pragma warning disable S4049
-
 /// <summary>
 ///     The context for section meshing.
 /// </summary>

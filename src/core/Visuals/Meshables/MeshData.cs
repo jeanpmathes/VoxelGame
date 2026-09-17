@@ -34,9 +34,9 @@ namespace VoxelGame.Core.Visuals.Meshables;
 public static class MeshData
 {
     /// <summary>
-    ///     Special flags that are only used for foliage.
+    ///     Special options that are only used for foliage.
     /// </summary>
-    public enum FoliageQuadFlag
+    public enum FoliageQuadOption
     {
         /// <summary>
         ///     Whether the current quad is in the upper part of a double plant.
@@ -51,9 +51,9 @@ public static class MeshData
     }
 
     /// <summary>
-    ///     Different flags for a quad.
+    ///     Different options for a quad.
     /// </summary>
-    public enum QuadFlag
+    public enum QuadOption
     {
         /// <summary>
         ///     Whether the quad is animated.
@@ -195,12 +195,12 @@ public static class MeshData
     }
 
     /// <summary>
-    ///     Set a foliage flag for a quad.
+    ///     Set a foliage option for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetFoliageFlag(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, FoliageQuadFlag flag, Boolean value)
+    public static void SetFoliageOption(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, FoliageQuadOption option, Boolean value)
     {
-        data.c |= value.ToUInt() << (Int32) flag;
+        data.c |= value.ToUInt() << (Int32) option;
     }
 
     /// <summary>
@@ -234,12 +234,12 @@ public static class MeshData
     }
 
     /// <summary>
-    ///     Set a flag for a quad.
+    ///     Set an option for a quad.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void SetFlag(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, QuadFlag flag, Boolean value)
+    public static void SetOption(ref (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data, QuadOption option, Boolean value)
     {
-        Int32 shift = (Int32) flag;
+        Int32 shift = (Int32) option;
 
         if (value) data.b |= 1u << shift;
         else data.b &= ~(1u << shift);

@@ -95,9 +95,7 @@ internal static class NativeObjectMarshaller
         // Nothing to do here.
     }
 
-#pragma warning disable S1694
     internal abstract class Marshaller : IMarshaller<NativeObject, IntPtr>
-#pragma warning restore S1694
     {
         static IntPtr IMarshaller<NativeObject, IntPtr>.ConvertToUnmanaged(NativeObject managed)
         {

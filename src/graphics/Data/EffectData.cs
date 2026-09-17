@@ -20,17 +20,17 @@
 using System;
 using System.Runtime.InteropServices;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Graphics.Objects;
 
 namespace VoxelGame.Graphics.Data;
-
-#pragma warning disable S3898 // No equality comparison used.
 
 /// <summary>
 ///     Vertex type used by the <see cref="Effect" /> class.
 /// </summary>
 [StructLayout(LayoutKind.Sequential, Pack = 1)]
-public struct EffectVertex
+[ValueSemantics]
+public partial struct EffectVertex
 {
     /// <summary>
     ///     The position of the vertex.

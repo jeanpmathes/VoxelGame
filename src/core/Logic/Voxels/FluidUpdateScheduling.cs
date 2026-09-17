@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
 using VoxelGame.Core.Collections;
 using VoxelGame.Core.Logic.Chunks;
@@ -93,12 +94,11 @@ public partial class Fluid
             return obj is FluidUpdate other && Equals(other);
         }
 
-#pragma warning disable S2328
+        [SuppressMessage("Sonar", "S2328", Justification = "Readonly except for serialization")]
         public override Int32 GetHashCode()
         {
             return HashCode.Combine(x, y, z, target);
         }
-#pragma warning restore S2328
 
         public static Boolean operator ==(FluidUpdate left, FluidUpdate right)
         {

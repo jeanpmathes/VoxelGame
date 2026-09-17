@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Logic.Attributes;
 
 namespace VoxelGame.Core.Logic.Voxels;
@@ -113,15 +114,14 @@ public record struct Content(State Block, FluidInstance Fluid)
 /// <summary>
 ///     Extends the <see cref="FluidInstance" /> type.
 /// </summary>
+[SuppressMessage("Sonar", "S4226", Justification = "Extensions can handle null references in their first argument.")]
 public static class ContentExtensions
 {
-    #pragma warning disable S4226 // Extensions can handle null references in their first argument
     /// <summary>
-    ///     Get a fluid as instance.
+    ///     Get a fluid as an instance.
     /// </summary>
     public static FluidInstance AsInstance(this Fluid? fluid, FluidLevel? level = null, Boolean isStatic = true)
     {
         return fluid is null ? FluidInstance.Default : new FluidInstance(fluid, level ?? FluidLevel.Full, isStatic);
     }
-    #pragma warning restore S4226
 }

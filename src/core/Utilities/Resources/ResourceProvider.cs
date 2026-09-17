@@ -114,4 +114,21 @@ public abstract partial class ResourceProvider<T> : IResourceProvider where T : 
     private static partial void LogLoadingDisabled(ILogger logger);
 
     #endregion LOGGING
+
+    #region DISPOSABLE
+
+    /// <summary>
+    ///     Override to dispose of managed resources.
+    /// </summary>
+    /// <param name="disposing">Whether this is called from the <see cref="Dispose()" /> method.</param>
+    protected virtual void Dispose(Boolean disposing) {}
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    #endregion DISPOSABLE
 }

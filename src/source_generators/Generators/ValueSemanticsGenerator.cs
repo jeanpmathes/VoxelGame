@@ -130,7 +130,7 @@ public sealed class ValueSemanticsGenerator : IIncrementalGenerator
                            {{i}}{{model.Accessibility}} partial struct {{model.Name}} : global::System.IEquatable<{{model.Name}}>, global::VoxelGame.Toolkit.Utilities.IDefault<{{model.Name}}>
                            {{i}}{
                            {{i}}    /// <inheritdoc />
-                           {{i}}    public static {{model.Name}} Default => new();
+                           {{i}}    public static {{model.Name}} DefaultValue => new();
 
                            {{i}}    private {{packTupleType}} Pack => {{packTupleValues}};
 
@@ -174,7 +174,7 @@ public sealed class ValueSemanticsGenerator : IIncrementalGenerator
             return ("global::System.ValueTuple", "global::System.ValueTuple.Create()");
 
         if (model.Fields.Length == 1)
-            return ($"global::System.ValueTuple<{model.Fields[0].TypeDisplay}>", $"global::System.ValueTuple.Create({model.Fields[0].Name})");
+            return ($"global::System.ValueTuple<{model.Fields[0].TypeDisplay}>", $"global::System.ValueTuple.Create(@{model.Fields[0].Name})");
 
         StringBuilder packTupleType = new("(");
         StringBuilder packTupleValues = new("(");

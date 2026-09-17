@@ -21,6 +21,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 namespace VoxelGame.Core.Collections;
@@ -118,9 +119,8 @@ public class Bag<T> : IEnumerable<T>
     ///     Copy this bag into a list.
     ///     The list might contain gaps after this operation.
     /// </summary>
-    #pragma warning disable S3956 // Concrete List type required for AddRange method
+    [SuppressMessage("Sonar", "S3956", Justification = "Concrete List type required for AddRange method.")]
     public void CopyDirectlyTo(List<T?> other)
-    #pragma warning restore S3956
     {
         other.AddRange(items);
     }

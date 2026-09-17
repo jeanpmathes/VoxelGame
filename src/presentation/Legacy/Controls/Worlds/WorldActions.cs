@@ -158,7 +158,7 @@ public class WorldActions : ControlBase
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
                 infoCancellation?.Dispose();
                 infoCancellation = null;
-#pragma warning disable S2952
+#pragma warning restore S2952
             },
             result =>
             {
@@ -176,7 +176,7 @@ public class WorldActions : ControlBase
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
             infoCancellation?.Dispose();
             infoCancellation = null;
-#pragma warning disable S2952
+#pragma warning restore S2952
 
             cause.Enable();
             cause.Redraw();

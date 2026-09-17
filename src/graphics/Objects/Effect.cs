@@ -45,7 +45,6 @@ public class Effect : Drawable
     }
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(Effect), MarshalMode.ManagedToUnmanagedIn, typeof(EffectMarshaller))]
 internal static class EffectMarshaller
 {

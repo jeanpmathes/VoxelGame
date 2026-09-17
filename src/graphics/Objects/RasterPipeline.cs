@@ -35,7 +35,6 @@ public class RasterPipeline : NativeObject
     public RasterPipeline(IntPtr nativePointer, Client client) : base(nativePointer, client) {}
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(RasterPipeline), MarshalMode.ManagedToUnmanagedIn, typeof(RasterPipelineMarshaller))]
 internal static class RasterPipelineMarshaller
 {

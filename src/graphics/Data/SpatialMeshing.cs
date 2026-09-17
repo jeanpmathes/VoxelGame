@@ -128,9 +128,7 @@ public sealed class SpatialMeshing : IMeshing
 
     private Boolean disposed;
 
-    #pragma warning disable S2953 // False positive, this class does implement IDisposable.
     private void Dispose(Boolean disposing)
-    #pragma warning restore S2953
     {
         if (disposed) return;
 

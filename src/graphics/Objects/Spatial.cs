@@ -84,7 +84,6 @@ public class Spatial : NativeObject
     }
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(Spatial), MarshalMode.ManagedToUnmanagedIn, typeof(SpatialMarshaller))]
 internal static class SpatialMarshaller
 {

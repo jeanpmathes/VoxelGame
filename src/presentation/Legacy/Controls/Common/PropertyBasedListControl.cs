@@ -86,9 +86,9 @@ public class PropertyBasedListControl : ControlBase
             stack.Pop();
         }
 
-        public override void Visit(Error error)
+        public override void Visit(Issue issue)
         {
-            ListBoxRow row = AddRow(error.Name, error.Message);
+            ListBoxRow row = AddRow(issue.Name, issue.Message);
 
             row.SetCellFont(ValueColumn, context.Fonts.ConsoleError);
         }

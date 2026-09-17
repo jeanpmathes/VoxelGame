@@ -108,6 +108,12 @@ public sealed class GameGuiLoader : IResourceLoader
         });
     }
 
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
+
     private static FileInfo GetImageFile(String name)
     {
         return FileSystem.GetResourceDirectory("GUI", "Images").GetFile($"{name}.png");

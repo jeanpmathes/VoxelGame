@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Logic.Contents.Fluids;
 using VoxelGame.Core.Resources.Language;
@@ -30,11 +31,10 @@ using TID = VoxelGame.Core.Visuals.Textures.TID;
 
 namespace VoxelGame.Core.Logic.Voxels;
 
-#pragma warning disable S1192 // Hardcoded string duplication is close together.
-
 /// <summary>
 ///     Contains all fluid definitions of the core game.
 /// </summary>
+[SuppressMessage("Sonar", "S1192", Justification = "Hardcoded string duplication is close together.")]
 public sealed partial class Fluids(Registry<Fluid> registry)
 {
     private static FluidContactManager? contactManager;

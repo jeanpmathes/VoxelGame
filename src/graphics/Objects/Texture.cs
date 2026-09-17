@@ -60,7 +60,6 @@ public class Texture : NativeObject
     }
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(Texture), MarshalMode.ManagedToUnmanagedIn, typeof(TextureMarshaller))]
 internal static class TextureMarshaller
 {

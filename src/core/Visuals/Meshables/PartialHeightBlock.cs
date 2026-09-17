@@ -157,7 +157,7 @@ public sealed class PartialHeightBlock : Block, IOverlayTextureProvider
         MeshData.SetTextureIndex(ref data, mesh.TextureIndex);
 
         MeshData.SetTint(ref data, mesh.Tint.Select(context.GetBlockTint(position)));
-        MeshData.SetFlag(ref data, MeshData.QuadFlag.IsAnimated, mesh.IsAnimated);
+        MeshData.SetOption(ref data, MeshData.QuadOption.IsAnimated, mesh.IsAnimated);
 
         if (side is not (Side.Top or Side.Bottom))
         {

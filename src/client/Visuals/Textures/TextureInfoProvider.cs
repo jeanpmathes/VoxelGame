@@ -29,7 +29,7 @@ namespace VoxelGame.Client.Visuals.Textures;
 /// <summary>
 ///     Provides the texture indices of loaded textures for blocks and fluids, as well as their dominant colors.
 /// </summary>
-public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColorProvider
+public sealed partial class TextureInfoProvider : ITextureIndexProvider, IDominantColorProvider
 {
     private const Int32 MissingTextureIndex = 0;
 
@@ -92,6 +92,12 @@ public partial class TextureInfoProvider : ITextureIndexProvider, IDominantColor
         Context.ReportWarning(this, $"Texture '{identifier}' not found, using fallback instead");
 
         return MissingTextureIndex;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
     }
 
     #region LOGGING

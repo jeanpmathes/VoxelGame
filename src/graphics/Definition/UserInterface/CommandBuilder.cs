@@ -154,13 +154,13 @@ public sealed class CommandBuilder
         commands.Add(radius == Radius.Zero
             ? new Command
             {
-                Kind = CommandKind.DrawRectangleilledColor,
-                DrawRectangleilledColor = new DrawRectangleilledColorCommand(rectangle, color)
+                Kind = CommandKind.DrawRectangleFilledColor,
+                DrawRectangleFilledColor = new DrawRectangleFilledColorCommand(rectangle, color)
             }
             : new Command
             {
-                Kind = CommandKind.DrawRectangleilledRoundedColor,
-                DrawRectangleilledRoundedColor = new DrawRectangleilledRoundedColorCommand(rectangle, radius, color)
+                Kind = CommandKind.DrawRectangleFilledRoundedColor,
+                DrawRectangleFilledRoundedColor = new DrawRectangleFilledRoundedColorCommand(rectangle, radius, color)
             });
     }
 
@@ -175,13 +175,13 @@ public sealed class CommandBuilder
         commands.Add(radius == Radius.Zero
             ? new Command
             {
-                Kind = CommandKind.DrawRectangleilledBrush,
-                DrawRectangleilledBrush = new DrawRectangleilledBrushCommand(rectangle, brush.Self)
+                Kind = CommandKind.DrawRectangleFilledBrush,
+                DrawRectangleFilledBrush = new DrawRectangleFilledBrushCommand(rectangle, brush.Self)
             }
             : new Command
             {
-                Kind = CommandKind.DrawRectangleilledRoundedBrush,
-                DrawRectangleilledRoundedBrush = new DrawRectangleilledRoundedBrushCommand(rectangle, radius, brush.Self)
+                Kind = CommandKind.DrawRectangleFilledRoundedBrush,
+                DrawRectangleFilledRoundedBrush = new DrawRectangleFilledRoundedBrushCommand(rectangle, radius, brush.Self)
             });
     }
 

@@ -52,5 +52,10 @@ public class Generators : ResourceCatalog
         {
             T.LinkResources(context);
         }
+
+        public void Dispose()
+        {
+            // Nothing to dispose of.
+        }
     }
 }

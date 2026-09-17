@@ -27,6 +27,11 @@ namespace VoxelGame.Core.Serialization;
 public enum MetaVersion : UInt32
 {
     /// <summary>
+    ///     An invalid version.
+    /// </summary>
+    Invalid = 0,
+
+    /// <summary>
     ///     The initial version of the serialization system.
     /// </summary>
     Initial = 1,

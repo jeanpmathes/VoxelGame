@@ -34,9 +34,11 @@ namespace VoxelGame.Client.Visuals.Textures;
 public sealed class TextureBundleLoader : IResourceLoader
 {
     private readonly RID identifier;
+
     private readonly Int32 maxTextures;
-    private readonly Image.MipmapAlgorithm mipmap;
     private readonly Int32 resolution;
+
+    private readonly Image.MipmapAlgorithm mipmap;
 
     private readonly List<DirectoryInfo> sources = [];
 
@@ -71,6 +73,12 @@ public sealed class TextureBundleLoader : IResourceLoader
                 .Bundle(sources, resolution, context)
                 .Pack(client, identifier, maxTextures, resolution, mipmap)
         ]);
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
     }
 
     /// <summary>

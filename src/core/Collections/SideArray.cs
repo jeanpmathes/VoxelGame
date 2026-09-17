@@ -20,16 +20,16 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Logic.Voxels;
 
 namespace VoxelGame.Core.Collections;
-
-#pragma warning disable S3876 // Indexing using the enum is the entire point of this class.
 
 /// <summary>
 ///     An array to store elements associated with the sides of a cube.
 /// </summary>
 /// <typeparam name="T">The type of the elements.</typeparam>
+[SuppressMessage("Sonar", "S3876", Justification = "Index using the enum is the entire point of this class.")]
 public class SideArray<T> : IEnumerable<T>
 {
     private readonly T[] sides = new T[6];

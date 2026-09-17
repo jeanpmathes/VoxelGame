@@ -308,5 +308,7 @@ public static class Meshes
         {
             return ITextureIndexProvider.MissingTextureIndex;
         }
+
+        public void Dispose() {}
     }
 }

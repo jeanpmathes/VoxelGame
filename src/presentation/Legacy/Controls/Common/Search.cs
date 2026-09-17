@@ -40,7 +40,7 @@ public class Search : ControlBase
     {
         DockLayout layout = new(this);
 
-        ImagePanel icon = context.CreateIcon(layout, Icons.Instance.Search);
+        ImagePanel icon = Context.CreateIcon(layout, Icons.Instance.Search);
         icon.Dock = Dock.Left;
 
         TextBox filter = new(layout)

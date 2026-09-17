@@ -83,12 +83,12 @@ public record ResourceLoadingIssueReport(Property Report, Int32 ErrorCount, Int3
 /// </summary>
 public sealed partial class ResourceCatalogLoader
 {
-    private readonly TypeKeyDictionary<RID> environment = new();
+    private readonly TypeKeyMap<RID> environment = new();
 
     /// <summary>
     ///     Whether to fail immediately on any error during loading.
     /// </summary>
-    public Boolean FailFast { get; set; }
+    public Boolean FailFast { get; init; }
 
     /// <summary>
     ///     Add an object to the loading environment.
@@ -115,12 +115,12 @@ public sealed partial class ResourceCatalogLoader
     /// <summary>
     ///     Load the specified catalog.
     /// </summary>
-    /// <param name="catalog">The catalog to load.</param>
+    /// <param name="catalog">The catalog to load. Will be disposed of when disposing the resource context.</param>
     /// <param name="timer">A timer to use for profiling the loading operations.</param>
     /// <returns>The resource context containing all loaded resources and an optional error report.</returns>
     public (IResourceContext context, ResourceLoadingIssueReport? report) Load(ICatalogEntry catalog, Timer? timer)
     {
-        Context context = new(environment, FailFast);
+        Context context = new(environment, catalog, FailFast);
 
         Group? report = LoadCatalogEntry(catalog, hierarchy: null, report: null, timer, context);
         Debug.Assert(report != null);
@@ -182,7 +182,8 @@ public sealed partial class ResourceCatalogLoader
 
     private sealed class Context : IResourceContext
     {
-        private readonly TypeKeyDictionary<RID> content = new();
+        private readonly TypeKeyMap<RID> content = new();
+        private readonly ICatalogEntry catalog;
         private readonly Boolean failFast;
 
         private String? currentHierarchy;
@@ -191,9 +192,10 @@ public sealed partial class ResourceCatalogLoader
         private Int32 errorCount;
         private Int32 warningCount;
 
-        public Context(TypeKeyDictionary<RID> environment, Boolean failFast)
+        public Context(TypeKeyMap<RID> environment, ICatalogEntry catalog, Boolean failFast)
         {
             content.AddAll(environment);
+            this.catalog = catalog;
             this.failFast = failFast;
         }
 
@@ -219,7 +221,7 @@ public sealed partial class ResourceCatalogLoader
 
         public void ReportWarning(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null)
         {
-            currentReport!.Add(new Error(GetSourceName(source), message, isCritical: false));
+            currentReport!.Add(new Issue(GetSourceName(source), message, isCritical: false));
 
             if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
             else LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
@@ -229,7 +231,7 @@ public sealed partial class ResourceCatalogLoader
 
         public void ReportError(IIssueSource source, String message, Exception? exception = null, FileSystemInfo? path = null)
         {
-            currentReport!.Add(new Error(GetSourceName(source), message, isCritical: true));
+            currentReport!.Add(new Issue(GetSourceName(source), message, isCritical: true));
 
             if (path == null) LogWarningForResource(logger, exception, currentHierarchy!, message);
             else LogWarningForResourceAtPath(logger, exception, currentHierarchy!, path, message);
@@ -247,7 +249,7 @@ public sealed partial class ResourceCatalogLoader
             {
                 String message = errorMessage ?? error!.Message;
 
-                currentReport!.Add(new Error($"{identifier}", $"Sub-resource error: {message}", isCritical: false));
+                currentReport!.Add(new Issue($"{identifier}", $"Sub-resource error: {message}", isCritical: false));
 
                 LogWarningForSubResource(logger, error, currentHierarchy!, type, identifier, message);
             }
@@ -295,7 +297,7 @@ public sealed partial class ResourceCatalogLoader
             String title = Reflections.GetLongName<T>();
             String message = identifier is {} id ? $"Required resource '{id}' not found" : $"Required object of type {title} not found";
 
-            currentReport!.Add(new Error(title, message, isCritical: true));
+            currentReport!.Add(new Issue(title, message, isCritical: true));
 
             LogFailedRequirement(logger, currentHierarchy!, typeof(T).Name);
 
@@ -308,7 +310,7 @@ public sealed partial class ResourceCatalogLoader
         {
             if (issue.Level == Level.Error)
             {
-                currentReport!.Add(new Error(
+                currentReport!.Add(new Issue(
                     $"{resource.Identifier}",
                     $"{resource.Type} mandatory resource failed to load, see log for details",
                     isCritical: true));
@@ -319,7 +321,7 @@ public sealed partial class ResourceCatalogLoader
             }
             else
             {
-                currentReport!.Add(new Error(
+                currentReport!.Add(new Issue(
                     $"{resource.Identifier}",
                     $"{resource.Type} resource failed to load, see log for details",
                     isCritical: false));
@@ -355,8 +357,12 @@ public sealed partial class ResourceCatalogLoader
                 return;
 
             if (disposing)
-                foreach (IResource resource in content.GetAll<IResource>())
+            {
+                foreach (IResource resource in content.GetAll<IResource>().Reverse())
                     resource.Dispose();
+
+                catalog.Dispose();
+            }
             else ExceptionTools.ThrowForMissedDispose(this);
 
             disposed = true;

@@ -20,11 +20,10 @@
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
 using OpenTK.Mathematics;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Graphics.Interop;
 
 namespace VoxelGame.Graphics.Definition;
-
-#pragma warning disable S3898 // No equality comparison used.
 
 /// <summary>
 ///     Data of a spatial object that is often updated.
@@ -32,6 +31,7 @@ namespace VoxelGame.Graphics.Definition;
 /// <param name="Position">The position of the spatial object.</param>
 /// <param name="Rotation">The rotation of the spatial object, as a quaternion.</param>
 [NativeMarshalling(typeof(SpatialDataMarshaller))]
+[ValueSemantics]
 public record struct SpatialData(Vector3 Position, Vector4 Rotation);
 
 [CustomMarshaller(typeof(SpatialData), MarshalMode.ManagedToUnmanagedIn, typeof(SpatialDataMarshaller))]

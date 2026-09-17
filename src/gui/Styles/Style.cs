@@ -48,6 +48,7 @@ public static class Styling
 
         return builder;
     }
+
     // todo: add two kinds of style inheritance - call them BasedOn, and BasedOnContext
     // todo: first kind is using a directly given style which is just applied first
     // todo: second kind is just setting a flag in the style, then on apply it is given the context, takes style for same type from context (or if that is the same style then from parent context) and uses that first, same on clear

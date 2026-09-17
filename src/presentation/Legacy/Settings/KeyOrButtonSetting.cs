@@ -34,10 +34,7 @@ namespace VoxelGame.Presentation.Legacy.Settings;
 /// </summary>
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 [SuppressMessage("ReSharper", "UnusedVariable", Justification = "Controls are used by their parent.")]
-[SuppressMessage("ReSharper", "CA1001")]
-#pragma warning disable S2931
 internal sealed class KeyOrButtonSetting : Setting
-#pragma warning restore S2931
 {
     private readonly Func<Action<KeyOrButtonCombination>, IDisposable> beginCapture;
     private readonly Func<KeyOrButtonCombination> get;

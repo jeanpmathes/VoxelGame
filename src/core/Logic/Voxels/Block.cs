@@ -218,15 +218,12 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
     public ResourceType Type => ResourceTypes.Block;
 
     /// <inheritdoc />
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Is accessible by other name, but this name would cause overlap.")]
     CID IContent.ID => ContentID;
 
     /// <inheritdoc />
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Is accessible by other name, but this name would cause overlap.")]
     CID IIdentifiable<CID>.ID => ContentID;
 
     /// <inheritdoc />
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Is accessible by other name, but this name would cause overlap.")]
     UInt32 IIdentifiable<UInt32>.ID => BlockID;
 
     /// <summary>
@@ -1160,12 +1157,11 @@ public abstract partial class Block : BehaviorContainer<Block, BlockBehavior>, I
             return obj is BlockUpdate other && Equals(other);
         }
 
-#pragma warning disable S2328
+        [SuppressMessage("Sonar", "S2328", Justification = "Readonly except for serialization")]
         public override Int32 GetHashCode()
         {
             return HashCode.Combine(x, y, z, target, (Int32) operation);
         }
-#pragma warning restore S2328
 
         public static Boolean operator ==(BlockUpdate left, BlockUpdate right)
         {

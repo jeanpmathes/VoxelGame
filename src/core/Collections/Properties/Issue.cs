@@ -1,4 +1,4 @@
-﻿// <copyright file="Error.cs" company="VoxelGame">
+﻿// <copyright file="Issue.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -24,12 +24,12 @@ namespace VoxelGame.Core.Collections.Properties;
 /// <summary>
 ///     A property that represents an error or warning.
 /// </summary>
-public sealed class Error : Property
+public sealed class Issue : Property
 {
     /// <summary>
     ///     Creates a new error with the given name and message.
     /// </summary>
-    public Error(String name, String message, Boolean isCritical) : base(name)
+    public Issue(String name, String message, Boolean isCritical) : base(name)
     {
         Message = message;
         IsCritical = isCritical;

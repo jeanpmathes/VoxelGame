@@ -48,4 +48,10 @@ public sealed class BlockLoader : IResourceLoader
                             visualConfiguration,
                             context)))));
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

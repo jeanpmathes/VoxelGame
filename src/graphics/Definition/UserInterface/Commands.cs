@@ -114,29 +114,29 @@ internal enum CommandKind : UInt32
     ///     The <c>DRAW_RECTANGLE_FILLED_COLOR</c> command.
     ///     Draws a non-rounded filled rectangle with a direct color.
     /// </summary>
-    /// <seealso cref="DrawRectangleilledColorCommand" />
-    DrawRectangleilledColor = 10,
+    /// <seealso cref="DrawRectangleFilledColorCommand" />
+    DrawRectangleFilledColor = 10,
 
     /// <summary>
     ///     The <c>DRAW_RECTANGLE_FILLED_BRUSH</c> command.
     ///     Draws a non-rounded filled rectangle with a native brush.
     /// </summary>
-    /// <seealso cref="DrawRectangleilledBrushCommand" />
-    DrawRectangleilledBrush = 11,
+    /// <seealso cref="DrawRectangleFilledBrushCommand" />
+    DrawRectangleFilledBrush = 11,
 
     /// <summary>
     ///     The <c>DRAW_RECTANGLE_FILLED_ROUNDED_COLOR</c> command.
     ///     Draws a rounded filled rectangle with a direct color.
     /// </summary>
-    /// <seealso cref="DrawRectangleilledRoundedColorCommand" />
-    DrawRectangleilledRoundedColor = 12,
+    /// <seealso cref="DrawRectangleFilledRoundedColorCommand" />
+    DrawRectangleFilledRoundedColor = 12,
 
     /// <summary>
     ///     The <c>DRAW_RECTANGLE_FILLED_ROUNDED_BRUSH</c> command.
     ///     Draws a rounded filled rectangle with a native brush.
     /// </summary>
-    /// <seealso cref="DrawRectangleilledRoundedBrushCommand" />
-    DrawRectangleilledRoundedBrush = 13,
+    /// <seealso cref="DrawRectangleFilledRoundedBrushCommand" />
+    DrawRectangleFilledRoundedBrush = 13,
 
     /// <summary>
     ///     The <c>DRAW_TEXT_COLOR</c> command.
@@ -380,13 +380,13 @@ internal readonly partial struct DrawRectangleLinedRoundedBrushCommand(Rectangle
 }
 
 /// <summary>
-///     Payload for the <see cref="CommandKind.DrawRectangleilledColor" /> command.
+///     Payload for the <see cref="CommandKind.DrawRectangleFilledColor" /> command.
 /// </summary>
 /// <param name="rectangle">The rectangle to draw.</param>
 /// <param name="color">The color to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleilledColorCommand(Rectangle rectangle, ColorS color)
+internal readonly partial struct DrawRectangleFilledColorCommand(Rectangle rectangle, ColorS color)
 {
     /// <summary>
     ///     The rectangle to draw.
@@ -401,18 +401,18 @@ internal readonly partial struct DrawRectangleilledColorCommand(Rectangle rectan
     /// <inheritdoc />
     public override String ToString()
     {
-        return FormattableString.Invariant($"{nameof(DrawRectangleilledColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
+        return FormattableString.Invariant($"{nameof(DrawRectangleFilledColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
     }
 }
 
 /// <summary>
-///     Payload for the <see cref="CommandKind.DrawRectangleilledBrush" /> command.
+///     Payload for the <see cref="CommandKind.DrawRectangleFilledBrush" /> command.
 /// </summary>
 /// <param name="rectangle">The rectangle to draw.</param>
 /// <param name="brush">The native brush to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleilledBrushCommand(Rectangle rectangle, IntPtr brush)
+internal readonly partial struct DrawRectangleFilledBrushCommand(Rectangle rectangle, IntPtr brush)
 {
     /// <summary>
     ///     The rectangle to draw.
@@ -427,19 +427,19 @@ internal readonly partial struct DrawRectangleilledBrushCommand(Rectangle rectan
     /// <inheritdoc />
     public override String ToString()
     {
-        return FormattableString.Invariant($"{nameof(DrawRectangleilledBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
+        return FormattableString.Invariant($"{nameof(DrawRectangleFilledBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
     }
 }
 
 /// <summary>
-///     Payload for the <see cref="CommandKind.DrawRectangleilledRoundedColor" /> command.
+///     Payload for the <see cref="CommandKind.DrawRectangleFilledRoundedColor" /> command.
 /// </summary>
 /// <param name="rectangle">The rectangle to draw.</param>
 /// <param name="radius">The corner radius.</param>
 /// <param name="color">The color to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleilledRoundedColorCommand(Rectangle rectangle, Radius radius, ColorS color)
+internal readonly partial struct DrawRectangleFilledRoundedColorCommand(Rectangle rectangle, Radius radius, ColorS color)
 {
     /// <summary>
     ///     The rectangle to draw.
@@ -459,19 +459,19 @@ internal readonly partial struct DrawRectangleilledRoundedColorCommand(Rectangle
     /// <inheritdoc />
     public override String ToString()
     {
-        return FormattableString.Invariant($"{nameof(DrawRectangleilledRoundedColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
+        return FormattableString.Invariant($"{nameof(DrawRectangleFilledRoundedColorCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Color)} = ({Color.R}, {Color.G}, {Color.B}, {Color.A}) }}");
     }
 }
 
 /// <summary>
-///     Payload for the <see cref="CommandKind.DrawRectangleilledRoundedBrush" /> command.
+///     Payload for the <see cref="CommandKind.DrawRectangleFilledRoundedBrush" /> command.
 /// </summary>
 /// <param name="rectangle">The rectangle to draw.</param>
 /// <param name="radius">The corner radius.</param>
 /// <param name="brush">The native brush to use.</param>
 [ValueSemantics]
 [StructLayout(LayoutKind.Sequential)]
-internal readonly partial struct DrawRectangleilledRoundedBrushCommand(Rectangle rectangle, Radius radius, IntPtr brush)
+internal readonly partial struct DrawRectangleFilledRoundedBrushCommand(Rectangle rectangle, Radius radius, IntPtr brush)
 {
     /// <summary>
     ///     The rectangle to draw.
@@ -491,7 +491,7 @@ internal readonly partial struct DrawRectangleilledRoundedBrushCommand(Rectangle
     /// <inheritdoc />
     public override String ToString()
     {
-        return FormattableString.Invariant($"{nameof(DrawRectangleilledRoundedBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
+        return FormattableString.Invariant($"{nameof(DrawRectangleFilledRoundedBrushCommand)} {{ {nameof(Rectangle)} = ({Rectangle.X}, {Rectangle.Y}, {Rectangle.Width}, {Rectangle.Height}), {nameof(Radius)} = ({Radius.X}, {Radius.Y}), {nameof(Brush)} = 0x{Brush.ToInt64():X} }}");
     }
 }
 
@@ -563,7 +563,7 @@ internal readonly partial struct DrawTextBrushCommand(IntPtr text, Point positio
 ///     UI command union mapping to <c>ui::Command</c>.
 /// </summary>
 [StructLayout(LayoutKind.Explicit)]
-public struct Command
+public struct Command : IEquatable<Command>
 {
     /// <summary>
     ///     The command kind.
@@ -606,24 +606,24 @@ public struct Command
     [FieldOffset(8)] internal DrawRectangleLinedRoundedBrushCommand DrawRectangleLinedRoundedBrush;
 
     /// <summary>
-    ///     Payload for the <see cref="CommandKind.DrawRectangleilledColor" /> command.
+    ///     Payload for the <see cref="CommandKind.DrawRectangleFilledColor" /> command.
     /// </summary>
-    [FieldOffset(8)] internal DrawRectangleilledColorCommand DrawRectangleilledColor;
+    [FieldOffset(8)] internal DrawRectangleFilledColorCommand DrawRectangleFilledColor;
 
     /// <summary>
-    ///     Payload for the <see cref="CommandKind.DrawRectangleilledBrush" /> command.
+    ///     Payload for the <see cref="CommandKind.DrawRectangleFilledBrush" /> command.
     /// </summary>
-    [FieldOffset(8)] internal DrawRectangleilledBrushCommand DrawRectangleilledBrush;
+    [FieldOffset(8)] internal DrawRectangleFilledBrushCommand DrawRectangleFilledBrush;
 
     /// <summary>
-    ///     Payload for the <see cref="CommandKind.DrawRectangleilledRoundedColor" /> command.
+    ///     Payload for the <see cref="CommandKind.DrawRectangleFilledRoundedColor" /> command.
     /// </summary>
-    [FieldOffset(8)] internal DrawRectangleilledRoundedColorCommand DrawRectangleilledRoundedColor;
+    [FieldOffset(8)] internal DrawRectangleFilledRoundedColorCommand DrawRectangleFilledRoundedColor;
 
     /// <summary>
-    ///     Payload for the <see cref="CommandKind.DrawRectangleilledRoundedBrush" /> command.
+    ///     Payload for the <see cref="CommandKind.DrawRectangleFilledRoundedBrush" /> command.
     /// </summary>
-    [FieldOffset(8)] internal DrawRectangleilledRoundedBrushCommand DrawRectangleilledRoundedBrush;
+    [FieldOffset(8)] internal DrawRectangleFilledRoundedBrushCommand DrawRectangleFilledRoundedBrush;
 
     /// <summary>
     ///     Payload for the <see cref="CommandKind.DrawTextColor" /> command.
@@ -650,13 +650,72 @@ public struct Command
             CommandKind.DrawRectangleLinedBrush => DrawRectangleLinedBrush.ToString(),
             CommandKind.DrawRectangleLinedRoundedColor => DrawRectangleLinedRoundedColor.ToString(),
             CommandKind.DrawRectangleLinedRoundedBrush => DrawRectangleLinedRoundedBrush.ToString(),
-            CommandKind.DrawRectangleilledColor => DrawRectangleilledColor.ToString(),
-            CommandKind.DrawRectangleilledBrush => DrawRectangleilledBrush.ToString(),
-            CommandKind.DrawRectangleilledRoundedColor => DrawRectangleilledRoundedColor.ToString(),
-            CommandKind.DrawRectangleilledRoundedBrush => DrawRectangleilledRoundedBrush.ToString(),
+            CommandKind.DrawRectangleFilledColor => DrawRectangleFilledColor.ToString(),
+            CommandKind.DrawRectangleFilledBrush => DrawRectangleFilledBrush.ToString(),
+            CommandKind.DrawRectangleFilledRoundedColor => DrawRectangleFilledRoundedColor.ToString(),
+            CommandKind.DrawRectangleFilledRoundedBrush => DrawRectangleFilledRoundedBrush.ToString(),
             CommandKind.DrawTextColor => DrawTextColor.ToString(),
             CommandKind.DrawTextBrush => DrawTextBrush.ToString(),
             _ => Kind.ToStringFast()
         };
     }
+
+    #region EQUALITY
+
+    /// <inheritdoc />
+    public Boolean Equals(Command other)
+    {
+        if (Kind != other.Kind) return false;
+
+        return Kind switch
+        {
+            CommandKind.PushOffset => PushOffset.Equals(other.PushOffset),
+            CommandKind.PopOffset => true,
+            CommandKind.PushClip => PushClip.Equals(other.PushClip),
+            CommandKind.PopClip => true,
+            CommandKind.PushOpacity => PushOpacity.Equals(other.PushOpacity),
+            CommandKind.PopOpacity => true,
+            CommandKind.DrawRectangleLinedColor => DrawRectangleLinedColor.Equals(other.DrawRectangleLinedColor),
+            CommandKind.DrawRectangleLinedBrush => DrawRectangleLinedBrush.Equals(other.DrawRectangleLinedBrush),
+            CommandKind.DrawRectangleLinedRoundedColor => DrawRectangleLinedRoundedColor.Equals(other.DrawRectangleLinedRoundedColor),
+            CommandKind.DrawRectangleLinedRoundedBrush => DrawRectangleLinedRoundedBrush.Equals(other.DrawRectangleLinedRoundedBrush),
+            CommandKind.DrawRectangleFilledColor => DrawRectangleFilledColor.Equals(other.DrawRectangleFilledColor),
+            CommandKind.DrawRectangleFilledBrush => DrawRectangleFilledBrush.Equals(other.DrawRectangleFilledBrush),
+            CommandKind.DrawRectangleFilledRoundedColor => DrawRectangleFilledRoundedColor.Equals(other.DrawRectangleFilledRoundedColor),
+            CommandKind.DrawRectangleFilledRoundedBrush => DrawRectangleFilledRoundedBrush.Equals(other.DrawRectangleFilledRoundedBrush),
+            CommandKind.DrawTextColor => DrawTextColor.Equals(other.DrawTextColor),
+            CommandKind.DrawTextBrush => DrawTextBrush.Equals(other.DrawTextBrush),
+            _ => true
+        };
+    }
+
+    /// <inheritdoc />
+    public override Boolean Equals(Object? obj)
+    {
+        return obj is Command other && Equals(other);
+    }
+
+    /// <inheritdoc />
+    public override Int32 GetHashCode()
+    {
+        return (Int32) Kind;
+    }
+
+    /// <summary>
+    ///     Equality operator.
+    /// </summary>
+    public static Boolean operator ==(Command left, Command right)
+    {
+        return left.Equals(right);
+    }
+
+    /// <summary>
+    ///     Inequality operator.
+    /// </summary>
+    public static Boolean operator !=(Command left, Command right)
+    {
+        return !left.Equals(right);
+    }
+
+    #endregion EQUALITY
 }

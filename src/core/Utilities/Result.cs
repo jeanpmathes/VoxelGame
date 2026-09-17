@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Utilities;
 
@@ -195,9 +196,8 @@ public static class ResultExtensions
     /// <param name="result">The result.</param>
     /// <typeparam name="T">The type of the value.</typeparam>
     /// <returns>The value or null.</returns>
-    #pragma warning disable S4226 // Has to be extension because of type inference.
+    [SuppressMessage("Sonar", "S4226", Justification = "Has to be extension because of type inference.")]
     public static T? UnwrapOrNull<T>(this Result<T> result) where T : class
-    #pragma warning restore S4226
     {
         return result.Switch<T?>(
             v => v,

@@ -70,4 +70,10 @@ public sealed class AttributionLoader : IResourceLoader
 
         return attributions;
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

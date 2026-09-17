@@ -22,8 +22,6 @@ using System.Numerics;
 
 namespace VoxelGame.Core.Behaviors.Aspects.Strategies;
 
-#pragma warning disable S2743 // Intentionally used.
-
 /// <summary>
 ///     Combines multiple contributors by calculating the average of their contributions.
 ///     This requires the value type to support addition, additive identity, and division by an integer.

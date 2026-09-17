@@ -19,6 +19,7 @@
 
 using System;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices.Marshalling;
 using Microsoft.Extensions.Logging;
 using VoxelGame.Core.Utilities;
@@ -38,12 +39,9 @@ internal sealed class D3D12Debug
 
     private static (D3D12Debug debug, Client client)? instance;
 
-#pragma warning disable S1450
-
     // Has to be a member to prevent garbage collection.
+    [SuppressMessage("Sonar", "S1450", Justification = "Is passed to native code.")]
     private readonly Native.D3D12MessageFunc debugCallbackDelegate;
-
-#pragma warning restore S1450
 
     private D3D12Debug(Native.D3D12MessageFunc debugCallbackDelegate)
     {

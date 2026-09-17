@@ -40,7 +40,7 @@ public class WorldProperties : Group
         new FileSystemPath(Language.Path, path),
         memory is {} size
             ? new Measure(Language.FileSize, size)
-            : new Error(Language.FileSize, Language.Error, isCritical: false),
+            : new Issue(Language.FileSize, Language.Error, isCritical: false),
         new Group(Language.Seed,
         [
             new Integer("L", information.LowerSeed),

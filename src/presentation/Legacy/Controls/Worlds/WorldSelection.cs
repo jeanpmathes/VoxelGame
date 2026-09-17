@@ -41,7 +41,7 @@ namespace VoxelGame.Presentation.Legacy.Controls.Worlds;
 [SuppressMessage("ReSharper", "CA2000", Justification = "Controls are disposed by their parent.")]
 internal sealed class WorldSelection : StandardMenu
 {
-    private readonly List<Button> buttonBar = new();
+    private readonly List<Button> buttonBar = [];
     private readonly IWorldProvider worldProvider;
 
     private Boolean isFirstOpen = true;
@@ -195,7 +195,7 @@ internal sealed class WorldSelection : StandardMenu
 #pragma warning disable S2952 // Must be disposed because it is overwritten.
                 refreshCancellation?.Dispose();
                 refreshCancellation = null;
-#pragma warning disable S2952
+#pragma warning restore S2952
             },
             UpdateList,
             _ =>

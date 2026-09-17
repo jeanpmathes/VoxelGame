@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -37,7 +38,7 @@ namespace VoxelGame.Core.Utilities;
 /// <summary>
 ///     Some utilities for filesystem operations.
 /// </summary>
-#pragma warning disable S3242 // The distinction between file and directory information has semantic relevance.
+[SuppressMessage("S3242", "Sonar", Justification = "The distinction between file and directory information has semantic relevance.")]
 public static partial class FileSystem
 {
     private static readonly HashSet<String> reservedNames =
@@ -339,7 +340,7 @@ public static partial class FileSystem
         }
         catch (IOException exception)
         {
-            LogGetSizeailure(logger, exception, info.FullName);
+            LogGetSizeFailure(logger, exception, info.FullName);
 
             result = null;
         }
@@ -349,10 +350,10 @@ public static partial class FileSystem
 
     #region LOGGING
 
-    private static readonly ILogger logger = LoggingHelper.CreateLogger(nameof(FileSystem));
+    private static readonly ILogger logger = LoggingHelper.CreateLogger(typeof(FileSystem));
 
     [LoggerMessage(EventId = LogID.FileSystem + 0, Level = LogLevel.Warning, Message = "Could not get the size of: {Path}")]
-    private static partial void LogGetSizeailure(ILogger logger, IOException exception, String path);
+    private static partial void LogGetSizeFailure(ILogger logger, IOException exception, String path);
 
     #endregion LOGGING
 }

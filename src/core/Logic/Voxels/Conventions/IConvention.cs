@@ -18,7 +18,6 @@
 // <author>jeanpmathes</author>
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Logic.Contents;
 using VoxelGame.Core.Utilities.Resources;
 
@@ -35,6 +34,5 @@ public interface IConvention : IContent
     IEnumerable<IContent> Content { get; }
 
     /// <inheritdoc />
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     ResourceType IResource.Type => ResourceTypes.Convention;
 }

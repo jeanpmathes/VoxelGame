@@ -61,9 +61,9 @@ public static class PropertyPrinter
             indent -= 2;
         }
 
-        public override void Visit(Error error)
+        public override void Visit(Issue issue)
         {
-            builder.AppendLine(cultureInfo, $"{Indent}{error.Name}: {error.Message}");
+            builder.AppendLine(cultureInfo, $"{Indent}{issue.Name}: {issue.Message}");
         }
 
         public override void Visit(Message message)

@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 namespace VoxelGame.Core.Utilities.Resources;
 
@@ -39,7 +38,6 @@ public class ResourceCatalog : ICatalogEntry
         catalogEntries = [.. entries];
     }
 
-    [SuppressMessage("Design", "CA1033:Interface methods should be callable by child types", Justification = "Prevents child classes from needing to implement it again.")]
     void ICatalogEntry.Enter(IResourceContext context, out IEnumerable<IResource> resources, out IEnumerable<ICatalogEntry> entries)
     {
         resources = [];
@@ -51,4 +49,25 @@ public class ResourceCatalog : ICatalogEntry
 
     /// <inheritdoc />
     public String? Instance => null;
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        Dispose(disposing: true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// <summary>
+    ///     Override this method to dispose of resources.
+    /// </summary>
+    /// <param name="disposing">Whether this is called from the <see cref="Dispose()" /> method.</param>
+    protected virtual void Dispose(Boolean disposing)
+    {
+        if (!disposing) return;
+
+        foreach (ICatalogEntry entry in catalogEntries)
+        {
+            entry.Dispose();
+        }
+    }
 }

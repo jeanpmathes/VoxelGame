@@ -29,7 +29,7 @@ namespace VoxelGame.Core.Visuals.Models;
 /// <summary>
 ///     Loads all models.
 /// </summary>
-public class ModelLoader : IResourceLoader
+public sealed class ModelLoader : IResourceLoader
 {
     /// <inheritdoc />
     public String? Instance => null;
@@ -66,5 +66,11 @@ public class ModelLoader : IResourceLoader
         }).Wait().ThrowIfError();
 
         return loaded;
+    }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
     }
 }

@@ -296,16 +296,11 @@ public partial class PipelineBuilder
         IEnumerable<Texture> firstSlot = firstTextureSlot ?? Enumerable.Empty<Texture>();
         IEnumerable<Texture> secondSlot = secondTextureSlot ?? Enumerable.Empty<Texture>();
 
-        return (shaderFileDescriptions.ToArray(), symbols.ToArray(), materialDescriptions, firstSlot.Concat(secondSlot).ToArray());
+        return ([.. shaderFileDescriptions], [.. symbols], materialDescriptions, [.. firstSlot, .. secondSlot]);
     }
 
     [ValueSemantics]
-    private partial struct Empty
-    {
-        #pragma warning disable CS0169, CS0649
-        private Byte _;
-        #pragma warning restore CS0169, CS0649
-    }
+    private partial struct Empty;
 
     private sealed record ShaderFile(FileInfo File, String[] Exports);
 

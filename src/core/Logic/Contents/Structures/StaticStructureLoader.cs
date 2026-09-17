@@ -70,4 +70,10 @@ public sealed class StaticStructureLoader : IResourceLoader
                 return loaded;
             });
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

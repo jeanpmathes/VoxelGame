@@ -202,22 +202,18 @@ public class Mesh
         /// </summary>
         public (Vector3, Vector3, Vector3, Vector3) Positions => (A, B, C, D);
 
-        #pragma warning disable S1104 // Required to pass it by reference.
-
         /// <summary>
         ///     The data of the quad.
         /// </summary>
-        [SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "Required to pass it by reference.")]
+        [SuppressMessage("Design", "CA1051:Do not declare visible instance fields", Justification = "Required to pass it by reference.")] [SuppressMessage("Sonar", "S1104", Justification = "Required to pass it by reference.")]
         public (UInt32 a, UInt32 b, UInt32 c, UInt32 d) data;
-
-        #pragma warning restore S1104
 
         /// <summary>
         ///     Check whether this quad is equal to another.
         /// </summary>
         public Boolean Equals(Quad other)
         {
-            #pragma warning disable S1067
+            #pragma warning disable S1067 // Is still readable enough.
             return A.Equals(other.A)
                    && B.Equals(other.B)
                    && C.Equals(other.C)

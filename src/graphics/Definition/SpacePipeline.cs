@@ -21,6 +21,7 @@ using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
 using JetBrains.Annotations;
+using VoxelGame.Annotations.Attributes;
 using VoxelGame.Graphics.Interop;
 using VoxelGame.Graphics.Objects;
 using VoxelGame.Toolkit;
@@ -28,13 +29,12 @@ using VoxelGame.Toolkit.Interop;
 
 namespace VoxelGame.Graphics.Definition;
 
-#pragma warning disable S3898 // No equality comparison used.
-
 /// <summary>
 ///     Additional information describing the raytracing pipeline.
 /// </summary>
 [NativeMarshalling(typeof(SpacePipelineDescriptionMarshaller))]
-internal struct SpacePipelineDescription
+[ValueSemantics]
+internal partial struct SpacePipelineDescription
 {
     internal ShaderFileDescription[] shaderFiles;
     internal String[] symbols;
@@ -162,9 +162,7 @@ internal static class ShaderFileDescriptionMarshaller
         UnicodeStringMarshaller.Free(unmanaged.path);
     }
 
-#pragma warning disable S1694
     internal abstract class Marshaller : IMarshaller<ShaderFileDescription, Unmanaged>
-#pragma warning restore S1694
     {
         static Unmanaged IMarshaller<ShaderFileDescription, Unmanaged>.ConvertToUnmanaged(ShaderFileDescription managed)
         {
@@ -239,9 +237,8 @@ internal static class MaterialDescriptionMarshaller
         UnicodeStringMarshaller.Free(unmanaged.shadowAnyHitSymbol);
         UnicodeStringMarshaller.Free(unmanaged.shadowIntersectionSymbol);
     }
-#pragma warning disable S1694
+
     internal abstract class Marshaller : IMarshaller<MaterialDescription, Unmanaged>
-#pragma warning restore S1694
     {
         static Unmanaged IMarshaller<MaterialDescription, Unmanaged>.ConvertToUnmanaged(MaterialDescription managed)
         {

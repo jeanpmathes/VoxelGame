@@ -94,6 +94,12 @@ public sealed class BiomeLoader : IResourceLoader
         });
     }
 
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
+
     private sealed class Biomes(Registry<BiomeDefinition> biomes, ISubBiomeDefinitionProvider subBiomes)
     {
         /// <summary>

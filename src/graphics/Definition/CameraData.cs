@@ -25,8 +25,6 @@ using VoxelGame.Graphics.Interop;
 
 namespace VoxelGame.Graphics.Definition;
 
-#pragma warning disable S3898 // No equality comparison used.
-
 /// <summary>
 ///     Data of a camera that is often updated.
 /// </summary>

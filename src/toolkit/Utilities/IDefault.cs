@@ -27,5 +27,5 @@ public interface IDefault<out T> where T : IDefault<T>
     /// <summary>
     ///     The default value of the type.
     /// </summary>
-    static abstract T Default { get; }
+    static abstract T DefaultValue { get; }
 }

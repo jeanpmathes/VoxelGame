@@ -23,7 +23,7 @@ using VoxelGame.Core.Visuals.Colors;
 
 namespace VoxelGame.Core.Tests.Visuals;
 
-public class MockDominantColorProvider : IDominantColorProvider
+public sealed class MockDominantColorProvider : IDominantColorProvider
 {
     public IResourceContext? Context { get; set; }
 
@@ -32,5 +32,10 @@ public class MockDominantColorProvider : IDominantColorProvider
     public ColorS GetDominantColor(Int32 index, Boolean isBlock)
     {
         return ColorS.Magenta;
+    }
+
+    public void Dispose()
+    {
+        // Nothing to dispose of.
     }
 }

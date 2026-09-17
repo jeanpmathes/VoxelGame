@@ -37,4 +37,10 @@ public sealed class FontLoader : IResourceLoader
     {
         return context.Require<IGwenGui>(gui => [new FontBundle(gui.Root.Skin)]);
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

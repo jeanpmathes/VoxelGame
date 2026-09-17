@@ -70,4 +70,10 @@ public sealed class SingleTextureLoader : IResourceLoader
             return [new SingleTexture(identifier, client.LoadTexture(image))];
         });
     }
+
+    /// <inheritdoc />
+    public void Dispose()
+    {
+        // Nothing to dispose of.
+    }
 }

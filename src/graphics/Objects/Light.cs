@@ -100,7 +100,6 @@ public class Light : Spatial
     }
 }
 
-#pragma warning disable S3242
 [CustomMarshaller(typeof(Light), MarshalMode.ManagedToUnmanagedIn, typeof(LightMarshaller))]
 internal static class LightMarshaller
 {
