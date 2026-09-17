@@ -121,25 +121,31 @@ public partial class WorldData
     {
         String validWorldName = MakeWorldNameValid(information.Name);
 
-        if (!silent && validWorldName != information.Name)
+        if (validWorldName != information.Name)
         {
-            LogInvalidWorldName(logger, information.Name, validWorldName);
+            if (!silent)
+                LogInvalidWorldName(logger, information.Name, validWorldName);
+
             information.Name = validWorldName;
         }
 
         UInt32 validWorldSize = ClampSize(information.Size);
 
-        if (!silent && validWorldSize != information.Size)
+        if (validWorldSize != information.Size)
         {
-            LogInvalidWorldSize(logger, information.Size, validWorldSize);
+            if (!silent)
+                LogInvalidWorldSize(logger, information.Size, validWorldSize);
+
             information.Size = validWorldSize;
         }
 
         Vector3d validSpawn = ClampSpawn(information).Position;
 
-        if (!silent && !MathTools.NearlyEqual(validSpawn, information.SpawnInformation.Position))
+        if (!MathTools.NearlyEqual(validSpawn, information.SpawnInformation.Position))
         {
-            LogInvalidSpawnPosition(logger, information.SpawnInformation.Position, validSpawn);
+            if (!silent)
+                LogInvalidSpawnPosition(logger, information.SpawnInformation.Position, validSpawn);
+
             information.SpawnInformation = new SpawnInformation(validSpawn);
         }
     }
