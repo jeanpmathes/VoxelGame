@@ -77,7 +77,7 @@ namespace vg
         {
             uint textureIndex = decode::GetTextureIndex(data);
 
-            bool const animated = decode::GetAnimationFlag(data);
+            bool const animated = decode::GetAnimationOption(data);
             if (animated && isBlock) textureIndex = GetAnimatedBlockTextureIndex(textureIndex, primitive, time);
             if (animated && !isBlock) textureIndex = GetAnimatedFluidTextureIndex(textureIndex, primitive, time);
 

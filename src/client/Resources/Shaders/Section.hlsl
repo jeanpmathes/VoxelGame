@@ -107,7 +107,7 @@ namespace vg
 
             for (int index = 0; index < 3; index++) triangleUVs[index] = quadUVs[info.indices[index]];
 
-            if (decode::GetTextureRotationFlag(info.data)) for (int index = 0; index < 3; index++) triangleUVs[index] = spatial::RotateUV(triangleUVs[index]);
+            if (decode::GetTextureRotationOption(info.data)) for (int index = 0; index < 3; index++) triangleUVs[index] = spatial::RotateUV(triangleUVs[index]);
 
             for (int index = 0; index < 3; index++) triangleUVs[index] = native::TranslateUV(triangleUVs[index]);
 

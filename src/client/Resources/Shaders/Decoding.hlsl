@@ -52,32 +52,32 @@ namespace vg
         }
 
         /**
-         * \brief Get the animation flag.
+         * \brief Get the animation option.
          * \param data The data to decode.
          * \return Whether the quad is animated.
          */
-        bool GetAnimationFlag(uint4 const data) { return (data[1] >> 0) & BITMASK(1); }
+        bool GetAnimationOption(uint4 const data) { return (data[1] >> 0) & BITMASK(1); }
 
         /**
-         * \brief Get the texture rotation flag.
+         * \brief Get the texture rotation option.
          * \param data The data to decode.
          * \return Whether the quad texture is rotated.
          */
-        bool GetTextureRotationFlag(uint4 const data) { return (data[1] >> 1) & BITMASK(1); }
+        bool GetTextureRotationOption(uint4 const data) { return (data[1] >> 1) & BITMASK(1); }
 
         /**
-         * \brief Get the unshaded flag.
+         * \brief Get the unshaded option.
          * \param data The data to decode.
          * \return Whether the quad is unshaded.
          */
-        bool GetUnshadedFlag(uint4 const data) { return (data[1] >> 2) & BITMASK(1); }
+        bool GetUnshadedOption(uint4 const data) { return (data[1] >> 2) & BITMASK(1); }
 
         /**
-         * \brief Get the normal inverted flag.
+         * \brief Get the normal inverted option.
          * \param data The data to decode.
          * \return Whether the quad's normal is inverted.
          */
-        bool GetNormalInvertedFlag(uint4 const data) { return (data[1] >> 3) & BITMASK(1); }
+        bool GetNormalInvertedOption(uint4 const data) { return (data[1] >> 3) & BITMASK(1); }
 
         /**
          * \brief Decode a float4 from a base 17 number.
@@ -133,12 +133,12 @@ namespace vg
         };
 
         /**
-         * \brief Get the foliage flags.
+         * \brief Get the foliage option.
          * \param data The data to decode.
-         * \param flag The flag to get.
-         * \return True if the flag is set.
+         * \param option The option to get.
+         * \return True if the option is set to true.
          */
-        bool GetFoliageFlag(uint4 const data, Foliage const flag) { return (data[2] >> flag) & BITMASK(1); }
+        bool GetFoliageOption(uint4 const data, Foliage const option) { return (data[2] >> option) & BITMASK(1); }
     }
 }
 

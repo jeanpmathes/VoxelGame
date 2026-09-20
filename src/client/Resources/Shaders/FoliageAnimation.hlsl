@@ -57,8 +57,8 @@ void ApplySway(inout native::spatial::SpatialVertex vertex, float2 uv, bool cons
         data[index] = quad[index].data;
     }
 
-    bool const     isUpperPart   = GetFoliageFlag(data, vg::decode::Foliage::IS_UPPER_PART);
-    bool const     isDoublePlant = GetFoliageFlag(data, vg::decode::Foliage::IS_DOUBLE_PLANT);
+    bool const     isUpperPart   = GetFoliageOption(data, vg::decode::Foliage::IS_UPPER_PART);
+    bool const     isDoublePlant = GetFoliageOption(data, vg::decode::Foliage::IS_DOUBLE_PLANT);
     float4x2 const uvs           = vg::decode::GetUVs(data);
 
     for (uint index = 0; index < native::spatial::VERTICES_PER_QUAD; index++)

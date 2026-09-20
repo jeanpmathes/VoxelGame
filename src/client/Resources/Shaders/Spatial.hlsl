@@ -82,7 +82,7 @@ namespace vg
                          vertices[instance][vertexIndex + 2].data,
                          vertices[instance][vertexIndex + 3].data);
 
-            if (decode::GetNormalInvertedFlag(data)) normal *= -1.0f;
+            if (decode::GetNormalInvertedOption(data)) normal *= -1.0f;
         }
 
         /**
@@ -189,14 +189,14 @@ namespace vg
          */
         float3 CalculateShading(in Info info, float3 const baseColor)
         {
-            bool const inner = decode::GetNormalInvertedFlag(info.data);
+            bool const inner = decode::GetNormalInvertedOption(info.data);
 
             float3 const directionToLight = native::spatial::global.lightDirection * -1.0f; // Normalized.
             float3 const normal           = info.normal * (inner ? -1.0f : 1.0f);
 
             float3 color = baseColor;
 
-            bool const shaded = !decode::GetUnshadedFlag(info.data);
+            bool const shaded = !decode::GetUnshadedOption(info.data);
             float      intensity;
 
             if (shaded)
