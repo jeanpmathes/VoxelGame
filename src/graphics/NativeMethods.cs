@@ -119,8 +119,7 @@ internal static partial class NativeMethods
         Light light,
         [MarshalUsing(typeof(Vector3Marshaller))]
         Vector3 direction,
-        [MarshalUsing(typeof(Vector3Marshaller))]
-        Vector3 color,
+        ColorS color,
         Single intensity);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeUpdateBasicCameraData")]

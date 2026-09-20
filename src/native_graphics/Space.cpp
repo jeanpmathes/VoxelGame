@@ -125,7 +125,10 @@ void Space::Update()
 {
     globalConstantBufferMapping->lightDirection = light.GetDirection();
     globalConstantBufferMapping->lightIntensity = light.GetIntensity();
-    globalConstantBufferMapping->lightColor     = light.GetColor();
+
+    auto& lightColor                                   = globalConstantBufferMapping->lightColor;
+    auto  [r, g, b]                                    = light.GetColor();
+    std::tie(lightColor.x, lightColor.y, lightColor.z) = std::tie(r, g, b);
 
     camera.Update();
 

@@ -198,7 +198,7 @@ NATIVE void NativeSetSpaceIsRendered(NativeClient const* client, bool const isRe
     } CATCH();
 }
 
-NATIVE void NativeSetLightConfiguration(Light* light, DirectX::XMFLOAT3 const direction, DirectX::XMFLOAT3 const color, float const intensity)
+NATIVE void NativeSetLightConfiguration(Light* light, DirectX::XMFLOAT3 const direction, Light::Color const color, float const intensity)
 {
     TRY
     {

@@ -33,8 +33,9 @@ namespace VoxelGame.Graphics.Objects;
 public class Light : Spatial
 {
     private Vector3d direction = Vector3d.Zero;
-    private Vector4 color = Vector4.One;
+    private ColorS color = ColorS.White;
     private Single intensity = 1.0f;
+
     private Boolean dirty = true;
 
     /// <summary>
@@ -77,12 +78,12 @@ public class Light : Spatial
     /// </summary>
     public ColorS Color
     {
-        get => ColorS.FromVector4(color);
+        get => color;
         set
         {
-            if (value.ToVector4() == color) return;
+            if (value == color) return;
 
-            color = value.ToVector4();
+            color = value;
             dirty = true;
         }
     }
@@ -96,7 +97,7 @@ public class Light : Spatial
 
         dirty = false;
 
-        NativeMethods.SetLightConfiguration(this, (Vector3) direction, color.Xyz, intensity);
+        NativeMethods.SetLightConfiguration(this, (Vector3) direction, color, intensity);
     }
 }
 
