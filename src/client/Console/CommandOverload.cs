@@ -22,6 +22,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
+using VoxelGame.Client.Console.Parsers;
 
 namespace VoxelGame.Client.Console;
 
@@ -33,13 +34,19 @@ public sealed class CommandOverload
     private readonly MethodInfo method;
     private readonly Boolean requiresContext;
 
-    private CommandOverload(MethodInfo method, ParameterInfo[] callableParameters, Boolean requiresContext)
+    private CommandOverload(ICommand command, MethodInfo method, ParameterInfo[] callableParameters, Boolean requiresContext)
     {
         this.method = method;
         this.requiresContext = requiresContext;
 
+        Command = command;
         CallableParameters = callableParameters;
     }
+
+    /// <summary>
+    ///     Get the command instance this overload belongs to.
+    /// </summary>
+    public ICommand Command { get; }
 
     /// <summary>
     ///     Get the parameters that need to be provided as explicit arguments during a call to this overload.
@@ -49,10 +56,11 @@ public sealed class CommandOverload
     /// <summary>
     ///     Try to create a command overload from a command's <c>Invoke</c> method.
     /// </summary>
+    /// <param name="command">The command instance.</param>
     /// <param name="method">The <c>Invoke</c> method.</param>
     /// <param name="overload">The created command overload, if the passed method is a valid command overload.</param>
     /// <returns>Whether the invocation method represents a valid command overload.</returns>
-    public static Boolean TryCreate(MethodInfo method, [NotNullWhen(returnValue: true)] out CommandOverload? overload)
+    public static Boolean TryCreate(ICommand command, MethodInfo method, [NotNullWhen(returnValue: true)] out CommandOverload? overload)
     {
         ParameterInfo[] parameters = method.GetParameters();
 
@@ -68,7 +76,7 @@ public sealed class CommandOverload
         Boolean requiresContext = parameters.Length > 0 && parameters[^1].ParameterType == typeof(Context);
         ParameterInfo[] callableParameters = requiresContext ? parameters[..^1] : parameters;
 
-        overload = new CommandOverload(method, callableParameters, requiresContext);
+        overload = new CommandOverload(command, method, callableParameters, requiresContext);
 
         return true;
     }
@@ -87,16 +95,27 @@ public sealed class CommandOverload
     }
 
     /// <summary>
-    ///     Invoke this overload.
+    ///     Invoke this overload using parsed arguments and execution context.
     /// </summary>
-    /// <param name="command">The command instance.</param>
-    /// <param name="arguments">The parsed callable arguments.</param>
+    /// <param name="arguments">The parsed arguments for each callable parameter.</param>
     /// <param name="context">The current command context.</param>
-    public void Invoke(ICommand command, Object[] arguments, Context context)
+    public void Invoke(IReadOnlyList<Argument> arguments, Context context)
     {
-        Object[] invocationArguments = requiresContext ? [.. arguments, context] : arguments;
+        Object?[] resolvedArguments = new Object?[arguments.Count];
 
-        method.Invoke(command, invocationArguments);
+        for (Int32 index = 0; index < arguments.Count; index++)
+        {
+            Object? resolved = arguments[index].Resolve(context);
+
+            if (resolved == null && arguments[index] is not SimpleArgument {Value: null})
+                return;
+
+            resolvedArguments[index] = resolved;
+        }
+
+        Object?[] invocationArguments = requiresContext ? [.. resolvedArguments, context] : resolvedArguments;
+
+        method.Invoke(Command, invocationArguments);
     }
 
     /// <inheritdoc />

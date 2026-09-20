@@ -1,4 +1,4 @@
-// <copyright file="GetDistance.cs" company="VoxelGame">
+// <copyright file="CoordinatePositionArgument.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -19,34 +19,20 @@
 
 using System;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities.Units;
 
-namespace VoxelGame.Client.Console.Commands;
+namespace VoxelGame.Client.Console.Parsers;
 
 /// <summary>
-///     Get the distance to a specified point or target.
+///     A position argument resolved from coordinate expressions relative to the player position.
 /// </summary>
-public class GetDistance : Command
+/// <param name="coordinates">The parsed coordinate expressions.</param>
+public sealed class CoordinatePositionArgument(CoordinatesExpression coordinates) : Argument
 {
     /// <inheritdoc />
-    public override String Name => "get-distance";
-
-    /// <inheritdoc />
-    public override String HelpText => "Get the distance to a specified point or target.";
-
-    /// <exclude />
-    public void Invoke(Position position, Context context)
+    public override Object Resolve(Context context)
     {
-        DetermineDistance(position.Vector3i, context);
-    }
+        Vector3d resolved = coordinates.Resolve(context.Player.Body.Transform.Position);
 
-    private static void DetermineDistance(Vector3d position, Context context)
-    {
-        Length distance = new()
-        {
-            Meters = (position - context.Player.Body.Transform.Position).Length
-        };
-
-        context.Output.WriteResponse($"Distance: {distance}");
+        return new Position(resolved);
     }
 }

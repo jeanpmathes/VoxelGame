@@ -101,9 +101,9 @@ public sealed class GeneratorTests(ITestOutputHelper output) : IDisposable
             return chunk;
         }
 
-        Chunk CreateChunk(NativeSegment<UInt32> segment, ChunkContext ctx)
+        Chunk CreateChunk(NativeSegment<UInt32> segment, ChunkContext chunkContext)
         {
-            return new Chunk(ctx, segment, blocks => new Section(blocks));
+            return new Chunk(chunkContext, segment, blocks => new Section(blocks));
         }
     }
 }

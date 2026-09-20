@@ -1,4 +1,4 @@
-// <copyright file="GetDistance.cs" company="VoxelGame">
+// <copyright file="SetPosition.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,35 +18,28 @@
 // <author>jeanpmathes</author>
 
 using System;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities.Units;
 
 namespace VoxelGame.Client.Console.Commands;
 
 /// <summary>
-///     Get the distance to a specified point or target.
+///     Sets a named position.
 /// </summary>
-public class GetDistance : Command
+public class SetPosition : Command
 {
     /// <inheritdoc />
-    public override String Name => "get-distance";
+    public override String Name => "set-position";
 
     /// <inheritdoc />
-    public override String HelpText => "Get the distance to a specified point or target.";
+    public override String HelpText => "Sets a named position.";
 
     /// <exclude />
-    public void Invoke(Position position, Context context)
+    public void Invoke(String name, Position position, Context context)
     {
-        DetermineDistance(position.Vector3i, context);
-    }
+        name = name.TrimStart('@');
 
-    private static void DetermineDistance(Vector3d position, Context context)
-    {
-        Length distance = new()
-        {
-            Meters = (position - context.Player.Body.Transform.Position).Length
-        };
-
-        context.Output.WriteResponse($"Distance: {distance}");
+        if (context.Invoker.Positions.TrySet(name, position.Vector3i, context))
+            context.Output.WriteResponse($"Position '{name}' set to {position.Vector3i}.");
+        else
+            context.Output.WriteError($"Cannot overwrite read-only position '{name}'.");
     }
 }

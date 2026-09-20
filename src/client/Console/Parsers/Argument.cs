@@ -1,4 +1,4 @@
-// <copyright file="GetDistance.cs" company="VoxelGame">
+// <copyright file="Argument.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,35 +18,20 @@
 // <author>jeanpmathes</author>
 
 using System;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities.Units;
 
-namespace VoxelGame.Client.Console.Commands;
+namespace VoxelGame.Client.Console.Parsers;
 
 /// <summary>
-///     Get the distance to a specified point or target.
+///     Represents a parsed console command argument that can be evaluated in an execution context.
+///     Resolution evaluates context-dependent expressions against the execution <see cref="Context" />
+/// to produce the final value passed to the command.
 /// </summary>
-public class GetDistance : Command
+public abstract class Argument
 {
-    /// <inheritdoc />
-    public override String Name => "get-distance";
-
-    /// <inheritdoc />
-    public override String HelpText => "Get the distance to a specified point or target.";
-
-    /// <exclude />
-    public void Invoke(Position position, Context context)
-    {
-        DetermineDistance(position.Vector3i, context);
-    }
-
-    private static void DetermineDistance(Vector3d position, Context context)
-    {
-        Length distance = new()
-        {
-            Meters = (position - context.Player.Body.Transform.Position).Length
-        };
-
-        context.Output.WriteResponse($"Distance: {distance}");
-    }
+    /// <summary>
+    ///     Evaluate this argument within the specified execution context to produce the runtime value.
+    /// </summary>
+    /// <param name="context">The execution context in which the command is being invoked.</param>
+    /// <returns>The evaluated argument value, or <see langword="null" /> if resolution failed.</returns>
+    public abstract Object? Resolve(Context context);
 }

@@ -1,4 +1,4 @@
-// <copyright file="GetDistance.cs" company="VoxelGame">
+// <copyright file="SimpleArgument.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,35 +18,23 @@
 // <author>jeanpmathes</author>
 
 using System;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities.Units;
 
-namespace VoxelGame.Client.Console.Commands;
+namespace VoxelGame.Client.Console.Parsers;
 
 /// <summary>
-///     Get the distance to a specified point or target.
+///     A console argument whose value is already determined at parse time.
 /// </summary>
-public class GetDistance : Command
+/// <param name="value">The parsed value.</param>
+public sealed class SimpleArgument(Object? value) : Argument
 {
-    /// <inheritdoc />
-    public override String Name => "get-distance";
+    /// <summary>
+    ///     The parsed value.
+    /// </summary>
+    public Object? Value => value;
 
     /// <inheritdoc />
-    public override String HelpText => "Get the distance to a specified point or target.";
-
-    /// <exclude />
-    public void Invoke(Position position, Context context)
+    public override Object? Resolve(Context context)
     {
-        DetermineDistance(position.Vector3i, context);
-    }
-
-    private static void DetermineDistance(Vector3d position, Context context)
-    {
-        Length distance = new()
-        {
-            Meters = (position - context.Player.Body.Transform.Position).Length
-        };
-
-        context.Output.WriteResponse($"Distance: {distance}");
+        return value;
     }
 }

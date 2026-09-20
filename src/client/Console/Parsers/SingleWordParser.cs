@@ -1,4 +1,4 @@
-// <copyright file="Teleport.cs" company="VoxelGame">
+// <copyright file="SingleWordParser.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,35 +18,38 @@
 // <author>jeanpmathes</author>
 
 using System;
-using OpenTK.Mathematics;
+using System.Collections.Generic;
 
-namespace VoxelGame.Client.Console.Commands;
+namespace VoxelGame.Client.Console.Parsers;
 
 /// <summary>
-///     Teleport to a specified position or target.
+///     Base class for parsers that parse a value from a single word.
 /// </summary>
-public class Teleport : Command
+/// <typeparam name="T">The type of the parsed value.</typeparam>
+public abstract class SingleWordParser<T> : Parser
 {
     /// <inheritdoc />
-    public override String Name => "teleport";
+    public sealed override Type ParsedType => typeof(T);
 
     /// <inheritdoc />
-    public override String HelpText => "Teleport to a specified position or target.";
-
-    /// <exclude />
-    public void Invoke(Position position, Context context)
+    public sealed override Argument? Parse(IReadOnlyList<String> args, Int32 offset, out Int32 consumed)
     {
-        Do(context, position.Vector3i);
+        consumed = 0;
+
+        if (offset >= args.Count) return null;
+
+        if (!TryParse(args[offset], out T? value)) return null;
+
+        consumed = 1;
+
+        return new SimpleArgument(value);
     }
 
     /// <summary>
-    ///     Externally simulate command invocation, teleporting the player.
+    ///     Try to parse a value from a single word.
     /// </summary>
-    /// <param name="context">The context in which the command is executed.</param>
-    /// <param name="position">The position to teleport to.</param>
-    public static void Do(Context context, Vector3d position)
-    {
-        SetPreviousPlayerPosition(context.Player.Body.Transform.Position, context);
-        context.Player.Body.Transform.Position = position;
-    }
+    /// <param name="word">The word to parse.</param>
+    /// <param name="value">The parsed value if successful.</param>
+    /// <returns>Whether parsing was successful.</returns>
+    protected abstract Boolean TryParse(String word, out T? value);
 }

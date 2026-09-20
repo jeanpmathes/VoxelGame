@@ -1,4 +1,4 @@
-﻿// <copyright file="CommandLoader.cs" company="VoxelGame">
+// <copyright file="CommandLoader.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -19,8 +19,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Globalization;
+using OpenTK.Mathematics;
+using VoxelGame.Client.Actors.Components;
 using VoxelGame.Client.Console.Commands;
+using VoxelGame.Client.Console.Parsers;
 using VoxelGame.Core.Utilities;
 using VoxelGame.Core.Utilities.Resources;
 
@@ -38,28 +40,21 @@ public sealed class CommandLoader : IResourceLoader
     {
         CommandInvoker invoker = new();
 
-        invoker.AddParser(Parser.BuildParser(_ => true, s => s));
+        invoker.AddParser(new StringParser());
+        invoker.AddParser(new Int32Parser());
+        invoker.AddParser(new UInt32Parser());
+        invoker.AddParser(new DoubleParser());
+        invoker.AddParser(new BooleanParser());
+        invoker.AddParser(new EnumParser<Orientation>());
+        invoker.AddParser(new PositionParser());
+        invoker.AddParser(new ExtentsParser());
 
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => Int32.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => Int32.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => UInt32.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => UInt32.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(
-            Parser.BuildParser(
-                s => Double.TryParse(s, NumberStyles.Any, CultureInfo.InvariantCulture, out _),
-                s => Double.Parse(s, NumberStyles.Any, CultureInfo.InvariantCulture)));
-
-        invoker.AddParser(Parser.BuildParser(
-            s => Enum.IsDefined(typeof(Orientation), s),
-            Enum.Parse<Orientation>));
-
-        invoker.AddParser(Parser.BuildParser(s => Boolean.TryParse(s, out _), Boolean.Parse));
+        invoker.Positions.Register("origin", _ => Vector3d.Zero);
+        invoker.Positions.Register("spawn", ctx => ctx.Player.World.SpawnPosition);
+        invoker.Positions.Register("min-corner", ctx => -ctx.Player.World.Extents);
+        invoker.Positions.Register("max-corner", ctx => ctx.Player.World.Extents);
+        invoker.Positions.Register("self", ctx => ctx.Player.Body.Transform.Position);
+        invoker.Positions.Register("prev-self", ctx => ctx.Player.GetComponent<PreviousPosition>()?.Value ?? ctx.Player.World.SpawnPosition);
 
         invoker.SearchCommands(context);
         invoker.AddCommand(new Help(invoker));

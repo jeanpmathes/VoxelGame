@@ -1,4 +1,4 @@
-﻿// <copyright file="Parser.cs" company="VoxelGame">
+// <copyright file="Parser.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,11 +18,13 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
+using VoxelGame.Client.Console.Parsers;
 
 namespace VoxelGame.Client.Console;
 
 /// <summary>
-///     Base class for argument parsers, which parse a given string to provide a value of specific type.
+///     Base class for argument parsers, which parse words of a command to produce a command argument.
 /// </summary>
 public abstract class Parser
 {
@@ -32,44 +34,16 @@ public abstract class Parser
     public abstract Type ParsedType { get; }
 
     /// <summary>
-    ///     Check if the given string can be parsed by this parser.
+    ///     Get a user-facing representation of the parsed parameter type.
     /// </summary>
-    /// <param name="input">The input string to check.</param>
-    /// <returns>True if this parser can parse the provided input.</returns>
-    public abstract Boolean CanParse(String input);
+    public virtual String TypeRepresentation => ParsedType.Name;
 
     /// <summary>
-    ///     Parse the given string to the type this parser is for.
+    ///     Parse arguments starting at a given offset.
     /// </summary>
-    /// <param name="input">The input to parse. Must be checked with <see cref="CanParse" /></param>
-    /// before.
-    /// <returns>A value of the type this parsers targets.</returns>
-    public abstract Object Parse(String input);
-
-    /// <summary>
-    ///     Create a parser for a specific type.
-    /// </summary>
-    /// <param name="check">A function checking if a string can be parsed.</param>
-    /// <param name="parse">A function parsing a string.</param>
-    /// <typeparam name="T">The type the new parsers should parse.</typeparam>
-    /// <returns>A parser for the specific type.</returns>
-    public static Parser BuildParser<T>(Func<String, Boolean> check, Func<String, T> parse)
-    {
-        return new SimpleParser<T>(check, parse);
-    }
-
-    private sealed class SimpleParser<T>(Func<String, Boolean> check, Func<String, T> parse) : Parser
-    {
-        public override Type ParsedType => typeof(T);
-
-        public override Boolean CanParse(String input)
-        {
-            return check(input);
-        }
-
-        public override Object Parse(String input)
-        {
-            return parse(input)!;
-        }
-    }
+    /// <param name="args">The list of arguments.</param>
+    /// <param name="offset">The starting index in the argument list.</param>
+    /// <param name="consumed">The number of words consumed by this parser if successful, otherwise 0.</param>
+    /// <returns>The parsed argument, or <c>null</c> if parsing was not successful.</returns>
+    public abstract Argument? Parse(IReadOnlyList<String> args, Int32 offset, out Int32 consumed);
 }

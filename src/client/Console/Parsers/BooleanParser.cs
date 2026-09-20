@@ -1,4 +1,4 @@
-// <copyright file="GetDistance.cs" company="VoxelGame">
+// <copyright file="BooleanParser.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,35 +18,17 @@
 // <author>jeanpmathes</author>
 
 using System;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities.Units;
 
-namespace VoxelGame.Client.Console.Commands;
+namespace VoxelGame.Client.Console.Parsers;
 
 /// <summary>
-///     Get the distance to a specified point or target.
+///     Parses a boolean from a single word.
 /// </summary>
-public class GetDistance : Command
+public sealed class BooleanParser : SingleWordParser<Boolean>
 {
     /// <inheritdoc />
-    public override String Name => "get-distance";
-
-    /// <inheritdoc />
-    public override String HelpText => "Get the distance to a specified point or target.";
-
-    /// <exclude />
-    public void Invoke(Position position, Context context)
+    protected override Boolean TryParse(String word, out Boolean value)
     {
-        DetermineDistance(position.Vector3i, context);
-    }
-
-    private static void DetermineDistance(Vector3d position, Context context)
-    {
-        Length distance = new()
-        {
-            Meters = (position - context.Player.Body.Transform.Position).Length
-        };
-
-        context.Output.WriteResponse($"Distance: {distance}");
+        return Boolean.TryParse(word, out value);
     }
 }

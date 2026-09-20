@@ -1,4 +1,4 @@
-// <copyright file="GetDistance.cs" company="VoxelGame">
+// <copyright file="UInt32Parser.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,35 +18,18 @@
 // <author>jeanpmathes</author>
 
 using System;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities.Units;
+using System.Globalization;
 
-namespace VoxelGame.Client.Console.Commands;
+namespace VoxelGame.Client.Console.Parsers;
 
 /// <summary>
-///     Get the distance to a specified point or target.
+///     Parses a 32-bit unsigned integer from a single word.
 /// </summary>
-public class GetDistance : Command
+public sealed class UInt32Parser : SingleWordParser<UInt32>
 {
     /// <inheritdoc />
-    public override String Name => "get-distance";
-
-    /// <inheritdoc />
-    public override String HelpText => "Get the distance to a specified point or target.";
-
-    /// <exclude />
-    public void Invoke(Position position, Context context)
+    protected override Boolean TryParse(String word, out UInt32 value)
     {
-        DetermineDistance(position.Vector3i, context);
-    }
-
-    private static void DetermineDistance(Vector3d position, Context context)
-    {
-        Length distance = new()
-        {
-            Meters = (position - context.Player.Body.Transform.Position).Length
-        };
-
-        context.Output.WriteResponse($"Distance: {distance}");
+        return UInt32.TryParse(word, NumberStyles.Any, CultureInfo.InvariantCulture, out value);
     }
 }

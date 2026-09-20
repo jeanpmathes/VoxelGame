@@ -68,15 +68,16 @@ public readonly unsafe partial struct Draw2D
         public Color4 Color;
     }
 
-    internal delegate void InitializeTexturesDelegate(IntPtr textures, UInt32 textureCount, IntPtr ctx);
+    internal delegate void InitializeTexturesDelegate(IntPtr textures, UInt32 textureCount, IntPtr context);
 
-    internal delegate void UploadBufferDelegate(IntPtr vertices, UInt32 vertexCount, IntPtr ctx);
+    internal delegate void UploadBufferDelegate(IntPtr vertices, UInt32 vertexCount, IntPtr context);
 
-    internal delegate void DrawBufferDelegate(UInt32 firstVertex, UInt32 vertexCount, UInt32 textureIndex, Bool useTexture, IntPtr ctx);
+    internal delegate void DrawBufferDelegate(UInt32 firstVertex, UInt32 vertexCount, UInt32 textureIndex, Bool useTexture, IntPtr context);
 
     [NativeMarshalling(typeof(InternalMarshaller))]
     [StructLayout(LayoutKind.Sequential)]
-    internal struct Internal
+    [ValueSemantics]
+    internal partial struct Internal
     {
         internal InitializeTexturesDelegate initializeTextures;
         internal UploadBufferDelegate uploadBuffer;

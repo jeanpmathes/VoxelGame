@@ -1,4 +1,4 @@
-﻿// <copyright file="SetFluid.cs" company="VoxelGame">
+// <copyright file="SetFluid.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -36,9 +36,9 @@ public class SetFluid : Command
     public override String HelpText => "Sets the fluid at the target position. Can cause invalid fluid state.";
 
     /// <exclude />
-    public void Invoke(String namedID, Int32 level, Int32 x, Int32 y, Int32 z, Context context)
+    public void Invoke(String namedID, Int32 level, Position position, Context context)
     {
-        Set(namedID, level, (x, y, z), context);
+        Set(namedID, level, position.Vector3i, context);
     }
 
     /// <exclude />

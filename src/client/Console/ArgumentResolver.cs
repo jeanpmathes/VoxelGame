@@ -20,15 +20,24 @@
 using System;
 using System.Collections.Generic;
 using System.Reflection;
+using VoxelGame.Client.Console.Parsers;
 
 namespace VoxelGame.Client.Console;
 
 /// <summary>
 ///     Resolves the correct overload for provided arguments and parses them.
 /// </summary>
-public class ArgumentResolver
+public class ArgumentResolver : ITypeRepresentationProvider
 {
     private readonly Dictionary<Type, Parser> parsers = new();
+
+    /// <inheritdoc />
+    public String GetTypeRepresentation(Type type)
+    {
+        return parsers.TryGetValue(type, out Parser? parser)
+            ? parser.TypeRepresentation
+            : type.Name;
+    }
 
     /// <summary>
     ///     Add an argument parser to the resolver.
@@ -58,68 +67,71 @@ public class ArgumentResolver
 
             IReadOnlyList<ParameterInfo> parameters = overload.CallableParameters;
 
-            if (parameters.Count != args.Count)
+            Int32 offset = 0;
+            List<Argument> arguments = [];
+            Boolean matched = true;
+
+            for (Int32 index = 0; index < parameters.Count; index++)
             {
-                diagnostics.Add($"- Overload #{overloadCount} expects {parameters.Count} argument(s), got {args.Count}.");
+                ParameterInfo parameter = parameters[index];
 
-                continue;
-            }
-
-            Boolean isValid = true;
-
-            for (Int32 i = 0; i < parameters.Count; i++)
-            {
-                if (!parsers.TryGetValue(parameters[i].ParameterType, out Parser? parser))
+                if (!parsers.TryGetValue(parameter.ParameterType, out Parser? parser))
                 {
-                    isValid = false;
+                    matched = false;
 
                     diagnostics.Add(
-                        $"- Parameter #{i + 1} '{parameters[i].Name}' of type {parameters[i].ParameterType.Name} has no registered parser.");
+                        $"- Overload #{overloadCount}: Parameter #{index + 1} '{parameter.Name}' of type {parameter.ParameterType.Name} has no registered parser.");
 
                     break;
                 }
 
-                if (!parser.CanParse(args[i]))
+                if (offset >= args.Count)
                 {
-                    isValid = false;
+                    matched = false;
 
                     diagnostics.Add(
-                        $"- Parameter #{i + 1} '{parameters[i].Name}' expects {parameters[i].ParameterType.Name}, got '{args[i]}'.");
+                        $"- Overload #{overloadCount}: Missing argument(s) for parameter #{index + 1} '{parameter.Name}' ({parser.TypeRepresentation}).");
 
                     break;
                 }
+
+                Argument? argument = parser.Parse(args, offset, out Int32 consumed);
+
+                if (argument == null || consumed <= 0)
+                {
+                    matched = false;
+
+                    diagnostics.Add(
+                        $"- Overload #{overloadCount}: Parameter #{index + 1} '{parameter.Name}' expects {parser.TypeRepresentation}, got '{args[offset]}'.");
+
+                    break;
+                }
+
+                arguments.Add(argument);
+                offset += consumed;
             }
 
-            if (isValid) return new OverloadResolutionResult(overload, []);
+            if (!matched) continue;
+
+            if (offset == args.Count)
+                return new OverloadResolutionResult(overload, arguments, []);
+
+            diagnostics.Add($"- Overload #{overloadCount}: Expected {offset} argument(s), got {args.Count}.");
         }
 
-        return new OverloadResolutionResult(Overload: null, diagnostics);
-    }
-
-    /// <summary>
-    ///     Parse the arguments for a method.
-    /// </summary>
-    /// <param name="overload">The overload to parse the arguments for.</param>
-    /// <param name="args">The arguments to parse.</param>
-    /// <returns>The parsed arguments.</returns>
-    public Object[] ParseArguments(CommandOverload overload, IReadOnlyList<String> args)
-    {
-        IReadOnlyList<ParameterInfo> parameters = overload.CallableParameters;
-
-        Object[] parsedArgs = new Object[args.Count];
-
-        for (Int32 i = 0; i < args.Count; i++)
-            parsedArgs[i] = parsers[parameters[i].ParameterType].Parse(args[i]);
-
-        return parsedArgs;
+        return new OverloadResolutionResult(Overload: null, [], diagnostics);
     }
 
     /// <summary>
     ///     The result of trying to resolve a command overload.
     /// </summary>
     /// <param name="Overload">The resolved overload, if successful.</param>
+    /// <param name="Arguments">The parsed arguments corresponding to the callable parameters.</param>
     /// <param name="Diagnostics">Details about why no overload could be selected.</param>
-    public sealed record OverloadResolutionResult(CommandOverload? Overload, IReadOnlyList<String> Diagnostics)
+    public sealed record OverloadResolutionResult(
+        CommandOverload? Overload,
+        IReadOnlyList<Argument> Arguments,
+        IReadOnlyList<String> Diagnostics)
     {
         /// <summary>
         ///     Whether the resolution was successful.

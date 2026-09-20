@@ -1,4 +1,4 @@
-﻿// <copyright file="SetSpawnPoint.cs" company="VoxelGame">
+// <copyright file="SetSpawnPoint.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -34,9 +34,9 @@ public class SetSpawnPoint : Command
     public override String HelpText => "Sets the spawn position for the current world.";
 
     /// <exclude />
-    public void Invoke(Double x, Double y, Double z, Context context)
+    public void Invoke(Position position, Context context)
     {
-        SetSpawnPosition((x, y, z), context);
+        SetSpawnPosition(position.Vector3i, context);
     }
 
     /// <exclude />

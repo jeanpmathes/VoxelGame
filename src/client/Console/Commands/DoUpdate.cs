@@ -1,4 +1,4 @@
-﻿// <copyright file="DoUpdate.cs" company="VoxelGame">
+// <copyright file="DoUpdate.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -42,9 +42,9 @@ public class DoUpdate : Command
     }
 
     /// <exclude />
-    public void Invoke(Int32 x, Int32 y, Int32 z, Context context)
+    public void Invoke(Position position, Context context)
     {
-        Update((x, y, z), context);
+        Update(position.Vector3i, context);
     }
 
     private static void Update(Vector3i position, Context context)

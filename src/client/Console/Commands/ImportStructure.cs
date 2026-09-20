@@ -1,4 +1,4 @@
-﻿// <copyright file="ImportStructure.cs" company="VoxelGame">
+// <copyright file="ImportStructure.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -38,15 +38,15 @@ public class ImportStructure : Command
     public override String HelpText => "Imports a structure from a file.";
 
     /// <exclude />
-    public void Invoke(Int32 x, Int32 y, Int32 z, String name, Context context)
+    public void Invoke(Position position, String name, Context context)
     {
-        Import((x, y, z), name, Orientation.North, context);
+        Import(position.Vector3i, name, Orientation.North, context);
     }
 
     /// <exclude />
-    public void Invoke(Int32 x, Int32 y, Int32 z, String name, Orientation orientation, Context context)
+    public void Invoke(Position position, String name, Orientation orientation, Context context)
     {
-        Import((x, y, z), name, orientation, context);
+        Import(position.Vector3i, name, orientation, context);
     }
 
     /// <exclude />

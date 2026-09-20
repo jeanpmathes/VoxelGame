@@ -1,4 +1,4 @@
-// <copyright file="GetDistance.cs" company="VoxelGame">
+// <copyright file="ITypeRepresentationProvider.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,35 +18,18 @@
 // <author>jeanpmathes</author>
 
 using System;
-using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities.Units;
 
-namespace VoxelGame.Client.Console.Commands;
+namespace VoxelGame.Client.Console;
 
 /// <summary>
-///     Get the distance to a specified point or target.
+///     Provides user-facing type representations for command parameters.
 /// </summary>
-public class GetDistance : Command
+public interface ITypeRepresentationProvider
 {
-    /// <inheritdoc />
-    public override String Name => "get-distance";
-
-    /// <inheritdoc />
-    public override String HelpText => "Get the distance to a specified point or target.";
-
-    /// <exclude />
-    public void Invoke(Position position, Context context)
-    {
-        DetermineDistance(position.Vector3i, context);
-    }
-
-    private static void DetermineDistance(Vector3d position, Context context)
-    {
-        Length distance = new()
-        {
-            Meters = (position - context.Player.Body.Transform.Position).Length
-        };
-
-        context.Output.WriteResponse($"Distance: {distance}");
-    }
+    /// <summary>
+    ///     Get the representation string for a given parameter type.
+    /// </summary>
+    /// <param name="type">The parameter type.</param>
+    /// <returns>The string representation of the type.</returns>
+    String GetTypeRepresentation(Type type);
 }

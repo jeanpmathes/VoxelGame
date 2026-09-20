@@ -1,4 +1,4 @@
-// <copyright file="GetDistance.cs" company="VoxelGame">
+// <copyright file="Extents.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -17,36 +17,23 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
-using System;
+using System.Diagnostics.CodeAnalysis;
 using OpenTK.Mathematics;
-using VoxelGame.Core.Utilities.Units;
+using VoxelGame.Core.Utilities;
 
-namespace VoxelGame.Client.Console.Commands;
+namespace VoxelGame.Client.Console;
 
 /// <summary>
-///     Get the distance to a specified point or target.
+///     Represents 3D extents defining the reach or bounds of an area or volume.
 /// </summary>
-public class GetDistance : Command
+/// <param name="Vector3d">The vector representing the extent in each dimension.</param>
+[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "That is the name of the type.")]
+public readonly record struct Extents(Vector3d Vector3d)
 {
-    /// <inheritdoc />
-    public override String Name => "get-distance";
-
-    /// <inheritdoc />
-    public override String HelpText => "Get the distance to a specified point or target.";
-
-    /// <exclude />
-    public void Invoke(Position position, Context context)
-    {
-        DetermineDistance(position.Vector3i, context);
-    }
-
-    private static void DetermineDistance(Vector3d position, Context context)
-    {
-        Length distance = new()
-        {
-            Meters = (position - context.Player.Body.Transform.Position).Length
-        };
-
-        context.Output.WriteResponse($"Distance: {distance}");
-    }
+    /// <summary>
+    ///     Get these extents in integer coordinates.
+    ///     The extents are rounded up, ensuring that the described floating-point extents fit into the integer extents.
+    /// </summary>
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "That is the name of the type.")]
+    public Vector3i Vector3i => Vector3d.Ceiling();
 }

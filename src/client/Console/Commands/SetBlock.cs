@@ -1,4 +1,4 @@
-﻿// <copyright file="SetBlock.cs" company="VoxelGame">
+// <copyright file="SetBlock.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -37,9 +37,9 @@ public class SetBlock : Command
     public override String HelpText => "Sets the block at the target position. Can cause invalid block state.";
 
     /// <exclude />
-    public void Invoke(String contentID, Int32 x, Int32 y, Int32 z, Context context)
+    public void Invoke(String contentID, Position position, Context context)
     {
-        Set(new CID(contentID), (x, y, z), context);
+        Set(new CID(contentID), position.Vector3i, context);
     }
 
     /// <exclude />

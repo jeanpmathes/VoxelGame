@@ -1,4 +1,4 @@
-﻿// <copyright file="ExportStructure.cs" company="VoxelGame">
+// <copyright file="ExportStructure.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -41,15 +41,15 @@ public class ExportStructure : Command
     public override String HelpText => "Exports a structure to a file. Default content (Air, None) is ignored.";
 
     /// <exclude />
-    public void Invoke(Int32 x, Int32 y, Int32 z, Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name, Context context)
+    public void Invoke(Position position, Extents extents, String name, Context context)
     {
-        Export((x, y, z), (extentsX, extentsY, extentsZ), name, context);
+        Export(position.Vector3i, extents.Vector3d.RoundToInt(), name, context);
     }
 
     /// <exclude />
-    public void Invoke(Int32 extentsX, Int32 extentsY, Int32 extentsZ, String name, Context context)
+    public void Invoke(Extents extents, String name, Context context)
     {
-        if (context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Export(targetPosition, (extentsX, extentsY, extentsZ), name, context);
+        if (context.Player.GetComponentOrThrow<Targeting>().Position is {} targetPosition) Export(targetPosition, extents.Vector3i, name, context);
         else context.Output.WriteError("No position targeted.");
     }
 

@@ -24,6 +24,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using VoxelGame.Client.Console.Parsers;
 using VoxelGame.Core.Utilities.Resources;
 using VoxelGame.Logging;
 using VoxelGame.Presentation.Legacy.UserInterfaces;
@@ -36,8 +37,21 @@ namespace VoxelGame.Client.Console;
 /// </summary>
 public sealed partial class CommandInvoker : IResource
 {
-    private readonly CommandLibrary library = new();
+    private readonly CommandLibrary library;
     private readonly ArgumentResolver resolver = new();
+
+    /// <summary>
+    ///     Creates a new command invoker.
+    /// </summary>
+    public CommandInvoker()
+    {
+        library = new CommandLibrary(resolver);
+    }
+
+    /// <summary>
+    ///     Get the named position registry for this invoker.
+    /// </summary>
+    public NamedPositionRegistry Positions { get; } = new();
 
     /// <summary>
     ///     Get the names of all registered commands.
@@ -150,13 +164,13 @@ public sealed partial class CommandInvoker : IResource
             return;
         }
 
-        if (library.GetCommand(commandName) is {command: var command, overloads: var overloads})
+        if (library.GetCommand(commandName) is {overloads: var overloads})
         {
             ArgumentResolver.OverloadResolutionResult resolution = resolver.ResolveOverload(overloads, args);
 
             if (resolution.IsSuccess)
             {
-                Invoke(command, resolution.Overload!, args, context);
+                Invoke(resolution.Overload!, resolution.Arguments, context);
             }
             else
             {
@@ -277,27 +291,25 @@ public sealed partial class CommandInvoker : IResource
             [new FollowUp("Show command help", () => { context.Invoker.InvokeCommand($"help {commandName}", context); })]);
     }
 
-    private void Invoke(ICommand command, CommandOverload overload, IReadOnlyList<String> args, Context context)
+    private static void Invoke(CommandOverload overload, IReadOnlyList<Argument> arguments, Context context)
     {
         try
         {
-            Object[] parsedArgs = resolver.ParseArguments(overload, args);
+            overload.Invoke(arguments, context);
 
-            overload.Invoke(command, parsedArgs, context);
-
-            LogInvokedCommand(logger, command.Name);
+            LogInvokedCommand(logger, overload.Command.Name);
         }
         catch (TargetInvocationException e)
         {
-            LogErrorInvokingCommand(logger, e.InnerException, command.Name);
+            LogErrorInvokingCommand(logger, e.InnerException, overload.Command.Name);
 
-            context.Output.WriteError($"Error while invoking command '{command.Name}', see log for details");
+            context.Output.WriteError($"Error while invoking command '{overload.Command.Name}', see log for details");
         }
         catch (Exception e)
         {
-            LogErrorExecutingCommand(logger, e, command.Name);
+            LogErrorExecutingCommand(logger, e, overload.Command.Name);
 
-            context.Output.WriteError($"Error while executing command '{command.Name}', see log for details");
+            context.Output.WriteError($"Error while executing command '{overload.Command.Name}', see log for details");
         }
     }
 

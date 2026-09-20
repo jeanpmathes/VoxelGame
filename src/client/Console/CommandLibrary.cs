@@ -37,6 +37,16 @@ public sealed partial class CommandLibrary
     private const String MethodName = "Invoke";
 
     private readonly Dictionary<String, CommandGroup> groups = new();
+    private readonly ITypeRepresentationProvider typeRepresentationProvider;
+
+    /// <summary>
+    ///     Creates a new command library using the specified type representation provider.
+    /// </summary>
+    /// <param name="typeRepresentationProvider">The provider for command parameter type representations.</param>
+    public CommandLibrary(ITypeRepresentationProvider typeRepresentationProvider)
+    {
+        this.typeRepresentationProvider = typeRepresentationProvider;
+    }
 
     /// <summary>
     ///     Get all command names.
@@ -88,7 +98,7 @@ public sealed partial class CommandLibrary
             .Select(result => result.name);
     }
 
-    private static IEnumerable<String> GetCommandSignatures(String commandName, CommandGroup commandGroup)
+    private IEnumerable<String> GetCommandSignatures(String commandName, CommandGroup commandGroup)
     {
         foreach (CommandOverload overload in commandGroup.Overloads)
         {
@@ -102,7 +112,7 @@ public sealed partial class CommandLibrary
                 signature.Append(value: '<');
                 signature.Append(parameter.Name);
                 signature.Append(" : ");
-                signature.Append(parameter.ParameterType.Name);
+                signature.Append(typeRepresentationProvider.GetTypeRepresentation(parameter.ParameterType));
                 signature.Append(value: '>');
             }
 
@@ -122,7 +132,7 @@ public sealed partial class CommandLibrary
 
         foreach (MethodInfo method in Reflections.GetMethodOverloads(command.GetType(), MethodName))
         {
-            if (CommandOverload.TryCreate(method, out CommandOverload? overload))
+            if (CommandOverload.TryCreate(command, method, out CommandOverload? overload))
             {
                 overloads.Add(overload);
 

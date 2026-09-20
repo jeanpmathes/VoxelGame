@@ -1,4 +1,4 @@
-﻿// <copyright file="Command.cs" company="VoxelGame">
+// <copyright file="Command.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -36,36 +36,6 @@ public abstract class Command : ICommand
 
     /// <inheritdoc />
     public abstract String HelpText { get; }
-
-    /// <summary>
-    ///     Get a named position in the world.
-    /// </summary>
-    /// <param name="name">The name of the position.</param>
-    /// <param name="context">The command execution context.</param>
-    /// <returns>The position, or null if it does not exist.</returns>
-    protected static Vector3d? GetNamedPosition(String name, Context context)
-    {
-        return name switch
-        {
-            "origin" => (0, 0, 0),
-            "spawn" => context.Player.World.SpawnPosition,
-            "min-corner" => -context.Player.World.Extents,
-            "max-corner" => context.Player.World.Extents,
-            "self" => context.Player.Body.Transform.Position,
-            "prev-self" => GetPreviousPlayerPosition(context),
-            _ => null
-        };
-    }
-
-    /// <summary>
-    ///     Get the previous position of the player, e.g. before a teleportation.
-    ///     This is only set by the command system, so normal movement does not change it.
-    /// </summary>
-    /// <returns>The previous position, or spawn position if not set.</returns>
-    private static Vector3d? GetPreviousPlayerPosition(Context context)
-    {
-        return context.Player.GetComponent<PreviousPosition>()?.Value ?? context.Player.World.SpawnPosition;
-    }
 
     /// <summary>
     ///     Set the previous position of the player, e.g. before a teleportation.

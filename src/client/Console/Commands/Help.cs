@@ -1,4 +1,4 @@
-﻿// <copyright file="Help.cs" company="VoxelGame">
+// <copyright file="Help.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -97,6 +97,8 @@ public class Help : Command
         context.Output.WriteResponse("Use 'help' to get information on available commands.");
         context.Output.WriteResponse("Use 'help <page : Int32>' to get a specific command list page.");
         context.Output.WriteResponse("Use 'help <command : String>' to get info for a specific command.");
+        context.Output.WriteResponse("Positions can be specified as absolute/relative coordinates ('x y z', e.g. '~ ~5 ~-3') or as a named position ('@name').");
+        context.Output.WriteResponse("Extents can be specified as absolute coordinates ('x y z').");
     }
 
     /// <exclude />
