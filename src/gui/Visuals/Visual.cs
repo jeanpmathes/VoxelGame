@@ -817,10 +817,12 @@ public abstract class Visual
 
     private IRenderer? renderer;
 
+    private Boolean isRenderValid;
+
     /// <summary>
-    ///     Whether the currently rendered state is valid.
+    ///     Whether this visual and its subtree are valid in any way that they could be valid or invalid.
     /// </summary>
-    protected Boolean IsRenderValid { get; private set; }
+    protected Boolean IsTreeValid => isMeasureValid && isArrangeValid && isRenderValid;
 
     /// <summary>
     ///     Render this visual using the specified renderer.
@@ -868,7 +870,7 @@ public abstract class Visual
                 renderer.PopOffset();
         }
 
-        IsRenderValid = true;
+        isRenderValid = true;
 
         if (drawDebugOutlinesEffective)
             DoDrawDebugOutlines();
@@ -927,8 +929,8 @@ public abstract class Visual
     /// </summary>
     public void InvalidateRender()
     {
-        if (!IsRenderValid) return;
-        IsRenderValid = false;
+        if (!isRenderValid) return;
+        isRenderValid = false;
 
         Parent?.InvalidateRender();
     }

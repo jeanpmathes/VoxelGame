@@ -30,7 +30,7 @@ namespace ui
     /**
      * \brief A user-interface text object, wrapping a measured \c IDWriteTextLayout.
      *
-     * Text objects do not allow changing format or content.
+     * Text objects allow changing format and content.
      * They remember the last available size passed to \c Measure and use it for drawing.
      */
     class Text final : public Object
@@ -45,18 +45,30 @@ namespace ui
         {
         };
 
-        Text(Renderer& renderer);
+        explicit Text(Renderer& renderer);
 
         /**
          * Return this text to the renderer. Do not use after returning.
          */
         void Return();
 
-        void Reset(Index newIndex, WCHAR const* newText, UINT newTextLength, TextFormat& newFormat);
+        void Reset(Index newIndex, WCHAR const* newText, UINT newTextLength, TextFormatDescription const& newFormat);
+
+        /**
+         * \brief Set the text content.
+         * \param newText The new text content.
+         * \param newTextLength The length of the new text content.
+         */
+        void SetContent(WCHAR const* newText, UINT newTextLength);
+
+        /**
+         * \brief Set the text format.
+         * \param newFormat The new text format description.
+         */
+        void SetFormat(TextFormatDescription const& newFormat);
 
         [[nodiscard]] Renderer&            GetRenderer() const;
         [[nodiscard]] std::optional<Index> GetIndex() const;
-        [[nodiscard]] TextFormat&          GetFormat() const;
         [[nodiscard]] IDWriteTextLayout*   GetWrapped() const;
 
         /**
@@ -70,12 +82,15 @@ namespace ui
         [[nodiscard]] Size Measure(Size newAvailableSize);
 
     private:
+        void InitializeLayout();
+
         Renderer*            renderer;
         std::optional<Index> index;
 
         ComPtr<IDWriteTextLayout> layout;
 
-        TextFormat* format        = nullptr;
-        Size        availableSize = {0.0f, 0.0f};
+        TextFormat*  format = nullptr;
+        std::wstring text;
+        Size         availableSize = {0.0f, 0.0f};
     };
 }

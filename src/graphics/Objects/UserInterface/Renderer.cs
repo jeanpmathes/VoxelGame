@@ -67,22 +67,12 @@ public sealed class Renderer : DisposableNativeObject<Renderer>
     }
 
     /// <summary>
-    /// Creates a text format.
-    /// </summary>
-    /// <param name="description">The description of the text format to create.</param>
-    /// <returns>The created text format.</returns>
-    public TextFormat CreateTextFormat(TextFormatDescription description)
-    {
-        return Native.CreateTextFormat(this, description);
-    }
-
-    /// <summary>
     /// Creates a text that can be rendered.
     /// </summary>
     /// <param name="text">The content of the text.</param>
-    /// <param name="format">The format of the text.</param>
+    /// <param name="format">The format description of the text.</param>
     /// <returns>The created text.</returns>
-    public Text CreateText(String text, TextFormat format)
+    public Text CreateText(String text, TextFormatDescription format)
     {
         return Native.CreateText(this, text, format);
     }

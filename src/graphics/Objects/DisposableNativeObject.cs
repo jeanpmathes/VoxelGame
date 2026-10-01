@@ -1,4 +1,4 @@
-﻿// <copyright file="DisposableNativeObject.cs" company="VoxelGame">
+// <copyright file="DisposableNativeObject.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -31,17 +31,6 @@ namespace VoxelGame.Graphics.Objects;
 public class DisposableNativeObject<T>(IntPtr nativePointer, Client client) : NativeObject(nativePointer, client), IDisposable
     where T : DisposableNativeObject<T>
 {
-    private Action<T>? handler;
-
-    /// <summary>
-    /// Set a function to be called when this object is disposed of.
-    /// </summary>
-    /// <param name="newHandler">The function to call. Overrides any previous handler.</param>
-    public void SetDisposeHandler(Action<T> newHandler)
-    {
-        handler = newHandler;
-    }
-
     #region DISPOSABLE
 
     private Boolean disposed;
@@ -62,11 +51,7 @@ public class DisposableNativeObject<T>(IntPtr nativePointer, Client client) : Na
         if (disposed) return;
 
         if (disposing)
-        {
             Deregister();
-
-            handler?.Invoke((T) this);
-        }
         else
             ExceptionTools.ThrowForMissedDispose(this);
 

@@ -1,4 +1,4 @@
-﻿// <copyright file="Native.cs" company="VoxelGame">
+// <copyright file="Native.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -350,30 +350,37 @@ internal static class Native
     }
 
     /// <summary>
-    /// Creates a new text format instance using the specified renderer and text format description.
-    /// </summary>
-    /// <param name="renderer">The user interface renderer that will use the text format.</param>
-    /// <param name="description">The description of the text format to create.</param>
-    /// <returns>The created text format.</returns>
-    internal static TextFormat CreateTextFormat(Renderer renderer, TextFormatDescription description)
-    {
-        IntPtr pointer = NativeMethods.CreateUserInterfaceTextFormat(renderer, description);
-
-        return new TextFormat(pointer, renderer);
-    }
-
-    /// <summary>
-    /// Creates a new text instance using the specified renderer and text format.
+    /// Creates a new text instance using the specified renderer and text format description.
     /// </summary>
     /// <param name="renderer">The user interface renderer that will use the text.</param>
     /// <param name="text">The text to create.</param>
-    /// <param name="format">The text format to use.</param>
+    /// <param name="format">The text format description to use.</param>
     /// <returns>The created text.</returns>
-    internal static Text CreateText(Renderer renderer, String text, TextFormat format)
+    internal static Text CreateText(Renderer renderer, String text, TextFormatDescription format)
     {
         IntPtr pointer = NativeMethods.CreateUserInterfaceText(renderer, text, (UInt32) text.Length, format);
 
-        return new Text(pointer, format, renderer);
+        return new Text(pointer, renderer);
+    }
+
+    /// <summary>
+    ///     Sets the text content for the specified text instance.
+    /// </summary>
+    /// <param name="text">The text instance to update.</param>
+    /// <param name="content">The new text content.</param>
+    internal static void SetTextContent(Text text, String content)
+    {
+        NativeMethods.SetUserInterfaceTextContent(text, content, (UInt32) content.Length);
+    }
+
+    /// <summary>
+    ///     Sets the text format for the specified text instance.
+    /// </summary>
+    /// <param name="text">The text instance to update.</param>
+    /// <param name="format">The new text format description.</param>
+    internal static void SetTextFormat(Text text, TextFormatDescription format)
+    {
+        NativeMethods.SetUserInterfaceTextFormat(text, format);
     }
 
     /// <summary>

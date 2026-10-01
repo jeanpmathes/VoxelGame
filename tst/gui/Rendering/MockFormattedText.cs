@@ -1,4 +1,4 @@
-﻿// <copyright file="MockFormattedText.cs" company="VoxelGame">
+// <copyright file="MockFormattedText.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -17,6 +17,7 @@
 // </copyright>
 // <author>jeanpmathes</author>
 
+using System;
 using VoxelGame.GUI.Drawing.Brushes;
 using VoxelGame.GUI.Texts;
 using VoxelGame.GUI.Utilities;
@@ -25,6 +26,10 @@ namespace VoxelGame.GUI.Tests.Rendering;
 
 public sealed class MockFormattedText : IFormattedText
 {
+    public void SetContent(String content) {}
+
+    public void SetFormat(TextFormat format) {}
+
     public Size Measure(Size availableSize)
     {
         return new Size(Width: 42, Height: 24);

@@ -63,7 +63,7 @@ public class TextTests : VisualTestBase<Text>
     }
 
     [Fact]
-    public void Text_Content_ShouldDisposeFormattedTextOnContentChange()
+    public void Text_Content_ShouldUpdateContentWithoutDisposingOnContentChange()
     {
         GUI.Controls.Text control = new();
         canvas.Child = control;
@@ -71,15 +71,34 @@ public class TextTests : VisualTestBase<Text>
         control.Content.Value = "Initial";
 
         TrackableFormattedText first = renderer.LastCreatedText!;
+        Assert.Equal("Initial", first.Content);
 
         control.Content.Value = "Updated";
 
-        Assert.True(first.IsDisposed);
+        Assert.False(first.IsDisposed);
+        Assert.Same(first, renderer.LastCreatedText);
+        Assert.Equal("Updated", first.Content);
     }
 
-    private sealed class TrackableFormattedText : IFormattedText
+    // todo: merge TrackableFormattedText and TrackingRenderer with the Mock versions
+
+    private sealed class TrackableFormattedText(String text, TextFormat format) : IFormattedText
     {
         public Boolean IsDisposed { get; private set; }
+
+        public String Content { get; private set; } = text;
+
+        public TextFormat Format { get; private set; } = format;
+
+        public void SetContent(String content)
+        {
+            Content = content;
+        }
+
+        public void SetFormat(TextFormat format)
+        {
+            Format = format;
+        }
 
         public Size Measure(Size availableSize)
         {
@@ -98,9 +117,9 @@ public class TextTests : VisualTestBase<Text>
     {
         public TrackableFormattedText? LastCreatedText { get; private set; }
 
-        public override IFormattedText CreateFormattedText(String text, TextOptions options)
+        public override IFormattedText CreateFormattedText(String text, TextFormat format)
         {
-            LastCreatedText = new TrackableFormattedText();
+            LastCreatedText = new TrackableFormattedText(text, format);
 
             return LastCreatedText;
         }

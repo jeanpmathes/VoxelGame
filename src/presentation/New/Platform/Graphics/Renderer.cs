@@ -39,7 +39,6 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     private readonly CommandBuilder commands;
 
     private readonly BrushMap brushes;
-    private readonly TextFormatMap textFormats;
 
     private Int32 skippedClipDepth;
 
@@ -53,7 +52,6 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         commands = new CommandBuilder();
 
         brushes = new BrushMap(this);
-        textFormats = new TextFormatMap(this);
     }
 
     private Boolean IsCommandRecordingSuppressed => skippedClipDepth > 0;
@@ -62,7 +60,6 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     public void Dispose()
     {
         brushes.Dispose();
-        textFormats.Dispose();
 
         renderer.Dispose();
     }
@@ -156,9 +153,9 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
     }
 
     /// <inheritdoc />
-    public override IFormattedText CreateFormattedText(String text, TextOptions options)
+    public override IFormattedText CreateFormattedText(String text, TextFormat format)
     {
-        return new FormattedText(this, text, options);
+        return new FormattedText(this, text, format);
     }
 
     /// <inheritdoc />
@@ -209,35 +206,25 @@ public sealed class Renderer : GUI.Rendering.Renderer, IDisposable
         return renderer.CreateSolidColorBrush(color);
     }
 
-    internal TextFormat CreateTextFormat(TextOptions options)
+    internal static TextFormatDescription ConvertFormat(TextFormat format)
     {
-        return renderer.CreateTextFormat(new TextFormatDescription
+        return new TextFormatDescription
         {
-            FontFamily = options.Font.Family,
-            Weight = options.Font.Weight.Value,
-            Size = options.Font.Size,
-            Style = options.Font.Style,
-            Stretch = options.Font.Stretch,
-            Wrapping = options.Wrapping,
-            Alignment = options.Alignment,
-            Trimming = options.Trimming,
-            LineHeight = options.LineHeight
-        });
+            FontFamily = format.Font.Family,
+            Weight = format.Font.Weight.Value,
+            Size = format.Font.Size,
+            Style = format.Font.Style,
+            Stretch = format.Font.Stretch,
+            Wrapping = format.Wrapping,
+            Alignment = format.Alignment,
+            Trimming = format.Trimming,
+            LineHeight = format.LineHeight
+        };
     }
 
-    internal Text CreateText(String content, TextOptions options)
+    internal Text CreateText(String content, TextFormat format)
     {
-        TextFormat textFormat = textFormats.Request(options);
-
-        Text text = renderer.CreateText(content, textFormat);
-        text.SetDisposeHandler(OnTextDisposed);
-
-        return text;
-    }
-
-    private void OnTextDisposed(Text text)
-    {
-        textFormats.Return(text.Format);
+        return renderer.CreateText(content, ConvertFormat(format));
     }
 
     internal void DrawText(Text text, Point position, Brush brush)

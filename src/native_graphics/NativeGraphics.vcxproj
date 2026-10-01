@@ -87,10 +87,10 @@
         <ClInclude Include="UserInterface\Objects\Brush.hpp"/>
         <ClInclude Include="UserInterface\Objects\Renderer.hpp"/>
         <ClInclude Include="UserInterface\Objects\Text.hpp"/>
-        <ClInclude Include="UserInterface\Objects\TextFormat.hpp"/>
         <ClInclude Include="UserInterface\Tools\BrushSupport.hpp"/>
         <ClInclude Include="UserInterface\Tools\State.hpp"/>
         <ClInclude Include="UserInterface\Tools\StrokeSupport.hpp"/>
+        <ClInclude Include="UserInterface\Tools\TextFormat.hpp"/>
         <ClInclude Include="UserInterface\Tools\TextFormatSupport.hpp"/>
         <ClInclude Include="UserInterface\Tools\TextSupport.hpp"/>
         <ClInclude Include="Tools\Allocation.hpp"/>
@@ -166,10 +166,10 @@
         <ClCompile Include="UserInterface\Objects\Brush.cpp"/>
         <ClCompile Include="UserInterface\Objects\Renderer.cpp"/>
         <ClCompile Include="UserInterface\Objects\Text.cpp"/>
-        <ClCompile Include="UserInterface\Objects\TextFormat.cpp"/>
         <ClCompile Include="UserInterface\Tools\BrushSupport.cpp"/>
         <ClCompile Include="UserInterface\Tools\State.cpp"/>
         <ClCompile Include="UserInterface\Tools\StrokeSupport.cpp"/>
+        <ClCompile Include="UserInterface\Tools\TextFormat.cpp"/>
         <ClCompile Include="UserInterface\Tools\TextFormatSupport.cpp"/>
         <ClCompile Include="UserInterface\Tools\TextSupport.cpp"/>
         <ClCompile Include="Tools\DescriptorHeap.cpp"/>

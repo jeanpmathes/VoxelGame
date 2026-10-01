@@ -1,4 +1,4 @@
-﻿// <copyright file="Canvas.cs" company="VoxelGame">
+// <copyright file="Canvas.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -78,11 +78,10 @@ public class Canvas : Visual
         InvalidateMeasure();
     }
 
-    /// <param name="clip"></param>
     /// <inheritdoc />
     public override void Render(Rectangle clip)
     {
-        if (IsRenderValid) return;
+        if (IsTreeValid) return;
 
         Renderer.Reset();
 

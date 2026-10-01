@@ -1,4 +1,4 @@
-// <copyright file="TextOptions.cs" company="VoxelGame">
+// <copyright file="TextFormat.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -22,6 +22,6 @@ using System;
 namespace VoxelGame.GUI.Texts;
 
 /// <summary>
-///     Combines text layout options that are provided at formatted-text creation time.
+///     Describes the formatting of text, including font and layout properties.
 /// </summary>
-public record struct TextOptions(Font Font, TextWrapping Wrapping, TextAlignment Alignment, TextTrimming Trimming, Single LineHeight);
+public record struct TextFormat(Font Font, TextWrapping Wrapping, TextAlignment Alignment, TextTrimming Trimming, Single LineHeight);

@@ -9,7 +9,6 @@
 #include "UserInterface/Objects/Brush.hpp"
 #include "UserInterface/Objects/Renderer.hpp"
 #include "UserInterface/Objects/Text.hpp"
-#include "UserInterface/Objects/TextFormat.hpp"
 
 namespace
 {
@@ -443,33 +442,33 @@ NATIVE void NativeReturnUserInterfaceBrush(ui::Brush* brush)
     } CATCH();
 }
 
-NATIVE ui::TextFormat* NativeCreateUserInterfaceTextFormat(ui::Renderer* renderer, ui::TextFormatDescription const description)
+NATIVE ui::Text* NativeCreateUserInterfaceText(ui::Renderer* renderer, LPCWSTR const text, UINT const textLength, ui::TextFormatDescription const description)
 {
     TRY
     {
         Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
 
-        return &renderer->GetTextFormatSupport().GetTextFormat(description);
+        return &renderer->GetTextSupport().GetText(text, textLength, description);
     } CATCH();
 }
 
-NATIVE void NativeReturnUserInterfaceTextFormat(ui::TextFormat* format)
+NATIVE void NativeSetUserInterfaceTextContent(ui::Text* text, LPCWSTR const newText, UINT const textLength)
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&format->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&format->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&text->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&text->GetClient()));
 
-        format->Return();
+        text->SetContent(newText, textLength);
     } CATCH();
 }
 
-NATIVE ui::Text* NativeCreateUserInterfaceText(ui::Renderer* renderer, LPCWSTR const text, UINT const textLength, ui::TextFormat* format)
+NATIVE void NativeSetUserInterfaceTextFormat(ui::Text* text, ui::TextFormatDescription const description)
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
+        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&text->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&text->GetClient()));
 
-        return &renderer->GetTextSupport().GetText(text, textLength, *format);
+        text->SetFormat(description);
     } CATCH();
 }
 

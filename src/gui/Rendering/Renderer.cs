@@ -57,7 +57,7 @@ public abstract class Renderer : IRenderer
     public abstract void PopOpacity();
 
     /// <inheritdoc />
-    public abstract IFormattedText CreateFormattedText(String text, TextOptions options);
+    public abstract IFormattedText CreateFormattedText(String text, TextFormat format);
 
     /// <inheritdoc />
     public abstract void DrawFilledRectangle(Rectangle rectangle, Radius corners, Brush brush);

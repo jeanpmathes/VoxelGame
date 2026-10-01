@@ -19,7 +19,9 @@
 
 #pragma once
 
-#include "UserInterface/Objects/TextFormat.hpp"
+#include <unordered_map>
+#include <unordered_set>
+#include "UserInterface/Tools/TextFormat.hpp"
 
 namespace ui
 {
@@ -27,7 +29,7 @@ namespace ui
     class Renderer;
 
     /**
-     * \brief Creates and owns UI text formats for one UI renderer, as well as performing pooling.
+     * \brief Creates and caches UI text formats for one UI renderer.
      */
     class TextFormatSupport final
     {
@@ -35,30 +37,16 @@ namespace ui
         explicit TextFormatSupport(Renderer& renderer);
 
         /**
-         * \brief Get a wrapped text format.
-         * \param description The description used to create the text format.
-         * \returns The text format. Needs to be returned.
+         * \brief Get a cached text format, creating it if it does not already exist.
+         * \param description The description used to create or look up the text format.
+         * \returns The text format.
          */
         TextFormat& GetTextFormat(TextFormatDescription const& description);
-
-        /**
-         * \brief Return a text format.
-         * Do not use this method, instead use \c TextFormat::Return() .
-         * \param index The index of the text format to return.
-         */
-        void ReturnTextFormat(TextFormat::Index index);
-
-        /**
-         * \brief Validate that all wrapped resources have been returned to this support class.
-         * 
-         * This uses the debug layer to create messages if resources have not been returned.
-         * It is invalid to use wrapped resources managed by this support class after the class has been freed.
-         */
-        void ValidateAllWrappedResourcesAreReturned() const;
 
     private:
         Renderer& renderer;
 
-        Bag<std::unique_ptr<TextFormat>, TextFormat::Index> textFormats;
+        std::unordered_set<std::wstring>                                                                  fontFamilies;
+        std::unordered_map<TextFormatDescription, std::unique_ptr<TextFormat>, TextFormatDescriptionHash> formats;
     };
 }

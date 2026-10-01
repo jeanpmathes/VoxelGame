@@ -167,5 +167,15 @@ namespace ui
         TextAlignment alignment;
         TextTrimming  trimming;
         FLOAT         lineHeight;
+
+        bool operator==(TextFormatDescription const& other) const;
+    };
+
+    /**
+     * \brief Hash function for text format descriptions.
+     */
+    struct TextFormatDescriptionHash
+    {
+        std::size_t operator()(TextFormatDescription const& description) const noexcept;
     };
 }

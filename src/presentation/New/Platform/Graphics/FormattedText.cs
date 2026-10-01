@@ -35,11 +35,27 @@ public sealed class FormattedText : IFormattedText
 
     private Size? lastAvailableSize;
 
-    internal FormattedText(Renderer renderer, String content, TextOptions options)
+    internal FormattedText(Renderer renderer, String content, TextFormat format)
     {
         this.renderer = renderer;
 
-        text = renderer.CreateText(content, options);
+        text = renderer.CreateText(content, format);
+    }
+
+    /// <inheritdoc />
+    public void SetContent(String content)
+    {
+        lastAvailableSize = null;
+
+        text.SetContent(content);
+    }
+
+    /// <inheritdoc />
+    public void SetFormat(TextFormat format)
+    {
+        lastAvailableSize = null;
+
+        text.SetFormat(Renderer.ConvertFormat(format));
     }
 
     /// <summary>

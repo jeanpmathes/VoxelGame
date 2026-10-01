@@ -108,7 +108,6 @@ void ui::Renderer::Free()
 {
 #ifdef NATIVE_DEBUG
     brushSupport.ValidateAllWrappedResourcesAreReturned();
-    textFormatSupport.ValidateAllWrappedResourcesAreReturned();
     textSupport.ValidateAllWrappedResourcesAreReturned();
     strokeSupport.ValidateAllWrappedResourcesAreReturned();
 #endif

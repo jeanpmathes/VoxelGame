@@ -39,18 +39,18 @@ public class Text : Visual
     /// </summary>
     public Text()
     {
-        FontFamily = VisualProperty.Create(this, "", _ => InvalidateText());
-        FontSize = VisualProperty.Create(this, Defaults.Text.Size, _ => InvalidateText());
-        FontStyle = VisualProperty.Create(this, Style.Normal, _ => InvalidateText());
-        FontWeight = VisualProperty.Create(this, Weight.Normal, _ => InvalidateText());
-        FontStretch = VisualProperty.Create(this, Stretch.Normal, _ => InvalidateText());
+        FontFamily = VisualProperty.Create(this, "", _ => OnFormatChanged());
+        FontSize = VisualProperty.Create(this, Defaults.Text.Size, _ => OnFormatChanged());
+        FontStyle = VisualProperty.Create(this, Style.Normal, _ => OnFormatChanged());
+        FontWeight = VisualProperty.Create(this, Weight.Normal, _ => OnFormatChanged());
+        FontStretch = VisualProperty.Create(this, Stretch.Normal, _ => OnFormatChanged());
 
-        Wrapping = VisualProperty.Create(this, TextWrapping.Wrap, _ => InvalidateText());
-        Alignment = VisualProperty.Create(this, TextAlignment.Leading, _ => InvalidateText());
-        Trimming = VisualProperty.Create(this, TextTrimming.None, _ => InvalidateText());
-        LineHeight = VisualProperty.Create(this, Defaults.Text.LineHeight, _ => InvalidateText());
+        Wrapping = VisualProperty.Create(this, TextWrapping.Wrap, _ => OnFormatChanged());
+        Alignment = VisualProperty.Create(this, TextAlignment.Leading, _ => OnFormatChanged());
+        Trimming = VisualProperty.Create(this, TextTrimming.None, _ => OnFormatChanged());
+        LineHeight = VisualProperty.Create(this, Defaults.Text.LineHeight, _ => OnFormatChanged());
 
-        Content = VisualProperty.Create(this, "", _ => InvalidateText());
+        Content = VisualProperty.Create(this, "", _ => OnContentChanged());
 
         TextBrush = VisualProperty.Create(this, BindToOwnerForeground(), Invalidation.Render);
     }
@@ -133,36 +133,41 @@ public class Text : Visual
         formattedText = null;
     }
 
-    private void InvalidateText()
+    private void OnContentChanged()
     {
-        if (formattedText == null) return;
+        formattedText?.SetContent(Content.GetValue());
 
-        formattedText.Dispose();
-        formattedText = null;
+        InvalidateMeasure();
+    }
 
-        if (!IsAttached) return;
+    private void OnFormatChanged()
+    {
+        formattedText?.SetFormat(GetFormat());
 
-        CreateFormattedText();
+        InvalidateMeasure();
+    }
+
+    private TextFormat GetFormat()
+    {
+        return new TextFormat(
+            new Font
+            {
+                Family = FontFamily.GetValue(),
+                Size = FontSize.GetValue(),
+                Style = FontStyle.GetValue(),
+                Weight = FontWeight.GetValue(),
+                Stretch = FontStretch.GetValue()
+            },
+            Wrapping.GetValue(),
+            Alignment.GetValue(),
+            Trimming.GetValue(),
+            LineHeight.GetValue()
+        );
     }
 
     private void CreateFormattedText()
     {
-        formattedText = Renderer.CreateFormattedText(Content.GetValue(),
-            new TextOptions
-            {
-                Font = new Font
-                {
-                    Family = FontFamily.GetValue(),
-                    Size = FontSize.GetValue(),
-                    Style = FontStyle.GetValue(),
-                    Weight = FontWeight.GetValue(),
-                    Stretch = FontStretch.GetValue()
-                },
-                Wrapping = Wrapping.GetValue(),
-                Alignment = Alignment.GetValue(),
-                Trimming = Trimming.GetValue(),
-                LineHeight = LineHeight.GetValue()
-            });
+        formattedText = Renderer.CreateFormattedText(Content.GetValue(), GetFormat());
 
         InvalidateMeasure();
     }

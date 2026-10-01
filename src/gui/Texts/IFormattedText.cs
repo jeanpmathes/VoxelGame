@@ -1,4 +1,4 @@
-﻿// <copyright file="IFormattedText.cs" company="VoxelGame">
+// <copyright file="IFormattedText.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -28,6 +28,18 @@ namespace VoxelGame.GUI.Texts;
 /// </summary>
 public interface IFormattedText : IDisposable
 {
+    /// <summary>
+    ///     Sets the text content of the formatted text.
+    /// </summary>
+    /// <param name="content">The new text content.</param>
+    public void SetContent(String content);
+
+    /// <summary>
+    ///     Sets the formatting of the text.
+    /// </summary>
+    /// <param name="format">The new text format.</param>
+    public void SetFormat(TextFormat format);
+
     /// <summary>
     ///     Measures the size of the formatted text given the available size constraints.
     /// </summary>

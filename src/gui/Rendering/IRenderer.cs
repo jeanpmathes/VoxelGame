@@ -83,12 +83,12 @@ public interface IRenderer
     public void PopOpacity();
 
     /// <summary>
-    ///     Create a formatted text object for the given text, font, and layout options.
+    ///     Create a formatted text object for the given text and formatting options.
     /// </summary>
     /// <param name="text">The text to format.</param>
-    /// <param name="options">The layout options such as wrapping, alignment, trimming, and line height.</param>
+    /// <param name="format">The formatting options such as font, wrapping, alignment, trimming, and line height.</param>
     /// <returns>The formatted text object.</returns>
-    IFormattedText CreateFormattedText(String text, TextOptions options);
+    IFormattedText CreateFormattedText(String text, TextFormat format);
 
     /// <summary>
     ///     Draw a filled rectangle.

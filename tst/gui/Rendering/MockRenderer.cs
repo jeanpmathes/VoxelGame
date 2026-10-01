@@ -44,7 +44,7 @@ public class MockRenderer : Renderer
 
     public override void PopOpacity() {}
 
-    public override IFormattedText CreateFormattedText(String text, TextOptions options)
+    public override IFormattedText CreateFormattedText(String text, TextFormat format)
     {
         return new MockFormattedText();
     }

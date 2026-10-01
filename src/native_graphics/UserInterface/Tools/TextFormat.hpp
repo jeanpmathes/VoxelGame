@@ -16,10 +16,8 @@
 //     along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // </copyright>
 // <author>jeanpmathes</author>
-
 #pragma once
 
-#include "Objects/Object.hpp"
 #include "UserInterface/Definitions.hpp"
 
 namespace ui
@@ -29,33 +27,18 @@ namespace ui
     /**
      * \brief A user-interface text format, wrapping a \c IDWriteTextFormat object.
      */
-    class TextFormat final : public Object
+    class TextFormat final
     {
-        DECLARE_OBJECT_SUBCLASS(TextFormat)
-
     public:
-        /**
-         * \brief An index into active text-format storage.
-         */
-        enum class Index : size_t
-        {
-        };
-
         explicit TextFormat(Renderer& renderer);
 
-        /**
-         * Return this text to the renderer. Do not use after returning.
-         */
-        void Return();
-
-        void Reset(Index newIndex, TextFormatDescription const& newDescription);
+        void Reset(TextFormatDescription const& newDescription);
 
         [[nodiscard]] Renderer&          GetRenderer() const;
         [[nodiscard]] IDWriteTextFormat* GetWrapped() const;
 
     private:
-        Renderer*            renderer;
-        std::optional<Index> index;
+        Renderer* renderer;
 
         ComPtr<IDWriteTextFormat>   wrapped;
         ComPtr<IDWriteInlineObject> trimmingSign;

@@ -19,6 +19,7 @@
 
 using System;
 using System.Runtime.InteropServices.Marshalling;
+using VoxelGame.Graphics.Definition.UserInterface;
 using VoxelGame.GUI.Utilities;
 using VoxelGame.Toolkit.Utilities;
 
@@ -33,18 +34,40 @@ public sealed class Text : DisposableNativeObject<Text>
     private Size? lastAvailableSize;
     private Size lastMeasuredSize = Size.Empty;
 
-    internal Text(IntPtr nativePointer, TextFormat format, Renderer renderer) : base(nativePointer, renderer.NativeClient)
+    internal Text(IntPtr nativePointer, Renderer renderer) : base(nativePointer, renderer.NativeClient)
     {
         Renderer = renderer;
-        Format = format;
     }
 
     internal Renderer Renderer { get; }
 
     /// <summary>
-    /// The text format this was created with.
+    /// Sets the text content.
     /// </summary>
-    public TextFormat Format { get; }
+    /// <param name="content">The new text content.</param>
+    public void SetContent(String content)
+    {
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        lastAvailableSize = null;
+        lastMeasuredSize = Size.Empty;
+
+        Native.SetTextContent(this, content);
+    }
+
+    /// <summary>
+    /// Sets the text format.
+    /// </summary>
+    /// <param name="format">The new text format description.</param>
+    public void SetFormat(TextFormatDescription format)
+    {
+        ExceptionTools.ThrowIfDisposed(disposed);
+
+        lastAvailableSize = null;
+        lastMeasuredSize = Size.Empty;
+
+        Native.SetTextFormat(this, format);
+    }
 
     /// <summary>
     /// Measure the text.

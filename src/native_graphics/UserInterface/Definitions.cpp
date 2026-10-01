@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 D2D1_POINT_2F ui::Point::ToD2D1() const
 {
@@ -53,4 +53,46 @@ D2D1_COLOR_F ui::Color::ToD2D1() const
     Require(std::isfinite(a));
 
     return D2D1::ColorF(r, g, b, a);
+}
+
+bool ui::TextFormatDescription::operator==(TextFormatDescription const& other) const
+{
+    if (fontFamily == other.fontFamily)
+    {
+        // Pointers are identical (or both null).
+    }
+    else if (fontFamily == nullptr || other.fontFamily == nullptr) return false;
+    else if (wcscmp(fontFamily, other.fontFamily) != 0) return false;
+
+    return weight == other.weight
+           && style == other.style
+           && stretch == other.stretch
+           && size == other.size
+           && wrapping == other.wrapping
+           && alignment == other.alignment
+           && trimming == other.trimming
+           && lineHeight == other.lineHeight;
+}
+
+std::size_t ui::TextFormatDescriptionHash::operator()(TextFormatDescription const& description) const noexcept
+{
+    std::size_t seed        = 0;
+    auto        hashCombine = [&seed](auto const& value)
+    {
+        seed ^= std::hash<std::decay_t<decltype(value)>>{}(value) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+    };
+
+    if (description.fontFamily != nullptr) hashCombine(std::wstring_view(description.fontFamily));
+    else hashCombine(std::wstring_view(L""));
+
+    hashCombine(description.weight);
+    hashCombine(static_cast<UINT8>(description.style));
+    hashCombine(static_cast<UINT8>(description.stretch));
+    hashCombine(description.size);
+    hashCombine(static_cast<UINT8>(description.wrapping));
+    hashCombine(static_cast<UINT8>(description.alignment));
+    hashCombine(static_cast<UINT8>(description.trimming));
+    hashCombine(description.lineHeight);
+
+    return seed;
 }

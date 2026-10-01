@@ -25,7 +25,6 @@ namespace ui
 {
     class Context;
     class Renderer;
-    class TextFormat;
 
     /**
      * \brief Owns text objects of a UI renderer.
@@ -39,10 +38,10 @@ namespace ui
          * \brief Get a text object.
          * \param textContent The text content used to create the object.
          * \param textLength The length of the text content.
-         * \param format The text format used to create the object.
+         * \param format The text format description used to create the object.
          * \returns The text object. Needs to be returned.
          */
-        Text& GetText(WCHAR const* textContent, UINT textLength, TextFormat& format);
+        Text& GetText(WCHAR const* textContent, UINT textLength, TextFormatDescription const& format);
 
         /**
          * \brief Return a text.

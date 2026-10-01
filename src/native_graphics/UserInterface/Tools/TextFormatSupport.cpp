@@ -7,25 +7,22 @@ ui::TextFormatSupport::TextFormatSupport(Renderer& renderer)
 
 ui::TextFormat& ui::TextFormatSupport::GetTextFormat(TextFormatDescription const& description)
 {
+    auto const it = formats.find(description);
+    if (it != formats.end()) return *it->second;
+
     auto        textFormat = std::make_unique<TextFormat>(renderer);
     TextFormat& result     = *textFormat;
 
-    TextFormat::Index const index = textFormats.Push(std::move(textFormat));
+    result.Reset(description);
 
-    result.Reset(index, description);
+    TextFormatDescription storedDescription = description;
+    if (description.fontFamily != nullptr)
+    {
+        auto const [familyIt, _]     = fontFamilies.insert(description.fontFamily);
+        storedDescription.fontFamily = familyIt->c_str();
+    }
+
+    formats.emplace(storedDescription, std::move(textFormat));
 
     return result;
-}
-
-void ui::TextFormatSupport::ReturnTextFormat(TextFormat::Index const index)
-{
-    textFormats.Pop(index);
-}
-
-void ui::TextFormatSupport::ValidateAllWrappedResourcesAreReturned() const
-{
-    if (textFormats.GetCount() > 0) renderer.GetClient().GetContext().GetDebugLayer().AddWarning(
-                                                                                                 std::format(
-                                                                                                             "A total of {} wrapped text formats have not been returned",
-                                                                                                             textFormats.GetCount()).c_str());
 }

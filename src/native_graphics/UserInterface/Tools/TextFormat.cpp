@@ -92,28 +92,17 @@ namespace
 }
 
 ui::TextFormat::TextFormat(Renderer& renderer)
-    : Object(renderer.GetClient())
-  , renderer(&renderer)
+    : renderer(&renderer)
 {
 }
 
-void ui::TextFormat::Return()
-{
-    Index const oldIndex = index.value();
-    index                = std::nullopt;
-
-    renderer->GetTextFormatSupport().ReturnTextFormat(oldIndex);
-}
-
-void ui::TextFormat::Reset(Index newIndex, TextFormatDescription const& newDescription)
+void ui::TextFormat::Reset(TextFormatDescription const& newDescription)
 {
     Require(newDescription.fontFamily != nullptr);
     Require(std::isfinite(newDescription.size));
     Require(newDescription.size > 0.0f);
     Require(std::isfinite(newDescription.lineHeight));
     Require(newDescription.lineHeight >= 0.0f);
-
-    index = newIndex;
 
     TryDo(
           renderer->GetContext().GetDirectWriteFactory()->CreateTextFormat(

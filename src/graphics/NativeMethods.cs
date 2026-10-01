@@ -1,4 +1,4 @@
-﻿// <copyright file="NativeMethods.cs" company="VoxelGame">
+// <copyright file="NativeMethods.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -214,21 +214,26 @@ internal static partial class NativeMethods
     [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial void ReturnUserInterfaceBrush(Brush brush);
 
-    [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceTextFormat")]
-    [DefaultDllImportSearchPaths(SearchPath)]
-    internal static partial IntPtr CreateUserInterfaceTextFormat(Renderer renderer, TextFormatDescription description);
-
-    [LibraryImport(DllFilePath, EntryPoint = "NativeReturnUserInterfaceTextFormat")]
-    [DefaultDllImportSearchPaths(SearchPath)]
-    internal static partial void ReturnUserInterfaceTextFormat(TextFormat format);
-
     [LibraryImport(DllFilePath, EntryPoint = "NativeCreateUserInterfaceText")]
     [DefaultDllImportSearchPaths(SearchPath)]
     internal static partial IntPtr CreateUserInterfaceText(
         Renderer renderer,
         [MarshalAs(UnmanagedType.LPWStr)] String text,
         UInt32 textLength,
-        TextFormat format);
+        TextFormatDescription description);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetUserInterfaceTextContent")]
+    [DefaultDllImportSearchPaths(SearchPath)]
+    internal static partial void SetUserInterfaceTextContent(
+        Text text,
+        [MarshalAs(UnmanagedType.LPWStr)] String newText,
+        UInt32 textLength);
+
+    [LibraryImport(DllFilePath, EntryPoint = "NativeSetUserInterfaceTextFormat")]
+    [DefaultDllImportSearchPaths(SearchPath)]
+    internal static partial void SetUserInterfaceTextFormat(
+        Text text,
+        TextFormatDescription description);
 
     [LibraryImport(DllFilePath, EntryPoint = "NativeReturnUserInterfaceText")]
     [DefaultDllImportSearchPaths(SearchPath)]
