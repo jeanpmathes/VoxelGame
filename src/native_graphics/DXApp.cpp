@@ -56,11 +56,11 @@ namespace
         return CheckReturn(LoadCursor(nullptr, name));
     }
 
-    std::map<MouseCursor, HCURSOR> LoadAllCursors()
+    std::array<HCURSOR, static_cast<size_t>(MouseCursor::COUNT)> LoadAllCursors()
     {
-        std::map<MouseCursor, HCURSOR> cursors;
+        std::array<HCURSOR, static_cast<size_t>(MouseCursor::COUNT)> cursors = {};
 
-        for (int i = 0; i < static_cast<int>(MouseCursor::COUNT); i++) cursors[static_cast<MouseCursor>(i)] = LoadCursorFromEnum(static_cast<MouseCursor>(i));
+        for (int i = 0; i < static_cast<int>(MouseCursor::COUNT); i++) cursors[i] = LoadCursorFromEnum(static_cast<MouseCursor>(i));
 
         return cursors;
     }
@@ -286,7 +286,7 @@ bool DXApp::OnMouseWheel(INT32 x, INT32 y, double sx, double sy) const
     return hooks.onMouseScroll(x, y, sx, sy);
 }
 
-void DXApp::DoCursorSet() const { SetCursor(mouseCursors.at(mouseCursor)); }
+void DXApp::DoCursorSet() const { SetCursor(mouseCursors.at(static_cast<size_t>(mouseCursor))); }
 
 void DXApp::SetWindowBounds(int const left, int const top, int const right, int const bottom)
 {

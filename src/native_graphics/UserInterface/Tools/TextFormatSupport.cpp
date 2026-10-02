@@ -7,8 +7,8 @@ ui::TextFormatSupport::TextFormatSupport(Renderer& renderer)
 
 ui::TextFormat& ui::TextFormatSupport::GetTextFormat(TextFormatDescription const& description)
 {
-    auto const it = formats.find(description);
-    if (it != formats.end()) return *it->second;
+    auto const iterator = formats.find(description);
+    if (iterator != formats.end()) return *iterator->second;
 
     auto        textFormat = std::make_unique<TextFormat>(renderer);
     TextFormat& result     = *textFormat;

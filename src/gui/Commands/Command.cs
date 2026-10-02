@@ -66,7 +66,7 @@ public static class Command
 
         public void Dispose()
         {
-            // Nothing to dispose.
+            // Nothing to dispose of.
         }
     }
 

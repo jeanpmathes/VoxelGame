@@ -20,7 +20,6 @@
 #pragma once
 
 #include <unordered_map>
-#include <unordered_set>
 #include "UserInterface/Tools/TextFormat.hpp"
 
 namespace ui
@@ -46,7 +45,7 @@ namespace ui
     private:
         Renderer& renderer;
 
-        std::unordered_set<std::wstring>                                                                  fontFamilies;
+        std::set<std::wstring>                                                                            fontFamilies;
         std::unordered_map<TextFormatDescription, std::unique_ptr<TextFormat>, TextFormatDescriptionHash> formats;
     };
 }

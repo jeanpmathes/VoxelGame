@@ -55,8 +55,8 @@ private:
         INT                priority;
     };
 
-    std::list<Entry>                                   entries;
-    std::map<T*, typename decltype(entries)::iterator> entryMap = {};
+    std::list<Entry>                                             entries;
+    std::unordered_map<T*, typename decltype(entries)::iterator> entryMap = {};
 
 public:
     // ReSharper disable once CppInconsistentNaming
@@ -127,6 +127,7 @@ void PriorityList<T>::Remove(T* object)
     Require(iterator != entryMap.end());
 
     entries.erase(iterator->second);
+    entryMap.erase(iterator);
 }
 
 template <typename T>

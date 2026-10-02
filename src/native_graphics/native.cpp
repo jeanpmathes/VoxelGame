@@ -426,7 +426,7 @@ NATIVE ui::Brush* NativeCreateUserInterfaceSolidColorBrush(ui::Renderer* rendere
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&renderer->GetClient()));
+        Require(CALL_ON_MAIN_THREAD(&renderer->GetClient()));
 
         return &renderer->GetBrushSupport().GetSolidColorBrush(color);
     } CATCH();
@@ -436,7 +436,7 @@ NATIVE void NativeReturnUserInterfaceBrush(ui::Brush* brush)
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&brush->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&brush->GetClient()));
+        Require(CALL_ON_MAIN_THREAD(&brush->GetClient()));
 
         brush->Return();
     } CATCH();
@@ -446,7 +446,7 @@ NATIVE ui::Text* NativeCreateUserInterfaceText(ui::Renderer* renderer, LPCWSTR c
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&renderer->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&renderer->GetClient()));
+        Require(CALL_ON_MAIN_THREAD(&renderer->GetClient()));
 
         return &renderer->GetTextSupport().GetText(text, textLength, description);
     } CATCH();
@@ -456,7 +456,7 @@ NATIVE void NativeSetUserInterfaceTextContent(ui::Text* text, LPCWSTR const newT
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&text->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&text->GetClient()));
+        Require(CALL_ON_MAIN_THREAD(&text->GetClient()));
 
         text->SetContent(newText, textLength);
     } CATCH();
@@ -466,7 +466,7 @@ NATIVE void NativeSetUserInterfaceTextFormat(ui::Text* text, ui::TextFormatDescr
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&text->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&text->GetClient()));
+        Require(CALL_ON_MAIN_THREAD(&text->GetClient()));
 
         text->SetFormat(description);
     } CATCH();
@@ -476,7 +476,7 @@ NATIVE void NativeReturnUserInterfaceText(ui::Text* text)
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&text->GetClient()) || CALL_IN_INITIALIZATION_OR_DESTROY(&text->GetClient()));
+        Require(CALL_ON_MAIN_THREAD(&text->GetClient()));
 
         text->Return();
     } CATCH();
@@ -486,7 +486,7 @@ NATIVE ui::Size NativeMeasureUserInterfaceText(ui::Text* text, ui::Size const av
 {
     TRY
     {
-        Require(CALL_IN_INPUT_LOGIC_OR_RENDER(&text->GetClient()));
+        Require(CALL_ON_MAIN_THREAD(&text->GetClient()));
 
         return text->Measure(availableSize);
     } CATCH();

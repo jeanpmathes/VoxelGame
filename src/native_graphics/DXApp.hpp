@@ -237,8 +237,8 @@ private:
     INT32 yMousePosition = 0;
     bool  mouseLocked    = false;
 
-    MouseCursor                    mouseCursor = MouseCursor::ARROW;
-    std::map<MouseCursor, HCURSOR> mouseCursors;
+    MouseCursor                                                  mouseCursor  = MouseCursor::ARROW;
+    std::array<HCURSOR, static_cast<size_t>(MouseCursor::COUNT)> mouseCursors = {};
 
     std::optional<Cycle> cycle        = std::nullopt;
     std::thread::id      mainThreadId = std::this_thread::get_id();

@@ -157,9 +157,9 @@ private:
     std::vector<std::unique_ptr<RasterPipeline>> rasterPipelines        = {};
     RasterPipeline*                              postProcessingPipeline = nullptr;
 
-    PriorityList<draw2d::Pipeline>    draw2DPipelines;
-    std::map<UINT, draw2d::Pipeline*> draw2DPipelineIDs    = {};
-    UINT                              nextDraw2DPipelineID = 0;
+    PriorityList<draw2d::Pipeline>              draw2DPipelines;
+    std::unordered_map<UINT, draw2d::Pipeline*> draw2DPipelineIDs    = {};
+    UINT                                        nextDraw2DPipelineID = 0;
 
     PriorityList<ui::Renderer> userInterfaces;
 

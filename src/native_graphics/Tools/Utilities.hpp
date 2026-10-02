@@ -1,4 +1,4 @@
-﻿//  <copyright file="Utilities.hpp" company="VoxelGame">
+//  <copyright file="Utilities.hpp" company="VoxelGame">
 //      MIT License
 // 	 For full license see the repository.
 //  </copyright>
@@ -335,7 +335,7 @@ namespace util
 
                 if (!complete)
                 {
-                    std::map<UINT, std::vector<wchar_t const*>> contexts;
+                    std::unordered_map<UINT, std::vector<wchar_t const*>> contexts;
 
                     for (UINT context = 0; context < node->BreadcrumbContextsCount; context++)
                     {

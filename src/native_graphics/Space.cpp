@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 
 bool Material::IsAnimated() const { return animationID.has_value(); }
 
@@ -433,7 +433,7 @@ std::unique_ptr<Material> Space::SetUpMaterial(MaterialDescription const& descri
 
 void Space::CreateAnimations(SpacePipelineDescription const& pipeline)
 {
-    std::map<UINT, UINT> animationShaderIndexToID;
+    std::vector<UINT> animationShaderIndexToID(pipeline.shaderCount);
 
     for (UINT shaderIndex = 0; shaderIndex < pipeline.shaderCount; shaderIndex++)
     {
