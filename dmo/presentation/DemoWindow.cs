@@ -32,18 +32,18 @@ namespace VoxelGame.Presentation.Demo;
 
 internal class DemoWindow : Client
 {
-    private const Int32 MaxFrameSampleSize = 10000;
-
+    private const Int32 MaxFrameSampleSize = 500;
     private readonly GraphicalUserInterface gui;
 
     private readonly CircularTimeBuffer renderTimes;
     private readonly CircularTimeBuffer updateTimes;
 
-    private DemoHarness? harness;
+    private DemoHarness harness;
 
     private DemoWindow(WindowSettings windowSettings, Version version, Boolean isTransparent) : base(windowSettings, version)
     {
-        gui = GraphicalUserInterface.Create(this, new Theme([Defaults.CreateCanvasStyle(isTransparent)], []));
+        harness = new DemoHarness();
+        gui = GraphicalUserInterface.Create(this, new Theme([Defaults.CreateCanvasStyle(isTransparent)], [.. harness.GetShowcaseTemplates()]));
 
         updateTimes = new CircularTimeBuffer(MaxFrameSampleSize);
         renderTimes = new CircularTimeBuffer(MaxFrameSampleSize);
@@ -71,16 +71,16 @@ internal class DemoWindow : Client
         gui.Root?.SetDebugOutlines(false);
     }
 
-    protected override void OnLogicUpdate(Delta delta, Timer? timer)
+    protected override void OnInputUpdate(Delta delta, Timer? timer)
     {
         updateTimes.Write(delta.RealTime);
-        harness?.UpdateFrequency.SetValue(1 / updateTimes.Average);
+        harness.UpdateFrequency.SetValue(1 / updateTimes.Average);
     }
 
     protected override void OnRenderUpdate(Delta delta, Timer? timer)
     {
         renderTimes.Write(delta.RealTime);
-        harness?.RenderFrequency.SetValue(1 / renderTimes.Average);
+        harness.RenderFrequency.SetValue(1 / renderTimes.Average);
 
         gui.Render();
     }

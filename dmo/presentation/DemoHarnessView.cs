@@ -1,9 +1,8 @@
 ﻿using System;
 using VoxelGame.GUI;
+using VoxelGame.GUI.Bindings;
 using VoxelGame.GUI.Commands;
 using VoxelGame.GUI.Controls;
-using VoxelGame.GUI.Texts;
-using VoxelGame.GUI.Utilities;
 
 namespace VoxelGame.Presentation.Demo;
 
@@ -11,80 +10,65 @@ internal static class DemoHarnessView
 {
     internal static Control Create(DemoHarness harness)
     {
-        return new Border
+        return new LinearLayout
         {
-            HorizontalAlignment = {Value = HorizontalAlignment.Stretch},
-            VerticalAlignment = {Value = VerticalAlignment.Stretch},
-            Margin = {Value = new Thickness(5)},
-            Padding = {Value = new Thickness(5)},
+            Orientation = {Value = Orientation.Vertical},
 
-            Child = new LinearLayout
+            Children =
             {
-                Children =
+                new LinearLayout
                 {
-                    new Border
-                    {
-                        MinimumWidth = {Value = 500f},
-                        MinimumHeight = {Value = 250f},
-                        HorizontalAlignment = {Value = HorizontalAlignment.Center},
-                        VerticalAlignment = {Value = VerticalAlignment.Center},
-                    },
-                    new Text
-                    {
-                        MaximumWidth = {Value = 100f},
-                        TextTrimming = {Value = TextTrimming.CharacterEllipsis},
+                    Orientation = {Value = Orientation.Horizontal},
 
-                        Visibility = {Value = Visibility.Collapsed},
-
-                        Content =
+                    Children =
+                    {
+                        new LinearLayout
                         {
-                            Value =
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit."
-                        }
-                    },
-                    new LinearLayout
-                    {
-                        Orientation = {Value = Orientation.Vertical},
+                            Orientation = {Value = Orientation.Vertical},
 
-                        Children =
+                            Children =
+                            {
+                                new Text
+                                {
+                                    Content = {Binding = Binding.To(harness.CurrentShowcase).Compute(showcase => $"Showcase: {showcase?.Name}")}
+                                },
+                                new Button<String>
+                                {
+                                    Content = {Value = "Next Showcase"},
+                                    Command = {Value = Command.FromAction(harness.MoveToNextShowcase)}
+                                },
+                                new Button<String>
+                                {
+                                    Content = {Value = "Previous Showcase"},
+                                    Command = {Value = Command.FromAction(harness.MoveToPreviousShowcase)}
+                                }
+                            }
+                        },
+                        new Border
                         {
-                            new Button<String>
+                            Child = new ContentControl<Showcase>
                             {
-                                Content = {Value = "Click Me"},
+                                Content = {Binding = Binding.To(harness.CurrentShowcase)},
 
-                                Margin = {Value = new Thickness(30)},
-
-                                Command = {Value = Command.FromAction(() => harness.Write("Button clicked!"))}
-                            },
-                            new Button<String>
-                            {
-                                Content = {Value = "Click Me"},
-
-                                Margin = {Value = new Thickness(30)}
-                            },
-                            new Button<String>
-                            {
-                                Content = {Value = "Click Me"},
-
-                                Margin = {Value = new Thickness(30)},
-
-                                Command = {Value = Command.FromAction(() => harness.Write("Button clicked!"))}
+                                VerticalAlignment = {Value = VerticalAlignment.Stretch},
+                                HorizontalAlignment = {Value = HorizontalAlignment.Stretch}
                             }
                         }
-                    },
-                    new Text
-                    {
-                        Content = {Value = "Hello, World!"}
-                    },
-                    new Text
-                    {
-                        MaximumWidth = {Value = 100f},
-                        TextTrimming = {Value = TextTrimming.WordEllipsis},
+                    }
+                },
+                new LinearLayout
+                {
+                    Orientation = {Value = Orientation.Vertical},
 
-                        Content =
+                    Children =
+                    {
+                        new Text
                         {
-                            Value =
-                                "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur. Donec ut libero sed arcu vehicula ultricies a non tortor. Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+                            Content = {Binding = Binding.To(harness.RenderFrequency).Compute(fps => $"FPS: {fps:00.0}")}
+                        },
+                        new Text
+                        {
+                            Content = {Binding = Binding.To(harness.UpdateFrequency).Compute(fps => $"UPS: {fps:00.0}")}
                         }
                     }
                 }

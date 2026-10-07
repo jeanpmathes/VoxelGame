@@ -18,15 +18,31 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using VoxelGame.GUI.Bindings;
+using VoxelGame.GUI.Controls.Templates;
+using VoxelGame.Toolkit.Utilities;
 
 namespace VoxelGame.Presentation.Demo;
 
 /// <summary>
-///     Hosts all the different demonstrations.
+///     Hosts all the different showcases.
 /// </summary>
 public class DemoHarness
 {
+    private readonly Showcase[] showcases;
+
+    private Int32 currentShowcaseIndex;
+
+    /// <summary>
+    ///     Create a new demo harness, which collects all available showcases.
+    /// </summary>
+    public DemoHarness()
+    {
+        showcases = [.. Reflections.GetSubclassInstances<Showcase>()];
+    }
+
     /// <summary>
     ///     The currently calculated rendering cycle frequency.
     /// </summary>
@@ -36,6 +52,50 @@ public class DemoHarness
     ///     The currently calculated update cycle frequency.
     /// </summary>
     public Slot<Double> UpdateFrequency => field ??= new Slot<Double>(value: 0.0, this);
+
+    /// <summary>
+    ///     The currently selected showcase.
+    /// </summary>
+    public Slot<Showcase?> CurrentShowcase => field ??= new Slot<Showcase?>(value: null, this);
+
+    /// <summary>
+    ///     Get the templates of all showcases.
+    /// </summary>
+    /// <returns>The templates of all showcases.</returns>
+    public IEnumerable<ContentTemplate> GetShowcaseTemplates()
+    {
+        return showcases.Select(showcase => showcase.GetTemplate());
+    }
+
+    /// <summary>
+    ///     Move <see cref="CurrentShowcase" /> to the next showcase.
+    /// </summary>
+    public void MoveToNextShowcase()
+    {
+        if (showcases.Length == 0) return;
+
+        currentShowcaseIndex += 1;
+
+        if (currentShowcaseIndex >= showcases.Length)
+            currentShowcaseIndex = 0;
+
+        CurrentShowcase.SetValue(showcases[currentShowcaseIndex]);
+    }
+
+    /// <summary>
+    ///     Move <see cref="CurrentShowcase" /> to the previous showcase.
+    /// </summary>
+    public void MoveToPreviousShowcase()
+    {
+        if (showcases.Length == 0) return;
+
+        currentShowcaseIndex -= 1;
+
+        if (currentShowcaseIndex < 0)
+            currentShowcaseIndex = showcases.Length - 1;
+
+        CurrentShowcase.SetValue(showcases[currentShowcaseIndex]);
+    }
 
     /// <summary>
     ///     Write and display a message.
