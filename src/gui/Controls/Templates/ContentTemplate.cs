@@ -1,4 +1,4 @@
-﻿// <copyright file="ContentTemplate.cs" company="VoxelGame">
+// <copyright file="ContentTemplate.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using VoxelGame.Core.Utilities.Resources;
 
 namespace VoxelGame.GUI.Controls.Templates;
@@ -26,7 +27,7 @@ namespace VoxelGame.GUI.Controls.Templates;
 ///     Abstract base class of all content templates.
 /// </summary>
 /// <seealso cref="ContentTemplate{TContent}" />
-public abstract class ContentTemplate(RID identifier) : IResource
+public abstract class ContentTemplate(RID identifier) : IContentTemplate
 {
     /// <summary>
     ///     Get the trivial content template for content of type <see cref="Control" />.
@@ -45,10 +46,11 @@ public abstract class ContentTemplate(RID identifier) : IResource
     /// </summary>
     public static IContentTemplate<Object> Default { get; } = new ContentTemplate<Object>(content => CreateStringContent(content.ToString() ?? ""), RID.Named<ContentTemplate<Object>>(GetBuiltInContentTemplateName(nameof(Default))));
 
-    /// <summary>
-    ///     The type of content this template can be applied to.
-    /// </summary>
+    /// <inheritdoc />
     public abstract Type ContentType { get; }
+
+    /// <inheritdoc />
+    public abstract Boolean TryApply(Object content, [NotNullWhen(true)] out Control? control);
 
     /// <inheritdoc />
     public RID Identifier { get; } = identifier;
@@ -104,10 +106,30 @@ public abstract class ContentTemplate(RID identifier) : IResource
 }
 
 /// <summary>
+///     Interface for content templates, defining how to display content.
+/// </summary>
+public interface IContentTemplate : IResource
+{
+    /// <summary>
+    ///     The type of content this template can be applied to.
+    /// </summary>
+    public Type ContentType { get; }
+
+    /// <summary>
+    ///     Tries to apply the template to the given content, creating its control structure if the content is of a compatible
+    ///     type.
+    /// </summary>
+    /// <param name="content">The content to apply the template to.</param>
+    /// <param name="control">The created control structure, or <see langword="null" /> if the application failed.</param>
+    /// <returns><see langword="true" /> if the template was applied successfully; otherwise, <see langword="false" />.</returns>
+    public Boolean TryApply(Object content, [NotNullWhen(true)] out Control? control);
+}
+
+/// <summary>
 ///     Interface for content templates, defining how to display content of a specific type.
 /// </summary>
 /// <typeparam name="TContent">The type of the content.</typeparam>
-public interface IContentTemplate<in TContent> : IResource where TContent : class
+public interface IContentTemplate<in TContent> : IContentTemplate where TContent : class
 {
     /// <summary>
     ///     Applies the template to the given content, creating its control structure.
@@ -142,6 +164,19 @@ public sealed class ContentTemplate<TContent> : ContentTemplate, IContentTemplat
     public Control Apply(TContent content)
     {
         return function(content);
+    }
+
+    /// <inheritdoc />
+    public override Boolean TryApply(Object content, [NotNullWhen(true)] out Control? control)
+    {
+        if (content is TContent typedContent)
+        {
+            control = Apply(typedContent);
+            return true;
+        }
+
+        control = null;
+        return false;
     }
 
     /// <inheritdoc />

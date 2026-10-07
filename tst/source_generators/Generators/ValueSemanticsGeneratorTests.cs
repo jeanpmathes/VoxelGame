@@ -200,7 +200,7 @@ public class ValueSemanticsGeneratorTests
                                    /// <inheritdoc />
                                    public static TestStruct DefaultValue => new();
 
-                                   private global::System.ValueTuple<global::System.Int32> Pack => global::System.ValueTuple.Create(X);
+                                   private global::System.ValueTuple<global::System.Int32> Pack => global::System.ValueTuple.Create(@X);
 
                                    /// <inheritdoc />
                                    public override global::System.Boolean Equals(global::System.Object? obj)
@@ -270,7 +270,7 @@ public class ValueSemanticsGeneratorTests
                                    /// <inheritdoc />
                                    public static TestStruct DefaultValue => new();
 
-                                   private global::System.ValueTuple<global::System.Int32> Pack => global::System.ValueTuple.Create(X);
+                                   private global::System.ValueTuple<global::System.Int32> Pack => global::System.ValueTuple.Create(@X);
 
                                    /// <inheritdoc />
                                    public override global::System.Boolean Equals(global::System.Object? obj)

@@ -1,4 +1,4 @@
-﻿// <copyright file="Context.cs" company="VoxelGame">
+// <copyright file="Context.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -19,7 +19,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using VoxelGame.GUI.Controls;
 using VoxelGame.GUI.Controls.Templates;
 using VoxelGame.GUI.Input;
@@ -40,7 +39,7 @@ public class Context
     private readonly Canvas? canvas;
 
     private readonly Dictionary<Type, Style>? styles;
-    private readonly Dictionary<Type, ContentTemplate>? contentTemplates;
+    private readonly Dictionary<Type, IContentTemplate>? contentTemplates;
 
     /// <summary>
     ///     Create an inheriting context with the given parent.
@@ -75,11 +74,11 @@ public class Context
             styles[style.StyledType] = style;
         }
 
-        contentTemplates = new Dictionary<Type, ContentTemplate>();
+        contentTemplates = new Dictionary<Type, IContentTemplate>();
 
-        foreach (ContentTemplate content in theme.ContentTemplates)
+        foreach (ContentTemplate contentTemplate in theme.ContentTemplates)
         {
-            contentTemplates[content.ContentType] = content;
+            contentTemplates[contentTemplate.ContentType] = contentTemplate;
         }
     }
 
@@ -110,10 +109,13 @@ public class Context
 
     private IStyle<T>? GetStyleForType<T>(Type type) where T : IControl
     {
-        if (styles != null && styles.TryGetValue(type, out Style? potentialStyle) && potentialStyle is IStyle<T> style)
-            return style;
+        for (Context? current = this; current != null; current = current.parent)
+        {
+            if (current.styles != null && current.styles.TryGetValue(type, out Style? potentialStyle) && potentialStyle is IStyle<T> style)
+                return style;
+        }
 
-        return parent?.GetStyleForType<T>(type);
+        return null;
     }
 
     /// <summary>
@@ -137,11 +139,6 @@ public class Context
         return result;
     }
 
-    private static String GetTypeSortKey(Type type)
-    {
-        return type.AssemblyQualifiedName ?? type.FullName ?? type.Name;
-    }
-
     private void CollectStylesForType<T>(Type type, HashSet<Type> visited, List<IStyle<T>> result) where T : IControl
     {
         if (type == typeof(Object)) return;
@@ -150,7 +147,7 @@ public class Context
         if (type.BaseType != null)
             CollectStylesForType(type.BaseType, visited, result);
 
-        foreach (Type interfaceType in type.GetInterfaces().OrderBy(GetTypeSortKey, StringComparer.Ordinal))
+        foreach (Type interfaceType in Reflections.GetInterfaces(type))
             CollectStylesForInterface(interfaceType, visited, result);
 
         if (GetStyleForType<T>(type) is {} style)
@@ -161,7 +158,7 @@ public class Context
     {
         if (!visited.Add(interfaceType)) return;
 
-        foreach (Type parentInterfaceType in interfaceType.GetInterfaces().OrderBy(GetTypeSortKey, StringComparer.Ordinal))
+        foreach (Type parentInterfaceType in Reflections.GetInterfaces(interfaceType))
             CollectStylesForInterface(parentInterfaceType, visited, result);
 
         if (GetStyleForType<T>(interfaceType) is {} style)
@@ -171,14 +168,40 @@ public class Context
     /// <summary>
     ///     Get a content template for the given content type.
     /// </summary>
-    /// <typeparam name="TContent">The content type to get the template for.</typeparam>
-    /// <returns>The content template for the given type, or null if none is registered.</returns>
-    public IContentTemplate<TContent> GetContentTemplate<TContent>() where TContent : class
+    /// <param name="type">The content type to get the template for.</param>
+    /// <returns>The content template for the given type, or the default template if none is registered.</returns>
+    public IContentTemplate GetContentTemplate(Type type)
     {
-        if (contentTemplates != null && contentTemplates.TryGetValue(typeof(TContent), out ContentTemplate? potentialTemplate) && potentialTemplate is IContentTemplate<TContent> template)
-            return template;
+        foreach (Type candidate in Reflections.GetTypeHierarchy(type))
+        {
+            for (Context? current = this; current != null; current = current.parent)
+            {
+                if (current.contentTemplates != null && current.contentTemplates.TryGetValue(candidate, out IContentTemplate? template))
+                    return template;
+            }
+        }
 
-        return parent?.GetContentTemplate<TContent>() ?? ContentTemplate.Default;
+        return ContentTemplate.Default;
+    }
+
+    /// <summary>
+    ///     Get a content template for the given content object.
+    /// </summary>
+    /// <param name="content">The content object to get the template for.</param>
+    /// <returns>The content template for the given content, or the default template if none is registered.</returns>
+    public IContentTemplate GetContentTemplate(Object content)
+    {
+        return GetContentTemplate(content.GetType());
+    }
+
+    /// <summary>
+    ///     Get a content template for the given content type.
+    /// </summary>
+    /// <typeparam name="TContent">The content type to get the template for.</typeparam>
+    /// <returns>The content template for the given type, or the default template if none is registered.</returns>
+    public IContentTemplate GetContentTemplate<TContent>() where TContent : class
+    {
+        return GetContentTemplate(typeof(TContent));
     }
 
     /// <summary>

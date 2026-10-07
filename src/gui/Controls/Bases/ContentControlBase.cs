@@ -1,4 +1,4 @@
-﻿// <copyright file="ContentControlBase.cs" company="VoxelGame">
+// <copyright file="ContentControlBase.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -68,17 +68,19 @@ public abstract class ContentControlBase<TContent, TControl> : Control<TControl>
             return;
         }
 
-        Control child = GetContentTemplate().Apply(content);
+        IContentTemplate template = GetContentTemplate(content);
 
-        SetChild(child);
+        SetChild(template.TryApply(content, out Control? child)
+            ? child
+            : Templates.ContentTemplate.Default.Apply(content));
     }
 
-    private IContentTemplate<TContent> GetContentTemplate()
+    private IContentTemplate GetContentTemplate(TContent content)
     {
         if (ContentTemplate.GetValue() is {} localTemplate)
             return localTemplate;
 
-        return Context.GetContentTemplate<TContent>();
+        return Context.GetContentTemplate(content);
     }
 
     #region PROPERTIES

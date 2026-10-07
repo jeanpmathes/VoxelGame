@@ -1,4 +1,4 @@
-﻿// <copyright file="ContextTests.cs" company="VoxelGame">
+// <copyright file="ContextTests.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -186,8 +186,61 @@ public class ContextTests
             template = builder.AddContentTemplate<String>("", _ => new MockControl());
         });
 
-        IContentTemplate<String> result = context.GetContentTemplate<String>();
+        IContentTemplate result = context.GetContentTemplate<String>();
 
         Assert.Same(template, result);
+    }
+
+    [Fact]
+    public void Context_GetContentTemplate_ShouldResolveBaseTypeTemplateWhenDerivedTypeIsQueried()
+    {
+        ContentTemplate<Object>? template = null;
+
+        Context context = Context.Create(builder =>
+        {
+            template = builder.AddContentTemplate<Object>("", _ => new MockControl());
+        });
+
+        IContentTemplate result = context.GetContentTemplate<String>();
+
+        Assert.Same(template, result);
+    }
+
+    [Fact]
+    public void Context_GetContentTemplate_ShouldPrioritizeExactTypeOverBaseType()
+    {
+        ContentTemplate<String>? exactTemplate = null;
+
+        Context context = Context.Create(builder =>
+        {
+            builder.AddContentTemplate<Object>("base", _ => new MockControl());
+            exactTemplate = builder.AddContentTemplate<String>("exact", _ => new MockControl());
+        });
+
+        IContentTemplate result = context.GetContentTemplate<String>();
+
+        Assert.Same(exactTemplate, result);
+    }
+
+    [Fact]
+    public void Context_GetContentTemplate_ShouldPrioritizeExactTypeInParentOverBaseTypeInChild()
+    {
+        ContentTemplate<String>? parentExactTemplate = null;
+
+        Context parentContext = Context.Create(builder =>
+        {
+            parentExactTemplate = builder.AddContentTemplate<String>("exact", _ => new MockControl());
+        });
+
+        Context childLocalContext = Context.Create(builder =>
+        {
+            builder.AddContentTemplate<Object>("base", _ => new MockControl());
+        });
+
+        Context inheritingContext = new(childLocalContext, parentContext);
+
+        IContentTemplate result = inheritingContext.GetContentTemplate<String>();
+
+        Assert.Same(parentExactTemplate, result);
     }
 }

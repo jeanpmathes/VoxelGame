@@ -1,4 +1,4 @@
-﻿// <copyright file="Reflections.cs" company="VoxelGame">
+// <copyright file="Reflections.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 //      
@@ -18,6 +18,7 @@
 // <author>jeanpmathes</author>
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -31,6 +32,10 @@ namespace VoxelGame.Toolkit.Utilities;
 /// </summary>
 public static class Reflections
 {
+    private static readonly ConcurrentDictionary<Type, Type[]> interfacesCache = new();
+
+    private static readonly ConcurrentDictionary<Type, Type[]> typeHierarchyCache = new();
+
     /// <summary>
     ///     Get the long name of a type.
     ///     Different from <see cref="Type.FullName" /> for generic types.
@@ -200,5 +205,53 @@ public static class Reflections
     {
         return AppDomain.CurrentDomain.GetAssemblies().SelectMany(assembly => assembly.GetTypes())
             .Where(t => t is {IsClass: true, IsAbstract: false} && t.IsSubclassOf(typeof(T)));
+    }
+
+    /// <summary>
+    ///     Get all interfaces implemented by a type.
+    ///     The order of the returned interfaces is deterministic across application runs.
+    /// </summary>
+    /// <param name="type">The type to get the interfaces for.</param>
+    /// <returns>All interfaces implemented by the type in deterministic order.</returns>
+    public static IReadOnlyList<Type> GetInterfaces(Type type)
+    {
+        return interfacesCache.GetOrAdd(type, static key => [.. key.GetInterfaces().OrderBy(GetTypeSortKey, StringComparer.Ordinal)]);
+    }
+
+    private static String GetTypeSortKey(Type type)
+    {
+        return type.AssemblyQualifiedName ?? type.FullName ?? type.Name;
+    }
+
+    /// <summary>
+    ///     Get the specified type and all types in its inheritance and interface hierarchy.
+    ///     This includes the type itself, base classes (excluding <see cref="Object" />), implemented interfaces, and finally
+    ///     <see cref="Object" />.
+    ///     The order of the returned types is deterministic across application runs.
+    /// </summary>
+    /// <param name="type">The type to get the hierarchy for.</param>
+    /// <returns>The specified type and its type hierarchy.</returns>
+    public static IReadOnlyList<Type> GetTypeHierarchy(Type type)
+    {
+        return typeHierarchyCache.GetOrAdd(type,
+            static t =>
+            {
+                List<Type> types = [t];
+
+                Type? baseType = t.BaseType;
+
+                while (baseType != null && baseType != typeof(Object))
+                {
+                    types.Add(baseType);
+                    baseType = baseType.BaseType;
+                }
+
+                types.AddRange(GetInterfaces(t));
+
+                if (t != typeof(Object))
+                    types.Add(typeof(Object));
+
+                return [.. types];
+            });
     }
 }

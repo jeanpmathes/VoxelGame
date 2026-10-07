@@ -1,4 +1,4 @@
-﻿// <copyright file="ContentControlTests.cs" company="VoxelGame">
+// <copyright file="ContentControlTests.cs" company="VoxelGame">
 //     VoxelGame - a voxel-based video game.
 //     Copyright (C) 2026 Jean Patrick Mathes
 // 
@@ -202,5 +202,27 @@ public sealed class ContentControlTests() : ControlTestBase<ContentControl<Objec
         Assert.Single(control.Children);
         mockControl = Assert.IsType<MockControl>(control.Children[0]);
         Assert.Equal(secondContent, mockControl.Tag);
+    }
+
+    [Fact]
+    public void ContentControl_ContentTemplate_ShouldUseSubtypeTemplateFromContext()
+    {
+        const String derivedContent = "Derived Content";
+
+        ThemeBuilder builder = new();
+        builder.AddContentTemplate<String>("", _ => new MockControl(derivedContent));
+
+        using Canvas localCanvas = Canvas.Create(new MockRenderer(), builder.BuildTheme());
+
+        ContentControl<Object> control = new()
+        {
+            Content = {Value = ""}
+        };
+
+        localCanvas.Child = control;
+
+        Assert.Single(control.Children);
+        MockControl child = Assert.IsType<MockControl>(control.Children[0]);
+        Assert.Equal(derivedContent, child.Tag);
     }
 }
