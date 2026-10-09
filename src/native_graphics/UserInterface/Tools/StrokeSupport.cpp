@@ -16,7 +16,7 @@ ui::StrokeSupport::StrokeSupport(Renderer& renderer)
 
     createStrokeStyle(D2D1_CAP_STYLE_FLAT, D2D1_DASH_STYLE_SOLID, &solid);
     createStrokeStyle(D2D1_CAP_STYLE_FLAT, D2D1_DASH_STYLE_DASH, &dashes);
-    createStrokeStyle(D2D1_CAP_STYLE_FLAT, D2D1_DASH_STYLE_DOT, &squared);
+    createStrokeStyle(D2D1_CAP_STYLE_SQUARE, D2D1_DASH_STYLE_DOT, &squared);
     createStrokeStyle(D2D1_CAP_STYLE_ROUND, D2D1_DASH_STYLE_DOT, &dotted);
 }
 
@@ -26,7 +26,7 @@ ID2D1StrokeStyle* ui::StrokeSupport::UseRawStrokeStyle(StrokeStyle const style) 
     {
     case StrokeStyle::SOLID:
         return solid.Get();
-    case StrokeStyle::DASHES:
+    case StrokeStyle::DASHED:
         return dashes.Get();
     case StrokeStyle::SQUARED:
         return squared.Get();

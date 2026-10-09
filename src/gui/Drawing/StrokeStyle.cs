@@ -34,7 +34,7 @@ public enum StrokeStyle : Byte
     /// <summary>
     ///     A dashed stroke.
     /// </summary>
-    Dashes = 1,
+    Dashed = 1,
 
     /// <summary>
     ///     A squared stroke, consisting of many squares.

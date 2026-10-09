@@ -89,7 +89,7 @@ namespace ui
     enum class StrokeStyle : UINT8
     {
         SOLID   = 0,
-        DASHES  = 1,
+        DASHED  = 1,
         SQUARED = 2,
         DOTTED  = 3,
     };

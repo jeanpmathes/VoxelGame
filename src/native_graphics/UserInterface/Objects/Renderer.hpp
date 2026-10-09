@@ -93,5 +93,8 @@ namespace ui
         void DrawRectangleFilledRoundedBrush(DrawRectangleFilledRoundedBrushCommand const& command);
         void DrawTextColor(DrawTextColorCommand const& command);
         void DrawTextBrush(DrawTextBrushCommand const& command);
+
+        void DrawRectangleLined(Rectangle const& rectangle, ID2D1Brush* brush, FLOAT strokeWidth, StrokeStyle strokeStyle);
+        void DrawRectangleLinedRounded(Rectangle const& rectangle, Radius const& radius, ID2D1Brush* brush, FLOAT strokeWidth, StrokeStyle strokeStyle);
     };
 }

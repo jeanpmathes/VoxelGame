@@ -150,12 +150,7 @@ void ui::Renderer::DrawRectangleLinedColor(DrawRectangleLinedColorCommand const&
     Require(std::isfinite(command.strokeWidth));
     Require(command.strokeWidth >= 0.0f);
 
-    GetContext().GetDirect2DDeviceContext()->DrawRectangle(
-                                                           command.rectangle.ToD2D1(),
-                                                           brushSupport.UseRawSolidColorBrush(command.color),
-                                                           command.strokeWidth,
-                                                           strokeSupport.UseRawStrokeStyle(command.strokeStyle)
-                                                          );
+    DrawRectangleLined(command.rectangle, brushSupport.UseRawSolidColorBrush(command.color), command.strokeWidth, command.strokeStyle);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -165,12 +160,7 @@ void ui::Renderer::DrawRectangleLinedBrush(DrawRectangleLinedBrushCommand const&
     Require(command.strokeWidth >= 0.0f);
     Require(command.brush != nullptr);
 
-    GetContext().GetDirect2DDeviceContext()->DrawRectangle(
-                                                           command.rectangle.ToD2D1(),
-                                                           command.brush->GetWrapped(),
-                                                           command.strokeWidth,
-                                                           strokeSupport.UseRawStrokeStyle(command.strokeStyle)
-                                                          );
+    DrawRectangleLined(command.rectangle, command.brush->GetWrapped(), command.strokeWidth, command.strokeStyle);
 }
 
 void ui::Renderer::DrawRectangleLinedRoundedColor(DrawRectangleLinedRoundedColorCommand const& command)
@@ -178,12 +168,7 @@ void ui::Renderer::DrawRectangleLinedRoundedColor(DrawRectangleLinedRoundedColor
     Require(std::isfinite(command.strokeWidth));
     Require(command.strokeWidth >= 0.0f);
 
-    GetContext().GetDirect2DDeviceContext()->DrawRoundedRectangle(
-                                                                  command.rectangle.ToD2D1(command.radius),
-                                                                  brushSupport.UseRawSolidColorBrush(command.color),
-                                                                  command.strokeWidth,
-                                                                  strokeSupport.UseRawStrokeStyle(command.strokeStyle)
-                                                                 );
+    DrawRectangleLinedRounded(command.rectangle, command.radius, brushSupport.UseRawSolidColorBrush(command.color), command.strokeWidth, command.strokeStyle);
 }
 
 // ReSharper disable once CppMemberFunctionMayBeConst
@@ -193,11 +178,57 @@ void ui::Renderer::DrawRectangleLinedRoundedBrush(DrawRectangleLinedRoundedBrush
     Require(command.strokeWidth >= 0.0f);
     Require(command.brush != nullptr);
 
+    DrawRectangleLinedRounded(command.rectangle, command.radius, command.brush->GetWrapped(), command.strokeWidth, command.strokeStyle);
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void ui::Renderer::DrawRectangleLined(
+    Rectangle const&  rectangle,
+    ID2D1Brush* const brush,
+    FLOAT const       strokeWidth,
+    StrokeStyle const strokeStyle)
+{
+    // Inset the rectangle by half the stroke width because Direct2D centers strokes on the geometry boundary.
+    FLOAT const halfStrokeWidth = strokeWidth * 0.5f;
+
+    D2D1_RECT_F strokeRectangle = rectangle.ToD2D1();
+    strokeRectangle.left        += halfStrokeWidth;
+    strokeRectangle.top         += halfStrokeWidth;
+    strokeRectangle.right       -= halfStrokeWidth;
+    strokeRectangle.bottom      -= halfStrokeWidth;
+
+    GetContext().GetDirect2DDeviceContext()->DrawRectangle(
+                                                           strokeRectangle,
+                                                           brush,
+                                                           strokeWidth,
+                                                           strokeSupport.UseRawStrokeStyle(strokeStyle)
+                                                          );
+}
+
+// ReSharper disable once CppMemberFunctionMayBeConst
+void ui::Renderer::DrawRectangleLinedRounded(
+    Rectangle const&  rectangle,
+    Radius const&     radius,
+    ID2D1Brush* const brush,
+    FLOAT const       strokeWidth,
+    StrokeStyle const strokeStyle)
+{
+    // Inset the rectangle and corner radii by half the stroke width because Direct2D centers strokes on the geometry boundary.
+    FLOAT const halfStrokeWidth = strokeWidth * 0.5f;
+
+    D2D1_ROUNDED_RECT strokeRoundedRectangle = rectangle.ToD2D1(radius);
+    strokeRoundedRectangle.rect.left         += halfStrokeWidth;
+    strokeRoundedRectangle.rect.top          += halfStrokeWidth;
+    strokeRoundedRectangle.rect.right        -= halfStrokeWidth;
+    strokeRoundedRectangle.rect.bottom       -= halfStrokeWidth;
+    strokeRoundedRectangle.radiusX           = std::max(0.0f, strokeRoundedRectangle.radiusX - halfStrokeWidth);
+    strokeRoundedRectangle.radiusY           = std::max(0.0f, strokeRoundedRectangle.radiusY - halfStrokeWidth);
+
     GetContext().GetDirect2DDeviceContext()->DrawRoundedRectangle(
-                                                                  command.rectangle.ToD2D1(command.radius),
-                                                                  command.brush->GetWrapped(),
-                                                                  command.strokeWidth,
-                                                                  strokeSupport.UseRawStrokeStyle(command.strokeStyle)
+                                                                  strokeRoundedRectangle,
+                                                                  brush,
+                                                                  strokeWidth,
+                                                                  strokeSupport.UseRawStrokeStyle(strokeStyle)
                                                                  );
 }
 
